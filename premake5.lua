@@ -22,11 +22,21 @@ workspace "DropletEngine"
         defines { "NDEBUG" }
         optimize "On"
 
+    -- Paths
+
     rootPath = path.getdirectory(_SCRIPT)
-    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/target"
-    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/obj"
+    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target"
+    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj"
+    includePath = path.getdirectory(_SCRIPT) .. "/include"
+    srcPath = path.getdirectory(_SCRIPT) .. "/src"
+    externalPath = path.getdirectory(_SCRIPT) .. "/External"
     projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 include "Premake/Engine"
---include "Premake/External"
 --include "Premake/Test"
+
+filter "system:windows"
+    include "Premake/External/Windows/GoogleTest"
+
+filter "system:linux"
+    include "Premake/External/Linux/GoogleTest"
