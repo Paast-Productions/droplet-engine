@@ -1,7 +1,7 @@
-require "Premake/clean"
-require "Premake/helper"
+require "Premake/Utilities/Clean"
+require "Premake/Utilities/Helper"
 
-workspace "HexEngine"
+workspace "DropletEngine"
 
     location "Generated"
     cppdialect "C++23"
@@ -21,15 +21,12 @@ workspace "HexEngine"
         runtime "Release"
         defines { "NDEBUG" }
         optimize "On"
-    -- 'Temporary' solution to valgrind not being able to read AVX512 instructions
-    filter { "system:linux" }
-        buildoptions{"-mavx2"}
-
 
     rootPath = path.getdirectory(_SCRIPT)
     targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/target"
     objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/obj"
     projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
-include "External"
-include "Test"
+include "Premake/Engine"
+--include "Premake/External"
+--include "Premake/Test"
