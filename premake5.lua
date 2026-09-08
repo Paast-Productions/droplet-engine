@@ -23,10 +23,15 @@ workspace "DropletEngine"
         optimize "On"
 
     rootPath = path.getdirectory(_SCRIPT)
-    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/target"
-    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/obj"
+    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target"
+    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj"
     projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 include "Premake/Engine"
---include "Premake/External"
+
+filter "system:windows"
+    include "Premake/External/Windows/GoogleTest"
+
+filter "system:linux"
+    include "Premake/External/Linux/GoogleTest"
 --include "Premake/Test"
