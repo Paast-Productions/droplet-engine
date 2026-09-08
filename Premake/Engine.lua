@@ -13,8 +13,13 @@ project "Engine"
         targetBuildPath .. "/External/include/"
     }
 
-    libdirs {targetBuildPath .. "/External/lib/", targetBuildPath .. "/External/lib64/"}
-    --dependson{"SDL3", "ImGui"}
+    libdirs
+    {
+        targetBuildPath .. "/External/lib/",
+        targetBuildPath .. "/External/lib64/"
+    }
+
+    dependson{"GoogleTest"}
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {
