@@ -11,8 +11,8 @@ project "Engine"
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {
-        AddQuotation(rootPath .. "/include/**.hpp"),
-        AddQuotation(rootPath .. "/src/**.cpp"),
+        AddQuotation(includePath .. "/**.hpp"),
+        AddQuotation(srcPath .. "/**.cpp"),
     }
 
     --pchheader "%{prj.location}/EnginePCH.hpp"

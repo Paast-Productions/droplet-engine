@@ -2,7 +2,7 @@ project "GoogleTest"
     kind "StaticLib"
     location(projectsPath)
 
-    moduleDirectory = AddQuotation(path.getdirectory(_SCRIPT) .. "/%{prj.name}")
+    local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
