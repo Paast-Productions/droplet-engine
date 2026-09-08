@@ -1,0 +1,21 @@
+*
+
+# Required files
+!.gitignore
+!LICENSE
+!README.md
+
+# Source
+!/include
+!/include/**
+!/src
+!/src/**
+
+# Premake
+!premake5.lua
+!/Premake
+!/Premake/**
+
+# External
+!/External
+!/External/**
