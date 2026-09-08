@@ -33,10 +33,12 @@ workspace "DropletEngine"
     projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 include "Premake/Engine"
---include "Premake/Test"
+include "Premake/Test"
 
-filter "system:windows"
+if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
+end
 
-filter "system:linux"
+if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/GoogleTest"
+end

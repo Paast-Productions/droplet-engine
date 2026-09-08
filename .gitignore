@@ -19,3 +19,7 @@
 # External
 !/External
 !/External/**
+
+# Test
+!/Test
+!/Test/**
