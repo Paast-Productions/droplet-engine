@@ -8,8 +8,8 @@ project "Engine"
 
     includedirs
     {
-        rootPath .. "/include",
-        rootPath .. "/include/**",
+        "../include",
+        "../include/**",
         targetBuildPath .. "/External/include/"
     }
 
@@ -18,8 +18,8 @@ project "Engine"
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {
-        rootPath .. "/include/**.hpp",
-        rootPath .. "/src/**.cpp"
+        "../include/**.hpp",
+        "../src/**.cpp"
     }
 
     --pchheader "%{prj.location}/EnginePCH.hpp"
