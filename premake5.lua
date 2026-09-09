@@ -32,8 +32,14 @@ workspace "DropletEngine"
     externalPath = path.getdirectory(_SCRIPT) .. "/External"
     projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
+--[[ SOURCE ]]--
+
 include "Premake/Engine"
 include "Premake/Test"
+
+--[[ EXTERNAL ]]--
+
+include "Premake/External/ImGui"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
