@@ -1,4 +1,4 @@
-project "SDL3"
+project "Assimp"
     kind "StaticLib"
     location(projectsPath)
 
@@ -6,11 +6,12 @@ project "SDL3"
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
-
+    
     kind "Makefile"
+
     buildcommands
     {
         "{MKDIR} %{prj.objdir}",
-        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DSDL_STATIC=ON -DSDL_SHARED=OFF",
+        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir}",
         "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
     }

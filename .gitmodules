@@ -5,5 +5,5 @@
 	path = External/ImGui
 	url = https://github.com/ocornut/imgui.git
 [submodule "External/Assimp"]
-	path = External/Assimp
-	url = git@github.com:assimp/assimp.git
+    path = External/Assimp
+    url = git@github.com:assimp/assimp.git
