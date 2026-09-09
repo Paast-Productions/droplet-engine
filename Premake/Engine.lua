@@ -19,7 +19,11 @@ project "Engine"
         targetBuildPath .. "/External/lib64/"
     }
 
-    dependson{"GoogleTest"}
+    dependson
+    {
+        "GoogleTest",
+        "ImGui"
+    }
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {

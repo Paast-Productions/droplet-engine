@@ -8,17 +8,18 @@ project "ImGui"
     targetdir(targetBuildPath .. "/External/lib/")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    --dependson("SDL3")
-
     files
     {
         rootPath .. "/External/ImGui/imgui*.cpp",
         rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.cpp",
         rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.cpp"
     }
-
+    
+    local vkPath = os.getenv('VULKAN_SDK')
+    
     includedirs
     {
+        vkPath .. "/Include/",
         rootPath .. "/External/ImGui/",
         rootPath .. "/External/ImGui/backends/",
         targetBuildPath .. "/External/include/"
