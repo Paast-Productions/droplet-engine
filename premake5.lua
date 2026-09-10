@@ -45,6 +45,7 @@ include "Premake/External/ImGui"
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
     include "Premake/External/Windows/Assimp"
+    include "Premake/External/Windows/Dalia"
     include "Premake/External/Windows/Gli"
     include "Premake/External/Windows/Jolt"
 end
