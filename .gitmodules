@@ -10,3 +10,6 @@
 [submodule "External/Jolt"]
 	path = External/Jolt
 	url = git@github.com:jrouwe/JoltPhysics.git
+[submodule "External/Sol2"]
+	path = External/Sol2
+	url = git@github.com:ThePhD/sol2.git
