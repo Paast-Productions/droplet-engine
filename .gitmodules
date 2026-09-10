@@ -13,3 +13,6 @@
 [submodule "External/Sol2"]
 	path = External/Sol2
 	url = git@github.com:ThePhD/sol2.git
+[submodule "External/Lua"]
+	path = External/Lua
+	url = git@github.com:walterschell/Lua.git
