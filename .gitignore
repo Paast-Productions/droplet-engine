@@ -17,8 +17,8 @@
 !/Premake/**
 
 # External
-!/External/ImGui
-!/External/GoogleTest
+!/External
+!/External/**
 
 # Test
 !/Test
