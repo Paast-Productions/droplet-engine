@@ -1,4 +1,4 @@
-project "Sol2"
+project "Lua"
     kind "StaticLib"
     location(projectsPath)
 
@@ -12,12 +12,12 @@ project "Sol2"
     filter "configurations:release"
         prebuildcommands{
             "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. AddQuotation(moduleDirectory) .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded'",
+            "cmake -S " .. AddQuotation(moduleDirectory) .. " -B %{prj.objdir} -DLUA_BUILD_AS_CXX=ON -DLUA_ENABLE_SHARED=OFF -DLUA_ENABLE_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded'",
             "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
         }
     filter "configurations:debug"
         prebuildcommands{
             "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. AddQuotation(moduleDirectory) .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug'",
+            "cmake -S " .. AddQuotation(moduleDirectory) .. " -B %{prj.objdir} -DLUA_BUILD_AS_CXX=ON -DLUA_ENABLE_SHARED=OFF -DLUA_ENABLE_TESTING=OFF -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug'",
             "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
         }
