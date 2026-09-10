@@ -5,6 +5,7 @@ workspace "DropletEngine"
 
     location "Generated"
     cppdialect "C++23"
+	startproject "Engine"
     warnings "Extra"
     fatalwarnings { "All" }
     configurations { "debug", "release" }
