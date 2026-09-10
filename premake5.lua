@@ -46,9 +46,13 @@ if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
     include "Premake/External/Windows/Assimp"
     include "Premake/External/Windows/Dalia"
+    include "Premake/External/Windows/Gli"
+    include "Premake/External/Windows/Jolt"
 end
 
 if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/GoogleTest"
     include "Premake/External/Linux/Assimp"
+    include "Premake/External/Linux/Gli"
+    include "Premake/External/Linux/Jolt"
 end
