@@ -7,3 +7,6 @@
 [submodule "External/Assimp"]
     path = External/Assimp
     url = git@github.com:assimp/assimp.git
+[submodule "External/Dalia"]
+	path = External/Dalia
+	url = git@github.com:amHumminG/dalia.git
