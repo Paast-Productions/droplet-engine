@@ -1,6 +1,7 @@
 project "Sol2"
     kind "StaticLib"
     location(projectsPath)
+    dependson { "Lua" }
 
     local moduleDirectory = externalPath .. "/%{prj.name}"
 

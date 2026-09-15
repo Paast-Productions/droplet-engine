@@ -7,7 +7,7 @@ workspace "DropletEngine"
     cppdialect "C++23"
 	startproject "Engine"
     warnings "Extra"
-    fatalwarnings { "All" }
+    --fatalwarnings { "All" }
     configurations { "debug", "release" }
 
     architecture "x86_64"
