@@ -18,10 +18,11 @@ private:
 	sol::state_view m_luaState;
 	sol::environment m_environment;
 
-	std::string m_sriptPath;
+	std::string m_scriptPath;
 
 	sol::protected_function m_onStart;
 	sol::protected_function m_onUpdate;
+
 
 	bool m_loaded = false;
 };
