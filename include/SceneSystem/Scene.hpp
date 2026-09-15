@@ -5,7 +5,7 @@
 
 class SceneNode;
 
-class scene
+class Scene
 {
 public:
     explicit Scene(const std::string& p_name);

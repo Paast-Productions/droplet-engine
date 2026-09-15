@@ -15,7 +15,7 @@ public:
 
     std::shared_ptr<SceneNode> GetParent() const;
 
-    const std::vector<std::shared_ptr<SceneNode>>& GetChildren() const;
+    const std::vector<std::shared_ptr<SceneNode>>& GetChildren() const; 
 
     const std::string& GetName() const;
 

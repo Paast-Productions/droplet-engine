@@ -15,6 +15,9 @@ public:
     bool LoadScene(const std::string& p_name);
     void UnloadScene(const std::string& p_name);
 
+    bool ActivateScene(const std::string& p_name);
+    bool DeactivateScene(const std::string& p_name);
+
     bool SetActiveScene(const std::string& p_name);
 
     std::shared_ptr<Scene> GetScene(const std::string& p_name) const;
@@ -26,6 +29,5 @@ public:
 
 private:
     std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
-
-    std::shared_ptr<Scene> m_activeScene;
+    std::vector<std::weak_ptr<Scene>> m_activeScenes;
 };
