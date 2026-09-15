@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../External/Sol2/include/sol/sol.hpp"
-#include "string"
+#include <sol/sol.hpp>
+#include <string>
 
 class ScriptInstance
 {
