@@ -6,10 +6,14 @@
 class ScriptInstance
 {
 public:
-	ScriptInstance(sol::state_view p_luaState, const std::string& p_scriptPath);
+	ScriptInstance(const sol::state_view& p_luaState, const std::string& p_scriptPath);
 	~ScriptInstance();
 
-	bool Load();
+	template<typename... Args>
+	sol::protected_function_result call(
+		const std::string& scriptPath, 
+		std::string_view functionName, 
+		Args&&... args);
 
 	void onStart();
 	void onUpdate(float deltatime);
@@ -22,7 +26,6 @@ private:
 
 	sol::protected_function m_onStart;
 	sol::protected_function m_onUpdate;
-
 
 	bool m_loaded = false;
 };
