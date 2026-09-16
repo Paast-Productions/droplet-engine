@@ -1,5 +1,9 @@
 #include "ScriptSystem.hpp"
 
+ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler.GetState())
+{
+}
+
 void ScriptSystem::Initialize()
 {
 	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());

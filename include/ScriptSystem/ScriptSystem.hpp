@@ -7,7 +7,7 @@
 class ScriptSystem
 {
 public:
-	ScriptSystem() = default;
+	ScriptSystem();
 	~ScriptSystem() = default;
 
 	void Initialize();

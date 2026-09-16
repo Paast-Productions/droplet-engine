@@ -11,7 +11,7 @@ class ScriptManager
 {
 public:
 
-	ScriptManager();
+	ScriptManager(sol::state_view p_luaState);
 	~ScriptManager() = default;
 
 	void Update(float deltaTime);
@@ -35,9 +35,7 @@ public:
 private:
 	LuaStateHandler m_StateHandler;
 
-
-
-	bool m_Initialize();
+	bool m_Initialize(); 
 	void m_Shutdown();
 
 	bool m_LoadFile(const std::string& scriptFile);
