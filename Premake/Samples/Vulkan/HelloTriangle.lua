@@ -4,20 +4,22 @@ project "Vulkan-HelloTriangle"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(targetBuildPath .. "/%{prj.name}")
+    debugdir(targetBuildPath .. "/Samples/Vulkan/")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        rootPath .. "/Samples/Vulkan/HelloTriangle.cpp"
+        rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",
+        rootPath .. "/Samples/Vulkan/**"
+    }
+        
+    local vkPath = os.getenv("VULKAN_SDK")
+    
+    libdirs {
+        targetBuildPath .. "/Engine",
+        vkPath .. "/Lib"
     }
 
-    libdirs {
-        targetBuildPath .. "/Library"
-    }
-    
-    
-    local vkPath = os.getenv("VULKAN_SDK")
 
     includedirs {
         rootPath .. "/include",
@@ -32,5 +34,6 @@ project "Vulkan-HelloTriangle"
 
     links {
         "Engine",
-        "ImGui"
+        "ImGui",
+        AddQuotation("SDL3")
     }
