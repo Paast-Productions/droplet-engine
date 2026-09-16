@@ -35,27 +35,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return false;
 	}
 
-
-	sol::protected_function scriptFunction = loadResult;
-
-	sol::protected_function_result scriptFunctionResult = scriptFunction();
-
-	if (!scriptFunctionResult.valid())
-	{
-		sol::error error = scriptFunctionResult;
-		//Yet again send the error to the logger
-
-		return false;
-	}
-
-	sol::object scriptObject = scriptFunctionResult.get<sol::object>();
-	if (!scriptObject.is<sol::table>())
-	{
-		//Yet another error the script did not return a table
-		return false;
-	}
-
-	m_loadedScripts.emplace(p_scriptFile, scriptObject.as<sol::table>());
+	m_loadedScripts.emplace(p_scriptFile, loadResult);
 
 	return true;
 }
@@ -84,7 +64,7 @@ void ScriptManager::UnloadScript(const std::string& scriptFile)
 {
 	if (IsLoaded(scriptFile))
 	{
-
+		// check if any instances uses this particular script?
 	}
 }
 
@@ -102,9 +82,9 @@ bool ScriptManager::ReloadScript(const std::string& scriptFile)
 
 
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
-sol::table* ScriptManager::GetScript(const std::string& p_scriptFile)
+sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
 {
-	std::unordered_map<std::string, sol::table>::iterator it = m_loadedScripts.find(p_scriptFile);
+	std::unordered_map<std::string, sol::load_result>::iterator it = m_loadedScripts.find(p_scriptFile);
 	
 	if (it == m_loadedScripts.end())
 	{
