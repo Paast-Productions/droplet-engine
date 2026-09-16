@@ -2,17 +2,13 @@
 
 #include <memory>
 #include <string>
-#include "Node.hpp"
 
 class Node;
 
 class Scene
 {
 public:
-    explicit Scene(const std::string& p_name)
-        : m_name(p_name), m_root(std::make_shared<Node>("Root"))
-    {
-    }
+    explicit Scene(const std::string& p_name);
     virtual ~Scene() = default;
 
     virtual void Load();
@@ -37,4 +33,4 @@ private:
     bool m_loaded = false;
     bool m_active = false;
 
-};
+};    

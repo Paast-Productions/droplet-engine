@@ -1,4 +1,11 @@
 #include "Node.hpp"
+#include <algorithm>
+#include <glm/gtc/matrix_transform.hpp>
+
+Node::Node(const std::string& p_name)
+    : m_name(p_name)
+{
+}
 
 void Node::Update(float p_deltaTime)
 {
@@ -7,10 +14,21 @@ void Node::Update(float p_deltaTime)
         return;
     }
 
+    //update transforms :=
+
     for (const auto& child : m_children)
     {
         child->Update(p_deltaTime);
     }
+}
+void Node::Render()
+{
+    if (!m_active)
+    {
+        return;
+    }
+
+    return;
 }
 
 std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
@@ -39,6 +57,16 @@ void Node::RemoveChild(std::shared_ptr<Node> p_child)
     (*it)->m_parent.reset();
 
     m_children.erase(it);
+}
+
+const std::string& Node::GetName() const
+{
+    return m_name;
+}
+
+const std::vector<std::shared_ptr<Node>>& Node::GetChildren() const
+{
+    return m_children;
 }
 
 void Node::SetPosition(const glm::vec3& p_position)
