@@ -26,7 +26,7 @@ public:
 	bool IsLoaded(const std::string& p_scriptFile);
 	bool ReloadScript(const std::string& p_scriptFile);
 	
-	sol::table& GetScript(const std::string& p_scriptFile);
+	sol::table* GetScript(const std::string& p_scriptFile);
 
 	
 private:

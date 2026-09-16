@@ -82,6 +82,10 @@ void ScriptManager::DestroyScript(const std::string& p_scriptFile)
 
 void ScriptManager::UnloadScript(const std::string& scriptFile)
 {
+	if (IsLoaded(scriptFile))
+	{
+
+	}
 }
 
 
@@ -96,12 +100,18 @@ bool ScriptManager::ReloadScript(const std::string& scriptFile)
 	return false;
 }
 
-sol::table& ScriptManager::GetScript(const std::string& p_scriptFile)
-{
 
-	//fast dirty solution fix later
-	return m_loadedScripts.at(p_scriptFile);
-	// TODO: insert return statement here
+//Finds the script table for the parameter file, returns nullptr if the file isn't loaded
+sol::table* ScriptManager::GetScript(const std::string& p_scriptFile)
+{
+	std::unordered_map<std::string, sol::table>::iterator it = m_loadedScripts.find(p_scriptFile);
+	
+	if (it == m_loadedScripts.end())
+	{
+		return nullptr;
+	}
+	return &it->second;
+	
 }
 
 bool ScriptManager::m_Initialize()
