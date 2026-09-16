@@ -2,6 +2,7 @@
 
 #include <string>
 #include "LuaStateHandler.hpp"
+#include "ScriptInstance.hpp"
 
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
@@ -13,13 +14,15 @@ public:
 	ScriptManager();
 	~ScriptManager() = default;
 
-	//initialize the lua setting
+	void Update(float deltaTime);
+	void Shutdown();
+
+	ScriptInstance CreateScript();
+	void DestroyScript();
 	
 	bool LoadScript();
-
 	void UnloadScript(const std::string& scriptFile);
 	bool IsLoaded(const std::string& scriptFile);
-
 	bool ReloadScript(const std::string& scriptFile);
 
 	sol::table& getScript(const std::string& scriptFile);
