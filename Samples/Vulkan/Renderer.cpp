@@ -412,7 +412,7 @@ void Renderer::createGraphicsPipeline()
 {
 	std::cout << std::filesystem::current_path().generic_string() << std::endl;
 
-	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../../Samples/Vulkan/slang.spv"));
+	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("slang.spv"));
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
 	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eFragment, .module = shaderModule, .pName = "fragMain" };

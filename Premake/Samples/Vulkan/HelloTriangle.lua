@@ -4,7 +4,7 @@ project "Vulkan-HelloTriangle"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(targetBuildPath .. "/Samples/Vulkan/")
+    debugdir(rootPath .. "/Samples/Vulkan/")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
