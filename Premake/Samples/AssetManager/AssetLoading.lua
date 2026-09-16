@@ -1,4 +1,4 @@
-project "Vulkan"
+project "AssetManager-AssetLoading"
 
     kind "ConsoleApp"
     location(projectPath)
@@ -9,28 +9,27 @@ project "Vulkan"
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        "./main.cpp"
+        rootPath .. "/Samples/AssetManager/AssetLoading.cpp"
     }
 
     libdirs {
-        targetBuildPath .. "/Library"
+        targetBuildPath .. "/Engine",
+        targetBuildPath .. "/External/lib"
     }
-    
-    
-    local vkPath = os.getenv("VULKAN_SDK")
 
     includedirs {
         rootPath .. "/include",
-        vkPath .. "/include",
         targetBuildPath .. "/External/include"
     }
 
     dependson {
         "Engine",
-        "ImGui"
+        "Assimp",
+        "json"
     }
 
     links {
         "Engine",
-        "ImGui"
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd")
     }

@@ -23,13 +23,16 @@ project "Engine"
     {
         "GoogleTest",
         "ImGui",
-	"Jolt"
+        "Jolt",
+        "json",
+        "Assimp"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {
         "../include/**.hpp",
-        "../src/**.cpp"
+        "../src/**.cpp",
+        "../src/**.h"
     }
 
     --pchheader "%{prj.location}/EnginePCH.hpp"

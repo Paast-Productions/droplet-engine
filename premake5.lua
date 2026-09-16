@@ -40,7 +40,7 @@ include "Premake/Test"
 
 -- [[ SAMPLES ]] --
 
-include "Premake/Samples/Vulkan/Vulkan"
+include "Premake/Samples/AssetManager/AssetLoading"
 
 -- [[ EXTERNAL ]] --
 
