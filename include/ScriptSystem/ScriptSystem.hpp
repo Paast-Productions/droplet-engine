@@ -11,7 +11,7 @@ public:
 	~ScriptSystem() = default;
 
 	void Initialize();
-	void Update(float deltaTime);
+	void Update(float p_deltaTime);
 	void Shutdown();
 
 	void CreateScript(const std::string& p_scriptFile);

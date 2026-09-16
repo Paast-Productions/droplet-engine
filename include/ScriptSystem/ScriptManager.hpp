@@ -16,7 +16,7 @@ public:
 	~ScriptManager() = default;
 
 	void Update(float p_deltaTime);
-	void Shutdown();
+	
 
 	ScriptInstance* CreateScript(const std::string& p_scriptFile); // add entity as parameter when we have entitites
 	void DestroyScript(const std::string& p_scriptFile);
@@ -24,14 +24,15 @@ public:
 	bool LoadScript(const std::string& p_scriptFile);
 	void UnloadScript(const std::string& p_scriptFile);
 	bool IsLoaded(const std::string& p_scriptFile);
-	bool ReloadScript(const std::string& scriptFile);
+	bool ReloadScript(const std::string& p_scriptFile);
 	
 	sol::table& GetScript(const std::string& p_scriptFile);
 
 	
 private:
 	LuaStateHandler& m_StateHandler;
-
+	std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
+	std::unordered_map<std::string, sol::table> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
 
