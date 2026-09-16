@@ -18,6 +18,11 @@ ScriptInstance* ScriptManager::CreateScript(const std::string& p_scriptFile)
 	return nullptr;
 }
 
+void ScriptManager::DestroyScript(const std::string& p_scriptFile)
+{
+
+}
+
 void ScriptManager::UnloadScript(const std::string& scriptFile)
 {
 }
@@ -32,7 +37,7 @@ bool ScriptManager::ReloadScript(const std::string& scriptFile)
 	return false;
 }
 
-sol::table& ScriptManager::getScript(const std::string& scriptFile)
+sol::table& ScriptManager::GetScript(const std::string& scriptFile)
 {
 	// TODO: insert return statement here
 }

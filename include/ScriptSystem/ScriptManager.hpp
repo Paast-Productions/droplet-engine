@@ -12,7 +12,7 @@ class ScriptManager
 {
 public:
 
-	ScriptManager(sol::state_view p_luaState);
+	ScriptManager(LuaStateHandler& p_luaState);
 	~ScriptManager() = default;
 
 	void Update(float p_deltaTime);
@@ -26,18 +26,18 @@ public:
 	bool IsLoaded(const std::string& p_scriptFile);
 	bool ReloadScript(const std::string& scriptFile);
 	
-	sol::table& getScript(const std::string& p_scriptFile);
+	sol::table& GetScript(const std::string& p_scriptFile);
 
 	
 private:
-	LuaStateHandler m_StateHandler;
+	LuaStateHandler& m_StateHandler;
 
 	bool m_Initialize(); 
 	void m_Shutdown();
 
 	bool m_LoadFile(const std::string& p_scriptFile);
 
-	bool m_handleError(const std::string& p_scriptFile, const sol::error& p_error);
+	bool m_HandleError(const std::string& p_scriptFile, const sol::error& p_error);
 
 
 	

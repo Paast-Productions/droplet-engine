@@ -1,6 +1,6 @@
 #include "ScriptSystem.hpp"
 
-ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler.GetState())
+ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 {
 }
 
@@ -19,14 +19,14 @@ void ScriptSystem::Shutdown()
 	m_scriptManager.Shutdown();
 }
 
-void ScriptSystem::CreateScript()
+void ScriptSystem::CreateScript(const std::string& p_scriptFile)
 {
-	m_scriptManager.CreateScript();
+	m_scriptManager.CreateScript(p_scriptFile);
 }
 
-void ScriptSystem::DestroyScript()
+void ScriptSystem::DestroyScript(const std::string& p_scriptFile)
 {
-	m_scriptManager.DestroyScript();
+	m_scriptManager.DestroyScript(p_scriptFile);
 }
 
 

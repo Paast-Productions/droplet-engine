@@ -14,8 +14,8 @@ public:
 	void Update(float deltaTime);
 	void Shutdown();
 
-	void CreateScript();
-	void DestroyScript();
+	void CreateScript(const std::string& p_scriptFile);
+	void DestroyScript(const std::string& p_scriptFile);
 
 	//void SetScriptDirectory(char* filePath);
 
