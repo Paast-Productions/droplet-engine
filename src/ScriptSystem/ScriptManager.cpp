@@ -51,11 +51,14 @@ ScriptInstance* ScriptManager::CreateScript(TestNode* testNode, const std::strin
 			return nullptr;
 		}
 	}
-	else
+
+	sol::load_result* loadResult = GetLoadedScript(p_scriptFile);
+	if (loadResult == nullptr)
 	{
-
+		//Send to logging manager
+		return nullptr;
 	}
-
+	return nullptr;
 }
 
 void ScriptManager::DestroyScript(const std::string& p_scriptFile)
