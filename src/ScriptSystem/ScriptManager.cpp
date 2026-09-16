@@ -39,7 +39,7 @@ bool ScriptManager::ReloadScript(const std::string& scriptFile)
 
 sol::table& ScriptManager::GetScript(const std::string& scriptFile)
 {
-	// TODO: insert return statement here
+
 }
 
 bool ScriptManager::m_Initialize()
