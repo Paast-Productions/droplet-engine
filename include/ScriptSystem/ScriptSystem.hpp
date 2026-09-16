@@ -1,16 +1,23 @@
 #pragma once
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
+
 class ScriptSystem
 {
 public:
-	void Initiliaze();
-	void Shutdown();
+	ScriptSystem() = default;
+	~ScriptSystem() = default;
+
+	void Initialize();
 	void Update(float deltaTime);
-	void SetScriptDirectory(char* filePath);
+	void Shutdown();
+
+	void CreateScript();
+	void DestroyScript();
+
+	//void SetScriptDirectory(char* filePath);
 
 private:
+	LuaStateHandler m_luaStateHandler;
 	ScriptManager m_scriptManager;
-	
-
 };
