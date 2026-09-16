@@ -45,6 +45,7 @@ include "Premake/Samples/Vulkan/Vulkan"
 -- [[ EXTERNAL ]] --
 
 include "Premake/External/ImGui"
+include "Premake/External/json"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
