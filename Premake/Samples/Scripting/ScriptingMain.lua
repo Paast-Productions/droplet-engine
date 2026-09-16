@@ -13,7 +13,8 @@ project "Scripting-Main"
     }
 
     libdirs {
-        targetBuildPath .. "/Library"
+        targetBuildPath .. "/Library",
+        targetBuildPath .. "/External/lib"
     }
     
     

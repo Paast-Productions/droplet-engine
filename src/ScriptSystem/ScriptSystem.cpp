@@ -19,11 +19,6 @@ void ScriptSystem::CreateScript(TestNode* testNode, const std::string& p_scriptF
 	// shut everything down... idk what else...
 }
 
-void ScriptSystem::CreateScript(const std::string& p_scriptFile)
-{
-	m_scriptManager.CreateScript(p_scriptFile);
-}
-
 void ScriptSystem::DestroyScript(const std::string& p_scriptFile)
 {
 	m_scriptManager.DestroyScript(p_scriptFile);
