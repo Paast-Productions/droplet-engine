@@ -14,7 +14,7 @@ public:
 	void Update(float p_deltaTime);
 	void Shutdown();
 
-	void CreateScript(const std::string& p_scriptFile);
+	void CreateScript(TestNode* testNode, const std::string& p_scriptFile);
 	void DestroyScript(const std::string& p_scriptFile);
 
 	//void SetScriptDirectory(char* filePath);

@@ -2,6 +2,7 @@
 
 #include <string>
 #include "LuaStateHandler.hpp"
+#include "TestNode.hpp"
 #include "ScriptInstance.hpp"
 #include <vector>
 
@@ -18,7 +19,7 @@ public:
 	void Update(float p_deltaTime);
 	
 
-	ScriptInstance* CreateScript(const std::string& p_scriptFile); // add entity as parameter when we have entitites
+	ScriptInstance* CreateScript(TestNode* testNode, const std::string& p_scriptFile); // add entity as parameter when we have entitites
 	void DestroyScript(const std::string& p_scriptFile);
 
 	bool LoadScript(const std::string& p_scriptFile);

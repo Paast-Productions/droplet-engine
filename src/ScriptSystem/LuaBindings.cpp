@@ -3,6 +3,7 @@
 
 void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
+	registerTestNode(p_luaState);
 	registerNode(p_luaState);
 	registerInput(p_luaState);
 	registerUI(p_luaState);

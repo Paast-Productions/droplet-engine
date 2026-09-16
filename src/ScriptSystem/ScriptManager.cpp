@@ -60,7 +60,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 	return true;
 }
 
-ScriptInstance* ScriptManager::CreateScript(const std::string& p_scriptFile)
+ScriptInstance* ScriptManager::CreateScript(TestNode* testNode, const std::string& p_scriptFile)
 {
 	return nullptr;
 	if (IsLoaded(p_scriptFile))
