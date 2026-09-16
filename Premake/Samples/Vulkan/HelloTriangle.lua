@@ -1,4 +1,4 @@
-project "Vulkan"
+project "Vulkan-HelloTriangle"
 
     kind "ConsoleApp"
     location(projectPath)
