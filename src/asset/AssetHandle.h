@@ -11,28 +11,6 @@ namespace engine
     template<typename T>
     class AssetHandle
     {
-    private:
-        GUID m_guid = 0;
-        AssetManager* m_assetManager = nullptr;
-
-        /// @brief Increments the reference of the asset the handle is referencing.
-        void AddRef()
-        {
-            if (IsValid())
-            {
-                m_assetManager->AddRef(m_guid);
-            }
-        }
-
-        /// @brief Decrements the reference count of the asset the handle is referencing.
-        void ReleaseRef()
-        {
-            if (IsValid())
-            {
-                m_assetManager->ReleaseRef(m_guid);
-            }
-        }
-        
     public:
         AssetHandle() = default;
         AssetHandle(GUID p_guid, AssetManager* p_assetManager)
@@ -109,6 +87,28 @@ namespace engine
             }
             
             return nullptr;
+        }
+        
+    private:
+        GUID m_guid = 0;
+        AssetManager* m_assetManager = nullptr;
+
+        /// @brief Increments the reference of the asset the handle is referencing.
+        void AddRef()
+        {
+            if (IsValid())
+            {
+                m_assetManager->AddRef(m_guid);
+            }
+        }
+
+        /// @brief Decrements the reference count of the asset the handle is referencing.
+        void ReleaseRef()
+        {
+            if (IsValid())
+            {
+                m_assetManager->ReleaseRef(m_guid);
+            }
         }
     };
     

@@ -12,9 +12,6 @@ namespace engine
     /// @brief Maps asset path strings to GUIDs
     class AssetCatalog
     {
-    private:
-        std::unordered_map<std::string, GUID> m_pathToGuid; // Maps paths to GUIDs
-    
     public:
         /// @brief Scans the provided directory recursively for .meta files to populate its internal map of GUIDs.
         /// @param p_directory The directory to be scanned.
@@ -24,5 +21,8 @@ namespace engine
         /// @param p_path The path to the asset.
         /// @return The globally unique identifier.
         GUID GetGUID(const std::string& p_path);
+        
+    private:
+        std::unordered_map<std::string, GUID> m_pathToGuid; // Maps paths to GUIDs
     };
 }
