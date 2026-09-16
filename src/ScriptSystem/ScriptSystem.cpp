@@ -11,3 +11,7 @@ void ScriptSystem::Shutdown()
 void ScriptSystem::Update(float deltaTime)
 {
 }
+
+void ScriptSystem::SetScriptDirectory(char* filePath)
+{
+}

@@ -2,6 +2,7 @@
 
 LuaStateHandler::LuaStateHandler()
 {
+	
 	m_luaState.open_libraries(
 		sol::lib::base,
 		sol::lib::math,
