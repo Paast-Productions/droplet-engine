@@ -9,14 +9,14 @@ void ScriptSystem::Initialize()
 	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
-void ScriptSystem::Update(float deltaTime)
+void ScriptSystem::Update(float p_deltaTime)
 {
-	m_scriptManager.Update(deltaTime);
+	m_scriptManager.Update(p_deltaTime);
 }
 
 void ScriptSystem::Shutdown()
 {
-	m_scriptManager.Shutdown();
+	// shut everything down... idk what else...
 }
 
 void ScriptSystem::CreateScript(const std::string& p_scriptFile)

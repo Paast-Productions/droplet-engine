@@ -26,13 +26,13 @@ public:
 	bool IsLoaded(const std::string& p_scriptFile);
 	bool ReloadScript(const std::string& p_scriptFile);
 	
-	sol::table& GetScript(const std::string& p_scriptFile);
+	sol::load_result* GetLoadedScript(const std::string& p_scriptFile);
 
 	
 private:
 	LuaStateHandler& m_StateHandler;
 	std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
-	std::unordered_map<std::string, sol::table> m_loadedScripts;
+	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
 
