@@ -42,10 +42,14 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 
 ScriptInstance* ScriptManager::CreateScript(const std::string& p_scriptFile)
 {
-	return nullptr;
+	
 	if (IsLoaded(p_scriptFile))
 	{
-		 
+		if (!LoadScript(p_scriptFile))
+		{
+			//The script was not loaded and failed to load
+			return nullptr;
+		}
 	}
 	else
 	{
