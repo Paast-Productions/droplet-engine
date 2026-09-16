@@ -1,6 +1,6 @@
 #include "ScriptManager.hpp"
 
-ScriptManager::ScriptManager()
+ScriptManager::ScriptManager() : m_StateHandler()
 {
 	if (!m_Initialize())
 	{
