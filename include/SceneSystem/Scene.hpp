@@ -2,13 +2,17 @@
 
 #include <memory>
 #include <string>
+#include "Node.hpp"
 
-class SceneNode;
+class Node;
 
 class Scene
 {
 public:
-    explicit Scene(const std::string& p_name);
+    explicit Scene(const std::string& p_name)
+        : m_name(p_name), m_root(std::make_shared<Node>("Root"))
+    {
+    }
     virtual ~Scene() = default;
 
     virtual void Load();
@@ -17,7 +21,7 @@ public:
     virtual void Update(float p_deltaTime);
     virtual void Render();
 
-	std::unique_ptr<SceneNode> GetRoot() const;
+	std::shared_ptr<Node> GetRoot() const;
 
     const std::string& GetName() const;
 
@@ -28,7 +32,7 @@ public:
 
 private:
     std::string m_name;
-    std::shared_ptr<SceneNode> m_root;
+    std::shared_ptr<Node> m_root;
 
     bool m_loaded = false;
     bool m_active = false;

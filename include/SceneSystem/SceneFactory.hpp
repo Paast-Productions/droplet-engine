@@ -8,6 +8,5 @@ class Scene;
 class SceneFactory
 {
 public:
-    static std::shared_ptr<Scene> CreateScene(
-        const std::string& p_name);
+    static std::shared_ptr<Scene> CreateScene(const std::string& p_name);
 };
