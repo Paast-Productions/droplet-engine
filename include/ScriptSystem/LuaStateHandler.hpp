@@ -7,7 +7,7 @@ class LuaStateHandler
 public:
 	LuaStateHandler();
 	~LuaStateHandler() = default;
-	
+
 	sol::state& GetState();
 
 private:

@@ -24,12 +24,19 @@ public:
 	void UnloadScript(const std::string& scriptFile);
 	bool IsLoaded(const std::string& scriptFile);
 	bool ReloadScript(const std::string& scriptFile);
+	
+	ScriptInstance* CreateScript(const std::string& p_scriptFile); // add entity as parameter when we have entitites
+	void DestroyScript(const std::string& p_scriptFile);
+
 
 	sol::table& getScript(const std::string& scriptFile);
 
 	
 private:
-	LuaStateHandler* m_StateHandler;
+	LuaStateHandler m_StateHandler;
+
+
+
 	bool m_Initialize();
 	void m_Shutdown();
 
