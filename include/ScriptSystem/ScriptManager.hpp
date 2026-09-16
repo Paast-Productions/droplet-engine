@@ -3,6 +3,7 @@
 #include <string>
 #include "LuaStateHandler.hpp"
 #include "ScriptInstance.hpp"
+#include <vector>
 
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
@@ -14,22 +15,18 @@ public:
 	ScriptManager(sol::state_view p_luaState);
 	~ScriptManager() = default;
 
-	void Update(float deltaTime);
+	void Update(float p_deltaTime);
 	void Shutdown();
 
-	ScriptInstance CreateScript();
-	void DestroyScript();
-	
-	bool LoadScript();
-	void UnloadScript(const std::string& scriptFile);
-	bool IsLoaded(const std::string& scriptFile);
-	bool ReloadScript(const std::string& scriptFile);
-	
 	ScriptInstance* CreateScript(const std::string& p_scriptFile); // add entity as parameter when we have entitites
 	void DestroyScript(const std::string& p_scriptFile);
 
-
-	sol::table& getScript(const std::string& scriptFile);
+	bool LoadScript(const std::string& p_scriptFile);
+	void UnloadScript(const std::string& p_scriptFile);
+	bool IsLoaded(const std::string& p_scriptFile);
+	bool ReloadScript(const std::string& scriptFile);
+	
+	sol::table& getScript(const std::string& p_scriptFile);
 
 	
 private:
@@ -38,9 +35,9 @@ private:
 	bool m_Initialize(); 
 	void m_Shutdown();
 
-	bool m_LoadFile(const std::string& scriptFile);
+	bool m_LoadFile(const std::string& p_scriptFile);
 
-	bool m_handleError(const std::string& scriptFile, const sol::error& error);
+	bool m_handleError(const std::string& p_scriptFile, const sol::error& p_error);
 
 
 	

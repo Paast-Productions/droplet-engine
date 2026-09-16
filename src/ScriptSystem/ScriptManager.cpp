@@ -1,6 +1,6 @@
 #include "ScriptManager.hpp"
 
-ScriptManager::ScriptManager() : m_StateHandler()
+ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
 	if (!m_Initialize())
 	{
@@ -8,9 +8,14 @@ ScriptManager::ScriptManager() : m_StateHandler()
 	}
 }
 
-bool ScriptManager::LoadScript()
+bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 {
 	return false;
+}
+
+ScriptInstance* ScriptManager::CreateScript(const std::string& p_scriptFile)
+{
+	return nullptr;
 }
 
 void ScriptManager::UnloadScript(const std::string& scriptFile)
