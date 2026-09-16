@@ -13,3 +13,7 @@ void ScriptSystem::Update(float deltaTime)
 {
 	m_scriptManager.Update(deltaTime);
 }
+
+void ScriptSystem::SetScriptDirectory(char* filePath)
+{
+}
