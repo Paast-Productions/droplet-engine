@@ -35,14 +35,13 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return false;
 	}
 
-	m_loadedScripts.emplace(p_scriptFile, loadResult);
+	//m_loadedScripts.emplace(p_scriptFile, loadResult);
 
 	return true;
 }
 
-ScriptInstance* ScriptManager::CreateScript(TestNode* testNode, const std::string& p_scriptFile)
+ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* testNode, const std::string& p_scriptFile)
 {
-	
 	if (IsLoaded(p_scriptFile))
 	{
 		if (!LoadScript(p_scriptFile))
@@ -55,10 +54,10 @@ ScriptInstance* ScriptManager::CreateScript(TestNode* testNode, const std::strin
 	{
 
 	}
-
+	return nullptr;
 }
 
-void ScriptManager::DestroyScript(const std::string& p_scriptFile)
+void ScriptManager::DestroyScript([[maybe_unused]] const std::string& p_scriptFile)
 {
 
 }
@@ -74,28 +73,29 @@ void ScriptManager::UnloadScript(const std::string& scriptFile)
 
 
 //Searches through the loadedscripts to see if a script is loaded, returns true if it is loaded
-bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
+bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 {
-	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
+	return 0; //m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
-bool ScriptManager::ReloadScript(const std::string& scriptFile)
+bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
 {
 	return false;
 }
 
 
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
-sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
+sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::string& p_scriptFile)
 {
-	std::unordered_map<std::string, sol::load_result>::iterator it = m_loadedScripts.find(p_scriptFile);
-	
-	if (it == m_loadedScripts.end())
-	{
-		return nullptr;
-	}
-	return &it->second;
-	
+	////std::unordered_map<std::string, sol::load_result>::iterator it = m_loadedScripts.find(p_scriptFile);
+	//
+	//if (it == m_loadedScripts.end())
+	//{
+	//	return nullptr;
+	//}
+	//return &it->second;
+	//
+	return nullptr;
 }
 
 bool ScriptManager::m_Initialize()

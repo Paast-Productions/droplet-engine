@@ -33,7 +33,7 @@ public:
 private:
 	LuaStateHandler& m_StateHandler;
 	std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
-	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
+	//std::unordered_map<std::string, sol::load_result> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
 

@@ -1,6 +1,4 @@
 ﻿#include <print>
-#include <sol/sol.hpp>
-#include "ScriptSystem/ScriptSystem.hpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {

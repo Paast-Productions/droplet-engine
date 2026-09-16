@@ -14,12 +14,12 @@ void ScriptSystem::Update(float p_deltaTime)
 	m_scriptManager.Update(p_deltaTime);
 }
 
-void ScriptSystem::CreateScript(TestNode* testNode, const std::string& p_scriptFile)
+void ScriptSystem::CreateScript([[maybe_unused]] TestNode* testNode, [[maybe_unused]] const std::string& p_scriptFile)
 {
 	// shut everything down... idk what else...
 }
 
-void ScriptSystem::DestroyScript(const std::string& p_scriptFile)
+void ScriptSystem::DestroyScript([[maybe_unused]] const std::string& p_scriptFile)
 {
 	m_scriptManager.DestroyScript(p_scriptFile);
 }
