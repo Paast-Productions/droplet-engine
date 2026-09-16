@@ -9,7 +9,7 @@ project "Vulkan"
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        "./main.cpp"
+        rootPath .. "/Samples/Vulkan/HelloTriangle.cpp"
     }
 
     libdirs {
