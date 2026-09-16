@@ -14,8 +14,28 @@ ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result
 
 void ScriptInstance::onStart()
 {
+	if (m_onStart.valid())
+	{
+		sol::protected_function_result result = m_onStart();
+
+		if (!result.valid())
+		{
+			sol::error err = result;
+			//Send to error logger when it exists
+		}
+	}
 }
 
 void ScriptInstance::onUpdate(float deltatime)
 {
+	if (m_onUpdate.valid())
+	{
+		sol::protected_function_result result = m_onUpdate(deltatime);
+
+		if (!result.valid())
+		{
+			sol::error err = result;
+			//Send to error logger when it exists
+		}
+	}
 }
