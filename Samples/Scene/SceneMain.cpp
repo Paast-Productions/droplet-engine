@@ -5,46 +5,7 @@
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
-
-// --------------------------------------------------
-// Test component
-// --------------------------------------------------
-
-class TestComponent : public Component
-{
-public:
-    void Initialize() override
-    {
-        std::cout << "TestComponent initialized.\n";
-        m_initialized = true;
-    }
-
-    void Update(float p_deltaTime) override
-    {
-        m_updateCount++;
-        m_lastDeltaTime = p_deltaTime;
-    }
-
-    bool IsInitialized() const
-    {
-        return m_initialized;
-    }
-
-    int GetUpdateCount() const
-    {
-        return m_updateCount;
-    }
-
-    float GetLastDeltaTime() const
-    {
-        return m_lastDeltaTime;
-    }
-
-private:
-    bool m_initialized = false;
-    int m_updateCount = 0;
-    float m_lastDeltaTime = 0.0f;
-};
+#include "SceneSystem/MeshComponent.hpp"
 
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
@@ -122,62 +83,62 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     enemy->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
 
-
     // --------------------------------------------------
-    // Component tests
-    // --------------------------------------------------
-
-    std::cout << "\n--- Component Tests ---\n";
-
-
-    // --------------------------------------------------
-    // Add component
+    // MeshComponent tests
     // --------------------------------------------------
 
-    std::cout << "\nAdding TestComponent to Player...\n";
+    std::cout << "\n--- MeshComponent Tests ---\n";
 
-    auto testComponent =
-        player->AddComponent<TestComponent>();
 
-    if (testComponent)
+    // --------------------------------------------------
+    // Add MeshComponent
+    // --------------------------------------------------
+
+    std::cout << "\nAdding MeshComponent to Player...\n";
+
+    auto meshComponent =
+        player->AddComponent<MeshComponent>(
+            "Assets/Models/Player.mesh");
+
+    if (meshComponent)
     {
-        std::cout << "TestComponent added successfully.\n";
+        std::cout << "MeshComponent added successfully.\n";
     }
     else
     {
-        std::cout << "Failed to add TestComponent.\n";
+        std::cout << "Failed to add MeshComponent.\n";
     }
 
 
     // --------------------------------------------------
-    // Test initialization
+    // Test mesh path
     // --------------------------------------------------
 
-    std::cout << "\nTesting initialization...\n";
+    std::cout << "\nTesting mesh path...\n";
 
-    std::cout << "Initialized: "
-        << testComponent->IsInitialized()
+    std::cout << "Mesh path: "
+        << meshComponent->GetMeshPath()
         << "\n";
 
 
     // --------------------------------------------------
-    // Test component owner
+    // Test owner
     // --------------------------------------------------
 
-    std::cout << "\nTesting component owner...\n";
+    std::cout << "\nTesting MeshComponent owner...\n";
 
-    auto componentOwner =
-        testComponent->GetOwner();
+    auto meshOwner =
+        meshComponent->GetOwner();
 
-    if (componentOwner)
+    if (meshOwner)
     {
-        std::cout << "Component owner: "
-            << componentOwner->GetName()
+        std::cout << "Mesh owner: "
+            << meshOwner->GetName()
             << "\n";
     }
     else
     {
-        std::cout << "Component has no owner!\n";
+        std::cout << "MeshComponent has no owner!\n";
     }
 
 
@@ -185,49 +146,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // Test GetComponent
     // --------------------------------------------------
 
-    std::cout << "\nTesting GetComponent...\n";
+    std::cout << "\nTesting GetComponent<MeshComponent>...\n";
 
-    auto retrievedComponent =
-        player->GetComponent<TestComponent>();
+    auto retrievedMesh =
+        player->GetComponent<MeshComponent>();
 
-    if (retrievedComponent)
+    if (retrievedMesh)
     {
-        std::cout << "Component retrieved successfully.\n";
+        std::cout << "MeshComponent retrieved successfully.\n";
     }
     else
     {
-        std::cout << "Failed to retrieve component.\n";
+        std::cout << "Failed to retrieve MeshComponent.\n";
     }
-
-
-    // --------------------------------------------------
-    // Test component update
-    // --------------------------------------------------
-
-    std::cout << "\nTesting component update...\n";
-
-    sceneManager.Update(0.016f);
-
-    std::cout << "Update count: "
-        << testComponent->GetUpdateCount()
-        << "\n";
-
-    std::cout << "Last delta time: "
-        << testComponent->GetLastDeltaTime()
-        << "\n";
 
 
     // --------------------------------------------------
     // Test component removal
     // --------------------------------------------------
 
-    std::cout << "\nRemoving TestComponent...\n";
+    std::cout << "\nRemoving MeshComponent...\n";
 
-    bool removed =
-        player->RemoveComponent<TestComponent>();
+    bool meshRemoved =
+        player->RemoveComponent<MeshComponent>();
 
-    std::cout << "Component removed: "
-        << removed
+    std::cout << "MeshComponent removed: "
+        << meshRemoved
         << "\n";
 
 
@@ -235,25 +179,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // Verify removal
     // --------------------------------------------------
 
-    auto componentAfterRemoval =
-        player->GetComponent<TestComponent>();
+    auto meshAfterRemoval =
+        player->GetComponent<MeshComponent>();
 
-    if (!componentAfterRemoval)
+    if (!meshAfterRemoval)
     {
-        std::cout << "Component successfully removed.\n";
+        std::cout << "MeshComponent successfully removed.\n";
     }
     else
     {
-        std::cout << "Component still exists!\n";
+        std::cout << "MeshComponent still exists!\n";
     }
-
 
     // --------------------------------------------------
     // Update
     // --------------------------------------------------
 
     sceneManager.Update(0.016f);
-
 
     // --------------------------------------------------
     // Print positions

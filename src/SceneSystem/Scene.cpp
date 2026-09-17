@@ -1,8 +1,8 @@
 #include "Scene.hpp"
 #include "Node.hpp"
-
+#include <utility>
 Scene::Scene(std::string p_name)
-    : m_name(std::move(p_name))
+    : m_name(std::move(p_name)), m_root(std::make_shared<Node>("Root"))
 {
 }
 
