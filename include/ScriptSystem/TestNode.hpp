@@ -5,6 +5,9 @@
 class TestNode
 {
 public: 
+	TestNode() = default;
+	~TestNode() = default;
+
 	void setPosition(float x, float y, float z)
 	{
 		m_x = x;
