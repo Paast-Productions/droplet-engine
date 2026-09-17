@@ -7,6 +7,8 @@
 import vulkan_hpp;
 #endif
 
+#include <slang/slang.h>
+#include <slang/slang-com-ptr.h>
 #include <SDL3/SDL_vulkan.h>
 #include <SDL3/SDL.h>
 
@@ -16,6 +18,7 @@ public:
 	Renderer() = default;
 	~Renderer();
 	int		Initialize();
+	int		Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
 	void	drawFrame();
 	void	windowResize();
 
@@ -37,7 +40,9 @@ private:
 	void					createSwapChain();
 	void					createImageViews();
 	void					createGraphicsPipeline();
+	void					createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
 	vk::raii::ShaderModule  createShaderModule(const std::vector<char>& code) const;
+	vk::raii::ShaderModule  createShaderModule(const Slang::ComPtr<slang::IBlob>& code) const;
 	void					createCommandPool();
 	void					createCommandBuffers();
 	void					recordCommandBuffer(uint32_t imageIndex);

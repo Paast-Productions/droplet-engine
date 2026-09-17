@@ -1,14 +1,17 @@
 ﻿#include <print>
 #include <filesystem>
 #include <array>
+#include <string>
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
 #include "Renderer.hpp"
 
-void CompileShader(std::filesystem::path p_path);
+[[nodiscard]] Slang::ComPtr<slang::IBlob> CompileShader();
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
+	Slang::ComPtr<slang::IBlob> shaderBlob { CompileShader() };
+	
     std::print("Hello Triangle!\n");
 
 	bool done = false;
@@ -16,7 +19,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
 	Renderer rnd;
 
-	if (rnd.Initialize() == 1)
+	if (rnd.Initialize(shaderBlob) == 1)
 	{
 		return 1;
 	}
@@ -48,7 +51,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     return 0;
 }
 
-void CompileShader(std::filesystem::path p_path)
+Slang::ComPtr<slang::IBlob> CompileShader()
 {
 	Slang::ComPtr<slang::IGlobalSession> globalSession {};
 	slang::createGlobalSession(globalSession.writeRef());
@@ -56,10 +59,10 @@ void CompileShader(std::filesystem::path p_path)
 	slang::TargetDesc targetDesc 
 	{
 		.format = SLANG_SPIRV,
-		.profile = globalSession->findProfile("spirv_1_5")
+		.profile = globalSession->findProfile("spirv_1_4")
 	};
 	
-	std::array<slang::PreprocessorMacroDesc, 2> preprocessorMacroDescs
+	std::array<slang::PreprocessorMacroDesc, 2> preprocessorMacroDesc
 	{
 		{
 			{ "BIAS_VALUE", "1138" },
@@ -71,20 +74,127 @@ void CompileShader(std::filesystem::path p_path)
 	{
 		.targets = &targetDesc,
 		.targetCount = 1,
-		.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR
+		.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
+		.preprocessorMacros = preprocessorMacroDesc.data(),
+		.preprocessorMacroCount = preprocessorMacroDesc.size()
+	};
+	
+	std::array<slang::CompilerOptionEntry, 1> options
+	{
+		{
+			{
+				.name = slang::CompilerOptionName::EmitSpirvDirectly,
+				.value = 
+				{
+					slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr
+				}
+			}	
+		}
 	};
 	
 	Slang::ComPtr<slang::ISession> session {};
 	globalSession->createSession(sessionDesc, session.writeRef());
 	
-	Slang::ComPtr<slang::IBlob> diagnostics {};
-	Slang::ComPtr<slang::IModule> module
-	(
-		session->loadModule("shader", diagnostics.writeRef())
-	);
+	// LOAD SHADER MODULE
+	Slang::ComPtr<slang::IModule> module {};
 	
-	if (!module)
 	{
-		std::print("Diagnostics: {0}", static_cast<const char*>(diagnostics->getBufferPointer()));
+		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
+		std::string moduleName {"shader"};
+		std::string modulePath {"shader.slang"};
+		module = session->loadModule(moduleName.c_str(),  diagnosticsBlob.writeRef());
+		
+		if (!module)
+		{
+			std::print("Diagnostics: {0}", static_cast<const char*>(diagnosticsBlob->getBufferPointer()));
+		}
 	}
+	
+	// ENTRY POINT
+	Slang::ComPtr<slang::IEntryPoint> entryPoint {};
+	
+	{
+		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
+		module->findEntryPointByName("vertMain", entryPoint.writeRef());
+		
+		if (!entryPoint)
+		{
+			std::print("Diagnostics: {0}", static_cast<const char*>(diagnosticsBlob->getBufferPointer()));
+		}
+	}
+	
+	// COMPOSE PROGRAM
+	std::array<slang::IComponentType*, 1> componentTypes 
+	{
+		{
+			module
+		}
+	};
+	
+	Slang::ComPtr<slang::IComponentType> composedProgram {};
+	
+	{
+		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
+		SlangResult result 
+		{
+			session->createCompositeComponentType
+			(
+				componentTypes.data(),
+				componentTypes.size(),
+				composedProgram.writeRef(),
+				diagnosticsBlob.writeRef()
+			)
+		};
+		
+		if (result == SLANG_FAIL)
+		{
+			std::print("Diagnostics: {0}", static_cast<const char*>(diagnosticsBlob->getBufferPointer()));
+			throw std::runtime_error("You fucked up");
+		}
+	}
+	
+	// LINK
+	Slang::ComPtr<slang::IComponentType> linkedProgram {};
+	
+	{
+		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
+		SlangResult result
+		{
+			composedProgram->link
+			(
+				linkedProgram.writeRef(),
+				diagnosticsBlob.writeRef()
+			)
+		};
+		
+		if (result == SLANG_FAIL)
+		{
+			std::print("Diagnostics: {0}", static_cast<const char*>(diagnosticsBlob->getBufferPointer()));
+			throw std::runtime_error("You fucked up");
+		}
+	}
+	
+	// COMPILE
+	Slang::ComPtr<slang::IBlob> spirvCode {};
+	
+	{
+		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
+		SlangResult result 
+		{
+			linkedProgram->getTargetCode
+			(
+				0,
+				spirvCode.writeRef(),
+				diagnosticsBlob.writeRef()
+			)
+		};
+		
+		if (result == SLANG_FAIL)
+		{
+			std::print("Diagnostics: {0}", static_cast<const char*>(diagnosticsBlob->getBufferPointer()));
+			throw std::runtime_error("You fucked up");
+		}
+	}
+	
+	return spirvCode;
 }
