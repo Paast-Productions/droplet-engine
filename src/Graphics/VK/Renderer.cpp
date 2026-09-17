@@ -1,9 +1,9 @@
 #include "Renderer.hpp"
+
 #include <map>
 #include <algorithm>
 #include <assert.h>
 #include <cstdlib>
-#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -14,6 +14,8 @@
 #include <filesystem>
 #include <print>
 #include <string>
+
+#include <SDL3/SDL_vulkan.h>
 
 constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 

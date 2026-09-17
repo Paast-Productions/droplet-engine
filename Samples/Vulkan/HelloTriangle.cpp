@@ -1,10 +1,11 @@
-﻿#include <print>
+﻿#include "Graphics/VK/Renderer.hpp"
+
+#include <print>
 #include <filesystem>
 #include <array>
 #include <string>
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
-#include "Renderer.hpp"
 
 [[nodiscard]] Slang::ComPtr<slang::IBlob> CompileShader();
 
@@ -70,15 +71,6 @@ Slang::ComPtr<slang::IBlob> CompileShader()
 		}
 	};
 	
-	slang::SessionDesc sessionDesc 
-	{
-		.targets = &targetDesc,
-		.targetCount = 1,
-		.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
-		.preprocessorMacros = preprocessorMacroDesc.data(),
-		.preprocessorMacroCount = preprocessorMacroDesc.size()
-	};
-	
 	std::array<slang::CompilerOptionEntry, 1> options
 	{
 		{
@@ -92,6 +84,17 @@ Slang::ComPtr<slang::IBlob> CompileShader()
 		}
 	};
 	
+	slang::SessionDesc sessionDesc 
+	{
+		.targets = &targetDesc,
+		.targetCount = 1,
+		.defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
+		.preprocessorMacros = preprocessorMacroDesc.data(),
+		.preprocessorMacroCount = preprocessorMacroDesc.size(),
+		.compilerOptionEntries = options.data(),
+		.compilerOptionEntryCount = options.size()
+	};
+	
 	Slang::ComPtr<slang::ISession> session {};
 	globalSession->createSession(sessionDesc, session.writeRef());
 	
@@ -101,7 +104,6 @@ Slang::ComPtr<slang::IBlob> CompileShader()
 	{
 		Slang::ComPtr<slang::IBlob> diagnosticsBlob {};
 		std::string moduleName {"shader"};
-		std::string modulePath {"shader.slang"};
 		module = session->loadModule(moduleName.c_str(),  diagnosticsBlob.writeRef());
 		
 		if (!module)
