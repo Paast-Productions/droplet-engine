@@ -1,13 +1,12 @@
 #pragma once
-#include <fstream>
 #include <mutex>
 #include <chrono>
-#include <thread>
 #include <string>
+#include <queue>
+
 #include <json/json.hpp>
 
 using json = nlohmann::json;
-
 
 /**
  * @class logger
@@ -18,17 +17,25 @@ using json = nlohmann::json;
  */
 
 
-/**
-* @brief Convenience macro to log an error message.
-* @param msg The message string to log.
-*/
-#define LOG_ERROR(msg)   ::logger::Log(::logger::LOG_TYPE::Error, msg)
-#define LOG_WARNING(msg) ::logger::Log(::logger::LOG_TYPE::Warning, msg)
-#define LOG_INFO(msg)    ::logger::Log(::logger::LOG_TYPE::Info, msg)
-#define LOG_DEBUG(msg)   ::logger::Log(::logger::LOG_TYPE::Debug, msg)
+ /**
+ * @brief Convenience macro to log an error message.
+ * @param msg The message string to log.
+ */
+#define LOG_ERROR(msg)   ::Logger::GetInstance().Log(::Logger::LOG_TYPE::Error, msg)
+#define LOG_WARNING(msg) ::Logger::GetInstance().Log(::Logger::LOG_TYPE::Warning, msg)
+#define LOG_INFO(msg)    ::Logger::GetInstance().Log(::Logger::LOG_TYPE::Info, msg)
+#define LOG_DEBUG(msg)   ::Logger::GetInstance().Log(::Logger::LOG_TYPE::Debug, msg)
 
 
-class logger
+struct LogEntry
+{
+	std::chrono::system_clock::time_point timestamp;
+	std::string msg;
+	std::string status;
+	std::thread::id threadId;
+};
+
+class Logger
 {
 public:
 	/**
@@ -43,9 +50,9 @@ public:
 		Debug    ///< Detailed information for debugging purposes.
 	};
 
-	logger() = default;
+	Logger() = default;
 
-	~logger() = default;
+	~Logger() = default;
 
 	/**
 	 * @brief Main logging function, typically invoked via logging macros.
@@ -54,11 +61,26 @@ public:
 	 * @param type log entry (e.g., Error, Warning, Info, Debug).
 	 * @param msg The message text to be logged.
 	 */
-	static void Log(LOG_TYPE type, const std::string &msg);
+	void Log(LOG_TYPE type, const std::string &msg);
 	/**
 	 * @brief Clears all content from the log file and close the file.
 	 */
+
+	void PrintToLog(LogEntry s_logEntry);
 	static void ClearLog();
+
+	// How to get the instance in a singleton pattern
+	static Logger &GetInstance()
+	{
+		static Logger logger;
+		return logger;
+	}
+
 private:
-	inline static std::mutex m_g_i_mutex;
+	void Push(LogEntry &in);
+	bool Pop(LogEntry &out);
+
+private:
+	std::mutex m_mutex;
+	std::queue<LogEntry> m_queue;
 };

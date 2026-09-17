@@ -1,9 +1,12 @@
-#include <format>
 #include "Logger.hpp"
 
-void logger::Log(LOG_TYPE type, const std::string &msg)
+#include <format>
+#include <fstream>
+#include <thread>
+
+void Logger::Log(LOG_TYPE type, const std::string &msg)
 {
-    std::scoped_lock<std::mutex> lock(m_g_i_mutex);
+    //std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
     std::string s_status{};
     switch (type)
     {
@@ -13,31 +16,62 @@ void logger::Log(LOG_TYPE type, const std::string &msg)
     case Debug:   s_status = "Debug"; break;
     }
 
-    auto now = std::chrono::system_clock::now();
-    auto second = std::chrono::time_point_cast<std::chrono::seconds>(now);
-    auto local_time = std::chrono::zoned_time{ std::chrono::current_zone(), second };
+    LogEntry s_logEntry{ std::chrono::system_clock::now(),
+    	msg, s_status, std::this_thread::get_id()};
 
-    std::string s_timeStr = std::format("{:%Y-%m-%d %H:%M:%S}", local_time);
-    std::string s_threadStr = std::format("{}", std::this_thread::get_id());
+    Push(s_logEntry);
+}
 
-    json j = nlohmann::json{
-        {"Level",     s_status},
-        {"Timestamp", s_timeStr},
-        {"Message",   msg},
-        {"ThreadID",  s_threadStr}
-    };
-
-    std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
-    if (writingToJsonFile.is_open())
+void Logger::PrintToLog(LogEntry s_logEntry)
+{
+    while (Pop(s_logEntry))
     {
-        writingToJsonFile << j.dump(4) << ",\n";
+        auto second = std::chrono::time_point_cast<std::chrono::seconds>(s_logEntry.timestamp);
+        auto local_time = std::chrono::zoned_time{ std::chrono::current_zone(), second };
+        std::string s_timeStr = std::format("{:%Y-%m-%d %H:%M:%S}", local_time);
+        std::string s_threadStr = std::format("{}", std::this_thread::get_id());
+
+        json j = nlohmann::json{
+            {"Level",     s_logEntry.status},
+            {"Timestamp", s_timeStr},
+            {"Message",   s_logEntry.msg},
+            {"ThreadID",  s_threadStr}
+        };
+
+        //static std::mutex fileMutex;
+        //std::scoped_lock fileLock(fileMutex);
+
+        std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
+        if (writingToJsonFile.is_open())
+        {
+            writingToJsonFile << j.dump(4) << ",\n";
+        }
+        writingToJsonFile.close();
     }
+}
+
+void Logger::ClearLog()
+{
+	std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
+    std::ofstream writingToJsonFile("Logger.json", std::ios_base::out | std::ios_base::trunc);
     writingToJsonFile.close();
 }
 
-void logger::ClearLog()
+void Logger::Push(LogEntry &in)
 {
-	std::scoped_lock<std::mutex> lock(m_g_i_mutex);
-    std::ofstream writingToJsonFile("Logger.json", std::ios_base::out | std::ios_base::trunc);
-    writingToJsonFile.close();
+    std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
+    m_queue.push(std::move(in));
+}
+
+bool Logger::Pop(LogEntry &out)
+{
+    std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
+
+    if (m_queue.empty())
+    {
+        return false;
+    }
+    out = std::move(m_queue.front());
+    m_queue.pop();
+    return true;
 }
