@@ -6,7 +6,7 @@ ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHan
 
 void ScriptSystem::Initialize()
 {
-	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
+	//LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
 void ScriptSystem::Update(float p_deltaTime)

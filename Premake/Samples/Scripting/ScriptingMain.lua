@@ -14,7 +14,8 @@ project "Scripting-Main"
 
     libdirs {
         targetBuildPath .. "/Library",
-        targetBuildPath .. "/External/lib"
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/bin"
     }
     
     
@@ -28,12 +29,16 @@ project "Scripting-Main"
 
     dependson {
         "Engine",
-        "ImGui",
+        --"ImGui",
         "Sol2",
         "Lua"
     }
 
     links {
         "Engine",
-        "ImGui"
+        --"ImGui",
+        "lua-5.4.7",
+        "winmm",
+        "gdi32",
+        "shell32",
     }
