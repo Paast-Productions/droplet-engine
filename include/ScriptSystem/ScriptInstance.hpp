@@ -1,13 +1,14 @@
 #pragma once
 
-//#include <utility>
+//#include <utility> might be needed include this if you get errors
 #include <string>
 #include "LuaStateHandler.hpp"
 
-/// <summary>
-/// This class represents one script and allows the engine execute it.
-/// </summary>
-
+/**
+* The ScriptInstance class represents one scrips and its environment, it allows the engine to execute 
+* lua functions. Functions like onStart and onUpdate will always exist, but the function "call" should 
+* be able to call any function by name that has been populated in the scripts environment.
+*/
 class ScriptInstance
 {
 public:
@@ -25,8 +26,7 @@ public:
 private:
 	LuaStateHandler& m_stateHandler;
 
-	//Antingen Environment eller table beroende på vad vi behöver :)
-	sol::environment m_environment;
+	sol::environment m_environment; //Antingen Environment eller table beroende på vad vi behöver :)
 
 	std::string m_scriptPath;
 
@@ -34,6 +34,10 @@ private:
 	sol::protected_function m_onUpdate;
 };
 
+/**
+* The call function should be able to call an arbitrary function inside the lua environment.
+* All you need is the function name and potential arguments.
+*/
 template<typename ...Args>
 inline sol::protected_function_result ScriptInstance::call(std::string_view functionName, Args && ...args)
 {
