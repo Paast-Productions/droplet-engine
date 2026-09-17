@@ -22,11 +22,12 @@ public:
 
 	void onStart();
 	void onUpdate(float deltatime);
-	std::string getScriptPath();
+	const std::string getScriptPath();
+
 private:
 	LuaStateHandler& m_stateHandler;
 
-	sol::environment m_environment; //Antingen Environment eller table beroende på vad vi behöver :)
+	sol::environment m_environment;
 
 	std::string m_scriptPath;
 
@@ -37,6 +38,8 @@ private:
 /**
 * The call function should be able to call an arbitrary function inside the lua environment.
 * All you need is the function name and potential arguments.
+* 
+* If call returns an error it should tell the logger, then do nothing.
 */
 template<typename ...Args>
 inline sol::protected_function_result ScriptInstance::call(std::string_view functionName, Args && ...args)

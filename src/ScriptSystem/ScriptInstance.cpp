@@ -25,6 +25,8 @@ ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result
 
 /**
 * The onStart function should always exist inside a lua script and it can be called from here.
+* 
+* If onStart for some reason doesn't exists it should tell the logger and destroy the script.
 */
 void ScriptInstance::onStart()
 {
@@ -42,6 +44,8 @@ void ScriptInstance::onStart()
 
 /**
 * The onUpdate function should always exist inside a lua script and it can be called from here.
+* 
+* If onUpdate for some reason doesn't exists it should tell the logger and destroy the script.
 */
 void ScriptInstance::onUpdate(float deltatime)
 {
@@ -57,7 +61,7 @@ void ScriptInstance::onUpdate(float deltatime)
 	}
 }
 
-std::string ScriptInstance::getScriptPath()
+const std::string ScriptInstance::getScriptPath()
 {
 	return m_scriptPath;
 }
