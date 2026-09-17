@@ -1,0 +1,89 @@
+#pragma once
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
+#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
+#if defined(__INTELLISENSE__) || !defined(USE_CPP20_MODULES)
+#include <vulkan/vulkan_raii.hpp>
+#else
+import vulkan_hpp;
+#endif
+
+#include <SDL3/SDL_vulkan.h>
+#include <SDL3/SDL.h>
+
+class Renderer
+{
+public:
+	Renderer() = default;
+	~Renderer();
+	int		Initialize();
+	void	drawFrame();
+	void	windowResize();
+
+	SDL_Event	p_event;
+	static		SDL_InitState p_init;
+
+private:
+	void					initWindow();
+	void					createInstance();
+	void					setupDebugMessenger();
+	void					createSurface();
+	bool					isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice);
+	void					pickPhysicalDevice();
+	void					createLogicalDevice();
+	vk::SurfaceFormatKHR	chooseSwapSurfaceFormat(std::vector<vk::SurfaceFormatKHR> const& availableFormats);
+	vk::PresentModeKHR		chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const& availablePresentModes);
+	vk::Extent2D			chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabilities);
+	uint32_t				chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const& surfaceCapabilities);
+	void					createSwapChain();
+	void					createImageViews();
+	void					createGraphicsPipeline();
+	vk::raii::ShaderModule  createShaderModule(const std::vector<char>& code) const;
+	void					createCommandPool();
+	void					createCommandBuffers();
+	void					recordCommandBuffer(uint32_t imageIndex);
+
+	void					createSyncObjects();
+
+	void					recreateSwapChain();
+	void					cleanupSwapChain();
+
+	void					transition_image_layout(
+		uint32_t                imageIndex,
+		vk::ImageLayout         old_layout,
+		vk::ImageLayout         new_layout,
+		vk::AccessFlags2        src_access_mask,
+		vk::AccessFlags2        dst_access_mask,
+		vk::PipelineStageFlags2 src_stage_mask,
+		vk::PipelineStageFlags2 dst_stage_mask);
+
+	//Declaration order matters for destruction order!!!!
+	vk::raii::Context					 m_context;
+	vk::raii::Instance					 m_instance = nullptr;
+	vk::raii::DebugUtilsMessengerEXT	 m_debugMessenger = nullptr;
+	vk::raii::SurfaceKHR				 m_surface = nullptr;
+	vk::raii::PhysicalDevice			 m_physicalDevice = nullptr;
+	vk::raii::Device					 m_device = nullptr;
+	uint32_t							 m_queueIndex = (uint32_t)~0;
+	vk::raii::Queue						 m_queue = nullptr;
+	vk::raii::SwapchainKHR				 m_swapChain = nullptr;
+	std::vector<vk::Image>				 m_swapChainImages;
+	vk::SurfaceFormatKHR				 m_swapChainSurfaceFormat;
+	vk::Extent2D						 m_swapChainExtent;
+	std::vector<vk::raii::ImageView>	 m_swapChainImageViews;
+
+	vk::raii::PipelineLayout			 m_pipelineLayout = nullptr;
+	vk::raii::Pipeline					 m_graphicsPipeline = nullptr;
+	vk::raii::CommandPool				 m_commandPool = nullptr;
+	std::vector<vk::raii::CommandBuffer> m_commandBuffers;
+	SDL_Window* m_window = nullptr;
+
+	std::vector<vk::raii::Semaphore>	 m_presentCompleteSemaphores;
+	std::vector<vk::raii::Semaphore>	 m_renderFinishedSemaphores;
+	std::vector<vk::raii::Fence>		 m_inFlightFences;
+
+	uint32_t							 m_frameIndex = 0;
+
+	bool								 m_framebufferResized = false;
+
+	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
+};
