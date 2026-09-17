@@ -1,6 +1,6 @@
 ﻿#include <print>
 
-#include "Asset/AssetManager.hpp"
+#include "asset/AssetManager.hpp"
 
 #include <filesystem>
 
