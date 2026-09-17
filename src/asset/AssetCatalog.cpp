@@ -1,4 +1,4 @@
-﻿#include "Asset/AssetCatalog.h"
+﻿#include "Asset/AssetCatalog.hpp"
 
 namespace engine
 {

@@ -1,6 +1,6 @@
-﻿#include "Asset/AssetManager.h"
+﻿#include "Asset/AssetManager.hpp"
 
-#include "Asset/AssetHandle.h"
+#include "Asset/AssetHandle.hpp"
 // #include "IResource"
 
 namespace engine
