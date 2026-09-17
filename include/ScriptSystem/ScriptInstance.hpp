@@ -12,7 +12,7 @@ class ScriptInstance
 {
 public:
 	ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result p_script, const std::string& p_scriptPath);
-	~ScriptInstance() = default;
+	~ScriptInstance() = default; 
 
 	template<typename... Args>
 	sol::protected_function_result call( 
