@@ -13,7 +13,7 @@ class ScriptManager
 {
 public:
 
-	explicit ScriptManager(LuaStateHandler& p_luaState);
+	ScriptManager(LuaStateHandler& p_luaState);
 	~ScriptManager() = default;
 
 	void Update(float p_deltaTime);

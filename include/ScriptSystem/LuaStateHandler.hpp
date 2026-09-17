@@ -2,7 +2,6 @@
 
 #include <sol/sol.hpp>
 
-
 class LuaStateHandler
 {
 public:

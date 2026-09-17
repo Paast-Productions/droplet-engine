@@ -21,11 +21,10 @@ project "Engine"
 
     dependson
     {
-        --"GoogleTest",
-        --"ImGui",
+        "GoogleTest",
+        "ImGui",
         "Sol2",
-        "Lua"
-        --"Jolt"
+        "Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 

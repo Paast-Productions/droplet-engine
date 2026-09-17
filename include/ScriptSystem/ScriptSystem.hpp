@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ScriptManager.hpp"
+#include "LuaStateHandler.hpp"
+#include "LuaBindings.hpp"
 
 class ScriptSystem
 {
