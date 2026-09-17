@@ -18,7 +18,6 @@ ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result
 
 	m_onStart = m_environment["onStart"];
 	m_onUpdate = m_environment["onUpdate"];
-	//Error handling??
 }
 
 void ScriptInstance::onStart()
