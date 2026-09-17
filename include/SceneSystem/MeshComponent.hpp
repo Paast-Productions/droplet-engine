@@ -12,7 +12,7 @@ public:
     void Update(float p_deltaTime) override;
 
     const std::string& GetMeshPath() const;
-
+       
 private:
     std::string m_meshPath;
 };
