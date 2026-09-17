@@ -11,7 +11,7 @@
 class ScriptInstance
 {
 public:
-	ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result p_script, const std::string& p_scriptPath);
+	ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath);
 	~ScriptInstance() = default; 
 
 	template<typename... Args>
@@ -21,7 +21,7 @@ public:
 
 	void onStart();
 	void onUpdate(float deltatime);
-
+	std::string getScriptPath();
 private:
 	LuaStateHandler& m_stateHandler;
 

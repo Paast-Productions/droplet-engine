@@ -40,9 +40,9 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 	return true;
 }
 
-ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* testNode, const std::string& p_scriptFile)
+ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNode, const std::string& p_scriptFile)
 {
-	if (IsLoaded(p_scriptFile))
+	if (!IsLoaded(p_scriptFile))
 	{
 		if (!LoadScript(p_scriptFile))
 		{
@@ -57,21 +57,56 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* testNode,
 		//Send to logging manager
 		return nullptr;
 	}
-	return nullptr;
+	
+	// We want to own unique ptrs, but return a instance
+	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(m_StateHandler, *loadResult, p_scriptFile);
+
+	ScriptInstance* instance = scriptInstance.get();
+	m_scriptInstances.push_back(std::move(scriptInstance));
+	instance->onStart();
+	return instance;
 }
 
-void ScriptManager::DestroyScript([[maybe_unused]] const std::string& p_scriptFile)
+void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInstance)
 {
-
-}
-
-
-void ScriptManager::UnloadScript(const std::string& scriptFile)
-{
-	if (IsLoaded(scriptFile))
+	if (p_scriptInstance == nullptr) // who sends a nullptr to be destroyed?? name:
 	{
-		// check if any instances uses this particular script?
+		return;
 	}
+
+	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++) // it for iterator
+	{
+		if (it->get() == p_scriptInstance)
+		{
+			m_scriptInstances.erase(it); //erase destroys the unique ptr
+			return;
+		}
+	}
+
+	// instance was handled well if we reach this point
+	// send error to logging manager here
+}
+
+
+bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
+{
+	if (!IsLoaded(p_scriptFile))
+	{
+
+		return false; // cant unload something that isn't loaded
+	}
+
+	for (const std::unique_ptr<ScriptInstance>& scriptInstance : m_scriptInstances) // check every instance
+	{
+		if (scriptInstance->getScriptPath() == p_scriptFile)
+		{
+			return false; // a instance is using this script file
+		}
+	}
+
+	m_loadedScripts.erase(p_scriptFile);
+	return true; 
 }
 
 
