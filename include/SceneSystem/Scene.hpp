@@ -8,7 +8,7 @@ class Node;
 class Scene
 {
 public:
-    explicit Scene(const std::string& p_name);
+    explicit Scene(std::string p_name);
     virtual ~Scene() = default;
 
     virtual void Load();

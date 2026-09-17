@@ -1,9 +1,8 @@
 #include "Scene.hpp"
 #include "Node.hpp"
 
-Scene::Scene(const std::string& p_name)
-    : m_name(p_name), 
-    m_root(std::make_shared<Node>("Root"))
+Scene::Scene(std::string p_name)
+    : m_name(std::move(p_name))
 {
 }
 

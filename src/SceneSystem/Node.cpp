@@ -1,9 +1,10 @@
 #include "Node.hpp"
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Component.hpp"
 
-Node::Node(const std::string& p_name)
-    : m_name(p_name)
+Node::Node(std::string p_name)
+    : m_name(std::move(p_name))
 {
 }
 
@@ -16,10 +17,17 @@ void Node::Update(float p_deltaTime)
 
     //update transforms :=
 
+    for (const auto& component : m_components)
+    {
+        component->Update(p_deltaTime);
+    }
+
     for (const auto& child : m_children)
     {
         child->Update(p_deltaTime);
     }
+
+
 }
 void Node::Render()
 {
