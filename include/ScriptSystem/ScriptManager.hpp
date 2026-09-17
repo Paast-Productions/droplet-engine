@@ -19,11 +19,11 @@ public:
 	void Update(float p_deltaTime);
 	
 
-	ScriptInstance* CreateScript(TestNode* testNode, const std::string& p_scriptFile); // add entity as parameter when we have entitites
-	void DestroyScript(const std::string& p_scriptFile);
+	ScriptInstance* CreateScript(TestNode* p_testNode, const std::string& p_scriptFile); // add entity as parameter when we have entitites
+	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	bool LoadScript(const std::string& p_scriptFile);
-	void UnloadScript(const std::string& p_scriptFile);
+	bool UnloadScript(const std::string& p_scriptFile);
 	bool IsLoaded(const std::string& p_scriptFile);
 	bool ReloadScript(const std::string& p_scriptFile);
 	
