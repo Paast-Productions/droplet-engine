@@ -5,25 +5,102 @@
 
 class Node;
 
+/**
+ * @brief Represents a scene containing a hierarchy of Nodes.
+ *
+ * A Scene owns a root Node that serves as the entry point to the
+ * scene hierarchy. Scenes can be loaded, unloaded, activated,
+ * and updated independently.
+ */
 class Scene
 {
 public:
+
+    /**
+     * @brief Constructs a Scene with the specified name.
+     *
+     * @param p_name Name of the Scene.
+     */
     explicit Scene(std::string p_name);
+
+    /**
+     * @brief Virtual destructor.
+     */
     virtual ~Scene() = default;
 
+    /**
+     * @brief Loads the Scene.
+     *
+     * Called when the Scene is loaded into memory. Derived Scenes
+     * can override this function to perform additional initialization.
+     */
     virtual void Load();
+
+    /**
+     * @brief Unloads the Scene.
+     *
+     * Called when the Scene is removed from memory. Derived Scenes
+     * can override this function to perform cleanup.
+     */
     virtual void Unload();
 
+    /**
+     * @brief Updates the Scene.
+     *
+     * Updates the Scene's Node hierarchy when the Scene is both
+     * loaded and active.
+     *
+     * @param p_deltaTime Time elapsed since the previous update, in seconds.
+     */
     virtual void Update(float p_deltaTime);
+
+    /**
+    * @brief Renders the Scene.
+    *
+	* @note does nothing, should probably not be here
+    * 
+    */
     virtual void Render();
 
+    /**
+     * @brief Gets the root Node of the Scene.
+     *
+     * The root Node serves as the starting point of the Scene's
+     * Node hierarchy.
+     *
+     * @return Shared pointer to the root Node.
+     */
 	std::shared_ptr<Node> GetRoot() const;
 
+    /**
+    * @brief Gets the Scene's name.
+    *
+    * @return A constant reference to the Scene's name.
+    */
     const std::string& GetName() const;
 
+    /**
+      * @brief Checks whether the Scene is loaded.
+      *
+      * @return true if the Scene is loaded, otherwise false.
+      */
     bool IsLoaded() const;
+
+    /**
+    * @brief Checks whether the Scene is active.
+    *
+    * An inactive Scene does not perform its normal update or
+    * rendering operations.
+    *
+    * @return true if the Scene is active, otherwise false.
+    */
     bool IsActive() const;
 
+    /**
+     * @brief Sets whether the Scene is active.
+     *
+     * @param p_active true to activate the Scene, false to deactivate it.
+     */
     void SetActive(bool active);
 
 private:
