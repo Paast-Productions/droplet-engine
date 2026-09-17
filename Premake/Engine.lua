@@ -31,7 +31,7 @@ project "Engine"
 
     files {
         "../include/**.hpp",
-        "../include/**.h",
+        "../include/**.inl",
         "../src/**.cpp",
         "../src/**.h"
     }

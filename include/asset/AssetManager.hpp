@@ -4,13 +4,15 @@
 #include <memory>
 #include <atomic>
 #include <mutex>
+#include <filesystem>
+#include <cassert>
 
-#include "Asset/AssetCatalog.hpp"
+#include "asset/AssetHandle.hpp"
+#include "asset/AssetCatalog.hpp"
 
 namespace engine
 {
     class IResource;
-    template <typename T> class AssetHandle;
 
     /// @brief Represents all states that an asset can have.
     enum class AssetState
@@ -50,6 +52,8 @@ namespace engine
         template<typename T>
         AssetHandle<T> Load(const std::string& p_path)
         {
+            assert(m_isInitialized && "AssetManager is not initialized.");
+            
             GUID guid = m_catalog.GetGUID(p_path);
             if (guid == 0)
             {
@@ -61,19 +65,16 @@ namespace engine
             {
                 std::lock_guard<std::mutex> lock(m_registryMutex);
                 
-                auto it = m_registry.find(guid);
-                if (it != m_registry.end())
+                auto [it, wasInserted] = m_registry.try_emplace(guid);
+                if (!wasInserted)
                 {
-                    // Asset already exists or is being loaded
-                    return AssetHandle<T>(guid, this); // Ref count is incremented by AssetHandle constructor
+                    // The asset was not inserted (already exists)
+                    return AssetHandle<T>(guid, this);
                 }
                 
-                // Asset is not loaded -> create record and add to registry
-                AssetRecord record;
-                record.state = AssetState::Queued;
-                record.refCount.store(0);
-                
-                m_registry[guid] = std::move(record);
+                // Asset was just created in-place -> Update state
+                it->second.state = AssetState::Queued;
+                it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
             }
             
             // TODO: Push load task to worker thread pool
@@ -84,12 +85,16 @@ namespace engine
         void AddRef(GUID p_guid);
         void ReleaseRef(GUID p_guid);
         
+        AssetState GetState(GUID p_guid);
+        
         template<typename T>
-        T* GetResource(GUID guid)
+        T *GetResource(GUID p_guid)
         {
+            assert(m_isInitialized && "AssetManager is not initialized.");
+            
             std::lock_guard<std::mutex> lock(m_registryMutex);
             
-            auto it = m_registry.find(guid);
+            auto it = m_registry.find(p_guid);
             if (it != m_registry.end() && it->second.state == AssetState::Ready)
             {
                 // Asset is ready to be used
@@ -100,13 +105,17 @@ namespace engine
         }
     
     private:
+        bool m_isInitialized = false;
         AssetCatalog m_catalog;
         
         std::unordered_map<GUID, AssetRecord> m_registry;
-        std::mutex m_registryMutex;
+        std::mutex m_registryMutex; 
         
         // TODO: Add thread pool / job system
     };
+    
 }
+
+#include "asset/AssetHandle.inl" // Included here to avoid circular definitions
 
 
