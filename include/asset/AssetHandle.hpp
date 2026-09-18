@@ -1,11 +1,12 @@
 ﻿#pragma once
 
+#include "asset/GUID.hpp"
+
 #include <cstdint>
 
 namespace Droplet
 {
     class AssetManager;
-    using GUID = uint64_t;
 
     /// @brief Proxy object for a resource managed by an asset manager.
     /// @tparam T The resource type that the handle is referencing.

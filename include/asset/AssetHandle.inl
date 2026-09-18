@@ -46,7 +46,7 @@ namespace Droplet
         : m_guid(other.m_guid), m_assetManager(other.m_assetManager) 
     {
         // Move construct (steal data, no ref change)
-        other.m_guid = 0;
+        other.m_guid = C_INVALID_GUID;
         other.m_assetManager = nullptr;
     }
 
@@ -60,7 +60,7 @@ namespace Droplet
             m_guid = other.m_guid;
             m_assetManager = other.m_assetManager;
                 
-            other.m_guid = 0;
+            other.m_guid = C_INVALID_GUID;
             other.m_assetManager = nullptr;
         }
             
@@ -70,7 +70,7 @@ namespace Droplet
     template <typename T>
     bool AssetHandle<T>::IsValid() const
     {
-        return m_guid != 0 && m_assetManager;
+        return m_guid != C_INVALID_GUID && m_assetManager;
     }
 
     template <typename T>

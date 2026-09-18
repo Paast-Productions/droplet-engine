@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "asset/GUID.hpp"
+
 #include <string>
 #include <unordered_map>
 #include <filesystem>
@@ -7,8 +9,6 @@
 
 namespace Droplet
 {
-    using GUID = uint64_t; // temporary alias
-
     /// @brief Maps asset path strings to GUIDs
     class AssetCatalog
     {
