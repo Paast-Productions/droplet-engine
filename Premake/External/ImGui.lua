@@ -29,7 +29,13 @@ project "ImGui"
 
     prebuildcommands {
         "{MKDIR} " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui") .. "/*.h" .. " " .. AddQuotation(imGuiPath),
+        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imgui.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imgui_internal.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imconfig.h") .. " " .. AddQuotation(imGuiPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.h") .. " " .. AddQuotation(imGuiPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.h") .. " " .. AddQuotation(imGuiPath)
+    }
+
+    buildcommands {
+        "{ECHO} 'BUILDING IMGUI'"
     }
