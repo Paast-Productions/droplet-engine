@@ -1,10 +1,11 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <filesystem>
 #include "LuaStateHandler.hpp"
 #include "TestNode.hpp"
 #include "ScriptInstance.hpp"
-#include <vector>
 
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
@@ -42,6 +43,9 @@ private:
 
 	bool m_HandleError(const std::string& p_scriptFile, const sol::error& p_error);
 
-
+	/// @brief This function finds the path to any script by giving it the name of the script
+	/// @param p_scriptFile the name of the scriptfile
+	/// @return the path to the scriptfile
+	std::filesystem::path FindScript(const std::string& p_scriptFile);
 	
 };

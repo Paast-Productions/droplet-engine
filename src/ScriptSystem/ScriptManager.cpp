@@ -1,7 +1,6 @@
 #include "ScriptManager.hpp"
 #include <iostream>
 #include <print>
-#include <filesystem>
 
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
@@ -78,7 +77,13 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return true; // Script is already loaded
 	}
 
-	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
+	std::filesystem::path scriptPath = FindScript(p_scriptFile);
+	if (p_scriptFile.empty())
+	{
+		//Error logger entry
+		return false;
+	}
+
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
 
 	if (!loadResult.valid())
@@ -144,4 +149,24 @@ sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::str
 bool ScriptManager::m_Initialize()
 {
 	return false;
+}
+
+std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
+{
+	std::filesystem::path scriptDirectory = 
+		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(scriptDirectory))
+	{
+		if (!entry.is_regular_file())
+		{
+			continue;
+		}
+
+		if (entry.path().filename() == p_scriptFile)
+		{
+			return entry.path();
+		}
+	}
+	return {};
 }
