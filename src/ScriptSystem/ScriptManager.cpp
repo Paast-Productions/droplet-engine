@@ -11,11 +11,19 @@ ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p
 	}
 }
 
+void ScriptManager::Start()
+{
+	for (auto& instance : m_scriptInstances)
+	{
+		instance->onStart();
+	}
+}
+
 void ScriptManager::Update(float p_deltaTime)
 {
-	for (auto& script : m_scriptInstances)
+	for (auto& instance : m_scriptInstances)
 	{
-		script->onUpdate(p_deltaTime);
+		instance->onUpdate(p_deltaTime);
 	}
 }
 
@@ -45,7 +53,6 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNod
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
-	instance->onStart();
 	return instance;
 }
 
