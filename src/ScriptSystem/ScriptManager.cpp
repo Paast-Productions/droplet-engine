@@ -46,7 +46,6 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_scripts.emplace(p_scriptComponent, instance);
-	instance->onStart();
 	return instance;
 }
 
@@ -61,6 +60,12 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent, S
 	if (it == m_scripts.end())
 	{
 		//Couldn't find send an error
+		return;
+	}
+
+	if (it->second != p_scriptInstance)
+	{
+		//Mismatch in the map handle error
 		return;
 	}
 	m_scripts.erase(it);
