@@ -35,5 +35,7 @@ project "Vulkan-HelloTriangle"
     links {
         "Engine",
         "ImGui",
-        AddQuotation("SDL3")
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

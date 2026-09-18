@@ -407,11 +407,11 @@ void Renderer::createImageViews()
 	}
 }
 
-//Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
 void Renderer::createGraphicsPipeline()
 {
 	std::cout << std::filesystem::current_path().generic_string() << std::endl;
 
+	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("slang.spv"));
 
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
@@ -463,10 +463,75 @@ void Renderer::createGraphicsPipeline()
 	m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
 }
 
-//Creation function for shaders
+//Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
+void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
+{
+	std::cout << std::filesystem::current_path().generic_string() << std::endl;
+
+	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
+	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
+
+	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
+	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eFragment, .module = shaderModule, .pName = "fragMain" };
+	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+	vk::PipelineVertexInputStateCreateInfo   vertexInputInfo;
+	vk::PipelineInputAssemblyStateCreateInfo inputAssembly{ .topology = vk::PrimitiveTopology::eTriangleList };
+	vk::PipelineViewportStateCreateInfo      viewportState{ .viewportCount = 1, .scissorCount = 1 };
+
+	vk::PipelineRasterizationStateCreateInfo rasterizer{ .depthClampEnable = vk::False,
+														.rasterizerDiscardEnable = vk::False,
+														.polygonMode = vk::PolygonMode::eFill,
+														.cullMode = vk::CullModeFlagBits::eBack,
+														.frontFace = vk::FrontFace::eClockwise,
+														.depthBiasEnable = vk::False,
+														.lineWidth = 1.0f };
+
+	vk::PipelineMultisampleStateCreateInfo multisampling{ .rasterizationSamples = vk::SampleCountFlagBits::e1, .sampleShadingEnable = vk::False };
+
+	vk::PipelineColorBlendAttachmentState colorBlendAttachment{
+		.blendEnable = vk::False,
+		.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
+
+	vk::PipelineColorBlendStateCreateInfo colorBlending{
+		.logicOpEnable = vk::False, .logicOp = vk::LogicOp::eCopy, .attachmentCount = 1, .pAttachments = &colorBlendAttachment };
+
+	//VIKTIGT Dynamic states måste vara deklarerade för att kunna ändras i runtime
+	std::vector<vk::DynamicState>      dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
+	vk::PipelineDynamicStateCreateInfo dynamicState{ .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()), .pDynamicStates = dynamicStates.data() };
+
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo{ .setLayoutCount = 0, .pushConstantRangeCount = 0 };
+	m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
+
+	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
+			{.stageCount = 2,
+			 .pStages = shaderStages,
+			 .pVertexInputState = &vertexInputInfo,
+			 .pInputAssemblyState = &inputAssembly,
+			 .pViewportState = &viewportState,
+			 .pRasterizationState = &rasterizer,
+			 .pMultisampleState = &multisampling,
+			 .pColorBlendState = &colorBlending,
+			 .pDynamicState = &dynamicState,
+			 .layout = m_pipelineLayout,
+			 .renderPass = nullptr},
+			{.colorAttachmentCount = 1, .pColorAttachmentFormats = &m_swapChainSurfaceFormat.format} };
+
+	m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
+}
+
 [[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const std::vector<char>& code) const
 {
 	vk::ShaderModuleCreateInfo createInfo{ .codeSize = code.size() * sizeof(char), .pCode = reinterpret_cast<const uint32_t*>(code.data()) };
+	vk::raii::ShaderModule     shaderModule{ m_device, createInfo };
+
+	return shaderModule;
+}
+
+//Creation function for shaders
+[[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const Slang::ComPtr<slang::IBlob>& p_shaderBlob) const
+{
+	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
 	vk::raii::ShaderModule     shaderModule{ m_device, createInfo };
 
 	return shaderModule;
@@ -692,6 +757,53 @@ int Renderer::Initialize()
 	createImageViews();
 
 	createGraphicsPipeline();
+
+	createCommandPool();
+
+	createCommandBuffers();
+
+	createSyncObjects();
+
+	return 0;
+}
+
+int Renderer::Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
+{
+	initWindow();
+	if (m_window == NULL)
+	{
+		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
+		return 1;
+	}
+
+	try
+	{
+		createInstance();
+	}
+	catch (const vk::SystemError& err)
+	{
+		std::cerr << "Vulkan Error: " << err.what() << std::endl;
+		return 1;
+	}
+	catch (const std::exception& err)
+	{
+		std::cerr << "Error: " << err.what() << std::endl;
+		return 1;
+	}
+
+	setupDebugMessenger();
+
+	createSurface();
+
+	pickPhysicalDevice();
+
+	createLogicalDevice();
+
+	createSwapChain();
+
+	createImageViews();
+
+	createGraphicsPipeline(p_shaderBlob);
 
 	createCommandPool();
 
