@@ -289,7 +289,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Check(
         weapon->GetPosition() == glm::vec3(0.0f, 0.0f, 2.0f),
         "Weapon local position"
-    );
+    );  
 
     // ==================================================
     // Component Tests
@@ -498,7 +498,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         "Root initially contains two children"
     );
 
-    root->RemoveChild(enemy);
+    bool removed = root->RemoveChild(enemy);
+
+    if (removed)
+    {
+        std::cout << "[PASS] Enemy was removed from Root\n";
+    }
 
     Check(
         root->GetChildren().size() == 1,

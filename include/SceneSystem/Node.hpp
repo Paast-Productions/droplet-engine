@@ -87,7 +87,8 @@ public:
     /// from the hierarchy and its parent reference is cleared.
     ///
     /// @param p_child Node to remove.
-    void RemoveChild(std::shared_ptr<Node> p_child);
+    /// @return true if the child was removed, false otherwise.
+    bool RemoveChild(std::shared_ptr<Node> p_child);
 
     /// @brief Gets the parent Node.
     ///
