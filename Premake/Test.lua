@@ -27,11 +27,13 @@ project "Test"
     dependson 
     {
         "GoogleTest",
-        "Engine"
+        "Engine",
+        "Sol2"
     }
 
     links
     {
         "Engine", 
-        "gtest"
+        "gtest",
+        AddQuotation("lua-5.4.7")
     }
