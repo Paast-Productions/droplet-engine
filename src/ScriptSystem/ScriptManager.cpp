@@ -1,4 +1,7 @@
 #include "ScriptManager.hpp"
+#include <iostream>
+#include <print>
+#include <filesystem>
 
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
@@ -16,30 +19,6 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-//loads teh script, if the script is already loaded it will return true, if script fails to load then return false and an error should be sent to the logging manager
-//Noteworthy is that if the functions returns true it either means, "loaded successfully" or "it was already loaded", to check if it loads correctly make sure it is not loaded beforehand then run  this function
-bool ScriptManager::LoadScript(const std::string& p_scriptFile)
-{
-	if (IsLoaded(p_scriptFile))
-	{
-		return true; // Script is already loaded
-	}
-
-	sol::load_result loadResult = m_StateHandler.GetState().load_file(p_scriptFile);
-
-	if (!loadResult.valid())
-	{
-		sol::error error = loadResult;
-		//send the error to the logger
-
-		return false;
-	}
-
-	m_loadedScripts.emplace(p_scriptFile, std::move(loadResult));
-
-	return true;
-}
-
 ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNode, const std::string& p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
@@ -47,9 +26,11 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNod
 		if (!LoadScript(p_scriptFile))
 		{
 			//The script was not loaded and failed to load
+			std::print("failed to load script\n");
 			return nullptr;
 		}
 	}
+	std::print("load script successfully\n");
 
 	sol::load_result* loadResult = GetLoadedScript(p_scriptFile);
 	if (loadResult == nullptr)
@@ -73,21 +54,44 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 	if (p_scriptInstance == nullptr) // who sends a nullptr to be destroyed?? name:
 	{
 		return;
-	}
+	}		
 
 	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++) // it for iterator
 	{
 		if (it->get() == p_scriptInstance)
-		{
+		{		
 			m_scriptInstances.erase(it); //erase destroys the unique ptr
-			return;
-		}
+			return;												
+		}																				
 	}
 
 	// instance was handled well if we reach this point
 	// send error to logging manager here
 }
 
+//loads teh script, if the script is already loaded it will return true, if script fails to load then return false and an error should be sent to the logging manager
+//Noteworthy is that if the functions returns true it either means, "loaded successfully" or "it was already loaded", to check if it loads correctly make sure it is not loaded beforehand then run  this function
+bool ScriptManager::LoadScript(const std::string& p_scriptFile)
+{
+	if (IsLoaded(p_scriptFile))
+	{
+		return true; // Script is already loaded
+	}
+
+	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
+	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+
+	if (!loadResult.valid())
+	{
+		sol::error error = loadResult;
+
+		return false;
+	}
+
+	m_loadedScripts.emplace(p_scriptFile, std::move(loadResult));
+
+	return true;
+}
 
 bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 {
