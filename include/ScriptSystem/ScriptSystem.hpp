@@ -10,7 +10,7 @@ public:
 	ScriptSystem();
 	~ScriptSystem() = default;
 
-	void Initialize(); 
+	void Start();
 	void Update(float p_deltaTime);
 	void Shutdown();
 

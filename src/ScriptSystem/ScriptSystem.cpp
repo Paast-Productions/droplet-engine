@@ -3,11 +3,12 @@
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 { 
+	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
-void ScriptSystem::Initialize()
+void ScriptSystem::Start()
 {
-	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
+	m_scriptManager.Start();
 }
 
 void ScriptSystem::Update(float p_deltaTime)

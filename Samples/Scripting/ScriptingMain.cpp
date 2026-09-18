@@ -4,7 +4,6 @@
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	ScriptSystem scriptSystem;
-	scriptSystem.Initialize();
 
 	TestNode testNode;
 
@@ -12,6 +11,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         &testNode,
        "testScript.lua"
     );
+    
+    scriptSystem.Start();
 
     for (int i = 0; i < 3; ++i)
     {

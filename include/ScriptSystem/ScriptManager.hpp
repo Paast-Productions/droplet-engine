@@ -17,12 +17,11 @@ public:
 	ScriptManager(LuaStateHandler& p_luaState);
 	~ScriptManager() = default;
 
+	void Start();
 	void Update(float p_deltaTime);
-	
 
 	ScriptInstance* CreateScript(TestNode* p_testNode, const std::string& p_scriptFile); // add entity as parameter when we have entitites
 	void DestroyScript(ScriptInstance* p_scriptInstance);
-
 	bool LoadScript(const std::string& p_scriptFile);
 	bool UnloadScript(const std::string& p_scriptFile);
 	bool IsLoaded(const std::string& p_scriptFile);
