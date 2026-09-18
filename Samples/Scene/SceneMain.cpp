@@ -149,9 +149,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::cout << "\nTesting GetComponent<MeshComponent>...\n";
 
     auto retrievedMesh =
-        player->GetComponent<MeshComponent>();
+        player->GetComponents<MeshComponent>();
 
-    if (retrievedMesh)
+    if (!retrievedMesh.empty())
     {
         std::cout << "MeshComponent retrieved successfully.\n";
     }
@@ -180,9 +180,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // --------------------------------------------------
 
     auto meshAfterRemoval =
-        player->GetComponent<MeshComponent>();
+        player->GetComponents<MeshComponent>();
 
-    if (!meshAfterRemoval)
+    if (meshAfterRemoval.empty())
     {
         std::cout << "MeshComponent successfully removed.\n";
     }
