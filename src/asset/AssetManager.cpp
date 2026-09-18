@@ -2,7 +2,7 @@
 
 // #include "IResource"
 
-namespace engine
+namespace Droplet
 {
     void AssetManager::Initialize(std::filesystem::path p_rootDirectory)
     {
