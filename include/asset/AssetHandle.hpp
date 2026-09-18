@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace engine
+namespace droplet
 {
     class AssetManager;
     using GUID = uint64_t;

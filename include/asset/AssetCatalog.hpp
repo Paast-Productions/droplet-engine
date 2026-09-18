@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <json/json.hpp>
 
-namespace engine
+namespace droplet
 {
     using GUID = uint64_t; // temporary alias
 

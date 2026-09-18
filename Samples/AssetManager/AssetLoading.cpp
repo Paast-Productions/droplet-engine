@@ -13,7 +13,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fs::path assetDir = fs::current_path() / fs::path("assets");
     std::println("Initializing AssetManager for dir: {}", assetDir.generic_string());
     
-    engine::AssetManager assetManager;
+    droplet::AssetManager assetManager;
     assetManager.Initialize(assetDir);
     
     return 0;

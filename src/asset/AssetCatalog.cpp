@@ -1,6 +1,6 @@
 ﻿#include "Asset/AssetCatalog.hpp"
 
-namespace engine
+namespace droplet
 {
     bool AssetCatalog::ScanDirectory(const std::filesystem::path &p_directory)
     {
