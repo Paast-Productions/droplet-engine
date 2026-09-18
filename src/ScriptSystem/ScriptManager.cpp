@@ -38,10 +38,10 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNod
 		//Send to logging manager
 		return nullptr;
 	}
-	
+	 
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_testNode, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
@@ -125,7 +125,7 @@ bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
 {
 	return false;
 }
-
+ 
 
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
 sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::string& p_scriptFile)

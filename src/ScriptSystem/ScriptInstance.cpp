@@ -1,13 +1,17 @@
 #include "ScriptInstance.hpp"
+#include <print>
 
 /**
 * The constructor creates and populates the lua environment using the parameters. It also saves some useful data.
 */
-ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath) :
+ScriptInstance::ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath) :
+	m_testNode(p_testNode),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
 	m_scriptPath(p_scriptPath)
 {
+	m_environment["self"] = m_testNode;
+
 	sol::protected_function scriptFunction = p_script;
 
 	sol::protected_function_result functionResult = scriptFunction(m_environment);
@@ -52,6 +56,7 @@ void ScriptInstance::onUpdate(float deltatime)
 		if (!result.valid())
 		{
 			sol::error err = result;
+			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n", m_scriptPath, err.what());
 			//Send to error logger when it exists
 		}
 	}

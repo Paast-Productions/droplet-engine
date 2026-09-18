@@ -3,6 +3,7 @@
 //#include <utility> might be needed include this if you get errors
 #include <string>
 #include "LuaStateHandler.hpp"
+#include "TestNode.hpp"
 
 /**
 * The ScriptInstance class represents one scrips and its environment, it allows the engine to execute 
@@ -12,7 +13,7 @@
 class ScriptInstance
 {
 public:
-	ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath);
+	ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath);
 	~ScriptInstance() = default; 
 
 	template<typename... Args>
@@ -24,9 +25,9 @@ public:
 	void onUpdate(float deltatime);
 	std::string getScriptPath();
 private:
+	TestNode* m_testNode;
 	LuaStateHandler& m_stateHandler;
-
-	sol::environment m_environment; //Antingen Environment eller table beroende på vad vi behöver :)
+	sol::environment m_environment;
 
 	std::string m_scriptPath;
 

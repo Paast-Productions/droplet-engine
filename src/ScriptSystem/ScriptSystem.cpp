@@ -1,4 +1,5 @@
 #include "ScriptSystem.hpp"
+#include <print>
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 { 
@@ -34,6 +35,7 @@ ScriptInstance* ScriptSystem::CreateScript([[maybe_unused]] TestNode* p_testNode
 	ScriptInstance* instance = m_scriptManager.CreateScript(p_testNode, p_scriptFile);
 	if (instance == nullptr)
 	{
+		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
 		return nullptr;
 	}
 	return instance;

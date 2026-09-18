@@ -1,0 +1,8 @@
+function onUpdate(dt)
+
+	self:set_position(
+		self:get_x() + 1.0 * dt,
+		self:get_y(),
+		self:get_z()
+	) 
+end
