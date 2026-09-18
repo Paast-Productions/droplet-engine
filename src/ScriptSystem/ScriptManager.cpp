@@ -132,20 +132,24 @@ bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
 {
 	return false;
 }
+
+void ScriptManager::CheckForFileChanges()
+{
+
+}
  
 
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
 sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::string& p_scriptFile)
 {
-	std::unordered_map<std::string, sol::load_result>::iterator it = m_loadedScripts.find(p_scriptFile);
+	auto it = m_loadedScripts.find(p_scriptFile);
 	
 	if (it == m_loadedScripts.end())
 	{
 		return nullptr;
 	}
+
 	return &it->second;
-	
-	return nullptr;
 }
 
 bool ScriptManager::m_Initialize()

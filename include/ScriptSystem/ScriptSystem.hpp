@@ -12,7 +12,6 @@ public:
 
 	void Start();
 	void Update(float p_deltaTime);
-	void Shutdown();
 
 	bool LoadScript(const std::string& p_scriptFile);
 	bool UnloadScript(const std::string& p_scriptFile);
