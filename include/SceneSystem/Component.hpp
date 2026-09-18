@@ -27,6 +27,12 @@ public:
     /// Derived classes can override this function to perform initialization.
     virtual void Initialize() {}
 
+    /// @brief Called when the owning Node starts.
+    ///
+    /// Called when the owning Node starts participating in the active Scene.
+    /// Derived Components can override this function to perform startup logic.
+    virtual void OnStart() {}
+
     /// @brief Updates the component.
     ///
     /// Called once per update for components attached to active Nodes.
@@ -44,7 +50,7 @@ private:
     friend class Node;
 
     /// @brief Sets the Node that owns this component.
-    ///
+    ///     
     /// Only Node can set the owner of a Component. This is used when
     /// the component is added to a Node.
     ///

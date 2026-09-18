@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component.hpp"
+#include "../Component.hpp"
 #include <string>
 
 class MeshComponent : public Component

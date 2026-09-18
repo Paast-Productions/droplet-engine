@@ -10,7 +10,11 @@ class Node;
 /// A Scene owns a root Node that serves as the entry point to the
 /// scene hierarchy. Scenes can be loaded, unloaded, activated,
 /// and updated independently.
-class Scene
+///
+/// Nodes maintain a weak reference to their containing Scene so
+/// that they can access Scene-level functionality without creating
+/// an ownership cycle.
+class Scene: public std::enable_shared_from_this<Scene>
 {
 public:
 
@@ -23,8 +27,11 @@ public:
 
     /// @brief Loads the Scene.
     ///
-    /// Called when the Scene is loaded into memory. Derived Scenes
-    /// can override this function to perform additional initialization.
+    /// Called when the Scene is loaded into memory. The Scene reference
+    /// is assigned to the root Node and propagated through the Node hierarchy.
+    ///
+    /// Derived Scenes can override this function to perform additional
+    /// initialization.
     virtual void Load();
 
     /// @brief Unloads the Scene.
@@ -85,4 +92,4 @@ private:
 
     bool m_loaded = false;
     bool m_active = false;
-};
+};     

@@ -8,6 +8,26 @@ Node::Node(std::string p_name)
 {
 }
 
+void Node::OnStart()
+{
+    if (!m_active || m_started)
+    {
+        return;
+    }
+
+    m_started = true;
+
+    for (const auto& component : m_components)
+    {
+        component->OnStart();
+    }
+
+    for (const auto& child : m_children)
+    {
+        child->OnStart();
+    }
+}
+
 void Node::Update(float p_deltaTime)
 {
     if (!m_active)
@@ -47,6 +67,11 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     }
 
     p_child->m_parent = shared_from_this();
+
+    if (auto scene = m_scene.lock())
+    {
+        p_child->SetScene(scene);
+    }
 
     m_children.push_back(p_child);
 

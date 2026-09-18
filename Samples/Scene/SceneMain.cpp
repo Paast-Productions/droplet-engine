@@ -5,278 +5,157 @@
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
-#include "SceneSystem/MeshComponent.hpp"
+#include "SceneSystem/Components/MeshComponent.hpp"
 
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SceneManager sceneManager;
 
-    // --------------------------------------------------
-    // Scene
-    // --------------------------------------------------
-
     std::cout << "Loading Game scene...\n";
 
     if (!sceneManager.LoadScene("Game"))
     {
-        std::cout << "Failed to load Game scene!\n";
+        std::cout << "Failed to load Game scene.\n";
         return 1;
     }
-
-    std::cout << "Game scene loaded successfully.\n";
 
     if (!sceneManager.ActivateScene("Game"))
     {
-        std::cout << "Failed to activate Game scene!\n";
+        std::cout << "Failed to activate Game scene.\n";
         return 1;
     }
 
-    std::cout << "Game scene activated.\n";
+    auto scene = sceneManager.GetScene("Game");
 
-
-    // --------------------------------------------------
-    // Get root
-    // --------------------------------------------------
-
-    std::shared_ptr<Scene> gameScene =
-        sceneManager.GetScene("Game");
-
-    std::shared_ptr<Node> root =
-        gameScene->GetRoot();
-
-    std::cout << "Root name: "
-        << root->GetName()
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Create nodes
-    // --------------------------------------------------
-
-    auto player =
-        std::make_shared<Node>("Player");
-
-    auto weapon =
-        std::make_shared<Node>("Weapon");
-
-    auto enemy =
-        std::make_shared<Node>("Enemy");
-
-
-    // --------------------------------------------------
-    // Build hierarchy
-    // --------------------------------------------------
-
-    root->AddChild(player);
-    player->AddChild(weapon);
-    root->AddChild(enemy);
-
-
-    // --------------------------------------------------
-    // Set transforms
-    // --------------------------------------------------
-
-    player->SetPosition(glm::vec3(10.0f, 0.0f, 0.0f));
-
-    weapon->SetPosition(glm::vec3(0.0f, 0.0f, 2.0f));
-
-    enemy->SetPosition(glm::vec3(-5.0f, 0.0f, 0.0f));
-
-    // --------------------------------------------------
-    // MeshComponent tests
-    // --------------------------------------------------
-
-    std::cout << "\n--- MeshComponent Tests ---\n";
-
-
-    // --------------------------------------------------
-    // Add MeshComponent
-    // --------------------------------------------------
-
-    std::cout << "\nAdding MeshComponent to Player...\n";
-
-    auto meshComponent =
-        player->AddComponent<MeshComponent>(
-            "Assets/Models/Player.mesh");
-
-    if (meshComponent)
+    if (!scene)
     {
-        std::cout << "MeshComponent added successfully.\n";
+        std::cout << "Failed to retrieve Game scene.\n";
+        return 1;
+    }
+
+    auto root = scene->GetRoot();
+
+    if (!root)
+    {
+        std::cout << "Root does not exist.\n";
+        return 1;
+    }
+
+    std::cout << "\n--- Scene Reference Tests ---\n";
+
+    // --------------------------------------------------
+    // Test 1: Root knows its Scene
+    // --------------------------------------------------
+
+    std::cout << "\nTesting root Scene reference...\n";
+
+    auto rootScene = root->GetScene();
+
+    if (rootScene == scene)
+    {
+        std::cout << "Root correctly references Game scene.\n";
     }
     else
     {
-        std::cout << "Failed to add MeshComponent.\n";
+        std::cout << "ERROR: Root does not reference Game scene.\n";
     }
 
-
     // --------------------------------------------------
-    // Test mesh path
-    // --------------------------------------------------
-
-    std::cout << "\nTesting mesh path...\n";
-
-    std::cout << "Mesh path: "
-        << meshComponent->GetMeshPath()
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Test owner
+    // Test 2: Child inherits Scene
     // --------------------------------------------------
 
-    std::cout << "\nTesting MeshComponent owner...\n";
+    std::cout << "\nTesting child Scene reference...\n";
 
-    auto meshOwner =
-        meshComponent->GetOwner();
+    auto player = root->AddChild(
+        std::make_shared<Node>("Player")
+    );
 
-    if (meshOwner)
+    auto playerScene = player->GetScene();
+
+    if (playerScene == scene)
     {
-        std::cout << "Mesh owner: "
-            << meshOwner->GetName()
-            << "\n";
+        std::cout << "Player correctly references Game scene.\n";
     }
     else
     {
-        std::cout << "MeshComponent has no owner!\n";
+        std::cout << "ERROR: Player does not reference Game scene.\n";
     }
 
-
     // --------------------------------------------------
-    // Test GetComponent
+    // Test 3: Grandchild inherits Scene
     // --------------------------------------------------
 
-    std::cout << "\nTesting GetComponent<MeshComponent>...\n";
+    std::cout << "\nTesting grandchild Scene reference...\n";
 
-    auto retrievedMesh =
-        player->GetComponents<MeshComponent>();
+    auto weapon = player->AddChild(
+        std::make_shared<Node>("Weapon")
+    );
 
-    if (!retrievedMesh.empty())
+    auto weaponScene = weapon->GetScene();
+
+    if (weaponScene == scene)
     {
-        std::cout << "MeshComponent retrieved successfully.\n";
+        std::cout << "Weapon correctly references Game scene.\n";
     }
     else
     {
-        std::cout << "Failed to retrieve MeshComponent.\n";
+        std::cout << "ERROR: Weapon does not reference Game scene.\n";
     }
 
-
     // --------------------------------------------------
-    // Test component removal
-    // --------------------------------------------------
-
-    std::cout << "\nRemoving MeshComponent...\n";
-
-    bool meshRemoved =
-        player->RemoveComponent<MeshComponent>();
-
-    std::cout << "MeshComponent removed: "
-        << meshRemoved
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Verify removal
+    // Test 4: Child added after hierarchy exists
     // --------------------------------------------------
 
-    auto meshAfterRemoval =
-        player->GetComponents<MeshComponent>();
+    std::cout << "\nTesting dynamically added child...\n";
 
-    if (meshAfterRemoval.empty())
+    auto camera = player->AddChild(
+        std::make_shared<Node>("Camera")
+    );
+
+    auto cameraScene = camera->GetScene();
+
+    if (cameraScene == scene)
     {
-        std::cout << "MeshComponent successfully removed.\n";
+        std::cout << "Camera correctly references Game scene.\n";
     }
     else
     {
-        std::cout << "MeshComponent still exists!\n";
+        std::cout << "ERROR: Camera does not reference Game scene.\n";
     }
 
     // --------------------------------------------------
-    // Update
+    // Test 5: Verify entire hierarchy
     // --------------------------------------------------
 
-    sceneManager.Update(0.016f);
+    std::cout << "\n--- Hierarchy Scene References ---\n";
+
+    std::cout << root->GetName()
+        << ": "
+        << (root->GetScene() == scene ? "Game" : "ERROR")
+        << '\n';
+
+    std::cout << player->GetName()
+        << ": "
+        << (player->GetScene() == scene ? "Game" : "ERROR")
+        << '\n';
+
+    std::cout << weapon->GetName()
+        << ": "
+        << (weapon->GetScene() == scene ? "Game" : "ERROR")
+        << '\n';
+
+    std::cout << camera->GetName()
+        << ": "
+        << (camera->GetScene() == scene ? "Game" : "ERROR")
+        << '\n';
 
     // --------------------------------------------------
-    // Print positions
+    // Cleanup
     // --------------------------------------------------
-
-    glm::vec3 playerWorld =
-        player->GetPosition();
-
-    glm::vec3 weaponWorld =
-        weapon->GetPosition();
-
-    glm::vec3 enemyWorld =
-        enemy->GetPosition();
-
-    std::cout << "\nPlayer local position:\n";
-    std::cout << playerWorld.x << ", "
-        << playerWorld.y << ", "
-        << playerWorld.z << "\n";
-
-    std::cout << "\nWeapon local position:\n";
-    std::cout << weaponWorld.x << ", "
-        << weaponWorld.y << ", "
-        << weaponWorld.z << "\n";
-
-    std::cout << "\nEnemy local position:\n";
-    std::cout << enemyWorld.x << ", "
-        << enemyWorld.y << ", "
-        << enemyWorld.z << "\n";
-
-
-    // --------------------------------------------------
-    // Test removing a node
-    // --------------------------------------------------
-
-    std::cout << "\nRemoving Enemy...\n";
-
-    root->RemoveChild(enemy);
-
-    std::cout << "Children after removing Enemy: "
-        << root->GetChildren().size()
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Test deactivation
-    // --------------------------------------------------
-
-    std::cout << "\nDeactivating Game scene...\n";
-
-    sceneManager.DeactivateScene("Game");
-
-    std::cout << "Game active: "
-        << gameScene->IsActive()
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Test activation again
-    // --------------------------------------------------
-
-    std::cout << "\nActivating Game scene again...\n";
-
-    sceneManager.ActivateScene("Game");
-
-    std::cout << "Game active: "
-        << gameScene->IsActive()
-        << "\n";
-
-
-    // --------------------------------------------------
-    // Test unloading
-    // --------------------------------------------------
-
-    std::cout << "\nUnloading Game scene...\n";
 
     sceneManager.UnloadScene("Game");
 
-    if (sceneManager.GetScene("Game") == nullptr)
-    {
-        std::cout << "Game scene successfully unloaded.\n";
-    }
-
     return 0;
+
 }

@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp>
 
 class Component;
+class Scene;
 
 /// @brief Represents a game object in a scene hierarchy.
 ///
@@ -28,6 +29,16 @@ public:
     /// @brief Virtual destructor.
     virtual ~Node() = default;
 
+    /// @brief Starts the Node, its Components, and its children.
+    ///
+    /// Calls OnStart() on all Components attached to this Node and then
+    /// starts all child Nodes.
+    ///
+    /// OnStart() should only be called once for each Node activation.
+    ///
+    /// @note The Node's OnStart() function can be overridden by derived Nodes.
+    virtual void OnStart();
+
     /// @brief Updates the Node, its Components, and its children.
     ///
     /// Updates the Node's transforms, followed by its Components
@@ -39,8 +50,7 @@ public:
     /// @brief Renders the Node.
     ///
     /// @note Currently unused and does not perform any rendering.
-    /// Rendering functionality may be moved to a separate rendering
-    /// system in the future.
+    /// Rendering functionality may be moved.
     virtual void Render();
 
     // --------------------------------------------------
@@ -74,6 +84,12 @@ public:
     ///
     /// @return A constant reference to the vector containing this Node's children.
     const std::vector<std::shared_ptr<Node>>& GetChildren() const;
+
+    /// @brief Gets the Scene that owns this Node.
+    ///
+    /// @return A shared pointer to the Scene, or nullptr if the Node
+    /// does not currently belong to a Scene.
+    std::shared_ptr<Scene> GetScene() const;
 
     // --------------------------------------------------
     // Name
@@ -225,6 +241,23 @@ private:
     std::weak_ptr<Node> m_parent;
     std::vector<std::shared_ptr<Node>> m_children;
 
+    // Scene
+
+    friend class Scene;
+
+    /// @brief Sets the Scene that this Node belongs to.
+    ///
+    /// The Scene reference is also propagated to all child Nodes.
+    ///
+    /// @param p_scene Scene that owns this Node.
+    void SetScene(std::shared_ptr<Scene> p_scene);
+
+    /// @brief Weak reference to the Scene containing this Node.
+    ///
+    /// The Scene owns the Node hierarchy, so the Node stores only a
+    /// weak reference to avoid creating an ownership cycle.
+    std::weak_ptr<Scene> m_scene;
+
     // Components
 
     std::vector<std::shared_ptr<Component>> m_components;
@@ -239,4 +272,7 @@ private:
     glm::mat4 m_worldTransform{ 1.0f };
 
     bool m_active = true;
+
+    /// @brief Indicates whether the Node has been started.
+    bool m_started = false;
 };
