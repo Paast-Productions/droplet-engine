@@ -5,7 +5,6 @@
 #include <string>
 #include <unordered_map>
 #include <filesystem>
-#include <json/json.hpp>
 
 namespace Droplet
 {
