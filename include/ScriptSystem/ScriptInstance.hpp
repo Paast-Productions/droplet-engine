@@ -15,7 +15,7 @@ public:
 	/// @param p_stateHandler owns the lua state
 	/// @param p_script is necessary to populate the lua environment
 	/// @param p_scriptPath is the script path
-	ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath);
+	ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath);
 	~ScriptInstance() = default;
 
 	/// @brief The call function should be able to call an arbitrary function inside the lua environment. 

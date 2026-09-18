@@ -1,7 +1,8 @@
 #include "ScriptInstance.hpp"
 #include <print>
 
-ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath) :
+ScriptInstance::ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHandler, sol::load_result& p_script, const std::string& p_scriptPath) :
+	m_testNode(p_testNode),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
 	m_scriptPath(p_scriptPath)
@@ -9,12 +10,14 @@ ScriptInstance::ScriptInstance(LuaStateHandler& p_stateHandler, sol::load_result
 	m_environment["self"] = m_testNode;
 
 	sol::protected_function scriptFunction = p_script;
+	
+	sol::set_environment(m_environment, scriptFunction);
 
-	sol::protected_function_result functionResult = scriptFunction(m_environment);
+	sol::protected_function_result functionResult = scriptFunction();
 	if (!functionResult.valid())
 	{
 		sol::error error = functionResult;
-		//send to logging manager because this is an error (:
+		std::print("Script error: {}\n", error.what());
 
 		return;
 	}
