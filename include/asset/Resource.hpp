@@ -1,19 +1,19 @@
 #pragma once
+#include <vector>
+#include <string>
+#include <glm/glm.hpp>
 
 
-namespace engine
+namespace Droplet
 {
-	enum class AssetType
+	enum class ResourceType
 	{
 		Texture2D,
 		Texture3D,
-		TextureCube,
-		TextureAtlas,
 		Mesh,
 		SkinnedMesh,
 		Animation,
 		Shader,
-		Font,
 		Material,
 	};
 
@@ -50,8 +50,6 @@ namespace engine
 
 	public:
 
-	protected:
-
 	private:
 
 	};
@@ -62,34 +60,6 @@ namespace engine
 		// TODO
 
 	public:
-
-	protected:
-
-	private:
-
-	};
-
-	/// @brief Class for cube texture resources.
-	class TextureCubeResource : public TextureResource
-	{
-		// TODO
-
-	public:
-
-	protected:
-
-	private:
-
-	};
-
-	/// @brief Class for atlas texture resources.
-	class TextureAtlasResource : public TextureResource
-	{
-		// TODO
-
-	public:
-
-	protected:
 
 	private:
 
@@ -103,6 +73,11 @@ namespace engine
 	public:
 
 	protected:
+		std::vector<std::byte>								m_vertexData{};			// Vertex data
+		std::vector<int>									m_indexData{};			// Index data
+
+		std::size_t											m_vertexByteSize = 0;	// Byte size of a single vertex
+		std::vector<std::pair<std::string, std::size_t>>	m_vertexLayout{};		// List of attribute names and their byte sizes
 
 	private:
 
@@ -115,23 +90,41 @@ namespace engine
 
 	public:
 
-	protected:
-
 	private:
 
 	};
 
-	/// @brief Class for skinned mesh resources.
+	/// @brief Class for skinned mesh resources. 
+	/// @details Vertex byte data is expected to contain bone indices and weights for each vertex. 
+	/// Bone indices are expected to be stored as X ints, while bone weights are expected to be stored as X floats,
+	/// where X is the maximum number of bones that can influence a single vertex (almost always 4). 
+	/// The sum of all weights for a single vertex must equal 1.0f.
 	class SkinnedMeshResource : public MeshBaseResource
 	{
-		// TODO
-
 	public:
+		struct Bone
+		{
+			std::string		name = "Unnamed";
+			int				parentIndex = -1;	// -1: root
+			glm::mat4		offsetMat{};		// Mesh-space to bone-space at bind pose
+		};
 
-	protected:
+		void AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
+		{
+			Bone bone {
+				.name = p_name, 
+				.parentIndex = p_parentIndex, 
+				.offsetMat = p_offsetMat
+			};
+
+			m_bones.push_back(bone);
+			m_boneMap[p_name] = static_cast<int>(m_bones.size()) - 1;
+		}
 
 	private:
 
+		std::vector<Bone>						m_bones;
+		std::unordered_map<std::string, int>	m_boneMap;
 	};
 
 	/// @brief Class for animation resources.
@@ -140,8 +133,6 @@ namespace engine
 		// TODO
 
 	public:
-
-	protected:
 
 	private:
 
@@ -154,21 +145,6 @@ namespace engine
 
 	public:
 
-	protected:
-
-	private:
-
-	};
-
-	/// @brief Class for font resources.
-	class FontResource : public IResource
-	{
-		// TODO
-
-	public:
-
-	protected:
-
 	private:
 
 	};
@@ -179,8 +155,6 @@ namespace engine
 		// TODO
 
 	public:
-
-	protected:
 
 	private:
 
