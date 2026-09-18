@@ -86,5 +86,15 @@ bool Scene::IsActive() const
 
 void Scene::SetActive(bool p_active)
 {
+    if (m_active == p_active)
+    {
+        return;
+    }
+
     m_active = p_active;
+
+    if (m_active)
+    {
+        m_root->OnStart();
+    }
 }

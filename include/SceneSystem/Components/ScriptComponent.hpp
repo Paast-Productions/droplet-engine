@@ -6,37 +6,18 @@
 
 /// @brief Component that attaches a Lua script to a Node.
 ///
-/// A ScriptComponent stores the path to a Lua script and provides
-/// the interface required to initialize and update the script.
-///
-/// Multiple ScriptComponents can be attached to the same Node,
-/// allowing a Node to have multiple Lua scripts with different
-/// responsibilities.
+/// An example of a ScriptComponent could be a Lua script that controls the behavior of a game character, 
+/// such as movement, animations, and interactions with other objects in the scene. 
+/// The ScriptComponent would load the Lua script from the specified path and execute it during the Node's update cycle.
+/// 
+
 class ScriptComponent : public Component
 {
 public:
 
-    /// @brief Constructs a ScriptComponent with the specified script path.
-    ///
-    /// @param p_scriptPath Path to the Lua script.
     explicit ScriptComponent(std::string p_scriptPath);
-
-    /// @brief Initializes the script component.
-    ///
-    /// Loads and initializes the associated Lua script.
-    /// The actual Lua integration can be implemented separately.
     void Initialize() override;
-
-    /// @brief Updates the Lua script.
-    ///
-    /// Called once per update while the owning Node is active.
-    ///
-    /// @param p_deltaTime Time elapsed since the previous update, in seconds.
     void Update(float p_deltaTime) override;
-
-    /// @brief Gets the path to the Lua script.
-    ///
-    /// @return A constant reference to the script path.
     const std::string& GetScriptPath() const;
 
 private:

@@ -1,4 +1,5 @@
 #include "Node.hpp"
+#include "Scene.hpp"
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
@@ -59,6 +60,32 @@ void Node::Render()
     return;
 }
 
+void Node::SetActive(bool p_active)
+{
+    if (m_active == p_active)
+    {
+        return;
+    }
+
+    m_active = p_active;
+
+    if (m_active)
+    {
+        if (auto scene = m_scene.lock())
+        {
+            if (scene->IsActive())
+            {
+                OnStart();
+            }
+        }
+    }
+}
+
+bool Node::IsActive() const
+{
+    return m_active;
+}
+
 std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 {
     if (!p_child)
@@ -74,6 +101,11 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     }
 
     m_children.push_back(p_child);
+
+    if (m_started)
+    {
+        p_child->OnStart();
+    }
 
     return p_child;
 }
@@ -100,6 +132,11 @@ const std::string& Node::GetName() const
 const std::vector<std::shared_ptr<Node>>& Node::GetChildren() const
 {
     return m_children;
+}
+
+std::shared_ptr<Node> Node::GetParent() const
+{
+    return m_parent.lock();
 }
 
 void Node::SetPosition(const glm::vec3& p_position)

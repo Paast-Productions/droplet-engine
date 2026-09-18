@@ -53,6 +53,21 @@ public:
     /// Rendering functionality may be moved.
     virtual void Render();
 
+    /// @brief Sets whether the Node is active.
+    ///
+    /// An inactive Node does not update its Components or child Nodes.
+    ///
+    /// If the Node is activated after its Scene has already started,
+    /// OnStart is called automatically.
+    ///
+    /// @param p_active true to activate the Node, false to deactivate it.
+    void SetActive(bool p_active);
+
+    /// @brief Checks whether the Node is active.
+    ///
+    /// @return true if the Node is active, otherwise false.
+    bool IsActive() const;
+
     // --------------------------------------------------
     // Children
     // --------------------------------------------------
@@ -129,6 +144,11 @@ public:
         m_components.push_back(component);
 
         component->Initialize();
+
+        if (m_started)
+        {
+            component->OnStart();
+        }
 
         return component;
     }
