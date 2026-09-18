@@ -18,8 +18,25 @@ public:
 
 	void Update(float p_deltaTime);
 	
+	/// <summary>
+	/// Takes a component as a parameter and creates a relationships between the component and the desired lua file
+	/// </summary>
+	/// <param name="p_testNode"></param>
+	/// <param name="p_scriptFile"></param>
+	/// <returns></returns>
+	ScriptInstance* CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile); // add entity as parameter when we have entitites
 
-	ScriptInstance* CreateScript(TestNode* p_testNode, const std::string& p_scriptFile); // add entity as parameter when we have entitites
+
+	/// <summary>
+	/// Detaches the relation of the instance on a component
+	/// </summary>
+	/// <param name="p_testNode"></param>
+	/// <param name="p_scriptInstance"></param>
+	void DetachScript(TestNode* p_scriptComponent, ScriptInstance* p_scriptInstance);
+	/// <summary>
+	/// Deletes every instance of a specific script across all relationships
+	/// </summary>
+	/// <param name="p_scriptInstance"></param>
 	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	bool LoadScript(const std::string& p_scriptFile);
@@ -31,9 +48,13 @@ public:
 
 	
 private:
+	//state
 	LuaStateHandler& m_StateHandler;
+	//Owner
 	std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
-	std::unordered_map<ScriptInstance*, TestNode*> m_scripts;
+	//Component -> Instance relationship
+	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
+	//loaded Lua chunks
 	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();

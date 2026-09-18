@@ -19,7 +19,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNode, const std::string& p_scriptFile)
+ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, const std::string& p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -45,8 +45,25 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNod
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
+	m_scripts.emplace(p_scriptComponent, instance);
 	instance->onStart();
 	return instance;
+}
+
+void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent, ScriptInstance* p_scriptInstance)
+{
+	if (p_scriptInstance == nullptr || p_scriptComponent == nullptr)
+	{
+		return;
+	}
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		//Couldn't find send an error
+		return;
+	}
+	m_scripts.erase(it);
 }
 
 void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInstance)
@@ -55,6 +72,18 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 	{
 		return;
 	}		
+
+	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	{
+		if (it->second == p_scriptInstance)
+		{
+			m_scripts.erase(it);
+		}
+		else //If we do it++ in the for declaration it invalidates the iterator and we can't keep going
+		{
+			it++;
+		}
+	}
 
 	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++) // it for iterator
 	{
@@ -65,7 +94,7 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 		}																				
 	}
 
-	// instance was handled well if we reach this point
+	// instance was not handled well if we reach this point
 	// send error to logging manager here
 }
 
