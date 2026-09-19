@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
-namespace DropletEngine
+namespace Droplet::Graphics
 {
     // Name Subject To Change
     struct PipelineStorageKey

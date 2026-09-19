@@ -2,7 +2,7 @@
 
 #include <map>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>

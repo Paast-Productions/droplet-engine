@@ -1,15 +1,16 @@
 ﻿#include "ShaderCompiler.hpp"
 
 #include <print>
+#include <array>
 
-using namespace DropletEngine::Graphics;
+using namespace Droplet::Graphics;
 
 ShaderCompiler::ShaderCompiler()
 {
     slang::createGlobalSession(m_globalSession.writeRef());
 }
 
-Slang::ComPtr<slang::IBlob>& ShaderCompiler::CompileShader(std::filesystem::path p_path, const SlangcSessionParameters& p_sessionParams )
+Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path, const SlangcSessionParameters& p_sessionParams )
 {
     Slang::ComPtr<slang::ISession> session {};
     
@@ -44,9 +45,79 @@ Slang::ComPtr<slang::IBlob>& ShaderCompiler::CompileShader(std::filesystem::path
         
         if (!module)
         {
-            std::print("Shaderc Log: {0}", errorBlob->getBufferPointer());
+            std::print("Shaderc Log:\n{0}", errorBlob->getBufferPointer());
             
             throw std::runtime_error("Failed to create slang module");
         }
     }
+    
+    std::array<slang::IComponentType*, 1> moduleComponent
+    {
+        {module}
+    };
+    
+    Slang::ComPtr<slang::IComponentType> composedProgram {};
+    
+    {
+        Slang::ComPtr<slang::IBlob> errorBlob {};
+        SlangResult result
+        {
+            session->createCompositeComponentType
+            (
+                moduleComponent.data(),
+                moduleComponent.size(),
+                composedProgram.writeRef(),
+                errorBlob.writeRef()
+            )
+        };
+        
+        if (result == SLANG_FAIL)
+        {
+            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            throw std::runtime_error("Failed to compose shader program");
+        }
+    }
+    
+    Slang::ComPtr<slang::IComponentType> linkedProgram {};
+    
+    {
+        Slang::ComPtr<slang::IBlob> errorBlob {};
+        SlangResult result 
+        {  
+            composedProgram->link
+            (
+                linkedProgram.writeRef(),
+                errorBlob.writeRef()
+            )
+        };
+        
+        if (result == SLANG_FAIL)
+        {
+            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            throw std::runtime_error("Failed to link shader program");
+        }
+    }
+    
+    Slang::ComPtr<slang::IBlob> spirvCode {};
+    
+    {
+        Slang::ComPtr<slang::IBlob> errorBlob {};
+        SlangResult result
+        {
+            linkedProgram->getTargetCode
+            (
+                0,
+                spirvCode.writeRef(),
+                errorBlob.writeRef()
+            )
+        };
+        
+        if (result == SLANG_FAIL)
+        {
+            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            throw std::runtime_error("Failed to compile shader to SPIR-V");
+        }
+    }
+    
+    return spirvCode;
 }

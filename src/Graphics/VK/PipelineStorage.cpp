@@ -1,6 +1,6 @@
 ﻿#include "PipelineStorage.hpp"
 
-using namespace DropletEngine;
+using namespace Droplet::Graphics;
 
 void PipelineStorage::Insert(const PipelineStorageKey& p_key, const vk::raii::Pipeline& p_pipeline)
 {
