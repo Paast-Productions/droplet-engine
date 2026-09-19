@@ -1,6 +1,7 @@
 ﻿#include <print>
 
 #include "asset/AssetManager.hpp"
+#include "asset/AssimpLoader.hpp"
 
 #include <filesystem>
 
@@ -13,8 +14,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fs::path assetDir = fs::current_path() / fs::path("assets");
     std::println("Initializing AssetManager for dir: {}", assetDir.generic_string());
     
-    engine::AssetManager assetManager;
+    Droplet::AssetManager assetManager;
     assetManager.Initialize(assetDir);
+
+    Droplet::AssimpLoader assimpLoader;
+    Droplet::AssetRecord assetRecord;
+    assimpLoader.LoadMesh("Cube.fbx", nlohmann::json(), assetRecord);
     
     return 0;
 }
