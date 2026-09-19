@@ -26,6 +26,11 @@ namespace Droplet
 	private:
 		Assimp::Importer m_importer;
 
+		/// @brief Helper function that constructs a vertex buffer.
+		/// @param p_meshData The imported mesh object.
+		/// @return A vector of the vertex buffer per byte.
+		std::vector<std::byte> BuildVertexData(const aiScene *&p_meshData);
+
 	};
 }
 
