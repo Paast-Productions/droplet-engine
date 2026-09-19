@@ -33,3 +33,7 @@ project "AssetManager-AssetLoading"
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd")
     }
+
+    postbuildcommands {
+        '{COPY} "' .. targetBuildPath .. '/External/bin/assimp-vc145-mtd.dll" "%{cfg.targetdir}"'
+    }
