@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+#include <stdexcept>
 
 
 namespace Droplet
@@ -131,17 +132,19 @@ namespace Droplet
 		/// @param p_name The name of the bone.
 		/// @param p_parentIndex The index of the parent bone. -1 if the bone is a root bone.
 		/// @param p_offsetMat The offset matrix of the bone. This is the transformation from mesh space to bone space at bind pose.
-		/// @return The index of the newly added bone, or -1 if a bone with the same name already exists.
+		/// @return The index of the newly added bone.
+		/// @throws std::runtime_error If a bone with the same name already exists.
+		/// @throws std::out_of_range If the parent index is out of range.
 		[[nodiscard]] int AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
 		{
 			if (m_boneMap.find(p_name) != m_boneMap.end())
 			{
-				return -1; // Bone with the same name already exists
+				throw std::runtime_error("Bone with the same name already exists: " + p_name);
 			}
 
 			if (p_parentIndex < -1 || p_parentIndex >= static_cast<int>(m_bones.size()))
 			{
-				return -1; // Invalid parent index
+				throw std::out_of_range("Parent index is out of range: " + std::to_string(p_parentIndex));
 			}
 
 			Bone bone {
@@ -153,7 +156,7 @@ namespace Droplet
 			m_bones.push_back(bone);
 			m_boneMap[p_name] = static_cast<int>(m_bones.size()) - 1;
 
-			return static_cast<int>(m_bones.size()) - 1;
+			return m_boneMap[p_name];
 		}
 
 		/// @brief Validates that the vertex layout contains both bone indices and weights, and that they have the same size.
