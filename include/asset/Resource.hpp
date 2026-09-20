@@ -72,6 +72,10 @@ namespace Droplet
 		using VertexAttribute = std::pair<std::string, std::size_t>;
 
 		/// @brief Sets the mesh data for the resource.
+		/// @param p_vertexData The vertex data for the mesh.
+		/// @param p_indexData The index data for the mesh.
+		/// @param p_vertexByteSize The byte size of a single vertex.
+		/// @param p_vertexLayout The vertex layout for the mesh data.
 		void SetMeshData(const std::vector<std::byte> &p_vertexData, const std::vector<int> &p_indexData, 
 						 std::size_t p_vertexByteSize, const std::vector<VertexAttribute> &p_vertexLayout)
 		{
@@ -82,15 +86,19 @@ namespace Droplet
 		}
 
 		/// @brief Gets the mesh data for the resource.
+		/// @return A vector of bytes representing the vertex data for the mesh.
 		[[nodiscard]] const std::vector<std::byte>			&GetVertexData() const		{ return m_vertexData; }
 
 		/// @brief Gets the mesh data for the resource.
+		/// @return A vector of ints representing the index data for the mesh.
 		[[nodiscard]] const std::vector<int>				&GetIndexData() const		{ return m_indexData; }
 
 		/// @brief Gets the byte size of a single vertex in the mesh data.
+		/// @return The byte size of a single vertex in the mesh data.
 		[[nodiscard]] std::size_t							GetVertexByteSize() const	{ return m_vertexByteSize; }
 
-		/// @brief Gets the vertex layout for the mesh data. The vertex layout is a list of attribute names and their byte sizes.
+		/// @brief Gets the vertex layout for the mesh data.
+		/// @return A vector of pairs representing the vertex layout for the mesh data. Each pair contains the attribute name and its byte size.
 		[[nodiscard]] const std::vector<VertexAttribute>	&GetVertexLayout() const	{ return m_vertexLayout; }
 
 	protected:
@@ -123,12 +131,17 @@ namespace Droplet
 		/// @param p_name The name of the bone.
 		/// @param p_parentIndex The index of the parent bone. -1 if the bone is a root bone.
 		/// @param p_offsetMat The offset matrix of the bone. This is the transformation from mesh space to bone space at bind pose.
-		/// @return True if the bone was added successfully, false if a bone with the same name already exists.
-		[[nodiscard]] bool AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
+		/// @return The index of the newly added bone, or -1 if a bone with the same name already exists.
+		[[nodiscard]] int AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
 		{
 			if (m_boneMap.find(p_name) != m_boneMap.end())
 			{
-				return false; // Bone with the same name already exists
+				return -1; // Bone with the same name already exists
+			}
+
+			if (p_parentIndex < -1 || p_parentIndex >= static_cast<int>(m_bones.size()))
+			{
+				return -1; // Invalid parent index
 			}
 
 			Bone bone {
@@ -139,6 +152,8 @@ namespace Droplet
 
 			m_bones.push_back(bone);
 			m_boneMap[p_name] = static_cast<int>(m_bones.size()) - 1;
+
+			return static_cast<int>(m_bones.size()) - 1;
 		}
 
 		/// @brief Validates that the vertex layout contains both bone indices and weights, and that they have the same size.
