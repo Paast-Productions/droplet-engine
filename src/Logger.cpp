@@ -43,6 +43,7 @@ void Logger::Log(LogType p_type, const std::string &p_msg)
 void Logger::ProcessQueue()
 {
     LogEntry logEntry;
+    std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
     while (Pop(logEntry) || m_running)
     {
         auto second = std::chrono::time_point_cast<std::chrono::seconds>(logEntry.timestamp);
@@ -58,7 +59,6 @@ void Logger::ProcessQueue()
             {"ThreadID",  threadStr}
         };
 
-        std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
         if (writingToJsonFile.is_open())
         {
             writingToJsonFile << j.dump(4) << ",\n";
@@ -85,7 +85,6 @@ void Logger::Push(LogEntry &p_in)
 
 bool Logger::Pop(LogEntry &p_out)
 {
-
     std::unique_lock<std::mutex> lock(GetInstance().m_mutex);
     m_conditionVariable.wait(lock, [this] {return !m_queue.empty() || !m_running;});
 
