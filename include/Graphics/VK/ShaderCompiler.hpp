@@ -7,6 +7,8 @@
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
 
+#include <Algorithm/Hash/Utilities.hpp>
+
 namespace Droplet::Graphics
 {
 	struct SlangcSessionParameters
@@ -25,10 +27,10 @@ namespace Droplet::Graphics
 		ShaderCompiler(ShaderCompiler&&) = delete;
 		ShaderCompiler& operator=(ShaderCompiler&&) = delete;
 		
-		Slang::ComPtr<slang::IBlob> CompileShader(const std::filesystem::path& p_path, const SlangcSessionParameters& p_sessionParams);
+		Slang::ComPtr<slang::IBlob> CompileShader(const std::filesystem::path& p_path);
 	
 	private:
 		Slang::ComPtr<slang::IGlobalSession> m_globalSession {};
-		std::unordered_map<SlangcSessionParameters, const Slang::ComPtr<slang::ISession>&> m_sessionMap;
+		Slang::ComPtr<slang::ISession> m_session {};
 	};
 }

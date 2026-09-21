@@ -5,9 +5,10 @@
 
 #include <SDL3/SDL.h>
 
-namespace Droplet::SDL
+namespace Droplet::Graphics::SDL
 {
     /// @brief 
+    /// @var [Private] m_sdlWindowHandle 
     class Window
     {
     public:

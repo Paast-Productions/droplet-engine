@@ -10,38 +10,44 @@ ShaderCompiler::ShaderCompiler()
     slang::createGlobalSession(m_globalSession.writeRef());
 }
 
-Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path, const SlangcSessionParameters& p_sessionParams )
+Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path)
 {
-    Slang::ComPtr<slang::ISession> session {};
-    
-    // Check if session already exists
-    if (m_sessionMap.contains(p_sessionParams))
+    [[unlikely]]
+    if (not m_session)
     {
-        session = m_sessionMap[p_sessionParams]; 
-    }
-    else
-    {
-        slang::SessionDesc sessionDesc 
-        {  
-            .targets = p_sessionParams.TargetDescriptions.data(),
-            .targetCount = static_cast<SlangInt>(p_sessionParams.TargetDescriptions.size()),
-            .defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
-            .preprocessorMacros = p_sessionParams.PreprocessorMacroDescriptions.data(),
-            .preprocessorMacroCount = static_cast<SlangInt>(p_sessionParams.PreprocessorMacroDescriptions.size()),
-            .compilerOptionEntries = p_sessionParams.CompilerOptionEntries.data(),
-            .compilerOptionEntryCount = static_cast<std::uint32_t>(p_sessionParams.CompilerOptionEntries.size()),
+        slang::TargetDesc targetDesc
+        {
+            .format = SLANG_SPIRV,
+            .profile = m_globalSession->findProfile("spirv_1_6")
         };
         
-        m_globalSession->createSession(sessionDesc, session.writeRef());
+        std::array<slang::CompilerOptionEntry, 1> options
+        {
+            {
+                {
+                    slang::CompilerOptionName::EmitSpirvDirectly,
+                    {slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr}
+                }
+            }
+        };
         
-        m_sessionMap.insert(std::make_pair<const SlangcSessionParameters&, const Slang::ComPtr<slang::ISession>&>(p_sessionParams, session));
+        slang::SessionDesc sessionDesc 
+        {  
+            .targets = &targetDesc,
+            .targetCount = 1,
+            .defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
+            .compilerOptionEntries = options.data(),
+            .compilerOptionEntryCount = static_cast<std::uint32_t>(options.size()) 
+        };
+        
+        m_globalSession->createSession(sessionDesc, m_session.writeRef());
     }
     
     Slang::ComPtr<slang::IModule> module {};
     
     {
         Slang::ComPtr<slang::IBlob> errorBlob {};
-        module = session->loadModule(p_path.filename().string().c_str(), errorBlob.writeRef());
+        module = m_session->loadModule(p_path.filename().string().c_str(), errorBlob.writeRef());
         
         if (!module)
         {
@@ -62,7 +68,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         Slang::ComPtr<slang::IBlob> errorBlob {};
         SlangResult result
         {
-            session->createCompositeComponentType
+            m_session->createCompositeComponentType
             (
                 moduleComponent.data(),
                 moduleComponent.size(),

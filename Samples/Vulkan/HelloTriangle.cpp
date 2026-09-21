@@ -6,7 +6,7 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-	Droplet::SDL::Window window {640, 480, SDL_WINDOW_VULKAN};
+	Droplet::Graphics::SDL::Window window {640, 480, SDL_WINDOW_VULKAN};
 	
 	
 	
