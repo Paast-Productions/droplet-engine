@@ -4,7 +4,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
-
 namespace Droplet::Scene
 {
 	class Node; // Forward declaration of Node class

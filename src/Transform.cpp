@@ -14,7 +14,7 @@ public:
 	Node()
 	{
 		m_parent = nullptr;
-		std::shared_ptr<Node> self = (std::shared_ptr<Node>)(this);
+		std::shared_ptr<Node> self(this, [](Node*) {});
 		m_transform = std::make_unique<Transform>(self);
 	}
 
@@ -276,6 +276,8 @@ void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -305,6 +307,8 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 		m_rotation = localRot;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -368,12 +372,16 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 	}
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
+
+	// TODO: Recursively mark children as dirty
 }
 
 void Transform::RecalculateMatrices()
@@ -448,6 +456,8 @@ void Transform::Rotate(const glm::quat &p_delta, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -477,6 +487,8 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -513,6 +525,8 @@ void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -542,6 +556,8 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 		m_rotation = glm::quat_cast(glm::lookAt(m_position, localTarget, localUp));
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
