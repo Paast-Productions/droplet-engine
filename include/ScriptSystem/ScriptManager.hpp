@@ -69,7 +69,7 @@ private:
 	//Component -> Instance relationship
 	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
 	//loaded Lua chunks
-	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
+	std::unordered_map<std::string, LoadedScript> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
 	void m_DestroyInstance(ScriptInstance* p_scriptInstance);

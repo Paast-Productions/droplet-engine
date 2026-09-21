@@ -250,6 +250,7 @@ void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 			return;
 		}
 	}
+}
 bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
