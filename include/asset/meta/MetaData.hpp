@@ -24,7 +24,8 @@ namespace Droplet
         Font,
         Material
     };
-    
+
+    /// @brief Determines if a resource is loaded into RAM, VRAM or both.
     enum class ResourceLoadFlag : uint8_t
     {
         LoadCPU = 1 << 0,
@@ -64,12 +65,12 @@ namespace Droplet
     {
         // Common
         GUID guid = C_INVALID_GUID;
-        ResourceType type;
+        ResourceType type = ResourceType::None;
         std::string name;
-        ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadBoth;
+        ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU;
         std::vector<GUID> dependencies;
         
         // Resource specific
-        json typeSpecificData; // Ignored by catalog, parsed by IAssetLoader
+        json typeSpecificData = json::object();
     };
 }

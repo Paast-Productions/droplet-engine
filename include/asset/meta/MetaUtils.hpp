@@ -8,12 +8,13 @@ namespace Droplet::MetaUtils
 {
     // --- Default Import Settings --- TODO: Add defualts for all flags here
     
-    // Models
-    static constexpr float C_MODEL_DEFAULT_SCALE = 1.0f; // The default scale in a 
-    static constexpr bool C_MODEL_DEFAULT_IMPORT_ANIMATIONS = false;
+    // Meshes
+    static constexpr bool C_MESH_DEFAULT_IMPORT_GENERATE_NORMALS = true;
+    static constexpr bool C_MESH_DEFAULT_IMPORT_JOIN_IDENTICAL_VERTICES = true;
+    static constexpr bool C_MESH_DEFAULT_IMPORT_TRIANGULATE = true;
     
     // Textures
-    // static constexpr bool C_TEXTURE_DEFAULT_GENERATE_MIPMAPS = false;
+    static constexpr bool C_TEXTURE_DEFAULT_GENERATE_MIPMAPS = false;
     
     /// @brief Reads and parses a .meta file.
     /// @param p_metaFilePath The path to the .meta file on the disk.
@@ -27,14 +28,9 @@ namespace Droplet::MetaUtils
     /// @return True if the metadata was successfully written to the file, otherwise false.
     bool Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData);
 
-    /// @brief Retrieves the asset extension for a specified file.
-    /// @param p_assetPath The path to the asset file.
-    /// @return The extension. Empty string if the file does not exist.
-    std::string GetLowercaseExtension(const std::filesystem::path &p_assetPath);
-
-    /// @brief Generates a meta file with a newly generated GUID and default values for every other field.
-    /// @param p_assetPath The path to the asset file.
-    /// @param p_metaData The metadata struct to be populated.
-    /// @return True if the file was successfully generated, otherwise false.
-    bool GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<MetaEntry> &p_metaData);
+    /// @brief Generates a new meta entry with a unique GUID and type-specific default values.
+    /// @param p_type The type of resource the entry is for.
+    /// @param p_name The name of the resource within the asset.
+    /// @return A generated meta entry.
+    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string& p_name);
 }
