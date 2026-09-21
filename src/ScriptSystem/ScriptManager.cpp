@@ -49,9 +49,9 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 	return instance;
 }
 
-void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent, ScriptInstance* p_scriptInstance)
+void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
 {
-	if (p_scriptInstance == nullptr || p_scriptComponent == nullptr)
+	if (p_scriptComponent == nullptr)
 	{
 		return;
 	}
@@ -62,13 +62,9 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent, S
 		//Couldn't find send an error
 		return;
 	}
-
-	if (it->second != p_scriptInstance)
-	{
-		//Mismatch in the map handle error
-		return;
-	}
-	m_scripts.erase(it);
+	ScriptInstance* instance = it->second;
+	// Destroy it
+	m_DestroyInstance(instance);
 }
 
 void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInstance)
@@ -178,4 +174,34 @@ sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::str
 bool ScriptManager::m_Initialize()
 {
 	return false;
+}
+
+void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
+{
+	if (p_scriptInstance == nullptr)
+	{
+		//Send error to logging
+		return;
+	}
+
+	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	{
+		if (it->second == p_scriptInstance)
+		{
+			it = m_scripts.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++)
+	{
+		if (it->get() == p_scriptInstance)
+		{
+			m_scriptInstances.erase(it);
+			return;
+		}
+	}
 }

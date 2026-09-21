@@ -32,7 +32,7 @@ public:
 	/// </summary>
 	/// <param name="p_testNode"></param>
 	/// <param name="p_scriptInstance"></param>
-	void DetachScript(TestNode* p_scriptComponent, ScriptInstance* p_scriptInstance);
+	void DetachScript(TestNode* p_scriptComponent);
 	/// <summary>
 	/// Deletes every instance of a specific script across all relationships
 	/// </summary>
@@ -58,6 +58,7 @@ private:
 	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
+	void m_DestroyInstance(ScriptInstance* p_scriptInstance)
 
 	bool m_LoadFile(const std::string& p_scriptFile);
 
