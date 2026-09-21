@@ -4,7 +4,7 @@
 
 #include <filesystem>
 
-namespace Droplet::MetaSerializer
+namespace Droplet::MetaUtils
 {
     // --- Default Import Settings --- TODO: Add defualts for all flags here
     

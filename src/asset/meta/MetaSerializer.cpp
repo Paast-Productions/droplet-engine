@@ -6,7 +6,7 @@ using json = nlohmann::json;
 
 namespace Droplet
 {
-    bool MetaSerializer::Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
+    bool MetaUtils::Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
@@ -29,7 +29,7 @@ namespace Droplet
                     resourceData.guid = j.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(j.value("type", static_cast<uint8_t>(ResourceType::None)));
                     resourceData.name = j.value("name", std::string{});
-                    resourceData.loadFlags = static_cast<ResourceLoadFlag>(j.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadBoth)));
+                    resourceData.loadFlags = static_cast<ResourceLoadFlag>(j.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.dependencies = j.value("dependencies", std::vector<GUID>{});
                     resourceData.typeSpecificData = j.value("specificData", json::object());
                     
@@ -46,7 +46,7 @@ namespace Droplet
         return true;
     }
 
-    bool MetaSerializer::Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
+    bool MetaUtils::Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
@@ -78,7 +78,7 @@ namespace Droplet
         return true;
     }
 
-    std::string MetaSerializer::GetLowercaseExtension(const std::filesystem::path &p_filePath)
+    std::string MetaUtils::GetLowercaseExtension(const std::filesystem::path &p_filePath)
     {
         std::string ext = p_filePath.extension().string();
         std::transform(ext.begin(), ext.end(), ext.begin(), [](unsigned char c){return std::tolower(c);});
@@ -86,16 +86,12 @@ namespace Droplet
         return ext;
     }
 
-    bool MetaSerializer::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<MetaEntry> &p_metaData)
+    bool MetaUtils::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<MetaEntry> &p_metaData)
     {
         p_metaData.clear();
         
         MetaEntry defaultData;
         defaultData.guid = GuidUtils::Generate();
-        defaultData.type = ResourceType::None;
-        defaultData.name = std::string{};
-        defaultData.loadFlags = ResourceLoadFlag::LoadBoth;
-        defaultData.dependencies = std::vector<GUID>{};
         
         std::string ext = GetLowercaseExtension(p_assetPath);
         
