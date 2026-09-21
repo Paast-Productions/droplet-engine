@@ -1,6 +1,6 @@
 #include "Graphics/VK/Pipeline.hpp"
 
-using namespace Droplet::VK;
+using namespace Droplet::Graphics::VK;
 
 Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig)
 {

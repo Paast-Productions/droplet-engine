@@ -12,7 +12,7 @@ import vulkan_hpp;
 #include <slang/slang-com-ptr.h>
 #include <optional>
 
-namespace Droplet::VK
+namespace Droplet::Graphics::VK
 {
 	struct PipelineConfig
 	{

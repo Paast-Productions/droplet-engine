@@ -387,7 +387,7 @@ void Renderer::createGraphicsPipeline()
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
-	Droplet::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
+	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
 	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
 
@@ -398,7 +398,7 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
-	Droplet::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
+	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
 	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
 

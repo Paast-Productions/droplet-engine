@@ -76,7 +76,7 @@ private:
 
 	vk::raii::PipelineLayout			 m_pipelineLayout	= nullptr;
 	vk::raii::CommandPool				 m_commandPool		= nullptr;
-	std::optional<Droplet::VK::Pipeline> m_graphicsPipeline;
+	std::optional<Droplet::Graphics::VK::Pipeline> m_graphicsPipeline;
 	std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 	Droplet::Graphics::SDL::Window		 m_window;
 
