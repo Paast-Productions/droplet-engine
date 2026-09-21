@@ -26,6 +26,11 @@ namespace Droplet
 		/// @return A boolean. True if the mesh successfully loaded, else false.
 		bool LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord);
 
+		/// @brief Lists all resources in a mesh
+		/// @param p_meshFile File path of mesh.
+		/// @return A vector of resource types and their names.
+		std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::string p_meshFile);
+
 	private:
 		Assimp::Importer m_importer;
 

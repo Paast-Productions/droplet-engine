@@ -51,6 +51,43 @@ namespace Droplet
 		return true;
 	}
 
+	std::vector<std::pair<ResourceType, std::string>> AssimpLoader::ListAssetResources(const std::string p_meshFile)
+	{
+		std::vector<std::pair<ResourceType, std::string>> resourceList;
+		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), 0);
+
+		if (meshData == nullptr)
+		{
+			// Log Error: Failed reading mesh file. (m_importer.GetErrorString())
+			std::println("{}", m_importer.GetErrorString()); // Temporary log
+			return resourceList; // Return empty list
+		}
+
+		if (meshData->HasMeshes())
+		{
+			ResourceType rType = ResourceType::Mesh;
+			if (meshData->HasSkeletons())
+			{
+				rType = ResourceType::SkinnedMesh;
+			}
+
+			for (unsigned int i = 0; i < meshData->mNumMeshes; i++)
+			{
+				resourceList.push_back(std::make_pair(rType, meshData->mMeshes[i]->mName.C_Str()));
+			}
+
+			if (rType == ResourceType::SkinnedMesh && meshData->HasAnimations())
+			{
+				for (unsigned int i = 0; i < meshData->mNumAnimations; i++)
+				{
+					resourceList.push_back(std::make_pair(ResourceType::Animation, meshData->mAnimations[i]->mName.C_Str()));
+				}
+			}
+		}
+
+		return resourceList;
+	}
+
 	std::vector<std::byte> AssimpLoader::BuildVertexData(const aiScene *&p_meshData, const std::size_t p_vertexByteSize)
 	{
 		std::vector<float> vertices;
