@@ -26,6 +26,13 @@ namespace Droplet
 		/// @return A boolean. True if the mesh successfully loaded, else false.
 		bool LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord);
 
+		/// @brief Loads an animation file.
+		/// @param p_meshFile File path of animation.
+		/// @param p_typeSpecificData Mesh specific import settings.
+		/// @param p_assetRecord Contains relevant information about a specific loaded asset.
+		/// @return A boolean. True if the animation successfully loaded, else false.
+		bool LoadAnimation(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord);
+
 		/// @brief Lists all resources in a mesh
 		/// @param p_meshFile File path of mesh.
 		/// @return A vector of resource types and their names.

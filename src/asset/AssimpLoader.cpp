@@ -77,6 +77,64 @@ namespace Droplet
 		return true;
 	}
 
+	bool AssimpLoader::LoadAnimation(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord)
+	{
+		p_typeSpecificData;
+		p_assetRecord;
+		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
+			//aiProcess_CalcTangentSpace |
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_PopulateArmatureData |
+			aiProcess_SortByPType);
+
+		if (meshData == nullptr)
+		{
+			// Log Error: Failed reading mesh file. (m_importer.GetErrorString())
+			std::println("{}", m_importer.GetErrorString()); // Temporary log
+			return false;
+		}
+
+		if (!meshData->HasAnimations())
+		{
+			// Log Error: Mesh does not contain animation data.
+			return false;
+		}
+
+		std::vector<AnimationResource::AnimKeyframe> animKeyFrames;
+		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
+		{
+			AnimationResource::AnimKeyframe animKeyFrame;
+			for (std::size_t j = 0; j < meshData->mAnimations[i]->mNumChannels; j++)
+			{
+				aiNodeAnim *nodeAnim = meshData->mAnimations[i]->mChannels[j];
+				aiVector3D posKey = nodeAnim->mPositionKeys->mValue;
+				aiQuaternion rotKey = nodeAnim->mRotationKeys->mValue;
+				aiVector3D scaKey = nodeAnim->mScalingKeys->mValue;
+
+				AnimationResource::BoneKeyframe boneKeyframe;
+				boneKeyframe.boneName = nodeAnim->mNodeName.C_Str();
+				boneKeyframe.pos = { posKey.x, posKey.y, posKey.z };
+				boneKeyframe.rot = { rotKey.w, rotKey.x, rotKey.y, rotKey.z };
+				boneKeyframe.scale = { scaKey.x, scaKey.y, scaKey.z };
+
+				animKeyFrame.time = static_cast<float>(meshData->mAnimations[i]->mDuration);
+				animKeyFrame.boneKeyframes.push_back(boneKeyframe);
+			}
+
+			animKeyFrames.push_back(animKeyFrame);
+		}
+
+		AnimationResource animation;
+		animation.SetKeyframes(animKeyFrames);
+		p_assetRecord.resource = std::make_shared<AnimationResource>(animation);
+
+		// Log Info: Successfully loaded p_meshFile
+		std::println("Successfully loaded {}", p_meshFile); // Temporary log
+
+		return true;
+	}
+
 	std::vector<std::pair<ResourceType, std::string>> AssimpLoader::ListAssetResources(const std::string p_meshFile)
 	{
 		std::vector<std::pair<ResourceType, std::string>> resourceList;
