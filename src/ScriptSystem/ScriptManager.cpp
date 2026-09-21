@@ -2,6 +2,7 @@
 #include <iostream>
 #include <print>
 
+
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
 	if (!m_Initialize())
@@ -48,7 +49,7 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 	 
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_testNode, m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
@@ -115,7 +116,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return true; // Script is already loaded
 	}
 
-	std::filesystem::path scriptPath = FindScript(p_scriptFile);
+	std::filesystem::path scriptPath = m_FindScript(p_scriptFile);
 	if (p_scriptFile.empty())
 	{
 		//Error logger entry
@@ -189,9 +190,9 @@ bool ScriptManager::m_Initialize()
 	return false;
 }
 
-std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
+std::filesystem::path ScriptManager::m_FindScript(const std::string& p_scriptFile)
 {
-	std::filesystem::path scriptDirectory = 
+	std::filesystem::path scriptDirectory =
 		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
 
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(scriptDirectory))
@@ -207,6 +208,8 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 		}
 	}
 	return {};
+}
+
 void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 {
 	if (p_scriptInstance == nullptr)

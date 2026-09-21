@@ -10,7 +10,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     [[maybe_unused]] auto* script = scriptSystem.CreateScript(
         &testNode,
-       "testScript.lua"
+       "testScript2.lua"
     );
     
     scriptSystem.Start();

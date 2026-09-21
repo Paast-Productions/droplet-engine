@@ -5,7 +5,7 @@
 #include "TestNode.hpp"
 #include "ScriptInstance.hpp"
 #include <vector>
-
+#include <filesystem>
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
 // Functonality is to load scripts, see what scripts are loaded, and fetch scripts for the script system and any other system that might need it
@@ -17,7 +17,7 @@ public:
 	~ScriptManager() = default;
 
 	void Update(float p_deltaTime);
-	
+	void Start();
 	/// <summary>
 	/// Takes a component as a parameter and creates a relationships between the component and the desired lua file
 	/// </summary>
