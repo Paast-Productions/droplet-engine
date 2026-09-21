@@ -71,14 +71,14 @@ namespace Droplet
 				rType = ResourceType::SkinnedMesh;
 			}
 
-			for (unsigned int i = 0; i < meshData->mNumMeshes; i++)
+			for (std::uint32_t i = 0; i < meshData->mNumMeshes; i++)
 			{
 				resourceList.push_back(std::make_pair(rType, meshData->mMeshes[i]->mName.C_Str()));
 			}
 
 			if (rType == ResourceType::SkinnedMesh && meshData->HasAnimations())
 			{
-				for (unsigned int i = 0; i < meshData->mNumAnimations; i++)
+				for (std::uint32_t i = 0; i < meshData->mNumAnimations; i++)
 				{
 					resourceList.push_back(std::make_pair(ResourceType::Animation, meshData->mAnimations[i]->mName.C_Str()));
 				}
@@ -92,7 +92,7 @@ namespace Droplet
 	{
 		std::vector<float> vertices;
 		aiMesh *mesh = p_meshData->mMeshes[0];
-		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 		{
 			// Manually add the vertex data based of the defined vertex layout
 			vertices.push_back(mesh->mVertices[i].x);
@@ -113,16 +113,16 @@ namespace Droplet
 		return vertexData;
 	}
 
-	std::vector<unsigned int> AssimpLoader::BuildIndexData(const aiScene *&p_meshData)
+	std::vector<std::uint32_t> AssimpLoader::BuildIndexData(const aiScene *&p_meshData)
 	{
-		std::vector<unsigned int> indices;
+		std::vector<std::uint32_t> indices;
 		aiMesh *mesh = p_meshData->mMeshes[0];
 
 		// Indices are stored in each face
-		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		for (std::uint32_t i = 0; i < mesh->mNumFaces; i++)
 		{
 			// Iterate through all indices of each face and push them to the vector
-			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
+			for (std::uint32_t j = 0; j < mesh->mFaces[i].mNumIndices; j++)
 			{
 				indices.push_back(mesh->mFaces[i].mIndices[j]);
 			}
