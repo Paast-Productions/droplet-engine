@@ -45,11 +45,13 @@ namespace Droplet
         return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
     }
     
+    // Bitwise xor
     inline constexpr ResourceLoadFlag operator^(ResourceLoadFlag a, ResourceLoadFlag b)
     {
         return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
     }
     
+    // Bitwise not
     inline constexpr ResourceLoadFlag operator~(ResourceLoadFlag a)
     {
         return static_cast<ResourceLoadFlag>(~static_cast<uint8_t>(a));

@@ -2,8 +2,6 @@
 
 #include "asset/GUID.hpp"
 
-#include <cstdint>
-
 namespace Droplet
 {
     class ResourceManager;
