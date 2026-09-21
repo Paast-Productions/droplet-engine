@@ -1,25 +1,25 @@
 #pragma once
 
-#include "asset/AssetHandle.hpp"
-#include "asset/AssetManager.hpp"
+#include "asset/ResourceHandle.hpp"
+#include "asset/ResourceManager.hpp"
 
 namespace Droplet
 {
     template<typename T>
-    AssetHandle<T>::AssetHandle(GUID p_guid, AssetManager* p_assetManager)
-        : m_guid(p_guid), m_assetManager(p_assetManager)
+    ResourceHandle<T>::ResourceHandle(GUID p_guid, ResourceManager* p_resourceManager)
+        : m_guid(p_guid), m_assetManager(p_resourceManager)
     {
         AddRef();
     }
 
     template <typename T>
-    AssetHandle<T>::~AssetHandle()
+    ResourceHandle<T>::~ResourceHandle()
     {
         ReleaseRef();
     }
     
     template <typename T>
-    AssetHandle<T>::AssetHandle(const AssetHandle &other)
+    ResourceHandle<T>::ResourceHandle(const ResourceHandle &other)
         : m_guid(other.m_guid), m_assetManager(other.m_assetManager)
     {
         // Copy construct (+1 ref)
@@ -27,7 +27,7 @@ namespace Droplet
     }
 
     template <typename T>
-    AssetHandle<T> & AssetHandle<T>::operator=(const AssetHandle &other)
+    ResourceHandle<T> & ResourceHandle<T>::operator=(const ResourceHandle &other)
     {
         // Copy assign (new: +1 old: -1)
         if (this != &other)
@@ -42,7 +42,7 @@ namespace Droplet
     }
 
     template <typename T>
-    AssetHandle<T>::AssetHandle(AssetHandle &&other) noexcept
+    ResourceHandle<T>::ResourceHandle(ResourceHandle &&other) noexcept
         : m_guid(other.m_guid), m_assetManager(other.m_assetManager) 
     {
         // Move construct (steal data, no ref change)
@@ -51,7 +51,7 @@ namespace Droplet
     }
 
     template <typename T>
-    AssetHandle<T> & AssetHandle<T>::operator=(AssetHandle &&other) noexcept
+    ResourceHandle<T> & ResourceHandle<T>::operator=(ResourceHandle &&other) noexcept
     {
         // Move assign (steal to new, no ref change)
         if (this != &other)
@@ -68,41 +68,41 @@ namespace Droplet
     }
 
     template <typename T>
-    bool AssetHandle<T>::IsValid() const
+    bool ResourceHandle<T>::IsValid() const
     {
         return m_guid != C_INVALID_GUID && m_assetManager;
     }
 
     template <typename T>
-    GUID AssetHandle<T>::GetGUID() const
+    GUID ResourceHandle<T>::GetGUID() const
     {
         return m_guid;
     }
 
     template <typename T>
-    bool AssetHandle<T>::IsReady() const
+    bool ResourceHandle<T>::IsReady() const
     {
         if (!IsValid())
         {
             return false;
         }
             
-        return m_assetManager->GetState(m_guid) == AssetState::Ready; 
+        return m_assetManager->GetState(m_guid) == ResourceState::Ready; 
     }
 
     template <typename T>
-    bool AssetHandle<T>::HasFailed() const
+    bool ResourceHandle<T>::HasFailed() const
     {
         if (!IsValid())
         {
             return false;
         }
             
-        return m_assetManager->GetState(m_guid) == AssetState::Failed;
+        return m_assetManager->GetState(m_guid) == ResourceState::Failed;
     }
 
     template <typename T>
-    T *AssetHandle<T>::Get() const
+    T *ResourceHandle<T>::Get() const
     {
         if (IsValid())
         {
@@ -113,7 +113,7 @@ namespace Droplet
     }
 
     template <typename T>
-    void AssetHandle<T>::AddRef()
+    void ResourceHandle<T>::IncrementRef()
     {
         if (IsValid())
         {
@@ -122,7 +122,7 @@ namespace Droplet
     }
 
     template <typename T>
-    void AssetHandle<T>::ReleaseRef()
+    void ResourceHandle<T>::DecrementRef()
     {
         if (IsValid())
         {

@@ -1,8 +1,8 @@
-﻿#include "Asset/AssetCatalog.hpp"
+﻿#include "Asset/ResourceCatalog.hpp"
 
 namespace Droplet
 {
-    bool AssetCatalog::ScanDirectory(const std::filesystem::path &p_directory)
+    bool ResourceCatalog::ScanDirectory(const std::filesystem::path &p_directory)
     {
         if (!std::filesystem::exists(p_directory))
         {
@@ -23,15 +23,17 @@ namespace Droplet
         return true;
     }
 
-    GUID AssetCatalog::GetGUID(const std::string &p_path)
+    bool ResourceCatalog::GetResourceMetaData(GUID p_guid, ResourceMetaData &p_resourceData)
     {
-        auto it = m_pathToGuidMap.find(p_path);
-        if (it != m_pathToGuidMap.end())
+        auto it = m_metaDataMap.find(p_guid);
+        if (it != m_metaDataMap.end())
         {
-            return it->second;
+            p_resourceData = it->second;
+            return true;
         }
     
-        return 0; // Invalid guid
+        return false;
+    }
     }
 }
 

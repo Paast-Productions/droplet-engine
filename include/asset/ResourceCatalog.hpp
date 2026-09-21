@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "asset/GUID.hpp"
+#include "asset/meta/MetaData.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -9,7 +10,7 @@
 namespace Droplet
 {
     /// @brief Maps asset path strings to GUIDs
-    class AssetCatalog
+    class ResourceCatalog
     {
     public:
         /// @brief Scans the provided directory recursively for .meta files to populate its internal map of GUIDs.
@@ -20,9 +21,11 @@ namespace Droplet
         /// @brief Retrieves the globally unique identifier for an asset.
         /// @param p_path The path to the asset.
         /// @return The globally unique identifier.
-        GUID GetGUID(const std::string &p_path);
+        bool GetResourceMetaData(GUID p_guid, ResourceMetaData &p_resourceData);
+        
+        void RegisterResourceData(const ResourceMetaData &p_resourceData);
         
     private:
-        std::unordered_map<std::string, GUID> m_pathToGuidMap; // Maps paths to GUIDs
+        std::unordered_map<GUID, ResourceMetaData> m_metaDataMap;
     };
 }

@@ -1,10 +1,10 @@
-﻿#include "Asset/AssetManager.hpp"
+﻿#include "Asset/ResourceManager.hpp"
 
 // #include "IResource"
 
 namespace Droplet
 {
-    void AssetManager::Initialize(std::filesystem::path p_rootDirectory)
+    void ResourceManager::Initialize(std::filesystem::path p_rootDirectory)
     {
         if (m_isInitialized)
         {
@@ -22,7 +22,7 @@ namespace Droplet
         m_isInitialized = true;
     }
 
-    void AssetManager::AddRef(GUID p_guid)
+    void ResourceManager::AddRef(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
         
@@ -35,7 +35,7 @@ namespace Droplet
         }
     }
 
-    void AssetManager::ReleaseRef(GUID p_guid)
+    void ResourceManager::ReleaseRef(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
         
@@ -51,7 +51,7 @@ namespace Droplet
         }
     }
 
-    AssetState AssetManager::GetState(GUID p_guid)
+    ResourceState ResourceManager::GetState(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
         
@@ -63,6 +63,6 @@ namespace Droplet
             return it->second.state;
         }
             
-        return AssetState::Unloaded;
+        return ResourceState::Unloaded;
     }
 }
