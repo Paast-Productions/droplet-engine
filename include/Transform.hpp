@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <memory>
 
 class Node; // Forward declaration of Node class
@@ -22,19 +22,19 @@ namespace Droplet
 		/// @param p_owner A weak pointer to the Node that owns this Transform.
 		Transform(std::weak_ptr<Node> p_owner);
 
-		~Transform();
+		~Transform() = default;
 
 		// ================================ Getters ================================
 
 		/// @brief Get the position of the transform in the specified space.
 		/// @param p_space The space in which to get the position. Defaults to local space.
 		/// @return The position of the transform in the specified space.
-		[[nodiscard]] const glm::vec3 &GetPosition(Space p_space = Space::Local) const;
+		[[nodiscard]] glm::vec3 GetPosition(Space p_space = Space::Local) const;
 
 		/// @brief Get the rotation of the transform in the specified space.
 		/// @param p_space The space in which to get the rotation. Defaults to local space.
 		/// @return The rotation of the transform in the specified space.
-		[[nodiscard]] const glm::quat &GetRotation(Space p_space = Space::Local) const;
+		[[nodiscard]] glm::quat GetRotation(Space p_space = Space::Local) const;
 
 		/// @brief Get the Euler angles of the transform in the specified space.
 		/// @param p_space The space in which to get the Euler angles. Defaults to local space.
@@ -43,12 +43,12 @@ namespace Droplet
 
 		/// @brief Get the local scale of the transform.
 		/// @return The local scale of the transform.
-		[[nodiscard]] const glm::vec3 &GetScale() const;
+		[[nodiscard]] glm::vec3 GetScale() const;
 
 		/// @brief Get the transformation matrix of the transform in the specified space.
 		/// @param p_space The space in which to get the matrix. Defaults to local space.
 		/// @return The transformation matrix of the transform in the specified space.
-		[[nodiscard]] const glm::mat4 &GetMatrix(Space p_space = Space::Local) const;
+		[[nodiscard]] glm::mat4 GetMatrix(Space p_space = Space::Local) const;
 
 		/// @brief Check if the transform is dirty (i.e., if it has been modified since the last update).
 		/// @return True if the transform is dirty, false otherwise.
@@ -100,9 +100,9 @@ namespace Droplet
 
 		// ================================ Utility ================================
 
-		/// @brief Update the world matrix of the transform based on its local matrix and the parent's world matrix.
+		/// @brief Update the world & local matrices of the transform based on its position, rotation, scale and the parent's world matrix.
 		/// Sets the transform as clean after updating. Will update recursively if the parent transform is dirty.
-		void RecalculateWorldMatrix();
+		void RecalculateMatrices();
 
 		/// @brief Move the transform by a specified delta in the specified space.
 		/// @param p_delta The delta by which to move the transform.
@@ -143,7 +143,16 @@ namespace Droplet
 		glm::quat			m_rotation{ 0.f, 0.f, 0.f, 1.f };
 		glm::vec3			m_scale{ 1.f, 1.f, 1.f };
 
-		glm::mat4			m_worldMatrix{ 1.f };
 		glm::mat4			m_localMatrix{ 1.f };
+		glm::mat4			m_worldMatrix{ 1.f };
+
+		/// @brief Validate the rotation of the transform to ensure it is a valid quaternion.
+		void ValidateRotation();
+
+		/// @brief Update the local matrix of the transform based on its position, rotation, and scale.
+		void UpdateLocalMatrix();
+
+		[[nodiscard]] bool HasParent() const;
+		[[nodiscard]] Transform *GetParentTransform() const;
 	};
 }
