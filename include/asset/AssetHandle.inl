@@ -3,7 +3,7 @@
 #include "asset/AssetHandle.hpp"
 #include "asset/AssetManager.hpp"
 
-namespace engine
+namespace Droplet
 {
     template<typename T>
     AssetHandle<T>::AssetHandle(GUID p_guid, AssetManager* p_assetManager)

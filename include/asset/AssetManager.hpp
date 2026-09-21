@@ -10,7 +10,7 @@
 #include "asset/AssetHandle.hpp"
 #include "asset/AssetCatalog.hpp"
 
-namespace engine
+namespace Droplet
 {
     class IResource;
 
