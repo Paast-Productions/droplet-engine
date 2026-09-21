@@ -4,15 +4,23 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-	TestNode testNode;
-    ScriptSystem scriptSystem;
-    scriptSystem.Initialize();
-	if (scriptSystem.CreateScript(&testNode, "testScript.lua") == nullptr)
-	{
-		std::print("Failed to create script instance\n");
-	}
+	ScriptSystem scriptSystem;
 
-    std::print("Hello World\n");
-    // Gupta learns git fork
+	TestNode testNode;
+
+    [[maybe_unused]] auto* script = scriptSystem.CreateScript(
+        &testNode,
+       "testScript.lua"
+    );
+    
+    scriptSystem.Start();
+
+    for (int i = 0; i < 3; ++i)
+    {
+        scriptSystem.Update(1.0f);
+    }
+
+    std::cout << testNode.getX() << '\n';
+
     return 0;
 } 

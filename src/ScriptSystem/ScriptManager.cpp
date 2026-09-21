@@ -1,7 +1,6 @@
 #include "ScriptManager.hpp"
 #include <iostream>
 #include <print>
-#include <filesystem>
 
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
@@ -11,11 +10,19 @@ ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p
 	}
 }
 
+void ScriptManager::Start()
+{
+	for (auto& instance : m_scriptInstances)
+	{
+		instance->onStart();
+	}
+}
+
 void ScriptManager::Update(float p_deltaTime)
 {
-	for (auto& script : m_scriptInstances)
+	for (auto& instance : m_scriptInstances)
 	{
-		script->onUpdate(p_deltaTime);
+		instance->onUpdate(p_deltaTime);
 	}
 }
 
@@ -38,10 +45,10 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 		//Send to logging manager
 		return nullptr;
 	}
-	
+	 
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_testNode, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
@@ -108,7 +115,13 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return true; // Script is already loaded
 	}
 
-	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
+	std::filesystem::path scriptPath = FindScript(p_scriptFile);
+	if (p_scriptFile.empty())
+	{
+		//Error logger entry
+		return false;
+	}
+
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
 
 	if (!loadResult.valid())
@@ -155,7 +168,7 @@ bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
 {
 	return false;
 }
-
+ 
 
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
 sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::string& p_scriptFile)
@@ -176,6 +189,24 @@ bool ScriptManager::m_Initialize()
 	return false;
 }
 
+std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
+{
+	std::filesystem::path scriptDirectory = 
+		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(scriptDirectory))
+	{
+		if (!entry.is_regular_file())
+		{
+			continue;
+		}
+
+		if (entry.path().filename() == p_scriptFile)
+		{
+			return entry.path();
+		}
+	}
+	return {};
 void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 {
 	if (p_scriptInstance == nullptr)
