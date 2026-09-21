@@ -1,4 +1,4 @@
-project "Vulkan"
+project "Transform"
 
     kind "ConsoleApp"
     location(projectPath)
@@ -9,7 +9,8 @@ project "Vulkan"
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        "./main.cpp"
+        "./TransformMain.cpp",
+		rootPath .. "/src/Transform.cpp"
     }
 
     libdirs {

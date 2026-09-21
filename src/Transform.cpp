@@ -5,13 +5,13 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-using namespace Droplet;
+using namespace Droplet::Scene;
 
 // HACK: Temporary implementation until actual implementation is accessible.
-class Node
+class Droplet::Scene::Node
 {
 public:
-	std::weak_ptr<Node> GetParent() const
+	std::shared_ptr <Node> GetParent() const
 	{
 		return m_parent;
 	}
@@ -22,7 +22,7 @@ public:
 	}
 
 private:
-	std::weak_ptr<Node> m_parent;
+	std::shared_ptr<Node> m_parent;
 	std::unique_ptr<Transform> m_transform;
 };
 
@@ -557,5 +557,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return m_owner.lock()->GetParent().lock()->GetTransform().get();
+	return m_owner.lock()->GetParent()->GetTransform().get();
 }

@@ -4,10 +4,11 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
-class Node; // Forward declaration of Node class
 
-namespace Droplet
+namespace Droplet::Scene
 {
+	class Node; // Forward declaration of Node class
+
 	/// @brief A class that represents a 3D transformation, including position, rotation, and scale.
 	class Transform
 	{
