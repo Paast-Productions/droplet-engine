@@ -2,10 +2,9 @@
 #include "Node.hpp"
 #include <utility>
 #include <stdexcept>
-#include <algorithm>
 
-Scene::Scene(std::string p_name)
-    : m_name(std::move(p_name))
+Scene::Scene(const std::string &p_name)
+    : m_name((p_name))
 {
 }
 

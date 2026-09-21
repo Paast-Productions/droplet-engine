@@ -10,11 +10,8 @@
 class MeshComponent : public Component
 {
 public:
-    explicit MeshComponent(std::string p_meshPath);
-
-    void Initialize() override;
+    explicit MeshComponent(const std::string &p_meshPath);
     void Update(float p_deltaTime) override;
-
 
     /// TODO: Placeholder as the correct method is not yet inplemented
     const std::string &GetMeshPath() const;

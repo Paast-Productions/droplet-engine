@@ -1,15 +1,8 @@
 #include "ScriptComponent.hpp"
 
-#include <utility>
-
-ScriptComponent::ScriptComponent(std::string p_scriptPath)
-    : m_scriptPath(std::move(p_scriptPath))
+ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
+    : m_scriptPath((p_scriptPath))
 {
-}
-
-void ScriptComponent::Initialize()
-{
-    //TODO: Lua script loading and initialization will be implemented later.
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)

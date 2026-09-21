@@ -26,7 +26,7 @@ class Node : public std::enable_shared_from_this<Node>
 public:
     /// @brief Constructs a Node with the specified name.
     /// @param p_name Name of the Node.
-    explicit Node(std::string p_name);
+    explicit Node(const std::string &p_name);
 
     /// @brief Virtual destructor.
     virtual ~Node() = default;
@@ -150,8 +150,6 @@ public:
         component->SetOwner(shared_from_this());
 
         m_components.push_back(component);
-
-        component->Initialize();
 
         if (m_started)
         {

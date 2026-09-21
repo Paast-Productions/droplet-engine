@@ -15,12 +15,6 @@
 class PlayerComponent : public Component
 {
 public:
-
-    void Initialize() override
-    {
-        std::cout << "PlayerComponent initialized\n";
-    }
-
     void Start() override
     {
         std::cout << "PlayerComponent started\n";

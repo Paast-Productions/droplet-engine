@@ -1,12 +1,11 @@
 #include "Node.hpp"
 #include "Scene.hpp"
-#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
 #include <stdexcept>
 
-Node::Node(std::string p_name)
-    : m_name(std::move(p_name))
+Node::Node(const std::string &p_name)
+    : m_name((p_name))
 {
 }
 

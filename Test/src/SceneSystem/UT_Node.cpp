@@ -8,12 +8,6 @@
 class TComponent : public Component
 {
 public:
-
-    void Initialize() override
-    {
-        initialized = true;
-    }
-
     void Start() override
     {
         startCount++;
@@ -25,7 +19,6 @@ public:
         lastDeltaTime = p_deltaTime;
     }
 
-    bool initialized = false;
     int startCount = 0;
     int updateCount = 0;
     float lastDeltaTime = 0.0f;
@@ -235,17 +228,6 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
     ASSERT_NE(weapon, nullptr);
 
     EXPECT_EQ(weapon->GetScene(), scene);
-}
-
-
-TEST_F(NodeTest, AddComponent)
-{
-    auto component =
-        root->AddComponent<TComponent>();
-
-    ASSERT_NE(component, nullptr);
-
-    EXPECT_TRUE(component->initialized);
 }
 
 
@@ -463,7 +445,6 @@ TEST_F(NodeTest, TestComponentInitializesCorrectly)
 
     ASSERT_NE(component, nullptr);
 
-    EXPECT_FALSE(component->initialized);
     EXPECT_EQ(component->startCount, 0);
     EXPECT_EQ(component->updateCount, 0);
     EXPECT_FLOAT_EQ(component->lastDeltaTime, 0.0f);

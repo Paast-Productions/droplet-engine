@@ -22,12 +22,6 @@ public:
     /// @brief Virtual destructor.
     virtual ~Component() = default;
 
-    /// @brief Initializes the component.
-    ///
-    /// Called automatically when the component is added to a Node.
-    /// Derived classes can override this function to perform initialization.
-    virtual void Initialize() {}
-
     /// @brief Called when the owning Node starts.
     ///
     /// Called when the owning Node starts participating in an active Scene.

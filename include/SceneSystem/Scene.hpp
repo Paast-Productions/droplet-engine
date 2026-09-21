@@ -22,7 +22,7 @@ public:
 
     /// @brief Constructs a Scene with the specified name.
     /// @param p_name Name of the Scene.
-    explicit Scene(std::string p_name);
+    explicit Scene(const std::string &p_name);
 
     /// @brief Virtual destructor.
     virtual ~Scene() = default;      
