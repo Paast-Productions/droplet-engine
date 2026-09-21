@@ -22,3 +22,6 @@
 [submodule "External/Lua"]
 	path = External/Lua
 	url = git@github.com:walterschell/Lua.git
+[submodule "External/json"]
+	path = External/json
+	url = git@github.com:nlohmann/json.git
