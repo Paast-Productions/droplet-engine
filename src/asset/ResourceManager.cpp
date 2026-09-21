@@ -1,6 +1,6 @@
 ﻿#include "Asset/ResourceManager.hpp"
 
-#include "meta/MetaSerializer.hpp"
+#include "meta/MetaUtils.hpp"
 
 // #include "IResource"
 
@@ -10,7 +10,7 @@ namespace Droplet
     {
         if (m_isInitialized)
         {
-            // Log AM already initialized
+            // Log RM already initialized
             return;
         }
         
@@ -49,8 +49,8 @@ namespace Droplet
             
             // Overwrite .meta file with result (dispatch I/O thread to perform this task)
             // --- Async I/O Thread --- 
-            std::filesystem::path metaPath = assetPathStr + ".meta";
-            MetaSerializer::Write(metaPath, mergedMetaData);
+            std::filesystem::path writePath = assetPathStr + ".meta";
+            MetaUtils::Write(writePath, mergedMetaData);
             
             // --- Main Thread ---
             // Update internal catalog
@@ -103,5 +103,37 @@ namespace Droplet
         }
             
         return ResourceState::Unloaded;
+    }
+
+    std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::vector<MetaEntry> &p_metaData,
+        const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
+    {
+        std::vector<MetaEntry> out;
+        out.reserve(p_foundResources.size());
+        
+        // Iterate over the resources that were found in the asset
+        for (const auto& [foundType, foundName] : p_foundResources)
+        {
+            // Try to find an existing match in the old metadata
+            auto it = std::find_if(p_metaData.begin(), p_metaData.end(),
+                [&](const MetaEntry &existingEntry)
+                {
+                    return existingEntry.type == foundType && existingEntry.name == foundName;
+                }
+            );
+            
+            if (it != p_metaData.end())
+            {
+                // Resource already exists in the old metadata -> copy it to the new metadata
+                out.push_back(*it);
+            }
+            else
+            {
+                // Resource does not exist in the old metadata -> create a new entry for it
+                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName));
+            }
+        }
+        
+        return out;
     }
 }

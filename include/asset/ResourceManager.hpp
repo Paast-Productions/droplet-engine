@@ -110,6 +110,9 @@ namespace Droplet
         }
     
     private:
+        std::vector<MetaEntry> CompareAndCompileMetaData(const std::vector<MetaEntry> &p_metaData,
+            const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
+        
         bool m_isInitialized = false;
         ResourceCatalog m_catalog;
         
