@@ -58,7 +58,13 @@ int main()
         return 1;
     }
 
-    auto root = scene->GetRoot();
+    // ==================================================
+    // Create the root node
+    // ==================================================
+
+    auto root =
+        scene->AddRoot(
+            std::make_shared<Node>("Root"));
 
     // ==================================================
     // Build the scene hierarchy
