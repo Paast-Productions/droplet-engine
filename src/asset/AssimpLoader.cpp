@@ -36,13 +36,13 @@ namespace Droplet
 			return false;
 		}
 
-		// TODO: Save mesh data to IResource in p_assetRecord
+		// Store the mesh data into p_assetRecord.resource
 		MeshResource meshResource;
-		std::vector<std::byte> vertexData = BuildVertexData(meshData);
-		// meshResource.SetVertexData(meshData->mMeshes[0]->mVertices);
-		// meshResource.SetIndexData(meshData->mMeshes[0]->mFaces);
-		// meshResource.SetVertexByteSize();
-		// meshResource.SetVertexLayout();
+		std::size_t vertexByteSize = 0; // Size dependent on vertex layout
+		std::vector<MeshResource::VertexAttribute> vertexLayout = CreateVertexLayout(vertexByteSize);
+		std::vector<std::byte> vertexData = BuildVertexData(meshData, vertexByteSize);
+		std::vector<std::uint32_t> indexData = BuildIndexData(meshData);
+		meshResource.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 		p_assetRecord.resource = std::make_shared<MeshResource>(meshResource);
 
 		// Log Info: Successfully loaded p_meshFile
