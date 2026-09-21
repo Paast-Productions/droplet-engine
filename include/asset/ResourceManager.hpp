@@ -87,8 +87,8 @@ namespace Droplet
             return ResourceHandle<T>(p_guid, this);
         }
         
-        void AddRef(GUID p_guid);
-        void ReleaseRef(GUID p_guid);
+        void IncrementRef(GUID p_guid);
+        void DecrementRef(GUID p_guid);
         
         ResourceState GetState(GUID p_guid);
         

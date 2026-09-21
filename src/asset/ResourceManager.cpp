@@ -61,7 +61,7 @@ namespace Droplet
         }
     }
 
-    void ResourceManager::AddRef(GUID p_guid)
+    void ResourceManager::IncrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
         
@@ -74,7 +74,7 @@ namespace Droplet
         }
     }
 
-    void ResourceManager::ReleaseRef(GUID p_guid)
+    void ResourceManager::DecrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
         

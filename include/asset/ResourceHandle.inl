@@ -9,13 +9,13 @@ namespace Droplet
     ResourceHandle<T>::ResourceHandle(GUID p_guid, ResourceManager* p_resourceManager)
         : m_guid(p_guid), m_assetManager(p_resourceManager)
     {
-        AddRef();
+        IncrementRef();
     }
 
     template <typename T>
     ResourceHandle<T>::~ResourceHandle()
     {
-        ReleaseRef();
+        DecrementRef();
     }
     
     template <typename T>
@@ -23,7 +23,7 @@ namespace Droplet
         : m_guid(other.m_guid), m_assetManager(other.m_assetManager)
     {
         // Copy construct (+1 ref)
-        AddRef();
+        IncrementRef();
     }
 
     template <typename T>
@@ -32,10 +32,10 @@ namespace Droplet
         // Copy assign (new: +1 old: -1)
         if (this != &other)
         {
-            ReleaseRef();
+            DecrementRef();
             m_guid = other.m_guid;
             m_assetManager = other.m_assetManager;
-            AddRef();
+            IncrementRef();
         }
             
         return *this;
@@ -56,7 +56,7 @@ namespace Droplet
         // Move assign (steal to new, no ref change)
         if (this != &other)
         {
-            ReleaseRef();
+            DecrementRef();
             m_guid = other.m_guid;
             m_assetManager = other.m_assetManager;
                 
@@ -117,7 +117,7 @@ namespace Droplet
     {
         if (IsValid())
         {
-            m_assetManager->AddRef(m_guid);
+            m_assetManager->IncrementRef(m_guid);
         }
     }
 
@@ -126,7 +126,7 @@ namespace Droplet
     {
         if (IsValid())
         {
-            m_assetManager->ReleaseRef(m_guid);
+            m_assetManager->DecrementRef(m_guid);
         }
     }
 }
