@@ -14,6 +14,6 @@ namespace Droplet
 
         /// @brief Generates a new 64-bit GUID.
         /// @return The newly generated GUID.
-        static GUID Generate();
+        GUID Generate();
     }
 }
