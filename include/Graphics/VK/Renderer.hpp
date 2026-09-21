@@ -7,9 +7,8 @@
 #include <slang/slang-com-ptr.h>
 
 #include <Graphics/SDL/Window.hpp>
+#include <Graphics/VK/Pipeline.hpp>
 #include <optional>
-
-#include "Pipeline.hpp"
 
 class Renderer
 {
@@ -77,8 +76,7 @@ private:
 
 	vk::raii::PipelineLayout			 m_pipelineLayout	= nullptr;
 	vk::raii::CommandPool				 m_commandPool		= nullptr;
-	vk::raii::CommandPool				 m_commandPool		= nullptr;
-	std::optional<Pipeline>				 m_graphicsPipeline;
+	std::optional<Droplet::VK::Pipeline> m_graphicsPipeline;
 	std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 	Droplet::Graphics::SDL::Window		 m_window;
 
