@@ -11,6 +11,9 @@ import vulkan_hpp;
 #include <slang/slang-com-ptr.h>
 #include <SDL3/SDL_vulkan.h>
 #include <SDL3/SDL.h>
+#include <optional>
+
+#include "Pipeline.hpp"
 
 class Renderer
 {
@@ -76,8 +79,7 @@ private:
 	vk::Extent2D						 m_swapChainExtent;
 	std::vector<vk::raii::ImageView>	 m_swapChainImageViews;
 
-	vk::raii::PipelineLayout			 m_pipelineLayout = nullptr;
-	vk::raii::Pipeline					 m_graphicsPipeline = nullptr;
+	std::optional<Pipeline>				 m_graphicsPipeline;
 	vk::raii::CommandPool				 m_commandPool = nullptr;
 	std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 	SDL_Window* m_window = nullptr;
