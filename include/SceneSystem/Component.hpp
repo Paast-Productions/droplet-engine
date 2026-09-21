@@ -7,11 +7,11 @@ class Node;
 /// @brief Base class for components that can be attached to a Node.
 ///
 /// Components provide reusable functionality that can be added to Nodes
-/// at runtime. Derived components can override Initialize() and Update()
-/// to implement their own behavior.
+/// at runtime. Derived components can override Initialize(), OnStart(),
+/// and Update() to implement their own behavior.
 ///
-/// A Component is owned by the Node it is attached to and maintains a
-/// weak reference to its owner to avoid an ownership cycle.
+/// Components are owned by the Node they are attached to. A Component
+/// maintains a weak reference to its owning Node to avoid an ownership cycle.
 class Component
 {
 public:
@@ -29,8 +29,9 @@ public:
 
     /// @brief Called when the owning Node starts.
     ///
-    /// Called when the owning Node starts participating in the active Scene.
-    /// Derived Components can override this function to perform startup logic.
+    /// Called when the owning Node starts participating in an active Scene.
+    /// This function is called at most once for each Component.
+    /// Derived classes can override this function to perform startup logic.
     virtual void OnStart() {}
 
     /// @brief Updates the component.

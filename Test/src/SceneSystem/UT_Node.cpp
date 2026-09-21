@@ -5,7 +5,7 @@
 #include "SceneSystem/Component.hpp"
 
 
-class TestComponent : public Component
+class TComponent : public Component
 {
 public:
 
@@ -163,7 +163,7 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
 TEST_F(NodeTest, AddComponent)
 {
     auto component =
-        root->AddComponent<TestComponent>();
+        root->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
@@ -174,7 +174,7 @@ TEST_F(NodeTest, AddComponent)
 TEST_F(NodeTest, ComponentHasOwner)
 {
     auto component =
-        root->AddComponent<TestComponent>();
+        root->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
@@ -184,10 +184,10 @@ TEST_F(NodeTest, ComponentHasOwner)
 
 TEST_F(NodeTest, GetComponents)
 {
-    root->AddComponent<TestComponent>();
+    root->AddComponent<TComponent>();
 
     auto components =
-        root->GetComponents<TestComponent>();
+        root->GetComponents<TComponent>();
 
     ASSERT_EQ(components.size(), 1);
 }
@@ -195,11 +195,11 @@ TEST_F(NodeTest, GetComponents)
 
 TEST_F(NodeTest, SupportsMultipleComponents)
 {
-    root->AddComponent<TestComponent>();
-    root->AddComponent<TestComponent>();
+    root->AddComponent<TComponent>();
+    root->AddComponent<TComponent>();
 
     auto components =
-        root->GetComponents<TestComponent>();
+        root->GetComponents<TComponent>();
 
     EXPECT_EQ(components.size(), 2);
 }
@@ -207,20 +207,20 @@ TEST_F(NodeTest, SupportsMultipleComponents)
 
 TEST_F(NodeTest, RemoveComponent)
 {
-    root->AddComponent<TestComponent>();
+    root->AddComponent<TComponent>();
 
     EXPECT_TRUE(
-        root->RemoveComponent<TestComponent>());
+        root->RemoveComponent<TComponent>());
 
     EXPECT_TRUE(
-        root->GetComponents<TestComponent>().empty());
+        root->GetComponents<TComponent>().empty());
 }
 
 
 TEST_F(NodeTest, RemoveNonexistentComponent)
 {
     EXPECT_FALSE(
-        root->RemoveComponent<TestComponent>());
+        root->RemoveComponent<TComponent>());
 }
 
 TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
@@ -233,7 +233,7 @@ TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
     auto sceneRoot = scene->GetRoot();
 
     auto component =
-        sceneRoot->AddComponent<TestComponent>();
+        sceneRoot->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
@@ -251,7 +251,7 @@ TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
     auto sceneRoot = scene->GetRoot();
 
     auto component =
-        sceneRoot->AddComponent<TestComponent>();
+        sceneRoot->AddComponent<TComponent>();
 
     scene->SetActive(true);
 
@@ -269,7 +269,7 @@ TEST_F(NodeTest, ComponentStartsOnlyOnce)
     auto sceneRoot = scene->GetRoot();
 
     auto component =
-        sceneRoot->AddComponent<TestComponent>();
+        sceneRoot->AddComponent<TComponent>();
 
     scene->SetActive(true);
     scene->SetActive(false);
@@ -290,7 +290,7 @@ TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
     auto sceneRoot = scene->GetRoot();
 
     auto component =
-        sceneRoot->AddComponent<TestComponent>();
+        sceneRoot->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
@@ -300,7 +300,7 @@ TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
 TEST_F(NodeTest, ComponentUpdates)
 {
     auto component =
-        root->AddComponent<TestComponent>();
+        root->AddComponent<TComponent>();
 
     root->Update(0.016f);
 
@@ -312,7 +312,7 @@ TEST_F(NodeTest, ComponentUpdates)
 TEST_F(NodeTest, ComponentUpdatesEveryFrame)
 {
     auto component =
-        root->AddComponent<TestComponent>();
+        root->AddComponent<TComponent>();
 
     root->Update(0.016f);
     root->Update(0.016f);
@@ -347,7 +347,7 @@ TEST_F(NodeTest, ReactivateNode)
 TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
 {
     auto component =
-        root->AddComponent<TestComponent>();
+        root->AddComponent<TComponent>();
 
     root->SetActive(false);
 
@@ -359,7 +359,7 @@ TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
 TEST_F(NodeTest, TestComponentInitializesCorrectly)
 {
     auto component =
-        std::make_shared<TestComponent>();
+        std::make_shared<TComponent>();
 
     ASSERT_NE(component, nullptr);
 

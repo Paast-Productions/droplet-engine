@@ -27,17 +27,27 @@ public:
 
     /// @brief Loads the Scene.
     ///
-    /// Called when the Scene is loaded into memory. The Scene reference
-    /// is assigned to the root Node and propagated through the Node hierarchy.
+    /// Marks the Scene as loaded and assigns the Scene reference to
+    /// the root Node. The Scene reference is propagated through the
+    /// Node hierarchy.
+    ///
+    /// Calling Load() on an already loaded Scene has no effect.
     ///
     /// Derived Scenes can override this function to perform additional
-    /// initialization.
+    /// loading or initialization.
     virtual void Load();
 
     /// @brief Unloads the Scene.
     ///
-    /// Called when the Scene is removed from memory. Derived Scenes
-    /// can override this function to perform cleanup.
+    /// Marks the Scene as unloaded and deactivates it.
+    ///
+    /// The Node hierarchy remains owned by the Scene and can be loaded
+    /// again later.
+    ///
+    /// Calling Unload() on an already unloaded Scene has no effect.
+    ///
+    /// Derived Scenes can override this function to perform additional
+    /// cleanup.
     virtual void Unload();
 
     /// @brief Updates the Scene.

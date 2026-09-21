@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-
+#include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -30,13 +30,14 @@ public:
     virtual ~Node() = default;
 
     /// @brief Starts the Node, its Components, and its children.
-    ///
-    /// Calls OnStart() on all Components attached to this Node and then
-    /// starts all child Nodes.
-    ///
-    /// OnStart() should only be called once for each Node activation.
-    ///
-    /// @note The Node's OnStart() function can be overridden by derived Nodes.
+   ///
+   /// Calls OnStart() on all Components attached to this Node and then
+   /// starts all child Nodes.
+   ///
+   /// OnStart() is called at most once for each Node. Nodes that are
+   /// added to an already started Node are started immediately.
+   ///
+   /// @note The Node's OnStart() function can be overridden by derived Nodes.
     virtual void OnStart();
 
     /// @brief Updates the Node, its Components, and its children.

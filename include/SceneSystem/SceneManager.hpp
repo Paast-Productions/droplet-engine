@@ -75,8 +75,12 @@ public:
 
     /// @brief Gets the currently active Scenes.
     ///
-    /// @return A constant reference to the list of weak pointers
-    /// representing the active Scenes.
+    /// The returned list contains weak references to the Scenes that
+    /// are currently active. Callers must lock the weak pointers before
+    /// accessing the Scenes.
+    ///
+    /// @return A constant reference to the list of active Scene
+    /// weak pointers.
     const std::vector<std::weak_ptr<Scene>>& GetActiveScenes() const;
 
     /// @brief Updates all active Scenes.
