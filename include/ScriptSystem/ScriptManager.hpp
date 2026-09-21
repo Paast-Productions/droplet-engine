@@ -10,8 +10,8 @@
 
 struct LoadedScript
 {
-	sol::load_mode loadResult;
-	std::filesystem::file_time_type lastWriteTime;
+    sol::load_result loadResult;
+    std::filesystem::file_time_type lastWriteTime;
 };
 
 // This is the script manager
@@ -48,6 +48,7 @@ private:
 	void m_Shutdown();
 
 	bool m_LoadFile(const std::string& p_scriptFile);
+	bool m_HasScriptFileChanged(const std::string& p_scriptFile);
 
 	bool m_HandleError(const std::string& p_scriptFile, const sol::error& p_error);
 

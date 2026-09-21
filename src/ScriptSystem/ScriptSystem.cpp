@@ -13,8 +13,8 @@ void ScriptSystem::Start()
 
 void ScriptSystem::Update(float p_deltaTime)
 {
-	m_scriptManager.CheckForFileChanges();
 	m_scriptManager.Update(p_deltaTime);
+	m_scriptManager.CheckForFileChanges();
 }
 
 bool ScriptSystem::LoadScript(const std::string& p_scriptFile)

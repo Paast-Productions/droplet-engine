@@ -14,10 +14,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     scriptSystem.Start();
 
-    for (int i = 0; i < 3; ++i)
-    {
-        scriptSystem.Update(1.0f);
-    }
+    while(true)
+	{
+		scriptSystem.Update(1.0f);
+	}
 
     std::cout << testNode.getX() << '\n';
 
