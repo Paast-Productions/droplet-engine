@@ -6,10 +6,13 @@ project "Engine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+        local vkPath = os.getenv("VULKAN_SDK")
+
     includedirs
     {
         "../include",
         "../include/**",
+        vkPath .. "/Include",
         targetBuildPath .. "/External/include/"
     }
 
@@ -25,7 +28,8 @@ project "Engine"
         "ImGui",
         "Jolt",
         "json",
-        "Assimp"
+        "Assimp",
+	"Gli"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -36,5 +40,9 @@ project "Engine"
         "../src/**.h"
     }
 
+    defines
+    {
+        "GLM_ENABLE_EXPERIMENTAL"
+    }
     --pchheader "%{prj.location}/EnginePCH.hpp"
     --pchsource "%{prj.location}/EnginePCH.cpp"
