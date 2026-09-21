@@ -29,7 +29,7 @@ namespace Droplet
     /// @brief Contains relevant information about a specific loaded resource.
     struct ResourceRecord
     {
-        std::shared_ptr<IResource> resource = nullptr;
+        std::unique_ptr<IResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
         std::atomic<uint32_t> refCount{0};
     };
@@ -86,12 +86,24 @@ namespace Droplet
             
             return ResourceHandle<T>(p_guid, this);
         }
-        
+
+        /// @brief Increments the reference count of a resource in the internal registry.
+        /// @param p_guid The globally unique identifier of the resource.
         void IncrementRef(GUID p_guid);
+
+        /// @brief Decrements the reference count of a resource in the internal registry.
+        /// @param p_guid The globally unique identifier of the resource.
         void DecrementRef(GUID p_guid);
-        
+
+        /// @brief Queries the load state of a resource in the internal registry.
+        /// @param p_guid The globally unique identifier of the resource.
+        /// @return The state that the resource is currently in.
         ResourceState GetState(GUID p_guid);
-        
+
+        /// @brief Gets the raw resource stored in the internal registry specified by a GUID.
+        /// @tparam T The resource type.
+        /// @param p_guid The globally unique identifier of the resource.
+        /// @return The resource.
         template<typename T>
         T *GetResource(GUID p_guid)
         {
