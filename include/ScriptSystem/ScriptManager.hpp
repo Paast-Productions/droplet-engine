@@ -27,6 +27,11 @@ public:
 
 	void Update(float p_deltaTime);
 	void Start();
+
+	template<typename... Args>
+	sol::protected_function_result Call(
+		TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
+
 	/// <summary>
 	/// Takes a component as a parameter and creates a relationships between the component and the desired lua file
 	/// </summary>
@@ -42,10 +47,8 @@ public:
 	/// <param name="p_testNode"></param>
 	/// <param name="p_scriptInstance"></param>
 	void DetachScript(TestNode* p_scriptComponent);
-	/// <summary>
-	/// Deletes every instance of a specific script across all relationships
-	/// </summary>
-	/// <param name="p_scriptInstance"></param>
+	/// @brief  Deletes every instance of a specific script across all relationships
+	/// @param p_scriptInstance 
 	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	/// <summary>
@@ -61,7 +64,13 @@ public:
 	void CheckForFileChanges();
 	
 	sol::load_result* GetLoadedScript(const std::string& p_scriptFile);
-
+	/// @brief Activates the script and runs on update each frame, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void ActivateScript(TestNode* p_scriptComponent);
+	/// @brief Deactivates a script and no longer runs on update, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void DeActivateScript(TestNode* p_scriptComponent);
+	
 private:
 	//state
 	LuaStateHandler& m_StateHandler;
@@ -71,6 +80,9 @@ private:
 	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
 	//loaded Lua chunks
 	std::unordered_map<std::string, LoadedScript> m_loadedScripts;
+	//Active  scripts
+	std::vector<ScriptInstance*> m_activeScripts;
+
 	bool m_Initialize(); 
 	void m_Shutdown();
 	void m_DestroyInstance(ScriptInstance* p_scriptInstance);
@@ -87,3 +99,23 @@ private:
 
 	
 };
+
+template <typename... Args>
+inline sol::protected_function_result ScriptManager::Call(TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		// Don't send in nullptt, send error to logging manager
+		return {};
+	}
+
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		//component has no attached script
+		return {};
+	}
+
+	return it->second->call(p_functionName, std::forward<Args>(p_args)...);
+}
