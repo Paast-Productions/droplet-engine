@@ -1,7 +1,9 @@
 #pragma once
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <stdexcept>
 
 
@@ -221,12 +223,18 @@ namespace Droplet
 	public:
 		using VertexAttribute = std::pair<std::string, std::size_t>;
 
+		/// @brief Struct for bounding volume hierarchy (BVH) data for the mesh.
+		struct MeshBVH
+		{
+			// TODO
+		};
+
 		/// @brief Sets the mesh data for the resource.
 		/// @param p_vertexData The vertex data for the mesh.
 		/// @param p_indexData The index data for the mesh.
 		/// @param p_vertexByteSize The byte size of a single vertex.
 		/// @param p_vertexLayout The vertex layout for the mesh data.
-		void SetMeshData(const std::vector<std::byte> &p_vertexData, const std::vector<int> &p_indexData, 
+		void SetMeshData(const std::vector<std::byte> &p_vertexData, const std::vector<std::uint32_t> &p_indexData,
 						 std::size_t p_vertexByteSize, const std::vector<VertexAttribute> &p_vertexLayout)
 		{
 			m_vertexData = p_vertexData;
@@ -241,7 +249,7 @@ namespace Droplet
 
 		/// @brief Gets the mesh data for the resource.
 		/// @return A vector of ints representing the index data for the mesh.
-		[[nodiscard]] const std::vector<int>				&GetIndexData() const		{ return m_indexData; }
+		[[nodiscard]] const std::vector<std::uint32_t>		&GetIndexData() const		{ return m_indexData; }
 
 		/// @brief Gets the byte size of a single vertex in the mesh data.
 		/// @return The byte size of a single vertex in the mesh data.
@@ -253,10 +261,12 @@ namespace Droplet
 
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
-		std::vector<int>				m_indexData{};			// Index data
+		std::vector<std::uint32_t>		m_indexData{};			// Index data
 
 		std::size_t						m_vertexByteSize = 0;	// Byte size of a single vertex
 		std::vector<VertexAttribute>	m_vertexLayout{};		// List of attribute names and their byte sizes
+
+		MeshBVH							m_bvh{};				// Bounding volume hierarchy for the mesh
 
 	private:
 
@@ -270,11 +280,13 @@ namespace Droplet
 	class SkinnedMeshResource : public MeshResource
 	{
 	public:
+		/// @brief Struct for bone data for the skinned mesh.
 		struct Bone
 		{
 			std::string		name = "Bone";
 			int				parentIndex = -1;	// -1: root
 			glm::mat4		offsetMat{};		// Mesh-space to bone-space at bind pose (default pose)
+			glm::vec3		bounds[2]{};		// AABB in bone space at bind pose
 		};
 
 		/// @brief Adds a bone to the skinned mesh resource.
@@ -314,7 +326,7 @@ namespace Droplet
 		{
 			bool hasBoneIndices = false;
 			bool hasBoneWeights = false;
-			std::size_t size = -1;
+			std::size_t size = static_cast<std::size_t>(-1);
 
 			for (const auto &attribute : m_vertexLayout)
 			{
@@ -366,12 +378,66 @@ namespace Droplet
 	/// @brief Class for animation resources.
 	class AnimationResource : public IResource
 	{
-		// TODO
-
 	public:
+		/// @brief Struct for animation step data for a single bone.
+		struct BoneKeyframe
+		{
+			std::string boneName{};
+			glm::vec3 pos{ 0.f, 0.f, 0.f };
+			glm::quat rot{ 0.f, 0.f, 0.f, 1.f };
+			glm::vec3 scale{ 1.f, 1.f, 1.f };
+		};
+		
+		/// @brief Struct for keyframe data for the animation.
+		struct AnimKeyframe
+		{
+			float time = 0.0f;
+			std::vector<BoneKeyframe> boneKeyframes{};
+		};
+
+		/// @brief Sets whether the animation should loop.
+		/// @param p_isLooping True if the animation should loop, false otherwise.
+		void SetIsLooping(bool p_isLooping) { m_isLooping = p_isLooping; }
+
+		/// @brief Sets the keyframes for the animation resource.
+		/// @param p_keyframes The keyframes for the animation resource.
+		void SetKeyframes(const std::vector<AnimKeyframe> &p_keyframes) 
+		{ 
+			m_keyframes = p_keyframes; 
+
+			// Sort the keyframes by time to ensure they are in the correct order
+			std::sort(m_keyframes.begin(), m_keyframes.end(), [](const AnimKeyframe &a, const AnimKeyframe &b) {
+				return a.time < b.time;
+			});
+
+			// Set duration to the time of the last keyframe
+			if (!m_keyframes.empty())
+			{
+				m_duration = m_keyframes.back().time;
+			}
+			else
+			{
+				m_duration = 0.0f;
+			}
+		}
+
+		/// @brief Gets whether the animation should loop.
+		/// @return True if the animation should loop, false otherwise.
+		[[nodiscard]] bool IsLooping() const { return m_isLooping; }
+
+		/// @brief Gets the duration of the animation.
+		/// @return The duration of the animation in seconds.
+		[[nodiscard]] float GetDuration() const { return m_duration; }
+
+		/// @brief Gets the keyframes for the animation resource.
+		/// @return A vector of keyframes for the animation resource.
+		[[nodiscard]] const std::vector<AnimKeyframe> &GetKeyframes() const { return m_keyframes; }
 
 	private:
 
+		bool						m_isLooping = false;	// Whether the animation should loop
+		float						m_duration = 0.0f;		// Duration of the animation in seconds
+		std::vector<AnimKeyframe>	m_keyframes{};			// Keyframes for the animation resource
 	};
 
 	/// @brief Class for shader resources.
