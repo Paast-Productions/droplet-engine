@@ -1,9 +1,9 @@
 #include "Renderer.hpp"
+
 #include <map>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <cstdlib>
-#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -12,12 +12,10 @@
 #include <vector>
 #include <cstdint> // Necessary for uint32_t
 #include <filesystem>
-#include <print>
 #include <string>
 
-constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+#include <SDL3/SDL_vulkan.h>
 
-SDL_InitState Renderer::p_init;
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -28,13 +26,8 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
-//SDL error handler stolen from some random github project
-class SDLException final : public std::runtime_error {
-public:
-    explicit SDLException(const std::string& message) : std::runtime_error(
-        std::format("{}: {}", message, SDL_GetError())) {
-    }
-};
+Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
+	m_window{p_windowConfig} {}
 
 //Idle the device to allow for cleanup of swapchain and destroy window
 Renderer::~Renderer()
@@ -42,9 +35,6 @@ Renderer::~Renderer()
 	m_device.waitIdle();
 	cleanupSwapChain();
 
-	SDL_DestroyWindow(m_window);
-
-	SDL_Quit();
 }
 
 //File reading function for loading the shader file
@@ -60,22 +50,6 @@ static std::vector<char> readFile(const std::string& filename)
 	file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
 	file.close();
 	return buffer;
-}
-
-void Renderer::initWindow()
-{
-	if (!SDL_Init(SDL_INIT_VIDEO))
-		throw SDLException("Failed to initialize SDL");
-	if (!SDL_Vulkan_LoadLibrary(nullptr))
-		throw SDLException("Failed to load Vulkan library");
-
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_VULKAN);
-
-	m_window = SDL_CreateWindow("Hello Triangle!", 640, 480, window_flags);
-
-	SDL_SetWindowResizable(m_window, true);
-
-	SDL_SetInitialized(&p_init, true);
 }
 
 //Called to notify the renderer of a window resizing event
@@ -182,7 +156,7 @@ void Renderer::setupDebugMessenger()
 void Renderer::createSurface()
 {
 	VkSurfaceKHR _surface;
-	if (!SDL_Vulkan_CreateSurface(m_window, *m_instance, nullptr, &_surface))
+	if (!SDL_Vulkan_CreateSurface(m_window.GetWindowHandle(), *m_instance, nullptr, &_surface))
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
@@ -346,7 +320,7 @@ vk::Extent2D Renderer::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabi
 		return capabilities.currentExtent;
 	}
 	int width, height;
-	SDL_GetWindowSize(m_window, &width, &height);
+	SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
 
 	return {
 		std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
@@ -365,9 +339,9 @@ void Renderer::cleanupSwapChain()
 void Renderer::recreateSwapChain()
 {
 	int width = 0, height = 0;
-	SDL_GetWindowSize(m_window, &width, &height);
+	SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
 	while ((width == 0 || height == 0) && !SDL_ShouldQuit(&p_init)) {
-		SDL_GetWindowSize(m_window, &width, &height);
+		SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
 		SDL_WaitEvent(&p_event);
 	}
 	if (SDL_ShouldQuit(&p_init)) {
@@ -412,7 +386,7 @@ void Renderer::createGraphicsPipeline()
 	std::cout << std::filesystem::current_path().generic_string() << std::endl;
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("slang.spv"));
+	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
 	PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
 	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
@@ -632,13 +606,6 @@ void Renderer::drawFrame()
 //Creation of renderer
 int Renderer::Initialize()
 {
-	initWindow();
-	if (m_window == NULL)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
-		return 1;
-	}
-
 	try
 	{
 		createInstance();
@@ -679,13 +646,6 @@ int Renderer::Initialize()
 
 int Renderer::Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
 {
-	initWindow();
-	if (m_window == NULL)
-	{
-		SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Could not create window: %s\n", SDL_GetError());
-		return 1;
-	}
-
 	try
 	{
 		createInstance();
