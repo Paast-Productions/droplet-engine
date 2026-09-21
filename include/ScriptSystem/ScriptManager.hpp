@@ -1,11 +1,10 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <filesystem>
 #include "LuaStateHandler.hpp"
 #include "TestNode.hpp"
 #include "ScriptInstance.hpp"
+#include <vector>
 
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
@@ -17,7 +16,6 @@ public:
 	ScriptManager(LuaStateHandler& p_luaState);
 	~ScriptManager() = default;
 
-	void Start();
 	void Update(float p_deltaTime);
 	
 	/// <summary>
@@ -40,6 +38,12 @@ public:
 	/// </summary>
 	/// <param name="p_scriptInstance"></param>
 	void DestroyScript(ScriptInstance* p_scriptInstance);
+
+	/// <summary>
+	/// Loads a script and pts the loaded result into its member variable, noteworthy is that this function returns true in two different scenarios, the script loaded successfully, or the script was already loaded.
+	/// </summary>
+	/// <param name="p_scriptFile"></param>
+	/// <returns></returns>
 	bool LoadScript(const std::string& p_scriptFile);
 	bool UnloadScript(const std::string& p_scriptFile);
 	bool IsLoaded(const std::string& p_scriptFile);
@@ -57,10 +61,9 @@ private:
 	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
 	//loaded Lua chunks
 	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
-
 	bool m_Initialize(); 
 	void m_Shutdown();
-	void m_DestroyInstance(ScriptInstance* p_scriptInstance)
+	void m_DestroyInstance(ScriptInstance* p_scriptInstance);
 
 	bool m_LoadFile(const std::string& p_scriptFile);
 
@@ -69,6 +72,7 @@ private:
 	/// @brief This function finds the path to any script by giving it the name of the script
 	/// @param p_scriptFile the name of the scriptfile
 	/// @return the path to the scriptfile
-	std::filesystem::path FindScript(const std::string& p_scriptFile);
+	std::filesystem::path m_FindScript(const std::string& p_scriptFile);
+
 	
 };
