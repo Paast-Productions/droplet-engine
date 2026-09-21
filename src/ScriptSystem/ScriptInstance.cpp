@@ -35,6 +35,7 @@ void ScriptInstance::onStart()
 		if (!result.valid())
 		{
 			sol::error err = result;
+			std::print("onStart error: {}\n", err.what());
 			//Send to error logger when it exists
 		}
 	}

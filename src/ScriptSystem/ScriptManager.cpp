@@ -181,8 +181,6 @@ sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::str
 		return nullptr;
 	}
 	return &it->second;
-	
-	return nullptr;
 }
 
 bool ScriptManager::m_Initialize()
