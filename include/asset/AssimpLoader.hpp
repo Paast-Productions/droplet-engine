@@ -1,8 +1,11 @@
 #pragma once
 
 #include <asset/AssetManager.hpp>
+#include "asset/Resource.hpp"
 
+#include <vector>
 #include <string>
+#include <utility>
 #include <assimp/Importer.hpp>
 
 using json = nlohmann::json;
@@ -28,8 +31,19 @@ namespace Droplet
 
 		/// @brief Helper function that constructs a vertex buffer.
 		/// @param p_meshData The imported mesh object.
+		/// @param p_vertexByteSize The vertex byte size calculated in CreateVertexLayout()
 		/// @return A vector of the vertex buffer per byte.
-		std::vector<std::byte> BuildVertexData(const aiScene *&p_meshData);
+		std::vector<std::byte> BuildVertexData(const aiScene *&p_meshData, const std::size_t p_vertexByteSize);
+
+		/// @brief Helper function that constructs a index buffer.
+		/// @param p_meshData The imported mesh object.
+		/// @return A vector of the index buffer.
+		std::vector<std::uint32_t> BuildIndexData(const aiScene *&p_meshData);
+
+		/// @brief Helper function that creates the vertex layout.
+		/// @param[out] p_vertexByteSize The size of the created vertex layout.
+		/// @return A vector of the vertex layout.
+		std::vector<MeshResource::VertexAttribute> CreateVertexLayout(std::size_t &p_vertexByteSize);
 
 	};
 }

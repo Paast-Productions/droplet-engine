@@ -2,6 +2,9 @@
 
 #include "asset/Resource.hpp"
 
+#include <vector>
+#include <string>
+#include <utility>
 #include <print>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -48,12 +51,13 @@ namespace Droplet
 		return true;
 	}
 
-	std::vector<std::byte> AssimpLoader::BuildVertexData(const aiScene *&p_meshData)
+	std::vector<std::byte> AssimpLoader::BuildVertexData(const aiScene *&p_meshData, const std::size_t p_vertexByteSize)
 	{
 		std::vector<float> vertices;
 		aiMesh *mesh = p_meshData->mMeshes[0];
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
+			// Manually add the vertex data based of the defined vertex layout
 			vertices.push_back(mesh->mVertices[i].x);
 			vertices.push_back(mesh->mVertices[i].y);
 			vertices.push_back(mesh->mVertices[i].z);
@@ -66,11 +70,46 @@ namespace Droplet
 			vertices.push_back(mesh->mTextureCoords[0][i].y);
 		}
 
-		const unsigned int C_VERTEX_BYTE_SIZE = 8;
-		std::vector<std::byte> vertexData(mesh->mNumVertices * C_VERTEX_BYTE_SIZE * sizeof(float));
-		memcpy(vertexData.data(), vertices.data(), mesh->mNumVertices * C_VERTEX_BYTE_SIZE * sizeof(float));
+		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
+		memcpy(vertexData.data(), vertices.data(), mesh->mNumVertices * p_vertexByteSize);
 
 		return vertexData;
+	}
+
+	std::vector<unsigned int> AssimpLoader::BuildIndexData(const aiScene *&p_meshData)
+	{
+		std::vector<unsigned int> indices;
+		aiMesh *mesh = p_meshData->mMeshes[0];
+
+		// Indices are stored in each face
+		for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+		{
+			// Iterate through all indices of each face and push them to the vector
+			for (unsigned int j = 0; j < mesh->mFaces[i].mNumIndices; j++)
+			{
+				indices.push_back(mesh->mFaces[i].mIndices[j]);
+			}
+		}
+
+		return indices;
+	}
+
+	std::vector<MeshResource::VertexAttribute> AssimpLoader::CreateVertexLayout(std::size_t &p_vertexByteSize)
+	{
+		std::vector<MeshResource::VertexAttribute> vertexLayout = 
+		{
+			std::make_pair("POSITION", 3 * sizeof(float)),
+			std::make_pair("NORMAL",   3 * sizeof(float)),
+			std::make_pair("UV",       2 * sizeof(float))
+		};
+
+		// Calculates the total size of a vertex based of what's set in vertexLayout
+		for (MeshResource::VertexAttribute v : vertexLayout)
+		{
+			p_vertexByteSize += v.second;
+		}
+
+		return vertexLayout;
 	}
 }
 
