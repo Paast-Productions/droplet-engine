@@ -54,12 +54,12 @@ private:
 template<typename ...Args>
 inline sol::protected_function_result ScriptInstance::call(std::string_view functionName, Args && ...args)
 {
-	sol::protected_function_result function = m_environment[std::string(functionName)];
+	sol::protected_function function = m_environment[std::string(functionName)];
 
 	if (!function.valid())
 	{
 		//Function does not exist or is not callable
-		return sol::protected_function_result();
+		return {};
 	}
 	return function(std::forward<Args>(args)...);
 }

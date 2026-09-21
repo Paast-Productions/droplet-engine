@@ -18,6 +18,11 @@ public:
 
 	void Update(float p_deltaTime);
 	void Start();
+
+	template<typename... Args>
+	sol::protected_function_result Call(
+		TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
+
 	/// <summary>
 	/// Takes a component as a parameter and creates a relationships between the component and the desired lua file
 	/// </summary>
@@ -33,10 +38,8 @@ public:
 	/// <param name="p_testNode"></param>
 	/// <param name="p_scriptInstance"></param>
 	void DetachScript(TestNode* p_scriptComponent);
-	/// <summary>
-	/// Deletes every instance of a specific script across all relationships
-	/// </summary>
-	/// <param name="p_scriptInstance"></param>
+	/// @brief  Deletes every instance of a specific script across all relationships
+	/// @param p_scriptInstance 
 	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	/// <summary>
@@ -76,3 +79,23 @@ private:
 
 	
 };
+
+template <typename... Args>
+inline sol::protected_function_result ScriptManager::Call(TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		// Don't send in nullptt, send error to logging manager
+		return {};
+	}
+
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		//component has no attached script
+		return {};
+	}
+
+	return it->second->call(p_functionName, std::forward<Args>(p_args)...);
+}
