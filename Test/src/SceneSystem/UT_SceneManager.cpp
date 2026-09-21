@@ -3,6 +3,7 @@
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
 
+
 class SceneManagerTest : public ::testing::Test
 {
 protected:
@@ -13,7 +14,8 @@ protected:
 
 TEST_F(SceneManagerTest, LoadScene)
 {
-    EXPECT_TRUE(sceneManager.LoadScene("Game"));
+    EXPECT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
     auto scene = sceneManager.GetScene("Game");
 
@@ -24,8 +26,12 @@ TEST_F(SceneManagerTest, LoadScene)
 
 TEST_F(SceneManagerTest, PreventDuplicateScene)
 {
-    EXPECT_TRUE(sceneManager.LoadScene("Game"));
-    EXPECT_FALSE(sceneManager.LoadScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
+
+    EXPECT_THROW(
+        sceneManager.LoadScene("Game"),
+        std::runtime_error);
 }
 
 
@@ -39,9 +45,10 @@ TEST_F(SceneManagerTest, GetUnknownSceneReturnsNull)
 
 TEST_F(SceneManagerTest, ActivateScene)
 {
-    ASSERT_TRUE(sceneManager.LoadScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
-    EXPECT_TRUE(
+    EXPECT_NO_THROW(
         sceneManager.ActivateScene("Game"));
 
     auto scene = sceneManager.GetScene("Game");
@@ -53,17 +60,52 @@ TEST_F(SceneManagerTest, ActivateScene)
 
 TEST_F(SceneManagerTest, CannotActivateUnknownScene)
 {
-    EXPECT_FALSE(
-        sceneManager.ActivateScene("DoesNotExist"));
+    EXPECT_THROW(
+        sceneManager.ActivateScene("DoesNotExist"),
+        std::runtime_error);
+}
+
+
+TEST_F(SceneManagerTest, CannotActivateUnloadedScene)
+{
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
+
+    auto scene = sceneManager.GetScene("Game");
+
+    ASSERT_NE(scene, nullptr);
+
+    scene->Unload();
+
+    EXPECT_THROW(
+        sceneManager.ActivateScene("Game"),
+        std::runtime_error);
+}
+
+
+TEST_F(SceneManagerTest, CannotActivateAlreadyActiveScene)
+{
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
+
+    ASSERT_NO_THROW(
+        sceneManager.ActivateScene("Game"));
+
+    EXPECT_THROW(
+        sceneManager.ActivateScene("Game"),
+        std::runtime_error);
 }
 
 
 TEST_F(SceneManagerTest, DeactivateScene)
 {
-    ASSERT_TRUE(sceneManager.LoadScene("Game"));
-    ASSERT_TRUE(sceneManager.ActivateScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
-    EXPECT_TRUE(
+    ASSERT_NO_THROW(
+        sceneManager.ActivateScene("Game"));
+
+    EXPECT_NO_THROW(
         sceneManager.DeactivateScene("Game"));
 
     auto scene = sceneManager.GetScene("Game");
@@ -75,16 +117,30 @@ TEST_F(SceneManagerTest, DeactivateScene)
 
 TEST_F(SceneManagerTest, CannotDeactivateUnknownScene)
 {
-    EXPECT_FALSE(
-        sceneManager.DeactivateScene("DoesNotExist"));
+    EXPECT_THROW(
+        sceneManager.DeactivateScene("DoesNotExist"),
+        std::runtime_error);
+}
+
+
+TEST_F(SceneManagerTest, CannotDeactivateInactiveScene)
+{
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
+
+    EXPECT_THROW(
+        sceneManager.DeactivateScene("Game"),
+        std::runtime_error);
 }
 
 
 TEST_F(SceneManagerTest, UnloadScene)
 {
-    ASSERT_TRUE(sceneManager.LoadScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
-    sceneManager.UnloadScene("Game");
+    EXPECT_NO_THROW(
+        sceneManager.UnloadScene("Game"));
 
     EXPECT_EQ(
         sceneManager.GetScene("Game"),
@@ -94,10 +150,14 @@ TEST_F(SceneManagerTest, UnloadScene)
 
 TEST_F(SceneManagerTest, UnloadActiveScene)
 {
-    ASSERT_TRUE(sceneManager.LoadScene("Game"));
-    ASSERT_TRUE(sceneManager.ActivateScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
-    sceneManager.UnloadScene("Game");
+    ASSERT_NO_THROW(
+        sceneManager.ActivateScene("Game"));
+
+    EXPECT_NO_THROW(
+        sceneManager.UnloadScene("Game"));
 
     EXPECT_EQ(
         sceneManager.GetScene("Game"),
@@ -105,9 +165,18 @@ TEST_F(SceneManagerTest, UnloadActiveScene)
 }
 
 
+TEST_F(SceneManagerTest, CannotUnloadUnknownScene)
+{
+    EXPECT_THROW(
+        sceneManager.UnloadScene("DoesNotExist"),
+        std::runtime_error);
+}
+
+
 TEST_F(SceneManagerTest, SceneInitiallyInactive)
 {
-    ASSERT_TRUE(sceneManager.LoadScene("Game"));
+    ASSERT_NO_THROW(
+        sceneManager.LoadScene("Game"));
 
     auto scene = sceneManager.GetScene("Game");
 

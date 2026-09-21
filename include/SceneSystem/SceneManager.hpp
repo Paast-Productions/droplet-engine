@@ -27,14 +27,14 @@ public:
 
     /// @brief Loads a Scene with the specified name.
     ///
-    /// The Scene is created using the SceneFactory and stored in
-    /// the SceneManager.
+    /// The Scene is created using the SceneFactory, loaded, and stored
+    /// in the SceneManager.
     ///
     /// @param p_name Name of the Scene to load.
     ///
-    /// @return true if the Scene was successfully loaded,
-    /// otherwise false.
-    bool LoadScene(const std::string &p_name);
+    /// @throws std::runtime_error if a Scene with the specified name
+    /// already exists or if the SceneFactory fails to create the Scene.
+    void LoadScene(const std::string &p_name);
 
     /// @brief Unloads a Scene with the specified name.
     ///
@@ -42,6 +42,9 @@ public:
     /// from the SceneManager.
     ///
     /// @param p_name Name of the Scene to unload.
+    ///
+    /// @throws std::runtime_error if a Scene with the specified name
+    /// does not exist.
     void UnloadScene(const std::string &p_name);
 
     /// @brief Activates a loaded Scene.
@@ -50,9 +53,9 @@ public:
     ///
     /// @param p_name Name of the Scene to activate.
     ///
-    /// @return true if the Scene was successfully activated,
-    /// otherwise false.
-    bool ActivateScene(const std::string &p_name);
+    /// @throws std::runtime_error if the Scene does not exist, is not
+    /// loaded, or is already active.
+    void ActivateScene(const std::string &p_name);
 
     /// @brief Deactivates an active Scene.
     ///
@@ -61,9 +64,9 @@ public:
     ///
     /// @param p_name Name of the Scene to deactivate.
     ///
-    /// @return true if the Scene was successfully deactivated,
-    /// otherwise false.
-    bool DeactivateScene(const std::string &p_name);
+    /// @throws std::runtime_error if the Scene does not exist, is not
+    /// loaded, or is already inactive.
+    void DeactivateScene(const std::string &p_name);
 
     /// @brief Gets a loaded Scene by name.
     ///

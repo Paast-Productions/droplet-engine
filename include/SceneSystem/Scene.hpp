@@ -2,14 +2,15 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class Node;
 
-/// @brief Represents a scene containing a hierarchy of Nodes.
+/// @brief Represents a Scene containing one or more Node hierarchies.
 ///
-/// A Scene owns a root Node that serves as the entry point to the
-/// scene hierarchy. Scenes can be loaded, unloaded, activated,
-/// and updated independently.
+/// A Scene owns any number of root Nodes that serve as the starting
+/// points of the Scene's Node hierarchies. Scenes can be loaded,
+/// unloaded, activated, and updated independently.
 ///
 /// Nodes maintain a weak reference to their containing Scene so
 /// that they can access Scene-level functionality without creating
@@ -23,15 +24,17 @@ public:
     explicit Scene(std::string p_name);
 
     /// @brief Virtual destructor.
-    virtual ~Scene() = default;
+    virtual ~Scene() = default;      
 
     /// @brief Loads the Scene.
     ///
     /// Marks the Scene as loaded and assigns the Scene reference to
-    /// the root Node. The Scene reference is propagated through the
-    /// Node hierarchy.
+    /// all root Nodes. The Scene reference is propagated through
+    /// each Node hierarchy.
     ///
-    /// Calling Load() on an already loaded Scene has no effect.
+    /// Loading a Scene does not activate it.
+    ///
+    /// @throws std::runtime_error if the Scene is already loaded.
     ///
     /// Derived Scenes can override this function to perform additional
     /// loading or initialization.
@@ -41,10 +44,10 @@ public:
     ///
     /// Marks the Scene as unloaded and deactivates it.
     ///
-    /// The Node hierarchy remains owned by the Scene and can be loaded
-    /// again later.
+    /// The root Nodes and their hierarchies remain owned by the Scene
+    /// and can be loaded again later.
     ///
-    /// Calling Unload() on an already unloaded Scene has no effect.
+    /// @throws std::runtime_error if the Scene is not loaded.
     ///
     /// Derived Scenes can override this function to perform additional
     /// cleanup.
@@ -52,7 +55,7 @@ public:
 
     /// @brief Updates the Scene.
     ///
-    /// Updates the Scene's Node hierarchy when the Scene is both
+    /// Updates all root Node hierarchies when the Scene is both
     /// loaded and active.
     ///
     /// @param p_deltaTime Time elapsed since the previous update, in seconds.
@@ -60,18 +63,54 @@ public:
 
     /// @brief Renders the Scene.
     ///
+    /// Renders all root Node hierarchies when the Scene is both
+    /// loaded and active.
+    /// 
     /// @note Currently unused and does not perform any rendering.
     /// Rendering functionality may be moved to a separate rendering
     /// system in the future.
     virtual void Render();
 
-    /// @brief Gets the root Node of the Scene.
+    /// @brief Adds a Node as a root Node of the Scene.
     ///
-    /// The root Node serves as the starting point of the Scene's
-    /// Node hierarchy.
+    /// The Node must not already have a parent or belong to another
+    /// Scene. If the Scene is already loaded, the Scene reference is
+    /// assigned to the Node and propagated through its hierarchy.
     ///
-    /// @return Shared pointer to the root Node.
-    std::shared_ptr<Node> GetRoot() const;
+    /// If the Scene is already active, the Node is started immediately.
+    ///
+    /// @param p_node Node to add as a root Node.
+    ///
+    /// @return A shared pointer to the added Node.
+    ///
+    /// @throws std::invalid_argument if p_node is nullptr.
+    /// @throws std::runtime_error if the Node already has a parent
+    /// or belongs to another Scene.
+    std::shared_ptr<Node> AddRoot(std::shared_ptr<Node> p_node);
+
+    /// @brief Removes a root Node from the Scene.
+    ///
+    /// The Node is removed from the Scene's root Node collection.
+    /// Its Scene reference is cleared and the change is propagated
+    /// through its child hierarchy.
+    ///
+    /// Removing a root Node does not destroy it if other shared
+    /// pointers to the Node exist.
+    ///
+    /// @param p_node Root Node to remove.
+    ///
+    /// @throws std::invalid_argument if p_node is nullptr.
+    /// @throws std::runtime_error if the Node is not a root of this Scene.
+    void RemoveRoot(const std::shared_ptr<Node> &p_node);
+
+    /// @brief Gets the root Nodes of the Scene.
+    ///
+    /// Root Nodes are Nodes that do not have a parent Node and serve as
+    /// the starting points of the Scene's Node hierarchies. A Scene can
+    /// contain any number of root Nodes.
+    ///
+    /// @return A constant reference to the Scene's root Nodes.
+    const std::vector<std::shared_ptr<Node>> &GetRoots() const;
 
     /// @brief Gets the Scene's name.
     ///
@@ -93,12 +132,22 @@ public:
 
     /// @brief Sets whether the Scene is active.
     ///
+    /// Activating a loaded Scene starts all root Nodes and their
+    /// hierarchies. An active Scene is updated and rendered by the
+    /// SceneManager.
+    ///
+    /// Deactivating a Scene prevents its Node hierarchies from being
+    /// updated or rendered.
+    ///
     /// @param p_active true to activate the Scene, false to deactivate it.
+    ///
+    /// @throws std::runtime_error if attempting to activate a Scene
+    /// that has not been loaded.
     void SetActive(bool p_active);
 
 private:
     std::string m_name;
-    std::shared_ptr<Node> m_root;
+    std::vector<std::shared_ptr<Node>> m_roots;
 
     bool m_loaded = false;
     bool m_active = false;

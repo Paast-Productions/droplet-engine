@@ -2,27 +2,27 @@
 #include "SceneFactory.hpp"
 #include "Scene.hpp"
 #include <algorithm>
+#include <stdexcept>
 
-bool SceneManager::LoadScene(const std::string &p_name)
+void SceneManager::LoadScene(const std::string &p_name)
 {
     if (m_scenes.contains(p_name))
     {
-        return false;
+        throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_name);
 
     if (!scene)
     {
-        return false;
+        throw std::runtime_error("Cannot load Scene '" + p_name + "': SceneFactory failed to create the Scene.");
     }
 
     scene->Load();
 
     m_scenes[p_name] = scene;
-
-    return true;
 }
+
 
 void SceneManager::UnloadScene(const std::string &p_name)
 {
@@ -30,49 +30,59 @@ void SceneManager::UnloadScene(const std::string &p_name)
 
     if (it == m_scenes.end())
     {
-        return;
+        throw std::runtime_error("Cannot unload Scene '" + p_name + "': Scene does not exist.");
     }
 
-    DeactivateScene(p_name);
+    if (it->second->IsActive())
+    {
+        DeactivateScene(p_name);
+    }
 
     it->second->Unload();
 
     m_scenes.erase(it);
 }
 
-bool SceneManager::ActivateScene(const std::string &p_name)
+void SceneManager::ActivateScene(const std::string &p_name)
 {
     auto scene = GetScene(p_name);
 
     if (!scene)
     {
-        return false;
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene does not exist.");
     }
 
     if (!scene->IsLoaded())
     {
-        return false;
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is not loaded.");
     }
 
     if (scene->IsActive())
     {
-        return true;
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is already active.");
     }
 
     scene->SetActive(true);
 
     m_activeScenes.push_back(scene);
-
-    return true;
 }
-
-bool SceneManager::DeactivateScene(const std::string &p_name)
+void SceneManager::DeactivateScene(const std::string &p_name)
 {
     auto scene = GetScene(p_name);
 
     if (!scene)
     {
-        return false;
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    if (!scene->IsLoaded())
+    {
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is not loaded.");
+    }
+
+    if (!scene->IsActive())
+    {
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is already inactive.");
     }
 
     scene->SetActive(false);
@@ -95,8 +105,6 @@ bool SceneManager::DeactivateScene(const std::string &p_name)
     }
     ),
     m_activeScenes.end());
-
-    return true;
 }
 
 std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const

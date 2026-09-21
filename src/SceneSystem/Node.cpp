@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
+#include <stdexcept>
 
 Node::Node(std::string p_name)
     : m_name(std::move(p_name))
@@ -37,6 +38,7 @@ void Node::Update(float p_deltaTime)
     }
 
     //update transforms :=
+	//TODO: Implement transform update logic here, including calculating local and world transforms based on position, rotation, and scale.
 
     for (const auto &component : m_components)
     {
@@ -90,7 +92,22 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 {
     if (!p_child)
     {
-        return nullptr;
+        throw std::invalid_argument("Cannot add nullptr as a child Node.");
+    }
+
+    if (p_child.get() == this)
+    {
+        throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
+    }
+
+    if (p_child->GetParent())
+    {
+        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already has a parent.");
+    }
+
+    if (p_child->GetScene())
+    {
+        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already belongs to a Scene.");
     }
 
     p_child->m_parent = shared_from_this();
@@ -110,28 +127,41 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     return p_child;
 }
 
-bool Node::RemoveChild(std::shared_ptr<Node> p_child)
+void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 {
     if (!p_child)
     {
-        return false;
+        throw std::invalid_argument("Cannot remove nullptr as a child Node.");
     }
 
-    auto it = std::find(
-        m_children.begin(),
-        m_children.end(),
-        p_child);
+    auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
     if (it == m_children.end())
     {
-        return false;
+        throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
     }
 
     (*it)->m_parent.reset();
+    (*it)->SetScene(nullptr);
 
     m_children.erase(it);
+}
 
-    return true;
+void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot remove nullptr Component.");
+    }
+
+    auto it = std::find(m_components.begin(), m_components.end(), p_component);
+
+    if (it == m_components.end())
+    {
+        throw std::runtime_error("Cannot remove Component: Component is not attached to Node '" + m_name + "'.");
+    }
+
+    m_components.erase(it);
 }
 
 const std::string& Node::GetName() const

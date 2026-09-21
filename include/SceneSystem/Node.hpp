@@ -80,17 +80,23 @@ public:
     /// the child to the Node hierarchy.
     ///
     /// @param p_child Node to add as a child.
-    /// @return The added child Node, or nullptr if p_child is nullptr.
+    /// @return A shared pointer to the added child Node.
+    ///
+    /// @throws std::invalid_argument if p_child is nullptr.
+    /// @throws std::runtime_error if the Node already has a parent
+    /// or belongs to a Scene.
     std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child);
 
     /// @brief Removes a child Node.
     ///
-    /// If the specified Node is a child of this Node, it is removed
-    /// from the hierarchy and its parent reference is cleared.
+    /// Removes the specified Node from the hierarchy and clears its
+    /// parent reference.
     ///
     /// @param p_child Node to remove.
-    /// @return true if the child was removed, false otherwise.
-    bool RemoveChild(std::shared_ptr<Node> p_child);
+    ///
+    /// @throws std::invalid_argument if p_child is nullptr.
+    /// @throws std::runtime_error if the Node is not a child of this Node.
+    void RemoveChild(const std::shared_ptr<Node> &p_child);
 
     /// @brief Gets the parent Node.
     ///
@@ -181,32 +187,17 @@ public:
         return components;
     }
 
-    /// @brief Removes the first Component of the specified type.
+    /// @brief Removes a specific Component from the Node.
     ///
-    /// Searches the Components attached to this Node and removes the
-    /// first Component that matches the requested type.
+    /// Removes the specified Component from the Node's list of Components.
+    /// Components are removed by instance, allowing multiple Components
+    /// of the same type to exist on the same Node.
     ///
-    /// @tparam T Type of Component to remove.
+    /// @param p_component Component to remove.
     ///
-    /// @return true if a Component was removed, otherwise false.
-    template<typename T>
-    bool RemoveComponent()
-    {
-        auto it = std::find_if(m_components.begin(), m_components.end(),
-            [](const std::shared_ptr<Component> &p_component)
-            {
-                return std::dynamic_pointer_cast<T>(p_component)!= nullptr;
-            });
-
-        if (it == m_components.end())
-        {
-            return false;
-        }
-
-        m_components.erase(it);
-
-        return true;
-    }
+    /// @throws std::invalid_argument if p_component is nullptr.
+    /// @throws std::runtime_error if the Component is not attached to this Node.
+    void RemoveComponent(const std::shared_ptr<Component> &p_component);
 
     // --------------------------------------------------
     // Transforms

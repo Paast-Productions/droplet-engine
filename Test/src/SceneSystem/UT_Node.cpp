@@ -44,6 +44,7 @@ protected:
     }
 };
 
+
 TEST_F(NodeTest, HasCorrectName)
 {
     EXPECT_EQ(root->GetName(), "Root");
@@ -60,6 +61,60 @@ TEST_F(NodeTest, AddChild)
 
     EXPECT_EQ(root->GetChildren().size(), 1);
     EXPECT_EQ(root->GetChildren()[0], player);
+}
+
+
+TEST_F(NodeTest, AddNullChildThrows)
+{
+    EXPECT_THROW(
+        root->AddChild(nullptr),
+        std::invalid_argument);
+}
+
+
+TEST_F(NodeTest, CannotAddChildWithParent)
+{
+    auto parent1 =
+        std::make_shared<Node>("Parent1");
+
+    auto parent2 =
+        std::make_shared<Node>("Parent2");
+
+    auto child =
+        std::make_shared<Node>("Child");
+
+    parent1->AddChild(child);
+
+    EXPECT_THROW(
+        parent2->AddChild(child),
+        std::runtime_error);
+}
+
+
+TEST_F(NodeTest, CannotAddNodeToItself)
+{
+    EXPECT_THROW(
+        root->AddChild(root),
+        std::runtime_error);
+}
+
+
+TEST_F(NodeTest, CannotAddNodeThatBelongsToScene)
+{
+    auto scene =
+        std::make_shared<Scene>("Game");
+
+    scene->AddRoot(root);
+    scene->Load();
+
+    auto child =
+        std::make_shared<Node>("Child");
+
+    scene->AddRoot(child);
+
+    EXPECT_THROW(
+        root->AddChild(child),
+        std::runtime_error);
 }
 
 
@@ -83,39 +138,63 @@ TEST_F(NodeTest, RemoveChild)
 
     ASSERT_NE(player, nullptr);
 
-    EXPECT_TRUE(root->RemoveChild(player));
+    EXPECT_NO_THROW(
+        root->RemoveChild(player));
 
     EXPECT_TRUE(root->GetChildren().empty());
     EXPECT_EQ(player->GetParent(), nullptr);
 }
 
 
-TEST_F(NodeTest, RemoveNonexistentChild)
+TEST_F(NodeTest, RemoveNonexistentChildThrows)
 {
     auto player =
         std::make_shared<Node>("Player");
 
-    EXPECT_FALSE(root->RemoveChild(player));
+    EXPECT_THROW(
+        root->RemoveChild(player),
+        std::runtime_error);
 }
 
 
-TEST_F(NodeTest, RemoveNullChild)
+TEST_F(NodeTest, RemoveNullChildThrows)
 {
-    EXPECT_FALSE(root->RemoveChild(nullptr));
+    EXPECT_THROW(
+        root->RemoveChild(nullptr),
+        std::invalid_argument);
 }
+
+
+TEST_F(NodeTest, RemovingChildClearsSceneReference)
+{
+    auto scene =
+        std::make_shared<Scene>("Game");
+
+    scene->AddRoot(root);
+    scene->Load();
+
+    auto player =
+        root->AddChild(
+            std::make_shared<Node>("Player"));
+
+    ASSERT_NE(player, nullptr);
+    ASSERT_EQ(player->GetScene(), scene);
+
+    root->RemoveChild(player);
+
+    EXPECT_EQ(player->GetScene(), nullptr);
+}
+
 
 TEST_F(NodeTest, SceneReference)
 {
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
-    ASSERT_NE(sceneRoot, nullptr);
-
-    EXPECT_EQ(sceneRoot->GetScene(), scene);
+    EXPECT_EQ(root->GetScene(), scene);
 }
 
 
@@ -124,12 +203,11 @@ TEST_F(NodeTest, ChildInheritsSceneReference)
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
     auto player =
-        sceneRoot->AddChild(
+        root->AddChild(
             std::make_shared<Node>("Player"));
 
     ASSERT_NE(player, nullptr);
@@ -143,12 +221,11 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
     auto player =
-        sceneRoot->AddChild(
+        root->AddChild(
             std::make_shared<Node>("Player"));
 
     auto weapon =
@@ -159,6 +236,7 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
 
     EXPECT_EQ(weapon->GetScene(), scene);
 }
+
 
 TEST_F(NodeTest, AddComponent)
 {
@@ -205,35 +283,57 @@ TEST_F(NodeTest, SupportsMultipleComponents)
 }
 
 
-TEST_F(NodeTest, RemoveComponent)
+TEST_F(NodeTest, RemoveSpecificComponent)
 {
-    root->AddComponent<TComponent>();
+    auto component1 =
+        root->AddComponent<TComponent>();
 
-    EXPECT_TRUE(
-        root->RemoveComponent<TComponent>());
+    auto component2 =
+        root->AddComponent<TComponent>();
 
-    EXPECT_TRUE(
-        root->GetComponents<TComponent>().empty());
+    ASSERT_NE(component1, nullptr);
+    ASSERT_NE(component2, nullptr);
+
+    EXPECT_NO_THROW(
+        root->RemoveComponent(component1));
+
+    auto components =
+        root->GetComponents<TComponent>();
+
+    ASSERT_EQ(components.size(), 1);
+    EXPECT_EQ(components[0], component2);
 }
 
 
-TEST_F(NodeTest, RemoveNonexistentComponent)
+TEST_F(NodeTest, RemoveNonexistentComponentThrows)
 {
-    EXPECT_FALSE(
-        root->RemoveComponent<TComponent>());
+    auto component =
+        std::make_shared<TComponent>();
+
+    EXPECT_THROW(
+        root->RemoveComponent(component),
+        std::runtime_error);
 }
+
+
+TEST_F(NodeTest, RemoveNullComponentThrows)
+{
+    EXPECT_THROW(
+        root->RemoveComponent(nullptr),
+        std::invalid_argument);
+}
+
 
 TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 {
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
     auto component =
-        sceneRoot->AddComponent<TComponent>();
+        root->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
@@ -246,12 +346,11 @@ TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
     auto component =
-        sceneRoot->AddComponent<TComponent>();
+        root->AddComponent<TComponent>();
 
     scene->SetActive(true);
 
@@ -264,12 +363,11 @@ TEST_F(NodeTest, ComponentStartsOnlyOnce)
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
 
-    auto sceneRoot = scene->GetRoot();
-
     auto component =
-        sceneRoot->AddComponent<TComponent>();
+        root->AddComponent<TComponent>();
 
     scene->SetActive(true);
     scene->SetActive(false);
@@ -284,18 +382,18 @@ TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
     auto scene =
         std::make_shared<Scene>("Game");
 
+    scene->AddRoot(root);
     scene->Load();
     scene->SetActive(true);
 
-    auto sceneRoot = scene->GetRoot();
-
     auto component =
-        sceneRoot->AddComponent<TComponent>();
+        root->AddComponent<TComponent>();
 
     ASSERT_NE(component, nullptr);
 
     EXPECT_EQ(component->startCount, 1);
 }
+
 
 TEST_F(NodeTest, ComponentUpdates)
 {
@@ -320,6 +418,7 @@ TEST_F(NodeTest, ComponentUpdatesEveryFrame)
 
     EXPECT_EQ(component->updateCount, 3);
 }
+
 
 TEST_F(NodeTest, NodeInitiallyActive)
 {
@@ -356,6 +455,7 @@ TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
     EXPECT_EQ(component->updateCount, 0);
 }
 
+
 TEST_F(NodeTest, TestComponentInitializesCorrectly)
 {
     auto component =
@@ -369,6 +469,7 @@ TEST_F(NodeTest, TestComponentInitializesCorrectly)
     EXPECT_FLOAT_EQ(component->lastDeltaTime, 0.0f);
 }
 
+
 class PlainTestObject
 {
 public:
@@ -377,6 +478,7 @@ public:
     int updateCount = 0;
     float lastDeltaTime = 0.0f;
 };
+
 
 TEST_F(NodeTest, PlainTestObjectInitializesCorrectly)
 {
