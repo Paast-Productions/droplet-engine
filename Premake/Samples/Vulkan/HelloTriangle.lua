@@ -10,7 +10,6 @@ project "Vulkan-HelloTriangle"
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",
-        rootPath .. "/Samples/Vulkan/**"
     }
         
     local vkPath = os.getenv("VULKAN_SDK")
