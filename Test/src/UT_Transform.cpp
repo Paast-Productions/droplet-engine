@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
-#include <cmath>
 #include "Transform.hpp"
+#include <cmath>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Scene;
 
@@ -110,108 +112,179 @@ TEST_F(TransformTest, Construct)
 
 TEST_F(TransformTest, GetPositionLocal)
 {
-	// TODO
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), glm::vec3(0.f, 0.f, 0.f));
 }
 
 TEST_F(TransformTest, GetRotationLocal)
 {
-	// TODO
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::quat(glm::vec3(0.f, 0.f, 0.f)));
 }
 
 TEST_F(TransformTest, GetScaleLocal)
 {
-	// TODO
+	ExpectVec3Near(m_node->GetTransform()->GetScale(), glm::vec3(1.f, 1.f, 1.f));
 }
 
 TEST_F(TransformTest, GetEulerLocal)
 {
-	// TODO
+	ExpectVec3Near(m_node->GetTransform()->GetEuler(), glm::vec3(0.f, 0.f, 0.f));
 }
 
 TEST_F(TransformTest, GetAxesLocal)
 {
-	// TODO
+	ExpectVec3Near(m_node->GetTransform()->GetRight(), glm::vec3(1.f, 0.f, 0.f));
+	ExpectVec3Near(m_node->GetTransform()->GetUp(), glm::vec3(0.f, 1.f, 0.f));
+	ExpectVec3Near(m_node->GetTransform()->GetForward(), glm::vec3(0.f, 0.f, 1.f));
 }
 
 TEST_F(TransformTest, GetMatrixLocal)
 {
-	// TODO
+	const glm::vec3 pos(2.f, 3.f, -4.f);
+	const glm::quat rot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::vec3 scale(1.5f, 2.f, 0.5f);
+
+	m_node->GetTransform()->SetPosition(pos);
+	m_node->GetTransform()->SetRotation(rot);
+	m_node->GetTransform()->SetScale(scale);
+	m_node->GetTransform()->RecalculateMatrices();
+
+	const glm::mat4 expected =
+		glm::translate(glm::mat4(1.f), pos) *
+		glm::toMat4(rot) *
+		glm::scale(glm::mat4(1.f), scale);
+
+	ExpectMat4Near(m_node->GetTransform()->GetMatrix(), expected);
 }
 
 // Setters Local
 
 TEST_F(TransformTest, SetPositionLocal)
 {
-	// TODO
+	const glm::vec3 target(1.f, -2.f, 3.f);
+	m_node->GetTransform()->SetPosition(target);
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), target);
 }
 
 TEST_F(TransformTest, SetRotationLocal)
 {
-	// TODO
+	const glm::quat target = glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
+	m_node->GetTransform()->SetRotation(target);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), target);
 }
 
 TEST_F(TransformTest, SetScaleLocal)
 {
-	// TODO
+	const glm::vec3 target(2.f, 3.f, 4.f);
+	m_node->GetTransform()->SetScale(target);
+	ExpectVec3Near(m_node->GetTransform()->GetScale(), target);
 }
 
 TEST_F(TransformTest, SetEulerLocal)
 {
-	// TODO
+	const glm::vec3 euler(0.f, kHalfPi, 0.f);
+	m_node->GetTransform()->SetEuler(euler);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::quat(euler));
 }
 
 TEST_F(TransformTest, SetMatrixLocal)
 {
-	// TODO
+	const glm::vec3 pos(2.f, -1.f, 3.f);
+	const glm::quat rot = glm::angleAxis(kHalfPi, glm::vec3(1.f, 0.f, 0.f));
+	const glm::vec3 scale(2.f, 1.5f, 0.5f);
+	const glm::mat4 matrix =
+		glm::translate(glm::mat4(1.f), pos) *
+		glm::toMat4(rot) *
+		glm::scale(glm::mat4(1.f), scale);
+
+	m_node->GetTransform()->SetMatrix(matrix);
+	m_node->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), pos);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), rot);
+	ExpectVec3Near(m_node->GetTransform()->GetScale(), scale);
+	ExpectMat4Near(m_node->GetTransform()->GetMatrix(), matrix);
 }
 
 TEST_F(TransformTest, SettersCombinedLocal)
 {
-	// TODO
+	const glm::vec3 pos(-3.f, 2.f, 1.f);
+	const glm::vec3 euler(0.f, 0.f, kHalfPi);
+	const glm::vec3 scale(3.f, 2.f, 1.f);
+
+	m_node->GetTransform()->SetPosition(pos);
+	m_node->GetTransform()->SetEuler(euler);
+	m_node->GetTransform()->SetScale(scale);
+	m_node->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), pos);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::quat(euler));
+	ExpectVec3Near(m_node->GetTransform()->GetScale(), scale);
 }
 
 // Utility Local
 
 TEST_F(TransformTest, MoveLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	m_node->GetTransform()->Move(glm::vec3(4.f, -1.f, 0.5f));
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), glm::vec3(5.f, 1.f, 3.5f));
 }
 
 TEST_F(TransformTest, RotateLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetRotation(glm::quat(glm::vec3(0.f, 0.f, 0.f)));
+	const glm::quat delta = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	m_node->GetTransform()->Rotate(delta);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), delta);
 }
 
 TEST_F(TransformTest, RotateEulerLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetRotation(glm::quat(glm::vec3(0.f, 0.f, 0.f)));
+	const glm::vec3 delta(0.f, kHalfPi, 0.f);
+	m_node->GetTransform()->RotateEuler(delta);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::quat(delta));
 }
 
 TEST_F(TransformTest, AddScaleLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetScale(glm::vec3(1.f, 2.f, 3.f));
+	m_node->GetTransform()->AddScale(glm::vec3(0.5f, 1.f, -1.f));
+	ExpectVec3Near(m_node->GetTransform()->GetScale(), glm::vec3(1.5f, 3.f, 2.f));
 }
 
 TEST_F(TransformTest, RotateAxisLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetRotation(glm::quat(glm::vec3(0.f, 0.f, 0.f)));
+	m_node->GetTransform()->RotateAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f)));
 }
 
 TEST_F(TransformTest, LookAtLocal)
 {
-	// TODO
+	m_node->GetTransform()->SetPosition(glm::vec3(0.f, 0.f, 0.f));
+	const glm::vec3 target(1.f, 0.f, 0.f);
+
+	m_node->GetTransform()->LookAt(target);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::quat_cast(glm::lookAt(glm::vec3(0.f), target, glm::vec3(0.f, 1.f, 0.f))));
 }
 
 // Dirty Tracking
 
 TEST_F(TransformTest, MarkDirtyAfterChange)
 {
-	// TODO
+	m_node->GetTransform()->RecalculateMatrices();
+	EXPECT_FALSE(m_node->GetTransform()->IsDirty());
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 0.f, 0.f));
+	EXPECT_TRUE(m_node->GetTransform()->IsDirty());
 }
 
 TEST_F(TransformTest, CleanAfterRecalcMatrices)
 {
-	// TODO
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	EXPECT_TRUE(m_node->GetTransform()->IsDirty());
+	m_node->GetTransform()->RecalculateMatrices();
+	EXPECT_FALSE(m_node->GetTransform()->IsDirty());
 }
 
 // Parenting
@@ -229,12 +302,34 @@ TEST_F(TransformTest, SetParent)
 
 TEST_F(TransformTest, InheritParentTransform)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	parentNode->GetTransform()->SetPosition(glm::vec3(10.f, 0.f, 0.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->SetParent(parentNode);
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	m_node->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(11.f, 2.f, 3.f));
 }
 
 TEST_F(TransformTest, ChangeParent)
 {
-	// TODO
+	std::shared_ptr<Node> parentA = CreateNode();
+	std::shared_ptr<Node> parentB = CreateNode();
+	parentA->GetTransform()->SetPosition(glm::vec3(2.f, 0.f, 0.f));
+	parentB->GetTransform()->SetPosition(glm::vec3(5.f, 0.f, 0.f));
+	parentA->GetTransform()->RecalculateMatrices();
+	parentB->GetTransform()->RecalculateMatrices();
+
+	m_node->SetParent(parentA);
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 0.f, 0.f));
+	m_node->GetTransform()->RecalculateMatrices();
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(3.f, 0.f, 0.f));
+
+	m_node->SetParent(parentB);
+	m_node->GetTransform()->RecalculateMatrices();
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(6.f, 0.f, 0.f));
 }
 
 // Getters World
@@ -244,79 +339,228 @@ TEST_F(TransformTest, GetPositionWorld)
 	std::shared_ptr<Node> parentNode = CreateNode();
 	m_node->SetParent(parentNode);
 
-	// TODO
+	parentNode->GetTransform()->SetPosition(glm::vec3(10.f, -2.f, 5.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(11.f, 0.f, 8.f));
 }
 
 TEST_F(TransformTest, GetRotationWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::quat(glm::vec3(0.3f, 0.4f, 0.2f));
+	const glm::quat localRot = glm::angleAxis(kHalfPi, glm::vec3(1.f, 0.f, 0.f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetRotation(localRot);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), parentRot * localRot);
 }
 
 TEST_F(TransformTest, GetEulerWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::quat(glm::vec3(0.3f, 0.4f, 0.2f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(
+		m_node->GetTransform()->GetEuler(Transform::Space::World),
+		glm::eulerAngles(m_node->GetTransform()->GetRotation(Transform::Space::World)));
 }
 
 TEST_F(TransformTest, GetAxesWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(m_node->GetTransform()->GetRight(Transform::Space::World), glm::normalize(parentRot * glm::vec3(1.f, 0.f, 0.f)));
+	ExpectVec3Near(m_node->GetTransform()->GetUp(Transform::Space::World), glm::normalize(parentRot * glm::vec3(0.f, 1.f, 0.f)));
+	ExpectVec3Near(m_node->GetTransform()->GetForward(Transform::Space::World), glm::normalize(parentRot * glm::vec3(0.f, 0.f, 1.f)));
 }
 
 TEST_F(TransformTest, GetMatrixWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	parentNode->GetTransform()->SetPosition(glm::vec3(5.f, 0.f, 0.f));
+	parentNode->GetTransform()->SetRotation(glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f)));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	m_node->GetTransform()->SetScale(glm::vec3(2.f, 1.f, 1.f));
+	m_node->GetTransform()->RecalculateMatrices();
+
+	const glm::mat4 expected =
+		parentNode->GetTransform()->GetMatrix() *
+		m_node->GetTransform()->GetMatrix();
+
+	ExpectMat4Near(m_node->GetTransform()->GetMatrix(Transform::Space::World), expected);
 }
 
 // Setters World
 
 TEST_F(TransformTest, SetPositionWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	parentNode->GetTransform()->SetPosition(glm::vec3(10.f, 0.f, 0.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetPosition(glm::vec3(13.f, 2.f, 1.f), Transform::Space::World);
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), glm::vec3(3.f, 2.f, 1.f));
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(13.f, 2.f, 1.f));
 }
 
 TEST_F(TransformTest, SetRotationWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::quat worldRot = glm::angleAxis(kHalfPi, glm::vec3(1.f, 0.f, 0.f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetRotation(worldRot, Transform::Space::World);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::inverse(parentRot) * worldRot);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), worldRot);
 }
 
 TEST_F(TransformTest, SetEulerWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::vec3 worldEuler(0.f, 0.f, kHalfPi);
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetEuler(worldEuler, Transform::Space::World);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(), glm::inverse(parentRot) * glm::quat(worldEuler));
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), glm::quat(worldEuler));
 }
 
 TEST_F(TransformTest, SetMatrixWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+	parentNode->GetTransform()->SetPosition(glm::vec3(10.f, 0.f, 0.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	const glm::vec3 worldPos(12.f, 3.f, 4.f);
+	const glm::quat worldRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
+	const glm::vec3 worldScale(2.f, 2.f, 2.f);
+	const glm::mat4 worldMatrix =
+		glm::translate(glm::mat4(1.f), worldPos) *
+		glm::toMat4(worldRot) *
+		glm::scale(glm::mat4(1.f), worldScale);
+
+	m_node->GetTransform()->SetMatrix(worldMatrix, Transform::Space::World);
+	m_node->GetTransform()->RecalculateMatrices();
+
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), glm::vec3(2.f, 3.f, 4.f));
+	ExpectMat4Near(m_node->GetTransform()->GetMatrix(Transform::Space::World), worldMatrix);
 }
 
 TEST_F(TransformTest, SettersCombinedWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+	parentNode->GetTransform()->SetPosition(glm::vec3(5.f, 0.f, 0.f));
+	parentNode->GetTransform()->SetRotation(glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f)));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	const glm::vec3 worldPos(7.f, 2.f, 0.f);
+	const glm::quat worldRot = glm::angleAxis(kHalfPi, glm::vec3(1.f, 0.f, 0.f));
+	m_node->GetTransform()->SetPosition(worldPos, Transform::Space::World);
+	m_node->GetTransform()->SetRotation(worldRot, Transform::Space::World);
+
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), worldPos);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), worldRot);
 }
 
 // Utility World
 
 TEST_F(TransformTest, MoveWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+	parentNode->GetTransform()->SetPosition(glm::vec3(10.f, 0.f, 0.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 0.f, 0.f));
+	m_node->GetTransform()->Move(glm::vec3(2.f, 3.f, 4.f), Transform::Space::World);
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(), glm::vec3(3.f, 3.f, 4.f));
+	ExpectVec3Near(m_node->GetTransform()->GetPosition(Transform::Space::World), glm::vec3(13.f, 3.f, 4.f));
 }
 
 TEST_F(TransformTest, RotateWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::quat delta = glm::angleAxis(kHalfPi, glm::vec3(1.f, 0.f, 0.f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->Rotate(delta, Transform::Space::World);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), delta * parentRot);
 }
 
 TEST_F(TransformTest, RotateEulerWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::vec3 deltaEuler(0.f, 0.f, kHalfPi);
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->RotateEuler(deltaEuler, Transform::Space::World);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), glm::quat(deltaEuler) * parentRot);
 }
 
 TEST_F(TransformTest, RotateAxisWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+
+	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	parentNode->GetTransform()->SetRotation(parentRot);
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	const glm::quat delta = glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
+	m_node->GetTransform()->RotateAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f), Transform::Space::World);
+	ExpectQuatNear(m_node->GetTransform()->GetRotation(Transform::Space::World), delta * parentRot);
 }
 
 TEST_F(TransformTest, LookAtWorld)
 {
-	// TODO
+	std::shared_ptr<Node> parentNode = CreateNode();
+	m_node->SetParent(parentNode);
+	parentNode->GetTransform()->SetPosition(glm::vec3(5.f, 0.f, 0.f));
+	parentNode->GetTransform()->RecalculateMatrices();
+
+	m_node->GetTransform()->SetPosition(glm::vec3(1.f, 0.f, 0.f));
+	const glm::vec3 targetWorld(7.f, 0.f, 0.f);
+	m_node->GetTransform()->LookAt(targetWorld, glm::vec3(0.f, 1.f, 0.f), Transform::Space::World);
+	m_node->GetTransform()->RecalculateMatrices();
+
+	const glm::vec3 expectedDirection = glm::normalize(targetWorld - m_node->GetTransform()->GetPosition(Transform::Space::World));
+	ExpectVec3Near(m_node->GetTransform()->GetForward(Transform::Space::World), expectedDirection);
 }

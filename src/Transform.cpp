@@ -97,7 +97,7 @@ glm::quat Transform::GetRotation(Space p_space) const
 		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
 
 		glm::quat parentWorldRotation = glm::quat_cast(parentWorldMatrix);
-		return parentWorldRotation;
+		return parentWorldRotation * m_rotation;
 	}
 }
 
@@ -578,7 +578,7 @@ void Transform::UpdateLocalMatrix()
 
 bool Transform::HasParent() const
 {
-	if (m_owner)
+	if (!m_owner)
 		return false;
 
 	std::weak_ptr<Node> parentNode = m_owner->GetParent();
