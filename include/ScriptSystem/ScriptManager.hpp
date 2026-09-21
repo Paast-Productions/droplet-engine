@@ -11,6 +11,7 @@
 struct LoadedScript
 {
     sol::load_result loadResult;
+	std::filesystem::path scriptPath;
     std::filesystem::file_time_type lastWriteTime;
 };
 

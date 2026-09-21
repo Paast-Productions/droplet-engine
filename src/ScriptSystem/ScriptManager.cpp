@@ -124,8 +124,22 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 	}
 
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+	if (!loadResult.valid())
+	{
+		sol::error error = loadResult;
+		std::print("Failed to load '{}': {}\n", scriptPath.string(), error.what());
 
-	auto lastWriteTime = std::filesystem::last_write_time(scriptPath);
+		return false;
+	}
+
+	std::error_code errorCode;
+	auto lastWriteTime = std::filesystem::last_write_time(scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get last write time for '{}': {}\n", scriptPath.string(), errorCode.message());
+		return false;
+	}
 
 	if (!loadResult.valid())
 	{
@@ -134,7 +148,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return false;
 	}
 
-	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), lastWriteTime});
+	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
 
 	return true;
 }
@@ -159,7 +173,6 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 	return true; 
 }
 
-
 //Searches through the loadedscripts to see if a script is loaded, returns true if it is loaded
 bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 {
@@ -167,9 +180,46 @@ bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
-bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
+bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& p_scriptFile)
 {
-	return false;
+	auto it = m_loadedScripts.find(p_scriptFile);
+
+	if (it == m_loadedScripts.end())
+	{
+		std::print("Cannot reload script '{}': not loaded\n", p_scriptFile);
+		return false;
+	}
+
+	LoadedScript& loadedScript = it->second;
+
+	sol::load_result newLoadResult = m_StateHandler.GetState().load_file(loadedScript.scriptPath.string());
+
+	if (!newLoadResult.valid())
+	{
+		sol::error error = newLoadResult;
+
+		std::print("Failed to reload '{}': {}\n", p_scriptFile, error.what());
+
+		return false;
+	}
+
+	std::error_code errorCode;
+
+	auto newLastWriteTime = std::filesystem::last_write_time(loadedScript.scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get write time for '{}': {}\n", loadedScript.scriptPath.string(), errorCode.message());
+
+		return false;
+	}
+
+	loadedScript.loadResult = std::move(newLoadResult);
+	loadedScript.lastWriteTime = newLastWriteTime;
+
+	std::print("{} has changed and reloaded!\n", loadedScript.scriptPath.string());
+
+	return true;
 }
 
 void ScriptManager::CheckForFileChanges()
@@ -178,12 +228,11 @@ void ScriptManager::CheckForFileChanges()
 	{
 		if (m_HasScriptFileChanged(scriptFile))
 		{
-			std::print("{} changed!\n", scriptFile);
+			ReloadScript(scriptFile);
 		}
 	}
 }
  
-
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
 sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
 {
@@ -251,6 +300,7 @@ void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 		}
 	}
 }
+
 bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
@@ -260,9 +310,18 @@ bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 		return false;
 	}
 
-	std::filesystem::path scriptPath = m_FindScript(p_scriptFile);
+	const auto& LoadedScript = it->second;
 
-	auto currentWriteTime = std::filesystem::last_write_time(scriptPath);
+	std::error_code errorCode;
+
+	auto currentWriteTime = std::filesystem::last_write_time(LoadedScript.scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get write time for '{}': {}\n", LoadedScript.scriptPath.string(), errorCode.message());
+		
+		return false;
+	}
 
 	return currentWriteTime != it->second.lastWriteTime;
 }
