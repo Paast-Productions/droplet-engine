@@ -9,7 +9,7 @@ Node::Node(std::string p_name)
 {
 }
 
-void Node::OnStart()
+void Node::Start()
 {
     if (!m_active || m_started)
     {
@@ -18,14 +18,14 @@ void Node::OnStart()
 
     m_started = true;
 
-    for (const auto& component : m_components)
+    for (const auto &component : m_components)
     {
-        component->OnStart();
+        component->Start();
     }
 
-    for (const auto& child : m_children)
+    for (const auto &child : m_children)
     {
-        child->OnStart();
+        child->Start();
     }
 }
 
@@ -38,12 +38,12 @@ void Node::Update(float p_deltaTime)
 
     //update transforms :=
 
-    for (const auto& component : m_components)
+    for (const auto &component : m_components)
     {
         component->Update(p_deltaTime);
     }
 
-    for (const auto& child : m_children)
+    for (const auto &child : m_children)
     {
         child->Update(p_deltaTime);
     }
@@ -75,7 +75,7 @@ void Node::SetActive(bool p_active)
         {
             if (scene->IsActive())
             {
-                OnStart();
+                Start();
             }
         }
     }
@@ -104,7 +104,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
     if (m_started)
     {
-        p_child->OnStart();
+        p_child->Start();
     }
 
     return p_child;
@@ -139,7 +139,7 @@ const std::string& Node::GetName() const
     return m_name;
 }
 
-const std::vector<std::shared_ptr<Node>>& Node::GetChildren() const
+const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
 {
     return m_children;
 }
@@ -149,42 +149,42 @@ std::shared_ptr<Node> Node::GetParent() const
     return m_parent.lock();
 }
 
-void Node::SetPosition(const glm::vec3& p_position)
+void Node::SetPosition(const glm::vec3 &p_position)
 {
     m_position = p_position;
 }
 
-void Node::SetRotation(const glm::vec3& p_rotation)
+void Node::SetRotation(const glm::vec3 &p_rotation)
 {
     m_rotation = p_rotation;
 }
 
-void Node::SetScale(const glm::vec3& p_scale)
+void Node::SetScale(const glm::vec3 &p_scale)
 {
     m_scale = p_scale;
 }
 
-const glm::vec3& Node::GetPosition() const
+const glm::vec3 &Node::GetPosition() const
 {
     return m_position;
 }
 
-const glm::vec3& Node::GetRotation() const
+const glm::quat &Node::GetRotation() const
 {
     return m_rotation;
 }
 
-const glm::vec3& Node::GetScale() const
+const glm::vec3 &Node::GetScale() const
 {
     return m_scale;
 }
 
-const glm::mat4& Node::GetLocalTransform() const
+const glm::mat4 &Node::GetLocalTransform() const
 {
     return m_localTransform;
 }
 
-const glm::mat4& Node::GetWorldTransform() const
+const glm::mat4 &Node::GetWorldTransform() const
 {
     return m_worldTransform;
 }

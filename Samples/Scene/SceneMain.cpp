@@ -21,7 +21,7 @@ public:
         std::cout << "PlayerComponent initialized\n";
     }
 
-    void OnStart() override
+    void Start() override
     {
         std::cout << "PlayerComponent started\n";
     }

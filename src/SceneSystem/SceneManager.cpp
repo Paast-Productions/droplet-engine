@@ -3,7 +3,7 @@
 #include "Scene.hpp"
 #include <algorithm>
 
-bool SceneManager::LoadScene(const std::string& p_name)
+bool SceneManager::LoadScene(const std::string &p_name)
 {
     if (m_scenes.contains(p_name))
     {
@@ -24,7 +24,7 @@ bool SceneManager::LoadScene(const std::string& p_name)
     return true;
 }
 
-void SceneManager::UnloadScene(const std::string& p_name)
+void SceneManager::UnloadScene(const std::string &p_name)
 {
     auto it = m_scenes.find(p_name);
 
@@ -40,7 +40,7 @@ void SceneManager::UnloadScene(const std::string& p_name)
     m_scenes.erase(it);
 }
 
-bool SceneManager::ActivateScene(const std::string& p_name)
+bool SceneManager::ActivateScene(const std::string &p_name)
 {
     auto scene = GetScene(p_name);
 
@@ -66,7 +66,7 @@ bool SceneManager::ActivateScene(const std::string& p_name)
     return true;
 }
 
-bool SceneManager::DeactivateScene(const std::string& p_name)
+bool SceneManager::DeactivateScene(const std::string &p_name)
 {
     auto scene = GetScene(p_name);
 
@@ -77,7 +77,7 @@ bool SceneManager::DeactivateScene(const std::string& p_name)
 
     scene->SetActive(false);
 
-    m_activeScenes.erase(std::remove_if(m_activeScenes.begin(), m_activeScenes.end(), [&p_name](const std::weak_ptr<Scene>& p_scene)
+    m_activeScenes.erase(std::remove_if(m_activeScenes.begin(), m_activeScenes.end(), [&p_name](const std::weak_ptr<Scene> &p_scene)
     {
         auto scene = p_scene.lock();
 
@@ -99,7 +99,7 @@ bool SceneManager::DeactivateScene(const std::string& p_name)
     return true;
 }
 
-std::shared_ptr<Scene> SceneManager::GetScene(const std::string& p_name) const
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const
 {
     auto it = m_scenes.find(p_name);
 
@@ -111,7 +111,7 @@ std::shared_ptr<Scene> SceneManager::GetScene(const std::string& p_name) const
     return it->second;
 }
 
-const std::vector<std::weak_ptr<Scene>>&SceneManager::GetActiveScenes() const
+const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
 {
     return m_activeScenes;
 }

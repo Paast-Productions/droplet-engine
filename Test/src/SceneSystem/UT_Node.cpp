@@ -14,7 +14,7 @@ public:
         initialized = true;
     }
 
-    void OnStart() override
+    void Start() override
     {
         startCount++;
     }

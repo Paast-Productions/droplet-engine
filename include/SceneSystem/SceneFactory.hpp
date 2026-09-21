@@ -18,5 +18,5 @@ public:
     ///
     /// @param p_name Name of the Scene to create.
     /// @return A shared pointer to the newly created Scene.
-    static std::shared_ptr<Scene> CreateScene(const std::string& p_name);
+    static std::shared_ptr<Scene> CreateScene(const std::string &p_name);
 };

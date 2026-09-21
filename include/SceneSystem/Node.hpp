@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 #include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 class Component;
 class Scene;
@@ -30,15 +31,15 @@ public:
     virtual ~Node() = default;
 
     /// @brief Starts the Node, its Components, and its children.
-   ///
-   /// Calls OnStart() on all Components attached to this Node and then
-   /// starts all child Nodes.
-   ///
-   /// OnStart() is called at most once for each Node. Nodes that are
-   /// added to an already started Node are started immediately.
-   ///
-   /// @note The Node's OnStart() function can be overridden by derived Nodes.
-    virtual void OnStart();
+    ///
+    /// Calls OnStart() on all Components attached to this Node and then
+    /// starts all child Nodes.
+    ///
+    /// OnStart() is called at most once for each Node. Nodes that are
+    /// added to an already started Node are started immediately.
+    ///
+    /// @note The Node's Start() function can be overridden by derived Nodes.
+    virtual void Start();
 
     /// @brief Updates the Node, its Components, and its children.
     ///
@@ -100,7 +101,7 @@ public:
     /// @brief Gets the child Nodes.
     ///
     /// @return A constant reference to the vector containing this Node's children.
-    const std::vector<std::shared_ptr<Node>>& GetChildren() const;
+    const std::vector<std::shared_ptr<Node>> &GetChildren() const;
 
     /// @brief Gets the Scene that owns this Node.
     ///
@@ -115,7 +116,7 @@ public:
     /// @brief Gets the Node's name.
     ///
     /// @return A constant reference to the Node's name.
-    const std::string& GetName() const;
+    const std::string &GetName() const;
 
     // --------------------------------------------------
     // Components
@@ -137,9 +138,7 @@ public:
     template<typename T, typename... Args>
     std::shared_ptr<T> AddComponent(Args&&... p_args)
     {
-        auto component =
-            std::make_shared<T>(
-                std::forward<Args>(p_args)...);
+        auto component = std::make_shared<T>(std::forward<Args>(p_args)...);
 
         component->SetOwner(shared_from_this());
 
@@ -149,7 +148,7 @@ public:
 
         if (m_started)
         {
-            component->OnStart();
+            component->Start();
         }
 
         return component;
@@ -169,10 +168,9 @@ public:
     {
         std::vector<std::shared_ptr<T>> components;
 
-        for (const auto& component : m_components)
+        for (const auto &component : m_components)
         {
-            auto result =
-                std::dynamic_pointer_cast<T>(component);
+            auto result = std::dynamic_pointer_cast<T>(component);
 
             if (result)
             {
@@ -194,13 +192,10 @@ public:
     template<typename T>
     bool RemoveComponent()
     {
-        auto it = std::find_if(
-            m_components.begin(),
-            m_components.end(),
-            [](const std::shared_ptr<Component>& p_component)
+        auto it = std::find_if(m_components.begin(), m_components.end(),
+            [](const std::shared_ptr<Component> &p_component)
             {
-                return std::dynamic_pointer_cast<T>(p_component)
-                    != nullptr;
+                return std::dynamic_pointer_cast<T>(p_component)!= nullptr;
             });
 
         if (it == m_components.end())
@@ -216,46 +211,48 @@ public:
     // --------------------------------------------------
     // Transforms
     // --------------------------------------------------
+	//TODO: All these functions will be refactured one a tranforms system is implemented
+
 
     /// @brief Sets the Node's local position.
     ///
     /// @param p_position Local position relative to the parent Node.
-    void SetPosition(const glm::vec3& p_position);
+    void SetPosition(const glm::vec3 &p_position);
 
     /// @brief Sets the Node's local rotation.
     ///
     /// @param p_rotation Local rotation in radians.
-    void SetRotation(const glm::vec3& p_rotation);
+    void SetRotation(const glm::vec3 &p_rotation);
 
     /// @brief Sets the Node's local scale.
     ///
     /// @param p_scale Local scale relative to the parent Node.
-    void SetScale(const glm::vec3& p_scale);
+    void SetScale(const glm::vec3 &p_scale);
 
     /// @brief Gets the Node's local position.
     ///
     /// @return A constant reference to the local position.
-    const glm::vec3& GetPosition() const;
+    const glm::vec3 &GetPosition() const;
 
     /// @brief Gets the Node's local rotation.
     ///
     /// @return A constant reference to the local rotation.
-    const glm::vec3& GetRotation() const;
+    const glm::quat &GetRotation() const;
 
     /// @brief Gets the Node's local scale.
     ///
     /// @return A constant reference to the local scale.
-    const glm::vec3& GetScale() const;
+    const glm::vec3 &GetScale() const;
 
     /// @brief Gets the local transformation matrix.
     ///
     /// @return A constant reference to the local transformation matrix.
-    const glm::mat4& GetLocalTransform() const;
+    const glm::mat4 &GetLocalTransform() const;
 
     /// @brief Gets the world transformation matrix.
     ///
     /// @return A constant reference to the world transformation matrix.
-    const glm::mat4& GetWorldTransform() const;
+    const glm::mat4 &GetWorldTransform() const;
 
 private:
     std::string m_name;
@@ -287,7 +284,7 @@ private:
     // Transforms
 
     glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
-    glm::vec3 m_rotation{ 0.0f, 0.0f, 0.0f };
+    glm::quat m_rotation{ 0.0f, 0.0f, 0.0f, 1.0f };
     glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
 
     glm::mat4 m_localTransform{ 1.0f };

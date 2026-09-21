@@ -32,7 +32,7 @@ public:
     /// Called when the owning Node starts participating in an active Scene.
     /// This function is called at most once for each Component.
     /// Derived classes can override this function to perform startup logic.
-    virtual void OnStart() {}
+    virtual void Start() {}
 
     /// @brief Updates the component.
     ///

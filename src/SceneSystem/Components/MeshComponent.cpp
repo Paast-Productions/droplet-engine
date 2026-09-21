@@ -7,15 +7,15 @@ MeshComponent::MeshComponent(std::string p_meshPath)
 
 void MeshComponent::Initialize()
 {
-    // Mesh loading will be implemented later.
+	//TODO: will be inplemted later when the mesh system is implemented
 }
 
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-    // Mesh-specific update logic will go here later.
+	//TODO: will be inplemted later when the mesh system is implemented
 }
 
-const std::string& MeshComponent::GetMeshPath() const
+const std::string &MeshComponent::GetMeshPath() const
 {
     return m_meshPath;
 }

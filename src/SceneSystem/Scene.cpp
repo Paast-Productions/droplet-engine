@@ -1,6 +1,7 @@
 #include "Scene.hpp"
 #include "Node.hpp"
 #include <utility>
+
 Scene::Scene(std::string p_name)
     : m_name(std::move(p_name)), m_root(std::make_shared<Node>("Root"))
 {
@@ -58,7 +59,7 @@ void Node::SetScene(std::shared_ptr<Scene> p_scene)
 {
     m_scene = p_scene;
 
-    for (const auto& child : m_children)
+    for (const auto &child : m_children)
     {
         child->SetScene(p_scene);
     }
@@ -69,7 +70,7 @@ std::shared_ptr<Scene> Node::GetScene() const
     return m_scene.lock();
 }
 
-const std::string& Scene::GetName() const
+const std::string &Scene::GetName() const
 {
     return m_name;
 }
@@ -93,8 +94,8 @@ void Scene::SetActive(bool p_active)
 
     m_active = p_active;
 
-    if (m_active)
+    if (m_active)        
     {
-        m_root->OnStart();
+        m_root->Start();
     }
 }

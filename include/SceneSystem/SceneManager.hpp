@@ -34,7 +34,7 @@ public:
     ///
     /// @return true if the Scene was successfully loaded,
     /// otherwise false.
-    bool LoadScene(const std::string& p_name);
+    bool LoadScene(const std::string &p_name);
 
     /// @brief Unloads a Scene with the specified name.
     ///
@@ -42,7 +42,7 @@ public:
     /// from the SceneManager.
     ///
     /// @param p_name Name of the Scene to unload.
-    void UnloadScene(const std::string& p_name);
+    void UnloadScene(const std::string &p_name);
 
     /// @brief Activates a loaded Scene.
     ///
@@ -52,7 +52,7 @@ public:
     ///
     /// @return true if the Scene was successfully activated,
     /// otherwise false.
-    bool ActivateScene(const std::string& p_name);
+    bool ActivateScene(const std::string &p_name);
 
     /// @brief Deactivates an active Scene.
     ///
@@ -63,7 +63,7 @@ public:
     ///
     /// @return true if the Scene was successfully deactivated,
     /// otherwise false.
-    bool DeactivateScene(const std::string& p_name);
+    bool DeactivateScene(const std::string &p_name);
 
     /// @brief Gets a loaded Scene by name.
     ///
@@ -71,7 +71,7 @@ public:
     ///
     /// @return A shared pointer to the Scene, or nullptr if the
     /// Scene is not loaded.
-    std::shared_ptr<Scene> GetScene(const std::string& p_name) const;
+    std::shared_ptr<Scene> GetScene(const std::string &p_name) const;
 
     /// @brief Gets the currently active Scenes.
     ///
@@ -81,7 +81,7 @@ public:
     ///
     /// @return A constant reference to the list of active Scene
     /// weak pointers.
-    const std::vector<std::weak_ptr<Scene>>& GetActiveScenes() const;
+    const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
 
     /// @brief Updates all active Scenes.
     ///

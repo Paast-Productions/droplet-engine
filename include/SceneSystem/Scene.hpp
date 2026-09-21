@@ -14,7 +14,7 @@ class Node;
 /// Nodes maintain a weak reference to their containing Scene so
 /// that they can access Scene-level functionality without creating
 /// an ownership cycle.
-class Scene: public std::enable_shared_from_this<Scene>
+class Scene : public std::enable_shared_from_this<Scene>
 {
 public:
 
@@ -76,7 +76,7 @@ public:
     /// @brief Gets the Scene's name.
     ///
     /// @return A constant reference to the Scene's name.
-    const std::string& GetName() const;
+    const std::string &GetName() const;
 
     /// @brief Checks whether the Scene is loaded.
     ///
