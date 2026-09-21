@@ -2,7 +2,11 @@
 
 #include "asset/AssetManager.hpp"
 
+#include "asset/ResourceTexture.hpp"
+
 #include <filesystem>
+#include <string>
+#include <iostream>
 
 namespace fs = std::filesystem;
 
@@ -16,5 +20,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Droplet::AssetManager assetManager;
     assetManager.Initialize(assetDir);
     
+    Droplet::ResourceTexture resourceTexture;
+
+    fs::path currentPath = fs::current_path();
+    std::string path = "basic_fish_colors_base.png";
+    std::cout << "Does file path exist? " << std::filesystem::exists(path) << std::endl;
+
+    resourceTexture.Load(path);
+
+
     return 0;
 }
