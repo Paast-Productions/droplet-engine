@@ -53,7 +53,12 @@ public:
 	bool ReloadScript(const std::string& p_scriptFile);
 	
 	sol::load_result* GetLoadedScript(const std::string& p_scriptFile);
-
+	/// @brief Activates the script and runs on update each frame, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void ActivateScript(TestNode* p_scriptComponent);
+	/// @brief Deactivates a script and no longer runs on update, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void DeActivateScript(TestNode* p_scriptComponent);
 	
 private:
 	//state
@@ -64,6 +69,8 @@ private:
 	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
 	//loaded Lua chunks
 	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
+	//Active  scripts
+	std::vector<ScriptInstance*> m_activeScripts;
 	bool m_Initialize(); 
 	void m_Shutdown();
 	void m_DestroyInstance(ScriptInstance* p_scriptInstance);

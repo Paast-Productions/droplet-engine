@@ -21,7 +21,7 @@ void ScriptManager::Start()
 
 void ScriptManager::Update(float p_deltaTime)
 {
-	for (auto& instance : m_scriptInstances)
+	for (auto& instance : m_activeScripts)
 	{
 		instance->onUpdate(p_deltaTime);
 	}
@@ -46,14 +46,32 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 		//Send to logging manager
 		return nullptr;
 	}
-	 
+	
+	if (p_scriptComponent == nullptr)
+	{
+		//Send error
+		return nullptr;
+	}
+
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
+	ScriptInstance* oldinstance = nullptr;
+
+	if (existing != m_scripts.end())
+	{
+		oldinstance = existing->second;
+	}
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
 	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
+
+	if (oldinstance != nullptr)
+	{
+		m_DestroyInstance(oldinstance);
+	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
-	m_scripts.emplace(p_scriptComponent, instance);
+	m_scripts[p_scriptComponent] = instance;
 	return instance;
 }
 
@@ -183,6 +201,52 @@ sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::str
 	return &it->second;
 	
 	return nullptr;
+}
+
+void ScriptManager::ActivateScript(TestNode* p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return; //No nullptr allowed
+	}
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		return;
+	}
+
+	ScriptInstance* instance = it->second;
+
+	if (std::find(m_activeScripts.begin(), m_activeScripts.end(), instance) != m_activeScripts.end())
+	{
+		return; // The instance is already activated
+	}
+	m_activeScripts.push_back(instance);
+}
+
+void ScriptManager::DeActivateScript(TestNode* p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return; //No nullptr allowed
+	}
+	std::unordered_map < TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		return;//no script found
+	}
+
+	ScriptInstance* instance = it->second;
+	std::vector<ScriptInstance*>::iterator activeIt = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
+	if (activeIt == m_activeScripts.end())
+	{
+		return; // already inactive
+	}
+
+	*activeIt = m_activeScripts.back(); // overide the script we want to change with the last in the vector
+	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
 }
 
 bool ScriptManager::m_Initialize()
