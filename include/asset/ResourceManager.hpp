@@ -110,7 +110,12 @@ namespace Droplet
         }
     
     private:
-        std::vector<MetaEntry> CompareAndCompileMetaData(const std::vector<MetaEntry> &p_metaData,
+        /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
+        /// were found in the asset file.
+        /// @param p_oldEntries The old resources listed for the asset.
+        /// @param p_foundResources The resources found in the asset file.
+        /// @return The updated list of resources that should be listed for the asset.
+        std::vector<MetaEntry> CompareAndCompileMetaData(const std::string &p_assetPath, 
             const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
         
         bool m_isInitialized = false;
