@@ -1,7 +1,7 @@
 #include "ScriptManager.hpp"
 #include <iostream>
 #include <print>
-#include <filesystem>
+
 
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {
@@ -27,7 +27,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNode, const std::string& p_scriptFile)
+ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, const std::string& p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -49,11 +49,30 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_testNod
 	 
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_testNode, m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
 	m_scriptInstances.push_back(std::move(scriptInstance));
+	m_scripts.emplace(p_scriptComponent, instance);
 	return instance;
+}
+
+void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return;
+	}
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		//Couldn't find send an error
+		return;
+	}
+	ScriptInstance* instance = it->second;
+	// Destroy it
+	m_DestroyInstance(instance);
 }
 
 void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInstance)
@@ -62,6 +81,18 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 	{
 		return;
 	}		
+
+	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	{
+		if (it->second == p_scriptInstance)
+		{
+			m_scripts.erase(it);
+		}
+		else //If we do it++ in the for declaration it invalidates the iterator and we can't keep going
+		{
+			it++;
+		}
+	}
 
 	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++) // it for iterator
 	{
@@ -72,7 +103,7 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 		}																				
 	}
 
-	// instance was handled well if we reach this point
+	// instance was not handled well if we reach this point
 	// send error to logging manager here
 }
 
@@ -85,7 +116,13 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return true; // Script is already loaded
 	}
 
-	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
+	std::filesystem::path scriptPath = m_FindScript(p_scriptFile);
+	if (p_scriptFile.empty())
+	{
+		//Error logger entry
+		return false;
+	}
+
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
 
 	auto lastWriteTime = std::filesystem::last_write_time(scriptPath);
@@ -165,6 +202,54 @@ bool ScriptManager::m_Initialize()
 	return false;
 }
 
+std::filesystem::path ScriptManager::m_FindScript(const std::string& p_scriptFile)
+{
+	std::filesystem::path scriptDirectory =
+		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
+
+	for (const auto& entry : std::filesystem::recursive_directory_iterator(scriptDirectory))
+	{
+		if (!entry.is_regular_file())
+		{
+			continue;
+		}
+
+		if (entry.path().filename() == p_scriptFile)
+		{
+			return entry.path();
+		}
+	}
+	return {};
+}
+
+void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
+{
+	if (p_scriptInstance == nullptr)
+	{
+		//Send error to logging
+		return;
+	}
+
+	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	{
+		if (it->second == p_scriptInstance)
+		{
+			it = m_scripts.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++)
+	{
+		if (it->get() == p_scriptInstance)
+		{
+			m_scriptInstances.erase(it);
+			return;
+		}
+	}
 bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
