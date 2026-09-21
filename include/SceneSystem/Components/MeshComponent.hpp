@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Component.hpp"
+#include <SceneSystem/Component.hpp>
 #include <string>
 
 /// @brief Component that attaches a mesh to a Node.

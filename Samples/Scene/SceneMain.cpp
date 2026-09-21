@@ -84,7 +84,7 @@ int main()
 
     auto enemy =
         root->AddChild(
-            std::make_shared<Node>("Enemy"));
+            std::make_shared<Node>("Enemy"));     
 
     // ==================================================
     // Configure transforms
