@@ -163,7 +163,7 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 
 	for (const std::unique_ptr<ScriptInstance>& scriptInstance : m_scriptInstances) // check every instance
 	{
-		if (scriptInstance->getScriptPath() == p_scriptFile)
+		if (scriptInstance->GetScriptPath() == p_scriptFile)
 		{
 			return false; // a instance is using this script file
 		}
@@ -216,6 +216,14 @@ bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& p_scriptFil
 
 	loadedScript.loadResult = std::move(newLoadResult);
 	loadedScript.lastWriteTime = newLastWriteTime;
+
+	for (auto& instance : m_scriptInstances)
+	{
+		if (instance->GetScriptPath() == p_scriptFile)
+		{
+			instance->Reload(loadedScript.loadResult); 
+		}
+	}
 
 	std::print("{} has changed and reloaded!\n", loadedScript.scriptPath.string());
 

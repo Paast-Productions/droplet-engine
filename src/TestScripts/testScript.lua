@@ -2,12 +2,11 @@ function onStart()
 	print("Started Lua script")
 end	
 
+counter = 0
 function onUpdate(dt)
 
-	self:set_position(
-		self:get_x() + 1.0 * dt,
-		self:get_y(),
-		self:get_z()
-	)
+	counter = counter + 1
+	print(counter)
 	
 end
+  
