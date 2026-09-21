@@ -1,5 +1,7 @@
 ﻿#include "Asset/ResourceCatalog.hpp"
 
+#include "meta/MetaUtils.hpp"
+
 namespace Droplet
 {
     bool ResourceCatalog::ScanDirectory(const std::filesystem::path &p_directory)
@@ -9,14 +11,27 @@ namespace Droplet
             return false;        
         }
         
-        for (const auto &entry : std::filesystem::recursive_directory_iterator(p_directory))
+        for (const auto &item : std::filesystem::recursive_directory_iterator(p_directory))
         {
-            if (entry.path().extension() == ".meta")
+            if (item.is_regular_file() && item.path().extension() == ".meta")
             {
-                // Read json formatted meta file
-                // Extract guid
-                // Derive asset path from file name
-                // Add to m_pathToGuid
+                std::filesystem::path metaPath = item.path();
+                metaPath.replace_extension(""); // Remove ".meta" from the path
+                
+                std::string assetPath = metaPath.generic_string();
+                
+                std::vector<MetaEntry> entries;
+                if (MetaUtils::Read(item.path(), entries))
+                {   
+                    for (const auto& entry : entries)
+                    {
+                        RegisterMetaEntry(assetPath, entry);
+                    }
+                }
+                else
+                {
+                    // TODO: Log metafile parse error (or empty)
+                }
             }
         }
         
