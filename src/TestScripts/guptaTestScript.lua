@@ -24,4 +24,5 @@ function fishflip(a,b,c)
 		self:get_y(),
 		self:get_z()
 	)
+	return (a+b+c)
 end

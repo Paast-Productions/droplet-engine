@@ -17,7 +17,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     scriptSystem.Start();
     scriptSystem.Call(&guptaNode, "backflip");
-    scriptSystem.Call(&guptaNode, "fishflip", 5, 2, 3);
+    auto var = scriptSystem.Call(&guptaNode, "fishflip", 5, 2,3);
+
     scriptSystem.ActivateScript(&testNode);
     for (int i = 0; i < 3; ++i)
     {
