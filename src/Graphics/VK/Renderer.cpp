@@ -387,54 +387,8 @@ void Renderer::createGraphicsPipeline()
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
-
-	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
-	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eFragment, .module = shaderModule, .pName = "fragMain" };
-	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-	vk::PipelineVertexInputStateCreateInfo   vertexInputInfo;
-	vk::PipelineInputAssemblyStateCreateInfo inputAssembly{ .topology = vk::PrimitiveTopology::eTriangleList };
-	vk::PipelineViewportStateCreateInfo      viewportState{ .viewportCount = 1, .scissorCount = 1 };
-
-	vk::PipelineRasterizationStateCreateInfo rasterizer{ .depthClampEnable = vk::False,
-														.rasterizerDiscardEnable = vk::False,
-														.polygonMode = vk::PolygonMode::eFill,
-														.cullMode = vk::CullModeFlagBits::eBack,
-														.frontFace = vk::FrontFace::eClockwise,
-														.depthBiasEnable = vk::False,
-														.lineWidth = 1.0f };
-
-	vk::PipelineMultisampleStateCreateInfo multisampling{ .rasterizationSamples = vk::SampleCountFlagBits::e1, .sampleShadingEnable = vk::False };
-
-	vk::PipelineColorBlendAttachmentState colorBlendAttachment{
-		.blendEnable = vk::False,
-		.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
-
-	vk::PipelineColorBlendStateCreateInfo colorBlending{
-		.logicOpEnable = vk::False, .logicOp = vk::LogicOp::eCopy, .attachmentCount = 1, .pAttachments = &colorBlendAttachment };
-
-	//VIKTIGT Dynamic states måste vara deklarerade för att kunna ändras i runtime
-	std::vector<vk::DynamicState>      dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-	vk::PipelineDynamicStateCreateInfo dynamicState{ .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()), .pDynamicStates = dynamicStates.data() };
-
-	vk::PipelineLayoutCreateInfo pipelineLayoutInfo{ .setLayoutCount = 0, .pushConstantRangeCount = 0 };
-	m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
-
-	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
-			{.stageCount = 2,
-			 .pStages = shaderStages,
-			 .pVertexInputState = &vertexInputInfo,
-			 .pInputAssemblyState = &inputAssembly,
-			 .pViewportState = &viewportState,
-			 .pRasterizationState = &rasterizer,
-			 .pMultisampleState = &multisampling,
-			 .pColorBlendState = &colorBlending,
-			 .pDynamicState = &dynamicState,
-			 .layout = m_pipelineLayout,
-			 .renderPass = nullptr},
-			{.colorAttachmentCount = 1, .pColorAttachmentFormats = &m_swapChainSurfaceFormat.format} };
-
-	m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
+	Droplet::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
+	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
@@ -444,54 +398,8 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
-
-	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eVertex, .module = shaderModule, .pName = "vertMain" };
-	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{ .stage = vk::ShaderStageFlagBits::eFragment, .module = shaderModule, .pName = "fragMain" };
-	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
-
-	vk::PipelineVertexInputStateCreateInfo   vertexInputInfo;
-	vk::PipelineInputAssemblyStateCreateInfo inputAssembly{ .topology = vk::PrimitiveTopology::eTriangleList };
-	vk::PipelineViewportStateCreateInfo      viewportState{ .viewportCount = 1, .scissorCount = 1 };
-
-	vk::PipelineRasterizationStateCreateInfo rasterizer{ .depthClampEnable = vk::False,
-														.rasterizerDiscardEnable = vk::False,
-														.polygonMode = vk::PolygonMode::eFill,
-														.cullMode = vk::CullModeFlagBits::eBack,
-														.frontFace = vk::FrontFace::eClockwise,
-														.depthBiasEnable = vk::False,
-														.lineWidth = 1.0f };
-
-	vk::PipelineMultisampleStateCreateInfo multisampling{ .rasterizationSamples = vk::SampleCountFlagBits::e1, .sampleShadingEnable = vk::False };
-
-	vk::PipelineColorBlendAttachmentState colorBlendAttachment{
-		.blendEnable = vk::False,
-		.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA };
-
-	vk::PipelineColorBlendStateCreateInfo colorBlending{
-		.logicOpEnable = vk::False, .logicOp = vk::LogicOp::eCopy, .attachmentCount = 1, .pAttachments = &colorBlendAttachment };
-
-	//VIKTIGT Dynamic states måste vara deklarerade för att kunna ändras i runtime
-	std::vector<vk::DynamicState>      dynamicStates = { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-	vk::PipelineDynamicStateCreateInfo dynamicState{ .dynamicStateCount = static_cast<uint32_t>(dynamicStates.size()), .pDynamicStates = dynamicStates.data() };
-
-	vk::PipelineLayoutCreateInfo pipelineLayoutInfo{ .setLayoutCount = 0, .pushConstantRangeCount = 0 };
-	m_pipelineLayout = vk::raii::PipelineLayout(m_device, pipelineLayoutInfo);
-
-	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain = {
-			{.stageCount = 2,
-			 .pStages = shaderStages,
-			 .pVertexInputState = &vertexInputInfo,
-			 .pInputAssemblyState = &inputAssembly,
-			 .pViewportState = &viewportState,
-			 .pRasterizationState = &rasterizer,
-			 .pMultisampleState = &multisampling,
-			 .pColorBlendState = &colorBlending,
-			 .pDynamicState = &dynamicState,
-			 .layout = m_pipelineLayout,
-			 .renderPass = nullptr},
-			{.colorAttachmentCount = 1, .pColorAttachmentFormats = &m_swapChainSurfaceFormat.format} };
-
-	m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
+	Droplet::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapChainSurfaceFormat };
+	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
 
 [[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const std::vector<char>& code) const
@@ -563,6 +471,8 @@ void Renderer::transition_image_layout(
 //Main drawing operations are here!
 void Renderer::recordCommandBuffer(uint32_t imageIndex)
 {
+	assert(m_graphicsPipeline.has_value());
+	
 	auto& _commandBuffer = m_commandBuffers[m_frameIndex];
 	_commandBuffer.begin({});
 
@@ -590,7 +500,7 @@ void Renderer::recordCommandBuffer(uint32_t imageIndex)
 		.pColorAttachments = &attachmentInfo };
 
 	_commandBuffer.beginRendering(renderingInfo);
-	_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline);
+	_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
 	_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_swapChainExtent.width), static_cast<float>(m_swapChainExtent.height), 0.0f, 1.0f));
 	_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapChainExtent));
 	_commandBuffer.draw(3, 1, 0, 0);
