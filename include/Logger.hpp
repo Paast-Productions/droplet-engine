@@ -15,12 +15,13 @@ namespace Droplet::Debug
 		std::thread::id threadId{};
 	};
 
+
 	/// @class logger
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
-	///
+	/// 
 	/// Provides thread-safe logging functionality to capture timestamped
 	/// messages and thread IDs to a JSON file.
-	/// 
+
 	class Logger
 	{
 	public:
