@@ -176,6 +176,8 @@ bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 
 	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
 	
+	//std::print("Checking script: {}\n", scriptPath.string());
+
 	auto currentWriteTime = std::filesystem::last_write_time(scriptPath);
 
 	return currentWriteTime != it->second.lastWriteTime;
