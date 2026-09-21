@@ -37,13 +37,39 @@ namespace Droplet
 		}
 
 		// Store the mesh data into p_assetRecord.resource
-		MeshResource meshResource;
 		std::size_t vertexByteSize = 0; // Size dependent on vertex layout
 		std::vector<MeshResource::VertexAttribute> vertexLayout = CreateVertexLayout(vertexByteSize);
 		std::vector<std::byte> vertexData = BuildVertexData(meshData, vertexByteSize);
 		std::vector<std::uint32_t> indexData = BuildIndexData(meshData);
-		meshResource.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-		p_assetRecord.resource = std::make_shared<MeshResource>(meshResource);
+
+		if (meshData->HasAnimations())
+		{
+			SkinnedMeshResource skinnedMesh;
+			int parentIndex = -1;
+			aiMesh *mesh = meshData->mMeshes[0];
+			for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
+			{
+				aiBone *bone = mesh->mBones[i];
+				aiMatrix4x4 o = bone->mOffsetMatrix;
+				glm::mat4 offsetMat =
+				{
+					o.a1, o.a2, o.a3, o.a4,
+					o.b1, o.b2, o.b3, o.b4,
+					o.c1, o.c2, o.c3, o.c4,
+					o.d1, o.d2, o.d3, o.d4,
+				};
+				parentIndex = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
+			}
+
+			skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
+			p_assetRecord.resource = std::make_shared<SkinnedMeshResource>(skinnedMesh);
+		}
+		else
+		{
+			MeshResource mesh;
+			mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
+			p_assetRecord.resource = std::make_shared<MeshResource>(mesh);
+		}
 
 		// Log Info: Successfully loaded p_meshFile
 		std::println("Successfully loaded {}", p_meshFile); // Temporary log
