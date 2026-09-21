@@ -1,19 +1,17 @@
 #include "asset/meta/MetaSerializer.hpp"
 
+#include <fstream>
+
 using json = nlohmann::json;
 
 namespace Droplet
 {
-    ResourceMetaData MetaSerializer::Read(const std::filesystem::path &p_metaFilePath)
-    {
-
-    }
-
-    bool MetaSerializer::Read(const std::filesystem::path &p_metaFilePath, ResourceMetaData p_metaData)
+    bool MetaSerializer::Read(const std::filesystem::path &p_metaFilePath, std::vector<ResourceMetaData> &p_metaData)
     {
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
         {
+            // TODO: Log file open error
             return false;
         }
 
@@ -21,32 +19,62 @@ namespace Droplet
         {
             json j;
             file >> j;
+            p_metaData.clear();
             
-            p_metaData.guid = j.value("guid", C_INVALID_GUID);
-            p_metaData.loadFlags = static_cast<AssetLoadFlag>(j.value("loadFlags", static_cast<uint8_t>(AssetLoadFlag::LoadBoth)));
-            p_metaData.dependencies = j.value("dependencies", std::vector<std::string>{});
-            p_metaData.typeSpecificData = j.value("specificData", json::object());
+            if (j.contains("resources") && j["resources"].is_array())
+            {
+                for (const auto& body : j["resources"])
+                {
+                    ResourceMetaData resourceData;
+                    resourceData.guid = j.value("guid", C_INVALID_GUID);
+                    resourceData.type = static_cast<ResourceType>(j.value("type", static_cast<uint8_t>(ResourceType::None)));
+                    resourceData.name = j.value("name", std::string{});
+                    resourceData.loadFlags = static_cast<ResourceLoadFlag>(j.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadBoth)));
+                    resourceData.dependencies = j.value("dependencies", std::vector<GUID>{});
+                    resourceData.typeSpecificData = j.value("specificData", json::object());
+                    
+                    p_metaData.push_back(resourceData);
+                }
+            }
         }
         catch (const std::exception &e)
         {
+            // TODO: Log exception
             return false;
         }
 
         return true;
     }
 
-    bool MetaSerializer::Write(const std::filesystem::path &p_metaFilePath, const ResourceMetaData &p_metaData)
+    bool MetaSerializer::Write(const std::filesystem::path &p_metaFilePath, std::vector<ResourceMetaData> &p_metaData)
     {
         std::ofstream file(p_metaFilePath);
-        if (file.is_open()) return false;
+        if (!file.is_open())
+        {
+            // TODO: Log file open error
+            return false;
+        }
         
-        json j;
-        j["guid"] = p_metaData.guid;
-        j["loadFlags"] = static_cast<uint8_t>(p_metaData.loadFlags);
-        j["dependencies"] = p_metaData.dependencies;
-        j["specificData"] = p_metaData.typeSpecificData;
+        json root;
+        json resourcesArray = json::array();
         
-        file << j.dump(4);
+        for (const auto& resourceData : p_metaData)
+        {
+            json j;
+            
+            j["guid"] = resourceData.guid;
+            j["type"] = static_cast<uint8_t>(resourceData.type);
+            j["name"] = resourceData.name;
+            j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
+            j["dependencies"] = resourceData.dependencies;
+            j["specificData"] = resourceData.typeSpecificData;
+            
+            resourcesArray.push_back(j);
+        }
+        
+        root["resources"] = resourcesArray;
+        
+        file << root.dump(4);
         return true;
     }
 
@@ -58,18 +86,37 @@ namespace Droplet
         return ext;
     }
 
-    bool MetaSerializer::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, ResourceMetaData &p_metaData)
+    bool MetaSerializer::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<ResourceMetaData> &p_metaData)
     {
-        p_metaData.guid = GuidUtils::Generate();
-        p_metaData.loadFlags = AssetLoadFlag::LoadBoth;
+        p_metaData.clear();
+        
+        ResourceMetaData defaultData;
+        defaultData.guid = GuidUtils::Generate();
+        defaultData.type = ResourceType::None;
+        defaultData.name = std::string{};
+        defaultData.loadFlags = ResourceLoadFlag::LoadBoth;
+        defaultData.dependencies = std::vector<GUID>{};
         
         std::string ext = GetLowercaseExtension(p_assetPath);
         
-        // 3D model assets (these are the asset types we support)
+        // Models & Meshes
         if (ext == ".fbx" || ext == ".gltf" || ext == ".obj")
         {
-            p_metaData.typeSpecificData["scale"] = 1.0f;
-            p_metaData.typeSpecificData["import_animations"] = false;
+            defaultData.typeSpecificData["scale"] = C_MODEL_DEFAULT_SCALE;
+            defaultData.typeSpecificData["import_animations"] = C_MODEL_DEFAULT_IMPORT_ANIMATIONS;
         }
+        else if (ext == ".dds" || ext == ".ktx")
+        {
+            // defaultMeta.typeSpecificData["..."] = ...;
+        }
+        
+        p_metaData.push_back(defaultData);
+        if (!Write(p_assetPath.string() + ".meta", p_metaData))
+        {
+            // TODO: Log write error
+            return false;
+        }
+        
+        return true;
     }
 }
