@@ -2,6 +2,7 @@
 
 #include <memory>
 
+/// Forward declaration of Node to avoid circular dependency
 class Node;
 
 /// @brief Base class for components that can be attached to a Node.

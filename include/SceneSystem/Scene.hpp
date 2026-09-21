@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+//forward declaration of Node to avoid circular dependency
 class Node;
 
 /// @brief Represents a Scene containing one or more Node hierarchies.

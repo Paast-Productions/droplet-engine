@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+/// Forward declarations to avoid circular dependencies
 class Component;
 class Scene;
 
