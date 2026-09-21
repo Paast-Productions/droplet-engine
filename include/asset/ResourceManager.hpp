@@ -47,8 +47,8 @@ namespace Droplet
         void Initialize(std::filesystem::path p_rootDirectory);
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources.
-        /// @param p_path The path to the asset to be registered. Must be within 
-        void RegisterAsset(const std::filesystem::path &p_path);
+        /// @param p_assetPath The path to the asset to be registered. Must be within 
+        void RegisterAsset(const std::filesystem::path &p_assetPath);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
@@ -59,8 +59,8 @@ namespace Droplet
         {
             assert(m_isInitialized && "ResourceManager is not initialized.");
             
-            ResourceMetaData resourceData;
-            if (!m_catalog.GetResourceMetaData(p_guid, resourceData))
+            MetaEntry metaEntry;
+            if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
                 // TODO: Log this as a warning/error

@@ -23,12 +23,12 @@ namespace Droplet
         return true;
     }
 
-    bool ResourceCatalog::GetResourceMetaData(GUID p_guid, ResourceMetaData &p_resourceData)
+    bool ResourceCatalog::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
     {
-        auto it = m_metaDataMap.find(p_guid);
-        if (it != m_metaDataMap.end())
+        auto it = m_guidToDataMap.find(p_guid);
+        if (it != m_guidToDataMap.end())
         {
-            p_resourceData = it->second;
+            p_metaEntry = it->second;
             return true;
         }
     

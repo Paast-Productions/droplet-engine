@@ -6,7 +6,7 @@ using json = nlohmann::json;
 
 namespace Droplet
 {
-    bool MetaSerializer::Read(const std::filesystem::path &p_metaFilePath, std::vector<ResourceMetaData> &p_metaData)
+    bool MetaSerializer::Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
@@ -25,7 +25,7 @@ namespace Droplet
             {
                 for (const auto& body : j["resources"])
                 {
-                    ResourceMetaData resourceData;
+                    MetaEntry resourceData;
                     resourceData.guid = j.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(j.value("type", static_cast<uint8_t>(ResourceType::None)));
                     resourceData.name = j.value("name", std::string{});
@@ -46,7 +46,7 @@ namespace Droplet
         return true;
     }
 
-    bool MetaSerializer::Write(const std::filesystem::path &p_metaFilePath, std::vector<ResourceMetaData> &p_metaData)
+    bool MetaSerializer::Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
@@ -86,11 +86,11 @@ namespace Droplet
         return ext;
     }
 
-    bool MetaSerializer::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<ResourceMetaData> &p_metaData)
+    bool MetaSerializer::GenerateDefaultMetaFile(const std::filesystem::path &p_assetPath, std::vector<MetaEntry> &p_metaData)
     {
         p_metaData.clear();
         
-        ResourceMetaData defaultData;
+        MetaEntry defaultData;
         defaultData.guid = GuidUtils::Generate();
         defaultData.type = ResourceType::None;
         defaultData.name = std::string{};

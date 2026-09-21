@@ -58,8 +58,9 @@ namespace Droplet
     {
         return (static_cast<uint8_t>(flags) & static_cast<uint8_t>(flagToCheck)) != 0;
     }
-    
-    struct ResourceMetaData
+
+    /// @brief Represents a resource within a metafile.
+    struct MetaEntry
     {
         // Common
         GUID guid = C_INVALID_GUID;
