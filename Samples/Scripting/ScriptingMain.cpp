@@ -13,7 +13,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
        "testScript.lua"
     ); 
     
-    scriptSystem.Start();
+    scriptSystem.Start(); 
 
     while(true)
 	{

@@ -256,13 +256,11 @@ bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
 	auto it = m_loadedScripts.find(p_scriptFile);
 	if (it == m_loadedScripts.end())
 	{
-		std::print("Script not found\n");
+		std::print("Script is not loaded: {}\n", p_scriptFile);
 		return false;
 	}
 
-	std::filesystem::path scriptPath = std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts" / p_scriptFile;
-	
-	//std::print("Checking script: {}\n", scriptPath.string());
+	std::filesystem::path scriptPath = m_FindScript(p_scriptFile);
 
 	auto currentWriteTime = std::filesystem::last_write_time(scriptPath);
 
