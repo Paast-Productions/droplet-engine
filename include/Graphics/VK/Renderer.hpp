@@ -1,31 +1,28 @@
 #pragma once
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
-#if defined(__INTELLISENSE__) || !defined(USE_CPP20_MODULES)
 #include <vulkan/vulkan_raii.hpp>
-#else
-import vulkan_hpp;
-#endif
 
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
-#include <SDL3/SDL.h>
+
+#include <Graphics/SDL/Window.hpp>
 
 class Renderer
 {
 public:
-	Renderer() = default;
+	Renderer() = delete;
+	Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig);
 	~Renderer();
 	int		Initialize();
 	int		Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
 	void	drawFrame();
 	void	windowResize();
 
-	SDL_Event	p_event;
-	static		SDL_InitState p_init;
+	SDL_Event				p_event {};
+	inline static			SDL_InitState p_init {};
 
 private:
-	void					initWindow();
 	void					createInstance();
 	void					setupDebugMessenger();
 	void					createSurface();
@@ -70,16 +67,16 @@ private:
 	uint32_t							 m_queueIndex = (uint32_t)~0;
 	vk::raii::Queue						 m_queue = nullptr;
 	vk::raii::SwapchainKHR				 m_swapChain = nullptr;
-	std::vector<vk::Image>				 m_swapChainImages;
+	std::vector<vk::Image>				 m_swapChainImages	{};
 	vk::SurfaceFormatKHR				 m_swapChainSurfaceFormat;
 	vk::Extent2D						 m_swapChainExtent;
 	std::vector<vk::raii::ImageView>	 m_swapChainImageViews;
 
-	vk::raii::PipelineLayout			 m_pipelineLayout = nullptr;
+	vk::raii::PipelineLayout			 m_pipelineLayout	= nullptr;
 	vk::raii::Pipeline					 m_graphicsPipeline = nullptr;
-	vk::raii::CommandPool				 m_commandPool = nullptr;
+	vk::raii::CommandPool				 m_commandPool		= nullptr;
 	std::vector<vk::raii::CommandBuffer> m_commandBuffers;
-	SDL_Window* m_window = nullptr;
+	Droplet::Graphics::SDL::Window		 m_window;
 
 	std::vector<vk::raii::Semaphore>	 m_presentCompleteSemaphores;
 	std::vector<vk::raii::Semaphore>	 m_renderFinishedSemaphores;
@@ -90,4 +87,6 @@ private:
 	bool								 m_framebufferResized = false;
 
 	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
+	
+	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 };

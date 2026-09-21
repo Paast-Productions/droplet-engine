@@ -7,25 +7,36 @@
 
 namespace Droplet::Graphics::SDL
 {
-    /// @brief 
-    /// @var [Private] m_sdlWindowHandle 
+    /// @struct WindowConfig
+    /// @brief SDL-Window Configuration\n{ .Width, .Height, .Flags }
+    struct WindowConfig
+    {
+        std::int32_t Width;
+        std::int32_t Height;
+        std::uint64_t Flags;
+    };
+    
+    /// @class Window
+    /// @brief SDL-Window
     class Window
     {
     public:
         Window() = delete;
         
-        /// @brief SDL window constructor 
-        /// @param p_width Width of the SDL window
-        /// @param p_height Height of the SDL window
-        /// @param p_flags Extra SDL-related flags
-        Window(std::int32_t p_width, std::int32_t p_height, SDL_WindowFlags p_flags);
+        /// @brief SDL-window constructor 
+        /// @param p_windowConfig SDL-Window Configuration Struct\n{ .Width, .Height, .Flags }
+        Window(WindowConfig p_windowConfig);
         
         Window(const Window& p_sdlWindow) = delete;
         Window& operator=(const Window& p_sdlWindow) = delete;
         Window(Window&& p_sdlWindow) = delete;
         Window& operator=(Window&& p_sdlWindow) = delete;
         
-        ~Window() = default;
+        ~Window();
+        
+        /// @returns Non-owning SDL_Window pointer
+        [[nodiscard]]
+        SDL_Window* GetWindowHandle();
     
     private:
         /// @brief Custom deleter function for SDL_Window*. This enables the usage of std::unique_ptr<>

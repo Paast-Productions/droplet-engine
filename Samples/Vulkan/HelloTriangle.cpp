@@ -1,23 +1,23 @@
 ﻿#include "Graphics/VK/Renderer.hpp"
 
-#include <print>
-
-#include <Graphics/SDL/Window.hpp>
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-	Droplet::Graphics::SDL::Window window {640, 480, SDL_WINDOW_VULKAN};
+	// Window Config
+	Droplet::Graphics::SDL::WindowConfig windowConfig 
+	{
+		.Width = 640,
+		.Height = 480,
+		.Flags = 0
+	};
 	
-	
-	
-	bool done = false;
-	Renderer rnd;
+	Renderer rnd { windowConfig };
 
 	if (rnd.Initialize() == 1)
 	{
 		return 1;
 	}
 
+	bool done = false;
 	while (!done)
 	{
 		while (SDL_PollEvent(&rnd.p_event))

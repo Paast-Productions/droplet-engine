@@ -1,13 +1,10 @@
 ﻿#pragma once
 
 #include <filesystem>
-#include <unordered_map>
 #include <vector>
 
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
-
-#include <Algorithm/Hash/Utilities.hpp>
 
 namespace Droplet::Graphics
 {
