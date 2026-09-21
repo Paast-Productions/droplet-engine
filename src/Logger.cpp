@@ -25,17 +25,17 @@ Logger::~Logger()
 
 void Logger::Log(LogType p_type, const std::string &p_msg)
 {
-    std::string s_status{};
+    std::string status{};
     switch (p_type)
     {
-    case LogType::Error:   s_status = "Error"; break;
-    case LogType::Warning: s_status = "Warning"; break;
-    case LogType::Info:    s_status = "Info"; break;
-    case LogType::Debug:   s_status = "Debug"; break;
+    case LogType::Error:   status = "Error"; break;
+    case LogType::Warning: status = "Warning"; break;
+    case LogType::Info:    status = "Info"; break;
+    case LogType::Debug:   status = "Debug"; break;
     }
 
     LogEntry logEntry{ std::chrono::system_clock::now(),
-        p_msg, s_status, std::this_thread::get_id() };
+        p_msg, status, std::this_thread::get_id() };
 
     Push(logEntry);
 }

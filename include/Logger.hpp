@@ -18,7 +18,7 @@ namespace Droplet::Debug
 
 	/// @class logger
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
-	/// 
+	///
 	/// Provides thread-safe logging functionality to capture timestamped
 	/// messages and thread IDs to a JSON file.
 
@@ -55,10 +55,9 @@ namespace Droplet::Debug
 		/// @return Reference to the Logger instance.
 		static Logger &GetInstance()
 		{
-			static Logger logger;
-			return logger;
+			static Logger s_logger;
+			return s_logger;
 		}
-
 
 	private:
 		/// @brief Pushes a log entry onto the queue and signals the worker thread.
