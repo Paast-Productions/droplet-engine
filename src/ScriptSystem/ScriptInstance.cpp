@@ -56,7 +56,33 @@ void ScriptInstance::onUpdate(float deltatime)
 	}
 }
 
-std::string ScriptInstance::getScriptPath()
+bool ScriptInstance::Reload(sol::load_result& p_script)
+{
+	if (!p_script.valid())
+	{
+		return false;
+	}
+
+	sol::protected_function scriptFunction = p_script;
+
+	sol::set_environment(m_environment, scriptFunction);
+
+	sol::protected_function_result functionResult = scriptFunction();
+	if (!functionResult.valid())
+	{
+		sol::error error = functionResult;
+		std::print("Script error: {}\n", error.what());
+
+		return false;
+	}
+
+	m_onStart = m_environment["onStart"];
+	m_onUpdate = m_environment["onUpdate"];
+
+	return true;
+}
+
+std::string ScriptInstance::GetScriptPath()
 {
 	return m_scriptPath;
 }

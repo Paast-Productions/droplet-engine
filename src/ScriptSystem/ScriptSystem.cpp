@@ -14,11 +14,7 @@ void ScriptSystem::Start()
 void ScriptSystem::Update(float p_deltaTime)
 {
 	m_scriptManager.Update(p_deltaTime);
-}
-
-void ScriptSystem::Shutdown()
-{
-	//Do this later idk
+	m_scriptManager.CheckForFileChanges();
 }
 
 bool ScriptSystem::LoadScript(const std::string& p_scriptFile)
@@ -29,6 +25,16 @@ bool ScriptSystem::LoadScript(const std::string& p_scriptFile)
 bool ScriptSystem::UnloadScript(const std::string& p_scriptFile)
 {
 	return m_scriptManager.UnloadScript(p_scriptFile);
+}
+
+void ScriptSystem::ActivateScript(TestNode* p_scriptComponent)
+{
+	m_scriptManager.ActivateScript(p_scriptComponent);
+}
+
+void ScriptSystem::DeactivateScript(TestNode* p_scriptComponent)
+{
+	m_scriptManager.DeActivateScript(p_scriptComponent);
 }
 
 ScriptInstance* ScriptSystem::CreateScript([[maybe_unused]] TestNode* p_testNode, [[maybe_unused]] const std::string& p_scriptFile)

@@ -36,9 +36,11 @@ public:
 	/// @param deltatime is the time since last function call
 	void onUpdate(float deltatime);
 
+	bool Reload(sol::load_result& p_script);
+
 	/// @brief Just gets the script path
 	/// @return a string containing the script path
-	std::string getScriptPath();
+	std::string GetScriptPath();
 private:
 	TestNode* m_testNode;
 	LuaStateHandler& m_stateHandler;

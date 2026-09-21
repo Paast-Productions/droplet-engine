@@ -21,7 +21,7 @@ void ScriptManager::Start()
 
 void ScriptManager::Update(float p_deltaTime)
 {
-	for (auto& instance : m_scriptInstances)
+	for (auto& instance : m_activeScripts)
 	{
 		instance->onUpdate(p_deltaTime);
 	}
@@ -46,14 +46,32 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 		//Send to logging manager
 		return nullptr;
 	}
-	 
+	
+	if (p_scriptComponent == nullptr)
+	{
+		//Send error
+		return nullptr;
+	}
+
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
+	ScriptInstance* oldinstance = nullptr;
+
+	if (existing != m_scripts.end())
+	{
+		oldinstance = existing->second;
+	}
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
 	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance* instance = scriptInstance.get();
+
+	if (oldinstance != nullptr)
+	{
+		m_DestroyInstance(oldinstance);
+	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
-	m_scripts.emplace(p_scriptComponent, instance);
+	m_scripts[p_scriptComponent] = instance;
 	return instance;
 }
 
@@ -124,6 +142,22 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 	}
 
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+	if (!loadResult.valid())
+	{
+		sol::error error = loadResult;
+		std::print("Failed to load '{}': {}\n", scriptPath.string(), error.what());
+
+		return false;
+	}
+
+	std::error_code errorCode;
+	auto lastWriteTime = std::filesystem::last_write_time(scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get last write time for '{}': {}\n", scriptPath.string(), errorCode.message());
+		return false;
+	}
 
 	if (!loadResult.valid())
 	{
@@ -132,7 +166,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return false;
 	}
 
-	m_loadedScripts.emplace(p_scriptFile, std::move(loadResult));
+	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
 
 	return true;
 }
@@ -147,7 +181,7 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 
 	for (const std::unique_ptr<ScriptInstance>& scriptInstance : m_scriptInstances) // check every instance
 	{
-		if (scriptInstance->getScriptPath() == p_scriptFile)
+		if (scriptInstance->GetScriptPath() == p_scriptFile)
 		{
 			return false; // a instance is using this script file
 		}
@@ -157,7 +191,6 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 	return true; 
 }
 
-
 //Searches through the loadedscripts to see if a script is loaded, returns true if it is loaded
 bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 {
@@ -165,22 +198,124 @@ bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
-bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& scriptFile)
+bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& p_scriptFile)
 {
-	return false;
+	auto it = m_loadedScripts.find(p_scriptFile);
+
+	if (it == m_loadedScripts.end())
+	{
+		std::print("Cannot reload script '{}': not loaded\n", p_scriptFile);
+		return false;
+	}
+
+	LoadedScript& loadedScript = it->second;
+
+	sol::load_result newLoadResult = m_StateHandler.GetState().load_file(loadedScript.scriptPath.string());
+
+	if (!newLoadResult.valid())
+	{
+		sol::error error = newLoadResult;
+
+		std::print("Failed to reload '{}': {}\n", p_scriptFile, error.what());
+
+		return false;
+	}
+
+	std::error_code errorCode;
+
+	auto newLastWriteTime = std::filesystem::last_write_time(loadedScript.scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get write time for '{}': {}\n", loadedScript.scriptPath.string(), errorCode.message());
+
+		return false;
+	}
+
+	loadedScript.loadResult = std::move(newLoadResult);
+	loadedScript.lastWriteTime = newLastWriteTime;
+
+	for (auto& instance : m_scriptInstances)
+	{
+		if (instance->GetScriptPath() == p_scriptFile)
+		{
+			instance->Reload(loadedScript.loadResult); 
+		}
+	}
+
+	std::print("{} has changed and reloaded!\n", loadedScript.scriptPath.string());
+
+	return true;
+}
+
+void ScriptManager::CheckForFileChanges()
+{
+	for (auto& [scriptFile, loadedScript] : m_loadedScripts)
+	{
+		if (m_HasScriptFileChanged(scriptFile))
+		{
+			ReloadScript(scriptFile);
+		}
+	}
 }
  
-
 //Finds the script table for the parameter file, returns nullptr if the file isn't loaded
-sol::load_result* ScriptManager::GetLoadedScript([[maybe_unused]] const std::string& p_scriptFile)
+sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
 {
-	std::unordered_map<std::string, sol::load_result>::iterator it = m_loadedScripts.find(p_scriptFile);
+	auto it = m_loadedScripts.find(p_scriptFile);
 	
 	if (it == m_loadedScripts.end())
 	{
 		return nullptr;
 	}
-	return &it->second;
+
+	return &it->second.loadResult;
+}
+
+void ScriptManager::ActivateScript(TestNode* p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return; //No nullptr allowed
+	}
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		return;
+	}
+
+	ScriptInstance* instance = it->second;
+
+	if (std::find(m_activeScripts.begin(), m_activeScripts.end(), instance) != m_activeScripts.end())
+	{
+		return; // The instance is already activated
+	}
+	m_activeScripts.push_back(instance);
+}
+
+void ScriptManager::DeActivateScript(TestNode* p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return; //No nullptr allowed
+	}
+	std::unordered_map < TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		return;//no script found
+	}
+
+	ScriptInstance* instance = it->second;
+	std::vector<ScriptInstance*>::iterator activeIt = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
+	if (activeIt == m_activeScripts.end())
+	{
+		return; // already inactive
+	}
+
+	*activeIt = m_activeScripts.back(); // overide the script we want to change with the last in the vector
+	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
 }
 
 bool ScriptManager::m_Initialize()
@@ -236,4 +371,29 @@ void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 			return;
 		}
 	}
+}
+
+bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
+{
+	auto it = m_loadedScripts.find(p_scriptFile);
+	if (it == m_loadedScripts.end())
+	{
+		std::print("Script is not loaded: {}\n", p_scriptFile);
+		return false;
+	}
+
+	const auto& LoadedScript = it->second;
+
+	std::error_code errorCode;
+
+	auto currentWriteTime = std::filesystem::last_write_time(LoadedScript.scriptPath, errorCode);
+
+	if (errorCode)
+	{
+		std::print("Failed to get write time for '{}': {}\n", LoadedScript.scriptPath.string(), errorCode.message());
+		
+		return false;
+	}
+
+	return currentWriteTime != it->second.lastWriteTime;
 }

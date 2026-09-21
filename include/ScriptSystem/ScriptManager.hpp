@@ -1,11 +1,20 @@
 #pragma once
 
-#include <string>
 #include "LuaStateHandler.hpp"
 #include "TestNode.hpp"
 #include "ScriptInstance.hpp"
+
 #include <vector>
+#include <string>
 #include <filesystem>
+
+struct LoadedScript
+{
+    sol::load_result loadResult;
+	std::filesystem::path scriptPath;
+    std::filesystem::file_time_type lastWriteTime;
+};
+
 // This is the script manager
 // Its purpose is to manage, handle and load the scripts in the game
 // Functonality is to load scripts, see what scripts are loaded, and fetch scripts for the script system and any other system that might need it
@@ -18,6 +27,11 @@ public:
 
 	void Update(float p_deltaTime);
 	void Start();
+
+	template<typename... Args>
+	sol::protected_function_result Call(
+		TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
+
 	/// <summary>
 	/// Takes a component as a parameter and creates a relationships between the component and the desired lua file
 	/// </summary>
@@ -33,10 +47,8 @@ public:
 	/// <param name="p_testNode"></param>
 	/// <param name="p_scriptInstance"></param>
 	void DetachScript(TestNode* p_scriptComponent);
-	/// <summary>
-	/// Deletes every instance of a specific script across all relationships
-	/// </summary>
-	/// <param name="p_scriptInstance"></param>
+	/// @brief  Deletes every instance of a specific script across all relationships
+	/// @param p_scriptInstance 
 	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	/// <summary>
@@ -48,9 +60,16 @@ public:
 	bool UnloadScript(const std::string& p_scriptFile);
 	bool IsLoaded(const std::string& p_scriptFile);
 	bool ReloadScript(const std::string& p_scriptFile);
+
+	void CheckForFileChanges();
 	
 	sol::load_result* GetLoadedScript(const std::string& p_scriptFile);
-
+	/// @brief Activates the script and runs on update each frame, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void ActivateScript(TestNode* p_scriptComponent);
+	/// @brief Deactivates a script and no longer runs on update, This solution is O(n) time complexity, another solution with storing indexes in the instances can make this O(1)
+	/// @param p_scriptComponent 
+	void DeActivateScript(TestNode* p_scriptComponent);
 	
 private:
 	//state
@@ -60,12 +79,16 @@ private:
 	//Component -> Instance relationship
 	std::unordered_map< TestNode*, ScriptInstance*> m_scripts;
 	//loaded Lua chunks
-	std::unordered_map<std::string, sol::load_result> m_loadedScripts;
+	std::unordered_map<std::string, LoadedScript> m_loadedScripts;
+	//Active  scripts
+	std::vector<ScriptInstance*> m_activeScripts;
+
 	bool m_Initialize(); 
 	void m_Shutdown();
 	void m_DestroyInstance(ScriptInstance* p_scriptInstance);
 
 	bool m_LoadFile(const std::string& p_scriptFile);
+	bool m_HasScriptFileChanged(const std::string& p_scriptFile);
 
 	bool m_HandleError(const std::string& p_scriptFile, const sol::error& p_error);
 
@@ -76,3 +99,23 @@ private:
 
 	
 };
+
+template <typename... Args>
+inline sol::protected_function_result ScriptManager::Call(TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		// Don't send in nullptt, send error to logging manager
+		return {};
+	}
+
+	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+
+	if (it == m_scripts.end())
+	{
+		//component has no attached script
+		return {};
+	}
+
+	return it->second->call(p_functionName, std::forward<Args>(p_args)...);
+}
