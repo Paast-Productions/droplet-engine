@@ -102,7 +102,7 @@ namespace Droplet::Scene
 
 		/// @brief Update the world & local matrices of the transform based on its position, rotation, scale and the parent's world matrix.
 		/// Sets the transform as clean after updating. Will update recursively if the parent transform is dirty.
-		/// Up to the transform owner to ensure this is called at the right time.
+		/// It is up to the transform owner to ensure this is called at the right time.
 		void RecalculateMatrices();
 
 		/// @brief Move the transform by a specified delta in the specified space.
