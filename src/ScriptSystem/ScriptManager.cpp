@@ -194,7 +194,7 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 }
 
 //Searches through the loadedscripts to see if a script is loaded, returns true if it is loaded
-bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
+bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 {
 	 
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
