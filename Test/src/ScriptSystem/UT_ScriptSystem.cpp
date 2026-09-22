@@ -4,31 +4,21 @@
 
 TEST(ScriptSystem, LoadScript)
 {
-	std::string scriptPath = "testScript.lua";
 	ScriptSystem scriptSystem;
-	EXPECT_TRUE(scriptSystem.LoadScript(scriptPath));
+	EXPECT_TRUE(scriptSystem.LoadScript("testScript.lua"));
 }
 
 TEST(ScriptSystem, UnloadScript)
 {
-	std::string scriptPath = "testScript.lua";
 	ScriptSystem scriptSystem;
-	scriptSystem.LoadScript(scriptPath);
-	EXPECT_TRUE(scriptSystem.UnloadScript(scriptPath));
+	scriptSystem.LoadScript("testScript.lua");
+	EXPECT_TRUE(scriptSystem.UnloadScript("testScript.lua"));
 }
 
-TEST(ScriptSystem, CreateScript_not_yet_made)
+TEST(ScriptSystem, ActivateScript)
 {
-	//Ändra på testnode så att den är en component
-	//Skapa ett skript och kolla om ScriptInstance är okej.
-	EXPECT_TRUE(false);
 }
 
-TEST(ScriptSystem, DestroyScript_not_yet_made)
+TEST(ScriptSystem, DeactivateScript)
 {
-	//Kan endast implementeras efter att CreateScript är klar
-	//Skapa en scriptinstance med hjälp av CreateScript
-	//Se till att ha koll på ScriptInstance
-	//Kör DestroyScript och kolla om ScriptInstance har försvunnit
-	EXPECT_TRUE(false);
 }

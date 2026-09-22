@@ -3,7 +3,8 @@ function onStart()
 end	
 
 function onUpdate(dt)
+end
 
-	self:
-	
+function timesTwo(a)
+	return a * 2
 end

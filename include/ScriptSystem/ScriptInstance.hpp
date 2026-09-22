@@ -99,7 +99,7 @@ inline sol::protected_function_result ScriptInstance::Call(
 	if (!function.valid())
 	{
 		//Function does not exist or is not callable
-		//Add to logger here
+		//TODO: Add to logger here
 	}
 
 	return function(std::forward<Args>(args)...);
