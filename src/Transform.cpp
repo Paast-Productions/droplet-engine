@@ -95,7 +95,7 @@ glm::vec3 Transform::GetScale() const
 	return m_scale;
 }
 
-glm::mat4 Transform::GetMatrix(Space p_space) const
+glm::mat4 Transform::GetMatrix(Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -110,9 +110,19 @@ glm::mat4 Transform::GetMatrix(Space p_space) const
 	{
 	default:
 	case Space::Local:
+		if (m_isDirty)
+		{
+			UpdateLocalMatrix();
+		}
+
 		return m_localMatrix;
 
 	case Space::World:
+		if (m_isDirty)
+		{
+			RecalculateMatrices();
+		}
+
 		return m_worldMatrix;
 	}
 }

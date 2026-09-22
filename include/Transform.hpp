@@ -46,9 +46,11 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec3 GetScale() const;
 
 		/// @brief Get the transformation matrix of the transform in the specified space.
+		/// 
+		/// Note: This function recalculates the matrix if the transform is dirty.
 		/// @param p_space The space in which to get the matrix. Defaults to local space.
 		/// @return The transformation matrix of the transform in the specified space.
-		[[nodiscard]] glm::mat4 GetMatrix(Space p_space = Space::Local) const;
+		[[nodiscard]] glm::mat4 GetMatrix(Space p_space = Space::Local);
 
 		/// @brief Check if the transform is dirty (i.e., if it has been modified since the last update).
 		/// @return True if the transform is dirty, false otherwise.
