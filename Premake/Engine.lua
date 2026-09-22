@@ -18,8 +18,9 @@ project "Engine"
 
     dependson
     {
-    --"ImGui"
-	--"Jolt"
+        "ImGui",
+        "json"
+        --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
