@@ -1,6 +1,6 @@
 ﻿#include "Asset/ResourceManager.hpp"
 
-#include "meta/MetaUtils.hpp"
+#include "asset/meta/MetaUtils.hpp"
 
 // #include "IResource"
 

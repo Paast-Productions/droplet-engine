@@ -28,7 +28,9 @@ project "Engine"
         "ImGui",
         "Jolt",
         "json",
-        "Assimp"
+        "Assimp",
+	"Gli",
+	"Stb"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -39,5 +41,8 @@ project "Engine"
         "../src/**.h"
     }
 
+    defines {
+        "GLM_ENABLE_EXPERIMENTAL"
+    }
     --pchheader "%{prj.location}/EnginePCH.hpp"
     --pchsource "%{prj.location}/EnginePCH.cpp"

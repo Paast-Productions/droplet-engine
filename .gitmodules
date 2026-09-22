@@ -25,3 +25,6 @@
 [submodule "External/json"]
 	path = External/json
 	url = git@github.com:nlohmann/json.git
+[submodule "External/Stb"]
+	path = External/Stb
+	url = git@github.com:nothings/stb.git
