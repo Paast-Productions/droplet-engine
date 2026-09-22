@@ -47,8 +47,12 @@ ScriptInstance* ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std
 	}
 	return instance;
 }
-
-void ScriptSystem::DestroyScript(ScriptInstance* p_scriptInstance)
+bool ScriptSystem::SetScriptPath(const std::string& p_directoryPath)
 {
-	m_scriptManager.DestroyScript(p_scriptInstance);
+	return m_scriptManager.SetScriptDirectory(p_directoryPath);
+}
+
+void ScriptSystem::DestroyScript(const std::string& p_scriptPath)
+{
+	m_scriptManager.DestroyScript(p_scriptPath);
 }
