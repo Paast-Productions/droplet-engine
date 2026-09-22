@@ -3,6 +3,7 @@ function onStart()
 end	
 
 function onUpdate(dt)
+	return dt * 2
 end
 
 function timesTwo(a)

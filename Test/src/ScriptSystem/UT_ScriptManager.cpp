@@ -2,6 +2,16 @@
 #include <ScriptSystem/ScriptManager.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
 
+TEST(ScriptManager, SetScriptDirectory)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	ScriptManager manager(stateHandler);
+
+	bool found = manager.SetScriptDirectory("../src/TestScripts");
+	EXPECT_TRUE(found);
+}
+
 TEST(ScriptManager, CreateScript)
 {
 	//Lua state initialization
@@ -9,6 +19,7 @@ TEST(ScriptManager, CreateScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
+	manager.SetScriptDirectory("../src/TestScripts");
 	ScriptInstance* instance = manager.CreateScript(&testNode, "testScript.lua");
 
 	EXPECT_NE(instance, nullptr);
@@ -21,8 +32,9 @@ TEST(ScriptManager, DestroyScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
+	manager.SetScriptDirectory("../src/TestScripts");
 	ScriptInstance* instance = manager.CreateScript(&testNode, "testScript.lua");
-	manager.DestroyScript(instance);
+	manager.DestroyScript("testScript.lua");
 
 	EXPECT_EQ(instance, nullptr);
 }
@@ -33,6 +45,8 @@ TEST(ScriptManager, LoadScript)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
+
+	manager.SetScriptDirectory("../src/TestScripts");
 
 	EXPECT_TRUE(manager.LoadScript("testScript.lua"));
 	EXPECT_TRUE(manager.LoadScript("bruh.lua"));
@@ -45,6 +59,8 @@ TEST(ScriptManager, UnloadScript)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
+
+	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("bruh.lua");
@@ -62,6 +78,8 @@ TEST(ScriptManager, IsLoaded)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
+	manager.SetScriptDirectory("../src/TestScripts");
+
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("bruh.lua");
 	manager.LoadScript("testScript2.lua");
@@ -78,6 +96,8 @@ TEST(ScriptManager, ReloadScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
+	manager.SetScriptDirectory("../src/TestScripts");
+
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("bruh.lua");
 	manager.LoadScript("testScript2.lua");
@@ -93,6 +113,8 @@ TEST(ScriptManager, GetLoadedScript)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
+
+	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("bruh.lua");
@@ -114,14 +136,20 @@ TEST(ScriptManager, ActivateScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
-	manager.LoadScript("bruh.lua");
+	//FATAL ERROR
+	manager.SetScriptDirectory("../src/TestScripts");
+
+	//manager.LoadScript("bruh.lua");
+	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 
-	auto result = manager.Call(&testNode, "timesTwo", 1);
+	manager.Update(1);
 	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
 
-	EXPECT_TRUE(result.valid());
 	EXPECT_EQ(timesTwo, 2);
+
+	//REMOVE WHEN FINISHED WITH THIS TEST
+	EXPECT_FALSE(true);
 }
 
 TEST(ScriptManager, DeactivateScript)
@@ -131,7 +159,11 @@ TEST(ScriptManager, DeactivateScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
+	//FATAL ERROR
+	manager.SetScriptDirectory("../src/TestScripts");
+
 	manager.LoadScript("bruh.lua");
+	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 
 	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
