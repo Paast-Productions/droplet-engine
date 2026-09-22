@@ -5,7 +5,7 @@
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	ScriptSystem scriptSystem;
-
+    scriptSystem.SetScriptPath("../../../src/TestScripts");
 	TestNode testNode;
     TestNode guptaNode;
     [[maybe_unused]] auto* script = scriptSystem.CreateScript(
@@ -28,10 +28,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     std::cout << testNode.getX() << '\n';
     std::cout << guptaNode.getX() << '\n';
 
-    while (true)
-    {
-        scriptSystem.Update(1.0);
-    }
     scriptSystem.DeactivateScript(&testNode);
     std::cout << testNode.getX() << '\n';
     return 0;

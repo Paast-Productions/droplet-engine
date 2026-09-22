@@ -86,10 +86,10 @@ public:
 	/// detached.
 	void DetachScript(TestNode* p_scriptComponent);
 
-	/// @brief Destroys a script instance.
-	/// Removes the specified script instance and its associated relationships.
-	/// @param p_scriptInstance Script instance to destroy.
-	void DestroyScript(ScriptInstance* p_scriptInstance);
+	/// @brief Decouples every instance to a certain script file.
+	/// Removes the specified scriptfile and its associated relationships.
+	/// @param p_scriptInstance Script File to detach.
+	void DestroyScript(const std::string& p_scritpfile);
 
 	/// @brief Loads a Lua script into the scripting system
 	/// If the script is already loaded, the existing loaded script is kept
@@ -136,6 +136,12 @@ public:
 	/// A deactivated script is removed from the collection of scripts that are updated each frame
 	/// @param p_scriptComponent Component whose script should be deactivated.
 	void DeactivateScript(TestNode* p_scriptComponent);
+	/// @brief Sets the directory Path
+	/// Purpose is to be able to find the scripts directory, easiest to do this 
+	/// @param p_directoryPath This is the path for your working directory to the scripts
+	/// 
+	/// @return 
+	bool SetScriptDirectory(const std::string& p_directoryPath);
 
 private:
 	/// @brief Finds the path to a Lua script
@@ -175,6 +181,10 @@ private:
 	/// @brief Stores all currently active script instances
 	/// Only active scripts are processed during the update loop.
 	std::vector<ScriptInstance*> m_activeScripts;
+
+	/// @brief Is the path from the working directory to the map that 
+	/// contains all the lua script files
+	std::filesystem::path m_scriptDirectoryPath;
 };
 
 /// @brief Calls a Lua function on the script attached to a component
