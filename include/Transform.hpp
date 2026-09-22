@@ -4,7 +4,6 @@
 #include <glm/gtc/quaternion.hpp>
 #include <memory>
 
-
 namespace Droplet::Scene
 {
 	class Node; // Forward declaration of Node class
@@ -21,7 +20,7 @@ namespace Droplet::Scene
 
 		/// @brief Construct a new Transform object.
 		/// @param p_owner A weak pointer to the Node that owns this Transform.
-		Transform(std::weak_ptr<Node> p_owner);
+		Transform(std::shared_ptr<Node> p_owner);
 
 		~Transform() = default;
 
@@ -103,7 +102,7 @@ namespace Droplet::Scene
 
 		/// @brief Update the world & local matrices of the transform based on its position, rotation, scale and the parent's world matrix.
 		/// Sets the transform as clean after updating. Will update recursively if the parent transform is dirty.
-		/// Up to the transform owner to ensure this is called at the right time.
+		/// It is up to the transform owner to ensure this is called at the right time.
 		void RecalculateMatrices();
 
 		/// @brief Move the transform by a specified delta in the specified space.
@@ -138,15 +137,15 @@ namespace Droplet::Scene
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
 	private:
-		std::weak_ptr<Node> m_owner{};
-		bool				m_isDirty{ true };
+		std::shared_ptr<Node>	m_owner{};
+		bool					m_isDirty{ true };
 
-		glm::vec3			m_position{ 0.f, 0.f, 0.f };
-		glm::quat			m_rotation{ 0.f, 0.f, 0.f, 1.f };
-		glm::vec3			m_scale{ 1.f, 1.f, 1.f };
+		glm::vec3				m_position{ 0.f, 0.f, 0.f };
+		glm::quat				m_rotation{ 1.f, 0.f, 0.f, 0.f };
+		glm::vec3				m_scale{ 1.f, 1.f, 1.f };
 
-		glm::mat4			m_localMatrix{ 1.f };
-		glm::mat4			m_worldMatrix{ 1.f };
+		glm::mat4				m_localMatrix{ 1.f };
+		glm::mat4				m_worldMatrix{ 1.f };
 
 		/// @brief Validate the rotation of the transform to ensure it is a valid quaternion.
 		void ValidateRotation();

@@ -11,7 +11,14 @@ using namespace Droplet::Scene;
 class Droplet::Scene::Node
 {
 public:
-	std::shared_ptr <Node> GetParent() const
+	Node()
+	{
+		m_parent = nullptr;
+		std::shared_ptr<Node> self(this, [](Node*) {});
+		m_transform = std::make_unique<Transform>(self);
+	}
+
+	std::shared_ptr<Node> GetParent() const
 	{
 		return m_parent;
 	}
@@ -21,14 +28,24 @@ public:
 		return m_transform;
 	}
 
+	void SetParent(std::shared_ptr<Node> parent)
+	{
+		m_parent = parent;
+	}
+
+	void SetTransform(std::unique_ptr<Transform> transform)
+	{
+		m_transform = std::move(transform);
+	}
+
 private:
 	std::shared_ptr<Node> m_parent;
 	std::unique_ptr<Transform> m_transform;
 };
 
 
-Transform::Transform(std::weak_ptr<Node> p_owner) 
-	: m_owner(std::move(p_owner))
+Transform::Transform(std::shared_ptr<Node> p_owner) 
+	: m_owner(p_owner)
 {
 
 }
@@ -80,7 +97,7 @@ glm::quat Transform::GetRotation(Space p_space) const
 		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
 
 		glm::quat parentWorldRotation = glm::quat_cast(parentWorldMatrix);
-		return parentWorldRotation;
+		return parentWorldRotation * m_rotation;
 	}
 }
 
@@ -259,6 +276,8 @@ void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -288,6 +307,8 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 		m_rotation = localRot;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -351,12 +372,16 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 	}
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
+
+	// TODO: Recursively mark children as dirty
 }
 
 void Transform::RecalculateMatrices()
@@ -431,6 +456,8 @@ void Transform::Rotate(const glm::quat &p_delta, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -460,6 +487,8 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -496,6 +525,8 @@ void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -526,6 +557,8 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -545,10 +578,10 @@ void Transform::UpdateLocalMatrix()
 
 bool Transform::HasParent() const
 {
-	if (m_owner.expired())
+	if (!m_owner)
 		return false;
 
-	std::weak_ptr<Node> parentNode = m_owner.lock()->GetParent();
+	std::weak_ptr<Node> parentNode = m_owner->GetParent();
 	return !parentNode.expired();
 }
 
@@ -557,5 +590,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return m_owner.lock()->GetParent()->GetTransform().get();
+	return m_owner->GetParent()->GetTransform().get();
 }
