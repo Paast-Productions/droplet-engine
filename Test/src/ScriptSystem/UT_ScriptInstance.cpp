@@ -20,7 +20,7 @@ TEST(ScriptInstance, getScriptPath)
 
 	ScriptInstance instance(&testNode, stateHandler, script, "TestScript.lua");
 
-	EXPECT_EQ(instance.getScriptPath(), "TestScript.lua");
+	EXPECT_EQ(instance.GetScriptPath(), "TestScript.lua");
 }
 
 TEST(ScriptInstance, onStart)
@@ -260,9 +260,9 @@ TEST(ScriptInstance, callTooManyArguments)
 
 	auto result = instance.call("doStuff", 1, 2, 3);
 
-	ASSERT_FALSE(result.valid());
-	EXPECT_EQ(testNode.getX(), 1);
-	EXPECT_EQ(testNode.getY(), 1);
+	ASSERT_TRUE(result.valid());
+	EXPECT_EQ(testNode.getX(), 2);
+	EXPECT_EQ(testNode.getY(), 3);
 	EXPECT_EQ(testNode.getZ(), 1);
 }
 
@@ -307,10 +307,68 @@ TEST(ScriptInstance, callTooFewArguments)
 	EXPECT_EQ(testNode.getZ(), 1);
 }
 
-//Call function tests list :)
-//existing function
-//arguments
-//return value
-//function with no return
-//nonexistent function
-//Lua function that throws an error
+TEST(ScriptInstance, callCorrectReturnValue)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	LuaBindings::RegisterBindings(stateHandler.GetState());
+	TestNode testNode;
+
+	auto script = stateHandler.GetState().load(R"(
+		function onStart()
+		end
+
+		function onUpdate(dt)
+		end
+		
+		function giveMe(a)
+			return a + 1		
+		end
+	)");
+
+	ASSERT_TRUE(script.valid());
+
+	ScriptInstance instance(
+		&testNode,
+		stateHandler,
+		script,
+		"TestScript.lua"
+	);
+
+	int result = instance.call("giveMe", 1);
+
+	EXPECT_EQ(result, 2);
+}
+
+TEST(ScriptInstance, callError)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	LuaBindings::RegisterBindings(stateHandler.GetState());
+	TestNode testNode;
+
+	auto script = stateHandler.GetState().load(R"(
+		function onStart()
+		end
+
+		function onUpdate(dt)
+		end
+		
+		function add(a, b)
+			return a + b		
+		end
+	)");
+
+	ASSERT_TRUE(script.valid());
+
+	ScriptInstance instance(
+		&testNode,
+		stateHandler,
+		script,
+		"TestScript.lua"
+	);
+
+	auto result = instance.call("add", 1, "hello");
+
+	EXPECT_FALSE(result.valid());
+}

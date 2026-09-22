@@ -1,6 +1,5 @@
 #pragma once
 
-#include "LuaStateHandler.hpp"
 #include "TestNode.hpp"
 #include "ScriptInstance.hpp"
 

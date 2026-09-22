@@ -62,6 +62,7 @@ inline sol::protected_function_result ScriptInstance::call(std::string_view func
 	{
 		//Function does not exist or is not callable
 		//Add to logger here
+		std::cout << "bruh" << std::endl;
 	}
 	return function(std::forward<Args>(args)...);
 }
