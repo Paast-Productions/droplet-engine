@@ -84,7 +84,7 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
 		//Couldn't find send an error
 		return;
 	}
-	DeActivateScript(p_scriptComponent);
+	DeactivateScript(p_scriptComponent);
 	ScriptInstance* instance = it->second;
 	// Destroy it
 	DestroyInstance(instance);
@@ -101,7 +101,7 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 	{
 		if (it->second == p_scriptInstance)
 		{
-			DeActivateScript(it->first);
+			DeactivateScript(it->first);
 			m_scripts.erase(it);
 		}
 		else //If we do it++ in the for declaration it invalidates the iterator and we can't keep going
@@ -310,11 +310,6 @@ void ScriptManager::DeactivateScript(TestNode* p_scriptComponent)
 
 	*activeIt = m_activeScripts.back(); // overide the script we want to change with the last in the vector
 	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
-}
-
-bool ScriptManager::Initialize()
-{
-	return false;
 }
 
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)

@@ -5,7 +5,6 @@
 #include "LuaBindings.hpp"
 
 /// @brief Provides the main interface for the engine's Lua scripting system.
-///
 /// ScriptSystem manages the lifecycle of scripts and coordinates between the
 /// Lua state and the ScriptManager. It is responsible for starting and
 /// updating the scripting system, loading and unloading script files, and
