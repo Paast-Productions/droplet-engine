@@ -348,7 +348,11 @@ void Transform::MakeDirty()
 {
 	m_isDirty = true;
 
-	// TODO: Recursively mark children as dirty
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().MakeDirty();
+	}
 }
 
 void Transform::RecalculateMatrices()
@@ -545,11 +549,9 @@ void Transform::UpdateLocalMatrix()
 
 bool Transform::HasParent() const
 {
-	if (!m_owner)
-		return false;
+	assert(m_owner != nullptr && "Transform must have an owner Node.");
 
-	std::shared_ptr<Node> parentNode = m_owner->GetParent();
-	return parentNode != nullptr;
+	return m_owner->GetParent() != nullptr;
 }
 
 Transform *Transform::GetParentTransform() const

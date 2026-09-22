@@ -269,24 +269,6 @@ TEST_F(TransformTest, LookAtLocal)
 	ExpectQuatNear(m_node->GetTransform().GetRotation(), glm::quat_cast(glm::lookAt(glm::vec3(0.f), target, glm::vec3(0.f, 1.f, 0.f))));
 }
 
-// Dirty Tracking
-
-TEST_F(TransformTest, MarkDirtyAfterChange)
-{
-	m_node->GetTransform().RecalculateMatrices();
-	EXPECT_FALSE(m_node->GetTransform().IsDirty());
-	m_node->GetTransform().SetPosition(glm::vec3(1.f, 0.f, 0.f));
-	EXPECT_TRUE(m_node->GetTransform().IsDirty());
-}
-
-TEST_F(TransformTest, CleanAfterRecalcMatrices)
-{
-	m_node->GetTransform().SetPosition(glm::vec3(1.f, 2.f, 3.f));
-	EXPECT_TRUE(m_node->GetTransform().IsDirty());
-	m_node->GetTransform().RecalculateMatrices();
-	EXPECT_FALSE(m_node->GetTransform().IsDirty());
-}
-
 // Parenting
 
 TEST_F(TransformTest, SetParent)
@@ -564,4 +546,41 @@ TEST_F(TransformTest, LookAtWorld)
 
 	const glm::vec3 expectedDirection = glm::normalize(targetWorld - m_node->GetTransform().GetPosition(Transform::Space::World));
 	ExpectVec3Near(m_node->GetTransform().GetForward(Transform::Space::World), expectedDirection);
+}
+
+// Dirty Tracking
+
+TEST_F(TransformTest, MarkDirtyAfterChange)
+{
+	m_node->GetTransform().RecalculateMatrices();
+	EXPECT_FALSE(m_node->GetTransform().IsDirty());
+
+	m_node->GetTransform().SetPosition(glm::vec3(1.f, 0.f, 0.f));
+	EXPECT_TRUE(m_node->GetTransform().IsDirty());
+}
+
+TEST_F(TransformTest, CleanAfterRecalcMatrices)
+{
+	m_node->GetTransform().SetPosition(glm::vec3(1.f, 2.f, 3.f));
+	EXPECT_TRUE(m_node->GetTransform().IsDirty());
+
+	m_node->GetTransform().RecalculateMatrices();
+	EXPECT_FALSE(m_node->GetTransform().IsDirty());
+}
+
+TEST_F(TransformTest, MarkDirtyRecursively)
+{
+	std::shared_ptr<Node> childNode = CreateNode();
+	m_node.get()->AddChild(childNode);
+
+	m_node->GetTransform().RecalculateMatrices();
+	childNode->GetTransform().RecalculateMatrices();
+
+	EXPECT_FALSE(m_node->GetTransform().IsDirty());
+	EXPECT_FALSE(childNode->GetTransform().IsDirty());
+
+	m_node->GetTransform().SetPosition(glm::vec3(1.f, 0.f, 0.f));
+
+	EXPECT_TRUE(m_node->GetTransform().IsDirty());
+	EXPECT_TRUE(childNode->GetTransform().IsDirty());
 }
