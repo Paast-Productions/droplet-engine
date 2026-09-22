@@ -26,7 +26,7 @@ project "Engine"
     {
         "GoogleTest",
         "ImGui",
-	"Jolt"
+	    "Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 

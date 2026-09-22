@@ -12,9 +12,12 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
+    local vkPath = os.getenv("VULKAN_SDK")
+
     includedirs
     {
         "../include", 
+        vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
 
