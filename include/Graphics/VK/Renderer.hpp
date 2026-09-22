@@ -10,6 +10,10 @@
 #include <Graphics/VK/Pipeline.hpp>
 #include <optional>
 
+#include <Graphics/VK/IndexBuffer.hpp>
+#include <Graphics/VK/VertexBuffer.hpp>
+#include <Graphics/VK/UniformBuffer.hpp>
+
 class Renderer
 {
 public:
@@ -59,6 +63,8 @@ private:
 		vk::PipelineStageFlags2 src_stage_mask,
 		vk::PipelineStageFlags2 dst_stage_mask);
 
+	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
 	//Declaration order matters for destruction order!!!!
 	vk::raii::Context					 m_context;
 	vk::raii::Instance					 m_instance = nullptr;
@@ -84,11 +90,15 @@ private:
 	std::vector<vk::raii::Semaphore>	 m_renderFinishedSemaphores;
 	std::vector<vk::raii::Fence>		 m_inFlightFences;
 
+	std::optional<Droplet::Graphics::VK::IndexBuffer> m_indexBuffer;
+	std::optional<Droplet::Graphics::VK::VertexBuffer> m_vertexBuffer;
+
+	//Needs one buffer per frame in flight to avoid read write issues
+	std::optional<Droplet::Graphics::VK::UniformBuffer> m_uniformBuffers[MAX_FRAMES_IN_FLIGHT];
+
 	uint32_t							 m_frameIndex = 0;
 
 	bool								 m_framebufferResized = false;
 
 	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
-	
-	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-};
+	};
