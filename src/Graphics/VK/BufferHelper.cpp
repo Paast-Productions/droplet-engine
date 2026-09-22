@@ -1,6 +1,6 @@
 #include "BufferHelper.hpp"
 
-//Helper function to find the memory properties of the hardware
+
 uint32_t FindMemoryType(vk::raii::PhysicalDevice p_physDevice, uint32_t p_typeFilter, vk::MemoryPropertyFlags p_properties)
 {
 	vk::PhysicalDeviceMemoryProperties memProperties = p_physDevice.getMemoryProperties();
@@ -16,7 +16,6 @@ uint32_t FindMemoryType(vk::raii::PhysicalDevice p_physDevice, uint32_t p_typeFi
 	throw std::runtime_error("failed to find suitable memory type!");
 }
 
-//Helper function to allocate and create the buffer, this is done twice in the constructor
 std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(vk::raii::Device const &p_device, vk::raii::PhysicalDevice const &p_physDevice, vk::DeviceSize p_size, vk::BufferUsageFlags p_usage, vk::MemoryPropertyFlags p_properties)
 {
 	vk::BufferCreateInfo   bufferInfo{ .size = p_size, .usage = p_usage, .sharingMode = vk::SharingMode::eExclusive };
@@ -30,7 +29,6 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(vk::raii::Devic
 	return { std::move(buffer), std::move(bufferMemory) };
 }
 
-//Helper function to start a command to send to the queue
 vk::raii::CommandBuffer BeginSingleTimeCommands(vk::raii::Device const &p_device, vk::raii::CommandPool const &p_commandPool)
 {
 	vk::CommandBufferAllocateInfo allocInfo{ .commandPool = p_commandPool, .level = vk::CommandBufferLevel::ePrimary, .commandBufferCount = 1 };
@@ -42,7 +40,6 @@ vk::raii::CommandBuffer BeginSingleTimeCommands(vk::raii::Device const &p_device
 	return std::move(commandBuffer);
 }
 
-//Helper function to end the command sent to the queue
 void EndSingleTimeCommands(vk::raii::CommandBuffer &&p_commandBuffer, vk::raii::Queue const &p_queue)
 {
 	p_commandBuffer.end();
@@ -52,7 +49,6 @@ void EndSingleTimeCommands(vk::raii::CommandBuffer &&p_commandBuffer, vk::raii::
 	p_queue.waitIdle();
 }
 
-//Submits a copy command to the queue
 void CopyBuffer(vk::raii::Device const &p_device, vk::raii::Queue const &p_queue, vk::raii::CommandPool const &p_commandPool, vk::raii::Buffer &p_srcBuffer, vk::raii::Buffer &p_dstBuffer, vk::DeviceSize p_size)
 {
 	vk::raii::CommandBuffer commandCopyBuffer = BeginSingleTimeCommands(p_device, p_commandPool);
