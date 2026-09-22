@@ -6,6 +6,7 @@
 #include <mutex>
 #include <filesystem>
 #include <cassert>
+#include <functional>
 
 #include "asset/ResourceHandle.hpp"
 #include "asset/ResourceCatalog.hpp"
@@ -32,6 +33,8 @@ namespace Droplet
         std::unique_ptr<IResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
         std::atomic<uint32_t> refCount{0};
+        
+        std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
     };
 
     /// @brief Universal resource manager class.
@@ -46,16 +49,20 @@ namespace Droplet
         /// resources from.
         void Initialize(const std::filesystem::path &p_rootDirectory);
 
+        // TODO: This function should process uploads and trigger callbacks (and should be called in main update loop)
+        // void Update();
+
         /// @brief Parses an asset file and generates a .meta file based on its internal resources.
         /// @param p_assetPath The path to the asset to be registered. Must be within 
         void RegisterAsset(const std::filesystem::path &p_assetPath);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
-        /// @param p_guid The guid of the resource
+        /// @param p_guid The guid of the resource.
+        /// @param p_onLoadCallback Callback triggered when the resource's state is ready.
         /// @return A handle to the resource. Make sure to check its validity before use.
         template<typename T>
-        ResourceHandle<T> LoadResource(GUID p_guid)
+        ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
             assert(m_isInitialized && "ResourceManager is not initialized.");
             
@@ -67,24 +74,46 @@ namespace Droplet
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
             
+            ResourceHandle<T> handle(p_guid, this);
+            
+            bool loadAsync = true;
             {
                 std::lock_guard<std::mutex> lock(m_registryMutex);
                 
                 auto [it, wasInserted] = m_registry.try_emplace(p_guid);
-                if (!wasInserted)
+                if (wasInserted)
                 {
-                    // The asset was not inserted (already exists)
-                    return ResourceHandle<T>(p_guid, this);
+                    // Asset was just created in-place -> Update state
+                    it->second.state = ResourceState::Queued;
+                    it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
+                    loadAsync = false;
                 }
-                
-                // Asset was just created in-place -> Update state
-                it->second.state = ResourceState::Queued;
-                it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
+
+                // Handle callback
+                if (p_onLoadCallback)
+                {
+                    if (it->second.state == ResourceState::Ready)
+                    {
+                        p_onLoadCallback(handle); // Resource is already loaded -> Trigger callback now
+                    }
+                    else if (it->second.state != ResourceState::Failed)
+                    {
+                        // Resource is not loaded and has not failed -> Store callback until loaded
+                        // Capture handle by value inside lambda to guarantee that ref count is >= 1
+                        it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
+                        {
+                            p_onLoadCallback(handle);
+                        });
+                    }
+                }
             }
             
-            // TODO: Push load task to worker thread pool
+            if (loadAsync)
+            {
+                // TODO: Push load task to worker thread pool
+            }
             
-            return ResourceHandle<T>(p_guid, this);
+            return handle;
         }
 
         /// @brief Increments the reference count of a resource in the internal registry.
