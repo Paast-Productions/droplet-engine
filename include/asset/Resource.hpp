@@ -11,6 +11,7 @@ namespace Droplet
 {
 	enum class ResourceType
 	{
+	    None,
 		Texture2D,
 		Texture3D,
 		Mesh,

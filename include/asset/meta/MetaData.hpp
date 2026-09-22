@@ -1,6 +1,7 @@
 #pragma once
 
 #include "asset/GUID.hpp"
+#include "asset/Resource.hpp"
 
 #include <json/json.hpp>
 #include <cstdint>

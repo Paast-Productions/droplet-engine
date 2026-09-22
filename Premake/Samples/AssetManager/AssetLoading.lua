@@ -17,8 +17,11 @@ project "AssetManager-AssetLoading"
         targetBuildPath .. "/External/lib"
     }
 
+    local vkPath = os.getenv("VULKAN_SDK")
+
     includedirs {
         rootPath .. "/include",
+        vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
 
