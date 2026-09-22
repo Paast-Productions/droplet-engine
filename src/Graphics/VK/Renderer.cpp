@@ -26,6 +26,25 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
+
+//testing values
+std::vector<Droplet::Graphics::VK::Vertex> g_vertices = {
+	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
+	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 0.0f}},
+	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 1.0f}},
+	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 1.0f}},
+
+	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 0.0f}},
+	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 0.0f}},
+	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 1.0f}},
+	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 1.0f}}
+};
+
+
+const std::vector<uint16_t> g_indices = {
+	0, 1, 2, 2, 3, 0,
+	4, 5, 6, 6, 7, 4 };
+
 Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
 	m_window{p_windowConfig} {}
 
@@ -676,6 +695,14 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
 	createGraphicsPipeline(p_shaderBlob);
 
 	createCommandPool();
+
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool, m_queue, g_vertices);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool, m_queue, g_indices);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		m_uniformBuffers[i].emplace(m_device, m_physicalDevice);
+	}
 
 	createCommandBuffers();
 
