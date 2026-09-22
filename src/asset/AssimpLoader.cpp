@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 #include <print>
+#include <algorithm>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <json/json.hpp>
@@ -101,32 +102,87 @@ namespace Droplet
 			return false;
 		}
 
-		std::vector<AnimationResource::AnimKeyframe> animKeyFrames;
-		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
+		std::vector<AnimationResource::AnimKeyframe> animKeyframes;
+		for (std::size_t i = 0; i < 1/*meshData->mNumAnimations*/; i++)
 		{
-			AnimationResource::AnimKeyframe animKeyFrame;
-			for (std::size_t j = 0; j < meshData->mAnimations[i]->mNumChannels; j++)
+			aiAnimation *anim = meshData->mAnimations[i];
+
+			// Find all unique keyframe times
+			for (std::size_t j = 0; j < anim->mNumChannels; j++) // Channels are bones
 			{
-				aiNodeAnim *nodeAnim = meshData->mAnimations[i]->mChannels[j];
-				aiVector3D posKey = nodeAnim->mPositionKeys->mValue;
-				aiQuaternion rotKey = nodeAnim->mRotationKeys->mValue;
-				aiVector3D scaKey = nodeAnim->mScalingKeys->mValue;
+				aiNodeAnim *nodeAnim = anim->mChannels[j]; // Current bone
+				AnimationResource::AnimKeyframe animKeyframe;
+				for (std::uint32_t k = 0; k < nodeAnim->mNumPositionKeys; k++)
+				{
+					animKeyframe.time = static_cast<float>(nodeAnim->mPositionKeys[k].mTime / anim->mTicksPerSecond);
+					animKeyframes.push_back(animKeyframe);
+				}
 
-				AnimationResource::BoneKeyframe boneKeyframe;
-				boneKeyframe.boneName = nodeAnim->mNodeName.C_Str();
-				boneKeyframe.pos = { posKey.x, posKey.y, posKey.z };
-				boneKeyframe.rot = { rotKey.w, rotKey.x, rotKey.y, rotKey.z };
-				boneKeyframe.scale = { scaKey.x, scaKey.y, scaKey.z };
+				for (std::uint32_t k = 0; k < nodeAnim->mNumRotationKeys; k++)
+				{
+					animKeyframe.time = static_cast<float>(nodeAnim->mRotationKeys[k].mTime / anim->mTicksPerSecond);
+					animKeyframes.push_back(animKeyframe);
+				}
 
-				animKeyFrame.time = static_cast<float>(meshData->mAnimations[i]->mDuration);
-				animKeyFrame.boneKeyframes.push_back(boneKeyframe);
+				for (std::uint32_t k = 0; k < nodeAnim->mNumScalingKeys; k++)
+				{
+					animKeyframe.time = static_cast<float>(nodeAnim->mScalingKeys[k].mTime / anim->mTicksPerSecond);
+					animKeyframes.push_back(animKeyframe);
+				}
 			}
+			std::sort(animKeyframes.begin(), animKeyframes.end(),
+				[](const AnimationResource::AnimKeyframe &a, const AnimationResource::AnimKeyframe &b) {
+					return a.time < b.time;
+				});
+			animKeyframes.erase(std::unique(animKeyframes.begin(), animKeyframes.end(),
+				[](const AnimationResource::AnimKeyframe &a, const AnimationResource::AnimKeyframe &b) {
+					return a.time == b.time;
+				}),
+				animKeyframes.end());
 
-			animKeyFrames.push_back(animKeyFrame);
+			
+			std::uint32_t posIndex = 0, rotIndex = 0, scaIndex = 0; // Translation indices
+			for (AnimationResource::AnimKeyframe &a : animKeyframes) // Store each bone keyframe
+			{
+				double t = a.time;
+				for (std::size_t j = 0; j < meshData->mAnimations[i]->mNumChannels; j++) // Channels are bones
+				{
+					aiNodeAnim *nodeAnim = anim->mChannels[j]; // Current bone
+					AnimationResource::BoneKeyframe boneKeyframe{};
+					boneKeyframe.boneName = nodeAnim->mNodeName.C_Str();
+
+					if (t == nodeAnim->mPositionKeys[posIndex].mTime / anim->mTicksPerSecond) // Position
+					{
+						aiVectorKey posKey = nodeAnim->mPositionKeys[posIndex];
+						aiVector3D pos = posKey.mValue;
+						boneKeyframe.pos = { pos.x, pos.y, pos.z };
+						posIndex++;
+					}
+
+					if (t == nodeAnim->mRotationKeys[rotIndex].mTime / anim->mTicksPerSecond) // Rotation
+					{
+						aiQuatKey rotKey = nodeAnim->mRotationKeys[posIndex];
+						aiQuaternion rot = rotKey.mValue;
+						boneKeyframe.rot = { rot.w, rot.x, rot.y, rot.z };
+						rotIndex++;
+					}
+
+					if (t == nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond) // Scale
+					{
+						aiVectorKey scaKey = nodeAnim->mScalingKeys[scaIndex];
+						aiVector3D sca = scaKey.mValue;
+						boneKeyframe.scale = { sca.x, sca.y, sca.z };
+						scaIndex++;
+					}
+
+					a.boneKeyframes.push_back(boneKeyframe);
+				}
+			}
 		}
 
 		AnimationResource animation;
-		animation.SetKeyframes(animKeyFrames);
+		animation.SetName(meshData->mAnimations[0]->mName.C_Str());
+		animation.SetKeyframes(animKeyframes);
 		p_assetRecord.resource = std::make_shared<AnimationResource>(animation);
 
 		// Log Info: Successfully loaded p_meshFile

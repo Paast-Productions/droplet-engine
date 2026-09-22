@@ -19,7 +19,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     Droplet::AssimpLoader assimpLoader;
     Droplet::AssetRecord assetRecord;
-    assimpLoader.LoadMesh("Cube.fbx", nlohmann::json(), assetRecord);
+    assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", nlohmann::json(), assetRecord);
     
     return 0;
 }
