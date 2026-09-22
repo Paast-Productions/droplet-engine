@@ -18,7 +18,7 @@ namespace Droplet
 	{
 	public:
 
-		/// @return True if DDS or KTX is succesully loaded 
+		/// @return loaded gli texture 
 		gli::texture Load(const std::string &path);
 
 		/// @return True if PNG succesfully converted to KTX
