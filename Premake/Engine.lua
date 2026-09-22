@@ -5,8 +5,14 @@ project "Engine"
 
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+<<<<<<< HEAD
     
     local vkPath = os.getenv("VULKAN_SDK")
+=======
+
+    local vkPath = os.getenv("VULKAN_SDK")
+
+>>>>>>> dev
     includedirs
     {
         "../include",
