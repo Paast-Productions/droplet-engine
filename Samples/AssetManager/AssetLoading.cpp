@@ -1,6 +1,6 @@
 ﻿#include <print>
 
-#include "asset/AssetManager.hpp"
+#include "asset/ResourceManager.hpp"
 
 #include "asset/TextureLoader.hpp"
 
@@ -17,7 +17,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     fs::path assetDir = fs::current_path() / fs::path("assets");
     std::println("Initializing AssetManager for dir: {}", assetDir.generic_string());
     
-    Droplet::AssetManager assetManager;
+    Droplet::ResourceManager assetManager;
     assetManager.Initialize(assetDir);
     
     Droplet::ResourceLoader::TextureLoader resourceTexture;
