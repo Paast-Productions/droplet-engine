@@ -10,7 +10,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     TestNode guptaNode;
     [[maybe_unused]] auto* script = scriptSystem.CreateScript(
         &testNode,
-       "testScript2.lua"
+       "testScript.lua"
     ); 
     
     scriptSystem.CreateScript(&guptaNode, "guptaTestScript.lua");
@@ -31,9 +31,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     while (true)
     {
         scriptSystem.Update(1.0);
-        std::cout << testNode.getX() << '\n';
     }
     scriptSystem.DeactivateScript(&testNode);
-
+    std::cout << testNode.getX() << '\n';
     return 0;
 } 
