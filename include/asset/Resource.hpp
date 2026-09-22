@@ -395,6 +395,10 @@ namespace Droplet
 			std::vector<BoneKeyframe> boneKeyframes{};
 		};
 
+		/// @brief Sets the animation name
+		/// @param p_name The animation name to be set
+		void SetName(const std::string p_name) { m_name = p_name; }
+
 		/// @brief Sets whether the animation should loop.
 		/// @param p_isLooping True if the animation should loop, false otherwise.
 		void SetIsLooping(bool p_isLooping) { m_isLooping = p_isLooping; }
@@ -421,6 +425,10 @@ namespace Droplet
 			}
 		}
 
+		/// @brief Gets the name of the animation
+		/// @return The name of the animation
+		[[nodiscard]] std::string_view GetName() const { return m_name; }
+
 		/// @brief Gets whether the animation should loop.
 		/// @return True if the animation should loop, false otherwise.
 		[[nodiscard]] bool IsLooping() const { return m_isLooping; }
@@ -435,6 +443,7 @@ namespace Droplet
 
 	private:
 
+		std::string					m_name{};				// Name of the animation
 		bool						m_isLooping = false;	// Whether the animation should loop
 		float						m_duration = 0.0f;		// Duration of the animation in seconds
 		std::vector<AnimKeyframe>	m_keyframes{};			// Keyframes for the animation resource
