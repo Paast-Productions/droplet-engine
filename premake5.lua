@@ -41,7 +41,6 @@ include "Premake/Test"
 -- [[ SAMPLES ]] --
 
 include "Premake/Samples/Scene/Scene"
-include "Premake/Samples/Vulkan/Vulkan"
 include "Premake/Samples/Transform/Transform"
 
 -- [[ EXTERNAL ]] --
