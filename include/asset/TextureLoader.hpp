@@ -6,11 +6,9 @@
 #include <gli/texture2d.hpp>
 #include <gli/save.hpp>
 
-#include <gli/save.hpp>
-
 #include <string>
 
-namespace Droplet
+namespace Droplet::ResourceLoader
 {
 	/// @brief Texture resource that holds a gli texture. Can load dds and
 	/// KTX files but also convert PNG files to KTX format 
@@ -19,10 +17,15 @@ namespace Droplet
 	public:
 
 		/// @return loaded gli texture 
-		gli::texture Load(const std::string &path);
+		/// @param string of textures path in explorer
+		/// @throws the invalid path
+		gli::texture Load(const std::string &p_path);
 
 		/// @return True if PNG succesfully converted to KTX
-		bool ConvertPNGToKTX(const std::string& inputPath, const std::string& outputPath);
+		/// @param string of textures path in explorer
+		/// @param string of new path to texture in explorer
+		/// @throws the invalid path
+		bool ConvertPNGToKTX(const std::string &p_inputPath, const std::string &p_outputPath);
 
 	};
 }

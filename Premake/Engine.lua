@@ -29,7 +29,7 @@ project "Engine"
         "Jolt",
         "json",
         "Assimp",
-	"Gli"
+	    "Gli"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -40,8 +40,7 @@ project "Engine"
         "../src/**.h"
     }
 
-    defines
-    {
+    defines {
         "GLM_ENABLE_EXPERIMENTAL"
     }
     --pchheader "%{prj.location}/EnginePCH.hpp"

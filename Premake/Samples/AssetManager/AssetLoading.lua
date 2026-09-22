@@ -33,7 +33,7 @@ project "AssetManager-AssetLoading"
         "Engine",
         "Assimp",
         "json",
-	"Gli"
+	    "Gli"
     }
 
     links {
@@ -41,7 +41,6 @@ project "AssetManager-AssetLoading"
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd")
     }
-    defines
-    {
+    defines {
         "GLM_ENABLE_EXPERIMENTAL"
     }

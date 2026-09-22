@@ -2,7 +2,7 @@
 
 #include "asset/AssetManager.hpp"
 
-#include "asset/ResourceTexture.hpp"
+#include "asset/TextureLoader.hpp"
 
 #include <filesystem>
 #include <string>
@@ -20,10 +20,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Droplet::AssetManager assetManager;
     assetManager.Initialize(assetDir);
     
-    Droplet::ResourceTexture resourceTexture;
+    Droplet::ResourceLoader::TextureLoader resourceTexture;
 
     fs::path currentPath = fs::current_path();
-    std::string path = "basic_fish_colors_base.png";
+    std::string path = "C:/Users/Proj/Documents/Blender Assets/basic_fish_colors_base.ktx";
     std::cout << "Does file path exist? " << std::filesystem::exists(path) << std::endl;
 
     resourceTexture.Load(path);
