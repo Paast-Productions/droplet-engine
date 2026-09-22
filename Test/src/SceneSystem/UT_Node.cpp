@@ -4,6 +4,7 @@
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Component.hpp"
 
+using namespace Droplet::Scene;
 
 class TComponent : public Component
 {

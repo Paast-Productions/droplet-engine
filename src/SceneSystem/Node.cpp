@@ -4,6 +4,8 @@
 #include "Component.hpp"
 #include <stdexcept>
 
+using namespace Droplet::Scene;
+
 Node::Node(const std::string &p_name)
 	: m_name((p_name)), m_transform(this)
 {
@@ -99,11 +101,13 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
     }
 
+    // TODO: Allow reparenting
     if (p_child->GetParent())
     {
         throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already has a parent.");
     }
 
+    // TODO: ???
     if (p_child->GetScene())
     {
         throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already belongs to a Scene.");
@@ -133,6 +137,11 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
         throw std::invalid_argument("Cannot remove nullptr as a child Node.");
     }
 
+    if (p_child.get()->m_parent.lock() != shared_from_this())
+    {
+		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
+	}
+
     auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
     if (it == m_children.end())
@@ -140,8 +149,8 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
         throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
     }
 
-    (*it)->m_parent.reset();
-    (*it)->SetScene(nullptr);
+    p_child->m_parent.reset();
+	p_child->SetScene(nullptr); // TODO: Should not be removed from the Scene, but become a root Node.
 
     m_children.erase(it);
 }
@@ -177,44 +186,3 @@ std::shared_ptr<Node> Node::GetParent() const
 {
     return m_parent.lock();
 }
-
-void Node::SetPosition(const glm::vec3 &p_position)
-{
-    m_position = p_position;
-}
-
-void Node::SetRotation(const glm::vec3 &p_rotation)
-{
-    m_rotation = p_rotation;
-}
-
-void Node::SetScale(const glm::vec3 &p_scale)
-{
-    m_scale = p_scale;
-}
-
-const glm::vec3 &Node::GetPosition() const
-{
-    return m_position;
-}
-
-const glm::quat &Node::GetRotation() const
-{
-    return m_rotation;
-}
-
-const glm::vec3 &Node::GetScale() const
-{
-    return m_scale;
-}
-
-const glm::mat4 &Node::GetLocalTransform() const
-{
-    return m_localTransform;
-}
-
-const glm::mat4 &Node::GetWorldTransform() const
-{
-    return m_worldTransform;
-}
-  

@@ -8,21 +8,13 @@
 
 using namespace Droplet::Scene;
 
-
-Transform::Transform(Node *p_owner)
+Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
-	if (!p_owner)
+	// Ensure that the Transform is being constructed by its owning Node.
+	if (&(m_owner->GetTransform()) != this)
 	{
-		throw std::invalid_argument("Transform owner cannot be nullptr.");
+		throw std::runtime_error("Transforms may only be constructed by their owning Node.");
 	}
-
-	// Ensure that the owner has no transform already assigned to it.
-	if (p_owner->GetTransform())
-	{
-		throw std::invalid_argument("Node already has a Transform assigned to it.");
-	}
-
-	m_owner = p_owner;
 }
 
 glm::vec3 Transform::GetPosition(Space p_space) const
@@ -556,8 +548,8 @@ bool Transform::HasParent() const
 	if (!m_owner)
 		return false;
 
-	std::weak_ptr<Node> parentNode = m_owner->GetParent();
-	return !parentNode.expired();
+	std::shared_ptr<Node> parentNode = m_owner->GetParent();
+	return parentNode != nullptr;
 }
 
 Transform *Transform::GetParentTransform() const
@@ -565,5 +557,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return m_owner->GetParent()->GetTransform().get();
+	return &(m_owner->GetParent()->GetTransform());
 }

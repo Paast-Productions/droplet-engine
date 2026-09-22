@@ -3,6 +3,7 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Node.hpp"
 
+using namespace Droplet::Scene;
 
 class ComponentTest : public ::testing::Test
 {

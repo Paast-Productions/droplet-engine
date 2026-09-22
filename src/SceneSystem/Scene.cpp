@@ -3,6 +3,8 @@
 #include <utility>
 #include <stdexcept>
 
+using namespace Droplet::Scene;
+
 Scene::Scene(const std::string &p_name)
     : m_name((p_name))
 {

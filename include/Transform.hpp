@@ -6,7 +6,7 @@
 
 namespace Droplet::Scene
 {
-	class Node; // Forward declaration of Node class
+	class Node; // Forward declaration
 
 	/// @brief A class that represents a 3D transformation, including position, rotation, and scale.
 	class Transform
@@ -137,15 +137,15 @@ namespace Droplet::Scene
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
 	private:
-		Node					*m_owner{ nullptr }; // Raw pointer because it will by definition always be valid.
-		bool					m_isDirty{ true };
+		Node			*m_owner{ nullptr }; // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
+		bool			m_isDirty{ true };
 
-		glm::vec3				m_position{ 0.f, 0.f, 0.f };
-		glm::quat				m_rotation{ 1.f, 0.f, 0.f, 0.f };
-		glm::vec3				m_scale{ 1.f, 1.f, 1.f };
+		glm::vec3		m_position{ 0.f, 0.f, 0.f };
+		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };
+		glm::vec3		m_scale{ 1.f, 1.f, 1.f };
 
-		glm::mat4				m_localMatrix{ 1.f };
-		glm::mat4				m_worldMatrix{ 1.f };
+		glm::mat4		m_localMatrix{ 1.f };
+		glm::mat4		m_worldMatrix{ 1.f };
 
 		/// @brief Validate the rotation of the transform to ensure it is a valid quaternion.
 		void ValidateRotation();
