@@ -44,7 +44,7 @@ namespace Droplet
         /// @brief Initializes the resource manager for a specific root directory.
         /// @param p_rootDirectory The root directory that containing all assets that the manager should be able to load
         /// resources from.
-        void Initialize(std::filesystem::path p_rootDirectory);
+        void Initialize(const std::filesystem::path &p_rootDirectory);
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources.
         /// @param p_assetPath The path to the asset to be registered. Must be within 
@@ -124,7 +124,7 @@ namespace Droplet
     private:
         /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
         /// were found in the asset file.
-        /// @param p_oldEntries The old resources listed for the asset.
+        /// @param p_assetPath The path to the asset file that the resource is stored in.
         /// @param p_foundResources The resources found in the asset file.
         /// @return The updated list of resources that should be listed for the asset.
         std::vector<MetaEntry> CompareAndCompileMetaData(const std::string &p_assetPath, 

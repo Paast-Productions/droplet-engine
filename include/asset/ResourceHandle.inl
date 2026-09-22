@@ -7,7 +7,7 @@ namespace Droplet
 {
     template<typename T>
     ResourceHandle<T>::ResourceHandle(GUID p_guid, ResourceManager* p_resourceManager)
-        : m_guid(p_guid), m_assetManager(p_resourceManager)
+        : m_guid(p_guid), m_resourceManager(p_resourceManager)
     {
         IncrementRef();
     }
@@ -19,22 +19,22 @@ namespace Droplet
     }
     
     template <typename T>
-    ResourceHandle<T>::ResourceHandle(const ResourceHandle &other)
-        : m_guid(other.m_guid), m_assetManager(other.m_assetManager)
+    ResourceHandle<T>::ResourceHandle(const ResourceHandle &p_other)
+        : m_guid(p_other.m_guid), m_resourceManager(p_other.m_resourceManager)
     {
         // Copy construct (+1 ref)
         IncrementRef();
     }
 
     template <typename T>
-    ResourceHandle<T> & ResourceHandle<T>::operator=(const ResourceHandle &other)
+    ResourceHandle<T> & ResourceHandle<T>::operator=(const ResourceHandle &p_other)
     {
         // Copy assign (new: +1 old: -1)
-        if (this != &other)
+        if (this != &p_other)
         {
             DecrementRef();
-            m_guid = other.m_guid;
-            m_assetManager = other.m_assetManager;
+            m_guid = p_other.m_guid;
+            m_resourceManager = p_other.m_resourceManager;
             IncrementRef();
         }
             
@@ -42,26 +42,26 @@ namespace Droplet
     }
 
     template <typename T>
-    ResourceHandle<T>::ResourceHandle(ResourceHandle &&other) noexcept
-        : m_guid(other.m_guid), m_assetManager(other.m_assetManager) 
+    ResourceHandle<T>::ResourceHandle(ResourceHandle &&p_other) noexcept
+        : m_guid(p_other.m_guid), m_resourceManager(p_other.m_resourceManager) 
     {
         // Move construct (steal data, no ref change)
-        other.m_guid = C_INVALID_GUID;
-        other.m_assetManager = nullptr;
+        p_other.m_guid = C_INVALID_GUID;
+        p_other.m_resourceManager = nullptr;
     }
 
     template <typename T>
-    ResourceHandle<T> & ResourceHandle<T>::operator=(ResourceHandle &&other) noexcept
+    ResourceHandle<T> & ResourceHandle<T>::operator=(ResourceHandle &&p_other) noexcept
     {
         // Move assign (steal to new, no ref change)
-        if (this != &other)
+        if (this != &p_other)
         {
             DecrementRef();
-            m_guid = other.m_guid;
-            m_assetManager = other.m_assetManager;
+            m_guid = p_other.m_guid;
+            m_resourceManager = p_other.m_resourceManager;
                 
-            other.m_guid = C_INVALID_GUID;
-            other.m_assetManager = nullptr;
+            p_other.m_guid = C_INVALID_GUID;
+            p_other.m_resourceManager = nullptr;
         }
             
         return *this;   
@@ -70,7 +70,7 @@ namespace Droplet
     template <typename T>
     bool ResourceHandle<T>::IsValid() const
     {
-        return m_guid != C_INVALID_GUID && m_assetManager;
+        return m_guid != C_INVALID_GUID && m_resourceManager;
     }
 
     template <typename T>
@@ -87,7 +87,7 @@ namespace Droplet
             return false;
         }
             
-        return m_assetManager->GetState(m_guid) == ResourceState::Ready; 
+        return m_resourceManager->GetState(m_guid) == ResourceState::Ready; 
     }
 
     template <typename T>
@@ -98,7 +98,7 @@ namespace Droplet
             return false;
         }
             
-        return m_assetManager->GetState(m_guid) == ResourceState::Failed;
+        return m_resourceManager->GetState(m_guid) == ResourceState::Failed;
     }
 
     template <typename T>
@@ -106,7 +106,7 @@ namespace Droplet
     {
         if (IsValid())
         {
-            return m_assetManager->GetResource<T>(m_guid);
+            return m_resourceManager->GetResource<T>(m_guid);
         }
             
         return nullptr;
@@ -117,7 +117,7 @@ namespace Droplet
     {
         if (IsValid())
         {
-            m_assetManager->IncrementRef(m_guid);
+            m_resourceManager->IncrementRef(m_guid);
         }
     }
 
@@ -126,7 +126,7 @@ namespace Droplet
     {
         if (IsValid())
         {
-            m_assetManager->DecrementRef(m_guid);
+            m_resourceManager->DecrementRef(m_guid);
         }
     }
 }

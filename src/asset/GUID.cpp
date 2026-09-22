@@ -4,9 +4,9 @@
 
 namespace Droplet
 {
-    bool GuidUtils::IsValid(GUID guid)
+    bool GuidUtils::IsValid(GUID p_guid)
     {
-        return guid != C_INVALID_GUID;
+        return p_guid != C_INVALID_GUID;
     }
 
     GUID GuidUtils::Generate()

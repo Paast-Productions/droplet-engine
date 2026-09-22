@@ -17,9 +17,9 @@ namespace Droplet
         ~ResourceHandle();
         
         ResourceHandle(const ResourceHandle &other);
-        ResourceHandle& operator=(const ResourceHandle &other);
-        ResourceHandle(ResourceHandle &&other) noexcept;
-        ResourceHandle& operator=(ResourceHandle &&other) noexcept;
+        ResourceHandle& operator=(const ResourceHandle &p_other);
+        ResourceHandle(ResourceHandle &&p_other) noexcept;
+        ResourceHandle& operator=(ResourceHandle &&p_other) noexcept;
         
         /// @return True if the handle is valid, otherwise false.
         bool IsValid() const;
@@ -38,7 +38,7 @@ namespace Droplet
         
     private:
         GUID m_guid = 0;
-        ResourceManager *m_assetManager = nullptr;
+        ResourceManager *m_resourceManager = nullptr;
 
         /// @brief Increments the reference of the resource the handle is referencing.
         void IncrementRef();

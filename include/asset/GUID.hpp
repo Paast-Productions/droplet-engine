@@ -10,7 +10,7 @@ namespace Droplet
     namespace GuidUtils
     {
         /// @return True if the GUID is valid (non-zero), otherwise false.
-        bool IsValid(GUID guid);
+        bool IsValid(GUID p_guid);
 
         /// @brief Generates a new 64-bit GUID.
         /// @return The newly generated GUID.

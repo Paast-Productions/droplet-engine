@@ -5,26 +5,8 @@
 #include <json/json.hpp>
 #include <cstdint>
 
-using json = nlohmann::json;
-
 namespace Droplet
 {
-    // TODO: Remove this temporary definition when edvin merges resource branch
-    enum class ResourceType : uint8_t
-    {
-        None,
-        Texture2D,
-        Texture3D,
-        TextureCube,
-        TextureAtlas,
-        Mesh,
-        SkinnedMesh,
-        Animation,
-        Shader,
-        Font,
-        Material
-    };
-
     /// @brief Determines if a resource is loaded into RAM, VRAM or both.
     enum class ResourceLoadFlag : uint8_t
     {
@@ -34,32 +16,32 @@ namespace Droplet
     };
     
     // Bitwise or
-    inline constexpr ResourceLoadFlag operator|(ResourceLoadFlag a, ResourceLoadFlag b)
+    inline constexpr ResourceLoadFlag operator|(ResourceLoadFlag p_a, ResourceLoadFlag p_b)
     {
-        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(a) | static_cast<uint8_t>(b));
+        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(p_a) | static_cast<uint8_t>(p_b));
     }
     
     // Bitwise and
-    inline constexpr ResourceLoadFlag operator&(ResourceLoadFlag a, ResourceLoadFlag b)
+    inline constexpr ResourceLoadFlag operator&(ResourceLoadFlag p_a, ResourceLoadFlag p_b)
     {
-        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(a) & static_cast<uint8_t>(b));
+        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(p_a) & static_cast<uint8_t>(p_b));
     }
     
     // Bitwise xor
-    inline constexpr ResourceLoadFlag operator^(ResourceLoadFlag a, ResourceLoadFlag b)
+    inline constexpr ResourceLoadFlag operator^(ResourceLoadFlag p_a, ResourceLoadFlag p_b)
     {
-        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(a) ^ static_cast<uint8_t>(b));
+        return static_cast<ResourceLoadFlag>(static_cast<uint8_t>(p_a) ^ static_cast<uint8_t>(p_b));
     }
     
     // Bitwise not
-    inline constexpr ResourceLoadFlag operator~(ResourceLoadFlag a)
+    inline constexpr ResourceLoadFlag operator~(ResourceLoadFlag p_a)
     {
-        return static_cast<ResourceLoadFlag>(~static_cast<uint8_t>(a));
+        return static_cast<ResourceLoadFlag>(~static_cast<uint8_t>(p_a));
     }
     
-    inline constexpr bool HasFlag(ResourceLoadFlag flags, ResourceLoadFlag flagToCheck)
+    inline constexpr bool HasFlag(ResourceLoadFlag p_flags, ResourceLoadFlag p_flagToCheck)
     {
-        return (static_cast<uint8_t>(flags) & static_cast<uint8_t>(flagToCheck)) != 0;
+        return (static_cast<uint8_t>(p_flags) & static_cast<uint8_t>(p_flagToCheck)) != 0;
     }
 
     /// @brief Represents a resource within a metafile.
@@ -73,6 +55,6 @@ namespace Droplet
         std::vector<GUID> dependencies;
         
         // Resource specific
-        json typeSpecificData = json::object();
+        nlohmann::json typeSpecificData = nlohmann::json::object();
     };
 }

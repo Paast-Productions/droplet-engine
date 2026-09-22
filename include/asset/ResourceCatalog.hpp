@@ -28,7 +28,7 @@ namespace Droplet
         /// @param p_assetPath The path to the asset (not its .meta file)
         /// @param p_metaData The list of resources in that asset. 
         /// @return True if the asset is registered and contains resources, otherwise false.
-        bool GetCachedMetaDataForAsset(const std::string& p_assetPath, std::vector<MetaEntry> &p_metaData);
+        bool GetCachedMetaDataForAsset(const std::string &p_assetPath, std::vector<MetaEntry> &p_metaData);
 
         /// @brief Registers and updates a resource in the catalog.
         /// @param p_assetPath The path to the asset file.

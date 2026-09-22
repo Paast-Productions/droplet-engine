@@ -6,7 +6,7 @@
 
 namespace Droplet
 {
-    void ResourceManager::Initialize(std::filesystem::path p_rootDirectory)
+    void ResourceManager::Initialize(const std::filesystem::path &p_rootDirectory)
     {
         if (m_isInitialized)
         {

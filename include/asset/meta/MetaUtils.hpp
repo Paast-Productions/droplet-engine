@@ -32,5 +32,5 @@ namespace Droplet::MetaUtils
     /// @param p_type The type of resource the entry is for.
     /// @param p_name The name of the resource within the asset.
     /// @return A generated meta entry.
-    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string& p_name);
+    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name);
 }
