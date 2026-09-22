@@ -34,12 +34,12 @@ void ScriptSystem::ActivateScript(TestNode* p_scriptComponent)
 
 void ScriptSystem::DeactivateScript(TestNode* p_scriptComponent)
 {
-	m_scriptManager.DeActivateScript(p_scriptComponent);
+	m_scriptManager.DeactivateScript(p_scriptComponent);
 }
 
-ScriptInstance* ScriptSystem::CreateScript([[maybe_unused]] TestNode* p_testNode, [[maybe_unused]] const std::string& p_scriptFile)
+ScriptInstance* ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std::string& p_scriptFile)
 {
-	ScriptInstance* instance = m_scriptManager.CreateScript(p_testNode, p_scriptFile);
+	ScriptInstance* instance = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
 	if (instance == nullptr)
 	{
 		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
@@ -48,9 +48,7 @@ ScriptInstance* ScriptSystem::CreateScript([[maybe_unused]] TestNode* p_testNode
 	return instance;
 }
 
-void ScriptSystem::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInstance)
+void ScriptSystem::DestroyScript(ScriptInstance* p_scriptInstance)
 {
 	m_scriptManager.DestroyScript(p_scriptInstance);
 }
-
-

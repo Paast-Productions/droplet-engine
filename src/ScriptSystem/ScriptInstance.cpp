@@ -26,7 +26,7 @@ ScriptInstance::ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHan
 	m_onUpdate = m_environment["onUpdate"];
 }
 
-void ScriptInstance::onStart()
+void ScriptInstance::OnStart()
 {
 	if (m_onStart.valid())
 	{
@@ -40,7 +40,7 @@ void ScriptInstance::onStart()
 	}
 }
 
-void ScriptInstance::onUpdate(float deltatime)
+void ScriptInstance::OnUpdate(float deltatime)
 {
 	if (m_onUpdate.valid())
 	{

@@ -16,65 +16,54 @@ public:
 	/// @brief Constructs the script system.
 	ScriptSystem();
 
-	/// @brief Destroys the script system.
+	/// @brief Destroy the script system.
 	~ScriptSystem() = default;
 
-	/// @brief Initializes and starts the scripting system.
+	/// @brief Starts the script script system.
+	/// This should be called once the scene starts with the script system.
 	void Start();
 
 	/// @brief Updates the scripting system.
-	///
 	/// This should be called once per frame to allow active scripts to perform
 	/// their per-frame update logic.
-	///
 	/// @param p_deltaTime Time elapsed since the previous update, in seconds.
 	void Update(float p_deltaTime);
 
 	/// @brief Loads a Lua script from a file.
-	///
 	/// @param p_scriptFile Path to the Lua script file.
 	/// @return True if the script was loaded successfully, otherwise false.
 	bool LoadScript(const std::string& p_scriptFile);
 
 	/// @brief Unloads a previously loaded Lua script.
-	///
 	/// @param p_scriptFile Path to the Lua script file.
 	/// @return True if the script was unloaded successfully, otherwise false.
 	bool UnloadScript(const std::string& p_scriptFile);
 
 	/// @brief Activates a script component.
-	///
 	/// An activated script component is allowed to participate in the scripting
 	/// system's update and execution flow.
-	///
 	/// @param p_scriptComponent Script component to activate.
 	void ActivateScript(TestNode* p_scriptComponent);
 
 	/// @brief Deactivates a script component.
-	///
 	/// A deactivated script component will no longer participate in the
 	/// scripting system's update and execution flow.
-	///
 	/// @param p_scriptComponent Script component to deactivate.
 	void DeactivateScript(TestNode* p_scriptComponent);
 
-	/// @brief Creates a script instance for a node.
-	///
+	/// @brief Creates a script instance for a component.
 	/// @param testNode Node that will own the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
 	/// @return Pointer to the newly created script instance.
-	ScriptInstance* CreateScript(TestNode* testNode, const std::string& p_scriptFile);
+	ScriptInstance* CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
 
 	/// @brief Destroys a script instance.
-	///
 	/// @param p_scriptInstance Script instance to destroy.
 	void DestroyScript(ScriptInstance* p_scriptInstance);
 
 	/// @brief Calls a Lua function on a script component.
-	///
 	/// The supplied arguments are forwarded to the Lua function. The result
 	/// contains the status and return values of the protected Lua function call.
-	///
 	/// @tparam Args Types of the arguments passed to the Lua function.
 	/// @param p_scriptComponent Script component containing the function to call.
 	/// @param p_functionName Name of the Lua function to call.
@@ -93,7 +82,6 @@ private:
 };
 
 /// @brief Calls a Lua function through the ScriptManager.
-///
 /// @tparam Args Types of the arguments passed to the Lua function.
 /// @param p_scriptComponent Script component containing the function to call.
 /// @param p_functionName Name of the Lua function to call.
