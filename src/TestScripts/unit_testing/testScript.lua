@@ -3,7 +3,9 @@ function onStart()
 end	
 
 function onUpdate(dt)
-
-	self:
-	
+		self:set_position(
+		self:get_x() - 2.0 *dt,
+		self:get_y(),
+		self:get_z()
+	)
 end
