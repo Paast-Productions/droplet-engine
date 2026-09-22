@@ -13,6 +13,13 @@ Node::Node(const std::string &p_name)
 
 void Node::Start()
 {
+    auto scene = m_scene.lock();
+
+	if (!scene || !scene->IsActive())
+    {
+        return;
+    }
+
     if (!m_active || m_started)
     {
         return;
@@ -53,6 +60,7 @@ void Node::Update(float p_deltaTime)
 
 
 }
+
 void Node::Render()
 {
     if (!m_active)
@@ -85,6 +93,22 @@ void Node::SetActive(bool p_active)
 }
 
 bool Node::IsActive() const
+{
+    if (!m_active)
+    {
+        return false;
+    }
+
+	// If the Node has a parent, it is only considered active if its parent is also active.
+    if (auto parent = m_parent.lock())
+    {
+        return parent->IsActive();
+    }
+
+	return true;
+}
+
+bool Node::IsActiveSelf() const
 {
     return m_active;
 }

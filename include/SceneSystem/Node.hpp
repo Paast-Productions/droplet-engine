@@ -74,10 +74,17 @@ namespace Droplet::Scene
         /// @return true if the Node is active, otherwise false.
         bool IsActive() const;
 
+		/// @brief Checks whether the Node is active.
+        ///
+		/// @return true if the Node is active, otherwise false.
+        bool IsActiveSelf() const;
+
         // --------------------------------------------------
         // Transform
         // --------------------------------------------------
 
+		/// @brief Gets the Node's Transform.
+		/// @return A reference to the Node's Transform.
         [[nodiscard]] Transform &GetTransform() { return m_transform; }
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; }
 

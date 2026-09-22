@@ -420,6 +420,9 @@ TEST_F(NodeTest, DeactivateNode)
 TEST_F(NodeTest, ReactivateNode)
 {
     root->SetActive(false);
+
+    EXPECT_FALSE(root->IsActive());
+
     root->SetActive(true);
 
     EXPECT_TRUE(root->IsActive());
