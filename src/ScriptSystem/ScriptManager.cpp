@@ -88,6 +88,7 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
 		//Couldn't find send an error
 		return;
 	}
+	DeActivateScript(p_scriptComponent);
 	ScriptInstance* instance = it->second;
 	// Destroy it
 	m_DestroyInstance(instance);
@@ -99,11 +100,12 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 	{
 		return;
 	}		
-
+	
 	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
 	{
 		if (it->second == p_scriptInstance)
 		{
+			DeActivateScript(it->first);
 			m_scripts.erase(it);
 		}
 		else //If we do it++ in the for declaration it invalidates the iterator and we can't keep going
@@ -111,13 +113,13 @@ void ScriptManager::DestroyScript([[maybe_unused]] ScriptInstance* p_scriptInsta
 			it++;
 		}
 	}
-
+	
 	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++) // it for iterator
 	{
 		if (it->get() == p_scriptInstance)
 		{		
 			m_scriptInstances.erase(it); //erase destroys the unique ptr
-			return;												
+			return;												 
 		}																				
 	}
 
@@ -134,7 +136,7 @@ bool ScriptManager::LoadScript(const std::string& p_scriptFile)
 		return true; // Script is already loaded
 	}
 
-	std::filesystem::path scriptPath = m_FindScript(p_scriptFile);
+	std::filesystem::path scriptPath = FindScript(p_scriptFile);
 	if (p_scriptFile.empty())
 	{
 		//Error logger entry
@@ -194,7 +196,7 @@ bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
 //Searches through the loadedscripts to see if a script is loaded, returns true if it is loaded
 bool ScriptManager::IsLoaded([[maybe_unused]] const std::string& p_scriptFile)
 {
-	/*return 0;*/ 
+	 
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
@@ -252,7 +254,7 @@ void ScriptManager::CheckForFileChanges()
 {
 	for (auto& [scriptFile, loadedScript] : m_loadedScripts)
 	{
-		if (m_HasScriptFileChanged(scriptFile))
+		if (HasScriptFileChanged(scriptFile))
 		{
 			ReloadScript(scriptFile);
 		}
@@ -318,12 +320,12 @@ void ScriptManager::DeActivateScript(TestNode* p_scriptComponent)
 	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
 }
 
-bool ScriptManager::m_Initialize()
+bool ScriptManager::Initialize()
 {
 	return false;
 }
 
-std::filesystem::path ScriptManager::m_FindScript(const std::string& p_scriptFile)
+std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
 	std::filesystem::path scriptDirectory =
 		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
@@ -343,7 +345,7 @@ std::filesystem::path ScriptManager::m_FindScript(const std::string& p_scriptFil
 	return {};
 }
 
-void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
+void ScriptManager::DestroyInstance(ScriptInstance* p_scriptInstance)
 {
 	if (p_scriptInstance == nullptr)
 	{
@@ -373,7 +375,7 @@ void ScriptManager::m_DestroyInstance(ScriptInstance* p_scriptInstance)
 	}
 }
 
-bool ScriptManager::m_HasScriptFileChanged(const std::string& p_scriptFile)
+bool ScriptManager::HasScriptFileChanged(const std::string& p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
 	if (it == m_loadedScripts.end())
