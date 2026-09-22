@@ -107,7 +107,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already has a parent.");
     }
 
-    // TODO: ???
+	// TODO: Node should already be part of the same Scene at this point
     if (p_child->GetScene())
     {
         throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already belongs to a Scene.");
