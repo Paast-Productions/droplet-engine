@@ -4,14 +4,14 @@
 
 TEST(ScriptSystem, LoadScript)
 {
-	std::string scriptPath = "TestScripts/testScript.lua";
+	std::string scriptPath = "testScript.lua";
 	ScriptSystem scriptSystem;
 	EXPECT_TRUE(scriptSystem.LoadScript(scriptPath));
 }
 
 TEST(ScriptSystem, UnloadScript)
 {
-	std::string scriptPath = "TestScripts/testScript.lua";
+	std::string scriptPath = "testScript.lua";
 	ScriptSystem scriptSystem;
 	scriptSystem.LoadScript(scriptPath);
 	EXPECT_TRUE(scriptSystem.UnloadScript(scriptPath));

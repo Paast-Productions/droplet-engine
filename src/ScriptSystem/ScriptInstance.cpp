@@ -26,7 +26,7 @@ ScriptInstance::ScriptInstance(TestNode* p_testNode, LuaStateHandler& p_stateHan
 	m_onUpdate = m_environment["onUpdate"];
 }
 
-void ScriptInstance::onStart()
+void ScriptInstance::OnStart()
 {
 	if (m_onStart.valid())
 	{
@@ -35,12 +35,13 @@ void ScriptInstance::onStart()
 		if (!result.valid())
 		{
 			sol::error err = result;
+			std::print("onStart error: {}\n", err.what());
 			//Send to error logger when it exists
 		}
 	}
 }
 
-void ScriptInstance::onUpdate(float deltatime)
+void ScriptInstance::OnUpdate(float deltatime)
 {
 	if (m_onUpdate.valid())
 	{
