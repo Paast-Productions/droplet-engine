@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 Node::Node(const std::string &p_name)
-    : m_name((p_name))
+	: m_name((p_name)), m_transform(this)
 {
 }
 

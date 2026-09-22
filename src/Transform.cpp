@@ -1,53 +1,28 @@
 #include "Transform.hpp"
-// #include "Node.hpp"
+#include <Node.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <stdexcept>
 
 using namespace Droplet::Scene;
 
-// HACK: Temporary implementation until actual implementation is accessible.
-class Droplet::Scene::Node
+
+Transform::Transform(Node *p_owner)
 {
-public:
-	Node()
+	if (!p_owner)
 	{
-		m_parent = nullptr;
-		std::shared_ptr<Node> self(this, [](Node*) {});
-		m_transform = std::make_unique<Transform>(self);
+		throw std::invalid_argument("Transform owner cannot be nullptr.");
 	}
 
-	std::shared_ptr<Node> GetParent() const
+	// Ensure that the owner has no transform already assigned to it.
+	if (p_owner->GetTransform())
 	{
-		return m_parent;
+		throw std::invalid_argument("Node already has a Transform assigned to it.");
 	}
 
-	std::unique_ptr<Transform> &GetTransform()
-	{
-		return m_transform;
-	}
-
-	void SetParent(std::shared_ptr<Node> parent)
-	{
-		m_parent = parent;
-	}
-
-	void SetTransform(std::unique_ptr<Transform> transform)
-	{
-		m_transform = std::move(transform);
-	}
-
-private:
-	std::shared_ptr<Node> m_parent;
-	std::unique_ptr<Transform> m_transform;
-};
-
-
-Transform::Transform(std::shared_ptr<Node> p_owner) 
-	: m_owner(p_owner)
-{
-
+	m_owner = p_owner;
 }
 
 glm::vec3 Transform::GetPosition(Space p_space) const

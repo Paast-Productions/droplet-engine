@@ -19,8 +19,8 @@ namespace Droplet::Scene
 		};
 
 		/// @brief Construct a new Transform object.
-		/// @param p_owner A weak pointer to the Node that owns this Transform.
-		Transform(std::shared_ptr<Node> p_owner);
+		/// @param p_owner A pointer to the Node that owns this Transform.
+		Transform(Node *p_owner);
 
 		~Transform() = default;
 
@@ -137,7 +137,7 @@ namespace Droplet::Scene
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
 	private:
-		std::shared_ptr<Node>	m_owner{};
+		Node					*m_owner{ nullptr }; // Raw pointer because it will by definition always be valid.
 		bool					m_isDirty{ true };
 
 		glm::vec3				m_position{ 0.f, 0.f, 0.f };

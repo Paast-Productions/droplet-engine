@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <Transform.hpp>
 
 /// Forward declarations to avoid circular dependencies
 class Component;
@@ -125,6 +126,8 @@ public:
     /// @return A constant reference to the Node's name.
     const std::string &GetName() const;
 
+
+
     // --------------------------------------------------
     // Components
     // --------------------------------------------------
@@ -145,6 +148,9 @@ public:
     template<typename T, typename... Args>
     std::shared_ptr<T> AddComponent(Args&&... p_args)
     {
+		// Ensure that T is derived from Component
+		static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
+
         auto component = std::make_shared<T>(std::forward<Args>(p_args)...);
 
         component->SetOwner(shared_from_this());
@@ -171,6 +177,9 @@ public:
     template<typename T>
     std::vector<std::shared_ptr<T>> GetComponents() const
     {
+        // Ensure that T is derived from Component
+        static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
+
         std::vector<std::shared_ptr<T>> components;
 
         for (const auto &component : m_components)
@@ -198,54 +207,11 @@ public:
     /// @throws std::runtime_error if the Component is not attached to this Node.
     void RemoveComponent(const std::shared_ptr<Component> &p_component);
 
-    // --------------------------------------------------
-    // Transforms
-    // --------------------------------------------------
-	//TODO: All these functions will be refactured one a tranforms system is implemented
-
-
-    /// @brief Sets the Node's local position.
-    ///
-    /// @param p_position Local position relative to the parent Node.
-    void SetPosition(const glm::vec3 &p_position);
-
-    /// @brief Sets the Node's local rotation.
-    ///
-    /// @param p_rotation Local rotation in radians.
-    void SetRotation(const glm::vec3 &p_rotation);
-
-    /// @brief Sets the Node's local scale.
-    ///
-    /// @param p_scale Local scale relative to the parent Node.
-    void SetScale(const glm::vec3 &p_scale);
-
-    /// @brief Gets the Node's local position.
-    ///
-    /// @return A constant reference to the local position.
-    const glm::vec3 &GetPosition() const;
-
-    /// @brief Gets the Node's local rotation.
-    ///
-    /// @return A constant reference to the local rotation.
-    const glm::quat &GetRotation() const;
-
-    /// @brief Gets the Node's local scale.
-    ///
-    /// @return A constant reference to the local scale.
-    const glm::vec3 &GetScale() const;
-
-    /// @brief Gets the local transformation matrix.
-    ///
-    /// @return A constant reference to the local transformation matrix.
-    const glm::mat4 &GetLocalTransform() const;
-
-    /// @brief Gets the world transformation matrix.
-    ///
-    /// @return A constant reference to the world transformation matrix.
-    const glm::mat4 &GetWorldTransform() const;
 
 private:
     std::string m_name;
+
+    Droplet::Scene::Transform m_transform;
 
     std::weak_ptr<Node> m_parent;
     std::vector<std::shared_ptr<Node>> m_children;
