@@ -8,6 +8,10 @@ ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHan
 	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
+ScriptSystem::~ScriptSystem()
+{
+}
+
 void ScriptSystem::Start()
 {
 	m_scriptManager.Start();

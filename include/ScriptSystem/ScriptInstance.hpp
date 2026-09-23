@@ -102,7 +102,5 @@ inline sol::protected_function_result ScriptInstance::Call(
 		//TODO: Add to logger here
 	}
 
-
-
 	return function(std::forward<Args>(args)...);
 }
