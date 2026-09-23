@@ -15,26 +15,24 @@ using json = nlohmann::json;
 
 namespace Droplet
 {
-	bool AssimpLoader::LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, ResourceRecord &p_resourceRecord)
+	std::unique_ptr<MeshResource> AssimpLoader::LoadMesh(const std::string &p_meshFile, const json &p_typeSpecificData)
 	{
-		p_typeSpecificData;
+		p_typeSpecificData; // HACK
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
-			//aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_SortByPType);
 
 		if (meshData == nullptr)
 		{
-			// Log Error: Failed reading mesh file. (m_importer.GetErrorString())
-			std::println("{}", m_importer.GetErrorString()); // Temporary log
-			return false;
+			m_importer.FreeScene();
+			throw std::runtime_error(m_importer.GetErrorString());
 		}
 
 		if (!meshData->HasMeshes())
 		{
-			// Log Error: Mesh does not contain mesh data.
-			return false;
+			m_importer.FreeScene();
+			throw std::runtime_error("Mesh does not contain mesh data.");
 		}
 
 		// Store the mesh data into p_assetRecord.resource
@@ -43,45 +41,79 @@ namespace Droplet
 		std::vector<std::byte> vertexData = BuildVertexData(meshData, vertexByteSize);
 		std::vector<std::uint32_t> indexData = BuildIndexData(meshData);
 
-		if (meshData->HasAnimations())
-		{
-			SkinnedMeshResource skinnedMesh;
-			int parentIndex = -1;
-			aiMesh *mesh = meshData->mMeshes[0];
-			for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
-			{
-				aiBone *bone = mesh->mBones[i];
-				aiMatrix4x4 o = bone->mOffsetMatrix;
-				glm::mat4 offsetMat =
-				{
-					o.a1, o.a2, o.a3, o.a4,
-					o.b1, o.b2, o.b3, o.b4,
-					o.c1, o.c2, o.c3, o.c4,
-					o.d1, o.d2, o.d3, o.d4,
-				};
-				parentIndex = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
-			}
-
-			skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-			p_resourceRecord.resource = std::make_unique<SkinnedMeshResource>(skinnedMesh);
-		}
-		else
-		{
-			MeshResource mesh;
-			mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-			p_resourceRecord.resource = std::make_unique<MeshResource>(mesh);
-		}
+		MeshResource mesh{};
+		mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 
 		// Log Info: Successfully loaded p_meshFile
 		std::println("Successfully loaded {}", p_meshFile); // Temporary log
 
-		return true;
+		m_importer.FreeScene();
+
+		return std::make_unique<MeshResource>(mesh);
 	}
 
-	bool AssimpLoader::LoadAnimation(const std::string p_meshFile, const std::string p_animName, const json &p_typeSpecificData,
-		ResourceRecord &p_resourceRecord)
+	std::unique_ptr<SkinnedMeshResource> AssimpLoader::LoadSkinnedMesh(const std::string &p_meshFile, const json &p_typeSpecificData)
 	{
-		p_typeSpecificData;
+		p_typeSpecificData;	// HACK
+		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			aiProcess_SortByPType);
+
+		if (meshData == nullptr)
+		{
+			m_importer.FreeScene();
+			throw std::runtime_error(m_importer.GetErrorString());
+		}
+
+		if (!meshData->HasMeshes())
+		{
+			m_importer.FreeScene();
+			throw std::runtime_error("Mesh does not contain mesh data.");
+		}
+
+		if (!meshData->HasAnimations())
+		{
+			m_importer.FreeScene();
+			throw std::runtime_error("Mesh does not contain animation data.");
+		}
+
+		std::size_t vertexByteSize = 0; // Size dependent on vertex layout
+		std::vector<MeshResource::VertexAttribute> vertexLayout = CreateVertexLayout(vertexByteSize);
+		std::vector<std::byte> vertexData = BuildVertexData(meshData, vertexByteSize);
+		std::vector<std::uint32_t> indexData = BuildIndexData(meshData);
+
+		SkinnedMeshResource skinnedMesh{};
+		int parentIndex = -1;
+		aiMesh *mesh = meshData->mMeshes[0];
+		for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
+		{
+			aiBone *bone = mesh->mBones[i];
+			aiMatrix4x4 o = bone->mOffsetMatrix;
+			glm::mat4 offsetMat =
+			{
+				o.a1, o.a2, o.a3, o.a4,
+				o.b1, o.b2, o.b3, o.b4,
+				o.c1, o.c2, o.c3, o.c4,
+				o.d1, o.d2, o.d3, o.d4,
+			};
+			parentIndex = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
+		}
+
+		skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
+
+		// Log Info: Successfully loaded p_meshFile
+		std::println("Successfully loaded {}", p_meshFile); // Temporary log
+
+		m_importer.FreeScene();
+
+		return std::make_unique<SkinnedMeshResource>(skinnedMesh);
+	}
+
+	std::unique_ptr<AnimationResource> AssimpLoader::LoadAnimation(const std::string &p_meshFile, const std::string &p_animName,
+		const nlohmann::json &p_typeSpecificData)
+	{
+		p_typeSpecificData; // HACK
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
@@ -90,18 +122,17 @@ namespace Droplet
 
 		if (meshData == nullptr)
 		{
-			// Log Error: Failed reading mesh file. (m_importer.GetErrorString())
-			std::println("{}", m_importer.GetErrorString()); // Temporary log
-			return false;
+			m_importer.FreeScene();
+			throw std::runtime_error(m_importer.GetErrorString());
 		}
 
 		if (!meshData->HasAnimations())
 		{
-			// Log Error: Mesh does not contain animation data.
-			return false;
+			m_importer.FreeScene();
+			throw std::runtime_error("Mesh does not contain animation data.");
 		}
 
-		std::vector<AnimationResource::AnimKeyframe> animKeyframes;
+		std::vector<AnimationResource::AnimKeyframe> animKeyframes{};
 		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
 		{
 			aiAnimation *anim = meshData->mAnimations[i];
@@ -115,7 +146,7 @@ namespace Droplet
 			for (std::size_t j = 0; j < anim->mNumChannels; j++) // Channels are bones
 			{
 				aiNodeAnim *nodeAnim = anim->mChannels[j]; // Current bone
-				AnimationResource::AnimKeyframe animKeyframe;
+				AnimationResource::AnimKeyframe animKeyframe{};
 				for (std::uint32_t k = 0; k < nodeAnim->mNumPositionKeys; k++)
 				{
 					animKeyframe.time = static_cast<float>(nodeAnim->mPositionKeys[k].mTime / anim->mTicksPerSecond);
@@ -134,16 +165,19 @@ namespace Droplet
 					animKeyframes.push_back(animKeyframe);
 				}
 			}
+
+			// Sorts the vector from lowest to highest based of AnimationResource::AnimKeyframe::time
 			std::sort(animKeyframes.begin(), animKeyframes.end(),
 				[](const AnimationResource::AnimKeyframe &a, const AnimationResource::AnimKeyframe &b) {
 					return a.time < b.time;
 				});
+
+			// Erases duplicate elements based of AnimationResource::AnimKeyframe::time
 			animKeyframes.erase(std::unique(animKeyframes.begin(), animKeyframes.end(),
 				[](const AnimationResource::AnimKeyframe &a, const AnimationResource::AnimKeyframe &b) {
 					return a.time == b.time;
 				}),
 				animKeyframes.end());
-
 			
 			std::uint32_t posIndex = 0, rotIndex = 0, scaIndex = 0; // Translation indices
 			for (AnimationResource::AnimKeyframe &a : animKeyframes) // Store each bone keyframe
@@ -184,26 +218,27 @@ namespace Droplet
 			}
 		}
 
- 		AnimationResource animation;
+		AnimationResource animation{};
 		animation.SetName(p_animName);
 		animation.SetKeyframes(animKeyframes);
-		p_resourceRecord.resource = std::make_unique<AnimationResource>(animation);
 
 		// Log Info: Successfully loaded p_meshFile
 		std::println("Successfully loaded {}", p_meshFile); // Temporary log
 
-		return true;
+		m_importer.FreeScene();
+
+		return std::make_unique<AnimationResource>(animation);
 	}
 
-	std::vector<std::pair<ResourceType, std::string>> AssimpLoader::ListAssetResources(const std::string p_meshFile)
+	std::vector<std::pair<ResourceType, std::string>> AssimpLoader::ListAssetResources(const std::string &p_meshFile)
 	{
-		std::vector<std::pair<ResourceType, std::string>> resourceList;
+		std::vector<std::pair<ResourceType, std::string>> resourceList{};
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), 0);
 
 		if (meshData == nullptr)
 		{
-			// Log Error: Failed reading mesh file. (m_importer.GetErrorString())
-			std::println("{}", m_importer.GetErrorString()); // Temporary log
+			m_importer.FreeScene();
+			throw std::runtime_error(m_importer.GetErrorString());
 			return resourceList; // Return empty list
 		}
 
@@ -217,25 +252,28 @@ namespace Droplet
 
 			for (std::uint32_t i = 0; i < meshData->mNumMeshes; i++)
 			{
-				resourceList.push_back(std::make_pair(rType, meshData->mMeshes[i]->mName.C_Str()));
+				resourceList.emplace_back(rType, meshData->mMeshes[i]->mName.C_Str());
 			}
 
 			if (rType == ResourceType::SkinnedMesh && meshData->HasAnimations())
 			{
 				for (std::uint32_t i = 0; i < meshData->mNumAnimations; i++)
 				{
-					resourceList.push_back(std::make_pair(ResourceType::Animation, meshData->mAnimations[i]->mName.C_Str()));
+					resourceList.emplace_back(ResourceType::Animation, meshData->mAnimations[i]->mName.C_Str());
 				}
 			}
 		}
 
+		m_importer.FreeScene();
+
 		return resourceList;
 	}
 
-	std::vector<std::byte> AssimpLoader::BuildVertexData(const aiScene *&p_meshData, const std::size_t p_vertexByteSize)
+	std::vector<std::byte> AssimpLoader::BuildVertexData(const aiScene *&p_meshData, const std::size_t &p_vertexByteSize)
 	{
-		std::vector<float> vertices;
 		aiMesh *mesh = p_meshData->mMeshes[0];
+		std::vector<float> vertices{};
+		vertices.reserve(mesh->mNumVertices * p_vertexByteSize / sizeof(float));
 		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 		{
 			// Manually add the vertex data based of the defined vertex layout
@@ -252,16 +290,16 @@ namespace Droplet
 		}
 
 		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
-		memcpy(vertexData.data(), vertices.data(), mesh->mNumVertices * p_vertexByteSize);
+		std::memcpy(vertexData.data(), vertices.data(), mesh->mNumVertices * p_vertexByteSize);
 
 		return vertexData;
 	}
 
 	std::vector<std::uint32_t> AssimpLoader::BuildIndexData(const aiScene *&p_meshData)
 	{
-		std::vector<std::uint32_t> indices;
 		aiMesh *mesh = p_meshData->mMeshes[0];
-
+		std::vector<std::uint32_t> indices{};
+		indices.reserve(static_cast<std::size_t>(mesh->mNumFaces * 3)); // Assuming the mesh is triangulated
 		// Indices are stored in each face
 		for (std::uint32_t i = 0; i < mesh->mNumFaces; i++)
 		{

@@ -22,7 +22,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     Droplet::AssimpLoader assimpLoader;
     Droplet::ResourceRecord assetRecord;
-    assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json(), assetRecord);
+    assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
     
     Droplet::ResourceLoader::TextureLoader resourceTexture;
 
