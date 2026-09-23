@@ -15,7 +15,7 @@ using json = nlohmann::json;
 
 namespace Droplet
 {
-	bool AssimpLoader::LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord)
+	bool AssimpLoader::LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, ResourceRecord &p_resourceRecord)
 	{
 		p_typeSpecificData;
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
@@ -63,13 +63,13 @@ namespace Droplet
 			}
 
 			skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-			p_assetRecord.resource = std::make_shared<SkinnedMeshResource>(skinnedMesh);
+			p_resourceRecord.resource = std::make_unique<SkinnedMeshResource>(skinnedMesh);
 		}
 		else
 		{
 			MeshResource mesh;
 			mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-			p_assetRecord.resource = std::make_shared<MeshResource>(mesh);
+			p_resourceRecord.resource = std::make_unique<MeshResource>(mesh);
 		}
 
 		// Log Info: Successfully loaded p_meshFile
@@ -79,7 +79,7 @@ namespace Droplet
 	}
 
 	bool AssimpLoader::LoadAnimation(const std::string p_meshFile, const std::string p_animName, const json &p_typeSpecificData,
-		AssetRecord &p_assetRecord)
+		ResourceRecord &p_resourceRecord)
 	{
 		p_typeSpecificData;
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
@@ -187,7 +187,7 @@ namespace Droplet
  		AnimationResource animation;
 		animation.SetName(p_animName);
 		animation.SetKeyframes(animKeyframes);
-		p_assetRecord.resource = std::make_shared<AnimationResource>(animation);
+		p_resourceRecord.resource = std::make_unique<AnimationResource>(animation);
 
 		// Log Info: Successfully loaded p_meshFile
 		std::println("Successfully loaded {}", p_meshFile); // Temporary log

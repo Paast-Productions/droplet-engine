@@ -1,14 +1,12 @@
 #pragma once
 
-#include <asset/AssetManager.hpp>
+#include <asset/ResourceManager.hpp>
 #include "asset/Resource.hpp"
 
 #include <vector>
 #include <string>
 #include <utility>
 #include <assimp/Importer.hpp>
-
-using json = nlohmann::json;
 
 namespace Droplet
 {
@@ -22,18 +20,18 @@ namespace Droplet
 		/// @brief Loads a mesh file.
 		/// @param p_meshFile File path of mesh.
 		/// @param p_typeSpecificData Mesh specific import settings.
-		/// @param p_assetRecord Contains relevant information about a specific loaded asset.
+		/// @param p_resourceRecord Contains relevant information about a specific loaded resource.
 		/// @return A boolean. True if the mesh successfully loaded, else false.
-		bool LoadMesh(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord);
+		bool LoadMesh(std::string p_meshFile, const nlohmann::json &p_typeSpecificData, ResourceRecord &p_resourceRecord);
 
 		/// @brief Loads an animation file.
 		/// @param p_meshFile File path of animation.
 		/// @param p_animName The specified animation to be loaded.
 		/// @param p_typeSpecificData Mesh specific import settings.
-		/// @param p_assetRecord Contains relevant information about a specific loaded asset.
+		/// @param p_resourceRecord Contains relevant information about a specific loaded resource.
 		/// @return A boolean. True if the animation successfully loaded, else false.
-		bool LoadAnimation(const std::string p_meshFile, const std::string p_animName, const json &p_typeSpecificData, 
-			AssetRecord &p_assetRecord);
+		bool LoadAnimation(const std::string p_meshFile, const std::string p_animName, const nlohmann::json &p_typeSpecificData, 
+			ResourceRecord &p_resourceRecord);
 
 		/// @brief Lists all resources in a mesh
 		/// @param p_meshFile File path of mesh.
