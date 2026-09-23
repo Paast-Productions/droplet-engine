@@ -4,66 +4,108 @@
 #include <print>
 
 bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath, 
-    [[maybe_unused]] const std::vector<LuaClassDefinition> p_classes)
+    const std::vector<LuaGlobalFunctionDefinition>& p_globals, 
+    const std::vector<LuaClassDefinition>& p_classes)
 {
-
-    //std::print("Generating Lua API at: {}\n",std::filesystem::absolute(p_outputPath).string());
-
     std::ofstream file(p_outputPath);
 
-    if (!file.is_open()) {
-        //std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
-
+    if (!file.is_open()) 
+    {
+        std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
+		//TODO : send to logging manager
         return false;
     }
-    
+
+
+    GenerateGlobal(file, p_globals);
+    GenerateClasses(file, p_classes);
+
+    file.close();
+
+    return true;
+}
+
+void LuaApiGenerator::GenerateGlobal(std::ofstream& p_file,
+    const std::vector<LuaGlobalFunctionDefinition> p_globalFunctions)
+{
+    for (const LuaGlobalFunctionDefinition& function : p_globalFunctions)
+    {
+        for (const LuaParameterDefinition& parameter : function.parameters)
+        {
+            p_file << "---@param "
+                << parameter.name
+                << " "
+                << parameter.type
+                << "\n";
+        }
+
+        if (function.returnType != "void")
+        {
+            p_file << "---@return "
+                << function.returnType
+                << "\n";
+        }
+
+        p_file << "function "
+            << function.name
+            << "(";
+
+        for (std::size_t i = 0; i < function.parameters.size(); ++i)
+        {
+            p_file << function.parameters[i].name;
+
+            if (i + 1 < function.parameters.size())
+            {
+                p_file << ", ";
+            }
+        }
+
+        p_file << ") end\n\n";
+    }
+}
+
+void LuaApiGenerator::GenerateClasses(std::ofstream& p_file, 
+    const std::vector<LuaClassDefinition>& p_classes)
+{
     for (const LuaClassDefinition& luaClass : p_classes)
     {
-        file << "---@class " << luaClass.name << "\n";
-        file << luaClass.name << " = {}\n\n";
+        p_file << "---@class " << luaClass.name << "\n";
+        p_file << luaClass.name << " = {}\n\n";
 
         for (const LuaFunctionDefinition& luaFunction : luaClass.functions)
         {
             for (const LuaParameterDefinition& luaParameter : luaFunction.parameters)
             {
-                file << "---@param "
-                     << luaParameter.name
-                     << " "
-                     << luaParameter.type
-                     << "\n";
+                p_file << "---@param "
+                    << luaParameter.name
+                    << " "
+                    << luaParameter.type
+                    << "\n";
             }
 
             if (luaFunction.returnType != "void")
             {
-                file << "---@return "
-                     << luaFunction.returnType
-                     << "\n";
+                p_file << "---@return "
+                    << luaFunction.returnType
+                    << "\n";
             }
 
-            file << "function "
-                 << luaClass.name
-                 << ":"
-                 << luaFunction.name
-                 << "(";
+            p_file << "function "
+                << luaClass.name
+                << luaFunction.name
+                << "(";
 
             for (std::size_t i = 0; i < luaFunction.parameters.size(); ++i)
             {
-                file << luaFunction.parameters[i].name;
+                p_file << luaFunction.parameters[i].name;
 
                 if (i + 1 < luaFunction.parameters.size())
                 {
-                    file << ", ";
+                    p_file << ", ";
                 }
             }
 
-            file << ") end\n\n";
+            p_file << ") end\n\n";
         }
     }
-
-
-    file.close();
-
-    std::print("Generated Lua API definition: {}\n", p_outputPath.string());
-
-    return true;
 }

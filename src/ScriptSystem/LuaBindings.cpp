@@ -3,34 +3,56 @@
 #include <print>
 #include <filesystem>
 
+std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
 std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
 
 void LuaBindings::RegisterBindings(sol::state_view p_luaState) 
 {
+    RegisterGlobalFunctions(p_luaState);
 	RegisterTestNode(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
 
-	LuaApiGenerator::Generate(scriptDirectory / "ScriptSystem.d.lua", m_luaClassDefinitions);
+    std::filesystem::path path = scriptDirectory / "ScriptSystem.d.lua";
+	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions);
+}
+
+void LuaBindings::RegisterGlobalFunctions([[maybe_unused]] sol::state_view p_luaState)
+{
+    m_luaGlobalDefinitions =
+    {
+        {
+            "OnStart",
+            "void",
+            {}
+        },
+        {
+            "OnUpdate",
+            "void",
+            {
+                { "dt", "number" }
+            }
+        }
+    };
 }
 
 void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<TestNode>(
 		"TestNode",
-		"set_position", &TestNode::setPosition,
-		"get_x", &TestNode::getX,
-		"get_y", &TestNode::getY,
-		"get_z", &TestNode::getZ,
-		"print_message", & TestNode::printMessage 
+		"Set_position", &TestNode::setPosition,
+		"Get_x", &TestNode::getX,
+		"Get_y", &TestNode::getY,
+		"Get_z", &TestNode::getZ,
+		"Print_message", & TestNode::printMessage 
 	);
 
 	LuaClassDefinition testNode;
     testNode.functions =
     {
         {
-            "set_position",
+            "Set_position",
             "void",
             {
                 { "x", "number" },
@@ -39,17 +61,17 @@ void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
             }
         },
         {
-            "get_x",
+            "Get_x",
             "number",
             {}
         },
         {
-            "get_y",
+            "Get_y",
             "number",
             {}
         },
         {
-            "get_z",
+            "Get_z",
             "number",
             {}
         }
@@ -57,3 +79,4 @@ void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
 
     m_luaClassDefinitions.push_back(testNode);
 }
+

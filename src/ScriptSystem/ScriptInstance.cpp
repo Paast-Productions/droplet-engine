@@ -22,8 +22,8 @@ ScriptInstance::ScriptInstance(TestNode *p_testNode, LuaStateHandler &p_stateHan
 		return;
 	}
 
-	m_onStart = m_environment["onStart"];
-	m_onUpdate = m_environment["onUpdate"];
+	m_onStart = m_environment["OnStart"];
+	m_onUpdate = m_environment["OnUpdate"];
 }
 
 ScriptInstance::~ScriptInstance()

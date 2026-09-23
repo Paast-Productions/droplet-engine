@@ -19,6 +19,8 @@ public:
 	static void RegisterBindings(sol::state_view p_luaState);
 
 private:
+
+	static void RegisterGlobalFunctions(sol::state_view p_luaState);
 	/// @brief Registers the TestNode type with Lua.
 	/// Exposes the functionality of TestNode that is intended to be accessible from Lua scripts.
 	/// @param p_luaState Lua state in which the TestNode bindings should be registered.
@@ -27,5 +29,6 @@ private:
 	// TODO: Implement additional engine bindings as functionality is added.
 
 private:
+	static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
 	static std::vector<LuaClassDefinition> m_luaClassDefinitions;
 };

@@ -6,7 +6,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	ScriptSystem scriptSystem;
     scriptSystem.SetScriptPath("../../../src/TestScripts");
-	TestNode testNode;
+
+    scriptSystem.Start();
+    scriptSystem.Update(1.0);
     TestNode guptaNode;
 
     scriptSystem.CreateScript(&guptaNode, "guptaTestScript.lua");
@@ -17,7 +19,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     while (true)
     {
         scriptSystem.Update(1.0);
-        std::cout << testNode.getX() << '\n';
+        //std::cout << testNode.getX() << '\n';
     }
 
     return 0;
