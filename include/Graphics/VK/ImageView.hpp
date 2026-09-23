@@ -53,17 +53,31 @@ namespace Droplet::Graphics::VK
 			uint32_t p_width, 
 			uint32_t p_height,
 			vk::Format p_format,
+			vk::ImageAspectFlagBits p_aspectFlagBits,
 			vk::ImageTiling p_tiling,
 			vk::ImageUsageFlags p_usage,
 			vk::MemoryPropertyFlags p_properties);
 
 		/// @brief Image getter
 		/// @return pointer to the image
-		const vk::raii::Image *GetImage();
+		inline const vk::raii::Image *GetImage()
+		{
+			return &m_image;
+		}
 
 		/// @brief ImageView getter
 		/// @return pointer to the imageview
-		const vk::raii::ImageView *GetView();
+		inline const vk::raii::ImageView *GetView()
+		{
+			return &m_view;
+		}
+
+		/// @brief DeviceMemory getter
+		/// @return pointer to the device memory
+		inline const vk::raii::DeviceMemory *GetMemory()
+		{
+			return &m_imageMemory;
+		}
 	private:
 		vk::raii::Image m_image = nullptr;
 		vk::raii::ImageView m_view = nullptr;

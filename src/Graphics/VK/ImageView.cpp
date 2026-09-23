@@ -83,7 +83,8 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 					 const vk::raii::PhysicalDevice &p_physicalDevice, 
 					 uint32_t p_width, 
 					 uint32_t p_height, 
-					 vk::Format p_format, 
+					 vk::Format p_format,
+					 vk::ImageAspectFlagBits p_aspectFlagBits,
 					 vk::ImageTiling p_tiling, 
 					 vk::ImageUsageFlags p_usage, 
 					 vk::MemoryPropertyFlags p_properties)
@@ -106,4 +107,10 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 	m_imageMemory = vk::raii::DeviceMemory(p_device, allocInfo);
 	m_image.bindMemory(m_imageMemory, 0);
 
+	vk::ImageViewCreateInfo viewInfo{
+		.image = m_image,
+		.viewType = vk::ImageViewType::e2D,
+		.format = p_format,
+		.subresourceRange = {.aspectMask = p_aspectFlagBits, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1} };
+	m_view = vk::raii::ImageView(p_device, viewInfo);
 }
