@@ -1,5 +1,5 @@
 ﻿project "json"
-    kind "StaticLib"
+    kind "Utility"
     location(projectsPath)
 
     warnings "Off"

@@ -16,17 +16,11 @@ project "Engine"
         targetBuildPath .. "/External/include/"
     }
 
-    libdirs
-    {
-        targetBuildPath .. "/External/lib/",
-        targetBuildPath .. "/External/lib64/"
-    }
-
     dependson
     {
-        "GoogleTest",
         "ImGui",
-	    "Jolt"
+        "json"
+        --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 

@@ -22,7 +22,7 @@ project "Test"
         vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
-
+    
     libdirs
     {
         targetBuildPath .. "/External/lib",
@@ -37,6 +37,6 @@ project "Test"
 
     links
     {
-        "Engine", 
+        "Engine",
         "gtest"
     }

@@ -1,4 +1,4 @@
-project "Transform"
+project "Vulkan-HelloTriangle"
 
     kind "ConsoleApp"
     location(projectPath)
@@ -9,8 +9,7 @@ project "Transform"
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        rootPath .. "/Samples/Transform/TransformMain.cpp",
-        rootPath .. "/src/Transform.cpp"
+        rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",
     }
         
     local vkPath = os.getenv("VULKAN_SDK")

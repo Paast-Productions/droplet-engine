@@ -52,7 +52,7 @@ void Logger::ProcessQueue()
         std::string timeStr = std::format("{:%Y-%m-%d %H:%M:%S}", local_time);
         std::string threadStr = std::format("{}", std::this_thread::get_id());
 
-        json j = nlohmann::json{
+        json j {
             {"Level",     logEntry.status},
             {"Timestamp", timeStr},
             {"Message",   logEntry.msg},
