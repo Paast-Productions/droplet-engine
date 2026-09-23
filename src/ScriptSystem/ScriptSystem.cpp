@@ -1,4 +1,6 @@
 #include "ScriptSystem.hpp"
+#include "LuaBindings.hpp"
+
 #include <print>
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)

@@ -2,6 +2,7 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include <sol/sol.hpp>
 #include "LuaStateHandler.hpp"
+#include "LuaApiGenerator.hpp"
 
 /// @brief Registers engine functionality and types for use in Lua.
 /// LuaBindings provides the interface between the C++ engine and the Lua
@@ -24,4 +25,7 @@ private:
 	static void RegisterTestNode(sol::state_view p_luaState);
 
 	// TODO: Implement additional engine bindings as functionality is added.
+
+private:
+	static std::vector<LuaClassDefinition> m_luaClassDefinitions;
 };

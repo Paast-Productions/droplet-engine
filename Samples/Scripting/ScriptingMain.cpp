@@ -19,16 +19,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scriptSystem.Call(&guptaNode, "backflip");
     auto var = scriptSystem.Call(&guptaNode, "fishflip", 5, 2,3);
 
-    scriptSystem.ActivateScript(&testNode);
-    for (int i = 0; i < 3; ++i)
+    while (true)
     {
-        scriptSystem.Update(1.0f);
+        scriptSystem.Update(1.0);
+        std::cout << testNode.getX() << '\n';
     }
-    scriptSystem.DeactivateScript(&testNode);
-    std::cout << testNode.getX() << '\n';
-    std::cout << guptaNode.getX() << '\n';
 
-    scriptSystem.DeactivateScript(&testNode);
-    std::cout << testNode.getX() << '\n';
     return 0;
 } 

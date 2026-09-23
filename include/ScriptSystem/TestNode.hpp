@@ -2,9 +2,12 @@
 
 #include <string>
 
+/// @brief Testnode to test stuff with
 class TestNode
 {
 public: 
+	/// @brief setPositon of node
+	/// @param x, y, z cordinates
 	void setPosition(float x, float y, float z)
 	{
 		m_x = x;
@@ -12,6 +15,8 @@ public:
 		m_z = z;
 	};
 		
+	/// @brief GetX position of node
+	/// @return x coordinate as a float
 	float getX() const;
 	float getY() const;
 	float getZ() const;

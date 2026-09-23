@@ -1,16 +1,14 @@
-
 function onUpdate(dt)
 	self:set_position(
-		self:get_x() + 1.0 *dt,
+		self:get_x() + 2.0 *dt,
 		self:get_y(),
 		self:get_z()
 	)
 	print("Gupta updating")
 end
 
-
 function onStart()
-	print("Gupta says hello")
+	print(TestDefinitionTest)
 end
 
 function backflip()
@@ -18,11 +16,6 @@ function backflip()
 end
 
 function fishflip(a,b,c)
-	print("Gupta does fish flip")
-	self:set_position(
-		self:get_x()+a+b+c,
-		self:get_y(),
-		self:get_z()
-	)
-	return (a+b+c)
+	print("Toe does a frontflip")
+	self:set_position()
 end
