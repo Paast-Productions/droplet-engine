@@ -45,18 +45,18 @@ public:
 
 	/// @brief Deactivates a script component.
 	/// A deactivated script component will no longer participate in the
-	/// scripting system's update and execution flow.
+	/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
 	/// @param p_scriptComponent Script component to deactivate.
 	void DeactivateScript(TestNode *p_scriptComponent);
 
 	/// @brief Creates a script instance for a component.
-	/// @param testNode Node that will own the script instance.
+	/// @param testNode Component that will connect to the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
-	/// @return Pointer to the newly created script instance.
+	/// @return Returns if the script instance could correctly be created
 	bool CreateScript(TestNode *p_scriptComponent, const std::string &p_scriptFile);
 
-	/// @brief Destroys a script instance.
-	/// @param p_scriptInstance Script instance to destroy.
+	/// @brief Detaches components to a certain script
+	/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
 	void DetachAllInstancesToScript(const std::string &p_scriptPath);
 
 	bool SetScriptPath(const std::string &p_directoryPath);

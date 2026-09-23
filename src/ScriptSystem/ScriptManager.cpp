@@ -9,7 +9,7 @@ ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p
 
 void ScriptManager::Start()
 {
-	for (auto& instance : m_activeScripts)
+	for (auto &instance : m_activeScripts)
 	{
 		instance->OnStart();
 	}
@@ -17,13 +17,13 @@ void ScriptManager::Start()
 
 void ScriptManager::Update(float p_deltaTime)
 {
-	for (auto& instance : m_activeScripts)
+	for (auto &instance : m_activeScripts)
 	{
 		instance->OnUpdate(p_deltaTime);
 	}
 }
 
-bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, const std::string& p_scriptFile)
+bool ScriptManager::CreateScript([[maybe_unused]] TestNode *p_scriptComponent, const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -36,7 +36,7 @@ bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, c
 	}
 	std::print("load script successfully\n");
 
-	sol::load_result* loadResult = GetLoadedScript(p_scriptFile);
+	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
 	if (loadResult == nullptr)
 	{
 		//Send to logging manager
@@ -50,7 +50,7 @@ bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, c
 	}
 
 	std::unordered_map<TestNode*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
-	ScriptInstance* oldinstance = nullptr;
+	ScriptInstance *oldinstance = nullptr;
 
 	if (existing != m_scripts.end())
 	{
@@ -60,7 +60,7 @@ bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, c
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
 	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
 
-	ScriptInstance* instance = scriptInstance.get();
+	ScriptInstance *instance = scriptInstance.get();
 
 	if (oldinstance != nullptr)
 	{
@@ -71,7 +71,7 @@ bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, c
 	return true;
 }
 
-void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
+void ScriptManager::DetachScript([[maybe_unused]] TestNode *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
@@ -85,7 +85,7 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
 		return;
 	}
 	
-	ScriptInstance* instance = it->second;
+	ScriptInstance *instance = it->second;
 	// Destroy it
 	DestroyInstance(instance);
 }
@@ -94,7 +94,7 @@ void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 {
 	std::vector<ScriptInstance*> instanceToKill;
 
-	for (const std::unique_ptr<ScriptInstance>& instance : m_scriptInstances)
+	for (const std::unique_ptr<ScriptInstance> &instance : m_scriptInstances)
 	{
 		if (instance->GetScriptPath() == p_scritpfile)
 		{
@@ -102,7 +102,7 @@ void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 		}
 	}
 
-	for (ScriptInstance* instance : instanceToKill)
+	for (ScriptInstance *instance : instanceToKill)
 	{
 		DestroyInstance(instance);
 	}
@@ -239,7 +239,7 @@ void ScriptManager::CheckForFileChanges()
 	}
 }
 
-sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
+sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
 	
@@ -251,7 +251,7 @@ sol::load_result* ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	return &it->second.loadResult;
 }
 
-void ScriptManager::ActivateScript(TestNode* p_scriptComponent)
+void ScriptManager::ActivateScript(TestNode *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
@@ -264,7 +264,7 @@ void ScriptManager::ActivateScript(TestNode* p_scriptComponent)
 		return;
 	}
 
-	ScriptInstance* instance = it->second;
+	ScriptInstance *instance = it->second;
 
 	if (std::find(m_activeScripts.begin(), m_activeScripts.end(), instance) != m_activeScripts.end())
 	{
@@ -273,7 +273,7 @@ void ScriptManager::ActivateScript(TestNode* p_scriptComponent)
 	m_activeScripts.push_back(instance);
 }
 
-void ScriptManager::DeactivateScript(TestNode* p_scriptComponent)
+void ScriptManager::DeactivateScript(TestNode *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
@@ -286,7 +286,7 @@ void ScriptManager::DeactivateScript(TestNode* p_scriptComponent)
 		return;//no script found
 	}
 
-	ScriptInstance* instance = it->second;
+	ScriptInstance *instance = it->second;
 	std::vector<ScriptInstance*>::iterator activeIt = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
 	if (activeIt == m_activeScripts.end())
 	{
@@ -330,7 +330,7 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 	return {};
 }
 
-void ScriptManager::DestroyInstance(ScriptInstance* p_scriptInstance)
+void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 {
 	if (p_scriptInstance == nullptr)
 	{
