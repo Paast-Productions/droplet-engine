@@ -2,7 +2,6 @@
 
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
-#include "LuaBindings.hpp"
 
 /// @brief Provides the main interface for the engine's Lua scripting system.
 /// ScriptSystem manages the lifecycle of scripts and coordinates between the
@@ -54,7 +53,7 @@ public:
 	/// @param testNode Node that will own the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
 	/// @return Pointer to the newly created script instance.
-	ScriptInstance* CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
+	bool CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
 
 	/// @brief Destroys a script instance.
 	/// @param p_scriptInstance Script instance to destroy.

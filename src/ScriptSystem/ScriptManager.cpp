@@ -23,7 +23,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, const std::string& p_scriptFile)
+bool ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptComponent, const std::string& p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -31,7 +31,7 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 		{
 			//The script was not loaded and failed to load
 			std::print("failed to load script\n");
-			return nullptr;
+			return false;
 		}
 	}
 	std::print("load script successfully\n");
@@ -40,13 +40,13 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 	if (loadResult == nullptr)
 	{
 		//Send to logging manager
-		return nullptr;
+		return false;
 	}
 	
 	if (p_scriptComponent == nullptr)
 	{
 		//Send error
-		return nullptr;
+		return false;
 	}
 
 	std::unordered_map<TestNode*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
@@ -68,7 +68,7 @@ ScriptInstance* ScriptManager::CreateScript([[maybe_unused]] TestNode* p_scriptC
 	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_scripts[p_scriptComponent] = instance;
-	return instance;
+	return true;
 }
 
 void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)

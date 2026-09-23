@@ -20,9 +20,9 @@ TEST(ScriptManager, CreateScript)
 	TestNode testNode;
 
 	manager.SetScriptDirectory("../src/TestScripts");
-	ScriptInstance* instance = manager.CreateScript(&testNode, "testScript.lua");
+	bool result = manager.CreateScript(&testNode, "testScript.lua");
 
-	EXPECT_NE(instance, nullptr);
+	EXPECT_TRUE(result);
 }
 
 TEST(ScriptManager, DestroyScript)
@@ -33,10 +33,10 @@ TEST(ScriptManager, DestroyScript)
 	TestNode testNode;
 
 	manager.SetScriptDirectory("../src/TestScripts");
-	ScriptInstance* instance = manager.CreateScript(&testNode, "testScript.lua");
+	manager.CreateScript(&testNode, "testScript.lua");
 	manager.DestroyScript("testScript.lua");
 
-	EXPECT_EQ(instance, nullptr);
+	EXPECT_EQ(&testNode, nullptr);
 }
 
 TEST(ScriptManager, LoadScript)

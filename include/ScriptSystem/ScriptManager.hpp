@@ -77,7 +77,7 @@ public:
 	/// @param p_scriptComponent Component that will own the script instance.
 	/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 	/// @return Pointer to the created ScriptInstance.
-	ScriptInstance* CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
+	bool CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
 
 	/// @brief Detaches the script instance from a component.
 	/// This removes the relationship between the specified component and its
@@ -222,7 +222,7 @@ inline sol::protected_function_result ScriptManager::Call(
 	if (activeIterator == m_activeScripts.end())
 	{
 		//tried to call on an inactive component
-		return{};
+		return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 		//send error to logger 
 	}
 

@@ -23,8 +23,8 @@ TEST(ScriptSystem, CreateScript)
 	system.SetScriptPath("../src/TestScripts");
 	TestNode testNode;
 
-	ScriptInstance* instance = system.CreateScript(&testNode, "testScript.lua");
-	EXPECT_NE(instance, nullptr);
+	bool result = system.CreateScript(&testNode, "testScript.lua");
+	EXPECT_TRUE(result);
 }
 
 TEST(ScriptSystem, DestroyScript)
@@ -33,12 +33,12 @@ TEST(ScriptSystem, DestroyScript)
 	system.SetScriptPath("../src/TestScripts");
 	TestNode testNode;
 
-	ScriptInstance* instance = system.CreateScript(&testNode, "testScript.lua");
+	system.CreateScript(&testNode, "testScript.lua");
 	
 	//Function DestroyScript should destroy instance not an entire script
 	//system.DestroyScript(instance);
 
-	EXPECT_EQ(instance, nullptr);
+	EXPECT_EQ(&testNode, nullptr);
 }
 
 TEST(ScriptSystem, ActivateScript)
