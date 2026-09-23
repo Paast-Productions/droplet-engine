@@ -4,31 +4,69 @@
 
 TEST(ScriptSystem, LoadScript)
 {
-	std::string scriptPath = "testScript.lua";
-	ScriptSystem scriptSystem;
-	EXPECT_TRUE(scriptSystem.LoadScript(scriptPath));
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	EXPECT_TRUE(system.LoadScript("testScript.lua"));
 }
 
 TEST(ScriptSystem, UnloadScript)
 {
-	std::string scriptPath = "testScript.lua";
-	ScriptSystem scriptSystem;
-	scriptSystem.LoadScript(scriptPath);
-	EXPECT_TRUE(scriptSystem.UnloadScript(scriptPath));
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	system.LoadScript("testScript.lua");
+	EXPECT_TRUE(system.UnloadScript("testScript.lua"));
 }
 
-TEST(ScriptSystem, CreateScript_not_yet_made)
+TEST(ScriptSystem, CreateScript)
 {
-	//Ändra på testnode så att den är en component
-	//Skapa ett skript och kolla om ScriptInstance är okej.
-	EXPECT_TRUE(false);
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	TestNode testNode;
+
+	ScriptInstance* instance = system.CreateScript(&testNode, "testScript.lua");
+	EXPECT_NE(instance, nullptr);
 }
 
-TEST(ScriptSystem, DestroyScript_not_yet_made)
+TEST(ScriptSystem, DestroyScript)
 {
-	//Kan endast implementeras efter att CreateScript är klar
-	//Skapa en scriptinstance med hjälp av CreateScript
-	//Se till att ha koll på ScriptInstance
-	//Kör DestroyScript och kolla om ScriptInstance har försvunnit
-	EXPECT_TRUE(false);
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	TestNode testNode;
+
+	ScriptInstance* instance = system.CreateScript(&testNode, "testScript.lua");
+	
+	//Function DestroyScript should destroy instance not an entire script
+	//system.DestroyScript(instance);
+
+	EXPECT_EQ(instance, nullptr);
+}
+
+TEST(ScriptSystem, ActivateScript)
+{
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	TestNode testNode;
+
+	system.CreateScript(&testNode, "bruh.lua");
+	system.ActivateScript(&testNode);
+	system.Update(1);
+	float result = system.Call(&testNode, "getDT");
+
+	EXPECT_EQ(result, 1);
+}
+
+TEST(ScriptSystem, DeactivateScript)
+{
+	ScriptSystem system;
+	system.SetScriptPath("../src/TestScripts");
+	TestNode testNode;
+
+	system.CreateScript(&testNode, "bruh.lua");
+	system.ActivateScript(&testNode);
+	system.Update(1);
+	system.DeactivateScript(&testNode);
+	system.Update(1);
+	float result = system.Call(&testNode, "getDT");
+
+	EXPECT_EQ(result, 1);
 }
