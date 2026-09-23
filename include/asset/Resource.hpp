@@ -398,7 +398,7 @@ namespace Droplet
 
 		/// @brief Sets the animation name
 		/// @param p_name The animation name to be set
-		void SetName(const std::string p_name) { m_name = p_name; }
+		void SetName(const std::string &p_name) { m_name = p_name; }
 
 		/// @brief Sets whether the animation should loop.
 		/// @param p_isLooping True if the animation should loop, false otherwise.
