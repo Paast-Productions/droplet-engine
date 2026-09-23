@@ -23,6 +23,19 @@ void ScriptSystem::Update(float p_deltaTime)
 	m_scriptManager.CheckForFileChanges();
 }
 
+
+bool ScriptSystem::CreateScript(ScriptComponent *p_sciptComponent, const std::string &p_scriptFile)
+{
+	bool result = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
+	if (!result)
+	{
+		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
+		return false;
+	}
+	return true;
+}
+
+
 bool ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {
 	return m_scriptManager.LoadScript(p_scriptFile);
@@ -33,26 +46,16 @@ bool ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 	return m_scriptManager.UnloadScript(p_scriptFile);
 }
 
-void ScriptSystem::ActivateScript(TestNode *p_scriptComponent)
+void ScriptSystem::ActivateScript(ScriptComponent *p_scriptComponent)
 {
 	m_scriptManager.ActivateScript(p_scriptComponent);
 }
 
-void ScriptSystem::DeactivateScript(TestNode *p_scriptComponent)
+void ScriptSystem::DeactivateScript(ScriptComponent *p_scriptComponent)
 {
 	m_scriptManager.DeactivateScript(p_scriptComponent);
 }
 
-bool ScriptSystem::CreateScript(TestNode *p_sciptComponent, const std::string &p_scriptFile)
-{
-	bool result = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
-	if (!result)
-	{
-		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
-		return false;
-	}
-	return true;
-}
 bool ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
 	return m_scriptManager.SetScriptDirectory(p_directoryPath);

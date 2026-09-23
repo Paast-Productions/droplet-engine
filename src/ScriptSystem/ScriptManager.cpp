@@ -23,7 +23,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-bool ScriptManager::CreateScript( TestNode *p_scriptComponent, const std::string &p_scriptFile)
+bool ScriptManager::CreateScript(ScriptComponent *p_scriptComponent, const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -49,7 +49,7 @@ bool ScriptManager::CreateScript( TestNode *p_scriptComponent, const std::string
 		return false;
 	}
 
-	std::unordered_map<TestNode*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
+	std::unordered_map<ScriptComponent*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
 	ScriptInstance *oldinstance = nullptr;
 
 	if (existing != m_scripts.end())
@@ -68,16 +68,17 @@ bool ScriptManager::CreateScript( TestNode *p_scriptComponent, const std::string
 	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_scripts[p_scriptComponent] = instance;
+
 	return true;
 }
 
-void ScriptManager::DetachScript( TestNode *p_scriptComponent)
+void ScriptManager::DetachScript(ScriptComponent *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return;
 	}
-	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -251,13 +252,13 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	return &it->second.loadResult;
 }
 
-void ScriptManager::ActivateScript(TestNode *p_scriptComponent)
+void ScriptManager::ActivateScript(ScriptComponent *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return; //No nullptr allowed
 	}
-	std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -273,13 +274,13 @@ void ScriptManager::ActivateScript(TestNode *p_scriptComponent)
 	m_activeScripts.push_back(instance);
 }
 
-void ScriptManager::DeactivateScript(TestNode *p_scriptComponent)
+void ScriptManager::DeactivateScript(ScriptComponent *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return; //No nullptr allowed
 	}
-	std::unordered_map < TestNode*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map <ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -346,7 +347,7 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 		m_activeScripts.pop_back();
 	}
 
-	for (std::unordered_map<TestNode*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	for (std::unordered_map<ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
 	{
 		if (it->second == p_scriptInstance)
 		{

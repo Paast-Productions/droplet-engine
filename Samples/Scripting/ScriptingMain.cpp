@@ -1,6 +1,5 @@
 ﻿#include <print>
 #include "ScriptSystem/ScriptSystem.hpp"
-#include "ScriptSystem/TestNode.hpp"
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
@@ -9,14 +8,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scriptSystem.SetScriptPath("../../../src/TestScripts");
 
     // A scriptComponent is what talks to the script system
-    TestNode scriptComponent;
+    ScriptComponent scriptComponent;
 
     scriptSystem.CreateScript(&scriptComponent, "testScript.lua");
 
     scriptSystem.Start();
     scriptSystem.Update(1.0);
-    TestNode guptaNode;
-
 
     return 0;
 } 

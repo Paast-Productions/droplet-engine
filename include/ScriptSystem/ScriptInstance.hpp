@@ -2,7 +2,8 @@
 
 #include <string>
 #include "LuaStateHandler.hpp"
-#include "TestNode.hpp"
+#include <SceneSystem/Components/ScriptComponent.hpp>
+
 
 /// @brief Represents an instance of a Lua script and its execution environment.
 /// A ScriptInstance associates a Lua script with a TestNode and provides an
@@ -20,7 +21,7 @@ public:
 	/// @param p_script Loaded Lua script used to populate the script environment.
 	/// @param p_scriptPath Path to the Lua script.
 	ScriptInstance(
-		TestNode *p_testNode,
+		ScriptComponent *p_scriptComponent,
 		LuaStateHandler &p_stateHandler,
 		sol::load_result &p_script,
 		const std::string &p_scriptPath);
@@ -61,7 +62,7 @@ public:
 
 private:
 	/// @brief TestNode associated with this script instance.
-	TestNode *m_testNode;
+	ScriptComponent *m_scriptComponent;
 
 	/// @brief Reference to the Lua state used by the script instance.
 	LuaStateHandler &m_stateHandler;

@@ -1,13 +1,13 @@
 #include "ScriptInstance.hpp"
 #include <print>
 
-ScriptInstance::ScriptInstance(TestNode *p_testNode, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
-	m_testNode(p_testNode),
+ScriptInstance::ScriptInstance(ScriptComponent *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
+	m_scriptComponent(p_scriptComponent),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
 	m_scriptPath(p_scriptPath)
 {
-	m_environment["self"] = m_testNode;
+	m_environment["self"] = m_scriptComponent->GetOwner();
 
 	sol::protected_function scriptFunction = p_script;
 
