@@ -103,5 +103,5 @@ private:
 
 	bool								 m_framebufferResized = false;
 
-	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
+	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
