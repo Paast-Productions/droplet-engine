@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <stdexcept>
 
+using namespace Droplet::Scene;
+
 void SceneManager::LoadScene(const std::string &p_name)
 {
     if (m_scenes.contains(p_name))

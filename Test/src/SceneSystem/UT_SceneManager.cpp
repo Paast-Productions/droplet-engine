@@ -3,6 +3,7 @@
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
 
+using namespace Droplet::Scene;
 
 class SceneManagerTest : public ::testing::Test
 {

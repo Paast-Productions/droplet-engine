@@ -1,53 +1,20 @@
 #include "Transform.hpp"
-// #include "Node.hpp"
+#include <Node.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <stdexcept>
 
 using namespace Droplet::Scene;
 
-// HACK: Temporary implementation until actual implementation is accessible.
-class Droplet::Scene::Node
+Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
-public:
-	Node()
+	// Ensure that the Transform is being constructed by its owning Node.
+	if (&(m_owner->GetTransform()) != this)
 	{
-		m_parent = nullptr;
-		std::shared_ptr<Node> self(this, [](Node*) {});
-		m_transform = std::make_unique<Transform>(self);
+		throw std::runtime_error("Transforms may only be constructed by their owning Node.");
 	}
-
-	std::shared_ptr<Node> GetParent() const
-	{
-		return m_parent;
-	}
-
-	std::unique_ptr<Transform> &GetTransform()
-	{
-		return m_transform;
-	}
-
-	void SetParent(std::shared_ptr<Node> parent)
-	{
-		m_parent = parent;
-	}
-
-	void SetTransform(std::unique_ptr<Transform> transform)
-	{
-		m_transform = std::move(transform);
-	}
-
-private:
-	std::shared_ptr<Node> m_parent;
-	std::unique_ptr<Transform> m_transform;
-};
-
-
-Transform::Transform(std::shared_ptr<Node> p_owner) 
-	: m_owner(p_owner)
-{
-
 }
 
 glm::vec3 Transform::GetPosition(Space p_space) const
@@ -128,7 +95,7 @@ glm::vec3 Transform::GetScale() const
 	return m_scale;
 }
 
-glm::mat4 Transform::GetMatrix(Space p_space) const
+glm::mat4 Transform::GetMatrix(Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -143,9 +110,19 @@ glm::mat4 Transform::GetMatrix(Space p_space) const
 	{
 	default:
 	case Space::Local:
+		if (m_isDirty)
+		{
+			UpdateLocalMatrix();
+		}
+
 		return m_localMatrix;
 
 	case Space::World:
+		if (m_isDirty)
+		{
+			RecalculateMatrices();
+		}
+
 		return m_worldMatrix;
 	}
 }
@@ -381,7 +358,11 @@ void Transform::MakeDirty()
 {
 	m_isDirty = true;
 
-	// TODO: Recursively mark children as dirty
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().MakeDirty();
+	}
 }
 
 void Transform::RecalculateMatrices()
@@ -578,11 +559,9 @@ void Transform::UpdateLocalMatrix()
 
 bool Transform::HasParent() const
 {
-	if (!m_owner)
-		return false;
+	assert(m_owner != nullptr && "Transform must have an owner Node.");
 
-	std::weak_ptr<Node> parentNode = m_owner->GetParent();
-	return !parentNode.expired();
+	return m_owner->GetParent() != nullptr;
 }
 
 Transform *Transform::GetParentTransform() const
@@ -590,5 +569,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return m_owner->GetParent()->GetTransform().get();
+	return &(m_owner->GetParent()->GetTransform());
 }

@@ -4,13 +4,26 @@
 #include "Component.hpp"
 #include <stdexcept>
 
-Node::Node(const std::string &p_name)
-    : m_name((p_name))
+using namespace Droplet::Scene;
+
+Node::Node(std::shared_ptr<Scene> p_scene, const std::string &p_name)
+	: m_scene(p_scene), m_name(p_name), m_transform(this)
 {
+    if (!m_scene.lock())
+    {
+        throw std::invalid_argument("Cannot create Node: Scene is null.");
+    }
 }
 
 void Node::Start()
 {
+    auto scene = m_scene.lock();
+
+	if (!scene || !scene->IsActive())
+    {
+        return;
+    }
+
     if (!m_active || m_started)
     {
         return;
@@ -36,8 +49,7 @@ void Node::Update(float p_deltaTime)
         return;
     }
 
-    //update transforms :=
-	//TODO: Implement transform update logic here, including calculating local and world transforms based on position, rotation, and scale.
+	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
     for (const auto &component : m_components)
     {
@@ -48,9 +60,8 @@ void Node::Update(float p_deltaTime)
     {
         child->Update(p_deltaTime);
     }
-
-
 }
+
 void Node::Render()
 {
     if (!m_active)
@@ -59,6 +70,19 @@ void Node::Render()
     }
 
     return;
+}
+
+void Node::RenderUI()
+{
+    // TODO: implement node UI rendering wrapper logic
+
+	// Recursively call RenderUI on components
+    for (const auto &component : m_components)
+    {
+        component->RenderUI();
+    }
+
+    // TODO: implement node UI rendering wrapper logic
 }
 
 void Node::SetActive(bool p_active)
@@ -84,6 +108,22 @@ void Node::SetActive(bool p_active)
 
 bool Node::IsActive() const
 {
+    if (!m_active)
+    {
+        return false;
+    }
+
+	// If the Node has a parent, it is only considered active if its parent is also active.
+    if (auto parent = m_parent.lock())
+    {
+        return parent->IsActive();
+    }
+
+	return true;
+}
+
+bool Node::IsActiveSelf() const
+{
     return m_active;
 }
 
@@ -99,25 +139,45 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
     }
 
-    if (p_child->GetParent())
+	// Check for cycles in the hierarchy
+    if (auto parent = GetParent())
     {
-        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already has a parent.");
+        while (parent)
+        {
+            if (parent == p_child)
+            {
+                throw std::runtime_error(
+                    "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
+                    "Adding a Node as a child of its own descendant would create a cycle."
+                );
+            }
+            parent = parent->GetParent();
+        }
     }
 
-    if (p_child->GetScene())
+    if (p_child->GetScene() != m_scene.lock())
     {
-        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already belongs to a Scene.");
+		throw std::runtime_error(
+            "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
+            "Nodes belong to different Scenes."
+        );
+    }
+
+    if (auto prevParent = p_child->GetParent())
+    {
+		prevParent->RemoveChild(p_child);
+    }
+    else
+    {
+		// Child was a root. Remove it from the scene's root nodes.
+		m_scene.lock()->SetRoot(p_child, false);
     }
 
     p_child->m_parent = shared_from_this();
 
-    if (auto scene = m_scene.lock())
-    {
-        p_child->SetScene(scene);
-    }
-
     m_children.push_back(p_child);
 
+    // TODO: Consider if start should be called here or ex. in the Nodes constructor
     if (m_started)
     {
         p_child->Start();
@@ -133,6 +193,19 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
         throw std::invalid_argument("Cannot remove nullptr as a child Node.");
     }
 
+    if (p_child.get()->m_parent.lock() != shared_from_this())
+    {
+		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
+	}
+
+	if (p_child->GetScene() != m_scene.lock())
+	{
+		throw std::runtime_error(
+			"Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
+			"Nodes belong to different Scenes."
+		);
+	}
+
     auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
     if (it == m_children.end())
@@ -140,10 +213,12 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
         throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
     }
 
-    (*it)->m_parent.reset();
-    (*it)->SetScene(nullptr);
+    p_child->m_parent.reset();
 
     m_children.erase(it);
+
+	// Add the removed child to the scene's root nodes
+    m_scene.lock()->SetRoot(p_child, true);
 }
 
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
@@ -177,44 +252,3 @@ std::shared_ptr<Node> Node::GetParent() const
 {
     return m_parent.lock();
 }
-
-void Node::SetPosition(const glm::vec3 &p_position)
-{
-    m_position = p_position;
-}
-
-void Node::SetRotation(const glm::vec3 &p_rotation)
-{
-    m_rotation = p_rotation;
-}
-
-void Node::SetScale(const glm::vec3 &p_scale)
-{
-    m_scale = p_scale;
-}
-
-const glm::vec3 &Node::GetPosition() const
-{
-    return m_position;
-}
-
-const glm::quat &Node::GetRotation() const
-{
-    return m_rotation;
-}
-
-const glm::vec3 &Node::GetScale() const
-{
-    return m_scale;
-}
-
-const glm::mat4 &Node::GetLocalTransform() const
-{
-    return m_localTransform;
-}
-
-const glm::mat4 &Node::GetWorldTransform() const
-{
-    return m_worldTransform;
-}
-  
