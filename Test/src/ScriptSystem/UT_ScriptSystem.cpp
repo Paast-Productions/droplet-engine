@@ -34,9 +34,7 @@ TEST(ScriptSystem, DestroyScript)
 	TestNode testNode;
 
 	ScriptInstance* instance = system.CreateScript(&testNode, "testScript.lua");
-	
-	//Function DestroyScript should destroy instance not an entire script
-	//system.DestroyScript(instance);
+	system.DestroyScript("testScript.lua");
 
 	EXPECT_EQ(instance, nullptr);
 }
