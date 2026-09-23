@@ -22,7 +22,9 @@ namespace Droplet::Graphics::VK
 		/// @param p_maxFramesInFlight highest count of frames in flight to be used in runtime
 		DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight);
 		
-		[[nodiscard]] vk::raii::DescriptorPool const &Get() const;
+		/// @brief Getter function for Vulkan Descriptor Pool
+		/// @returns Vulkan Descriptor Pool
+		[[nodiscard]] const vk::raii::DescriptorPool &Get() const;
 
 		/// @brief Adds a new image to the descriptor set
 		/// @param p_sampler RAII pointer to a sampler

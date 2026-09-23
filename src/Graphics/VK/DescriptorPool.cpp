@@ -3,6 +3,7 @@
 
 using namespace Droplet::Graphics::VK;
 
+<<<<<<< HEAD
 DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight)
 {
 	std::array<vk::DescriptorPoolSize, 3> poolSize
@@ -32,6 +33,23 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p
 	};
 	
 	m_descriptorPool = vk::raii::DescriptorPool(p_device, poolInfo);
+=======
+DescriptorPool::DescriptorPool(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight)
+{
+
+}
+
+void DescriptorPool::CreateDescriptorPool(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight)
+{
+	std::array<vk::DescriptorPoolSize, 2> poolSize{ {{.type = vk::DescriptorType::eUniformBuffer, .descriptorCount = p_maxFramesInFlight},
+												{.type = vk::DescriptorType::eCombinedImageSampler, .descriptorCount = p_maxFramesInFlight}} };
+	vk::DescriptorPoolCreateInfo          poolInfo{ .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+												   .maxSets = p_maxFramesInFlight,
+												   .poolSizeCount = static_cast<std::uint32_t>(poolSize.size()),
+												   .pPoolSizes = poolSize.data() };
+	m_descriptorPool = vk::raii::DescriptorPool(p_device, poolInfo);
+
+>>>>>>> 9a4555f (Added descriptor pool class)
 }
 
 /*void DescriptorPool::CreateDescriptorSets(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight, std::optional<UniformBuffer> const &p_uniformBuffers)
@@ -64,7 +82,11 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p
 																 .pImageInfo = &imageInfo}} };
 		p_device.updateDescriptorSets(descriptorWrites, {});
 	}
+<<<<<<< HEAD
 }
+=======
+}*/
+>>>>>>> 9a4555f (Added descriptor pool class)
 
 //defines shader stages, binding indices and descriptortype
 void DescriptorPool::CreateDescriptorSetLayout(vk::raii::Device const &p_device)
@@ -92,4 +114,8 @@ void DescriptorPool::AddDescriptorImage(vk::raii::Sampler const &p_sampler, vk::
 		.sampler = *p_sampler, 
 		.imageView = *p_imageView, 
 		.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal });
+<<<<<<< HEAD
 }*/
+=======
+}
+>>>>>>> 9a4555f (Added descriptor pool class)
