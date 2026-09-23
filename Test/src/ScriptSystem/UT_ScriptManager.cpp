@@ -120,9 +120,9 @@ TEST(ScriptManager, GetLoadedScript)
 	manager.LoadScript("bruh.lua");
 	manager.LoadScript("testScript2.lua");
 
-	sol::load_result* result1 = manager.GetLoadedScript("testScript.lua");
-	sol::load_result* result2 = manager.GetLoadedScript("bruh.lua");
-	sol::load_result* result3 = manager.GetLoadedScript("testScript2.lua");
+	sol::load_result *result1 = manager.GetLoadedScript("testScript.lua");
+	sol::load_result *result2 = manager.GetLoadedScript("bruh.lua");
+	sol::load_result *result3 = manager.GetLoadedScript("testScript2.lua");
 
 	EXPECT_TRUE(result1->valid());
 	EXPECT_TRUE(result2->valid());

@@ -20,10 +20,10 @@ public:
 	/// @param p_script Loaded Lua script used to populate the script environment.
 	/// @param p_scriptPath Path to the Lua script.
 	ScriptInstance(
-		TestNode* p_testNode,
-		LuaStateHandler& p_stateHandler,
-		sol::load_result& p_script,
-		const std::string& p_scriptPath);
+		TestNode *p_testNode,
+		LuaStateHandler &p_stateHandler,
+		sol::load_result &p_script,
+		const std::string &p_scriptPath);
 
 	/// @brief Destroys the script instance.
 	~ScriptInstance() = default;
@@ -53,7 +53,7 @@ public:
 	/// The script environment is updated using the provided loaded script.
 	/// @param p_script Loaded Lua script used to reload the instance.
 	/// @return True if the script was successfully reloaded, otherwise false.
-	bool Reload(sol::load_result& p_script);
+	bool Reload(sol::load_result &p_script);
 
 	/// @brief Gets the path of the Lua script associated with this instance.
 	/// @return The path to the associated Lua script.
@@ -61,10 +61,10 @@ public:
 
 private:
 	/// @brief TestNode associated with this script instance.
-	TestNode* m_testNode;
+	TestNode *m_testNode;
 
 	/// @brief Reference to the Lua state used by the script instance.
-	LuaStateHandler& m_stateHandler;
+	LuaStateHandler &m_stateHandler;
 
 	/// @brief Lua environment in which this script instance is executed.
 	/// Each ScriptInstance has its own environment, allowing multiple script
