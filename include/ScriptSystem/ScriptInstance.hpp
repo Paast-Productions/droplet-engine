@@ -6,17 +6,17 @@
 
 
 /// @brief Represents an instance of a Lua script and its execution environment.
-/// A ScriptInstance associates a Lua script with a TestNode and provides an
+/// A ScriptInstance associates a Lua script with a ScriptComponent and provides an
 /// isolated Lua environment in which the script is executed. It provides
 /// functions for calling arbitrary Lua functions as well as the standard
-/// onStart and onUpdate lifecycle functions.
+/// OnStart and OnUpdate lifecycle functions.
 class ScriptInstance
 {
 public:
 	/// @brief Creates a script instance and initializes its Lua environment.
 	/// The provided Lua script is loaded into the instance's environment and
-	/// the associated TestNode and script path are stored for later use.
-	/// @param p_testNode TestNode associated with this script instance.
+	/// the associated ScriptComponent and script path are stored for later use.
+	/// @param p_ScriptComponent ScriptComponent associated with this script instance.
 	/// @param p_stateHandler Lua state handler used by the script instance.
 	/// @param p_script Loaded Lua script used to populate the script environment.
 	/// @param p_scriptPath Path to the Lua script.
@@ -29,7 +29,7 @@ public:
 	/// @brief Destroys the script instance.
 	~ScriptInstance();
 
-	/// @brief Calls an arbitrary Lua function in the script environment.
+	/// @brief Calls an arbitrary Lua function in the script's environment.
 	/// The function is looked up by name in the script's Lua environment.
 	/// Arguments provided to this function are forwarded to the Lua function.
 	/// @tparam Args Types of the arguments passed to the Lua function.
@@ -39,13 +39,13 @@ public:
 	template<typename... Args>
 	sol::protected_function_result Call(std::string_view functionName, Args&&... args);
 
-	/// @brief Calls the script's onStart lifecycle function.
-	/// The onStart function is intended to be called when the script instance
+	/// @brief Calls the script's OnStart lifecycle function.
+	/// The OnStart function is intended to be called when the script instance
 	/// begins execution.
 	void OnStart();
 
-	/// @brief Calls the script's onUpdate lifecycle function.
-	/// The onUpdate function is intended to be called once per frame while
+	/// @brief Calls the script's OnUpdate lifecycle function.
+	/// The OnUpdate function is intended to be called once per frame while
 	/// the script is active.
 	/// @param deltatime Time elapsed since the previous update, in seconds.
 	void OnUpdate(float deltatime);
@@ -61,7 +61,7 @@ public:
 	std::string GetScriptPath();
 
 private:
-	/// @brief TestNode associated with this script instance.
+	/// @brief ScriptComponent associated with this script instance.
 	ScriptComponent *m_scriptComponent;
 
 	/// @brief Reference to the Lua state used by the script instance.
