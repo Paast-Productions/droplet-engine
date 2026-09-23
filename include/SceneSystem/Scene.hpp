@@ -75,22 +75,14 @@ namespace Droplet::Scene
         /// system in the future.
         virtual void Render();
 
-        /// @brief Adds a Node as a root Node of the Scene.
-        ///
-        /// The Node must not already have a parent or belong to another
-        /// Scene. If the Scene is already loaded, the Scene reference is
-        /// assigned to the Node and propagated through its hierarchy.
+        /// @brief Creates a Node as a root Node of the Scene.
         ///
         /// If the Scene is already active, the Node is started immediately.
         ///
-        /// @param p_node Node to add as a root Node.
+        /// @param p_name Name of the Node to create.
         ///
-        /// @return A shared pointer to the added Node.
-        ///
-        /// @throws std::invalid_argument if p_node is nullptr.
-        /// @throws std::runtime_error if the Node already has a parent
-        /// or belongs to another Scene.
-        std::shared_ptr<Node> AddRoot(std::shared_ptr<Node> p_node);
+        /// @return A shared pointer to the created Node.
+        std::shared_ptr<Node> AddNode(const std::string &p_name);
 
         /// @brief Removes a root Node from the Scene.
         ///

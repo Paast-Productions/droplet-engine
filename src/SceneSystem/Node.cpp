@@ -6,9 +6,13 @@
 
 using namespace Droplet::Scene;
 
-Node::Node(const std::string &p_name)
-	: m_name((p_name)), m_transform(this)
+Node::Node(std::shared_ptr<Scene> p_scene, const std::string &p_name)
+	: m_scene(p_scene), m_name(p_name), m_transform(this)
 {
+    if (!m_scene.lock())
+    {
+        throw std::invalid_argument("Cannot create Node: Scene is null.");
+    }
 }
 
 void Node::Start()
@@ -45,8 +49,7 @@ void Node::Update(float p_deltaTime)
         return;
     }
 
-    //update transforms :=
-	//TODO: Implement transform update logic here, including calculating local and world transforms based on position, rotation, and scale.
+	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
     for (const auto &component : m_components)
     {
@@ -57,8 +60,6 @@ void Node::Update(float p_deltaTime)
     {
         child->Update(p_deltaTime);
     }
-
-
 }
 
 void Node::Render()
@@ -69,6 +70,19 @@ void Node::Render()
     }
 
     return;
+}
+
+void Node::RenderUI()
+{
+    // TODO: implement node UI rendering wrapper logic
+
+	// Recursively call RenderUI on components
+    for (const auto &component : m_components)
+    {
+        component->RenderUI();
+    }
+
+    // TODO: implement node UI rendering wrapper logic
 }
 
 void Node::SetActive(bool p_active)
@@ -125,27 +139,40 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
     }
 
-    // TODO: Allow reparenting
-    if (p_child->GetParent())
+	// Check for cycles in the hierarchy
+    if (auto parent = GetParent())
     {
-        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already has a parent.");
+        while (parent)
+        {
+            if (parent == p_child)
+            {
+                throw std::runtime_error(
+                    "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
+                    "Adding a Node as a child of its own descendant would create a cycle."
+                );
+            }
+            parent = parent->GetParent();
+        }
     }
 
-	// TODO: Node should already be part of the same Scene at this point
-    if (p_child->GetScene())
+    if (p_child->GetScene() != m_scene.lock())
     {
-        throw std::runtime_error("Cannot add Node '" + p_child->GetName() + "': Node already belongs to a Scene.");
+		throw std::runtime_error(
+            "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
+            "Nodes belong to different Scenes."
+        );
+    }
+
+    if (auto prevParent = p_child->GetParent())
+    {
+		prevParent->RemoveChild(p_child);
     }
 
     p_child->m_parent = shared_from_this();
 
-    if (auto scene = m_scene.lock())
-    {
-        p_child->SetScene(scene);
-    }
-
     m_children.push_back(p_child);
 
+    // TODO: Consider if start should be called here or ex. in the Nodes constructor
     if (m_started)
     {
         p_child->Start();
@@ -166,6 +193,14 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
 	}
 
+	if (p_child->GetScene() != m_scene.lock())
+	{
+		throw std::runtime_error(
+			"Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
+			"Nodes belong to different Scenes."
+		);
+	}
+
     auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
     if (it == m_children.end())
@@ -174,7 +209,6 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
     }
 
     p_child->m_parent.reset();
-	p_child->SetScene(nullptr); // TODO: Should not be removed from the Scene, but become a root Node.
 
     m_children.erase(it);
 }

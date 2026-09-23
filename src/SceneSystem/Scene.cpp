@@ -32,12 +32,7 @@ void Scene::Load()
             "Cannot load Scene '" + m_name + "': Scene is already loaded.");
     }
 
-    auto scene = shared_from_this();
-
-    for (const auto &root : m_roots)
-    {
-        root->SetScene(scene);
-    }
+    // TODO: Implement scene loading
 
     m_loaded = true;
 }
@@ -67,38 +62,18 @@ void Scene::Render()
     }
 }
 
-std::shared_ptr<Node> Scene::AddRoot(std::shared_ptr<Node> p_node)
+std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
 {
-    if (!p_node)
-    {
-        throw std::invalid_argument(
-            "Cannot add null Node as a Scene root.");
-    }
+    auto node = std::make_shared<Node>(shared_from_this(), p_name);
 
-    if (p_node->GetParent())
-    {
-        throw std::runtime_error(
-            "Cannot add Node '" + p_node->GetName() + "' as a root because it already has a parent.");
-    }
-
-    if (p_node->GetScene())
-    {
-        throw std::runtime_error("Cannot add Node '" + p_node->GetName() + "' as a root because it already belongs to a Scene.");
-    }
-
-    if (m_loaded)
-    {
-        p_node->SetScene(shared_from_this());
-    }
-
-    m_roots.push_back(p_node);
+    m_roots.push_back(node);
 
     if (m_active)
     {
-        p_node->Start();
+        node->Start();
     }
 
-    return p_node;
+    return node;
 }
    
 void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)

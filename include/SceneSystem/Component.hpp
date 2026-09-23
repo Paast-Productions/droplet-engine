@@ -37,11 +37,20 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
 
+		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUI() function.
+        void RenderUI();
+
         /// @brief Gets the Node that owns this component.
         ///
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
         std::shared_ptr<Node> GetOwner() const;
+
+    protected:
+
+		/// @brief Internal rendering function for the component's UI.
+		/// Overloaded by derived components to implement their own UI rendering logic.
+        virtual void RenderInternalUI() {}
 
     private:
         friend class Node;

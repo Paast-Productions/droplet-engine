@@ -30,17 +30,13 @@ TEST_F(SceneTest, InitiallyHasNoRoots)
 }
 
 
-TEST_F(SceneTest, AddRoot)
+TEST_F(SceneTest, AddNode)
 {
     auto root =
-        std::make_shared<Node>("Root");
+        scene->AddNode("Root");
 
-    auto result =
-        scene->AddRoot(root);
+    ASSERT_NE(root, nullptr);
 
-    ASSERT_NE(result, nullptr);
-
-    EXPECT_EQ(result, root);
     EXPECT_EQ(scene->GetRoots().size(), 1);
     EXPECT_EQ(scene->GetRoots()[0], root);
 }
@@ -49,9 +45,7 @@ TEST_F(SceneTest, AddRoot)
 TEST_F(SceneTest, RootHasCorrectName)
 {
     auto root =
-        std::make_shared<Node>("Root");
-
-    scene->AddRoot(root);
+        scene->AddNode("Root");
 
     ASSERT_EQ(scene->GetRoots().size(), 1);
 
@@ -64,17 +58,13 @@ TEST_F(SceneTest, RootHasCorrectName)
 TEST_F(SceneTest, SupportsMultipleRoots)
 {
     auto player =
-        std::make_shared<Node>("Player");
+        scene->AddNode("Player");
 
     auto enemy =
-        std::make_shared<Node>("Enemy");
+        scene->AddNode("Enemy");
 
     auto environment =
-        std::make_shared<Node>("Environment");
-
-    scene->AddRoot(player);
-    scene->AddRoot(enemy);
-    scene->AddRoot(environment);
+        scene->AddNode("Environment");
 
     ASSERT_EQ(scene->GetRoots().size(), 3);
 
@@ -117,9 +107,8 @@ TEST_F(SceneTest, LoadingAlreadyLoadedSceneThrows)
 TEST_F(SceneTest, RootReceivesSceneReference)
 {
     auto root =
-        std::make_shared<Node>("Root");
+        scene->AddNode("Root");
 
-    scene->AddRoot(root);
     scene->Load();
 
     EXPECT_EQ(root->GetScene(), scene);
@@ -129,13 +118,10 @@ TEST_F(SceneTest, RootReceivesSceneReference)
 TEST_F(SceneTest, AllRootsReceiveSceneReference)
 {
     auto root1 =
-        std::make_shared<Node>("Root1");
+        scene->AddNode("Root1");
 
     auto root2 =
-        std::make_shared<Node>("Root2");
-
-    scene->AddRoot(root1);
-    scene->AddRoot(root2);
+        scene->AddNode("Root2");
 
     scene->Load();
 
@@ -194,9 +180,7 @@ TEST_F(SceneTest, UnloadingUnloadedSceneThrows)
 TEST_F(SceneTest, RemoveRoot)
 {
     auto root =
-        std::make_shared<Node>("Root");
-
-    scene->AddRoot(root);
+        scene->AddNode("Root");
 
     scene->RemoveRoot(root);
 
@@ -204,32 +188,13 @@ TEST_F(SceneTest, RemoveRoot)
 }
 
 
-TEST_F(SceneTest, RemovingRootClearsSceneReference)
-{
-    auto root =
-        std::make_shared<Node>("Root");
-
-    scene->AddRoot(root);
-    scene->Load();
-
-    ASSERT_EQ(root->GetScene(), scene);
-
-    scene->RemoveRoot(root);
-
-    EXPECT_EQ(root->GetScene(), nullptr);
-}
-
-
 TEST_F(SceneTest, RemovingSpecificRootKeepsOtherRoots)
 {
     auto root1 =
-        std::make_shared<Node>("Root1");
+        scene->AddNode("Root1");
 
     auto root2 =
-        std::make_shared<Node>("Root2");
-
-    scene->AddRoot(root1);
-    scene->AddRoot(root2);
+        scene->AddNode("Root2");
 
     scene->RemoveRoot(root1);
 
@@ -238,38 +203,12 @@ TEST_F(SceneTest, RemovingSpecificRootKeepsOtherRoots)
 }
 
 
-TEST_F(SceneTest, AddingNullRootThrows)
-{
-    EXPECT_THROW(
-        scene->AddRoot(nullptr),
-        std::invalid_argument);
-}
-
-
-TEST_F(SceneTest, CannotAddChildAsRoot)
-{
-    auto parent =
-        std::make_shared<Node>("Parent");
-
-    auto child =
-        std::make_shared<Node>("Child");
-
-    parent->AddChild(child);
-
-    EXPECT_THROW(
-        scene->AddRoot(child),
-        std::runtime_error);
-}
-
-
 TEST_F(SceneTest, CanAddRootAfterSceneIsLoaded)
 {
     scene->Load();
 
     auto root =
-        std::make_shared<Node>("Root");
-
-    scene->AddRoot(root);
+        scene->AddNode("Root");
 
     EXPECT_EQ(root->GetScene(), scene);
 }
@@ -281,9 +220,7 @@ TEST_F(SceneTest, CanAddRootAfterSceneIsActive)
     scene->SetActive(true);
 
     auto root =
-        std::make_shared<Node>("Root");
-
-    scene->AddRoot(root);
+        scene->AddNode("Root");
 
     EXPECT_EQ(root->GetScene(), scene);
 }

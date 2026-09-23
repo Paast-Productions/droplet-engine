@@ -27,9 +27,10 @@ namespace Droplet::Scene
     class Node : public std::enable_shared_from_this<Node>
     {
     public:
-        /// @brief Constructs a Node with the specified name.
+        /// @brief Constructs a Node with the specified name and Scene.
+		/// @param p_scene Shared pointer to the Scene that owns this Node.
         /// @param p_name Name of the Node.
-        explicit Node(const std::string &p_name);
+        explicit Node(std::shared_ptr<Scene> p_scene, const std::string &p_name);
 
         /// @brief Virtual destructor.
         virtual ~Node() = default;
@@ -59,6 +60,9 @@ namespace Droplet::Scene
         /// Rendering functionality may be moved.
         virtual void Render();
 
+		/// @brief Renders the Node's UI as well as all attached Components.
+        virtual void RenderUI();
+
         /// @brief Sets whether the Node is active.
         ///
         /// An inactive Node does not update its Components or child Nodes.
@@ -72,12 +76,12 @@ namespace Droplet::Scene
         /// @brief Checks whether the Node is active.
         ///
         /// @return true if the Node is active, otherwise false.
-        bool IsActive() const;
+        [[nodiscard]] bool IsActive() const;
 
 		/// @brief Checks whether the Node is active.
         ///
 		/// @return true if the Node is active, otherwise false.
-        bool IsActiveSelf() const;
+        [[nodiscard]] bool IsActiveSelf() const;
 
         // --------------------------------------------------
         // Transform
@@ -120,18 +124,18 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the parent Node, or nullptr if this
         /// Node has no parent.
-        std::shared_ptr<Node> GetParent() const;
+        [[nodiscard]] std::shared_ptr<Node> GetParent() const;
 
         /// @brief Gets the child Nodes.
         ///
         /// @return A constant reference to the vector containing this Node's children.
-        const std::vector<std::shared_ptr<Node>> &GetChildren() const;
+        [[nodiscard]] const std::vector<std::shared_ptr<Node>> &GetChildren() const;
 
         /// @brief Gets the Scene that owns this Node.
         ///
         /// @return A shared pointer to the Scene, or nullptr if the Node
         /// does not currently belong to a Scene.
-        std::shared_ptr<Scene> GetScene() const;
+        [[nodiscard]] std::shared_ptr<Scene> GetScene() const;
 
         // --------------------------------------------------
         // Name
@@ -140,7 +144,7 @@ namespace Droplet::Scene
         /// @brief Gets the Node's name.
         ///
         /// @return A constant reference to the Node's name.
-        const std::string &GetName() const;
+        [[nodiscard]] const std::string &GetName() const;
 
 
 
@@ -191,7 +195,7 @@ namespace Droplet::Scene
         /// @return A vector of shared pointers to the Components, or an empty
         /// vector if no Components of the requested type were found.
         template<typename T>
-        std::vector<std::shared_ptr<T>> GetComponents() const
+        [[nodiscard]] std::vector<std::shared_ptr<T>> GetComponents() const
         {
             // Ensure that T is derived from Component
             static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
@@ -227,7 +231,17 @@ namespace Droplet::Scene
     private:
         std::string m_name;
 
+		/// @brief Indicates whether the Node is active.
+        bool m_active = true;
+
+        /// @brief Indicates whether the Node has been started.
+        bool m_started = false;
+
+		// Transform
+
         Transform m_transform;
+
+		// Hierarchy
 
         std::weak_ptr<Node> m_parent;
         std::vector<std::shared_ptr<Node>> m_children;
@@ -236,6 +250,12 @@ namespace Droplet::Scene
 
         friend class Scene;
 
+        /// @brief Weak reference to the Scene containing this Node.
+        ///
+        /// The Scene owns the Node hierarchy, so the Node stores only a
+        /// weak reference to avoid creating an ownership cycle.
+        std::weak_ptr<Scene> m_scene{};
+
         /// @brief Sets the Scene that this Node belongs to.
         ///
         /// The Scene reference is also propagated to all child Nodes.
@@ -243,28 +263,8 @@ namespace Droplet::Scene
         /// @param p_scene Scene that owns this Node.
         void SetScene(std::shared_ptr<Scene> p_scene);
 
-        /// @brief Weak reference to the Scene containing this Node.
-        ///
-        /// The Scene owns the Node hierarchy, so the Node stores only a
-        /// weak reference to avoid creating an ownership cycle.
-        std::weak_ptr<Scene> m_scene;
-
         // Components
 
-        std::vector<std::shared_ptr<Component>> m_components;
-
-        // Transforms
-
-        glm::vec3 m_position{ 0.0f, 0.0f, 0.0f };
-        glm::quat m_rotation{ 0.0f, 0.0f, 0.0f, 1.0f };
-        glm::vec3 m_scale{ 1.0f, 1.0f, 1.0f };
-
-        glm::mat4 m_localTransform{ 1.0f };
-        glm::mat4 m_worldTransform{ 1.0f };
-
-        bool m_active = true;
-
-        /// @brief Indicates whether the Node has been started.
-        bool m_started = false;
+        std::vector<std::shared_ptr<Component>> m_components{};
     };
 }

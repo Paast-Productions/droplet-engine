@@ -1,56 +1,25 @@
 #include <gtest/gtest.h>
 #include <Transform.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSystem/Scene.hpp>
 #include <cmath>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Scene;
 
-/*class Droplet::Scene::Node
-{
-public:
-	Node()
-	{
-		m_parent = nullptr;
-        std::shared_ptr<Node> self(this, [](Node*) {});
-		m_transform = std::make_unique<Transform>(self);
-	}
-
-	std::shared_ptr<Node> GetParent() const
-	{
-		return m_parent;
-	}
-
-	std::unique_ptr<Transform> &GetTransform()
-	{
-		return m_transform;
-	}
-
-	void SetParent(std::shared_ptr<Node> parent)
-	{
-		m_parent = parent;
-	}
-
-	void SetTransform(std::unique_ptr<Transform> transform)
-	{
-		m_transform = std::move(transform);
-	}
-
-private:
-	std::shared_ptr<Node> m_parent;
-	std::unique_ptr<Transform> m_transform;
-};*/
-
 class TransformTest : public ::testing::Test
 {
 protected:
 
+	std::shared_ptr<Scene> m_scene;
 	std::shared_ptr<Node> m_node;
 
     void SetUp() override
     {
-		m_node = std::make_shared<Node>("Node");
+		m_scene = std::make_shared<Scene>("Game");
+		m_scene->Load();
+		m_node = m_scene->AddNode("Node");
     }
 };
 
@@ -58,11 +27,6 @@ namespace
 {
 	constexpr float kEpsilon = 1e-5f;
 	constexpr float kHalfPi = 1.57079632679f;
-
-	std::shared_ptr<Node> CreateNode()
-	{
-		return std::make_shared<Node>("Node");
-	}
 
 	void ExpectVec3Near(const glm::vec3 &actual, const glm::vec3 &expected)
 	{
@@ -273,7 +237,7 @@ TEST_F(TransformTest, LookAtLocal)
 
 TEST_F(TransformTest, SetParent)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 
 	EXPECT_NE(parentNode, nullptr);
 
@@ -284,7 +248,7 @@ TEST_F(TransformTest, SetParent)
 
 TEST_F(TransformTest, InheritParentTransform)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode->GetTransform().SetPosition(glm::vec3(10.f, 0.f, 0.f));
 	parentNode->GetTransform().RecalculateMatrices();
 
@@ -297,8 +261,8 @@ TEST_F(TransformTest, InheritParentTransform)
 
 TEST_F(TransformTest, ChangeParent)
 {
-	std::shared_ptr<Node> parentA = CreateNode();
-	std::shared_ptr<Node> parentB = CreateNode();
+	std::shared_ptr<Node> parentA = m_scene->AddNode("Node");
+	std::shared_ptr<Node> parentB = m_scene->AddNode("Node");
 
 	parentA->GetTransform().SetPosition(glm::vec3(2.f, 0.f, 0.f));
 	parentB->GetTransform().SetPosition(glm::vec3(5.f, 0.f, 0.f));
@@ -319,7 +283,7 @@ TEST_F(TransformTest, ChangeParent)
 
 TEST_F(TransformTest, GetPositionWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	parentNode->GetTransform().SetPosition(glm::vec3(10.f, -2.f, 5.f));
@@ -331,7 +295,7 @@ TEST_F(TransformTest, GetPositionWorld)
 
 TEST_F(TransformTest, GetRotationWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::quat(glm::vec3(0.3f, 0.4f, 0.2f));
@@ -345,7 +309,7 @@ TEST_F(TransformTest, GetRotationWorld)
 
 TEST_F(TransformTest, GetEulerWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::quat(glm::vec3(0.3f, 0.4f, 0.2f));
@@ -359,7 +323,7 @@ TEST_F(TransformTest, GetEulerWorld)
 
 TEST_F(TransformTest, GetAxesWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f));
@@ -373,7 +337,7 @@ TEST_F(TransformTest, GetAxesWorld)
 
 TEST_F(TransformTest, GetMatrixWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	parentNode->GetTransform().SetPosition(glm::vec3(5.f, 0.f, 0.f));
@@ -395,7 +359,7 @@ TEST_F(TransformTest, GetMatrixWorld)
 
 TEST_F(TransformTest, SetPositionWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	parentNode->GetTransform().SetPosition(glm::vec3(10.f, 0.f, 0.f));
@@ -408,7 +372,7 @@ TEST_F(TransformTest, SetPositionWorld)
 
 TEST_F(TransformTest, SetRotationWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
@@ -423,7 +387,7 @@ TEST_F(TransformTest, SetRotationWorld)
 
 TEST_F(TransformTest, SetEulerWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
@@ -438,7 +402,7 @@ TEST_F(TransformTest, SetEulerWorld)
 
 TEST_F(TransformTest, SetMatrixWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 	parentNode->GetTransform().SetPosition(glm::vec3(10.f, 0.f, 0.f));
 	parentNode->GetTransform().RecalculateMatrices();
@@ -460,7 +424,7 @@ TEST_F(TransformTest, SetMatrixWorld)
 
 TEST_F(TransformTest, SettersCombinedWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 	parentNode->GetTransform().SetPosition(glm::vec3(5.f, 0.f, 0.f));
 	parentNode->GetTransform().SetRotation(glm::angleAxis(kHalfPi, glm::vec3(0.f, 0.f, 1.f)));
@@ -479,7 +443,7 @@ TEST_F(TransformTest, SettersCombinedWorld)
 
 TEST_F(TransformTest, MoveWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 	parentNode->GetTransform().SetPosition(glm::vec3(10.f, 0.f, 0.f));
 	parentNode->GetTransform().RecalculateMatrices();
@@ -492,7 +456,7 @@ TEST_F(TransformTest, MoveWorld)
 
 TEST_F(TransformTest, RotateWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
@@ -506,7 +470,7 @@ TEST_F(TransformTest, RotateWorld)
 
 TEST_F(TransformTest, RotateEulerWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
@@ -520,7 +484,7 @@ TEST_F(TransformTest, RotateEulerWorld)
 
 TEST_F(TransformTest, RotateAxisWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 
 	const glm::quat parentRot = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
@@ -534,7 +498,7 @@ TEST_F(TransformTest, RotateAxisWorld)
 
 TEST_F(TransformTest, LookAtWorld)
 {
-	std::shared_ptr<Node> parentNode = CreateNode();
+	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
 	parentNode.get()->AddChild(m_node);
 	parentNode->GetTransform().SetPosition(glm::vec3(5.f, 0.f, 0.f));
 	parentNode->GetTransform().RecalculateMatrices();
@@ -570,7 +534,7 @@ TEST_F(TransformTest, CleanAfterRecalcMatrices)
 
 TEST_F(TransformTest, MarkDirtyRecursively)
 {
-	std::shared_ptr<Node> childNode = CreateNode();
+	std::shared_ptr<Node> childNode = m_scene->AddNode("Node");
 	m_node.get()->AddChild(childNode);
 
 	m_node->GetTransform().RecalculateMatrices();
