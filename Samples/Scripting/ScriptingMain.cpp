@@ -4,17 +4,18 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
+    // Start the script system and tell it the path from your working directory to the script map
 	ScriptSystem scriptSystem;
     scriptSystem.SetScriptPath("../../../src/TestScripts");
+
+    // A scriptComponent is what talks to the script system
+    TestNode scriptComponent;
+
+    scriptSystem.CreateScript(&scriptComponent, "testScript.lua");
 
     scriptSystem.Start();
     scriptSystem.Update(1.0);
     TestNode guptaNode;
-
-    scriptSystem.CreateScript(&guptaNode, "guptaTestScript.lua");
-    scriptSystem.Call(&guptaNode, "backflip");
-    scriptSystem.ActivateScript(&guptaNode);
-    scriptSystem.Call(&guptaNode, "backflip");
 
 
     return 0;

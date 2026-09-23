@@ -61,7 +61,7 @@ TEST(ScriptSystem, ActivateScript)
 	system.SetScriptPath("../src/TestScripts");
 	TestNode testNode;
 
-	system.CreateScript(&testNode, "bruh.lua");
+	system.CreateScript(&testNode, "testScript3.lua");
 	system.ActivateScript(&testNode);
 	system.Update(1);
 	float result = system.Call(&testNode, "GetDT");
@@ -75,7 +75,7 @@ TEST(ScriptSystem, DeactivateScript)
 	system.SetScriptPath("../src/TestScripts");
 	TestNode testNode;
 
-	system.CreateScript(&testNode, "bruh.lua");
+	system.CreateScript(&testNode, "testScript3.lua");
 	system.ActivateScript(&testNode);
 	system.Update(1);
 	system.DeactivateScript(&testNode);

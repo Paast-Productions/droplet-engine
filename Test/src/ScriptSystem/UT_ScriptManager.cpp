@@ -61,7 +61,7 @@ TEST(ScriptManager, LoadScript)
 	manager.SetScriptDirectory("../src/TestScripts");
 
 	EXPECT_TRUE(manager.LoadScript("testScript.lua"));
-	EXPECT_TRUE(manager.LoadScript("bruh.lua"));
+	EXPECT_TRUE(manager.LoadScript("testScript3.lua"));
 	EXPECT_TRUE(manager.LoadScript("testScript2.lua"));
 }
 
@@ -75,11 +75,11 @@ TEST(ScriptManager, UnloadScript)
 	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
-	manager.LoadScript("bruh.lua");
+	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
 	EXPECT_TRUE(manager.UnloadScript("testScript.lua"));
-	EXPECT_TRUE(manager.UnloadScript("bruh.lua"));
+	EXPECT_TRUE(manager.UnloadScript("testScript3.lua"));
 	EXPECT_TRUE(manager.UnloadScript("testScript2.lua"));
 }
 
@@ -93,11 +93,11 @@ TEST(ScriptManager, IsLoaded)
 	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
-	manager.LoadScript("bruh.lua");
+	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
 	EXPECT_TRUE(manager.IsLoaded("testScript.lua"));
-	EXPECT_TRUE(manager.IsLoaded("bruh.lua"));
+	EXPECT_TRUE(manager.IsLoaded("testScript3.lua"));
 	EXPECT_TRUE(manager.IsLoaded("testScript2.lua"));
 }
 
@@ -111,11 +111,11 @@ TEST(ScriptManager, ReloadScript)
 	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
-	manager.LoadScript("bruh.lua");
+	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
 	EXPECT_TRUE(manager.ReloadScript("testScript.lua"));
-	EXPECT_TRUE(manager.ReloadScript("bruh.lua"));
+	EXPECT_TRUE(manager.ReloadScript("testScript3.lua"));
 	EXPECT_TRUE(manager.ReloadScript("testScript2.lua"));
 }
 
@@ -129,11 +129,11 @@ TEST(ScriptManager, GetLoadedScript)
 	manager.SetScriptDirectory("../src/TestScripts");
 
 	manager.LoadScript("testScript.lua");
-	manager.LoadScript("bruh.lua");
+	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
 	sol::load_result *result1 = manager.GetLoadedScript("testScript.lua");
-	sol::load_result *result2 = manager.GetLoadedScript("bruh.lua");
+	sol::load_result *result2 = manager.GetLoadedScript("testScript3.lua");
 	sol::load_result *result3 = manager.GetLoadedScript("testScript2.lua");
 
 	EXPECT_TRUE(result1->valid());
@@ -150,7 +150,7 @@ TEST(ScriptManager, ActivateScript)
 
 	manager.SetScriptDirectory("../src/TestScripts");
 
-	manager.CreateScript(&testNode, "bruh.lua");
+	manager.CreateScript(&testNode, "testScript3.lua");
 	manager.ActivateScript(&testNode);
 
 	manager.Update(1);
@@ -168,7 +168,7 @@ TEST(ScriptManager, DeactivateScript)
 
 	manager.SetScriptDirectory("../src/TestScripts");
 
-	manager.CreateScript(&testNode, "bruh.lua");
+	manager.CreateScript(&testNode, "testScript3.lua");
 	manager.ActivateScript(&testNode);
 
 	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
