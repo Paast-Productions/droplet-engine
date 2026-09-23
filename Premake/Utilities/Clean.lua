@@ -84,6 +84,9 @@ newaction {
                 os.execute("{RMDIR} ./Build/Target/Test/")
                 os.remove("./Generated/Test.vcxproj")
                 os.remove("./Generated/Test.vcxproj.filters")
+
+            else
+                print([[Invalid option entered. "Premake5 clean -h" to show all clean options]])
             end
 
             index = index + 1
