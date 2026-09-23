@@ -1,4 +1,4 @@
-#include "resource/TextureLoader.hpp"
+#include "resource/loaders/TextureLoader.hpp"
 #include <iostream>
 #include <filesystem>
 #include <stdexcept>

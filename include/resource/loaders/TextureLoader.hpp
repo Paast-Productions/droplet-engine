@@ -7,7 +7,6 @@
 #include <gli/texture2d.hpp>
 #include <gli/save.hpp>
 
-
 #include <string>
 
 namespace Droplet::ResourceLoader

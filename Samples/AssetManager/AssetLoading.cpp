@@ -1,12 +1,10 @@
-﻿#include <print>
-
-#include "resource/ResourceManager.hpp"
-
-#include "resource/TextureLoader.hpp"
+﻿#include "resource/ResourceManager.hpp"
+#include "resource/loaders/TextureLoader.hpp"
 
 #include <filesystem>
 #include <string>
 #include <iostream>
+#include <print>
 
 namespace fs = std::filesystem;
 
