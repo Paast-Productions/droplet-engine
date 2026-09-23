@@ -40,7 +40,7 @@ public:
 	/// The LuaStateHandler is provided by the ScriptSystem and is used by the
 	/// manager when loading and executing Lua scripts
 	/// @param p_luaState Lua state handler used by the script manager.
-	ScriptManager(LuaStateHandler& p_luaState);
+	ScriptManager(LuaStateHandler &p_luaState);
 
 	/// @brief Destroys the ScriptManager.
 	~ScriptManager() = default;
@@ -67,7 +67,7 @@ public:
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
 	sol::protected_function_result Call(
-		TestNode* p_scriptComponent,
+		TestNode *p_scriptComponent,
 		std::string_view p_functionName,
 		Args&&... p_args);
 
@@ -77,19 +77,19 @@ public:
 	/// @param p_scriptComponent Component that will own the script instance.
 	/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 	/// @return Pointer to the created ScriptInstance.
-	bool CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
+	bool CreateScript(TestNode *p_scriptComponent, const std::string &p_scriptFile);
 
 	/// @brief Detaches the script instance from a component.
 	/// This removes the relationship between the specified component and its
 	/// associated ScriptInstance.
 	/// @param p_scriptComponent Component from which the script should be
 	/// detached.
-	void DetachScript(TestNode* p_scriptComponent);
+	void DetachScript(TestNode *p_scriptComponent);
 
 	/// @brief Decouples every instance to a certain script file.
 	/// Removes the specified scriptfile and its associated relationships.
 	/// @param p_scriptInstance Script File to detach.
-	void DetachAllInstancesToScript(const std::string& p_scritpfile);
+	void DetachAllInstancesToScript(const std::string &p_scritpfile);
 
 	/// @brief Loads a Lua script into the scripting system
 	/// If the script is already loaded, the existing loaded script is kept
@@ -97,24 +97,24 @@ public:
 	/// @param p_scriptFile Path or name of the Lua script to load.
 	/// @return True if the script was successfully loaded or was already
 	/// loaded, otherwise false.
-	bool LoadScript(const std::string& p_scriptFile);
+	bool LoadScript(const std::string &p_scriptFile);
 
 	/// @brief Unloads a previously loaded Lua script
 	/// @param p_scriptFile Path or name of the Lua script to unload.
 	/// @return True if the script was successfully unloaded, otherwise false.
-	bool UnloadScript(const std::string& p_scriptFile);
+	bool UnloadScript(const std::string &p_scriptFile);
 
 	/// @brief Checks whether a Lua script is currently loaded
 	/// @param p_scriptFile Path or name of the Lua script to check.
 	/// @return True if the script is loaded, otherwise false.
-	bool IsLoaded(const std::string& p_scriptFile);
+	bool IsLoaded(const std::string &p_scriptFile);
 
 	/// @brief Reloads a Lua script from its source file
 	/// The existing loaded version is replaced with the current version of
 	/// the script on disk
 	/// @param p_scriptFile Path or name of the Lua script to reload.
 	/// @return True if the script was successfully reloaded, otherwise false.
-	bool ReloadScript(const std::string& p_scriptFile);
+	bool ReloadScript(const std::string &p_scriptFile);
 
 	/// @brief Checks loaded scripts for changes to their source files
 	/// Scripts whose source files have been modified since they were loaded
@@ -125,45 +125,45 @@ public:
 	/// @param p_scriptFile Path or name of the loaded Lua script.
 	/// @return Pointer to the loaded script result, or nullptr if the script
 	/// is not loaded.
-	sol::load_result* GetLoadedScript(const std::string& p_scriptFile);
+	sol::load_result* GetLoadedScript(const std::string &p_scriptFile);
 
 	/// @brief Activates a script component
 	/// An activated script is added to the collection of scripts that are updated each frame
 	/// @param p_scriptComponent Component whose script should be activated.
-	void ActivateScript(TestNode* p_scriptComponent);
+	void ActivateScript(TestNode *p_scriptComponent);
 
 	/// @brief Deactivates a script component
 	/// A deactivated script is removed from the collection of scripts that are updated each frame
 	/// @param p_scriptComponent Component whose script should be deactivated.
-	void DeactivateScript(TestNode* p_scriptComponent);
+	void DeactivateScript(TestNode *p_scriptComponent);
 	/// @brief Sets the directory Path
 	/// Purpose is to be able to find the scripts directory, easiest to do this 
 	/// @param p_directoryPath This is the path for your working directory to the scripts
 	/// 
 	/// @return 
-	bool SetScriptDirectory(const std::string& p_directoryPath);
+	bool SetScriptDirectory(const std::string &p_directoryPath);
 
 private:
 	/// @brief Finds the path to a Lua script
 	/// Searches for a script using its file name and returns the path to the corresponding file
 	/// @param p_scriptFile Name of the script file to find.
 	/// @return Path to the script file.
-	std::filesystem::path FindScript(const std::string& p_scriptFile);
+	std::filesystem::path FindScript(const std::string &p_scriptFile);
 
 	/// @brief Destroys a script instance internally
 	/// @param p_scriptInstance Script instance to destroy.
-	void DestroyInstance(ScriptInstance* p_scriptInstance);
+	void DestroyInstance(ScriptInstance *p_scriptInstance);
 
 	/// @brief Checks whether a script file has been modified
 	/// @param p_scriptFile Path to the Lua script file.
 	/// @return True if the file has changed since it was last loaded,
 	/// otherwise false.
-	bool HasScriptFileChanged(const std::string& p_scriptFile);
+	bool HasScriptFileChanged(const std::string &p_scriptFile);
 
 private:
 	/// @brief Reference to the Lua state used by the script manager
 	/// The LuaStateHandler is owned by the ScriptSystem.
-	LuaStateHandler& m_StateHandler;
+	LuaStateHandler &m_StateHandler;
 
 	/// @brief Owns all script instances created by the manager.
 	std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
@@ -198,7 +198,7 @@ private:
 /// @return Result of the protected Lua function call.
 template <typename... Args>
 inline sol::protected_function_result ScriptManager::Call(
-	TestNode* p_scriptComponent,
+	TestNode *p_scriptComponent,
 	std::string_view p_functionName,
 	Args&&... p_args)
 {
@@ -216,7 +216,7 @@ inline sol::protected_function_result ScriptManager::Call(
 		//TODO: attach component to script
 		return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 	}
-	ScriptInstance* instance = it->second;
+	ScriptInstance *instance = it->second;
 	std::vector<ScriptInstance*>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
 
 	if (activeIterator == m_activeScripts.end())

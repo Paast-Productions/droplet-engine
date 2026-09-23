@@ -30,36 +30,36 @@ public:
 	/// @brief Loads a Lua script from a file.
 	/// @param p_scriptFile Path to the Lua script file.
 	/// @return True if the script was loaded successfully, otherwise false.
-	bool LoadScript(const std::string& p_scriptFile);
+	bool LoadScript(const std::string &p_scriptFile);
 
 	/// @brief Unloads a previously loaded Lua script.
 	/// @param p_scriptFile Path to the Lua script file.
 	/// @return True if the script was unloaded successfully, otherwise false.
-	bool UnloadScript(const std::string& p_scriptFile);
+	bool UnloadScript(const std::string &p_scriptFile);
 
 	/// @brief Activates a script component.
 	/// An activated script component is allowed to participate in the scripting
 	/// system's update and execution flow.
 	/// @param p_scriptComponent Script component to activate.
-	void ActivateScript(TestNode* p_scriptComponent);
+	void ActivateScript(TestNode *p_scriptComponent);
 
 	/// @brief Deactivates a script component.
 	/// A deactivated script component will no longer participate in the
-	/// scripting system's update and execution flow.
+	/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
 	/// @param p_scriptComponent Script component to deactivate.
-	void DeactivateScript(TestNode* p_scriptComponent);
+	void DeactivateScript(TestNode *p_scriptComponent);
 
 	/// @brief Creates a script instance for a component.
-	/// @param testNode Node that will own the script instance.
+	/// @param testNode Component that will connect to the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
-	/// @return Pointer to the newly created script instance.
-	bool CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
+	/// @return Returns if the script instance could correctly be created
+	bool CreateScript(TestNode *p_scriptComponent, const std::string &p_scriptFile);
 
-	/// @brief Destroys a script instance.
-	/// @param p_scriptInstance Script instance to destroy.
-	void DetachAllInstancesToScript(const std::string& p_scriptPath);
+	/// @brief Detaches components to a certain script
+	/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
+	void DetachAllInstancesToScript(const std::string &p_scriptPath);
 
-	bool SetScriptPath(const std::string& p_directoryPath);
+	bool SetScriptPath(const std::string &p_directoryPath);
 
 	/// @brief Calls a Lua function on a script component.
 	/// The supplied arguments are forwarded to the Lua function. The result
@@ -71,7 +71,7 @@ public:
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
 	sol::protected_function_result Call(
-		TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
+		TestNode *p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
 
 private:
 	/// @brief Handles the Lua state used by the scripting system.
@@ -89,7 +89,7 @@ private:
 /// @return Result of the protected Lua function call.
 template<typename... Args>
 inline sol::protected_function_result ScriptSystem::Call(
-	TestNode* p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
+	TestNode *p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
 {
 	return m_scriptManager.Call(p_scriptComponent, p_functionName, std::forward<Args>(p_args)...);
 }

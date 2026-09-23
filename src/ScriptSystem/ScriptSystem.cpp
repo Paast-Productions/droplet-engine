@@ -19,27 +19,27 @@ void ScriptSystem::Update(float p_deltaTime)
 	m_scriptManager.CheckForFileChanges();
 }
 
-bool ScriptSystem::LoadScript(const std::string& p_scriptFile)
+bool ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {
 	return m_scriptManager.LoadScript(p_scriptFile);
 }
 
-bool ScriptSystem::UnloadScript(const std::string& p_scriptFile)
+bool ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 {
 	return m_scriptManager.UnloadScript(p_scriptFile);
 }
 
-void ScriptSystem::ActivateScript(TestNode* p_scriptComponent)
+void ScriptSystem::ActivateScript(TestNode *p_scriptComponent)
 {
 	m_scriptManager.ActivateScript(p_scriptComponent);
 }
 
-void ScriptSystem::DeactivateScript(TestNode* p_scriptComponent)
+void ScriptSystem::DeactivateScript(TestNode *p_scriptComponent)
 {
 	m_scriptManager.DeactivateScript(p_scriptComponent);
 }
 
-bool ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std::string& p_scriptFile)
+bool ScriptSystem::CreateScript(TestNode *p_sciptComponent, const std::string &p_scriptFile)
 {
 	bool result = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
 	if (!result)
@@ -49,12 +49,12 @@ bool ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std::string& p
 	}
 	return true;
 }
-bool ScriptSystem::SetScriptPath(const std::string& p_directoryPath)
+bool ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
 	return m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
-void ScriptSystem::DetachAllInstancesToScript(const std::string& p_scriptPath)
+void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)
 {
 	m_scriptManager.DetachAllInstancesToScript(p_scriptPath);
 }
