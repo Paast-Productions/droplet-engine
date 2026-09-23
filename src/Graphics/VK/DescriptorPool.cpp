@@ -3,21 +3,35 @@
 
 using namespace Droplet::Graphics::VK;
 
-DescriptorPool::DescriptorPool(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight)
+DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight)
 {
-
-}
-
-void DescriptorPool::CreateDescriptorPool(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight)
-{
-	std::array<vk::DescriptorPoolSize, 2> poolSize{ {{.type = vk::DescriptorType::eUniformBuffer, .descriptorCount = p_maxFramesInFlight},
-												{.type = vk::DescriptorType::eCombinedImageSampler, .descriptorCount = p_maxFramesInFlight}} };
-	vk::DescriptorPoolCreateInfo          poolInfo{ .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-												   .maxSets = p_maxFramesInFlight,
-												   .poolSizeCount = static_cast<std::uint32_t>(poolSize.size()),
-												   .pPoolSizes = poolSize.data() };
+	std::array<vk::DescriptorPoolSize, 3> poolSize
+	{
+		{
+			{
+				.type = vk::DescriptorType::eUniformBuffer,
+				.descriptorCount = p_maxFramesInFlight
+			},
+			{
+				.type = vk::DescriptorType::eStorageBuffer,
+				.descriptorCount = p_maxFramesInFlight
+			},
+			{
+				.type = vk::DescriptorType::eCombinedImageSampler,
+				.descriptorCount = p_maxFramesInFlight
+			}
+		} 
+	};
+	
+	vk::DescriptorPoolCreateInfo poolInfo
+	{ 
+		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind,
+		.maxSets = p_maxFramesInFlight,
+		.poolSizeCount = static_cast<std::uint32_t>(poolSize.size()),
+		.pPoolSizes = poolSize.data() 
+	};
+	
 	m_descriptorPool = vk::raii::DescriptorPool(p_device, poolInfo);
-
 }
 
 /*void DescriptorPool::CreateDescriptorSets(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight, std::optional<UniformBuffer> const &p_uniformBuffers)
@@ -50,7 +64,7 @@ void DescriptorPool::CreateDescriptorPool(vk::raii::Device const &p_device, std:
 																 .pImageInfo = &imageInfo}} };
 		p_device.updateDescriptorSets(descriptorWrites, {});
 	}
-}*/
+}
 
 //defines shader stages, binding indices and descriptortype
 void DescriptorPool::CreateDescriptorSetLayout(vk::raii::Device const &p_device)
@@ -78,4 +92,4 @@ void DescriptorPool::AddDescriptorImage(vk::raii::Sampler const &p_sampler, vk::
 		.sampler = *p_sampler, 
 		.imageView = *p_imageView, 
 		.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal });
-}
+}*/
