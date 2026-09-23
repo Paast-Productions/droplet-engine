@@ -15,7 +15,7 @@ public:
 	ScriptSystem();
 
 	/// @brief Destroy the script system.
-	~ScriptSystem() = default;
+	~ScriptSystem();
 
 	/// @brief Starts the script script system.
 	/// This should be called once the scene starts with the script system.
