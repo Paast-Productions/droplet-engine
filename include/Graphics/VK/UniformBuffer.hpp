@@ -1,13 +1,7 @@
 #pragma once
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#include <vector>
-
-#if defined(__INTELLISENSE__) || !defined(USE_CPP20_MODULES)
-#	include <vulkan/vulkan_raii.hpp>
-#else
-import vulkan_hpp;
-#endif
+#include <vulkan/vulkan_raii.hpp>
 
 #include <glm/glm.hpp>
 
@@ -36,7 +30,7 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Updates the buffer
 		/// @param p_swapchainExtent The extent of the swapchain
-		void UpdateBuffer(const vk::Extent2D &p_swapchainExtent);
+		void UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const;
 
 		/// @brief Buffer Getter
 		/// @return RAII pointer to the uniform buffer
@@ -53,7 +47,7 @@ namespace Droplet::Graphics::VK
 
 		vk::raii::Buffer	   m_uniformBuffer = nullptr;
 		vk::raii::DeviceMemory m_deviceMemory = nullptr;
-		void *m_mappedBuffer;
+		void *m_mappedBuffer; // GPU Memory Address
 	};
 
 	inline const vk::raii::Buffer *UniformBuffer::GetBuffer()
