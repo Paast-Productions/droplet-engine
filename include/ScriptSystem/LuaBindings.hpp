@@ -19,8 +19,10 @@ public:
 	static void RegisterBindings(sol::state_view p_luaState);
 
 private:
-
-	static void RegisterGlobalFunctions(sol::state_view p_luaState);
+	/// @brief Register all global functions for Lua.
+	/// Creates OnStart and OnUpdate for lua api
+	/// @param p_luaState Lua state in which should register 
+	static void RegisterGlobalFunctions();
 	/// @brief Registers the TestNode type with Lua.
 	/// Exposes the functionality of TestNode that is intended to be accessible from Lua scripts.
 	/// @param p_luaState Lua state in which the TestNode bindings should be registered.

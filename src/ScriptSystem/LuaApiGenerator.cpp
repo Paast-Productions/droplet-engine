@@ -4,9 +4,9 @@
 #include <fstream>
 #include <print>
 
-bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath, 
-    const std::vector<LuaGlobalFunctionDefinition>& p_globals, 
-    const std::vector<LuaClassDefinition>& p_classes)
+bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath, 
+    const std::vector<LuaGlobalFunctionDefinition> &p_globals, 
+    const std::vector<LuaClassDefinition> &p_classes)
 {
     std::ofstream file(p_outputPath);
 
@@ -17,6 +17,9 @@ bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath,
         return false;
     }
 
+    // TODO : Call self from actual node/component
+    file << "---@type TestNode\n";
+    file << "self = nil\n\n";
 
     GenerateGlobal(file, p_globals);
     GenerateClasses(file, p_classes);
@@ -26,7 +29,7 @@ bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath,
     return true;
 }
 
-void LuaApiGenerator::GenerateGlobal(std::ofstream& p_file,
+void LuaApiGenerator::GenerateGlobal(std::ofstream &p_file,
     const std::vector<LuaGlobalFunctionDefinition> p_globalFunctions)
 {
     for (const LuaGlobalFunctionDefinition& function : p_globalFunctions)
@@ -65,8 +68,8 @@ void LuaApiGenerator::GenerateGlobal(std::ofstream& p_file,
     }
 }
 
-void LuaApiGenerator::GenerateClasses(std::ofstream& p_file, 
-    const std::vector<LuaClassDefinition>& p_classes)
+void LuaApiGenerator::GenerateClasses(std::ofstream &p_file, 
+    const std::vector<LuaClassDefinition> &p_classes)
 {
     for (const LuaClassDefinition& luaClass : p_classes)
     {
@@ -87,12 +90,13 @@ void LuaApiGenerator::GenerateClasses(std::ofstream& p_file,
             if (luaFunction.returnType != "void")
             {
                 p_file << "---@return "
-                    << GetDefaultLuaValue(luaFunction.returnType)
+                    << luaFunction.returnType
                     << "\n";
             }
 
             p_file << "function "
                 << luaClass.name
+                << ":"
                 << luaFunction.name
                 << "(";
 
@@ -106,7 +110,16 @@ void LuaApiGenerator::GenerateClasses(std::ofstream& p_file,
                 }
             }
 
-            p_file << ") end\n\n";
+            p_file << ")\n";
+
+            if (luaFunction.returnType != "void")
+            {
+                p_file << "    return "
+                    << GetDefaultLuaValue(luaFunction.returnType)
+                    << "\n";
+            }
+
+            p_file << "end\n\n";
         }
     }
 }
