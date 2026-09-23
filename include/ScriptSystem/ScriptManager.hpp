@@ -216,6 +216,15 @@ inline sol::protected_function_result ScriptManager::Call(
 		//TODO: attach component to script
 		return {};
 	}
+	ScriptInstance* instance = it->second;
+	std::vector<ScriptInstance*>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
+
+	if (activeIterator == m_activeScripts.end())
+	{
+		//tried to call on an inactive component
+		return{};
+		//send error to logger 
+	}
 
 	return it->second->Call(p_functionName, std::forward<Args>(p_args)...);
 }

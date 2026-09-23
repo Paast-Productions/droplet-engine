@@ -12,12 +12,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         &testNode,
        "testScript.lua"
     ); 
-    
     scriptSystem.CreateScript(&guptaNode, "guptaTestScript.lua");
-    
-    scriptSystem.Start();
     scriptSystem.Call(&guptaNode, "backflip");
-    auto var = scriptSystem.Call(&guptaNode, "fishflip", 5, 2,3);
+    scriptSystem.ActivateScript(&guptaNode);
+    scriptSystem.Call(&guptaNode, "backflip");
 
     while (true)
     {
