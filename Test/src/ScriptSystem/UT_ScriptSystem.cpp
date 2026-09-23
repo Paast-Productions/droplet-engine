@@ -64,7 +64,7 @@ TEST(ScriptSystem, ActivateScript)
 	system.CreateScript(&testNode, "bruh.lua");
 	system.ActivateScript(&testNode);
 	system.Update(1);
-	float result = system.Call(&testNode, "getDT");
+	float result = system.Call(&testNode, "GetDT");
 
 	EXPECT_EQ(result, 1);
 }
@@ -80,7 +80,7 @@ TEST(ScriptSystem, DeactivateScript)
 	system.Update(1);
 	system.DeactivateScript(&testNode);
 	system.Update(1);
-	auto result = system.Call(&testNode, "getDT");
+	auto result = system.Call(&testNode, "GetDT");
 
 	EXPECT_FALSE(result.valid());
 }

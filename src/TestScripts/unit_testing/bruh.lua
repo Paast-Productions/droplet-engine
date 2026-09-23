@@ -8,10 +8,10 @@ function OnUpdate(dt)
 	jonas = jonas + dt
 end
 
-function timesTwo(a)
+function TimesTwo(a)
 	return a * 2
 end
 
-function getDT()
+function GetDT()
 	return jonas
 end

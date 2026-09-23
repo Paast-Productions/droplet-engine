@@ -154,7 +154,7 @@ TEST(ScriptManager, ActivateScript)
 	manager.ActivateScript(&testNode);
 
 	manager.Update(1);
-	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
+	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
 
 	EXPECT_EQ(timesTwo, 2);
 }
@@ -171,11 +171,11 @@ TEST(ScriptManager, DeactivateScript)
 	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 
-	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
+	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
 	EXPECT_EQ(timesTwo, 2);
 
 	manager.DeactivateScript(&testNode);
 
-	auto result = manager.Call(&testNode, "timesTwo", 1);
+	auto result = manager.Call(&testNode, "TimesTwo", 1);
 	EXPECT_FALSE(result.valid());
 }
