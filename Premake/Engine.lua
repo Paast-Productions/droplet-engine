@@ -6,17 +6,14 @@ project "Engine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+    local vkPath = os.getenv("VULKAN_SDK")
+
     includedirs
     {
         "../include",
         "../include/**",
+        vkPath .. "/Include",
         targetBuildPath .. "/External/include/"
-    }
-
-    libdirs
-    {
-        targetBuildPath .. "/External/lib/",
-        targetBuildPath .. "/External/lib64/"
     }
 
     dependson
@@ -24,7 +21,8 @@ project "Engine"
         --"GoogleTest",
         --"ImGui",
         "Sol2",
-        "Lua"
+        "Lua",
+        "json"
         --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }

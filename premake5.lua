@@ -42,11 +42,15 @@ include "Premake/Test"
 
 -- [[ SAMPLES ]] --
 
+include "Premake/Samples/Vulkan/HelloTriangle"
+include "Premake/Samples/Scene/Scene"
+include "Premake/Samples/Transform/Transform"
 include "Premake/Samples/Scripting/ScriptingMain"
 
 -- [[ EXTERNAL ]] --
 
 include "Premake/External/ImGui"
+include "Premake/External/json"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
