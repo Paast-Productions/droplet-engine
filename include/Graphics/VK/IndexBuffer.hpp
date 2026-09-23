@@ -2,10 +2,9 @@
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vector>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 #include <vulkan/vulkan_raii.hpp>
-
-#include <glm/glm.hpp>
 
 namespace Droplet::Graphics::VK
 {

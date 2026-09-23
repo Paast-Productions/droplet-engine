@@ -1,9 +1,10 @@
 #pragma once
 
-#include <vector>
-
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
+
+#include <vector>
 #include <glm/glm.hpp>
 
 namespace Droplet::Graphics::VK

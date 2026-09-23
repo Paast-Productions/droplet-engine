@@ -2,6 +2,7 @@
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
 /// @brief Helper function to find memory properties of the hardware
 /// @param p_physDevice RAII pointer reference to hardware device
