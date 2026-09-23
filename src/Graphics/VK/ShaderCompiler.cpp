@@ -12,8 +12,7 @@ ShaderCompiler::ShaderCompiler()
 
 Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path)
 {
-    [[unlikely]]
-    if (not m_session)
+    [[unlikely]] if (not m_session)
     {
         slang::TargetDesc targetDesc
         {
@@ -44,6 +43,8 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
     }
     
     Slang::ComPtr<slang::IModule> module {};
+    
+    // TODO: FIX FILEPATH TO SLANG SHADER
     
     {
         Slang::ComPtr<slang::IBlob> errorBlob {};

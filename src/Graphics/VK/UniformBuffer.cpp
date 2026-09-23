@@ -12,29 +12,38 @@ using namespace Droplet::Graphics::VK;
 UniformBuffer::UniformBuffer(vk::raii::Device const &p_device, 
 							 vk::raii::PhysicalDevice const &p_physDevice)
 {
-	vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
-	auto [buffer, memory] = CreateBuffer(p_device, p_physDevice, 
+	constexpr vk::DeviceSize bufferSize = sizeof(UniformBufferObject);
+	
+	vk::raii::Buffer buffer {nullptr};
+	vk::raii::DeviceMemory memory {nullptr};
+	std::tie(buffer, memory) = CreateBuffer
+	(
+		p_device,
+		p_physDevice, 
 		bufferSize, 
 		vk::BufferUsageFlagBits::eUniformBuffer, 
-		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+		vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
+	);
 
 	m_uniformBuffer = std::move(buffer);
 	m_deviceMemory = std::move(memory);
 	m_mappedBuffer = m_deviceMemory.mapMemory(0, bufferSize);
 }
 
-void UniformBuffer::UpdateBuffer(const vk::Extent2D &p_swapchainExtent)
+void UniformBuffer::UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const
 {
-	static auto s_startTime = std::chrono::high_resolution_clock::now();
+	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+	
+	static TimePoint s_startTime { std::chrono::high_resolution_clock::now() };
+	const TimePoint  currentTime { std::chrono::high_resolution_clock::now() };
+	const float time = { std::chrono::duration<float>(currentTime - s_startTime).count() };
 
-	auto  _currentTime = std::chrono::high_resolution_clock::now();
-	float _time = std::chrono::duration<float>(_currentTime - s_startTime).count();
+	const UniformBufferObject ubo
+	{
+		.model = rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(p_swapchainExtent.width) / static_cast<float>(p_swapchainExtent.height), 0.1f, 10.0f)
+	};
 
-	UniformBufferObject ubo{};
-	ubo.model = rotate(glm::mat4(1.0f), _time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ubo.proj =
-		glm::perspective(glm::radians(45.0f), static_cast<float>(p_swapchainExtent.width) / static_cast<float>(p_swapchainExtent.height), 0.1f, 10.0f);
-
-	memcpy(m_mappedBuffer, &ubo, sizeof(ubo));
+	std::memcpy(m_mappedBuffer, &ubo, sizeof(ubo));
 }

@@ -1,6 +1,6 @@
 ﻿#include "Graphics/VK/Renderer.hpp"
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
 	// Window Config
 	Droplet::Graphics::SDL::WindowConfig windowConfig 
@@ -10,7 +10,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 		.Flags = 0
 	};
 	
-	Renderer rnd { windowConfig };
+	Renderer rnd 
+	{
+		windowConfig
+	};
 
 	if (rnd.Initialize() == 1)
 	{
@@ -34,8 +37,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
 			rnd.drawFrame();
 
-			if (rnd.p_event.type == SDL_EVENT_KEY_DOWN) {
-				if (rnd.p_event.key.key == SDLK_ESCAPE) {
+			if (rnd.p_event.type == SDL_EVENT_KEY_DOWN) 
+			{
+				if (rnd.p_event.key.key == SDLK_ESCAPE) 
+				{
 					done = true;
 				}
 			}
