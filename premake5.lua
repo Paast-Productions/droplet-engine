@@ -8,6 +8,8 @@ workspace "DropletEngine"
 	startproject "Engine"
     warnings "Extra"
     fatalwarnings { "All" }
+    externalwarnings ("Off")
+    externalanglebrackets ("On")
     configurations { "debug", "release" }
 
     architecture "x86_64"
@@ -46,6 +48,7 @@ include "Premake/Samples/AssetManager/AssetLoading"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
+include "Premake/External/Stb"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
