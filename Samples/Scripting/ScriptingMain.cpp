@@ -5,7 +5,7 @@
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	ScriptSystem scriptSystem;
-
+    scriptSystem.SetScriptPath("../../../src/TestScripts");
 	TestNode testNode;
     [[maybe_unused]] auto* script = scriptSystem.CreateScript(
         &testNode,
@@ -16,6 +16,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     scriptSystem.Start();
     scriptSystem.Update(1.0);
+    TestNode guptaNode;
+
+    scriptSystem.CreateScript(&guptaNode, "guptaTestScript.lua");
+    scriptSystem.Call(&guptaNode, "backflip");
+    scriptSystem.ActivateScript(&guptaNode);
+    scriptSystem.Call(&guptaNode, "backflip");
 
     while (true)
     {

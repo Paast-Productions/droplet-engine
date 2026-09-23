@@ -53,7 +53,7 @@ TEST(ScriptInstance, onStart)
 		"TestScript.lua"
 	);
 
-	instance.onStart();
+	instance.OnStart();
 
 	EXPECT_EQ(testNode.getX(), 1);
 }
@@ -80,7 +80,7 @@ TEST(ScriptInstance, onStartUndefined)
 		"TestScript.lua"
 	);
 
-	instance.onStart();
+	instance.OnStart();
 
 	EXPECT_EQ(testNode.getX(), 1);
 }
@@ -118,7 +118,7 @@ TEST(ScriptInstance, onUpdate)
 
 	for (int i = 0; i < 3; ++i)
 	{
-		instance.onUpdate(2.0f);
+		instance.OnUpdate(2.0f);
 	}
 
 	EXPECT_EQ(testNode.getY(), 6);
@@ -149,7 +149,7 @@ TEST(ScriptInstance, onUpdateUndefined)
 
 	for (int i = 0; i < 3; ++i)
 	{
-		instance.onUpdate(2.0f);
+		instance.OnUpdate(2.0f);
 	}
 
 	EXPECT_EQ(testNode.getY(), 1);
@@ -188,7 +188,7 @@ TEST(ScriptInstance, call)
 		"TestScript.lua"
 	);
 
-	auto result = instance.call("customFunction", 4);
+	auto result = instance.Call("customFunction", 4);
 
 	ASSERT_TRUE(result.valid());
 	EXPECT_EQ(testNode.getZ(), 4);
@@ -219,7 +219,7 @@ TEST(ScriptInstance, callUndefinedFunction)
 		"TestScript.lua"
 	);
 
-	auto result = instance.call("IDontExist", 4);
+	auto result = instance.Call("IDontExist", 4);
 
 	ASSERT_FALSE(result.valid());
 	EXPECT_EQ(testNode.getZ(), 1);
@@ -258,7 +258,7 @@ TEST(ScriptInstance, callTooManyArguments)
 		"TestScript.lua"
 	);
 
-	auto result = instance.call("doStuff", 1, 2, 3);
+	auto result = instance.Call("doStuff", 1, 2, 3);
 
 	ASSERT_TRUE(result.valid());
 	EXPECT_EQ(testNode.getX(), 2);
@@ -299,7 +299,7 @@ TEST(ScriptInstance, callTooFewArguments)
 		"TestScript.lua"
 	);
 
-	auto result = instance.call("doStuff", 1);
+	auto result = instance.Call("doStuff", 1);
 
 	ASSERT_FALSE(result.valid());
 	EXPECT_EQ(testNode.getX(), 1);
@@ -335,7 +335,7 @@ TEST(ScriptInstance, callCorrectReturnValue)
 		"TestScript.lua"
 	);
 
-	int result = instance.call("giveMe", 1);
+	int result = instance.Call("giveMe", 1);
 
 	EXPECT_EQ(result, 2);
 }
@@ -368,7 +368,7 @@ TEST(ScriptInstance, callError)
 		"TestScript.lua"
 	);
 
-	auto result = instance.call("add", 1, "hello");
+	auto result = instance.Call("add", 1, "hello");
 
 	EXPECT_FALSE(result.valid());
 }

@@ -53,11 +53,13 @@ public:
 	/// @param testNode Node that will own the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
 	/// @return Pointer to the newly created script instance.
-	ScriptInstance* CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
+	bool CreateScript(TestNode* p_scriptComponent, const std::string& p_scriptFile);
 
 	/// @brief Destroys a script instance.
 	/// @param p_scriptInstance Script instance to destroy.
-	void DestroyScript(ScriptInstance* p_scriptInstance);
+	void DestroyScript(const std::string& p_scriptPath);
+
+	bool SetScriptPath(const std::string& p_directoryPath);
 
 	/// @brief Calls a Lua function on a script component.
 	/// The supplied arguments are forwarded to the Lua function. The result
