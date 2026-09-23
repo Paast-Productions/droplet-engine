@@ -1,6 +1,6 @@
 #pragma once
 
-#include "asset/meta/MetaData.hpp"
+#include "resource/meta/MetaData.hpp"
 
 #include <filesystem>
 

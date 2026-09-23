@@ -10,10 +10,10 @@ project "AssetManager-AssetLoading"
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/AssetManager/AssetLoading.cpp",
-        rootPath .. "/src/asset/ResourceCatalog.cpp",
-        rootPath .. "/src/asset/ResourceManager.cpp",
-        rootPath .. "/src/asset/TextureLoader.cpp",
-	rootPath .. "/src/asset/meta/MetaUtils.cpp"
+        rootPath .. "/src/resource/ResourceCatalog.cpp",
+        rootPath .. "/src/resource/ResourceManager.cpp",
+        rootPath .. "/src/resource/TextureLoader.cpp",
+	    rootPath .. "/src/resource/meta/MetaUtils.cpp"
     }
 
     libdirs {
@@ -26,7 +26,7 @@ project "AssetManager-AssetLoading"
 
     includedirs {
         rootPath .. "/include",
-	rootPath .. "/include/asset/meta",
+	    rootPath .. "/include/resource/meta",
         vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
@@ -35,8 +35,8 @@ project "AssetManager-AssetLoading"
         "Engine",
         "Assimp",
         "json",
-	"Gli",
-	"Stb"
+        "Gli",
+        "Stb"
     }
 
     links {

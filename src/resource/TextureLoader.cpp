@@ -1,10 +1,11 @@
-#include "Asset/TextureLoader.hpp"
+#include "resource/TextureLoader.hpp"
 #include <iostream>
 #include <filesystem>
 #include <stdexcept>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <Stb/stb_image.h>
+#undef STB_IMAGE_IMPLEMENTATION
 
 namespace fs = std::filesystem;
 namespace Droplet::ResourceLoader

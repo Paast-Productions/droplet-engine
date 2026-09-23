@@ -1,7 +1,7 @@
 #pragma once
 
-#include "asset/ResourceHandle.hpp"
-#include "asset/ResourceManager.hpp"
+#include "resource/ResourceHandle.hpp"
+#include "resource/ResourceManager.hpp"
 
 namespace Droplet
 {

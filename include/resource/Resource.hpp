@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <stdexcept>
+#include <slang/slang-com-ptr.h>
 
 
 namespace Droplet
@@ -444,8 +445,6 @@ namespace Droplet
 	/// @brief Class for shader resources.
 	class ShaderResource : public IResource
 	{
-		// TODO
-
 	public:
 		enum class ShaderType
 		{
@@ -458,10 +457,22 @@ namespace Droplet
 			Mesh,
 			Task,
 		};
+	    
+	    ShaderResource(ShaderType p_type);
+	    ShaderType GetType() const;
+	    
+	    uint32_t GetGpuHandle() const;
+	    void SetGpuHandle(uint32_t handle);
+	    
+	    Slang::ComPtr<slang::IBlob> GetByteCode() const;
+	    void SetByteCode(Slang::ComPtr<slang::IBlob> p_byteCode);
+	    
+	    void ReleaseRam();
 
 	private:
-
 		ShaderType m_shaderType = ShaderType::Vertex;
+	    Slang::ComPtr<slang::IBlob> m_byteCode = nullptr;
+	    uint32_t m_gpuHandle = 0; 
 	};
 
 	/// @brief Class for material resources.

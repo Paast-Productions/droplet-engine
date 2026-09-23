@@ -1,4 +1,4 @@
-#include "asset/meta/MetaUtils.hpp"
+#include "resource/meta/MetaUtils.hpp"
 
 #include <fstream>
 

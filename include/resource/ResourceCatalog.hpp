@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "asset/GUID.hpp"
-#include "asset/meta/MetaData.hpp"
+#include "resource/GUID.hpp"
+#include "resource/meta/MetaData.hpp"
 
 #include <string>
 #include <unordered_map>

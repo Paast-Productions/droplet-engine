@@ -8,9 +8,9 @@
 #include <cassert>
 #include <functional>
 
-#include "asset/ResourceHandle.hpp"
-#include "asset/ResourceCatalog.hpp"
-#include "asset/Resource.hpp"
+#include "resource/ResourceHandle.hpp"
+#include "resource/ResourceCatalog.hpp"
+#include "resource/Resource.hpp"
 
 namespace Droplet
 {
@@ -171,6 +171,6 @@ namespace Droplet
     
 }
 
-#include "asset/ResourceHandle.inl" // Included here to avoid circular definitions
+#include "resource/ResourceHandle.inl" // Included here to avoid circular definitions
 
 

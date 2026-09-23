@@ -29,8 +29,8 @@ project "Engine"
         "Jolt",
         "json",
         "Assimp",
-	"Gli",
-	"Stb"
+        "Gli",
+        "Stb"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -38,7 +38,6 @@ project "Engine"
         "../include/**.hpp",
         "../include/**.inl",
         "../src/**.cpp",
-        "../src/**.h"
     }
 
     defines {

@@ -1,8 +1,8 @@
 ﻿#include <print>
 
-#include "asset/ResourceManager.hpp"
+#include "resource/ResourceManager.hpp"
 
-#include "asset/TextureLoader.hpp"
+#include "resource/TextureLoader.hpp"
 
 #include <filesystem>
 #include <string>
