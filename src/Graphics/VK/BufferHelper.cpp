@@ -71,6 +71,11 @@ void CopyBuffer(const vk::raii::Device &p_device, const vk::raii::Queue &p_queue
 	vk::raii::CommandBuffer commandCopyBuffer = BeginSingleTimeCommands(p_device, p_commandPool);
 	commandCopyBuffer.copyBuffer(*p_srcBuffer, *p_dstBuffer, vk::BufferCopy{ .size = p_size });
 	EndSingleTimeCommands(std::move(commandCopyBuffer), p_queue);
+	
+	Droplet::Graphics::VK::CommandPool commandPool(p_device, 0, {});
+	Droplet::Graphics::VK::CommandBuffer commandBuffer = commandPool.BeginSingleTime();
+	commandBuffer.CopyBuffer(*p_srcBuffer, *p_dstBuffer, p_size);
+	commandPool.EndSingleTime(commandBuffer, p_queue);
 }
 
 void TransitionImageLayout(vk::raii::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)

@@ -1,7 +1,7 @@
 #pragma once
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
-#include <vulkan/vulkan_raii.hpp>
+	#include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 namespace Droplet::Graphics::VK
 {
@@ -9,6 +9,10 @@ namespace Droplet::Graphics::VK
 	{
 	public:
 		vk::raii::CommandBuffer& Get();
+		void Begin(vk::CommandBufferUsageFlagBits p_flags);
+		void End();
+		
+		void CopyBuffer(vk::Buffer p_src, vk::Buffer p_dst, vk::DeviceSize p_size);
 		
 	private:
 		friend class CommandPool;

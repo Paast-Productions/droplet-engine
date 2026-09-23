@@ -1,8 +1,9 @@
 ﻿#pragma once
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
-#include <vulkan/vulkan_raii.hpp>
+	#include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vector>
+#include <functional>
 
 #include "CommandBuffer.hpp"
 
@@ -21,6 +22,12 @@ namespace Droplet::Graphics::VK
 		/// @brief Deleted constructor
 		CommandPool() = delete;
 		
+		/// @brief Deleted constructor
+		CommandPool(const CommandPool&) = delete;
+		
+		/// @brief Deleted constructor
+		CommandPool& operator=(const CommandPool&) = delete;
+		
 		/// @brief CommandPool constructor
 		/// @param p_device RAII pointer to the Vulkan Device
 		/// @param p_queueFamilyIndex Index to a queue family which the command buffers should be submitted to
@@ -37,6 +44,12 @@ namespace Droplet::Graphics::VK
 		/// @param p_id Struct containing command buffer index in command pool
 		/// @returns Reference to command buffer
 		CommandBuffer& Get(const CommandBufferId p_id);
+		
+		CommandBuffer BeginSingleTime();
+		void EndSingleTime(CommandBuffer& p_commandBuffer, const vk::raii::Queue& p_queue);
+		
+		template<typename RecordFunction, typename... Args>
+		void ImmediateSubmit(vk::raii::Queue &p_queue, RecordFunction&& p_recordFunction, Args&& p_args);
 		
 	private:
 		const vk::raii::Device &m_device;
