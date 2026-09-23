@@ -205,7 +205,7 @@ inline sol::protected_function_result ScriptManager::Call(
 	if (p_scriptComponent == nullptr)
 	{
 		// TODO: Send error to logging manager instead of sending a nullptr
-		return {};
+		return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 	}
 
 	std::unordered_map<TestNode*, ScriptInstance*>::iterator it =
@@ -214,7 +214,7 @@ inline sol::protected_function_result ScriptManager::Call(
 	if (it == m_scripts.end())
 	{
 		//TODO: attach component to script
-		return {};
+		return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 	}
 	ScriptInstance* instance = it->second;
 	std::vector<ScriptInstance*>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
