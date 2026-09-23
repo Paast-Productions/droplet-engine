@@ -23,20 +23,14 @@ namespace Droplet
             Task,
         };
 	    
-        ShaderResource(ShaderType p_type);
+        ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_byteCode);
         ShaderType GetType() const;
-	    
-        uint32_t GetGpuHandle() const;
-        void SetGpuHandle(uint32_t handle);
-	    
         Slang::ComPtr<slang::IBlob> GetByteCode() const;
-        void SetByteCode(Slang::ComPtr<slang::IBlob> p_byteCode);
 	    
         void ReleaseRam();
 
     private:
-        ShaderType m_shaderType = ShaderType::Vertex;
+        ShaderType m_type = ShaderType::Vertex;
         Slang::ComPtr<slang::IBlob> m_byteCode = nullptr;
-        uint32_t m_gpuHandle = 0; 
     };
 }
