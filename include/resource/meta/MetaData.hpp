@@ -1,7 +1,7 @@
 #pragma once
 
 #include "resource/GUID.hpp"
-#include "resource/Resource.hpp"
+#include "resource/IResource.hpp"
 
 #include <json/json.hpp>
 #include <cstdint>

@@ -10,7 +10,6 @@
 
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceCatalog.hpp"
-#include "resource/Resource.hpp"
 
 namespace Droplet
 {
