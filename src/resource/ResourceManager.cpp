@@ -130,7 +130,7 @@ namespace Droplet
             else
             {
                 // Resource does not exist in the old metadata -> create a new entry for it
-                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName));
+                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName, p_assetPath));
             }
         }
         

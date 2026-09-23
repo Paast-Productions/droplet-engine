@@ -1,6 +1,7 @@
 #pragma once
 
 #include "resource/meta/MetaData.hpp"
+#include "resource/types/ShaderResource.hpp"
 
 #include <filesystem>
 
@@ -28,9 +29,14 @@ namespace Droplet::MetaUtils
     /// @return True if the metadata was successfully written to the file, otherwise false.
     bool Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData);
 
+    /// @brief Determines the shader type based on its name.
+    /// @param p_shaderPath The path to the shader file.
+    /// @return The shader type.
+    ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath);
+
     /// @brief Generates a new meta entry with a unique GUID and type-specific default values.
     /// @param p_type The type of resource the entry is for.
     /// @param p_name The name of the resource within the asset.
     /// @return A generated meta entry.
-    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name);
+    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath);
 }
