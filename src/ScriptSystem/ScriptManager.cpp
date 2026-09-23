@@ -23,7 +23,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-bool ScriptManager::CreateScript([[maybe_unused]] TestNode *p_scriptComponent, const std::string &p_scriptFile)
+bool ScriptManager::CreateScript( TestNode *p_scriptComponent, const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -71,7 +71,7 @@ bool ScriptManager::CreateScript([[maybe_unused]] TestNode *p_scriptComponent, c
 	return true;
 }
 
-void ScriptManager::DetachScript([[maybe_unused]] TestNode *p_scriptComponent)
+void ScriptManager::DetachScript( TestNode *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
@@ -108,7 +108,7 @@ void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 	}
 }
 
-bool ScriptManager::LoadScript(const std::string& p_scriptFile)
+bool ScriptManager::LoadScript(const std::string &p_scriptFile)
 {
 	if (IsLoaded(p_scriptFile))
 	{
@@ -178,7 +178,7 @@ bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
-bool ScriptManager::ReloadScript([[maybe_unused]] const std::string& p_scriptFile)
+bool ScriptManager::ReloadScript(const std::string &p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
 
