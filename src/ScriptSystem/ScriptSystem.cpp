@@ -47,14 +47,14 @@ bool ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std::string& p
 		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
 		return false;
 	}
-	return false;
+	return true;
 }
 bool ScriptSystem::SetScriptPath(const std::string& p_directoryPath)
 {
 	return m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
-void ScriptSystem::DestroyScript(const std::string& p_scriptPath)
+void ScriptSystem::DetachAllInstancesToScript(const std::string& p_scriptPath)
 {
-	m_scriptManager.DestroyScript(p_scriptPath);
+	m_scriptManager.DetachAllInstancesToScript(p_scriptPath);
 }

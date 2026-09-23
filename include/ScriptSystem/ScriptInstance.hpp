@@ -26,7 +26,7 @@ public:
 		const std::string &p_scriptPath);
 
 	/// @brief Destroys the script instance.
-	~ScriptInstance() = default;
+	~ScriptInstance();
 
 	/// @brief Calls an arbitrary Lua function in the script environment.
 	/// The function is looked up by name in the script's Lua environment.

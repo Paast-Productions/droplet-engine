@@ -25,18 +25,30 @@ TEST(ScriptManager, CreateScript)
 	EXPECT_TRUE(result);
 }
 
-TEST(ScriptManager, DestroyScript)
+TEST(ScriptManager, DetachAllInstancesToScript)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
-	TestNode testNode;
+	TestNode firstNode;
+	TestNode secondNode;
 
-	manager.SetScriptDirectory("../src/TestScripts");
-	manager.CreateScript(&testNode, "testScript.lua");
-	manager.DestroyScript("testScript.lua");
+	ASSERT_TRUE(manager.SetScriptDirectory("../src/TestScripts"));
 
-	EXPECT_EQ(&testNode, nullptr);
+	manager.CreateScript(&firstNode, "testScript.lua");
+	manager.CreateScript(&secondNode, "testScript.lua");
+
+	manager.ActivateScript(&firstNode);
+	manager.ActivateScript(&secondNode);
+
+	manager.DetachAllInstancesToScript("testScript.lua");
+
+	EXPECT_FALSE(manager.Call(&firstNode, "test").valid());
+	EXPECT_FALSE(manager.Call(&secondNode, "test").valid());
+
+	EXPECT_NO_THROW(manager.Update(0.016f));
+
+	EXPECT_NO_THROW(manager.DetachAllInstancesToScript("testScript.lua"));
 }
 
 TEST(ScriptManager, LoadScript)
@@ -142,7 +154,7 @@ TEST(ScriptManager, ActivateScript)
 	manager.ActivateScript(&testNode);
 
 	manager.Update(1);
-	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
+	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
 
 	EXPECT_EQ(timesTwo, 2);
 }
@@ -159,11 +171,11 @@ TEST(ScriptManager, DeactivateScript)
 	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 
-	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
+	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
 	EXPECT_EQ(timesTwo, 2);
 
 	manager.DeactivateScript(&testNode);
 
-	auto result = manager.Call(&testNode, "timesTwo", 1);
+	auto result = manager.Call(&testNode, "TimesTwo", 1);
 	EXPECT_FALSE(result.valid());
 }

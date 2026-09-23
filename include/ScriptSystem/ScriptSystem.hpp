@@ -57,7 +57,7 @@ public:
 
 	/// @brief Destroys a script instance.
 	/// @param p_scriptInstance Script instance to destroy.
-	void DestroyScript(const std::string& p_scriptPath);
+	void DetachAllInstancesToScript(const std::string& p_scriptPath);
 
 	bool SetScriptPath(const std::string& p_directoryPath);
 

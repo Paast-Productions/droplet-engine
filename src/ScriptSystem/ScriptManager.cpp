@@ -90,7 +90,7 @@ void ScriptManager::DetachScript([[maybe_unused]] TestNode* p_scriptComponent)
 	DestroyInstance(instance);
 }
 
-void ScriptManager::DestroyScript(const std::string& p_scritpfile)
+void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 {
 	std::vector<ScriptInstance*> instanceToKill;
 

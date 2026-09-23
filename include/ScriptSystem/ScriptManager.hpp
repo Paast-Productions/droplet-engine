@@ -89,7 +89,7 @@ public:
 	/// @brief Decouples every instance to a certain script file.
 	/// Removes the specified scriptfile and its associated relationships.
 	/// @param p_scriptInstance Script File to detach.
-	void DestroyScript(const std::string& p_scritpfile);
+	void DetachAllInstancesToScript(const std::string& p_scritpfile);
 
 	/// @brief Loads a Lua script into the scripting system
 	/// If the script is already loaded, the existing loaded script is kept

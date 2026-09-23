@@ -13,7 +13,7 @@ bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath,
     if (!file.is_open()) 
     {
         std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
-
+		//TODO : send to logging manager
         return false;
     }
 

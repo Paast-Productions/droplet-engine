@@ -9,10 +9,10 @@ TEST(ScriptInstance, getScriptPath)
 	TestNode testNode;
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate()
+		function OnUpdate()
 		end
 	)");
 
@@ -23,7 +23,7 @@ TEST(ScriptInstance, getScriptPath)
 	EXPECT_EQ(instance.GetScriptPath(), "TestScript.lua");
 }
 
-TEST(ScriptInstance, onStart)
+TEST(ScriptInstance, OnStart)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
@@ -32,15 +32,15 @@ TEST(ScriptInstance, onStart)
 	testNode.setPosition(0, 0, 0);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
-			self:set_position(
-				self:get_x() + 1.0,
-				self:get_y(),
-				self:get_z()
+		function OnStart()
+			self:Set_position(
+				self:Get_x() + 1.0,
+				self:Get_y(),
+				self:Get_z()
 			)
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 	)");
 
@@ -58,7 +58,7 @@ TEST(ScriptInstance, onStart)
 	EXPECT_EQ(testNode.getX(), 1);
 }
 
-TEST(ScriptInstance, onStartUndefined)
+TEST(ScriptInstance, OnStartUndefined)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
@@ -94,15 +94,15 @@ TEST(ScriptInstance, onUpdate)
 	testNode.setPosition(0, 0, 0);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 			print("You should not read this!")
 		end
 
-		function onUpdate(dt)
-			self:set_position(
-				self:get_x(),
-				self:get_y() + dt,
-				self:get_z()
+		function OnUpdate(dt)
+			self:Set_position(
+				self:Get_x(),
+				self:Get_y() + dt,
+				self:Get_z()
 			)
 		end
 	)");
@@ -124,7 +124,7 @@ TEST(ScriptInstance, onUpdate)
 	EXPECT_EQ(testNode.getY(), 6);
 }
 
-TEST(ScriptInstance, onUpdateUndefined)
+TEST(ScriptInstance, OnUpdateUndefined)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
@@ -133,7 +133,7 @@ TEST(ScriptInstance, onUpdateUndefined)
 	testNode.setPosition(0, 1, 0);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 			print("You should not read this!")
 		end
 	)");
@@ -155,7 +155,7 @@ TEST(ScriptInstance, onUpdateUndefined)
 	EXPECT_EQ(testNode.getY(), 1);
 }
 
-TEST(ScriptInstance, call)
+TEST(ScriptInstance, Call)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
@@ -164,17 +164,17 @@ TEST(ScriptInstance, call)
 	testNode.setPosition(0, 0, 0);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 
 		function customFunction(a)
-			self:set_position(
-				self:get_x(),
-				self:get_y(),
-				self:get_z() + a
+			self:Set_position(
+				self:Get_x(),
+				self:Get_y(),
+				self:Get_z() + a
 			)
 		end
 	)");
@@ -194,7 +194,7 @@ TEST(ScriptInstance, call)
 	EXPECT_EQ(testNode.getZ(), 4);
 }
 
-TEST(ScriptInstance, callUndefinedFunction)
+TEST(ScriptInstance, CallUndefinedFunction)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
@@ -203,10 +203,10 @@ TEST(ScriptInstance, callUndefinedFunction)
 	testNode.setPosition(0, 0, 1);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 	)");
 
@@ -234,17 +234,17 @@ TEST(ScriptInstance, callTooManyArguments)
 	testNode.setPosition(1, 1, 1);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 		
 		function doStuff(a, b)
-			self:set_position(
-				self:get_x() + a,
-				self:get_y() + b,
-				self:get_z()
+			self:Set_position(
+				self:Get_x() + a,
+				self:Get_y() + b,
+				self:Get_z()
 			)			
 		end
 	)");
@@ -275,17 +275,17 @@ TEST(ScriptInstance, callTooFewArguments)
 	testNode.setPosition(1, 1, 1);
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 		
 		function doStuff(a, b)
-			self:set_position(
-				self:get_x() + a,
-				self:get_y() + b,
-				self:get_z()
+			self:Set_position(
+				self:Get_x() + a,
+				self:Get_y() + b,
+				self:Get_z()
 			)			
 		end
 	)");
@@ -315,10 +315,10 @@ TEST(ScriptInstance, callCorrectReturnValue)
 	TestNode testNode;
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 		
 		function giveMe(a)
@@ -348,10 +348,10 @@ TEST(ScriptInstance, callError)
 	TestNode testNode;
 
 	auto script = stateHandler.GetState().load(R"(
-		function onStart()
+		function OnStart()
 		end
 
-		function onUpdate(dt)
+		function OnUpdate(dt)
 		end
 		
 		function add(a, b)

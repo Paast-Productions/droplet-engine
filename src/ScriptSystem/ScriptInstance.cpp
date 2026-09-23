@@ -26,6 +26,10 @@ ScriptInstance::ScriptInstance(TestNode *p_testNode, LuaStateHandler &p_stateHan
 	m_onUpdate = m_environment["OnUpdate"];
 }
 
+ScriptInstance::~ScriptInstance()
+{
+}
+
 void ScriptInstance::OnStart()
 {
 	if (m_onStart.valid())
