@@ -1,17 +1,22 @@
+function OnStart() end
+
+---@param dt number
+function OnUpdate(dt) end
+
 ---@class 
  = {}
 
 ---@param x number
 ---@param y number
 ---@param z number
-function :set_position(x, y, z) end
+function Set_position(x, y, z) end
 
 ---@return number
-function :get_x() end
+function Get_x() end
 
 ---@return number
-function :get_y() end
+function Get_y() end
 
 ---@return number
-function :get_z() end
+function Get_z() end
 
