@@ -9,7 +9,7 @@ ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p
 
 void ScriptManager::Start()
 {
-	for (auto& instance : m_scriptInstances)
+	for (auto& instance : m_activeScripts)
 	{
 		instance->OnStart();
 	}
