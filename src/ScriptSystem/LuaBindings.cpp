@@ -8,17 +8,17 @@ std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
 
 void LuaBindings::RegisterBindings(sol::state_view p_luaState) 
 {
-    RegisterGlobalFunctions(p_luaState);
+    RegisterGlobalFunctions();
 	RegisterTestNode(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
-		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
+		/ ".." / ".." / ".." / "src" / "TestScripts"; // TODO : Update after we define Script map
 
-    std::filesystem::path path = scriptDirectory / "ScriptSystem.d.lua";
-	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions);
+    std::filesystem::path outputPath = scriptDirectory / "LuaHelper.d.lua";
+	LuaApiGenerator::Generate(outputPath, m_luaGlobalDefinitions, m_luaClassDefinitions);
 }
 
-void LuaBindings::RegisterGlobalFunctions([[maybe_unused]] sol::state_view p_luaState)
+void LuaBindings::RegisterGlobalFunctions()
 {
     m_luaGlobalDefinitions =
     {
@@ -49,6 +49,9 @@ void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
 	);
 
 	LuaClassDefinition testNode;
+
+    testNode.name = "TestNode";
+
     testNode.functions =
     {
         {
