@@ -14,6 +14,7 @@ project "AssetManager-AssetLoading"
         rootPath .. "/src/resource/ResourceManager.cpp",
         rootPath .. "/src/resource/loaders/TextureLoader.cpp",
 	    rootPath .. "/src/resource/meta/MetaUtils.cpp"
+        rootPath .. "/src/resource/ThreadPool.cpp"
     }
 
     libdirs {

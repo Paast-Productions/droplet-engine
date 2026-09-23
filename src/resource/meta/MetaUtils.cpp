@@ -30,6 +30,7 @@ namespace Droplet
                     resourceData.guid = entry.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
                     resourceData.name = entry.value("name", std::string{});
+                    resourceData.path = entry.value("path", std::string{});
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.dependencies = entry.value("dependencies", std::vector<GUID>{});
                     resourceData.typeSpecificData = entry.value("specificData", json::object());
@@ -66,6 +67,7 @@ namespace Droplet
             j["guid"] = resourceData.guid;
             j["type"] = static_cast<uint8_t>(resourceData.type);
             j["name"] = resourceData.name;
+            j["path"] = resourceData.path;
             j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
             j["dependencies"] = resourceData.dependencies;
             j["specificData"] = resourceData.typeSpecificData;

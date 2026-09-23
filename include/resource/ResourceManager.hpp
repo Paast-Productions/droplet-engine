@@ -7,9 +7,13 @@
 #include <filesystem>
 #include <cassert>
 #include <functional>
+#include <iostream>
 
-#include "resource/ResourceHandle.hpp"
-#include "resource/ResourceCatalog.hpp"
+#include "asset/ResourceHandle.hpp"
+#include "asset/ResourceCatalog.hpp"
+#include "asset/Resource.hpp"
+#include "asset/ThreadPool.hpp"
+#include "asset/TextureLoader.hpp"
 
 namespace Droplet
 {
@@ -65,18 +69,21 @@ namespace Droplet
         ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
             assert(m_isInitialized && "ResourceManager is not initialized.");
+
+            std::cout << "Manager initialized" << std::endl;
             
             MetaEntry metaEntry;
             if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
                 // TODO: Log this as a warning/error
+                std::cout << "GUID NOT FOUND IN CATALOG" << std::endl;
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
-            
+            std::cout << "Get handle" << std::endl;
             ResourceHandle<T> handle(p_guid, this);
             
-            bool loadAsync = true;
+            bool loadAsync = false;
             {
                 std::lock_guard<std::mutex> lock(m_registryMutex);
                 
@@ -86,7 +93,7 @@ namespace Droplet
                     // Asset was just created in-place -> Update state
                     it->second.state = ResourceState::Queued;
                     it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
-                    loadAsync = false;
+                    loadAsync = true;
                 }
 
                 // Handle callback
@@ -111,6 +118,61 @@ namespace Droplet
             if (loadAsync)
             {
                 // TODO: Push load task to worker thread pool
+                m_threadPool.PushTask([this, p_guid, metaEntry]()
+                {
+                    std::cout << "Loading resource on thread: "
+                        << std::this_thread::get_id()
+                        << std::endl;
+
+                    {
+                        std::lock_guard<std::mutex> lock(m_registryMutex);
+
+                        auto it = m_registry.find(p_guid);
+
+                        if (it == m_registry.end())
+                        {
+                            return;
+                        }
+                        it->second.state = ResourceState::LoadingAsync;
+                    }
+
+                    if constexpr (std::is_same_v<T, TextureResource>)
+                    {
+                        ResourceLoader::TextureLoader loader;
+                        gli::texture texture;
+                        texture = loader.Load(metaEntry.path);
+
+                        if (texture.empty())
+                        {
+                            std::cout << "Texture was not loaded correctly from ResourceManager" << std::endl;
+                        }
+                        else
+                        {
+                            std::cout << "Texture was successfully loaded inside ResourceManager" << std::endl;
+                        }
+
+                        auto extent = texture.extent();
+                        auto mipLevels = texture.levels();
+
+                        auto resource = std::make_unique<Texture2DResource>();
+                        resource->SetDimensions(extent.x, extent.y);
+                        resource->SetMipLevels(mipLevels);
+
+                        {
+                            std::lock_guard<std::mutex> lock(m_registryMutex);
+
+                            auto it = m_registry.find(p_guid);
+
+                            if (it == m_registry.end())
+                            {
+                                return;
+                            }
+                            it->second.resource = std::move(resource);
+                            it->second.state = ResourceState::ReadyAsync;
+                        }
+                    }
+                });
+                    
             }
             
             return handle;
@@ -149,6 +211,14 @@ namespace Droplet
             
             return nullptr;
         }
+
+        // temporarily function so that load functions can be tested in AssetLoading.cpp
+        bool GetCachedMetaDataForAsset(
+            const std::string &p_assetPath,
+            std::vector<MetaEntry> &p_metaData)
+        {
+            return m_catalog.GetCachedMetaDataForAsset(p_assetPath, p_metaData);
+        }
     
     private:
         /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
@@ -166,6 +236,8 @@ namespace Droplet
         std::mutex m_registryMutex; 
         
         // TODO: Add thread pool / job system
+
+        ThreadPool m_threadPool;
     };
     
 }

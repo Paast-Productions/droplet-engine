@@ -5,12 +5,24 @@
 #include "resource/AssimpLoader.hpp"
 #include "resource/loaders/TextureLoader.hpp"
 
+#include "asset/ThreadPool.hpp"
+//#include <thread>
+#include "asset/meta/MetaData.hpp"
+#include "asset/meta/MetaUtils.hpp"
+
 #include <filesystem>
 #include <string>
 #include <iostream>
 #include <print>
 
 namespace fs = std::filesystem;
+
+void PrintSomeThing()
+{
+    std::cout << "Hi from Thread"
+        << std::this_thread::get_id() 
+        << std::endl;
+}
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
@@ -28,9 +40,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     Droplet::ResourceLoader::TextureLoader resourceTexture;
 
+   /* Droplet::ResourceLoader::TextureLoader resourceTexture;
+
     fs::path currentPath = fs::current_path();
     std::string path = "";
-    std::cout << "Does file path exist? " << std::filesystem::exists(path) << std::endl;
+    std::vector<Droplet::MetaEntry> metaData;
+     
+    //auto entry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Texture2D, "basic_fish_colors_base", path);
+
+    //metaData.push_back(entry);
+
+    std::filesystem::path metaPath = path + ".meta";
+
+    Droplet::MetaUtils::Read(metaPath, metaData);
+
+    
 
     try
     {
