@@ -14,8 +14,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     scriptSystem.ActivateScript(&guptaNode);
     scriptSystem.Call(&guptaNode, "backflip");
 
-    scriptSystem.DeactivateScript(&guptaNode);
-    scriptSystem.Call(&guptaNode, "backflip");
+    while (true)
+    {
+        scriptSystem.Update(1.0);
+        std::cout << testNode.getX() << '\n';
+    }
 
     return 0;
 } 
