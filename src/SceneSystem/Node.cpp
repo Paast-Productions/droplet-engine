@@ -167,6 +167,11 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     {
 		prevParent->RemoveChild(p_child);
     }
+    else
+    {
+		// Child was a root. Remove it from the scene's root nodes.
+		m_scene.lock()->SetRoot(p_child, false);
+    }
 
     p_child->m_parent = shared_from_this();
 
@@ -211,6 +216,9 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
     p_child->m_parent.reset();
 
     m_children.erase(it);
+
+	// Add the removed child to the scene's root nodes
+    m_scene.lock()->SetRoot(p_child, true);
 }
 
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)

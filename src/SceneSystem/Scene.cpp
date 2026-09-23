@@ -75,6 +75,33 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
 
     return node;
 }
+
+void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot)
+{
+    if (!p_makeRoot)
+    {
+        RemoveRoot(p_node);
+        return;
+    }
+
+    // Ensure node is not already a root node
+    if (std::find(m_roots.begin(), m_roots.end(), p_node) != m_roots.end())
+    {
+		throw std::runtime_error(
+			"Cannot add Node '" + p_node->GetName() + "' as a root: Node is already a root of this Scene."
+		);
+    }
+
+    // Ensure node has no parent
+    if (p_node->GetParent())
+	{
+		throw std::runtime_error(
+			"Cannot add Node '" + p_node->GetName() + "' as a root: Node has a parent."
+		);
+    }
+
+    m_roots.push_back(p_node);
+}
    
 void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)
 {
@@ -90,7 +117,6 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
-    (*it)->SetScene(nullptr);
     m_roots.erase(it);
 }
 

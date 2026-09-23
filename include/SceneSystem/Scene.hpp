@@ -84,11 +84,14 @@ namespace Droplet::Scene
         /// @return A shared pointer to the created Node.
         std::shared_ptr<Node> AddNode(const std::string &p_name);
 
+		/// @brief Sets whether a Node is a root Node of the Scene.
+		/// @param p_node Node to set as a root Node.
+		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot);
+
         /// @brief Removes a root Node from the Scene.
         ///
         /// The Node is removed from the Scene's root Node collection.
-        /// Its Scene reference is cleared and the change is propagated
-        /// through its child hierarchy.
         ///
         /// Removing a root Node does not destroy it if other shared
         /// pointers to the Node exist.
