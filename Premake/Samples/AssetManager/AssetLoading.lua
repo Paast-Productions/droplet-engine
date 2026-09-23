@@ -24,8 +24,6 @@ project "AssetManager-AssetLoading"
     
     local vkPath = os.getenv("VULKAN_SDK")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
     includedirs {
         rootPath .. "/include",
   	    rootPath .. "/include/asset/meta",
