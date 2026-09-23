@@ -28,6 +28,5 @@ namespace Droplet::Graphics
 	
 	private:
 		Slang::ComPtr<slang::IGlobalSession> m_globalSession {};
-		Slang::ComPtr<slang::ISession> m_session {};
 	};
 }
