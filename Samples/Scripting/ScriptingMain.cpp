@@ -6,14 +6,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	ScriptSystem scriptSystem;
     scriptSystem.SetScriptPath("../../../src/TestScripts");
-	TestNode testNode;
-    [[maybe_unused]] auto* script = scriptSystem.CreateScript(
-        &testNode,
-       "testScript.lua"
-    ); 
 
-    scriptSystem.ActivateScript(&testNode);
-    
     scriptSystem.Start();
     scriptSystem.Update(1.0);
     TestNode guptaNode;
