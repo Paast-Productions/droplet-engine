@@ -13,7 +13,7 @@ project "AssetManager-AssetLoading"
         rootPath .. "/src/asset/ResourceCatalog.cpp",
         rootPath .. "/src/asset/ResourceManager.cpp",
         rootPath .. "/src/asset/TextureLoader.cpp",
-	rootPath .. "/src/asset/meta/MetaUtils.cpp"
+	      rootPath .. "/src/asset/meta/MetaUtils.cpp"
     }
 
     libdirs {
@@ -21,12 +21,12 @@ project "AssetManager-AssetLoading"
         targetBuildPath .. "/External/lib",
 
     }
-
+    
     local vkPath = os.getenv("VULKAN_SDK")
 
     includedirs {
         rootPath .. "/include",
-	rootPath .. "/include/asset/meta",
+  	    rootPath .. "/include/asset/meta",
         vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
@@ -35,8 +35,8 @@ project "AssetManager-AssetLoading"
         "Engine",
         "Assimp",
         "json",
-	"Gli",
-	"Stb"
+	      "Gli",
+	      "Stb"
     }
 
     links {
@@ -44,6 +44,11 @@ project "AssetManager-AssetLoading"
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd")
     }
+
     defines {
         "GLM_ENABLE_EXPERIMENTAL"
+    }
+
+    postbuildcommands {
+        '{COPY} "' .. targetBuildPath .. '/External/bin/assimp-vc145-mtd.dll" "%{cfg.targetdir}"'
     }

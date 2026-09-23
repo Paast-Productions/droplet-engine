@@ -1,7 +1,7 @@
-﻿#include <print>
+#include <print>
 
 #include "asset/ResourceManager.hpp"
-
+#include "asset/AssimpLoader.hpp"
 #include "asset/TextureLoader.hpp"
 
 #include <filesystem>
@@ -19,6 +19,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     Droplet::ResourceManager assetManager;
     assetManager.Initialize(assetDir);
+
+    Droplet::AssimpLoader assimpLoader;
+    Droplet::ResourceRecord assetRecord;
+    assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
     
     Droplet::ResourceLoader::TextureLoader resourceTexture;
 
