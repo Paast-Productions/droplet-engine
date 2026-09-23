@@ -43,7 +43,7 @@ TEST(ScriptSystem, DestroyScript)
 	system.ActivateScript(&secondNode);
 	system.ActivateScript(&thirdNode);
 
-	system.DestroyScript("testScript.lua");
+	system.DetachAllInstancesToScript("testScript.lua");
 
 	EXPECT_FALSE(system.Call(&firstNode, "test").valid());
 	EXPECT_FALSE(system.Call(&secondNode, "test").valid());
@@ -52,7 +52,7 @@ TEST(ScriptSystem, DestroyScript)
 
 	EXPECT_NO_THROW(system.Update(0.016f));
 
-	EXPECT_NO_THROW(system.DestroyScript("testScript.lua"));
+	EXPECT_NO_THROW(system.DetachAllInstancesToScript("testScript.lua"));
 }
 
 TEST(ScriptSystem, ActivateScript)

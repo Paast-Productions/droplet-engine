@@ -54,7 +54,7 @@ bool ScriptSystem::SetScriptPath(const std::string& p_directoryPath)
 	return m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
-void ScriptSystem::DestroyScript(const std::string& p_scriptPath)
+void ScriptSystem::DetachAllInstancesToScript(const std::string& p_scriptPath)
 {
-	m_scriptManager.DestroyScript(p_scriptPath);
+	m_scriptManager.DetachAllInstancesToScript(p_scriptPath);
 }
