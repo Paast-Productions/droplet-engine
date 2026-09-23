@@ -23,10 +23,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Droplet::ResourceLoader::TextureLoader resourceTexture;
 
     fs::path currentPath = fs::current_path();
-    std::string path = "C:/Users/Proj/Documents/Blender Assets/basic_fish_colors_base.ktx";
+    std::string path = "";
     std::cout << "Does file path exist? " << std::filesystem::exists(path) << std::endl;
 
-    resourceTexture.Load(path);
+    try
+    {
+        resourceTexture.Load(path);
+    }
+    catch (std::exception) {
+        std::println("Failed to load texture.");
+    }
 
 
     return 0;
