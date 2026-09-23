@@ -25,11 +25,8 @@ newaction {
             if (arg == ("-A" or "--all")) then
                 print("Cleaning All")
 
-                os.rmdir("./Generated")
-                os.rmdir("./.vscode")
-                os.rmdir("./.vs")
-                os.rmdir("./.idea")
-                os.rmdir("./Build")
+                os.execute("{RMDIR} ./Generated")
+                os.execute("{RMDIR} ./Build")
             end
 
             if (arg == ("-b" or "--build")) then
