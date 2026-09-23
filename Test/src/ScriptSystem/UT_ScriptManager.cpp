@@ -136,10 +136,8 @@ TEST(ScriptManager, ActivateScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
-	//FATAL ERROR
 	manager.SetScriptDirectory("../src/TestScripts");
 
-	//manager.LoadScript("bruh.lua");
 	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 
@@ -147,9 +145,6 @@ TEST(ScriptManager, ActivateScript)
 	int timesTwo = manager.Call(&testNode, "timesTwo", 1);
 
 	EXPECT_EQ(timesTwo, 2);
-
-	//REMOVE WHEN FINISHED WITH THIS TEST
-	EXPECT_FALSE(true);
 }
 
 TEST(ScriptManager, DeactivateScript)
@@ -159,10 +154,8 @@ TEST(ScriptManager, DeactivateScript)
 	ScriptManager manager(stateHandler);
 	TestNode testNode;
 
-	//FATAL ERROR
 	manager.SetScriptDirectory("../src/TestScripts");
 
-	manager.LoadScript("bruh.lua");
 	manager.CreateScript(&testNode, "bruh.lua");
 	manager.ActivateScript(&testNode);
 

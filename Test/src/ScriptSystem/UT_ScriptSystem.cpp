@@ -66,7 +66,7 @@ TEST(ScriptSystem, DeactivateScript)
 	system.Update(1);
 	system.DeactivateScript(&testNode);
 	system.Update(1);
-	float result = system.Call(&testNode, "getDT");
+	auto result = system.Call(&testNode, "getDT");
 
-	EXPECT_EQ(result, 1);
+	EXPECT_FALSE(result.valid());
 }
