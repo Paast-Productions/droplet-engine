@@ -7,15 +7,12 @@ bool LuaApiGenerator::Generate(const std::filesystem::path& p_outputPath,
     [[maybe_unused]] const std::vector<LuaClassDefinition> p_classes)
 {
 
-    std::print(
-        "Generating Lua API at: {}\n",
-        std::filesystem::absolute(p_outputPath).string()
-    );
+    //std::print("Generating Lua API at: {}\n",std::filesystem::absolute(p_outputPath).string());
 
     std::ofstream file(p_outputPath);
 
     if (!file.is_open()) {
-        std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
+        //std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
 
         return false;
     }

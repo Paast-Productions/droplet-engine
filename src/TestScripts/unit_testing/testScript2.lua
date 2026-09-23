@@ -9,3 +9,7 @@ function onUpdate(dt)
 		self:get_z()
 	)
 end
+
+function test()
+	print("lua function")
+end

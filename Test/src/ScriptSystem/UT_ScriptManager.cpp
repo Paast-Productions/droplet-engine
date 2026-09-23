@@ -30,13 +30,25 @@ TEST(ScriptManager, DestroyScript)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
-	TestNode testNode;
+	TestNode firstNode;
+	TestNode secondNode;
 
-	manager.SetScriptDirectory("../src/TestScripts");
-	manager.CreateScript(&testNode, "testScript.lua");
+	ASSERT_TRUE(manager.SetScriptDirectory("../src/TestScripts"));
+
+	manager.CreateScript(&firstNode, "testScript.lua");
+	manager.CreateScript(&secondNode, "testScript.lua");
+
+	manager.ActivateScript(&firstNode);
+	manager.ActivateScript(&secondNode);
+
 	manager.DestroyScript("testScript.lua");
 
-	EXPECT_EQ(&testNode, nullptr);
+	EXPECT_FALSE(manager.Call(&firstNode, "test").valid());
+	EXPECT_FALSE(manager.Call(&secondNode, "test").valid());
+
+	EXPECT_NO_THROW(manager.Update(0.016f));
+
+	EXPECT_NO_THROW(manager.DestroyScript("testScript.lua"));
 }
 
 TEST(ScriptManager, LoadScript)

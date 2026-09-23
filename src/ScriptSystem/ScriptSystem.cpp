@@ -47,7 +47,7 @@ bool ScriptSystem::CreateScript(TestNode* p_sciptComponent, const std::string& p
 		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
 		return false;
 	}
-	return false;
+	return true;
 }
 bool ScriptSystem::SetScriptPath(const std::string& p_directoryPath)
 {
