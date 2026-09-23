@@ -78,12 +78,11 @@ namespace Droplet
 		return true;
 	}
 
-	bool AssimpLoader::LoadAnimation(std::string p_meshFile, const json &p_typeSpecificData, AssetRecord &p_assetRecord)
+	bool AssimpLoader::LoadAnimation(const std::string p_meshFile, const std::string p_animName, const json &p_typeSpecificData,
+		AssetRecord &p_assetRecord)
 	{
 		p_typeSpecificData;
-		p_assetRecord;
 		const aiScene *meshData = m_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
-			//aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_PopulateArmatureData |
@@ -103,9 +102,14 @@ namespace Droplet
 		}
 
 		std::vector<AnimationResource::AnimKeyframe> animKeyframes;
-		for (std::size_t i = 0; i < 1/*meshData->mNumAnimations*/; i++)
+		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
 		{
 			aiAnimation *anim = meshData->mAnimations[i];
+			std::string animName = anim->mName.C_Str();
+			if (animName != p_animName)
+			{
+				continue;
+			}
 
 			// Find all unique keyframe times
 			for (std::size_t j = 0; j < anim->mNumChannels; j++) // Channels are bones
@@ -180,8 +184,8 @@ namespace Droplet
 			}
 		}
 
-		AnimationResource animation;
-		animation.SetName(meshData->mAnimations[0]->mName.C_Str());
+ 		AnimationResource animation;
+		animation.SetName(p_animName);
 		animation.SetKeyframes(animKeyframes);
 		p_assetRecord.resource = std::make_shared<AnimationResource>(animation);
 
