@@ -1,5 +1,6 @@
 #include "LuaApiGenerator.hpp"
 
+#include <string>
 #include <fstream>
 #include <print>
 
@@ -86,7 +87,7 @@ void LuaApiGenerator::GenerateClasses(std::ofstream& p_file,
             if (luaFunction.returnType != "void")
             {
                 p_file << "---@return "
-                    << luaFunction.returnType
+                    << GetDefaultLuaValue(luaFunction.returnType)
                     << "\n";
             }
 
@@ -109,3 +110,24 @@ void LuaApiGenerator::GenerateClasses(std::ofstream& p_file,
         }
     }
 }
+
+std::string LuaApiGenerator::GetDefaultLuaValue(const std::string &p_type)
+{
+    if (p_type == "number")
+    {
+        return "0";
+    }
+
+    if (p_type == "boolean")
+    {
+        return "false";
+    }
+
+    if (p_type == "string")
+    {
+        return "\"\"";
+    }
+
+    return "nil";
+}
+

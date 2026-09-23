@@ -11,12 +11,12 @@ function OnUpdate(dt) end
 ---@param z number
 function Set_position(x, y, z) end
 
----@return number
+---@return 0
 function Get_x() end
 
----@return number
+---@return 0
 function Get_y() end
 
----@return number
+---@return 0
 function Get_z() end
 
