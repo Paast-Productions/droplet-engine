@@ -181,3 +181,4 @@ namespace Droplet::Graphics
 		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }
+
