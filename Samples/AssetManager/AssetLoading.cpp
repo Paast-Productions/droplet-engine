@@ -54,7 +54,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         for (auto &entry : metaData)
         {
             // Since metaData is a vector we need to iterate all entries to get GUID
-            assetManager.LoadResource<Droplet::Texture2DResource>(entry.guid);
+            auto handle = assetManager.LoadResource<Droplet::Texture2DResource>(entry.guid);
+            //auto handle1 = assetManager.LoadResource<Droplet::Texture2DResource>(entry.guid);
+            auto handle1 = handle;
+            std::cout << "handle1 RefCount: " << handle1.GetRef() <<std::endl;
+            std::cout << "handle RefCount: " << handle.GetRef() <<std::endl;
+            
         }
     }
     catch (std::exception) {

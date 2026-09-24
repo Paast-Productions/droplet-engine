@@ -36,6 +36,7 @@ namespace Droplet
         /// @return The loaded resource stored within the central resource manager, or nullptr if the load failed.
         T *Get() const;
         
+        uint32_t GetRef();
     private:
         GUID m_guid = 0;
         ResourceManager *m_resourceManager = nullptr;

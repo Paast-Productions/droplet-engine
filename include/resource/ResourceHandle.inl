@@ -129,4 +129,17 @@ namespace Droplet
             m_resourceManager->DecrementRef(m_guid);
         }
     }
+
+    template <typename T>
+    uint32_t ResourceHandle<T>::GetRef()
+    {
+        if (IsValid())
+        {
+            return m_resourceManager->GetRef(m_guid);
+        }
+        else
+        {
+            return 0;
+        }
+    }
 }

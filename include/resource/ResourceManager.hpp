@@ -77,12 +77,12 @@ namespace Droplet
                 // TODO: Log this as a warning/error
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
-            ResourceHandle<T> handle(p_guid, this);
-            
+
             bool loadAsync = false;
+
             {
                 std::lock_guard<std::mutex> lock(m_registryMutex);
-                
+
                 auto [it, wasInserted] = m_registry.try_emplace(p_guid);
                 if (wasInserted)
                 {
@@ -91,8 +91,16 @@ namespace Droplet
                     it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
                     loadAsync = true;
                 }
+            }
+            
+            ResourceHandle<T> handle(p_guid, this);
 
-                // Handle callback
+            // Handle callback
+            {
+                std::lock_guard<std::mutex> lock(m_registryMutex);
+
+                auto it = m_registry.find(p_guid);
+
                 if (p_onLoadCallback)
                 {
                     if (it->second.state == ResourceState::Ready)
@@ -104,13 +112,13 @@ namespace Droplet
                         // Resource is not loaded and has not failed -> Store callback until loaded
                         // Capture handle by value inside lambda to guarantee that ref count is >= 1
                         it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
-                        {
-                            p_onLoadCallback(handle);
-                        });
+                            {
+                                p_onLoadCallback(handle);
+                            });
+                        
                     }
                 }
             }
-            
             if (loadAsync)
             {
                 // Push every thing inside the {} to a thread and the thread
@@ -148,12 +156,15 @@ namespace Droplet
                             }
                             it->second.resource = std::move(texture);
                             it->second.state = ResourceState::ReadyAsync;
+                            std::cout << "Refcount1 " << it->second.refCount << std::endl;
                         }
                     }
                 });
-                    
+                auto it = m_registry.find(p_guid);
+                std::cout << "Refcount2 " << it->second.refCount << std::endl;
             }
-            
+            auto it = m_registry.find(p_guid);
+            std::cout << "Refcount3 " << it->second.refCount << std::endl;
             return handle;
         }
 
@@ -164,6 +175,23 @@ namespace Droplet
         /// @brief Decrements the reference count of a resource in the internal registry.
         /// @param p_guid The globally unique identifier of the resource.
         void DecrementRef(GUID p_guid);
+
+        uint32_t GetRef(GUID p_guid)
+        {
+            assert(m_isInitialized && "AssetManager is not initialized.");
+
+            std::lock_guard<std::mutex> lock(m_registryMutex);
+
+            auto it = m_registry.find(p_guid);
+            if (it != m_registry.end())
+            {
+                return it->second.refCount;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
         /// @brief Queries the load state of a resource in the internal registry.
         /// @param p_guid The globally unique identifier of the resource.
