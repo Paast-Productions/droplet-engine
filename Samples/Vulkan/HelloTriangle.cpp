@@ -12,8 +12,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Flags = 0
 	};
 		
-	vma::Allocator{};
-	
 	Renderer rnd 
 	{
 		windowConfig
