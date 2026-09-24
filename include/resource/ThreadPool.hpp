@@ -40,5 +40,5 @@ private:
 
 	bool m_running = true;
 
-	int m_nrOfThreads = 0;
+	uint32_t m_nrOfThreads = 0;
 };

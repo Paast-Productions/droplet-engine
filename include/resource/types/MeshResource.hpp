@@ -1,5 +1,5 @@
 #pragma once
-#include "IResource.hpp"
+#include "resource/IResource.hpp"
 
 #include <string>
 #include <vector>

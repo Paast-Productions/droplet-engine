@@ -135,7 +135,7 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
-                        ResourceLoader::TextureLoader loader;
+                        TextureLoader loader;
                         auto texture = loader.Load(metaEntry.assetPath);
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);

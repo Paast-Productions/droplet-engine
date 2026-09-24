@@ -1,7 +1,7 @@
 #include "resource/ResourceManager.hpp"
 #include "resource/loaders/TextureLoader.hpp"
 
-#include "resource/AssimpLoader.hpp"
+#include "resource/loaders/AssimpLoader.hpp"
 #
 #include "resource/ThreadPool.hpp"
 #include "resource/meta/MetaData.hpp"
