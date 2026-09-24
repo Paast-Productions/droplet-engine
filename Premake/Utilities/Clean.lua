@@ -18,7 +18,7 @@ newaction {
         -- No args
         if (_ARGS[1] == nil) then
             print("Cleaning Generated")
-            os.rmdir("./Generated")
+            os.execute("{RMDIR} ./Generated")
             return
         end
 
@@ -34,8 +34,8 @@ newaction {
 
             elseif (arg == "-b" or arg == "--build") then
                 print("Cleaning Build")
-
-                os.rmdir("./Build")
+                
+                os.execute("{RMDIR} ./Build")
 
             elseif (arg == "-E" or arg == "-Engine" or arg == "-engine") then
                 print("Cleaning Engine")
