@@ -25,14 +25,12 @@ namespace Droplet::Script
 		/// Creates OnStart and OnUpdate for lua api
 		/// @param p_luaState Lua state in which should register 
 		static void RegisterGlobalFunctions();
-		/// @brief Registers the TestNode type with Lua.
-		/// Exposes the functionality of TestNode that is intended to be accessible from Lua scripts.
-		/// @param p_luaState Lua state in which the TestNode bindings should be registered.
-		static void RegisterTestNode(sol::state_view p_luaState);
-
-	static void RegisterNode(sol::state_view p_luaState);
-	static void RegisterTransform(sol::state_view p_luaState);
-	static void RegisterGLM(sol::state_view p_luaState);
+		/// @brief Registers the Node type with Lua.
+		/// Exposes the functionality of Node that is intended to be accessible from Lua scripts.
+		/// @param p_luaState Lua state in which the Node bindings should be registered.
+		static void RegisterNode(sol::state_view p_luaState);
+		static void RegisterTransform(sol::state_view p_luaState);
+		static void RegisterGLM(sol::state_view p_luaState);
 
 		// TODO: Implement additional engine bindings as functionality is added.
 

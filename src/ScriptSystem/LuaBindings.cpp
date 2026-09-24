@@ -1,5 +1,4 @@
 #include "LuaBindings.hpp"
-#include "TestNode.hpp"
 #include "Node.hpp"
 #include "Transform.hpp"
 #include <glm/glm.hpp>
@@ -15,7 +14,6 @@ std::vector<Script::LuaClassDefinition> Script::LuaBindings::m_luaClassDefinitio
 void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
     RegisterGlobalFunctions();
-	RegisterTestNode(p_luaState);
     RegisterNode(p_luaState);
     RegisterTransform(p_luaState);
     RegisterGLM(p_luaState);
@@ -23,7 +21,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
 
-    std::filesystem::path path = scriptDirectory / "ScriptSystem.d.lua";
+    std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions);
 }
 
@@ -44,49 +42,6 @@ void Script::LuaBindings::RegisterGlobalFunctions()
             } 
         }
     };
-}
-
-void Script::LuaBindings::RegisterTestNode(sol::state_view p_luaState)
-{
-	p_luaState.new_usertype<TestNode>(
-		"TestNode",
-		"Set_position", &TestNode::setPosition,
-		"Get_x", &TestNode::getX,
-		"Get_y", &TestNode::getY,
-		"Get_z", &TestNode::getZ,
-		"Print_message", & TestNode::printMessage 
-	);
-
-	LuaClassDefinition testNode;
-    testNode.functions =
-    {
-        {
-            "Set_position",
-            "void",
-            {
-                { "x", "number" },
-                { "y", "number" },
-                { "z", "number" }
-            }
-        },
-        {
-            "Get_x",
-            "number",
-            {}
-        },
-        {
-            "Get_y",
-            "number",
-            {}
-        },
-        {
-            "Get_z",
-            "number",
-            {}
-        }
-    };
-
-    m_luaClassDefinitions.push_back(testNode);
 }
  
 void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
@@ -134,7 +89,147 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         "LookAt", &Scene::Transform::LookAt
     );
 
-    //LuaClassDefinition transform;
+    LuaClassDefinition transform;
+    transform.name = "Transform";
+
+    transform.functions =
+    {
+        {
+            "GetPosition",
+            "Vec3",
+            {}
+        },
+        {
+            "GetRotation",
+            "Quat",
+            {}
+        },
+        {
+            "GetEuler",
+            "Vec3",
+            {}
+        },
+        {
+            "GetScale",
+            "Vec3",
+            {}
+        },
+        {
+            "GetMatrix",
+            "Mat4",
+            {}
+        },
+        {
+            "IsDirty",
+            "boolean",
+            {}
+        },
+        {
+            "GetUp",
+            "Vec3",
+            {}
+        },
+        {
+            "GetRight",
+            "Vec3",
+            {}
+        },
+        {
+            "GetForward",
+            "Vec3",
+            {}
+        },
+        {
+            "SetPosition",
+            "void",
+            {
+                { "position", "Vec3" }
+            }
+        },
+        {
+            "SetRotation",
+            "void",
+            {
+                { "rotation", "Quat" }
+            }
+        },
+        {
+            "SetEuler",
+            "void",
+            {
+                { "euler", "Vec3" }
+            }
+        },
+        {
+            "SetScale",
+            "void",
+            {
+                { "scale", "Vec3" }
+            }
+        },
+        {
+            "SetMatrix",
+            "void",
+            {
+                { "matrix", "Mat4" }
+            }
+        },
+        {
+            "MakeDirty",
+            "void",
+            {}
+        },
+        {
+            "RecalculateMatrices",
+            "void",
+            {}
+        },
+        {
+            "Move",
+            "void",
+            {
+                { "amount", "Vec3" }
+            }
+        },
+        {
+            "Rotate",
+            "void",
+            {
+                { "rotation", "Quat" }
+            }
+        },
+        {
+            "RotateEuler",
+            "void",
+            {
+                { "euler", "Vec3" }
+            }
+        },
+        {
+            "AddScale",
+            "void",
+            {
+                { "scale", "Vec3" }
+            }
+        },
+        {
+            "RotateAxis",
+            "void",
+            {
+                { "axis", "Vec3" },
+                { "angle", "number" }
+            }
+        },
+        {
+            "LookAt",
+            "void",
+            {
+                { "target", "Vec3" }
+            }
+        }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(transform);
 }
 
 void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
@@ -145,6 +240,20 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
         "x", &glm::vec3::x,
         "y", &glm::vec3::y,
         "z", &glm::vec3::z
+    );
+
+    p_luaState.new_usertype<glm::quat>(
+        "Quat",
+        sol::constructors<glm::quat(float, float, float, float)>(),
+        "w", &glm::quat::w,
+        "x", &glm::quat::x,
+        "y", &glm::quat::y,
+        "z", &glm::quat::z
+    );
+
+    p_luaState.new_usertype<glm::mat4>(
+        "Mat4",
+        sol::constructors<glm::mat4(float)>()
     );
 }
 
