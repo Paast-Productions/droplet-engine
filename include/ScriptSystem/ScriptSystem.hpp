@@ -4,6 +4,8 @@
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
 
+
+
 /// @brief Provides the main interface for the engine's Lua scripting system.
 /// ScriptSystem manages the lifecycle of scripts and coordinates between the
 /// Lua state and the ScriptManager. It is responsible for starting and
@@ -23,7 +25,7 @@ public:
 		static ScriptSystem scriptSystem;
 		return scriptSystem;
 	}
-
+	 
 	/// @brief Starts the script script system.
 	/// This should be called once the scene starts with the script system.
 	void Start();
@@ -78,7 +80,7 @@ public:
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
 	sol::protected_function_result Call(
-		Droplet::Scene::ScriptComponent *p_scriptComponent, std::string_view p_functionName, Args&&... p_args);
+		Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string& p_functionName, Args&&... p_args);
 
 private:
 	/// @brief Handles the Lua state used by the scripting system.
@@ -96,7 +98,7 @@ private:
 /// @return Result of the protected Lua function call.
 template<typename... Args>
 inline sol::protected_function_result ScriptSystem::Call(
-	Droplet::Scene::ScriptComponent *p_scriptComponent, std::string_view p_functionName, Args&&... p_args)
+	Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string& p_functionName, Args&&... p_args)
 {
 	return m_scriptManager.Call(p_scriptComponent, p_functionName, std::forward<Args>(p_args)...);
 }

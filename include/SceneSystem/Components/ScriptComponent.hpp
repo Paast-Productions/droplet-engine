@@ -3,6 +3,7 @@
 #include <SceneSystem/Component.hpp>
 #include <string>
 
+class ScriptSystem;
 
 namespace Droplet::Scene
 {
@@ -21,8 +22,15 @@ namespace Droplet::Scene
 		void DetachScript();
     	bool ActivateScript();
     	bool DeactivateScript();
+
+
     private:
 
         std::string m_scriptPath;
+
     };
+
+ 
+
+
 }

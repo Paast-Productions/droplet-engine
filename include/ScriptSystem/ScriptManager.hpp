@@ -68,7 +68,7 @@ public:
 	template<typename... Args>
 	sol::protected_function_result Call(
 		Droplet::Scene::ScriptComponent *p_scriptComponent,
-		std::string_view p_functionName,
+		const std::string& p_functionName,
 		Args&&... p_args);
 
 	/// @brief Creates a script instance and associates it with a component.
@@ -199,7 +199,7 @@ private:
 template <typename... Args>
 inline sol::protected_function_result ScriptManager::Call(
 	Droplet::Scene::ScriptComponent *p_scriptComponent,
-	std::string_view p_functionName,
+	const std::string& p_functionName,
 	Args&&... p_args)
 {
 	if (p_scriptComponent == nullptr)

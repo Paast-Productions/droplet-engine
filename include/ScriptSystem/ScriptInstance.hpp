@@ -36,7 +36,7 @@ public:
 	/// @param args Arguments to forward to the Lua function.
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
-	sol::protected_function_result Call(std::string_view functionName, Args&&... args);
+	sol::protected_function_result Call(const std::string& functionName, Args&&... args);
 
 	/// @brief Calls the script's OnStart lifecycle function.
 	/// The OnStart function is intended to be called when the script instance
@@ -90,11 +90,11 @@ private:
 /// @return Result of the protected Lua function call.
 template<typename ...Args>
 inline sol::protected_function_result ScriptInstance::Call(
-	std::string_view functionName,
+	const std::string& p_functionName,
 	Args&& ...args)
 {
 	sol::protected_function function =
-		m_environment[std::string(functionName)];
+		m_environment[p_functionName];
 
 	if (!function.valid())
 	{
