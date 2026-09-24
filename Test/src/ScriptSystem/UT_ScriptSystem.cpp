@@ -1,6 +1,8 @@
 //#include <gtest/gtest.h>
 //#include <ScriptSystem/ScriptSystem.hpp>
 //#include <string>
+// 
+// using namespace Droplet::Script;
 //
 //TEST(ScriptSystem, LoadScript)
 //{

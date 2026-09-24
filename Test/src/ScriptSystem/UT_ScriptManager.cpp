@@ -3,6 +3,7 @@
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 
+using namespace Droplet::Script;
 
 TEST(ScriptManager, SetScriptDirectory)
 {

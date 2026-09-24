@@ -8,6 +8,7 @@
 #include <filesystem>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Script;
 
 std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
 std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;

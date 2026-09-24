@@ -1,6 +1,8 @@
 //#include <gtest/gtest.h>
 //#include <ScriptSystem/ScriptInstance.hpp>
 //#include <ScriptSystem/LuaBindings.hpp>
+// 
+// using namespace Droplet::Script;
 //
 //TEST(ScriptInstance, getScriptPath)
 //{
