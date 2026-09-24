@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include "Transform.hpp"
 #include <cmath>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Scene;

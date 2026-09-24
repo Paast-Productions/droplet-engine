@@ -1,4 +1,4 @@
-#include "asset/GUID.hpp"
+#include "resource/GUID.hpp"
 
 #include <random>
 
