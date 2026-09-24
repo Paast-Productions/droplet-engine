@@ -30,6 +30,9 @@ namespace Droplet::ResourceLoader
 		/// @throws the invalid path
 		bool ConvertPNGToKTX(const std::string &p_inputPath, const std::string &p_outputPath);
 
+		/// @brief converts a gli::format to our custom ResourceTexture::TextureFormat
+		/// @return ResourceTexture::TextureFormat
+		/// @param p_format
 		Texture2DResource::TextureFormat ConvertTextureFormat(gli::format p_format);
 
 	};

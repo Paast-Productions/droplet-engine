@@ -40,10 +40,10 @@ namespace Droplet::ResourceLoader
 			throw std::runtime_error("Could not load texture: " + p_path);
 		}
 
+		// Translate the gli texture to our custom format
 		TextureResource::TextureFormat format;
 		format = ConvertTextureFormat(texture.format());
 
-		//std::unique_ptr<Texture2DResource> resource;
 		auto resource = std::make_unique<Texture2DResource>();
 		resource->SetDimensions(texture.extent().x, texture.extent().y);
 		resource->SetMipLevels(static_cast<int>(texture.levels()));

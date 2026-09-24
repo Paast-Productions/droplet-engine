@@ -7,15 +7,22 @@
 #include <thread>
 #include <vector>
 
+/// @brief Universal threadpool class. 
 class ThreadPool
 {
 public:
+	/// @brief Creates threads that will execute the worker loop.
 	ThreadPool();
+	/// @brief Stops the program and worker loop and join all threads.
 	~ThreadPool();
 
+	/// @brief Push a function that a thread will execute. 
+	/// Everything inside the {} will be executed
+	/// @param p_task Pointer to a function 
 	void PushTask(std::function<void()> p_task);
 
 private:
+	/// @brief Worker loop that sleeps while idle and execute tasks as they become available.
 	void WorkerLoop();
 
 private:

@@ -117,14 +117,15 @@ namespace Droplet
             
             if (loadAsync)
             {
-                // TODO: Push load task to worker thread pool
+                // Push every thing inside the {} to a thread and the thread
+                // will execute the commands.
+                // This thread will load an asset and the loader is decided by the
+                // if statement (not best solution for scalability)
                 m_threadPool.PushTask([this, p_guid, metaEntry]()
                 {
-                    std::cout << "Loading resource on thread: "
-                        << std::this_thread::get_id()
-                        << std::endl;
 
                     {
+                        // lock the registry so that only one thread can affect a resource state
                         std::lock_guard<std::mutex> lock(m_registryMutex);
 
                         auto it = m_registry.find(p_guid);
@@ -139,38 +140,7 @@ namespace Droplet
                     if constexpr (std::is_same_v<T, TextureResource>)
                     {
                         ResourceLoader::TextureLoader loader;
-                        //gli::texture texture;
-                        //Texture2DResource texture;
-                        
                         auto texture = loader.Load(metaEntry.path);
-
-                        std::cout << "Width: " << texture->GetWidth() << std::endl;
-                        std::cout << "Height: " << texture->GetHeight() << std::endl;
-                        std::cout << "MipLevels: " << texture->GetMipLevels() << std::endl;
-                        std::cout << "Format: " << static_cast<int>(texture->GetFormat()) << std::endl;
-
-                        std::cout << "Pixel data size: "
-                            << texture->GetPixelData().size()
-                            << std::endl;
-                        //std::cout << "PixelData: " << texture.GetPixelData() << std::endl;
-
-                        /*if (texture.empty())
-                        {
-                            std::cout << "Texture was not loaded correctly from ResourceManager" << std::endl;
-                        }
-                        else
-                        {
-                            std::cout << "Texture was successfully loaded inside ResourceManager" << std::endl;
-                        }*/
-
-                        //auto extent = texture.extent();
-                        //auto mipLevels = texture.levels();
-
-                        //auto resource = std::make_unique<Texture2DResource>();
-                        //resource->SetDimensions(extent.x, extent.y);
-                        //resource->SetMipLevels(static_cast<int>(mipLevels));
-
-
 
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
@@ -248,8 +218,6 @@ namespace Droplet
         
         std::unordered_map<GUID, ResourceRecord> m_registry;
         std::mutex m_registryMutex; 
-        
-        // TODO: Add thread pool / job system
 
         ThreadPool m_threadPool;
     };
