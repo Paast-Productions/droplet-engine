@@ -39,7 +39,7 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
 void CopyBuffer(
 	const vk::raii::Device &p_device, 
 	const vk::raii::Queue &p_queue, 
-	Droplet::Graphics::VK::CommandPool &p_commandPool,
+	const Droplet::Graphics::VK::CommandPool &p_commandPool,
 	const vk::raii::Buffer &p_srcBuffer, 
 	const vk::raii::Buffer &p_dstBuffer, 
 	vk::DeviceSize p_size);

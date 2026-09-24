@@ -63,7 +63,7 @@ namespace Droplet::Graphics::VK
 		/// @note This function blocks until the queue is idle.
 		template<typename RecordFunction>
 		requires std::invocable<RecordFunction&, CommandBuffer&>
-		void ImmediateSubmit(const vk::raii::Queue &p_queue, RecordFunction p_recordFunction);
+		void ImmediateSubmit(const vk::raii::Queue &p_queue, RecordFunction p_recordFunction) const;
 		
 	private:
 		const vk::raii::Device &m_device;
@@ -71,5 +71,25 @@ namespace Droplet::Graphics::VK
 		
 		std::vector<CommandBuffer> m_commandBuffers;
 	};
+	
+	template<typename RecordFunction>
+	requires std::invocable<RecordFunction&, CommandBuffer&>
+	void CommandPool::ImmediateSubmit(const vk::raii::Queue &p_queue, RecordFunction p_recordFunction) const
+	{
+		CommandBuffer commandBuffer{m_device, m_commandPool, vk::CommandBufferLevel::ePrimary};
+		commandBuffer.Begin(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
+	
+		p_recordFunction(commandBuffer);
+	
+		commandBuffer.End();
+	
+		vk::SubmitInfo submitInfo {
+			.commandBufferCount = 1,
+			.pCommandBuffers = &*commandBuffer.Get()
+		};
+	
+		p_queue.submit(submitInfo);
+		p_queue.waitIdle(); // TODO: There is a risk that this becomes a bottleneck. Reconsider the suitability further up.
+	}
 
 }
