@@ -1,4 +1,6 @@
-﻿#include "Graphics/VK/Renderer.hpp"
+﻿#include <Graphics/VK/Renderer.hpp>
+
+#include <vk_mem_alloc.hpp>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
@@ -9,6 +11,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Height = 480,
 		.Flags = 0
 	};
+		
+	vma::Allocator{};
 	
 	Renderer rnd 
 	{
