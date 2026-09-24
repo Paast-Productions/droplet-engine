@@ -19,7 +19,8 @@ project "Engine"
     dependson
     {
         "ImGui",
-        "json"
+        "json",
+        "VulkanMemoryAllocator"
         --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
