@@ -1,6 +1,7 @@
 #pragma once
 
 // include function from gli library specifically
+
 #include <gli/load.hpp>
 #include <gli/texture.hpp>
 #include <gli/texture2d.hpp>

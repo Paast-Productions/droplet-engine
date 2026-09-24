@@ -40,3 +40,8 @@ project "Test"
         "Engine",
         "gtest"
     }
+
+    defines
+    {
+        "GLM_ENABLE_EXPERIMENTAL"
+    }

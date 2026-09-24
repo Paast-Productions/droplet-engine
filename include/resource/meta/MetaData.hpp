@@ -1,7 +1,7 @@
 #pragma once
 
-#include "asset/GUID.hpp"
-#include "asset/Resource.hpp"
+#include "resource/GUID.hpp"
+#include "resource/IResource.hpp"
 
 #include <json/json.hpp>
 #include <cstdint>
@@ -52,6 +52,7 @@ namespace Droplet
         GUID guid = C_INVALID_GUID;
         ResourceType type = ResourceType::None;
         std::string name;
+        std::string assetPath;
         ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU;
         std::vector<GUID> dependencies;
         

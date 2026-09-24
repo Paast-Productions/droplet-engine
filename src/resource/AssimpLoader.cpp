@@ -1,6 +1,6 @@
 #include "AssimpLoader.hpp"
 
-#include "asset/Resource.hpp"
+#include "resource/IResource.hpp"
 
 #include <vector>
 #include <string>

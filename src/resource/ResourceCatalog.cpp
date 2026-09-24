@@ -1,6 +1,6 @@
-﻿#include "Asset/ResourceCatalog.hpp"
+﻿#include "resource/ResourceCatalog.hpp"
 
-#include "asset/meta/MetaUtils.hpp"
+#include "resource/meta/MetaUtils.hpp"
 
 namespace Droplet
 {

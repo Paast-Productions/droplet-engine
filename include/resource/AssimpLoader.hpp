@@ -1,7 +1,10 @@
 #pragma once
 
-#include <asset/ResourceManager.hpp>
-#include "asset/Resource.hpp"
+#include "resource/ResourceManager.hpp"
+#include "resource/types/MeshResource.hpp"
+#include "resource/types/SkinnedMeshResource.hpp"
+#include "resource/types/AnimationResource.hpp"
+
 
 #include <vector>
 #include <string>

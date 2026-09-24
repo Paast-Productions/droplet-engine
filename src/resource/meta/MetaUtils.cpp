@@ -1,4 +1,5 @@
-#include "asset/meta/MetaUtils.hpp"
+#include "resource/meta/MetaUtils.hpp"
+#include "resource/types/ShaderResource.hpp"
 
 #include <fstream>
 
@@ -78,12 +79,56 @@ namespace Droplet
         return true;
     }
 
-    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name)
+    ShaderResource::ShaderType MetaUtils::EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
+    {
+        std::string shaderFileName = p_shaderPath.filename().generic_string();
+        std::transform(shaderFileName.begin(), shaderFileName.end(), shaderFileName.begin(), [](unsigned char c)
+        {
+            return tolower(c);
+        });
+        if (shaderFileName.starts_with("vs_"))
+        {
+            return ShaderResource::ShaderType::Vertex;
+        }
+        if (shaderFileName.starts_with("fs_"))
+        {
+            return ShaderResource::ShaderType::Fragment;
+        }
+        if (shaderFileName.starts_with("gs_"))
+        {
+            return ShaderResource::ShaderType::Geometry;
+        }
+        if (shaderFileName.starts_with("cs_"))
+        {
+            return ShaderResource::ShaderType::Compute;
+        }
+        if (shaderFileName.starts_with("tcs_"))
+        {
+            return ShaderResource::ShaderType::TessellationControl;
+        }
+        if (shaderFileName.starts_with("tes_"))
+        {
+            return ShaderResource::ShaderType::TessellationEvaluation;
+        }
+        if (shaderFileName.starts_with("ms_"))
+        {
+            return ShaderResource::ShaderType::Mesh;
+        }
+        if (shaderFileName.starts_with("ts_"))
+        {
+            return ShaderResource::ShaderType::Task;
+        }
+
+        return ShaderResource::ShaderType::Vertex; // Default to vertex
+    }
+
+    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath)
     {
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
         entry.type = p_type;
         entry.name = p_name;
+        entry.assetPath = p_assetPath;
         
         // Set type-specific flags
         switch (p_type)
@@ -105,6 +150,8 @@ namespace Droplet
             break;
         case ResourceType::Shader:
             entry.loadFlags = ResourceLoadFlag::LoadGPU;
+            
+            entry.typeSpecificData["shader_type"] = EvaluateShaderTypeFromPath(p_assetPath);
             break;
         case ResourceType::Material:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;

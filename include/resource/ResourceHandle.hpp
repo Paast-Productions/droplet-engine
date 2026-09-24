@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "asset/GUID.hpp"
+#include "resource/GUID.hpp"
 
 namespace Droplet
 {
@@ -49,4 +49,4 @@ namespace Droplet
     
 }
 
-#include "asset/ResourceManager.hpp"
+#include "resource/ResourceManager.hpp"

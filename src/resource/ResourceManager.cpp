@@ -1,6 +1,6 @@
-﻿#include "Asset/ResourceManager.hpp"
+﻿#include "resource/ResourceManager.hpp"
 
-#include "asset/meta/MetaUtils.hpp"
+#include "resource/meta/MetaUtils.hpp"
 
 // #include "IResource"
 
@@ -130,7 +130,7 @@ namespace Droplet
             else
             {
                 // Resource does not exist in the old metadata -> create a new entry for it
-                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName));
+                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName, p_assetPath));
             }
         }
         
