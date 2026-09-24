@@ -4,6 +4,11 @@
 
 namespace Droplet
 {
+    void AnimationResource::SetName(const std::string &p_name)
+    {
+        m_name = p_name;
+    }
+
     void AnimationResource::SetIsLooping(bool p_isLooping)
     {
         m_isLooping = p_isLooping;
@@ -27,6 +32,11 @@ namespace Droplet
         {
             m_duration = 0.0f;
         }
+    }
+
+    std::string_view AnimationResource::GetName() const
+    {
+        return m_name;
     }
 
     bool AnimationResource::IsLooping() const

@@ -21,7 +21,7 @@ project "AssetManager-AssetLoading"
         targetBuildPath .. "/External/lib",
 
     }
-
+    
     local vkPath = os.getenv("VULKAN_SDK")
 
     includedirs {
@@ -44,6 +44,11 @@ project "AssetManager-AssetLoading"
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd")
     }
+
     defines {
         "GLM_ENABLE_EXPERIMENTAL"
+    }
+
+    postbuildcommands {
+        '{COPY} "' .. targetBuildPath .. '/External/bin/assimp-vc145-mtd.dll" "%{cfg.targetdir}"'
     }

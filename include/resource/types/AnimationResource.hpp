@@ -3,6 +3,7 @@
 
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include <vector>
 #include <string>
@@ -14,12 +15,13 @@ namespace Droplet
 	{
 	public:
 		/// @brief Struct for animation step data for a single bone.
-		struct BoneKeyframe
-		{
-			std::string boneName{};
-			glm::vec3 pos{ 0.f, 0.f, 0.f };
-			glm::vec3 scale{ 1.f, 1.f, 1.f };
-		};
+	    struct BoneKeyframe
+	    {
+	        std::string boneName{};
+	        glm::vec3 pos{ 0.f, 0.f, 0.f };
+	        glm::quat rot{ 0.f, 0.f, 0.f, 1.f };
+	        glm::vec3 scale{ 1.f, 1.f, 1.f };
+	    };
 		
 		/// @brief Struct for keyframe data for the animation.
 		struct AnimKeyframe
@@ -27,6 +29,10 @@ namespace Droplet
 			float time = 0.0f;
 			std::vector<BoneKeyframe> boneKeyframes{};
 		};
+	    
+	    /// @brief Sets the animation name
+	    /// @param p_name The animation name to be set
+	    void SetName(const std::string &p_name);
 
 		/// @brief Sets whether the animation should loop.
 		/// @param p_isLooping True if the animation should loop, false otherwise.
@@ -35,6 +41,10 @@ namespace Droplet
 		/// @brief Sets the keyframes for the animation resource.
 		/// @param p_keyframes The keyframes for the animation resource.
 		void SetKeyframes(const std::vector<AnimKeyframe> &p_keyframes);
+	    
+	    // @brief Gets the name of the animation
+	    /// @return The name of the animation
+	    [[nodiscard]] std::string_view GetName() const;
 
 		/// @brief Gets whether the animation should loop.
 		/// @return True if the animation should loop, false otherwise.
@@ -50,6 +60,7 @@ namespace Droplet
 
 	private:
 
+	    std::string                 m_name{};                // Name of the animation
 		bool						m_isLooping = false;	// Whether the animation should loop
 		float						m_duration = 0.0f;		// Duration of the animation in seconds
 		std::vector<AnimKeyframe>	m_keyframes{};			// Keyframes for the animation resource
