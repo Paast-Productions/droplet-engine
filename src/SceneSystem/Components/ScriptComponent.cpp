@@ -24,7 +24,7 @@ const std::string &ScriptComponent::GetScriptPath() const
 
 void ScriptComponent::DetachScript()
 {
-    auto &ScriptSystem = ScriptSystem::Get();
+    //auto &ScriptSystem = ScriptSystem::Get();
     
 }
 
