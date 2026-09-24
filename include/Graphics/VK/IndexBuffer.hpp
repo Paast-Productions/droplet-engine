@@ -6,6 +6,8 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
+#include "CommandPool.hpp"
+
 namespace Droplet::Graphics::VK
 {
 	/// @brief Index Buffer Class
@@ -26,7 +28,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_indices Vector containing index data
 		IndexBuffer(vk::raii::Device const &p_device,
 			vk::raii::PhysicalDevice const &p_physDevice,
-			vk::raii::CommandPool const &p_commandPool,
+			CommandPool const &p_commandPool,
 			vk::raii::Queue const &p_queue,
 			const std::vector<uint16_t> &p_indices);
 

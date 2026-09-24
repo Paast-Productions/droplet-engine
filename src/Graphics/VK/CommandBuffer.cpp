@@ -7,7 +7,7 @@ vk::raii::CommandBuffer& Droplet::Graphics::VK::CommandBuffer::Get()
 
 void Droplet::Graphics::VK::CommandBuffer::Begin(vk::CommandBufferUsageFlagBits p_flags)
 {
-	vk::CommandBufferBeginInfo beginInfo { .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit};
+	vk::CommandBufferBeginInfo beginInfo { .flags = p_flags};
 	m_commandBuffer.begin(beginInfo);
 }
 

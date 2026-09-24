@@ -49,7 +49,7 @@ namespace Droplet::Graphics::VK
 		/// @brief Getter-function for a command buffer matching a descriptor
 		/// @param p_id Struct containing command buffer index in command pool
 		/// @returns Reference to command buffer
-		CommandBuffer& Get(const CommandBufferId p_id);
+		CommandBuffer& GetBuffer(const CommandBufferId p_id);
 		
 		/// @brief Submit commands to be immediately submitted to the supplied queue.
 		/// 

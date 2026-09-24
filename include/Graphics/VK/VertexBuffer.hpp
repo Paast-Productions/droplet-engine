@@ -7,6 +7,8 @@
 #include <vector>
 #include <glm/glm.hpp>
 
+#include <Graphics/VK/CommandPool.hpp>
+
 namespace Droplet::Graphics::VK
 {
 	/// @brief Vertex structure with position, normal, color, and texture coordinates
@@ -53,7 +55,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_vertices vector containing Vertex struct data
 		VertexBuffer(vk::raii::Device const &p_device,
 			vk::raii::PhysicalDevice const &p_physDevice,
-			vk::raii::CommandPool const &p_commandPool,
+			CommandPool const &p_commandPool,
 			vk::raii::Queue const &p_queue,
 			const std::vector<Vertex> &p_vertices);
 
