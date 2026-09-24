@@ -7,13 +7,12 @@
 #include <print>
 #include <filesystem>
 
-using namespace Droplet::Scene;
-using namespace Droplet::Script;
+using namespace Droplet;
 
-std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
-std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
+std::vector<Script::LuaGlobalFunctionDefinition> Script::LuaBindings::m_luaGlobalDefinitions;
+std::vector<Script::LuaClassDefinition> Script::LuaBindings::m_luaClassDefinitions;
 
-void LuaBindings::RegisterBindings(sol::state_view p_luaState) 
+void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
     RegisterGlobalFunctions();
 	RegisterTestNode(p_luaState);
@@ -28,7 +27,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions);
 }
 
-void LuaBindings::RegisterGlobalFunctions()
+void Script::LuaBindings::RegisterGlobalFunctions()
 {
     m_luaGlobalDefinitions =
     {
@@ -47,7 +46,7 @@ void LuaBindings::RegisterGlobalFunctions()
     };
 }
 
-void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
+void Script::LuaBindings::RegisterTestNode(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<TestNode>(
 		"TestNode",
@@ -90,55 +89,55 @@ void LuaBindings::RegisterTestNode(sol::state_view p_luaState)
     m_luaClassDefinitions.push_back(testNode);
 }
  
-void LuaBindings::RegisterNode(sol::state_view p_luaState)
+void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
 {
-    p_luaState.new_usertype<Node>(
+    p_luaState.new_usertype<Scene::Node>(
         "Node",
-        "GetName", &Node::GetName,
-        "GetTransform", static_cast<Transform &(Node::*)()>(&Node::GetTransform)
+        "GetName", &Droplet::Scene::Node::GetName,
+        "GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform)
     );
 }
 
-void LuaBindings::RegisterTransform(sol::state_view p_luaState)
+void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 {
-    p_luaState.new_enum<Transform::Space>(
+    p_luaState.new_enum<Scene::Transform::Space>(
         "TransformSpace",
         {
-            {"Local", Transform::Space::Local},
-            {"World", Transform::Space::World}
+            {"Local", Scene::Transform::Space::Local},
+            {"World", Scene::Transform::Space::World}
         }
     );
 
-    p_luaState.new_usertype<Transform>(
+    p_luaState.new_usertype<Scene::Transform>(
         "Transform",
-        "GetPosition", &Transform::GetPosition,
-        "GetRotation", &Transform::GetRotation,
-        "GetEuler", &Transform::GetEuler,
-        "GetScale", &Transform::GetScale,
-        "GetMatrix", &Transform::GetMatrix,
-        "IsDirty", &Transform::IsDirty,
-        "GetUp", &Transform::GetUp,
-        "GetRight", &Transform::GetRight,
-        "GetForward", &Transform::GetForward,
-        "SetPosition", &Transform::SetPosition,
-        "SetRotation", &Transform::SetRotation,
-        "SetEuler", &Transform::SetEuler,
-        "SetScale", &Transform::SetScale,
-        "SetMatrix", &Transform::SetMatrix,
-        "MakeDirty", &Transform::MakeDirty,
-        "RecalculateMatrices", &Transform::RecalculateMatrices,
-        "Move", &Transform::Move,
-        "Rotate", &Transform::Rotate,
-        "RotateEuler", &Transform::RotateEuler,
-        "AddScale", &Transform::AddScale,
-        "RotateAxis", &Transform::RotateAxis,
-        "LookAt", &Transform::LookAt
+        "GetPosition", &Scene::Transform::GetPosition,
+        "GetRotation", &Scene::Transform::GetRotation,
+        "GetEuler", &Scene::Transform::GetEuler,
+        "GetScale", &Scene::Transform::GetScale,
+        "GetMatrix", &Scene::Transform::GetMatrix,
+        "IsDirty", &Scene::Transform::IsDirty,
+        "GetUp", &Scene::Transform::GetUp,
+        "GetRight", &Scene::Transform::GetRight,
+        "GetForward", &Scene::Transform::GetForward,
+        "SetPosition", &Scene::Transform::SetPosition,
+        "SetRotation", &Scene::Transform::SetRotation,
+        "SetEuler", &Scene::Transform::SetEuler,
+        "SetScale", &Scene::Transform::SetScale,
+        "SetMatrix", &Scene::Transform::SetMatrix,
+        "MakeDirty", &Scene::Transform::MakeDirty,
+        "RecalculateMatrices", &Scene::Transform::RecalculateMatrices,
+        "Move", &Scene::Transform::Move,
+        "Rotate", &Scene::Transform::Rotate,
+        "RotateEuler", &Scene::Transform::RotateEuler,
+        "AddScale", &Scene::Transform::AddScale,
+        "RotateAxis", &Scene::Transform::RotateAxis,
+        "LookAt", &Scene::Transform::LookAt
     );
 
     //LuaClassDefinition transform;
 }
 
-void LuaBindings::RegisterGLM(sol::state_view p_luaState)
+void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 {
     p_luaState.new_usertype<glm::vec3>(
         "Vec3",

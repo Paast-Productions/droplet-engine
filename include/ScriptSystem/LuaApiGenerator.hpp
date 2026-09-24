@@ -108,4 +108,4 @@ namespace Droplet::Script
 		/// @return String representation of the default Lua value for the type.
 		static std::string GetDefaultLuaValue(const std::string &p_type);
 	};
-}
+};
