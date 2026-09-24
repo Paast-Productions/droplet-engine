@@ -24,9 +24,14 @@ namespace Droplet
         };
 	    
         ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_byteCode);
-        ShaderType GetType() const;
-        Slang::ComPtr<slang::IBlob> GetByteCode() const;
-	    
+        
+        /// @return The type of shader this shader resource represents.
+        [[nodiscard]] ShaderType GetType() const;
+        
+        /// @return The byte code of the shader blob.
+        [[nodiscard]] Slang::ComPtr<slang::IBlob> GetByteCode() const;
+
+        /// @brief Releases the pointer to the byte code stored in RAM.
         void ReleaseRam();
 
     private:

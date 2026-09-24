@@ -19,7 +19,7 @@ namespace Droplet
     std::vector<std::pair<ResourceType, std::string>> ShaderLoader::ListAssetResources(
         const std::filesystem::path &p_shaderPath)
     {
-        std::vector<std::pair<ResourceType, std::string>> resources;
+        std::vector<std::pair<ResourceType, std::string>> resources{};
         
         std::string resourceName = p_shaderPath.stem().string();
         resources.emplace_back(ResourceType::Shader, resourceName);

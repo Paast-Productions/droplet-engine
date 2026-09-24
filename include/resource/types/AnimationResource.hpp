@@ -42,7 +42,7 @@ namespace Droplet
 		/// @param p_keyframes The keyframes for the animation resource.
 		void SetKeyframes(const std::vector<AnimKeyframe> &p_keyframes);
 	    
-	    // @brief Gets the name of the animation
+	    /// @brief Gets the name of the animation
 	    /// @return The name of the animation
 	    [[nodiscard]] std::string_view GetName() const;
 

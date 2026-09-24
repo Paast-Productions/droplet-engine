@@ -32,11 +32,12 @@ namespace Droplet::MetaUtils
     /// @brief Determines the shader type based on its name.
     /// @param p_shaderPath The path to the shader file.
     /// @return The shader type.
-    ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath);
+    [[nodiscard]] ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath);
 
     /// @brief Generates a new meta entry with a unique GUID and type-specific default values.
     /// @param p_type The type of resource the entry is for.
     /// @param p_name The name of the resource within the asset.
+    /// @param p_assetPath The path to the asset file the resource is stored within.
     /// @return A generated meta entry.
-    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath);
+    [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath);
 }

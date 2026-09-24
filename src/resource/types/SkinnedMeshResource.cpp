@@ -2,7 +2,6 @@
 
 namespace Droplet
 {
-    // TODO: Move definitions here
     int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
     {
         if (m_boneMap.find(p_name) != m_boneMap.end())

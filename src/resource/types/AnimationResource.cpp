@@ -49,7 +49,7 @@ namespace Droplet
         return m_duration;
     }
 
-    const std::vector<AnimationResource::AnimKeyframe> & AnimationResource::GetKeyframes() const
+    const std::vector<AnimationResource::AnimKeyframe> &AnimationResource::GetKeyframes() const
     {
         return m_keyframes;
     }
