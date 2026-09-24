@@ -7,6 +7,8 @@
 #include <gli/texture2d.hpp>
 #include <gli/save.hpp>
 
+#include "asset/Resource.hpp"
+
 #include <string>
 
 namespace Droplet::ResourceLoader
@@ -17,16 +19,18 @@ namespace Droplet::ResourceLoader
 	{
 	public:
 
-		/// @return loaded gli texture 
+		/// @return Texture2DResource
 		/// @param p_path string of textures path in explorer
 		/// @throws the invalid path
-		gli::texture Load(const std::string &p_path);
+		std::unique_ptr<Texture2DResource> Load(const std::string &p_path);
 
 		/// @return True if PNG succesfully converted to KTX
 		/// @param p_inputPath string of textures path in explorer
 		/// @param p_outputPath string of new path to texture in explorer
 		/// @throws the invalid path
 		bool ConvertPNGToKTX(const std::string &p_inputPath, const std::string &p_outputPath);
+
+		Texture2DResource::TextureFormat ConvertTextureFormat(gli::format p_format);
 
 	};
 }

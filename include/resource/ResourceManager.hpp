@@ -139,24 +139,38 @@ namespace Droplet
                     if constexpr (std::is_same_v<T, TextureResource>)
                     {
                         ResourceLoader::TextureLoader loader;
-                        gli::texture texture;
-                        texture = loader.Load(metaEntry.path);
+                        //gli::texture texture;
+                        //Texture2DResource texture;
+                        
+                        auto texture = loader.Load(metaEntry.path);
 
-                        if (texture.empty())
+                        std::cout << "Width: " << texture->GetWidth() << std::endl;
+                        std::cout << "Height: " << texture->GetHeight() << std::endl;
+                        std::cout << "MipLevels: " << texture->GetMipLevels() << std::endl;
+                        std::cout << "Format: " << static_cast<int>(texture->GetFormat()) << std::endl;
+
+                        std::cout << "Pixel data size: "
+                            << texture->GetPixelData().size()
+                            << std::endl;
+                        //std::cout << "PixelData: " << texture.GetPixelData() << std::endl;
+
+                        /*if (texture.empty())
                         {
                             std::cout << "Texture was not loaded correctly from ResourceManager" << std::endl;
                         }
                         else
                         {
                             std::cout << "Texture was successfully loaded inside ResourceManager" << std::endl;
-                        }
+                        }*/
 
-                        auto extent = texture.extent();
-                        auto mipLevels = texture.levels();
+                        //auto extent = texture.extent();
+                        //auto mipLevels = texture.levels();
 
-                        auto resource = std::make_unique<Texture2DResource>();
-                        resource->SetDimensions(extent.x, extent.y);
-                        resource->SetMipLevels(mipLevels);
+                        //auto resource = std::make_unique<Texture2DResource>();
+                        //resource->SetDimensions(extent.x, extent.y);
+                        //resource->SetMipLevels(static_cast<int>(mipLevels));
+
+
 
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
@@ -167,7 +181,7 @@ namespace Droplet
                             {
                                 return;
                             }
-                            it->second.resource = std::move(resource);
+                            it->second.resource = std::move(texture);
                             it->second.state = ResourceState::ReadyAsync;
                         }
                     }
