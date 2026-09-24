@@ -15,6 +15,7 @@
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
+#include <Graphics/VK/DepthBuffer.hpp>
 
 
 // HACK: Implementation subject to change
@@ -79,11 +80,11 @@ private:
 	vk::raii::Device						m_device = nullptr;
 	std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
 	vk::raii::Queue							m_queue = nullptr;
-	vk::raii::SwapchainKHR					m_swapChain = nullptr;
-	std::vector<vk::Image>					m_swapChainImages	{};
-	vk::SurfaceFormatKHR					m_swapChainSurfaceFormat;
-	vk::Extent2D							m_swapChainExtent;
-	std::vector<vk::raii::ImageView>		m_swapChainImageViews;
+	vk::raii::SwapchainKHR					m_swapchain = nullptr;
+	std::vector<vk::Image>					m_swapchainImages	{};
+	vk::SurfaceFormatKHR					m_swapchainSurfaceFormat;
+	vk::Extent2D							m_swapchainExtent;
+	std::vector<vk::raii::ImageView>		m_swapchainImageViews;
 
 	vk::raii::PipelineLayout				m_pipelineLayout	= nullptr;
 	vk::raii::CommandPool					m_commandPool		= nullptr;
@@ -95,6 +96,7 @@ private:
 	std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 	std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
+	std::optional<Droplet::Graphics::VK::DepthBuffer> m_depthBuffer;
 	std::optional<Droplet::Graphics::VK::IndexBuffer> m_indexBuffer;
 	std::optional<Droplet::Graphics::VK::VertexBuffer> m_vertexBuffer;
 
