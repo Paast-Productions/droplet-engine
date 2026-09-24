@@ -40,6 +40,12 @@ namespace Droplet::Graphics::VK
 		/// @returns CommandBufferId struct
 		CommandBufferId Allocate(const vk::CommandBufferLevel p_level = vk::CommandBufferLevel::ePrimary);
 		
+		/// @brief Create multiple CommandBuffers in the pool
+		/// @param p_level Level of the command buffers to allocate
+		/// @param p_count Number of buffers to allocate
+		/// @returns Vector with CommandBufferId structs
+		std::vector<CommandBufferId> Allocate(uint32_t p_count, vk::CommandBufferLevel p_level = vk::CommandBufferLevel::ePrimary);
+		
 		/// @brief Getter-function for a command buffer matching a descriptor
 		/// @param p_id Struct containing command buffer index in command pool
 		/// @returns Reference to command buffer
