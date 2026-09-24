@@ -3,7 +3,7 @@
 #include <Graphics/VK/CommandPool.hpp>
 
 using namespace Droplet::Graphics::VK;
-
+//TODO FIX CONSTRUCTOR ERROR
 ImageView::ImageView(const vk::raii::Device &p_device,
 					 const vk::raii::PhysicalDevice &p_physicalDevice, 
 					 const CommandPool &p_commandPool,

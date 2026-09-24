@@ -59,9 +59,10 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Pipeline constructor
 		/// @param p_device Vulkan Device
+		/// @param p_physicalDevice Hardware Device
 		/// @param p_shaderModule Vulkan Shader Module used for Pipeline creation 
 		/// @param p_pipelineConfig Pipeline Configuration Struct
-		Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig);
+		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig);
 		
 		~Pipeline() = default;
 		
