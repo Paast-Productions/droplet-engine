@@ -4,7 +4,7 @@
 
     warnings "Off"
 
-    targetdir(targetBuildPath .. "/External/lib/")
+    targetdir(targetBuildPath .. "/External/lib")
     objdir(objBuildPath .. "/%{prj.name}")
     
     local vulkanMemoryAllocatorPath = targetBuildPath .. "/External/include"
