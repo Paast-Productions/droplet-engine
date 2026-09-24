@@ -8,7 +8,7 @@ namespace Droplet::Graphics::VK
 	class CommandBuffer
 	{
 	public:
-		vk::raii::CommandBuffer& Get();
+		[[nodiscard]] vk::raii::CommandBuffer& Get();
 		void Begin(vk::CommandBufferUsageFlagBits p_flags);
 		void End();
 		
