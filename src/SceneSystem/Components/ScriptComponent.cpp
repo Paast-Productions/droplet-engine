@@ -6,7 +6,7 @@ ScriptComponent::ScriptComponent([[maybe_unused]] const std::string &p_path)
 {
 
     auto &scriptSystem = ScriptSystem::Get();
-    scriptSystem.SetScriptPath("../../../src/TestScripts");
+    
     scriptSystem.CreateScript(this, p_path);
     scriptSystem.ActivateScript(this);
 }

@@ -126,7 +126,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // ==================================================
     // Deactivate / unload
     // ==================================================
-
+    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
 
     ScriptSystem::Get().Start();
