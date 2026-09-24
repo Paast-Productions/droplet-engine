@@ -10,6 +10,8 @@ project "Editor"
 	
     includedirs 
 	{
+        "../include",
+        "../include/**",
         "../Editor/include",
         "../Editor/include/**",
         vkPath .. "/Include",

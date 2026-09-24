@@ -4,5 +4,5 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-	// Create a window and initialize ImGui context
+	// TODO: Initialize window & ImGui context, then setup engine & wrap functionality in UI.
 }
