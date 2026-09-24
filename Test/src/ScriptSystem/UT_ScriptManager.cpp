@@ -3,6 +3,7 @@
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 
+using namespace Droplet;
 using namespace Droplet::Script;
 
 TEST(ScriptManager, SetScriptDirectory)
@@ -15,44 +16,51 @@ TEST(ScriptManager, SetScriptDirectory)
 	EXPECT_TRUE(found);
 }
 
-//TEST(ScriptManager, CreateScript)
-//{
-//	//Lua state initialization
-//	LuaStateHandler stateHandler;
-//	ScriptManager manager(stateHandler);
-//	TestNode testNode;
-//
-//	manager.SetScriptDirectory("../src/TestScripts");
-//	bool result = manager.CreateScript(&testNode, "testScript.lua");
-//
-//	EXPECT_TRUE(result);
-//}
+TEST(ScriptManager, CreateScript)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	ScriptManager manager(stateHandler);
+	
 
-//TEST(ScriptManager, DetachAllInstancesToScript)
-//{
-//	//Lua state initialization
-//	LuaStateHandler stateHandler;
-//	ScriptManager manager(stateHandler);
-//	TestNode firstNode;
-//	TestNode secondNode;
-//
-//	ASSERT_TRUE(manager.SetScriptDirectory("../src/TestScripts"));
-//
-//	manager.CreateScript(&firstNode, "testScript.lua");
-//	manager.CreateScript(&secondNode, "testScript.lua");
-//
-//	manager.ActivateScript(&firstNode);
-//	manager.ActivateScript(&secondNode);
-//
-//	manager.DetachAllInstancesToScript("testScript.lua");
-//
-//	EXPECT_FALSE(manager.Call(&firstNode, "test").valid());
-//	EXPECT_FALSE(manager.Call(&secondNode, "test").valid());
-//
-//	EXPECT_NO_THROW(manager.Update(0.016f));
-//
-//	EXPECT_NO_THROW(manager.DetachAllInstancesToScript("testScript.lua"));
-//}
+	manager.SetScriptDirectory("../src/TestScripts");
+	Scene::ScriptComponent testComp("testScript.lua");
+	bool result = manager.CreateScript(&testComp, "testScript.lua");
+	EXPECT_TRUE(result);
+
+	result = manager.CreateScript(&testComp, "testScript2.lua");
+	EXPECT_TRUE(result);
+
+	result = manager.CreateScript(&testComp, "nonExisting.lua");
+	EXPECT_FALSE(result);
+}
+
+TEST(ScriptManager, DetachAllInstancesToScript)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	ScriptManager manager(stateHandler);
+
+	Scene::ScriptComponent firstComp("testScript.lua");
+	Scene::ScriptComponent secondComp("testScript.lua");
+
+	ASSERT_TRUE(manager.SetScriptDirectory("../src/TestScripts"));
+
+	manager.CreateScript(&firstComp, "testScript.lua");
+	manager.CreateScript(&secondComp, "testScript.lua");
+
+	manager.ActivateScript(&firstComp);
+	manager.ActivateScript(&secondComp);
+
+	manager.DetachAllInstancesToScript("testScript.lua");
+
+	EXPECT_FALSE(manager.Call(&firstComp, "test").valid());
+	EXPECT_FALSE(manager.Call(&secondComp, "test").valid());
+
+	EXPECT_NO_THROW(manager.Update(0.016f));
+
+	EXPECT_NO_THROW(manager.DetachAllInstancesToScript("testScript.lua"));
+}
 
 TEST(ScriptManager, LoadScript)
 {
@@ -102,6 +110,8 @@ TEST(ScriptManager, IsLoaded)
 	EXPECT_TRUE(manager.IsLoaded("testScript.lua"));
 	EXPECT_TRUE(manager.IsLoaded("testScript3.lua"));
 	EXPECT_TRUE(manager.IsLoaded("testScript2.lua"));
+
+	EXPECT_FALSE(manager.IsLoaded("nonExisting"));
 }
 
 TEST(ScriptManager, ReloadScript)
@@ -143,7 +153,7 @@ TEST(ScriptManager, GetLoadedScript)
 	EXPECT_TRUE(result1->valid());
 	EXPECT_TRUE(result2->valid());
 	EXPECT_TRUE(result3->valid());
-	EXPECT_FALSE(failedResult->valid());
+	EXPECT_EQ(failedResult, nullptr);
 }
 
 TEST(ScriptManager, ActivateScript)
@@ -164,23 +174,23 @@ TEST(ScriptManager, ActivateScript)
 	EXPECT_EQ(timesTwo, 2);
 }
 
-//TEST(ScriptManager, DeactivateScript)
-//{
-//	//Lua state initialization
-//	LuaStateHandler stateHandler;
-//	ScriptManager manager(stateHandler);
-//	Droplet::Scene::ScriptComponent testComp("");
-//
-//	manager.SetScriptDirectory("../src/TestScripts");
-//
-//	manager.CreateScript(&testNode, "testScript3.lua");
-//	manager.ActivateScript(&testNode);
-//
-//	int timesTwo = manager.Call(&testNode, "TimesTwo", 1);
-//	EXPECT_EQ(timesTwo, 2);
-//
-//	manager.DeactivateScript(&testNode);
-//
-//	auto result = manager.Call(&testNode, "TimesTwo", 1);
-//	EXPECT_FALSE(result.valid());
-//}
+TEST(ScriptManager, DeactivateScript)
+{
+	//Lua state initialization
+	LuaStateHandler stateHandler;
+	ScriptManager manager(stateHandler);
+	Droplet::Scene::ScriptComponent testComp("");
+
+	manager.SetScriptDirectory("../src/TestScripts");
+
+	manager.CreateScript(&testComp, "testScript3.lua");
+	manager.ActivateScript(&testComp);
+
+	int timesTwo = manager.Call(&testComp, "TimesTwo", 1);
+	EXPECT_EQ(timesTwo, 2);
+
+	manager.DeactivateScript(&testComp);
+
+	auto result = manager.Call(&testComp, "TimesTwo", 1);
+	EXPECT_FALSE(result.valid());
+}
