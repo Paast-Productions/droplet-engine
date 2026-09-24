@@ -28,6 +28,9 @@ private:
 	/// @param p_luaState Lua state in which the TestNode bindings should be registered.
 	static void RegisterTestNode(sol::state_view p_luaState);
 
+	static void RegisterNode(sol::state_view p_luaState);
+	static void RegisterTransform(sol::state_view p_luaState);
+
 	// TODO: Implement additional engine bindings as functionality is added.
 
 private:

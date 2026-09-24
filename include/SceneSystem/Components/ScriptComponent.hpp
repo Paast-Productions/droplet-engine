@@ -17,6 +17,7 @@ namespace Droplet::Scene
     public:
         explicit ScriptComponent(const std::string &p_scriptPath);
         void Update(float p_deltaTime) override;
+        void Start() override;
         const std::string &GetScriptPath() const;
 		void DetachScript();
     	bool ActivateScript();

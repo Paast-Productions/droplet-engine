@@ -18,7 +18,7 @@ namespace Droplet::Scene
     {
     public:
         /// @brief Constructs an empty Component.
-        Component() = default;
+        Component();
 
         /// @brief Virtual destructor.
         virtual ~Component() = default;

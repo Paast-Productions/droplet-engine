@@ -125,7 +125,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
 
+
     ScriptSystem::Get().Start();
+
+    while (true)
+    {
+        ScriptSystem::Get().Update(1.0);
+    }
+    
 
     return 0;
 }  
