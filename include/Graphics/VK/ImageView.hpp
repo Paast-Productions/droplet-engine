@@ -26,16 +26,16 @@ namespace Droplet::Graphics::VK
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
 		ImageView(
-			const vk::raii::Device &p_device, 
+			const vk::raii::Device &p_device,
 			const vk::raii::PhysicalDevice &p_physicalDevice,
-			const vk::raii::CommandPool &p_commandPool, 
+			const vk::raii::CommandPool &p_commandPool,
 			const vk::raii::Queue &p_queue,
-			const unsigned char *p_pixels, 
+			const unsigned char *p_pixels,
 			std::uint32_t p_width,
-			std::uint32_t p_height, 
-			vk::Format p_format, 
-			vk::ImageTiling p_tiling, 
-			vk::ImageUsageFlags p_usage, 
+			std::uint32_t p_height,
+			vk::Format p_format,
+			vk::ImageTiling p_tiling,
+			vk::ImageUsageFlags p_usage,
 			vk::MemoryPropertyFlags p_properties);
 
 		/// @brief Constructor for creating an imageview
@@ -50,8 +50,8 @@ namespace Droplet::Graphics::VK
 		ImageView(
 			const vk::raii::Device &p_device,
 			const vk::raii::PhysicalDevice &p_physicalDevice,
-			uint32_t p_width, 
-			uint32_t p_height,
+			std::uint32_t p_width,
+			std::uint32_t p_height,
 			vk::Format p_format,
 			vk::ImageAspectFlagBits p_aspectFlagBits,
 			vk::ImageTiling p_tiling,
@@ -60,21 +60,21 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Image getter
 		/// @return pointer to the image
-		inline const vk::raii::Image *GetImage()
+		[[nodiscard]] inline const vk::raii::Image *GetImage()
 		{
 			return &m_image;
 		}
 
 		/// @brief ImageView getter
 		/// @return pointer to the imageview
-		inline const vk::raii::ImageView *GetView()
+		[[nodiscard]] inline const vk::raii::ImageView *GetView()
 		{
 			return &m_view;
 		}
 
 		/// @brief DeviceMemory getter
 		/// @return pointer to the device memory
-		inline const vk::raii::DeviceMemory *GetMemory()
+		[[nodiscard]] inline const vk::raii::DeviceMemory *GetMemory()
 		{
 			return &m_imageMemory;
 		}

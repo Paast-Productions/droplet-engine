@@ -3,21 +3,6 @@
 
 using namespace Droplet::Graphics::VK;
 
-uint32_t findMemoryType(const vk::raii::PhysicalDevice &p_physicalDevice, uint32_t typeFilter, vk::MemoryPropertyFlags properties)
-{
-	vk::PhysicalDeviceMemoryProperties memProperties = p_physicalDevice.getMemoryProperties();
-
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
-	{
-		if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
-		{
-			return i;
-		}
-	}
-
-	throw std::runtime_error("failed to find suitable memory type!");
-}
-
 ImageView::ImageView(const vk::raii::Device &p_device,
 					 const vk::raii::PhysicalDevice &p_physicalDevice, 
 					 const vk::raii::CommandPool &p_commandPool,
@@ -35,7 +20,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 		CreateBuffer(p_device, p_physicalDevice, imageSize, vk::BufferUsageFlagBits::eTransferSrc, vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
 
 	void *data = stagingBufferMemory.mapMemory(0, imageSize);
-	memcpy(data, p_pixels, imageSize);
+	std::memcpy(data, p_pixels, imageSize);
 	stagingBufferMemory.unmapMemory();
 
 	vk::ImageCreateInfo imageInfo{ .imageType = vk::ImageType::e2D,
@@ -52,7 +37,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 
 	vk::MemoryRequirements memRequirements = m_image.getMemoryRequirements();
 	vk::MemoryAllocateInfo allocInfo{ .allocationSize = memRequirements.size,
-									 .memoryTypeIndex = findMemoryType(p_physicalDevice, memRequirements.memoryTypeBits, p_properties) };
+									 .memoryTypeIndex = FindMemoryType(p_physicalDevice, memRequirements.memoryTypeBits, p_properties) };
 	m_imageMemory = vk::raii::DeviceMemory(p_device, allocInfo);
 	m_image.bindMemory(m_imageMemory, 0);
 
@@ -81,8 +66,8 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 //std::pair<vk::raii::Image, vk::raii::DeviceMemory> 
 ImageView::ImageView(const vk::raii::Device &p_device, 
 					 const vk::raii::PhysicalDevice &p_physicalDevice, 
-					 uint32_t p_width, 
-					 uint32_t p_height, 
+					 std::uint32_t p_width, 
+					 std::uint32_t p_height,
 					 vk::Format p_format,
 					 vk::ImageAspectFlagBits p_aspectFlagBits,
 					 vk::ImageTiling p_tiling, 
@@ -103,7 +88,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 
 	vk::MemoryRequirements memRequirements = m_image.getMemoryRequirements();
 	vk::MemoryAllocateInfo allocInfo{ .allocationSize = memRequirements.size,
-									 .memoryTypeIndex = findMemoryType(p_physicalDevice, memRequirements.memoryTypeBits, p_properties) };
+									 .memoryTypeIndex = FindMemoryType(p_physicalDevice, memRequirements.memoryTypeBits, p_properties) };
 	m_imageMemory = vk::raii::DeviceMemory(p_device, allocInfo);
 	m_image.bindMemory(m_imageMemory, 0);
 
