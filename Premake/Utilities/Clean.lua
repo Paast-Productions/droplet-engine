@@ -6,6 +6,7 @@ Options:
 -b|-build - Clean the entire build
 -E|-Engine|-engine - Clean Engine project
 -e|-editor - Clean Editor project
+-g|-generated - Clean Generated files
 -h|-help - Shows clean options
 -t|-test - Clean Test project
 -s|-self - Clean all non-external projects]]
@@ -45,6 +46,11 @@ newaction {
                 os.execute("{RMDIR} ./Build/Target/Editor/")
                 os.remove("./Generated/Editor.vcxproj")
                 os.remove("./Generated/Editor.vcxproj.filters")
+                
+            elseif (arg == "-g" or arg == "-generated") then
+                print("Cleaning Generated")
+
+                os.execute("{RMDIR} ./Generated")
 
             elseif (arg == "-h" or arg == "-help") then
                 print(description)
