@@ -9,11 +9,11 @@
 #include <functional>
 #include <iostream>
 
-#include "asset/ResourceHandle.hpp"
-#include "asset/ResourceCatalog.hpp"
-#include "asset/Resource.hpp"
-#include "asset/ThreadPool.hpp"
-#include "asset/TextureLoader.hpp"
+#include "resource/ResourceHandle.hpp"
+#include "resource/ResourceCatalog.hpp"
+#include "resource/types/Texture2DResource.hpp"
+#include "resource/ThreadPool.hpp"
+#include "resource/loaders/TextureLoader.hpp"
 
 namespace Droplet
 {
@@ -137,11 +137,10 @@ namespace Droplet
                         it->second.state = ResourceState::LoadingAsync;
                     }
 
-                    if constexpr (std::is_same_v<T, TextureResource>)
+                    if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
                         ResourceLoader::TextureLoader loader;
-                        auto texture = loader.Load(metaEntry.path);
-
+                        auto texture = loader.Load(metaEntry.assetPath);
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 

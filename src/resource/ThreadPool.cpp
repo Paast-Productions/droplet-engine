@@ -1,4 +1,4 @@
-#include "asset/ThreadPool.hpp"
+#include "resource/ThreadPool.hpp"
 
 ThreadPool::ThreadPool()
 {

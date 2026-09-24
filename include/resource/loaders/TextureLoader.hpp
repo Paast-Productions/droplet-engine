@@ -7,7 +7,7 @@
 #include <gli/texture2d.hpp>
 #include <gli/save.hpp>
 
-#include "asset/Resource.hpp"
+#include "resource/types/Texture2DResource.hpp"
 
 #include <string>
 
