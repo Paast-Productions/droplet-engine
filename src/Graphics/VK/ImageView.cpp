@@ -56,7 +56,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 			p_commandBuffer.Get().copyBufferToImage(stagingBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, region);
 
 			TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-		})
+		});
 
 	vk::ImageViewCreateInfo viewInfo{
 		.image = m_image,
