@@ -45,11 +45,19 @@ namespace Droplet::Graphics::VK
 		/// @returns Reference to command buffer
 		CommandBuffer& Get(const CommandBufferId p_id);
 		
-		CommandBuffer BeginSingleTime();
-		void EndSingleTime(CommandBuffer& p_commandBuffer, const vk::raii::Queue& p_queue);
-		
-		template<typename RecordFunction, typename... Args>
-		void ImmediateSubmit(vk::raii::Queue &p_queue, RecordFunction&& p_recordFunction, Args&& p_args);
+		/// @brief Submit commands to be immediately submitted to the supplied queue.
+		/// 
+		/// @tparam RecordFunction Callable type which accepts a CommandBuffer reference.
+		/// 
+		/// @param p_queue The queue to submit the command to
+		/// @param p_recordFunction Function to be invoked while the command buffer is recorded.
+		/// 
+		/// @pre The queue represented by p_queue must be compatible with the queue family used by this pool.
+		/// @pre p_recordFunction must be passed with a CommandBuffer as a parameter.
+		/// @note This function blocks until the queue is idle.
+		template<typename RecordFunction>
+		requires std::invocable<RecordFunction&, CommandBuffer&>
+		void ImmediateSubmit(const vk::raii::Queue &p_queue, RecordFunction p_recordFunction);
 		
 	private:
 		const vk::raii::Device &m_device;
