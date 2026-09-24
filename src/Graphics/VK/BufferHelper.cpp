@@ -1,5 +1,7 @@
 #include "BufferHelper.hpp"
 
+#include "CommandPool.hpp"
+#include "CommandBuffer.hpp"
 
 uint32_t FindMemoryType(const vk::raii::PhysicalDevice &p_physDevice, const uint32_t p_typeFilter, const vk::MemoryPropertyFlags p_properties)
 {
@@ -40,42 +42,13 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(const vk::raii:
 	return { std::move(buffer), std::move(bufferMemory) };
 }
 
-vk::raii::CommandBuffer BeginSingleTimeCommands(vk::raii::Device const &p_device, vk::raii::CommandPool const &p_commandPool)
+void CopyBuffer(const vk::raii::Queue &p_queue, Droplet::Graphics::VK::CommandPool &p_commandPool, const vk::raii::Buffer &p_srcBuffer, const vk::raii::Buffer &p_dstBuffer, vk::DeviceSize p_size)
 {
-	vk::CommandBufferAllocateInfo allocInfo
+	p_commandPool.ImmediateSubmit(p_queue,
+	[&p_srcBuffer, &p_dstBuffer, p_size](Droplet::Graphics::VK::CommandBuffer& p_commandBuffer) // A command buffer is the parameter
 	{
-		.commandPool = p_commandPool, 
-		.level = vk::CommandBufferLevel::ePrimary, 
-		.commandBufferCount = 1
-	};
-	
-	vk::raii::CommandBuffer       commandBuffer = std::move(vk::raii::CommandBuffers(p_device, allocInfo).front());
-
-	vk::CommandBufferBeginInfo beginInfo{ .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit };
-	commandBuffer.begin(beginInfo);
-
-	return commandBuffer;
-}
-
-void EndSingleTimeCommands(vk::raii::CommandBuffer &&p_commandBuffer, vk::raii::Queue const &p_queue)
-{
-	p_commandBuffer.end();
-
-	vk::SubmitInfo submitInfo{ .commandBufferCount = 1, .pCommandBuffers = &*p_commandBuffer };
-	p_queue.submit(submitInfo, nullptr);
-	p_queue.waitIdle();
-}
-
-void CopyBuffer(const vk::raii::Device &p_device, const vk::raii::Queue &p_queue, const vk::raii::CommandPool &p_commandPool, const vk::raii::Buffer &p_srcBuffer, const vk::raii::Buffer &p_dstBuffer, const vk::DeviceSize p_size)
-{
-	vk::raii::CommandBuffer commandCopyBuffer = BeginSingleTimeCommands(p_device, p_commandPool);
-	commandCopyBuffer.copyBuffer(*p_srcBuffer, *p_dstBuffer, vk::BufferCopy{ .size = p_size });
-	EndSingleTimeCommands(std::move(commandCopyBuffer), p_queue);
-	
-	Droplet::Graphics::VK::CommandPool commandPool(p_device, 0, {});
-	Droplet::Graphics::VK::CommandBuffer commandBuffer = commandPool.BeginSingleTime();
-	commandBuffer.CopyBuffer(*p_srcBuffer, *p_dstBuffer, p_size);
-	commandPool.EndSingleTime(commandBuffer, p_queue);
+		p_commandBuffer.CopyBuffer(*p_srcBuffer, *p_dstBuffer, p_size); // What to perform on the command buffer
+	});
 }
 
 void TransitionImageLayout(vk::raii::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
