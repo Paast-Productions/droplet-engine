@@ -1,5 +1,5 @@
 #include "ScriptComponent.hpp"
-#include <ScriptSystem/ScriptSystem.hpp>
+
 #include <print>
 
 using namespace Droplet::Scene;

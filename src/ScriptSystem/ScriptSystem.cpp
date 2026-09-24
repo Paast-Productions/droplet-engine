@@ -26,7 +26,7 @@ void ScriptSystem::Update(float p_deltaTime)
 }
 
 
-bool ScriptSystem::CreateScript(Scene::ScriptComponent *p_sciptComponent, const std::string &p_scriptFile)
+bool ScriptSystem::CreateScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
 	bool result = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
 	if (!result)
@@ -48,12 +48,12 @@ bool ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 	return m_scriptManager.UnloadScript(p_scriptFile);
 }
 
-void ScriptSystem::ActivateScript(Scene::ScriptComponent *p_scriptComponent)
+void ScriptSystem::ActivateScript(Scene::Component *p_scriptComponent)
 {
 	m_scriptManager.ActivateScript(p_scriptComponent);
 }
 
-void ScriptSystem::DeactivateScript(Scene::ScriptComponent *p_scriptComponent)
+void ScriptSystem::DeactivateScript(Scene::Component *p_scriptComponent)
 {
 	m_scriptManager.DeactivateScript(p_scriptComponent);
 }

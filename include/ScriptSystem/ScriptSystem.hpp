@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Component.hpp>
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
 
@@ -40,7 +40,7 @@ public:
 	/// @param testNode Component that will connect to the script instance.
 	/// @param p_scriptFile Path to the Lua script file associated with the instance.
 	/// @return Returns if the script instance could correctly be created
-	bool CreateScript(Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string &p_scriptFile);
+	bool CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
 	/// @brief Loads a Lua script from a file.
 	/// @param p_scriptFile Path to the Lua script file.
@@ -56,13 +56,13 @@ public:
 	/// An activated script component is allowed to participate in the scripting
 	/// system's update and execution flow.
 	/// @param p_scriptComponent Script component to activate.
-	void ActivateScript(Droplet::Scene::ScriptComponent *p_scriptComponent);
+	void ActivateScript(Droplet::Scene::Component *p_scriptComponent);
 
 	/// @brief Deactivates a script component.
 	/// A deactivated script component will no longer participate in the
 	/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
 	/// @param p_scriptComponent Script component to deactivate.
-	void DeactivateScript(Droplet::Scene::ScriptComponent *p_scriptComponent);
+	void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
 
 	/// @brief Detaches components to a certain script
 	/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
@@ -80,7 +80,7 @@ public:
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
 	sol::protected_function_result Call(
-		Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string& p_functionName, Args&&... p_args);
+		Droplet::Scene::Component *p_scriptComponent, const std::string& p_functionName, Args&&... p_args);
 
 private:
 	/// @brief Handles the Lua state used by the scripting system.
@@ -98,7 +98,7 @@ private:
 /// @return Result of the protected Lua function call.
 template<typename... Args>
 inline sol::protected_function_result ScriptSystem::Call(
-	Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string& p_functionName, Args&&... p_args)
+	Droplet::Scene::Component *p_scriptComponent, const std::string& p_functionName, Args&&... p_args)
 {
 	return m_scriptManager.Call(p_scriptComponent, p_functionName, std::forward<Args>(p_args)...);
 }

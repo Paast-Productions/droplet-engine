@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Component.hpp>
 #include "ScriptInstance.hpp"
 
 #include <vector>
@@ -67,7 +67,7 @@ public:
 	/// @return Result of the protected Lua function call.
 	template<typename... Args>
 	sol::protected_function_result Call(
-		Droplet::Scene::ScriptComponent *p_scriptComponent,
+		Droplet::Scene::Component *p_scriptComponent,
 		const std::string& p_functionName,
 		Args&&... p_args);
 
@@ -77,14 +77,14 @@ public:
 	/// @param p_scriptComponent Component that will own the script instance.
 	/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 	/// @return Pointer to the created ScriptInstance.
-	bool CreateScript(Droplet::Scene::ScriptComponent *p_scriptComponent, const std::string &p_scriptFile);
+	bool CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
 	/// @brief Detaches the script instance from a component.
 	/// This removes the relationship between the specified component and its
 	/// associated ScriptInstance.
 	/// @param p_scriptComponent Component from which the script should be
 	/// detached.
-	void DetachScript(Droplet::Scene::ScriptComponent *p_scriptComponent);
+	void DetachScript(Droplet::Scene::Component *p_scriptComponent);
 
 	/// @brief Decouples every instance to a certain script file.
 	/// Removes the specified scriptfile and its associated relationships.
@@ -130,12 +130,12 @@ public:
 	/// @brief Activates a script component
 	/// An activated script is added to the collection of scripts that are updated each frame
 	/// @param p_scriptComponent Component whose script should be activated.
-	void ActivateScript(Droplet::Scene::ScriptComponent *p_scriptComponent);
+	void ActivateScript(Droplet::Scene::Component *p_scriptComponent);
 
 	/// @brief Deactivates a script component
 	/// A deactivated script is removed from the collection of scripts that are updated each frame
 	/// @param p_scriptComponent Component whose script should be deactivated.
-	void DeactivateScript(Droplet::Scene::ScriptComponent *p_scriptComponent);
+	void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
 	/// @brief Sets the directory Path
 	/// Purpose is to be able to find the scripts directory, easiest to do this 
 	/// @param p_directoryPath This is the path for your working directory to the scripts
@@ -171,7 +171,7 @@ private:
 	/// @brief Maps script components to their associated script instances
 	/// This relationship allows the manager to find the ScriptInstance
 	/// associated with a particular TestNode.
-	std::unordered_map<Droplet::Scene::ScriptComponent*, ScriptInstance*> m_scripts;
+	std::unordered_map<Droplet::Scene::Component*, ScriptInstance*> m_scripts;
 
 	/// @brief Stores all Lua scripts that have been loaded
 	/// The script path and modification time are stored together with the
@@ -198,7 +198,7 @@ private:
 /// @return Result of the protected Lua function call.
 template <typename... Args>
 inline sol::protected_function_result ScriptManager::Call(
-	Droplet::Scene::ScriptComponent *p_scriptComponent,
+	Droplet::Scene::Component *p_scriptComponent,
 	const std::string& p_functionName,
 	Args&&... p_args)
 {
@@ -208,7 +208,7 @@ inline sol::protected_function_result ScriptManager::Call(
 		return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 	}
 
-	std::unordered_map<Droplet::Scene::ScriptComponent*, ScriptInstance*>::iterator it =
+	std::unordered_map<Droplet::Scene::Component*, ScriptInstance*>::iterator it =
 		m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())

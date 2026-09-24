@@ -1,9 +1,10 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
 #include <string>
 
-class ScriptSystem;
+
 
 namespace Droplet::Scene
 {

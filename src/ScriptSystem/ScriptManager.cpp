@@ -25,7 +25,7 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-bool ScriptManager::CreateScript(Scene::ScriptComponent *p_scriptComponent, const std::string &p_scriptFile)
+bool ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -51,7 +51,7 @@ bool ScriptManager::CreateScript(Scene::ScriptComponent *p_scriptComponent, cons
 		return false;
 	}
 
-	std::unordered_map<Scene::ScriptComponent*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
 	ScriptInstance *oldinstance = nullptr;
 
 	if (existing != m_scripts.end())
@@ -74,13 +74,13 @@ bool ScriptManager::CreateScript(Scene::ScriptComponent *p_scriptComponent, cons
 	return true;
 }
 
-void ScriptManager::DetachScript(Scene::ScriptComponent *p_scriptComponent)
+void ScriptManager::DetachScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return;
 	}
-	std::unordered_map<Scene::ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -254,13 +254,13 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	return &it->second.loadResult;
 }
 
-void ScriptManager::ActivateScript(Scene::ScriptComponent *p_scriptComponent)
+void ScriptManager::ActivateScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return; //No nullptr allowed
 	}
-	std::unordered_map<Scene::ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -276,13 +276,13 @@ void ScriptManager::ActivateScript(Scene::ScriptComponent *p_scriptComponent)
 	m_activeScripts.push_back(instance);
 }
 
-void ScriptManager::DeactivateScript(Scene::ScriptComponent *p_scriptComponent)
+void ScriptManager::DeactivateScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return; //No nullptr allowed
 	}
-	std::unordered_map <Scene::ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map <Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
 
 	if (it == m_scripts.end())
 	{
@@ -349,7 +349,7 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 		m_activeScripts.pop_back();
 	}
 
-	for (std::unordered_map<Scene::ScriptComponent*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	for (std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
 	{
 		if (it->second == p_scriptInstance)
 		{

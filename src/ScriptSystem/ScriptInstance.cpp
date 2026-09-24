@@ -4,7 +4,7 @@
 
 using namespace Droplet;
 
-ScriptInstance::ScriptInstance(Scene::ScriptComponent *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
+ScriptInstance::ScriptInstance(Scene::Component *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
 	m_scriptComponent(p_scriptComponent),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
