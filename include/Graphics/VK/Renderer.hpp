@@ -17,6 +17,8 @@
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
 
+#include <Graphics/VK/CommandPool.hpp>
+
 
 // HACK: Implementation subject to change
 
@@ -51,9 +53,9 @@ private:
 	void					createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
 	vk::raii::ShaderModule  createShaderModule(const std::vector<char> &code) const;
 	vk::raii::ShaderModule  createShaderModule(const Slang::ComPtr<slang::IBlob> &code) const;
-	void					createCommandPool();
-	void					createCommandBuffers();
-	void					recordCommandBuffer(uint32_t imageIndex);
+	void					CreateCommandPool();
+	void					CreateCommandBuffers();
+	void					RecordCommandBuffer(uint32_t imageIndex);
 
 	void					createSyncObjects();
 
@@ -87,9 +89,9 @@ private:
 	std::vector<vk::raii::ImageView>		m_swapchainImageViews;
 
 	vk::raii::PipelineLayout				m_pipelineLayout	= nullptr;
-	vk::raii::CommandPool					m_commandPool		= nullptr;
+	std::optional<Droplet::Graphics::VK::CommandPool> m_commandPool;
+	std::vector<Droplet::Graphics::VK::CommandBufferId> m_commandBufferIds;
 	std::optional<Droplet::Graphics::VK::Pipeline> m_graphicsPipeline;
-	std::vector<vk::raii::CommandBuffer>	m_commandBuffers;
 	Droplet::Graphics::SDL::Window			m_window;
 
 	std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;

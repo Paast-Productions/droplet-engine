@@ -3,7 +3,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-VertexBuffer::VertexBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physDevice, const vk::raii::CommandPool &p_commandPool, const vk::raii::Queue &p_queue, const std::vector<Vertex> &p_vertices)
+VertexBuffer::VertexBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physDevice, const CommandPool &p_commandPool, const vk::raii::Queue &p_queue, const std::vector<Vertex> &p_vertices)
 {
 	const vk::DeviceSize bufferSize { sizeof(p_vertices[0]) * p_vertices.size() };
 
@@ -31,5 +31,5 @@ VertexBuffer::VertexBuffer(const vk::raii::Device &p_device, const vk::raii::Phy
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	);
 
-	CopyBuffer(p_device, p_queue, p_commandPool, buffer, m_vertexBuffer, bufferSize);
+	CopyBuffer(p_queue, p_commandPool, buffer, m_vertexBuffer, bufferSize);
 }

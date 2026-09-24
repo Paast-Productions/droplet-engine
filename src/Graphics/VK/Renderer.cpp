@@ -439,18 +439,16 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 }
 
 //Needed for creation of commandBuffers
-void Renderer::createCommandPool()
+void Renderer::CreateCommandPool()
 {
-	vk::CommandPoolCreateInfo poolInfo{ .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-									   .queueFamilyIndex = m_queueIndex };
-	m_commandPool = vk::raii::CommandPool(m_device, poolInfo);
+	m_commandPool.emplace(m_device, m_queueIndex, vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 }
 
 //One buffer per frame in flight
-void Renderer::createCommandBuffers()
+void Renderer::CreateCommandBuffers()
 {
-	vk::CommandBufferAllocateInfo allocInfo{ .commandPool = m_commandPool, .level = vk::CommandBufferLevel::ePrimary, .commandBufferCount = MAX_FRAMES_IN_FLIGHT };
-	m_commandBuffers = vk::raii::CommandBuffers(m_device, allocInfo);
+	assert(m_commandPool.has_value());
+	m_commandBufferIds = m_commandPool.value().Allocate(MAX_FRAMES_IN_FLIGHT);
 }
 
 //Defines new layout for images?
@@ -484,15 +482,15 @@ void Renderer::transition_image_layout(
 		.imageMemoryBarrierCount = 1,
 		.pImageMemoryBarriers = &barrier };
 
-	m_commandBuffers[m_frameIndex].pipelineBarrier2(dependency_info);
+	m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get().pipelineBarrier2(dependency_info);
 }
 
 //Main drawing operations are here!
-void Renderer::recordCommandBuffer(uint32_t imageIndex)
+void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 {
 	assert(m_graphicsPipeline.has_value());
 	
-	auto &_commandBuffer = m_commandBuffers[m_frameIndex];
+	auto &_commandBuffer = m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get(); // TODO: Make this get the wrapper, rather than the raw RAII object
 	_commandBuffer.begin({});
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
@@ -587,15 +585,15 @@ void Renderer::drawFrame()
 	// Only reset the fence if we are submitting work
 	m_device.resetFences(*m_inFlightFences[m_frameIndex]);
 
-	m_commandBuffers[m_frameIndex].reset();
-	recordCommandBuffer(imageIndex);
+	m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get().reset();
+	RecordCommandBuffer(imageIndex);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	const vk::SubmitInfo   submitInfo{ .waitSemaphoreCount = 1,
 									  .pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
 									  .pWaitDstStageMask = &waitDestinationStageMask,
 									  .commandBufferCount = 1,
-									  .pCommandBuffers = &*m_commandBuffers[m_frameIndex],
+									  .pCommandBuffers = &*m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get(),
 									  .signalSemaphoreCount = 1,
 									  .pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex] };
 	m_queue.submit(submitInfo, *m_inFlightFences[m_frameIndex]);
@@ -654,9 +652,9 @@ int Renderer::Initialize()
 
 	createGraphicsPipeline();
 
-	createCommandPool();
+	CreateCommandPool();
 
-	createCommandBuffers();
+	CreateCommandBuffers();
 
 	createSyncObjects();
 
@@ -694,19 +692,19 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	createGraphicsPipeline(p_shaderBlob);
 
-	createCommandPool();
-
+	CreateCommandPool();
+	
 	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
-
-	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool, m_queue, g_vertices);
-	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool, m_queue, g_indices);
+	
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_vertices);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_indices);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		m_uniformBuffers[i].emplace(m_device, m_physicalDevice);
 	}
 
-	createCommandBuffers();
+	CreateCommandBuffers();
 
 	createSyncObjects();
 

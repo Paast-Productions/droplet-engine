@@ -3,7 +3,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-IndexBuffer::IndexBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physDevice, const vk::raii::CommandPool &p_commandPool, const vk::raii::Queue &p_queue, const std::vector<uint16_t> &p_indices)
+IndexBuffer::IndexBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physDevice, const CommandPool &p_commandPool, const vk::raii::Queue &p_queue, const std::vector<uint16_t> &p_indices)
 {
 	vk::DeviceSize bufferSize = sizeof(p_indices[0]) * p_indices.size();
 	
@@ -33,5 +33,5 @@ IndexBuffer::IndexBuffer(const vk::raii::Device &p_device, const vk::raii::Physi
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	);
 
-	CopyBuffer(p_device, p_queue, p_commandPool, buffer, m_indexBuffer, bufferSize);
+	CopyBuffer(p_queue, p_commandPool, buffer, m_indexBuffer, bufferSize);
 }
