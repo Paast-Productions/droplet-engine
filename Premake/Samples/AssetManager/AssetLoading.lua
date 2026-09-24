@@ -35,8 +35,8 @@ project "AssetManager-AssetLoading"
         "Engine",
         "Assimp",
         "json",
-        "Gli",
-        "Stb"
+	    "Gli",
+	    "Stb"
     }
 
     links {
@@ -47,8 +47,4 @@ project "AssetManager-AssetLoading"
 
     defines {
         "GLM_ENABLE_EXPERIMENTAL"
-    }
-
-    postbuildcommands {
-        '{COPY} "' .. targetBuildPath .. '/External/bin/assimp-vc145-mtd.dll" "%{cfg.targetdir}"'
     }
