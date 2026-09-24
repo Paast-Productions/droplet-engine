@@ -7,10 +7,14 @@ using namespace Droplet::Scene;
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
 {
+}
+
+void ScriptComponent::Start()
+{
 
     auto &scriptSystem = ScriptSystem::Get();
-    
-    scriptSystem.CreateScript(this, p_scriptPath);
+
+    scriptSystem.CreateScript(this, m_scriptPath);
     scriptSystem.ActivateScript(this);
 }
 
