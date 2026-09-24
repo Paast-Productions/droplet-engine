@@ -58,6 +58,11 @@ void ScriptSystem::DeactivateScript(Scene::Component *p_scriptComponent)
 	m_scriptManager.DeactivateScript(p_scriptComponent);
 }
 
+void ScriptSystem::DetachScript(Droplet::Scene::Component *p_scriptComponent)
+{
+	m_scriptManager.DetachScript(p_scriptComponent);
+}
+
 bool ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
 	return m_scriptManager.SetScriptDirectory(p_directoryPath);

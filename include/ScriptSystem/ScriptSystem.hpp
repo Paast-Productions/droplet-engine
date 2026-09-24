@@ -64,6 +64,7 @@ public:
 	/// @param p_scriptComponent Script component to deactivate.
 	void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
 
+	void DetachScript(Droplet::Scene::Component *p_scriptComponent);
 	/// @brief Detaches components to a certain script
 	/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
 	void DetachAllInstancesToScript(const std::string &p_scriptPath);

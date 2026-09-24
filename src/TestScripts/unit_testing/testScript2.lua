@@ -1,4 +1,4 @@
-function onStart()
+function OnStart()
 	print("Started Lua script")
 end	
 
@@ -12,4 +12,12 @@ end
 
 function test()
 	print("lua function")
+end
+
+function Lua_Sum(a,b)
+	return a+b
+end
+
+function Lua_Backflip()
+	print("Gupta does cool backflip")
 end

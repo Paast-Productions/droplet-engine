@@ -125,7 +125,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
 
+
+    ScriptComponent comp("testScript2.lua");
     ScriptSystem::Get().Start();
+
+    int sum = comp.Call("Lua_Sum",1,2);
+    comp.Call("Lua_Backflip");
+    comp.DeactivateScript();
+    comp.Call("Lua_Backflip");
+    std::cout << sum << std::endl;
+
 
     return 0;
 }  

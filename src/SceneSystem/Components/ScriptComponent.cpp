@@ -27,16 +27,15 @@ const std::string &ScriptComponent::GetScriptPath() const
 
 void ScriptComponent::DetachScript()
 {
-    //auto &ScriptSystem = ScriptSystem::Get();
-    
+    ScriptSystem::Get().DetachScript(this);
 }
 
-bool ScriptComponent::ActivateScript()
+void ScriptComponent::ActivateScript()
 {
-    return false;
+    ScriptSystem::Get().ActivateScript(this);
 }
 
-bool ScriptComponent::DeactivateScript()
+void ScriptComponent::DeactivateScript()
 {
-    return false;
+    ScriptSystem::Get().DeactivateScript(this);
 }

@@ -21,10 +21,11 @@ namespace Droplet::Scene
         void Update(float p_deltaTime) override;
         const std::string &GetScriptPath() const;
 		void DetachScript();
-    	bool ActivateScript();
-    	bool DeactivateScript();
+    	void ActivateScript();
+    	void DeactivateScript();
 
-
+        template<typename... Args>
+        sol::protected_function_result Call(const std::string &p_functionName, Args&&... p_args);
     private:
 
         std::string m_scriptPath;
@@ -33,5 +34,11 @@ namespace Droplet::Scene
 
  
 
+
+    template<typename ...Args>
+    inline sol::protected_function_result ScriptComponent::Call(const std::string &p_functionName, Args && ...p_args)
+    {
+        return ScriptSystem::Get().Call(this, p_functionName, std::forward<Args>(p_args)...);
+    }
 
 }
