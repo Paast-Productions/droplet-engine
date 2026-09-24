@@ -3,6 +3,7 @@
 #include <print>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Script;
 
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
