@@ -20,6 +20,8 @@ public:
     void DetachScript();
     bool ActivateScript();
     bool DeactivateScript();
+
+
 private:
 
     std::string m_scriptPath;

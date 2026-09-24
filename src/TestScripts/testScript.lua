@@ -1,5 +1,5 @@
 function OnStart()
-	print("Axel smells ok")
+	print("Axel smells good for once")
 end
 
 function OnUpdate(dt)
