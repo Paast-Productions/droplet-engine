@@ -2,7 +2,34 @@
 #include <ScriptSystem/ScriptManager.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include "SceneSystem/Node.hpp"
+#include "SceneSystem/Scene.hpp"
 
+
+using namespace Droplet::Scene;
+
+class ComponentTest : public ::testing::Test
+{
+protected:
+
+	std::shared_ptr<Scene> scene;
+	std::shared_ptr<Node> node;
+
+	void SetUp() override
+	{
+		scene =
+			std::make_shared<Scene>("Game");
+
+		scene->Load();
+
+		node =
+			scene->AddNode("TestNode");
+	}
+};
+
+class TestComponent : public Component
+{
+};
 
 TEST(ScriptManager, SetScriptDirectory)
 {
@@ -142,7 +169,7 @@ TEST(ScriptManager, GetLoadedScript)
 	EXPECT_TRUE(result1->valid());
 	EXPECT_TRUE(result2->valid());
 	EXPECT_TRUE(result3->valid());
-	EXPECT_FALSE(failedResult->valid());
+	EXPECT_EQ(failedResult, nullptr);
 }
 
 TEST(ScriptManager, ActivateScript)
