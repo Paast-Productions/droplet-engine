@@ -4,6 +4,7 @@
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Component.hpp"
 
+using namespace Droplet::Scene;
 
 class TComponent : public Component
 {
@@ -29,11 +30,13 @@ class NodeTest : public ::testing::Test
 {
 protected:
 
+    std::shared_ptr<Scene> scene;
     std::shared_ptr<Node> root;
 
     void SetUp() override
     {
-        root = std::make_shared<Node>("Root");
+		scene = std::make_shared<Scene>("Game");
+		root = scene->AddNode("Root");
     }
 };
 
@@ -48,7 +51,7 @@ TEST_F(NodeTest, AddChild)
 {
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     ASSERT_NE(player, nullptr);
 
@@ -65,22 +68,27 @@ TEST_F(NodeTest, AddNullChildThrows)
 }
 
 
-TEST_F(NodeTest, CannotAddChildWithParent)
+TEST_F(NodeTest, AddChildWithParent)
 {
     auto parent1 =
-        std::make_shared<Node>("Parent1");
+        scene->AddNode("Parent1");
 
     auto parent2 =
-        std::make_shared<Node>("Parent2");
+        scene->AddNode("Parent2");
 
     auto child =
-        std::make_shared<Node>("Child");
+        scene->AddNode("Child");
 
     parent1->AddChild(child);
 
-    EXPECT_THROW(
-        parent2->AddChild(child),
-        std::runtime_error);
+	EXPECT_EQ(child->GetParent(), parent1);
+
+	parent2->AddChild(child);
+
+	EXPECT_EQ(child->GetParent(), parent2);
+	EXPECT_EQ(parent1->GetChildren().size(), 0);
+	EXPECT_EQ(parent2->GetChildren().size(), 1);
+	EXPECT_EQ(parent2->GetChildren()[0], child);
 }
 
 
@@ -92,21 +100,14 @@ TEST_F(NodeTest, CannotAddNodeToItself)
 }
 
 
-TEST_F(NodeTest, CannotAddNodeThatBelongsToScene)
+TEST_F(NodeTest, CannotSetGrandchildToParent)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
-    scene->Load();
-
-    auto child =
-        std::make_shared<Node>("Child");
-
-    scene->AddRoot(child);
+	auto child =
+		root->AddChild(
+            scene->AddNode("Child"));
 
     EXPECT_THROW(
-        root->AddChild(child),
+        child->AddChild(root),
         std::runtime_error);
 }
 
@@ -115,7 +116,7 @@ TEST_F(NodeTest, ChildHasCorrectParent)
 {
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     ASSERT_NE(player, nullptr);
 
@@ -127,7 +128,7 @@ TEST_F(NodeTest, RemoveChild)
 {
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     ASSERT_NE(player, nullptr);
 
@@ -139,10 +140,10 @@ TEST_F(NodeTest, RemoveChild)
 }
 
 
-TEST_F(NodeTest, RemoveNonexistentChildThrows)
+TEST_F(NodeTest, RemoveNonExistentChildThrows)
 {
     auto player =
-        std::make_shared<Node>("Player");
+        scene->AddNode("Player");
 
     EXPECT_THROW(
         root->RemoveChild(player),
@@ -158,33 +159,8 @@ TEST_F(NodeTest, RemoveNullChildThrows)
 }
 
 
-TEST_F(NodeTest, RemovingChildClearsSceneReference)
-{
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
-    scene->Load();
-
-    auto player =
-        root->AddChild(
-            std::make_shared<Node>("Player"));
-
-    ASSERT_NE(player, nullptr);
-    ASSERT_EQ(player->GetScene(), scene);
-
-    root->RemoveChild(player);
-
-    EXPECT_EQ(player->GetScene(), nullptr);
-}
-
-
 TEST_F(NodeTest, SceneReference)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     EXPECT_EQ(root->GetScene(), scene);
@@ -193,15 +169,11 @@ TEST_F(NodeTest, SceneReference)
 
 TEST_F(NodeTest, ChildInheritsSceneReference)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     ASSERT_NE(player, nullptr);
 
@@ -211,19 +183,15 @@ TEST_F(NodeTest, ChildInheritsSceneReference)
 
 TEST_F(NodeTest, GrandchildInheritsSceneReference)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     auto weapon =
         player->AddChild(
-            std::make_shared<Node>("Weapon"));
+            scene->AddNode("Weapon"));
 
     ASSERT_NE(weapon, nullptr);
 
@@ -287,7 +255,7 @@ TEST_F(NodeTest, RemoveSpecificComponent)
 }
 
 
-TEST_F(NodeTest, RemoveNonexistentComponentThrows)
+TEST_F(NodeTest, RemoveNonExistentComponentThrows)
 {
     auto component =
         std::make_shared<TComponent>();
@@ -308,10 +276,6 @@ TEST_F(NodeTest, RemoveNullComponentThrows)
 
 TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     auto component =
@@ -325,10 +289,6 @@ TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 
 TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     auto component =
@@ -342,10 +302,6 @@ TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
 
 TEST_F(NodeTest, ComponentStartsOnlyOnce)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
 
     auto component =
@@ -361,10 +317,6 @@ TEST_F(NodeTest, ComponentStartsOnlyOnce)
 
 TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
 {
-    auto scene =
-        std::make_shared<Scene>("Game");
-
-    scene->AddRoot(root);
     scene->Load();
     scene->SetActive(true);
 
@@ -419,9 +371,33 @@ TEST_F(NodeTest, DeactivateNode)
 TEST_F(NodeTest, ReactivateNode)
 {
     root->SetActive(false);
+
+    EXPECT_FALSE(root->IsActive());
+
     root->SetActive(true);
 
     EXPECT_TRUE(root->IsActive());
+}
+
+
+TEST_F(NodeTest, ChildInheritsActiveState)
+{
+	auto child =
+		root->AddChild(
+			scene->AddNode("Child"));
+
+	ASSERT_NE(child, nullptr);
+	EXPECT_TRUE(child->IsActive());
+
+	root->SetActive(false);
+
+	EXPECT_FALSE(child->IsActive());
+	EXPECT_TRUE(child->IsActiveSelf());
+
+	root->SetActive(true);
+
+	EXPECT_TRUE(child->IsActive());
+	EXPECT_TRUE(child->IsActiveSelf());
 }
 
 

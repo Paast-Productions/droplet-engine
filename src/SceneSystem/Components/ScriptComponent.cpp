@@ -2,7 +2,10 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <print>
 
-ScriptComponent::ScriptComponent([[maybe_unused]] const std::string &p_path)
+using namespace Droplet::Scene;
+
+ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
+    : m_scriptPath((p_scriptPath))
 {
 
     auto &scriptSystem = ScriptSystem::Get();

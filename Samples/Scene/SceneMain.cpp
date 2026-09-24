@@ -9,6 +9,7 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
+using namespace Droplet::Scene;
 
 // --------------------------------------------------
 // Example Component
@@ -58,9 +59,7 @@ int main()
     // Create the root node
     // ==================================================
 
-    auto root =
-        scene->AddRoot(
-            std::make_shared<Node>("Root"));
+    auto root = scene->AddNode("Root");
 
     // ==================================================
     // Build the scene hierarchy
@@ -68,34 +67,34 @@ int main()
 
     auto player =
         root->AddChild(
-            std::make_shared<Node>("Player"));
+            scene->AddNode("Player"));
 
     auto camera =
         player->AddChild(
-            std::make_shared<Node>("Camera"));
+            scene->AddNode("Camera"));
 
     auto weapon =
         player->AddChild(
-            std::make_shared<Node>("Weapon"));
+            scene->AddNode("Weapon"));
 
     auto enemy =
         root->AddChild(
-            std::make_shared<Node>("Enemy"));     
+            scene->AddNode("Enemy"));
 
     // ==================================================
     // Configure transforms
     // ==================================================
 
-    player->SetPosition(
+    player->GetTransform().SetPosition(
         glm::vec3(10.0f, 0.0f, 0.0f));
 
-    camera->SetPosition(
+    camera->GetTransform().SetPosition(
         glm::vec3(0.0f, 2.0f, -5.0f));
 
-    weapon->SetPosition(
+    weapon->GetTransform().SetPosition(
         glm::vec3(0.0f, 0.0f, 2.0f));
 
-    enemy->SetPosition(
+    enemy->GetTransform().SetPosition(
         glm::vec3(-5.0f, 0.0f, 10.0f));
 
     // ==================================================
