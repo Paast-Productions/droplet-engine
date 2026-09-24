@@ -10,7 +10,7 @@ ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
 
     auto &scriptSystem = ScriptSystem::Get();
     
-    scriptSystem.CreateScript(this, p_path);
+    scriptSystem.CreateScript(this, p_scriptPath);
     scriptSystem.ActivateScript(this);
 }
 
