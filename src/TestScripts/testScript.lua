@@ -3,9 +3,9 @@ function OnStart()
 end
 
 function OnUpdate(dt)
-	--print("yes")
 	local transform = self:GetTransform()
-	local position = transform:IsDirty()
+	local position = Vec3.new(80.0, 1.0, 90.0)
+	transform:SetPosition(position, TransformSpace.Local)
 
-	print(position)
+	print(position.z)
 end

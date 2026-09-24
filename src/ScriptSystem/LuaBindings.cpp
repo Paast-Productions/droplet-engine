@@ -2,6 +2,7 @@
 #include "TestNode.hpp"
 #include "Node.hpp"
 #include "Transform.hpp"
+#include <glm/glm.hpp>
 
 #include <print>
 #include <filesystem>
@@ -17,6 +18,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterTestNode(p_luaState);
     RegisterNode(p_luaState);
     RegisterTransform(p_luaState);
+    RegisterGLM(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
@@ -98,6 +100,14 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 {
+    p_luaState.new_enum<Transform::Space>(
+        "TransformSpace",
+        {
+            {"Local", Transform::Space::Local},
+            {"World", Transform::Space::World}
+        }
+    );
+
     p_luaState.new_usertype<Transform>(
         "Transform",
         "GetPosition", &Transform::GetPosition,
@@ -125,5 +135,16 @@ void LuaBindings::RegisterTransform(sol::state_view p_luaState)
     );
 
     //LuaClassDefinition transform;
+}
+
+void LuaBindings::RegisterGLM(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<glm::vec3>(
+        "Vec3",
+        sol::constructors<glm::vec3(float, float, float)>(),
+        "x", &glm::vec3::x,
+        "y", &glm::vec3::y,
+        "z", &glm::vec3::z
+    );
 }
 

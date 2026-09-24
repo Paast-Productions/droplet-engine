@@ -83,8 +83,8 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 		return false;
 	}
 
-	m_onStart = m_environment["onStart"];
-	m_onUpdate = m_environment["onUpdate"];
+	m_onStart = m_environment["OnStart"];
+	m_onUpdate = m_environment["OnUpdate"];
 
 	return true;
 }
