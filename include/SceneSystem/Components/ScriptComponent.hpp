@@ -12,7 +12,7 @@
 class ScriptComponent : public Component
 {
 public:
-    ScriptComponent() = default;
+    explicit ScriptComponent(const std::string &p_path);
     void Update(float p_deltaTime) override;
     const std::string &GetScriptPath() const;
 

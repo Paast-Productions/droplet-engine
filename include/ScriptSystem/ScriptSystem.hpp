@@ -17,6 +17,12 @@ public:
 	/// @brief Destroy the script system.
 	~ScriptSystem();
 
+	static ScriptSystem &Get()
+	{
+		static ScriptSystem scriptSystem;
+		return scriptSystem;
+	}
+
 	/// @brief Starts the script script system.
 	/// This should be called once the scene starts with the script system.
 	void Start();

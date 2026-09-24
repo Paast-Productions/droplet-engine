@@ -1,11 +1,13 @@
 #include <iostream>
 #include <memory>
 
+#include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
+#include "SceneSystem/Components/ScriptComponent.hpp"
 
 
 // --------------------------------------------------
@@ -133,6 +135,9 @@ int main()
     // ==================================================
     // Deactivate / unload
     // ==================================================
+    ScriptSystem scriptsystem;
+
+    player->AddComponent<ScriptComponent>("testScript.lua");
 
     sceneManager.DeactivateScene("Game");
 

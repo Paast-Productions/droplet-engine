@@ -1,4 +1,5 @@
 #include "ScriptInstance.hpp"
+#include "Node.hpp"
 #include <print>
 
 ScriptInstance::ScriptInstance(ScriptComponent *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
