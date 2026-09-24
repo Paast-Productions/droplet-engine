@@ -126,11 +126,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // ==================================================
     // Deactivate / unload
     // ==================================================
-    [[maybe_unused]]ScriptSystem *scriptSystem = &ScriptSystem::Get();
 
     player->AddComponent<ScriptComponent>("testScript.lua");
 
-    // A scriptComponent is what talks to the script system
+    ScriptSystem::Get().Start();
 
     return 0;
 } 

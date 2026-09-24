@@ -1,14 +1,19 @@
 #include "ScriptComponent.hpp"
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <print>
 
 ScriptComponent::ScriptComponent([[maybe_unused]] const std::string &p_path)
 {
-    //ScriptSystem scriptsystem;
+
     auto &scriptSystem = ScriptSystem::Get();
-    //scriptSystem.CreateScript(this, p_path);
+    scriptSystem.SetScriptPath("../../../src/TestScripts");
+    scriptSystem.CreateScript(this, p_path);
+    scriptSystem.ActivateScript(this);
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
+    ScriptSystem::Get().Update(1.0);
     //TODO: Lua script update will be implemented later.
 }
 
