@@ -71,14 +71,14 @@ namespace Droplet::Graphics::VK
 
 	/// @brief Getter for Vertex buffer reference
 	/// @return Vertex buffer pointer
-	inline const vk::raii::Buffer *VertexBuffer::GetVertexBuffer()
+	[[nodiscard]] inline const vk::raii::Buffer *VertexBuffer::GetVertexBuffer()
 	{
 		return &m_vertexBuffer;
 	}
 
 	/// @brief Getter for device memory reference
 	/// @return Devcice memory pointer
-	inline const vk::raii::DeviceMemory *VertexBuffer::GetDeviceMemory()
+	[[nodiscard]] inline const vk::raii::DeviceMemory *VertexBuffer::GetDeviceMemory()
 	{
 		return &m_bufferMemory;
 	}
