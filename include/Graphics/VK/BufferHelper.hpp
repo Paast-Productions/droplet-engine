@@ -37,7 +37,6 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
 /// @param p_dstBuffer Reference to the buffer to copy to
 /// @param p_size Size of the source buffer in bytes
 void CopyBuffer(
-	const vk::raii::Device &p_device, 
 	const vk::raii::Queue &p_queue, 
 	const Droplet::Graphics::VK::CommandPool &p_commandPool,
 	const vk::raii::Buffer &p_srcBuffer, 
@@ -50,7 +49,7 @@ void CopyBuffer(
 /// @param p_oldLayout Specified layout to translate from
 /// @param p_newLayout Specified layout to translate to
 void TransitionImageLayout(
-	vk::raii::CommandBuffer &p_commandBuffer,
+	Droplet::Graphics::VK::CommandBuffer &p_commandBuffer,
 	const vk::raii::Image &p_image,
 	vk::ImageLayout p_oldLayout,
 	vk::ImageLayout p_newLayout);

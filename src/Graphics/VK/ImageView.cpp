@@ -1,11 +1,12 @@
 #include <Graphics/VK/ImageView.hpp>
 #include <BufferHelper.hpp>
+#include <Graphics/VK/CommandPool.hpp>
 
 using namespace Droplet::Graphics::VK;
 
 ImageView::ImageView(const vk::raii::Device &p_device,
 					 const vk::raii::PhysicalDevice &p_physicalDevice, 
-					 const vk::raii::CommandPool &p_commandPool,
+					 const CommandPool &p_commandPool,
 					 const vk::raii::Queue &p_queue,
 					 const unsigned char *p_pixels, 
 					 std::uint32_t p_width, 
@@ -41,19 +42,21 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 	m_imageMemory = vk::raii::DeviceMemory(p_device, allocInfo);
 	m_image.bindMemory(m_imageMemory, 0);
 
-	vk::raii::CommandBuffer commandBuffer = BeginSingleTimeCommands(p_device, p_commandPool);
-	TransitionImageLayout(commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+	p_commandPool.ImmediateSubmit(p_queue,
+		[&](CommandBuffer& p_commandBuffer)
+		{
+			TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
-	vk::BufferImageCopy region{ .bufferOffset = 0,
-							   .bufferRowLength = 0,
-							   .bufferImageHeight = 0,
-							   .imageSubresource = {.aspectMask = vk::ImageAspectFlagBits::eColor, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
-							   .imageOffset = {0, 0, 0},
-							   .imageExtent = {p_width, p_height, 1} };
-	commandBuffer.copyBufferToImage(stagingBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, region);
+			vk::BufferImageCopy region{ .bufferOffset = 0,
+									   .bufferRowLength = 0,
+									   .bufferImageHeight = 0,
+									   .imageSubresource = {.aspectMask = vk::ImageAspectFlagBits::eColor, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
+									   .imageOffset = {0, 0, 0},
+									   .imageExtent = {p_width, p_height, 1} };
+			p_commandBuffer.Get().copyBufferToImage(stagingBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, region);
 
-	TransitionImageLayout(commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-	EndSingleTimeCommands(std::move(commandBuffer), p_queue);
+			TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+		})
 
 	vk::ImageViewCreateInfo viewInfo{
 		.image = m_image,

@@ -2,6 +2,8 @@
 #include <vulkan/vulkan_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
+#include <Graphics/VK/CommandPool.hpp>
+
 namespace Droplet::Graphics::VK
 {
 	/// @brief ImageView class for storing textures/image buffers to be bound to shader stages
@@ -28,7 +30,7 @@ namespace Droplet::Graphics::VK
 		ImageView(
 			const vk::raii::Device &p_device,
 			const vk::raii::PhysicalDevice &p_physicalDevice,
-			const vk::raii::CommandPool &p_commandPool,
+			const CommandPool &p_commandPool,
 			const vk::raii::Queue &p_queue,
 			const unsigned char *p_pixels,
 			std::uint32_t p_width,

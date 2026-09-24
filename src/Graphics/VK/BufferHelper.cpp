@@ -51,7 +51,7 @@ void CopyBuffer(const vk::raii::Queue &p_queue, const Droplet::Graphics::VK::Com
 	});
 }
 
-void TransitionImageLayout(vk::raii::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
+void TransitionImageLayout(Droplet::Graphics::VK::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
 {
 	vk::ImageMemoryBarrier barrier{ .oldLayout = p_oldLayout,
 								   .newLayout = p_newLayout,
@@ -83,5 +83,5 @@ void TransitionImageLayout(vk::raii::CommandBuffer &p_commandBuffer, const vk::r
 	{
 		throw std::invalid_argument("unsupported layout transition!");
 	}
-	p_commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
+	p_commandBuffer.Get().pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
 }
