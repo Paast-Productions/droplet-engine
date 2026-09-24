@@ -2,6 +2,7 @@
 
 #include <Graphics/VK/DescriptorPool.hpp>
 #include <Graphics/VK/DescriptorSet.hpp>
+#include <vk_mem_alloc_raii.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -15,10 +16,12 @@ namespace Droplet::Graphics::VK
     enum class TextureHandle : std::uint32_t { Invalid = 0 };
     enum class BufferHandle : std::uint32_t { Invalid = 0 };
 
-    struct alignas(16) test
+    struct test
     {
-        BufferHandle meshTransforms;
-        BufferHandle Camera;
+        BufferHandle meshTransforms {};
+        BufferHandle Camera {};
+        std::uint32_t pad0 {};
+        std::uint32_t pad1 {};
     };
     
     class BufferStorage
@@ -38,16 +41,16 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] BufferHandle StoreBuffer(const vk::raii::Device &p_device, const vk::raii::Buffer &buffer, vk::BufferUsageFlagBits usage);
         
     private:
-        [[nodiscard]] std::uint32_t PadSizeToMinAlignment(std::uint32_t p_originalSize);
+        [[nodiscard]] std::uint32_t PadSizeToMinAlignment(std::uint32_t p_originalSize) const;
         
         std::vector<vk::raii::ImageView> m_textures {};
-        std::vector<vk::raii::Buffer> m_buffers {};
+        std::vector<vk::Buffer> m_buffers {};
         
         std::uint32_t m_minUniformBufferOffsetAlignment {};
         
     };
 
-    inline std::uint32_t BufferStorage::PadSizeToMinAlignment(std::uint32_t p_originalSize)
+    inline std::uint32_t BufferStorage::PadSizeToMinAlignment(std::uint32_t p_originalSize) const
     {
         return (p_originalSize + m_minUniformBufferOffsetAlignment - 1) & ~(m_minUniformBufferOffsetAlignment - 1);
     }

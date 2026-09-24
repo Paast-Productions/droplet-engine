@@ -9,7 +9,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Height = 480,
 		.Flags = 0
 	};
-
+	
 	Renderer rnd 
 	{
 		windowConfig
