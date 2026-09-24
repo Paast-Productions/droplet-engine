@@ -248,7 +248,9 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	
 	if (it == m_loadedScripts.end())
 	{
-		return nullptr;
+		int mock_status = LUA_ERRSYNTAX;
+		sol::load_result result(m_StateHandler.GetState(), -1, mock_status);
+		return result;
 	}
 
 	return &it->second.loadResult;
