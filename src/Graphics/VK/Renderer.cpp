@@ -15,6 +15,7 @@
 #include <string>
 
 #include <SDL3/SDL_vulkan.h>
+#include <Graphics/VK/UniformBuffer.hpp>
 
 
 const std::vector<char const*> validationLayers = {
@@ -407,7 +408,7 @@ void Renderer::createGraphicsPipeline()
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
 	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchainSurfaceFormat };
-	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
+	m_graphicsPipeline.emplace(m_device, m_physicalDevice, shaderModule, pipelineConfig);
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
@@ -418,7 +419,7 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
 	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchainSurfaceFormat };
-	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
+	m_graphicsPipeline.emplace(m_device, m_physicalDevice, shaderModule, pipelineConfig);
 }
 
 [[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
@@ -518,9 +519,12 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	_commandBuffer.beginRendering(renderingInfo);
 	_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
-	_commandBuffer.setViewport(0, vk::Viewport(0.0f, 0.0f, static_cast<float>(m_swapchainExtent.width), static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f));
+	_commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchainExtent.height), static_cast<float>(m_swapchainExtent.width), -static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f));
 	_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchainExtent));
-	_commandBuffer.draw(3, 1, 0, 0);
+	_commandBuffer.bindVertexBuffers(0, **m_vertexBuffer.value().GetVertexBuffer(), { 0 });
+	_commandBuffer.bindIndexBuffer(**m_indexBuffer.value().GetIndexBuffer(), 0, vk::IndexType::eUint16);
+	_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, *m_descriptorSets[m_frameIndex], nullptr);
+	_commandBuffer.drawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
 	_commandBuffer.endRendering();
 
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -582,6 +586,8 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
+	m_uniformBuffers[m_frameIndex].value().UpdateBuffer(m_swapchainExtent);
+
 	// Only reset the fence if we are submitting work
 	m_device.resetFences(*m_inFlightFences[m_frameIndex]);
 
@@ -619,6 +625,87 @@ void Renderer::drawFrame()
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
+//Descriptors and samplers
+
+void Renderer::CreateTextureSampler()
+{
+	vk::PhysicalDeviceProperties properties = m_physicalDevice.getProperties();
+	vk::SamplerCreateInfo        samplerInfo{ .magFilter = vk::Filter::eLinear,
+											 .minFilter = vk::Filter::eLinear,
+											 .mipmapMode = vk::SamplerMipmapMode::eLinear,
+											 .addressModeU = vk::SamplerAddressMode::eRepeat,
+											 .addressModeV = vk::SamplerAddressMode::eRepeat,
+											 .addressModeW = vk::SamplerAddressMode::eRepeat,
+											 .mipLodBias = 0.0f,
+											 .anisotropyEnable = vk::True,
+											 .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
+											 .compareEnable = vk::False,
+											 .compareOp = vk::CompareOp::eAlways };
+	m_textureSampler = vk::raii::Sampler(m_device, samplerInfo);
+}
+
+//Descriptor pool is increased in size for the sampler
+//If the descriptor pool is inadequate it might still pass the validation layers and fail on some machines but not others
+void Renderer::CreateDescriptorPool()
+{
+	std::array<vk::DescriptorPoolSize, 2> poolSize{ {{.type = vk::DescriptorType::eUniformBuffer, .descriptorCount = MAX_FRAMES_IN_FLIGHT},
+												{.type = vk::DescriptorType::eCombinedImageSampler, .descriptorCount = MAX_FRAMES_IN_FLIGHT}} };
+	vk::DescriptorPoolCreateInfo          poolInfo{ .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+												   .maxSets = MAX_FRAMES_IN_FLIGHT,
+												   .poolSizeCount = static_cast<uint32_t>(poolSize.size()),
+												   .pPoolSizes = poolSize.data() };
+	m_descriptorPool = vk::raii::DescriptorPool(m_device, poolInfo);
+}
+
+//Sets layout of buffer
+//Multiple bindings can be created at once, here we added the sampler
+void Renderer::CreateDescriptorSetLayout() {
+	std::array<vk::DescriptorSetLayoutBinding, 2> bindings{
+			{{.binding = 0, .descriptorType = vk::DescriptorType::eUniformBuffer, .descriptorCount = 1, .stageFlags = vk::ShaderStageFlagBits::eVertex},
+			//Specify where the sampler is to be used with the ShaderStageFlag
+			 {.binding = 1, .descriptorType = vk::DescriptorType::eCombinedImageSampler, .descriptorCount = 1, .stageFlags = vk::ShaderStageFlagBits::eFragment}} };
+	vk::DescriptorSetLayoutCreateInfo layoutInfo{ .bindingCount = static_cast<uint32_t>(bindings.size()), .pBindings = bindings.data() };
+	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device, layoutInfo);
+}
+
+void Renderer::CreateDescriptorSets()
+{
+	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
+	vk::DescriptorSetAllocateInfo        allocInfo{
+		.descriptorPool = m_descriptorPool,
+		.descriptorSetCount = static_cast<uint32_t>(layouts.size()),
+		.pSetLayouts = layouts.data() };
+
+	m_descriptorSets.clear();
+	m_descriptorSets = m_device.allocateDescriptorSets(allocInfo);
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vk::DescriptorBufferInfo bufferInfo{ .buffer = *m_uniformBuffers[i].value().GetBuffer(), .offset = 0, .range = sizeof(Droplet::Graphics::VK::UniformBufferObject) };
+		vk::DescriptorImageInfo  imageInfo{ .sampler = m_textureSampler, .imageView = *m_textureView.value().GetView(), .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal };
+
+		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{ 
+		{
+			{
+				.dstSet = m_descriptorSets[i],
+				.dstBinding = 0,
+				.dstArrayElement = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eUniformBuffer,
+				.pBufferInfo = &bufferInfo},
+																
+			{
+				.dstSet = m_descriptorSets[i],
+				.dstBinding = 1,
+				.dstArrayElement = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+				.pImageInfo = &imageInfo}
+			} 
+		};
+		m_device.updateDescriptorSets(descriptorWrites, {});
+	}
+}
 
 //Creation of renderer
 int Renderer::Initialize()
@@ -650,9 +737,31 @@ int Renderer::Initialize()
 
 	createImageViews();
 
-	createGraphicsPipeline();
+	CreateDescriptorSetLayout();
 
 	CreateCommandPool();
+
+	createGraphicsPipeline();
+
+	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
+
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_vertices);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_indices);
+
+	unsigned char pixels[4]{ 128, 128, 128, 255 };
+
+	m_textureView.emplace(m_device, m_physicalDevice, &m_commandPool, m_queue, pixels, 1, 1, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+	CreateTextureSampler();
+
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		m_uniformBuffers[i].emplace(m_device, m_physicalDevice);
+	}
+
+	CreateDescriptorPool();
+
+	CreateDescriptorSets();
 
 	CreateCommandBuffers();
 
@@ -693,7 +802,7 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 	createGraphicsPipeline(p_shaderBlob);
 
 	CreateCommandPool();
-	
+
 	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
 	
 	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_vertices);
@@ -703,6 +812,10 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 	{
 		m_uniformBuffers[i].emplace(m_device, m_physicalDevice);
 	}
+
+	CreateDescriptorPool();
+
+	CreateDescriptorSets();
 
 	CreateCommandBuffers();
 

@@ -16,7 +16,8 @@
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
-
+#include <Graphics/VK/ImageView.hpp>
+#include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 
 
@@ -56,6 +57,11 @@ private:
 	void					CreateCommandPool();
 	void					CreateCommandBuffers();
 	void					RecordCommandBuffer(uint32_t imageIndex);
+
+	void					CreateTextureSampler();
+	void					CreateDescriptorSetLayout();
+	void					CreateDescriptorPool();
+	void					CreateDescriptorSets();
 
 	void					createSyncObjects();
 
@@ -98,8 +104,15 @@ private:
 	std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 	std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
-	std::optional<Droplet::Graphics::VK::DepthBuffer> m_depthBuffer;
-	std::optional<Droplet::Graphics::VK::IndexBuffer> m_indexBuffer;
+	vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
+	std::vector<vk::raii::DescriptorSet> m_descriptorSets;
+	vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
+	vk::raii::Sampler					 m_textureSampler = nullptr;
+
+	std::optional<Droplet::Graphics::VK::ImageView>	   m_textureView;
+	std::optional<Droplet::Graphics::VK::UniformBuffer> m_uniformBuffer;
+	std::optional<Droplet::Graphics::VK::DepthBuffer>  m_depthBuffer;
+	std::optional<Droplet::Graphics::VK::IndexBuffer>  m_indexBuffer;
 	std::optional<Droplet::Graphics::VK::VertexBuffer> m_vertexBuffer;
 
 	//Needs one buffer per frame in flight to avoid read write issues
