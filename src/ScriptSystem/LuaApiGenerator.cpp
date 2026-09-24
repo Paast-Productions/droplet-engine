@@ -4,6 +4,8 @@
 #include <fstream>
 #include <print>
 
+using namespace Droplet::Script;
+
 bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath, 
     const std::vector<LuaGlobalFunctionDefinition> &p_globals, 
     const std::vector<LuaClassDefinition> &p_classes)
@@ -143,4 +145,3 @@ std::string LuaApiGenerator::GetDefaultLuaValue(const std::string &p_type)
 
     return "nil";
 }
-

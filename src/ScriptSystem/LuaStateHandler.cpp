@@ -1,5 +1,7 @@
 #include "LuaStateHandler.hpp"
 
+using namespace Droplet::Script;
+
 LuaStateHandler::LuaStateHandler()
 {
 	m_luaState.open_libraries(

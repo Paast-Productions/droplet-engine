@@ -4,7 +4,7 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <string>
 
-
+using namespace Droplet::Script;
 
 namespace Droplet::Scene
 {

@@ -1,6 +1,9 @@
 //#include <gtest/gtest.h>
 //#include <ScriptSystem/ScriptSystem.hpp>
 //#include <string>
+// 
+// using namespace Droplet::Script;
+// using namespace Droplet::Scene;
 //
 //TEST(ScriptSystem, LoadScript)
 //{
@@ -21,9 +24,9 @@
 //{
 //	ScriptSystem system;
 //	system.SetScriptPath("../src/TestScripts");
-//	TestNode testNode;
+//	Component component;
 //
-//	bool result = system.CreateScript(&testNode, "testScript.lua");
+//	bool result = system.CreateScript(&component, "testScript.lua");
 //	EXPECT_TRUE(result);
 //}
 //
@@ -31,24 +34,24 @@
 //{
 //	ScriptSystem system;
 //	system.SetScriptPath("../src/TestScripts");
-//	TestNode firstNode;
-//	TestNode secondNode;
-//	TestNode thirdNode;
+//	Component firstComponent;
+//	Component secondComponent;
+//	Component thirdComponent;
 //
-//	system.CreateScript(&firstNode, "testScript.lua");
-//	system.CreateScript(&secondNode, "testScript.lua");
-//	system.CreateScript(&thirdNode, "testScript2.lua");
+//	system.CreateScript(&firstComponent, "testScript.lua");
+//	system.CreateScript(&secondComponent, "testScript.lua");
+//	system.CreateScript(&thirdComponent, "testScript2.lua");
 //
-//	system.ActivateScript(&firstNode);
-//	system.ActivateScript(&secondNode);
-//	system.ActivateScript(&thirdNode);
+//	system.ActivateScript(&firstComponent);
+//	system.ActivateScript(&secondComponent);
+//	system.ActivateScript(&thirdComponent);
 //
 //	system.DetachAllInstancesToScript("testScript.lua");
 //
-//	EXPECT_FALSE(system.Call(&firstNode, "test").valid());
-//	EXPECT_FALSE(system.Call(&secondNode, "test").valid());
+//	EXPECT_FALSE(system.Call(&firstComponent, "test").valid());
+//	EXPECT_FALSE(system.Call(&secondComponent, "test").valid());
 //
-//	EXPECT_TRUE(system.Call(&thirdNode, "test").valid());
+//	EXPECT_TRUE(system.Call(&thirdComponent, "test").valid());
 //
 //	EXPECT_NO_THROW(system.Update(0.016f));
 //
@@ -59,12 +62,13 @@
 //{
 //	ScriptSystem system;
 //	system.SetScriptPath("../src/TestScripts");
-//	TestNode testNode;
-//
-//	system.CreateScript(&testNode, "testScript3.lua");
-//	system.ActivateScript(&testNode);
+//	Component component;
+//	
+//	system.CreateScript(&component, "testScript3.lua");
+//	system.ActivateScript(&component);
+//	
 //	system.Update(1);
-//	float result = system.Call(&testNode, "GetDT");
+//	float result = system.Call(&component, "GetDT");
 //
 //	EXPECT_EQ(result, 1);
 //}
@@ -73,14 +77,14 @@
 //{
 //	ScriptSystem system;
 //	system.SetScriptPath("../src/TestScripts");
-//	TestNode testNode;
+//	Component component;
 //
-//	system.CreateScript(&testNode, "testScript3.lua");
-//	system.ActivateScript(&testNode);
+//	system.CreateScript(&component, "testScript3.lua");
+//	system.ActivateScript(&component);
 //	system.Update(1);
-//	system.DeactivateScript(&testNode);
+//	system.DeactivateScript(&component);
 //	system.Update(1);
-//	auto result = system.Call(&testNode, "GetDT");
+//	auto result = system.Call(&component, "GetDT");
 //
 //	EXPECT_FALSE(result.valid());
 //}

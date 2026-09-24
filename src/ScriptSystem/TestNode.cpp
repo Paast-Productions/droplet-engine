@@ -1,6 +1,8 @@
 #include "TestNode.hpp"
 #include <iostream>
 
+using namespace Droplet::Script;
+
 float TestNode::getX() const
 {
 	return m_x;

@@ -4,6 +4,8 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 
 using namespace Droplet;
+using namespace Droplet::Script;
+
 TEST(ScriptManager, SetScriptDirectory)
 {
 	//Lua state initialization

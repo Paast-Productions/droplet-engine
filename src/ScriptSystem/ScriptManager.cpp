@@ -4,6 +4,7 @@
 #include <print>
 
 using namespace Droplet;
+using namespace Droplet::Script;
 
 ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
 {

@@ -132,8 +132,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     {
         ScriptSystem::Get().Update(1.0);
     }
-    
-
 
     return 0;
 }  

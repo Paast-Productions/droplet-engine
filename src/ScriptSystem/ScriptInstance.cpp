@@ -3,6 +3,7 @@
 #include <print>
 
 using namespace Droplet;
+using namespace Droplet::Script;
 
 ScriptInstance::ScriptInstance(Scene::Component *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
 	m_scriptComponent(p_scriptComponent),
@@ -83,8 +84,8 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 		return false;
 	}
 
-	m_onStart = m_environment["onStart"];
-	m_onUpdate = m_environment["onUpdate"];
+	m_onStart = m_environment["OnStart"];
+	m_onUpdate = m_environment["OnUpdate"];
 
 	return true;
 }
