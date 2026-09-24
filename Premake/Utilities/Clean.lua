@@ -15,18 +15,11 @@ newaction {
     description = description,
     execute = function()
 
-        -- No args
-        if (_ARGS[1] == nil) then
-            print("Cleaning Generated")
-            os.execute("{RMDIR} ./Generated")
-            return
-        end
-
         local index = 1;
         while (_ARGS[index] ~= nil) do
             local arg = _ARGS[index]
 
-            if (arg == "-A" or arg == "-all") then
+            if (arg == nil or arg == "-A" or arg == "-all") then
                 print("Cleaning All")
 
                 os.execute("{RMDIR} ./Generated")
