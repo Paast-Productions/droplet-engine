@@ -3,6 +3,7 @@
 #include <print>
 
 using namespace Droplet;
+using namespace Droplet::Script;
 
 ScriptInstance::ScriptInstance(Scene::Component *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
 	m_scriptComponent(p_scriptComponent),
