@@ -57,7 +57,7 @@ Renderer::~Renderer()
 }
 
 //File reading function for loading the shader file
-static std::vector<char> readFile(const std::string& filename)
+static std::vector<char> readFile(const std::string &filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 	if (!file.is_open())
@@ -111,9 +111,9 @@ void Renderer::createInstance()
 	// Check if the required layers are supported by the Vulkan implementation.
 	auto layerProperties = m_context.enumerateInstanceLayerProperties();
 	auto unsupportedLayerIt = std::ranges::find_if(requiredLayers,
-		[&layerProperties](auto const& requiredLayer) {
+		[&layerProperties](auto const &requiredLayer) {
 			return std::ranges::none_of(layerProperties,
-				[requiredLayer](auto const& layerProperty) { return strcmp(layerProperty.layerName, requiredLayer) == 0; });
+				[requiredLayer](auto const &layerProperty) { return strcmp(layerProperty.layerName, requiredLayer) == 0; });
 		});
 	if (unsupportedLayerIt != requiredLayers.end())
 	{
@@ -127,9 +127,9 @@ void Renderer::createInstance()
 	auto extensionProperties = m_context.enumerateInstanceExtensionProperties();
 	auto unsupportedPropertyIt =
 		std::ranges::find_if(requiredExtensions,
-			[&extensionProperties](auto const& requiredExtension) {
+			[&extensionProperties](auto const &requiredExtension) {
 				return std::ranges::none_of(extensionProperties,
-					[requiredExtension](auto const& extensionProperty) { return strcmp(extensionProperty.extensionName, requiredExtension) == 0; });
+					[requiredExtension](auto const &extensionProperty) { return strcmp(extensionProperty.extensionName, requiredExtension) == 0; });
 			});
 	if (unsupportedPropertyIt != requiredExtensions.end())
 	{
@@ -186,7 +186,7 @@ void Renderer::createSurface()
 void Renderer::pickPhysicalDevice()
 {
 	std::vector<vk::raii::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
-	auto const                            devIter = std::ranges::find_if(physicalDevices, [&](auto const& physicalDevice) { return isDeviceSuitable(physicalDevice); });
+	auto const                            devIter = std::ranges::find_if(physicalDevices, [&](auto const &physicalDevice) { return isDeviceSuitable(physicalDevice); });
 	if (devIter == physicalDevices.end())
 	{
 		throw std::runtime_error("failed to find a suitable GPU!");
@@ -202,7 +202,7 @@ void Renderer::createLogicalDevice()
 	// get the first index into queueFamilyProperties which supports both graphics and present
 	for (uint32_t qfpIndex = 0; qfpIndex < queueFamilyProperties.size(); qfpIndex++)
 	{
-		if ((queueFamilyProperties[qfpIndex].queueFlags & vk::QueueFlagBits::eGraphics) &&
+		if ((queueFamilyProperties[qfpIndex].queueFlags  &vk::QueueFlagBits::eGraphics) &&
 			m_physicalDevice.getSurfaceSupportKHR(qfpIndex, *m_surface))
 		{
 			// found a queue family that supports both graphics and present
@@ -241,7 +241,7 @@ void Renderer::createLogicalDevice()
 }
 
 //Checking if the device supports the correct features and API version
-bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
+bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
 {
 	// Check if the physicalDevice supports the Vulkan 1.3 API version
 	bool supportsVulkan1_3 = physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
@@ -251,7 +251,7 @@ bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
 	uint32_t qfpIndex = 0;
 	bool     supportsGraphicsAndPresent =
 		std::ranges::any_of(queueFamilies,
-			[&physicalDevice, &surface = this->m_surface, &qfpIndex](auto const& qfp) {
+			[&physicalDevice, &surface = this->m_surface, &qfpIndex](auto const &qfp) {
 				bool const suitable = (qfp.queueFlags & vk::QueueFlagBits::eGraphics) && physicalDevice.getSurfaceSupportKHR(qfpIndex, *surface);
 				qfpIndex++;
 				return suitable;
@@ -261,9 +261,9 @@ bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
 	auto availableDeviceExtensions = physicalDevice.enumerateDeviceExtensionProperties();
 	bool supportsAllRequiredExtensions =
 		std::ranges::all_of(m_requiredDeviceExtension,
-			[&availableDeviceExtensions](auto const& requiredDeviceExtension) {
+			[&availableDeviceExtensions](auto const &requiredDeviceExtension) {
 				return std::ranges::any_of(availableDeviceExtensions,
-					[requiredDeviceExtension](auto const& availableDeviceExtension) { return strcmp(availableDeviceExtension.extensionName, requiredDeviceExtension) == 0; });
+					[requiredDeviceExtension](auto const &availableDeviceExtension) { return strcmp(availableDeviceExtension.extensionName, requiredDeviceExtension) == 0; });
 			});
 
 	// Check if the physicalDevice supports the required features
@@ -280,16 +280,16 @@ bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice)
 }
 
 //Choosing the color format of the surface for the swapchain
-vk::SurfaceFormatKHR Renderer::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats) 
+vk::SurfaceFormatKHR Renderer::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats) 
 {
 	const auto formatIt = std::ranges::find_if(
 		availableFormats,
-		[](const auto& format) { return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear; });
+		[](const auto &format) { return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear; });
 	return formatIt != availableFormats.end() ? *formatIt : availableFormats[0];
 }
 
 //I don't really remember
-uint32_t Renderer::chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const& surfaceCapabilities)
+uint32_t Renderer::chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const &surfaceCapabilities)
 {
 	auto minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
 	if ((0 < surfaceCapabilities.maxImageCount) && (surfaceCapabilities.maxImageCount < minImageCount))
@@ -329,7 +329,7 @@ void Renderer::createSwapChain()
 }
 
 //Choose the size of the surface to be swapped --> Could be wrong
-vk::Extent2D Renderer::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabilities)
+vk::Extent2D Renderer::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities)
 {
 	// currentExtent is only set to the special "undefined" value described above
 	// when the window manager lets us choose the extent ourselves; any other value
@@ -376,7 +376,7 @@ void Renderer::recreateSwapChain()
 }
 
 //Use eMailbox to avoid tearing while still maintaining fairly low latency by rendering new images that are as up to date as possible right until the vertical blank (higher energy usage?)
-vk::PresentModeKHR Renderer::chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const& availablePresentModes)
+vk::PresentModeKHR Renderer::chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const &availablePresentModes)
 {
 	assert(std::ranges::any_of(availablePresentModes, [](auto presentMode) { return presentMode == vk::PresentModeKHR::eFifo; }));
 	return std::ranges::any_of(availablePresentModes,
@@ -393,7 +393,7 @@ void Renderer::createImageViews()
 	vk::ImageViewCreateInfo imageViewCreateInfo{ .viewType = vk::ImageViewType::e2D,
 												.format = m_swapchainSurfaceFormat.format,
 												.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1} };
-	for (auto& image : m_swapchainImages)
+	for (auto &image : m_swapchainImages)
 	{
 		imageViewCreateInfo.image = image;
 		m_swapchainImageViews.emplace_back(m_device, imageViewCreateInfo);
@@ -411,7 +411,7 @@ void Renderer::createGraphicsPipeline()
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
-void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
+void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
 	std::cout << std::filesystem::current_path().generic_string() << std::endl;
 
@@ -421,7 +421,7 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 	m_graphicsPipeline.emplace(m_device, shaderModule, pipelineConfig);
 }
 
-[[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const std::vector<char>& code) const
+[[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const std::vector<char> &code) const
 {
 	vk::ShaderModuleCreateInfo createInfo{ .codeSize = code.size() * sizeof(char), .pCode = reinterpret_cast<const uint32_t*>(code.data()) };
 	vk::raii::ShaderModule     shaderModule{ m_device, createInfo };
@@ -430,7 +430,7 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 }
 
 //Creation function for shaders
-[[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const Slang::ComPtr<slang::IBlob>& p_shaderBlob) const
+[[nodiscard]] vk::raii::ShaderModule Renderer::createShaderModule(const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const
 {
 	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
 	vk::raii::ShaderModule     shaderModule{ m_device, createInfo };
@@ -492,7 +492,7 @@ void Renderer::recordCommandBuffer(uint32_t imageIndex)
 {
 	assert(m_graphicsPipeline.has_value());
 	
-	auto& _commandBuffer = m_commandBuffers[m_frameIndex];
+	auto &_commandBuffer = m_commandBuffers[m_frameIndex];
 	_commandBuffer.begin({});
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
@@ -544,7 +544,7 @@ void Renderer::createSyncObjects()
 {
 	assert(m_presentCompleteSemaphores.empty() && m_renderFinishedSemaphores.empty() && m_inFlightFences.empty());
 
-	for (size_t i = 0; i < m_swapchainImages.size(); i++)
+	for (size_t i = m_swapchainImages.size(); i > 0; i--)
 	{
 		m_renderFinishedSemaphores.emplace_back(m_device, vk::SemaphoreCreateInfo());
 	}
@@ -629,12 +629,12 @@ int Renderer::Initialize()
 	{
 		createInstance();
 	}
-	catch (const vk::SystemError& err)
+	catch (const vk::SystemError &err)
 	{
 		std::cerr << "Vulkan Error: " << err.what() << std::endl;
 		return 1;
 	}
-	catch (const std::exception& err)
+	catch (const std::exception &err)
 	{
 		std::cerr << "Error: " << err.what() << std::endl;
 		return 1;
@@ -663,18 +663,18 @@ int Renderer::Initialize()
 	return 0;
 }
 
-int Renderer::Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
+int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
 	try
 	{
 		createInstance();
 	}
-	catch (const vk::SystemError& err)
+	catch (const vk::SystemError &err)
 	{
 		std::cerr << "Vulkan Error: " << err.what() << std::endl;
 		return 1;
 	}
-	catch (const std::exception& err)
+	catch (const std::exception &err)
 	{
 		std::cerr << "Error: " << err.what() << std::endl;
 		return 1;

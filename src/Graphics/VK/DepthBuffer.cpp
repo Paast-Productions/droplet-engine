@@ -6,7 +6,7 @@ using namespace Droplet::Graphics::VK;
 
 DepthBuffer::DepthBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::Extent2D &p_swapchainExtent)
 {
-	vk::Format depthFormat = findSupportedFormat(
+	vk::Format depthFormat = FindSupportedFormat(
 		p_physicalDevice,
 		{ vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint },
 		vk::ImageTiling::eOptimal,
@@ -19,13 +19,14 @@ DepthBuffer::DepthBuffer(const vk::raii::Device &p_device, const vk::raii::Physi
 }
 
 //Check what formats the hardware supports
-vk::Format DepthBuffer::findSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice, const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features)
+vk::Format DepthBuffer::FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice, const std::vector<vk::Format> &p_candidates, vk::ImageTiling p_tiling, vk::FormatFeatureFlags p_features)
 {
-	for (const auto format : candidates) {
+	for (const auto format : p_candidates) 
+	{
 		vk::FormatProperties props = p_physicalDevice.getFormatProperties(format);
 
-		if (((tiling == vk::ImageTiling::eLinear) && ((props.linearTilingFeatures & features) == features)) ||
-			((tiling == vk::ImageTiling::eOptimal) && ((props.optimalTilingFeatures & features) == features)))
+		if (((p_tiling == vk::ImageTiling::eLinear) && ((props.linearTilingFeatures & p_features) == p_features)) ||
+			((p_tiling == vk::ImageTiling::eOptimal) && ((props.optimalTilingFeatures & p_features) == p_features)))
 		{
 			return format;
 		}
