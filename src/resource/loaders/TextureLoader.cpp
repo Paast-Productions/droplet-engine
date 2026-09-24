@@ -8,9 +8,9 @@
 #undef STB_IMAGE_IMPLEMENTATION
 
 namespace fs = std::filesystem;
-namespace Droplet::ResourceLoader
+namespace Droplet
 {
-	gli::texture TextureLoader::Load(const std::string &p_path)
+	std::unique_ptr<Texture2DResource> TextureLoader::Load(const std::string &p_path)
 	{
 		gli::texture texture;
 		fs::path filePath(p_path);
@@ -39,7 +39,18 @@ namespace Droplet::ResourceLoader
 		{
 			throw std::runtime_error("Could not load texture: " + p_path);
 		}
-		return texture;
+
+		// Translate the gli texture to our custom format
+		TextureResource::TextureFormat format;
+		format = ConvertTextureFormat(texture.format());
+
+		auto resource = std::make_unique<Texture2DResource>();
+		resource->SetDimensions(texture.extent().x, texture.extent().y);
+		resource->SetMipLevels(static_cast<int>(texture.levels()));
+		resource->SetPixelData(texture.data(), texture.size());
+		resource->SetFormat(format, static_cast<int>(texture.size()));
+
+		return resource;
 	}
 
 	bool TextureLoader::ConvertPNGToKTX(const std::string &p_inputPath, const std::string &p_outputPath)
@@ -70,5 +81,30 @@ namespace Droplet::ResourceLoader
 
 		texture = gli::load(p_outputPath);
 		return true;
+	}
+
+	TextureResource::TextureFormat TextureLoader::ConvertTextureFormat(gli::format p_format)
+	{
+		switch (p_format)
+		{
+		case gli::FORMAT_R8_UNORM_PACK8:
+			std::cout << "TextureResourceFormat: R8_UNORM" << std::endl;
+			return TextureResource::TextureFormat::R8_Unorm;
+
+		case gli::FORMAT_RGB8_UNORM_PACK8:
+			std::cout << "TextureResourceFormat: RGB8_UNORM" << std::endl;
+			return TextureResource::TextureFormat::RGB8_Unorm;
+
+		case gli::FORMAT_RGBA8_UNORM_PACK8:
+			std::cout << "TextureResourceFormat: RGBA8_UNORM" << std::endl;
+			return TextureResource::TextureFormat::RGBA8_Unorm;
+
+		case gli::FORMAT_RGBA_BP_UNORM_BLOCK16:
+			std::cout << "TextureResourceFormat: BC7" << std::endl;
+			return TextureResource::TextureFormat::BC7;
+		default:
+			std::cout << "TextureResourceFormat: Vi fick ingen :(" << std::endl;
+			return TextureResource::TextureFormat::Unknown;
+		}
 	}
 }

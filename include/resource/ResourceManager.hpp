@@ -7,9 +7,13 @@
 #include <filesystem>
 #include <cassert>
 #include <functional>
+#include <iostream>
 
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceCatalog.hpp"
+#include "resource/types/Texture2DResource.hpp"
+#include "resource/ThreadPool.hpp"
+#include "resource/loaders/TextureLoader.hpp"
 
 namespace Droplet
 {
@@ -65,7 +69,7 @@ namespace Droplet
         ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
             assert(m_isInitialized && "ResourceManager is not initialized.");
-            
+
             MetaEntry metaEntry;
             if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
             {
@@ -73,10 +77,9 @@ namespace Droplet
                 // TODO: Log this as a warning/error
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
-            
             ResourceHandle<T> handle(p_guid, this);
             
-            bool loadAsync = true;
+            bool loadAsync = false;
             {
                 std::lock_guard<std::mutex> lock(m_registryMutex);
                 
@@ -86,7 +89,7 @@ namespace Droplet
                     // Asset was just created in-place -> Update state
                     it->second.state = ResourceState::Queued;
                     it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
-                    loadAsync = false;
+                    loadAsync = true;
                 }
 
                 // Handle callback
@@ -110,7 +113,45 @@ namespace Droplet
             
             if (loadAsync)
             {
-                // TODO: Push load task to worker thread pool
+                // Push every thing inside the {} to a thread and the thread
+                // will execute the commands.
+                // This thread will load an asset and the loader is decided by the
+                // if statement (not best solution for scalability)
+                m_threadPool.PushTask([this, p_guid, metaEntry]()
+                {
+
+                    {
+                        // lock the registry so that only one thread can affect a resource state
+                        std::lock_guard<std::mutex> lock(m_registryMutex);
+
+                        auto it = m_registry.find(p_guid);
+
+                        if (it == m_registry.end())
+                        {
+                            return;
+                        }
+                        it->second.state = ResourceState::LoadingAsync;
+                    }
+
+                    if constexpr (std::is_same_v<T, Texture2DResource>)
+                    {
+                        ResourceLoader::TextureLoader loader;
+                        auto texture = loader.Load(metaEntry.assetPath);
+                        {
+                            std::lock_guard<std::mutex> lock(m_registryMutex);
+
+                            auto it = m_registry.find(p_guid);
+
+                            if (it == m_registry.end())
+                            {
+                                return;
+                            }
+                            it->second.resource = std::move(texture);
+                            it->second.state = ResourceState::ReadyAsync;
+                        }
+                    }
+                });
+                    
             }
             
             return handle;
@@ -164,8 +205,8 @@ namespace Droplet
         
         std::unordered_map<GUID, ResourceRecord> m_registry;
         std::mutex m_registryMutex; 
-        
-        // TODO: Add thread pool / job system
+
+        ThreadPool m_threadPool;
     };
     
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "resource/types/TextureResource"
+#include "resource/types/TextureResource.hpp"
 
 namespace Droplet {
     /// @brief Class for 2D texture resources.s

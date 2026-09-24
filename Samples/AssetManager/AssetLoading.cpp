@@ -1,9 +1,12 @@
 #include "resource/ResourceManager.hpp"
 #include "resource/loaders/TextureLoader.hpp"
 
-#include "resource/ResourceManager.hpp"
 #include "resource/AssimpLoader.hpp"
-#include "resource/loaders/TextureLoader.hpp"
+#
+#include "resource/ThreadPool.hpp"
+#include "resource/meta/MetaData.hpp"
+#include "resource/meta/MetaUtils.hpp"
+#include "resource/types/Texture2DResource.hpp"
 
 #include <filesystem>
 #include <string>
@@ -11,6 +14,13 @@
 #include <print>
 
 namespace fs = std::filesystem;
+
+void PrintSomeThing()
+{
+    std::cout << "Hi from Thread"
+        << std::this_thread::get_id() 
+        << std::endl;
+}
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
@@ -24,22 +34,32 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     Droplet::AssimpLoader assimpLoader;
     Droplet::ResourceRecord assetRecord;
-    assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
+    //assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
     
-    Droplet::ResourceLoader::TextureLoader resourceTexture;
-
     fs::path currentPath = fs::current_path();
-    std::string path = "";
-    std::cout << "Does file path exist? " << std::filesystem::exists(path) << std::endl;
+    std::string path = "C:/Users/Proj/Documents/Blender Assets/basic_fish_colors_base.ktx";
+    std::vector<Droplet::MetaEntry> metaData;
+
+    // If meta file does not exist, generate a new so that you can use GUID
+    //auto entry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Texture2D, "basic_fish_colors_base.ktx", path);
+    //metaData.push_back(entry);
+
+    // If meta file does exist, Read the path and extract the data
+    std::filesystem::path metaPath = path + ".meta";
+    Droplet::MetaUtils::Read(metaPath, metaData);
 
     try
     {
-        resourceTexture.Load(path);
+        // Ska ha GUID
+        for (auto &entry : metaData)
+        {
+            // Since metaData is a vector we need to iterate all entries to get GUID
+            assetManager.LoadResource<Droplet::Texture2DResource>(entry.guid);
+        }
     }
     catch (std::exception) {
         std::println("Failed to load texture.");
     }
-
 
     return 0;
 }
