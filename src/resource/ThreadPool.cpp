@@ -1,8 +1,12 @@
 #include "resource/ThreadPool.hpp"
+#include <iostream>
 
 ThreadPool::ThreadPool()
 {
-	for (uint32_t i = 0; i < 4; i++)
+	// Uses function max() to ensure nr of threads is never 0
+	m_nrOfThreads = std::max(1u, std::thread::hardware_concurrency() / 2);
+
+	for (uint32_t i = 0; i < m_nrOfThreads; i++)
 	{
 		m_workerThreads.emplace_back(&ThreadPool::WorkerLoop, this);
 	}
@@ -56,7 +60,7 @@ void ThreadPool::WorkerLoop()
 					return !m_tasks.empty() || !m_running; 
 				});
 
-			if (!m_running && m_tasks.empty())
+			if (!m_running)
 			{
 				return;
 			}
@@ -65,6 +69,11 @@ void ThreadPool::WorkerLoop()
 			m_tasks.pop();
 
 		}
-		task();
+		try {
+			task();
+		}
+		catch (const std::exception &e){
+			std::cout << "Could not execute task" << e.what() << std::endl;
+		}
 	}
 }

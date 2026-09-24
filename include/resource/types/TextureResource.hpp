@@ -105,6 +105,9 @@ namespace Droplet
 		/// @param p_pixelData The pixel data for the texture.
 		void SetPixelData(const std::vector<std::byte> &p_pixelData) { m_pixelData = p_pixelData; }
 
+		/// @brief Sets the pixel data for the texture
+		/// @param p_data Pointer to the raw data
+		/// @param p_size The size of the data
 		void SetPixelData(const void *p_data, size_t p_size)
 		{
 			const auto *bytes = static_cast<const std::byte *>(p_data);

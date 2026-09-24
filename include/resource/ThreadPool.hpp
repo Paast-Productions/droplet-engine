@@ -13,8 +13,14 @@ class ThreadPool
 public:
 	/// @brief Creates threads that will execute the worker loop.
 	ThreadPool();
-	/// @brief Stops the program and worker loop and join all threads.
+	/// @brief Stops the threadpool and worker loop and join all threads.
 	~ThreadPool();
+
+	ThreadPool(const ThreadPool &other) = delete;
+	ThreadPool &operator=(const ThreadPool &p_other) = delete;
+	ThreadPool(ThreadPool &&p_other) noexcept = delete;
+	ThreadPool &operator=(ThreadPool &&p_other) noexcept = delete;
+
 
 	/// @brief Push a function that a thread will execute. 
 	/// Everything inside the {} will be executed
@@ -33,4 +39,6 @@ private:
 	std::vector<std::thread> m_workerThreads;
 
 	bool m_running = true;
+
+	int m_nrOfThreads = 0;
 };

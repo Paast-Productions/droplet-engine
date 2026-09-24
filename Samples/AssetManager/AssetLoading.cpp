@@ -46,7 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     // If meta file does exist, Read the path and extract the data
     std::filesystem::path metaPath = path + ".meta";
-    bool result = Droplet::MetaUtils::Read(metaPath, metaData);
+    Droplet::MetaUtils::Read(metaPath, metaData);
 
     try
     {

@@ -70,17 +70,13 @@ namespace Droplet
         {
             assert(m_isInitialized && "ResourceManager is not initialized.");
 
-            std::cout << "Manager initialized" << std::endl;
-            
             MetaEntry metaEntry;
             if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
                 // TODO: Log this as a warning/error
-                std::cout << "GUID NOT FOUND IN CATALOG" << std::endl;
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
-            std::cout << "Get handle" << std::endl;
             ResourceHandle<T> handle(p_guid, this);
             
             bool loadAsync = false;
@@ -193,14 +189,6 @@ namespace Droplet
             }
             
             return nullptr;
-        }
-
-        // temporarily function so that load functions can be tested in AssetLoading.cpp
-        bool GetCachedMetaDataForAsset(
-            const std::string &p_assetPath,
-            std::vector<MetaEntry> &p_metaData)
-        {
-            return m_catalog.GetCachedMetaDataForAsset(p_assetPath, p_metaData);
         }
     
     private:

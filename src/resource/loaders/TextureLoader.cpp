@@ -8,7 +8,7 @@
 #undef STB_IMAGE_IMPLEMENTATION
 
 namespace fs = std::filesystem;
-namespace Droplet::ResourceLoader
+namespace Droplet
 {
 	std::unique_ptr<Texture2DResource> TextureLoader::Load(const std::string &p_path)
 	{
