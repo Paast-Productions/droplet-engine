@@ -2,6 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <string>
+#include <ScriptSystem/ScriptSystem.hpp>
 
 /// @brief Component that attaches a Lua script to a Node.
 ///
@@ -16,6 +17,7 @@ public:
     void Update(float p_deltaTime) override;
     const std::string &GetScriptPath() const;
 
+    void DetachScript(ScriptComponent *p_scriptComponent);
 private:
 
     std::string m_scriptPath;
