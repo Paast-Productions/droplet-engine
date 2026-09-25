@@ -1,4 +1,5 @@
 #include "Component.hpp"
+#include <Node.hpp>
 
 using namespace Droplet::Scene;
 
