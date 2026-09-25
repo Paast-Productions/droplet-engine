@@ -102,7 +102,7 @@ namespace Droplet
                 auto it = m_registry.find(p_guid);
 
                 if (p_onLoadCallback)
-                {  
+                {
                     if (it->second.state == ResourceState::Ready)
                     {
                         p_onLoadCallback(handle); // Resource is already loaded -> Trigger callback now
@@ -143,14 +143,7 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
-<<<<<<< HEAD
-                        std::filesystem::path texturePath = m_rootDirectory / metaEntry.assetPath;
-
-                        TextureLoader loader;
-                        auto texture = loader.Load(texturePath.string());
-=======
                         auto texture = GliLoader::Load(metaEntry.assetPath);
->>>>>>> 56849d4 (Refactor TextureLoader from class to namespace (GliLoader))
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 
