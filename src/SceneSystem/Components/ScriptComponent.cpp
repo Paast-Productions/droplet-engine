@@ -13,7 +13,6 @@ ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
 void ScriptComponent::Start()
 {
     //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
-    // Oliver toth är för lat att göra detta nu även fasst det är hans jobb. 
     auto &scriptSystem = ScriptSystem::Get();
 
     scriptSystem.CreateScript(this, m_scriptPath);

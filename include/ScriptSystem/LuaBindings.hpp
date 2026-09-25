@@ -7,7 +7,6 @@
 
 #include <sol/sol.hpp>
 
-
 namespace Droplet::Script
 {
 	/// @brief Registers engine functionality and types for use in Lua.

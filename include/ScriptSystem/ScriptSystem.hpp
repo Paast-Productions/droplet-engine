@@ -5,7 +5,6 @@
 
 #include <SceneSystem/Component.hpp>
 
-
 namespace Droplet::Script
 {
 	/// @brief Provides the main interface for the engine's Lua scripting system.
