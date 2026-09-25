@@ -7,7 +7,7 @@ namespace Droplet::Scene
 	// forward declaration
 	class Component;
 
-	// TODO: See if theres a way to hide the component constructor such that this class is the only way to create components.
+	// TODO: Hide the component constructor and add this class as a friend class, such that this class is the only way to create components.
 	class ComponentFactory
 	{
 	public:
