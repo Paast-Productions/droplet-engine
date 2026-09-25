@@ -91,12 +91,12 @@ namespace Droplet::AssimpLoader
 	}
     
     
-	std::unique_ptr<MeshResource> LoadMesh(const std::string &p_meshFile, const json &p_typeSpecificData)
+	std::unique_ptr<MeshResource> LoadMesh(const std::filesystem::path &p_assetPath, const json &p_typeSpecificData)
 	{
 	    thread_local Assimp::Importer s_importer;
 	    
 		p_typeSpecificData; // HACK
-		const aiScene *meshData = s_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_SortByPType);
@@ -123,19 +123,19 @@ namespace Droplet::AssimpLoader
 		mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 
 		// Log Info: Successfully loaded p_meshFile
-		std::println("Successfully loaded {}", p_meshFile); // Temporary log
+		std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
 
 		s_importer.FreeScene();
 
 		return std::make_unique<MeshResource>(mesh);
 	}
 
-	std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::string &p_meshFile, const json &p_typeSpecificData)
+	std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const json &p_typeSpecificData)
 	{
         thread_local Assimp::Importer s_importer;
         
 		p_typeSpecificData;	// HACK
-		const aiScene *meshData = s_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_SortByPType);
@@ -183,20 +183,20 @@ namespace Droplet::AssimpLoader
 		skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 
 		// Log Info: Successfully loaded p_meshFile
-		std::println("Successfully loaded {}", p_meshFile); // Temporary log
+		std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
 
 		s_importer.FreeScene();
 
 		return std::make_unique<SkinnedMeshResource>(skinnedMesh);
 	}
 
-	std::unique_ptr<AnimationResource> LoadAnimation(const std::string &p_meshFile, const std::string &p_animName,
+	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName,
 		const nlohmann::json &p_typeSpecificData)
 	{
         thread_local Assimp::Importer s_importer;
         
 		p_typeSpecificData; // HACK
-		const aiScene *meshData = s_importer.ReadFile(p_meshFile.c_str(), // TODO: Use p_typeSpecificData when importing mesh
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_PopulateArmatureData |
@@ -307,19 +307,19 @@ namespace Droplet::AssimpLoader
 		animation.SetKeyframes(animKeyframes);
 
 		// Log Info: Successfully loaded p_meshFile
-		std::println("Successfully loaded {}", p_meshFile); // Temporary log
+		std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
 
 		s_importer.FreeScene();
 
 		return std::make_unique<AnimationResource>(animation);
 	}
 
-	std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::string &p_meshFile)
+	std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath)
 	{
         thread_local Assimp::Importer s_importer;
         
 		std::vector<std::pair<ResourceType, std::string>> resourceList{};
-		const aiScene *meshData = s_importer.ReadFile(p_meshFile.c_str(), 0);
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), 0);
 
 		if (meshData == nullptr)
 		{
