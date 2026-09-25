@@ -1,7 +1,5 @@
 ﻿#include <Graphics/VK/Renderer.hpp>
 
-#include <vk_mem_alloc.hpp>
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
 	// Window Config
@@ -11,9 +9,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Height = 480,
 		.Flags = 0
 	};
-		
-	vma::Allocator{};
-	
+
 	Renderer rnd 
 	{
 		windowConfig
@@ -39,8 +35,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				rnd.windowResize();
 			}
 
-			rnd.drawFrame();
-
 			if (rnd.p_event.type == SDL_EVENT_KEY_DOWN) 
 			{
 				if (rnd.p_event.key.key == SDLK_ESCAPE) 
@@ -49,6 +43,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				}
 			}
 		}
+
+		rnd.drawFrame();
 	}
     
     return 0;
