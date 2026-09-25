@@ -30,3 +30,8 @@ Droplet::Graphics::VK::CommandBuffer::CommandBuffer(const vk::raii::Device &p_de
 	vk::CommandBufferAllocateInfo allocInfo { .commandPool = p_pool,  .level =  p_level, .commandBufferCount = 1};
 	m_commandBuffer = std::move(vk::raii::CommandBuffers(p_device, allocInfo).front());
 }
+
+void Droplet::Graphics::VK::CommandBuffer::PipelineBarrier(vk::DependencyInfo p_dependencyInfo)
+{
+	m_commandBuffer.pipelineBarrier2(p_dependencyInfo);
+}

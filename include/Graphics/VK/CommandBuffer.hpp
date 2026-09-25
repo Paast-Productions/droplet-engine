@@ -25,6 +25,10 @@ namespace Droplet::Graphics::VK
 		/// @param p_size The number of bytes to copy.
 		/// @note Buffers are *not* the same as command buffers. The command buffer is only a middle-hand to copy data.
 		void CopyBuffer(vk::Buffer p_src, vk::Buffer p_dst, vk::DeviceSize p_size);
+
+		/// @brief Sends dependency information to the buffer
+		/// @param p_dependencyInfo The dependency information
+		void PipelineBarrier(vk::DependencyInfo p_dependencyInfo);
 		
 	private:
 		friend class CommandPool;
