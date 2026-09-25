@@ -288,7 +288,7 @@ namespace Droplet::AssimpLoader
 						boneKeyframe.rot = { rot.w, rot.x, rot.y, rot.z };
 						rotIndex++;
 					}
-				    keyTime = nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond
+				    keyTime = nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond;
 					if (std::abs(t - keyTime) < C_EPSILON) // Scale
 					{
 						aiVectorKey scaKey = nodeAnim->mScalingKeys[scaIndex];
