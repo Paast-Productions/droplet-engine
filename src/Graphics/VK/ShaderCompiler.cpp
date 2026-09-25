@@ -43,6 +43,8 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
     
     Slang::ComPtr<slang::IModule> module {};
     
+    // TODO: FIX FILEPATH TO SLANG SHADER
+    
     {
         Slang::ComPtr<slang::IBlob> errorBlob {};
         module = localSession->loadModule(p_path.filename().string().c_str(), errorBlob.writeRef());

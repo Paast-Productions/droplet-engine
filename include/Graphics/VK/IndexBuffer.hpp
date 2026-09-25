@@ -3,11 +3,7 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vector>
 
-#if defined(__INTELLISENSE__) || !defined(USE_CPP20_MODULES)
-#	include <vulkan/vulkan_raii.hpp>
-#else
-import vulkan_hpp;
-#endif
+#include <vulkan/vulkan_raii.hpp>
 
 #include <glm/glm.hpp>
 
@@ -35,20 +31,26 @@ namespace Droplet::Graphics::VK
 			vk::raii::Queue const &p_queue,
 			const std::vector<uint16_t> &p_indices);
 
-
-		const vk::raii::Buffer *GetIndexBuffer();
-		const vk::raii::DeviceMemory *GetDeviceMemory();
+		/// @brief Getter-function for the index buffer
+		/// @returns Vulkan Buffer Pointer
+		[[nodiscard]] const vk::raii::Buffer *GetIndexBuffer() const;
+		
+		/// @brief Getter-function for the device memory
+		/// @returns Vulkan Device Memory Pointer
+		[[nodiscard]] const vk::raii::DeviceMemory *GetDeviceMemory() const;
+		
 	private:
-		vk::raii::Buffer		m_indexBuffer = nullptr;
-		vk::raii::DeviceMemory	m_bufferMemory = nullptr;
+		vk::raii::Buffer		m_indexBuffer { nullptr };
+		vk::raii::DeviceMemory	m_bufferMemory { nullptr };
+		
 	};
 
-	inline const vk::raii::Buffer *IndexBuffer::GetIndexBuffer()
+	inline const vk::raii::Buffer *IndexBuffer::GetIndexBuffer() const
 	{
 		return &m_indexBuffer;
 	}
 
-	inline const vk::raii::DeviceMemory *IndexBuffer::GetDeviceMemory()
+	inline const vk::raii::DeviceMemory *IndexBuffer::GetDeviceMemory() const
 	{
 		return &m_bufferMemory;
 	}

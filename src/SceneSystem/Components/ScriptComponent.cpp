@@ -1,5 +1,7 @@
 #include "ScriptComponent.hpp"
 
+using namespace Droplet::Scene;
+
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
 {

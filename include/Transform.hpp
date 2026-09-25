@@ -6,7 +6,7 @@
 
 namespace Droplet::Scene
 {
-	class Node; // Forward declaration of Node class
+	class Node; // Forward declaration
 
 	/// @brief A class that represents a 3D transformation, including position, rotation, and scale.
 	class Transform
@@ -19,8 +19,8 @@ namespace Droplet::Scene
 		};
 
 		/// @brief Construct a new Transform object.
-		/// @param p_owner A weak pointer to the Node that owns this Transform.
-		Transform(std::shared_ptr<Node> p_owner);
+		/// @param p_owner A pointer to the Node that owns this Transform.
+		Transform(Node *p_owner);
 
 		~Transform() = default;
 
@@ -46,9 +46,11 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec3 GetScale() const;
 
 		/// @brief Get the transformation matrix of the transform in the specified space.
+		/// 
+		/// Note: This function recalculates the matrix if the transform is dirty.
 		/// @param p_space The space in which to get the matrix. Defaults to local space.
 		/// @return The transformation matrix of the transform in the specified space.
-		[[nodiscard]] glm::mat4 GetMatrix(Space p_space = Space::Local) const;
+		[[nodiscard]] glm::mat4 GetMatrix(Space p_space = Space::Local);
 
 		/// @brief Check if the transform is dirty (i.e., if it has been modified since the last update).
 		/// @return True if the transform is dirty, false otherwise.
@@ -137,15 +139,15 @@ namespace Droplet::Scene
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
 	private:
-		std::shared_ptr<Node>	m_owner{};
-		bool					m_isDirty{ true };
+		Node			*m_owner{ nullptr }; // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
+		bool			m_isDirty{ true };
 
-		glm::vec3				m_position{ 0.f, 0.f, 0.f };
-		glm::quat				m_rotation{ 1.f, 0.f, 0.f, 0.f };
-		glm::vec3				m_scale{ 1.f, 1.f, 1.f };
+		glm::vec3		m_position{ 0.f, 0.f, 0.f };
+		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };
+		glm::vec3		m_scale{ 1.f, 1.f, 1.f };
 
-		glm::mat4				m_localMatrix{ 1.f };
-		glm::mat4				m_worldMatrix{ 1.f };
+		glm::mat4		m_localMatrix{ 1.f };
+		glm::mat4		m_worldMatrix{ 1.f };
 
 		/// @brief Validate the rotation of the transform to ensure it is a valid quaternion.
 		void ValidateRotation();

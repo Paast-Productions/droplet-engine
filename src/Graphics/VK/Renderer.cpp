@@ -175,7 +175,7 @@ void Renderer::setupDebugMessenger()
 void Renderer::createSurface()
 {
 	VkSurfaceKHR _surface;
-	if (!SDL_Vulkan_CreateSurface(m_window.GetWindowHandle(), *m_instance, nullptr, &_surface))
+	if (!SDL_Vulkan_CreateSurface(m_window.Get(), *m_instance, nullptr, &_surface))
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
@@ -339,7 +339,7 @@ vk::Extent2D Renderer::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const& capabi
 		return capabilities.currentExtent;
 	}
 	int width, height;
-	SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
+	SDL_GetWindowSize(m_window.Get(), &width, &height);
 
 	return {
 		std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
@@ -358,9 +358,9 @@ void Renderer::cleanupSwapChain()
 void Renderer::recreateSwapChain()
 {
 	int width = 0, height = 0;
-	SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
+	SDL_GetWindowSize(m_window.Get(), &width, &height);
 	while ((width == 0 || height == 0) && !SDL_ShouldQuit(&p_init)) {
-		SDL_GetWindowSize(m_window.GetWindowHandle(), &width, &height);
+		SDL_GetWindowSize(m_window.Get(), &width, &height);
 		SDL_WaitEvent(&p_event);
 	}
 	if (SDL_ShouldQuit(&p_init)) {
