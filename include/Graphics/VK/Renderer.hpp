@@ -68,14 +68,24 @@ private:
 	void					recreateSwapChain();
 	void					cleanupSwapChain();
 
-	void					transition_image_layout(
-		uint32_t                imageIndex,
+	/// @brief Changes the layout of an image from one to another
+	/// @param image The image to be translated
+	/// @param old_layout The old layout of the image
+	/// @param new_layout The new layout of the image 
+	/// @param src_access_mask Source access mask
+	/// @param dst_access_mask Destination access mask
+	/// @param src_stage_mask Source stage mask
+	/// @param dst_stage_mask Destination stage mask
+	/// @param image_aspect_flags Image aspect flags and/or bits
+	void					TransitionImageLayout(
+		vk::Image               image,
 		vk::ImageLayout         old_layout,
 		vk::ImageLayout         new_layout,
 		vk::AccessFlags2        src_access_mask,
 		vk::AccessFlags2        dst_access_mask,
 		vk::PipelineStageFlags2 src_stage_mask,
-		vk::PipelineStageFlags2 dst_stage_mask);
+		vk::PipelineStageFlags2 dst_stage_mask,
+		vk::ImageAspectFlags    image_aspect_flags);
 
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -94,7 +104,6 @@ private:
 	vk::Extent2D							m_swapchainExtent;
 	std::vector<vk::raii::ImageView>		m_swapchainImageViews;
 
-	vk::raii::PipelineLayout				m_pipelineLayout	= nullptr;
 	std::optional<Droplet::Graphics::VK::CommandPool> m_commandPool;
 	std::vector<Droplet::Graphics::VK::CommandBufferId> m_commandBufferIds;
 	std::optional<Droplet::Graphics::VK::Pipeline> m_graphicsPipeline;
@@ -104,9 +113,9 @@ private:
 	std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 	std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
+	vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
 	vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
 	std::vector<vk::raii::DescriptorSet> m_descriptorSets;
-	vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
 	vk::raii::Sampler					 m_textureSampler = nullptr;
 
 	std::optional<Droplet::Graphics::VK::ImageView>	   m_textureView;

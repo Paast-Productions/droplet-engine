@@ -30,7 +30,7 @@ namespace Droplet::Graphics::VK
 		std::uint32_t ViewportCount = 1;
 		vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
 		vk::CullModeFlagBits CullMode = vk::CullModeFlagBits::eBack;
-		vk::FrontFace FrontFace = vk::FrontFace::eClockwise;
+		vk::FrontFace FrontFace = vk::FrontFace::eCounterClockwise;
 		vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
 		
 		std::vector<vk::DynamicState> DynamicStates
@@ -41,7 +41,7 @@ namespace Droplet::Graphics::VK
 		
 		vk::PipelineLayoutCreateInfo PipelineLayoutInfo
 		{
-			.setLayoutCount = 0,
+			.setLayoutCount = 1,
 			.pushConstantRangeCount = 0
 		};	
 		
@@ -54,21 +54,22 @@ namespace Droplet::Graphics::VK
 	{
 	public:
 		Pipeline() = delete;
-		
+
 		// TODO: refactor vk::raii:ShaderModule to accept multiple ShaderModules
-		
+
 		/// @brief Pipeline constructor
 		/// @param p_device Vulkan Device
 		/// @param p_physicalDevice Hardware Device
 		/// @param p_shaderModule Vulkan Shader Module used for Pipeline creation 
 		/// @param p_pipelineConfig Pipeline Configuration Struct
 		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig);
-		
+
 		~Pipeline() = default;
-		
+
 		/// @brief Getter-function for a vulkan pipeline
 		/// @returns Vulkan Pipeline 
 		[[nodiscard]] const vk::raii::Pipeline &Get();
+		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout();
 
 	private:
 		vk::raii::PipelineLayout m_pipelineLayout = nullptr;
@@ -78,5 +79,10 @@ namespace Droplet::Graphics::VK
 	inline const vk::raii::Pipeline &Pipeline::Get()
 	{
 		return m_pipeline;
+	}
+
+	inline const vk::raii::PipelineLayout &Pipeline::GetLayout()
+	{
+		return m_pipelineLayout;
 	}
 }
