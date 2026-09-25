@@ -13,7 +13,7 @@
 #include "resource/ResourceCatalog.hpp"
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/ThreadPool.hpp"
-#include "resource/loaders/TextureLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
 
 namespace Droplet
 {
@@ -143,8 +143,7 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
-                        TextureLoader loader;
-                        auto texture = loader.Load(metaEntry.assetPath);
+                        auto texture = GliLoader::Load(metaEntry.assetPath);
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 

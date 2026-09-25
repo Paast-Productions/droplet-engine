@@ -1,5 +1,5 @@
 #include "resource/ResourceManager.hpp"
-#include "resource/loaders/TextureLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
 
 #include "resource/loaders/AssimpLoader.hpp"
 #
