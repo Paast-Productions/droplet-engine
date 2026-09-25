@@ -79,7 +79,7 @@ namespace Droplet::Script
 		/// @param p_scriptComponent Component that will own the script instance.
 		/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 		/// @return Pointer to the created ScriptInstance.
-		bool CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
 		/// @brief Detaches the script instance from a component.
 		/// This removes the relationship between the specified component and its
@@ -99,7 +99,7 @@ namespace Droplet::Script
 		/// @param p_scriptFile Path or name of the Lua script to load.
 		/// @return True if the script was successfully loaded or was already
 		/// loaded, otherwise false.
-		bool LoadScript(const std::string &p_scriptFile);
+		void LoadScript(const std::string &p_scriptFile);
 
 		/// @brief Unloads a previously loaded Lua script
 		/// @param p_scriptFile Path or name of the Lua script to unload.
@@ -116,7 +116,7 @@ namespace Droplet::Script
 		/// the script on disk
 		/// @param p_scriptFile Path or name of the Lua script to reload.
 		/// @return True if the script was successfully reloaded, otherwise false.
-		bool ReloadScript(const std::string &p_scriptFile);
+		void ReloadScript(const std::string &p_scriptFile);
 
 		/// @brief Checks loaded scripts for changes to their source files
 		/// Scripts whose source files have been modified since they were loaded
@@ -143,7 +143,7 @@ namespace Droplet::Script
 		/// @param p_directoryPath This is the path for your working directory to the scripts
 		/// 
 		/// @return 
-		bool SetScriptDirectory(const std::string &p_directoryPath);
+		void SetScriptDirectory(const std::string &p_directoryPath);
 
 	private:
 		/// @brief Finds the path to a Lua script

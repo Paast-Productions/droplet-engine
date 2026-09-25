@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <print>
+#include <stdexcept>
 
 using namespace Droplet;
 using namespace Droplet::Script;
@@ -26,30 +27,23 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-bool ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std::string &p_scriptFile)
+void ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
-		if (!LoadScript(p_scriptFile))
-		{
-			//The script was not loaded and failed to load
-			std::print("failed to load script\n");
-			return false;
-		}
+		LoadScript(p_scriptFile);
 	}
 	std::print("load script successfully\n");
 
 	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
 	if (loadResult == nullptr)
 	{
-		//Send to logging manager
-		return false;
+		throw std::invalid_argument("loadResult is recived as nullptr");
 	}
 	
 	if (p_scriptComponent == nullptr)
 	{
-		//Send error
-		return false;
+		throw std::invalid_argument("p_scriptComponent is recived as nullptr");
 	}
 
 	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
@@ -71,8 +65,6 @@ bool ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std:
 	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_scripts[p_scriptComponent] = instance;
-
-	return true;
 }
 
 void ScriptManager::DetachScript(Scene::Component *p_scriptComponent)
@@ -112,48 +104,42 @@ void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 	}
 }
 
-bool ScriptManager::LoadScript(const std::string &p_scriptFile)
+void ScriptManager::LoadScript(const std::string &p_scriptFile)
 {
 	if (IsLoaded(p_scriptFile))
 	{
-		return true; // Script is already loaded
+		return;
 	}
 
 	std::filesystem::path scriptPath = FindScript(p_scriptFile);
 	if (p_scriptFile.empty())
 	{
-		// TODO: Add to error logger
-		return false;
+		throw std::runtime_error("p_scriptFile is empty");
 	}
 
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
-		std::print("Failed to load '{}': {}\n", scriptPath.string(), error.what());
-
-		return false;
+		throw std::runtime_error("Failed to load script");
 	}
-
+	
 	std::error_code errorCode;
 	auto lastWriteTime = std::filesystem::last_write_time(scriptPath, errorCode);
 
 	if (errorCode)
 	{
 		std::print("Failed to get last write time for '{}': {}\n", scriptPath.string(), errorCode.message());
-		return false;
+		throw std::runtime_error("Failed to get last write time for script");
 	}
 
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
-
-		return false;
+		throw std::runtime_error("loadResult is not valid");
 	}
 
 	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
-
-	return true;
 }
 
 bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
@@ -182,14 +168,13 @@ bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
-bool ScriptManager::ReloadScript(const std::string &p_scriptFile)
+void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
 
 	if (it == m_loadedScripts.end())
 	{
-		std::print("Cannot reload script '{}': not loaded\n", p_scriptFile);
-		return false;
+		throw std::runtime_error("Cannot reload script");
 	}
 
 	LoadedScript& loadedScript = it->second;
@@ -199,10 +184,7 @@ bool ScriptManager::ReloadScript(const std::string &p_scriptFile)
 	if (!newLoadResult.valid())
 	{
 		sol::error error = newLoadResult;
-
-		std::print("Failed to reload '{}': {}\n", p_scriptFile, error.what());
-
-		return false;
+		throw std::runtime_error("Failed to reload '" + p_scriptFile + " " + error.what());
 	}
 
 	std::error_code errorCode;
@@ -211,9 +193,7 @@ bool ScriptManager::ReloadScript(const std::string &p_scriptFile)
 
 	if (errorCode)
 	{
-		std::print("Failed to get write time for '{}': {}\n", loadedScript.scriptPath.string(), errorCode.message());
-
-		return false;
+		throw std::runtime_error("Failed to get write time for " + loadedScript.scriptPath.string() + " " + errorCode.message());
 	}
 
 	loadedScript.loadResult = std::move(newLoadResult);
@@ -228,8 +208,6 @@ bool ScriptManager::ReloadScript(const std::string &p_scriptFile)
 	}
 
 	std::print("{} has changed and reloaded!\n", loadedScript.scriptPath.string());
-
-	return true;
 }
 
 void ScriptManager::CheckForFileChanges()
@@ -301,16 +279,15 @@ void ScriptManager::DeactivateScript(Scene::Component *p_scriptComponent)
 	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
 }
 
-bool ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
+void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 {
 	std::filesystem::path scriptDirectory = std::filesystem::current_path() / p_directoryPath;
 
 	if (!std::filesystem::exists(scriptDirectory) || !std::filesystem::is_directory(scriptDirectory))
 	{
-		return false;
+		throw std::invalid_argument("ScriptDirectory can't be found or doesn't exists");
 	}
 	m_scriptDirectoryPath = scriptDirectory;
-	return true;
 }
 
 
@@ -338,8 +315,7 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 {
 	if (p_scriptInstance == nullptr)
 	{
-		//Send error to logging
-		return;
+		throw std::invalid_argument("p_scriptInstance is nullptr");
 	}
 
 	std::vector<ScriptInstance*>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), p_scriptInstance);

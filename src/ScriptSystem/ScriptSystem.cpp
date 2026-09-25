@@ -27,26 +27,20 @@ void ScriptSystem::Update(float p_deltaTime)
 }
 
 
-bool ScriptSystem::CreateScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
+void ScriptSystem::CreateScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
-	bool result = m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
-	if (!result)
-	{
-		std::print("ScriptSystem: Failed to create script instance for file: {}\n", p_scriptFile);
-		return false;
-	}
-	return true;
+	m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
 }
 
 
-bool ScriptSystem::LoadScript(const std::string &p_scriptFile)
+void ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {
-	return m_scriptManager.LoadScript(p_scriptFile);
+	m_scriptManager.LoadScript(p_scriptFile);
 }
 
-bool ScriptSystem::UnloadScript(const std::string &p_scriptFile)
+void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 {
-	return m_scriptManager.UnloadScript(p_scriptFile);
+	m_scriptManager.UnloadScript(p_scriptFile);
 }
 
 void ScriptSystem::ActivateScript(Scene::Component *p_scriptComponent)
@@ -64,9 +58,9 @@ void ScriptSystem::DetachScript(Droplet::Scene::Component *p_scriptComponent)
 	m_scriptManager.DetachScript(p_scriptComponent);
 }
 
-bool ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
+void ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
-	return m_scriptManager.SetScriptDirectory(p_directoryPath);
+	m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
 void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)

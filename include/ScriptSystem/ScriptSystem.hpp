@@ -42,17 +42,17 @@ namespace Droplet::Script
 		/// @param testNode Component that will connect to the script instance.
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
 		/// @return Returns if the script instance could correctly be created
-		bool CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.
 		/// @return True if the script was loaded successfully, otherwise false.
-		bool LoadScript(const std::string &p_scriptFile);
+		void LoadScript(const std::string &p_scriptFile);
 
 		/// @brief Unloads a previously loaded Lua script.
 		/// @param p_scriptFile Path to the Lua script file.
 		/// @return True if the script was unloaded successfully, otherwise false.
-		bool UnloadScript(const std::string &p_scriptFile);
+		void UnloadScript(const std::string &p_scriptFile);
 
 		/// @brief Activates a script component.
 		/// An activated script component is allowed to participate in the scripting
@@ -71,7 +71,7 @@ namespace Droplet::Script
 		/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
 		void DetachAllInstancesToScript(const std::string &p_scriptPath);
 
-		bool SetScriptPath(const std::string &p_directoryPath);
+		void SetScriptPath(const std::string &p_directoryPath);
 
 		/// @brief Calls a Lua function on a script component.
 		/// The supplied arguments are forwarded to the Lua function. The result
