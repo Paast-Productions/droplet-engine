@@ -18,7 +18,7 @@ namespace Droplet::Scene
 	public:
 		/// @brief Retrieves the registry of component types.
 		/// @return A constant reference to the unordered map containing component names and their corresponding construction functions.
-		static const std::unordered_map<std::string, std::function<std::shared_ptr<Component>()>> &GetRegistry()
+		[[nodiscard]] static const std::unordered_map<std::string, std::function<std::shared_ptr<Component>()>> &GetRegistry()
 		{
 			return Get().registry;
 		}
@@ -44,7 +44,7 @@ namespace Droplet::Scene
 	private:
 		/// @brief Retrieves the singleton instance of the ComponentRegistry.
 		/// @return A reference to the singleton instance of the ComponentRegistry.
-		static ComponentRegistry &Get()
+		[[nodiscard]] static ComponentRegistry &Get()
 		{
 			static ComponentRegistry instance;
 			return instance;

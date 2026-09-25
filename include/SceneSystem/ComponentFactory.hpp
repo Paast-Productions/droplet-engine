@@ -15,6 +15,6 @@ namespace Droplet::Scene
 		/// @param name The name of the component type to create.
 		/// @return A shared pointer to the newly created component.
 		/// @throws std::runtime_error If the component type is not registered in the ComponentRegistry.
-		static std::shared_ptr<Component> CreateComponent(const std::string &name);
+		[[nodiscard]] static std::shared_ptr<Component> CreateComponent(const std::string &name);
 	};
 }
