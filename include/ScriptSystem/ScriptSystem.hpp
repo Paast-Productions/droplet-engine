@@ -1,8 +1,10 @@
 #pragma once
 
-#include <SceneSystem/Component.hpp>
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
+
+#include <SceneSystem/Component.hpp>
+
 
 namespace Droplet::Script
 {

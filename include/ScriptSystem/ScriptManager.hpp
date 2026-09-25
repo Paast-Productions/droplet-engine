@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SceneSystem/Component.hpp>
 #include "ScriptInstance.hpp"
 
+#include <SceneSystem/Component.hpp>
 #include <vector>
 #include <string>
 #include <filesystem>

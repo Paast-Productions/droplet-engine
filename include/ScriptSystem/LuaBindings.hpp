@@ -1,8 +1,12 @@
 #pragma once
+
 #define SOL_ALL_SAFETIES_ON 1
-#include <sol/sol.hpp>
+
 #include "LuaStateHandler.hpp"
 #include "LuaApiGenerator.hpp"
+
+#include <sol/sol.hpp>
+
 
 namespace Droplet::Script
 {
