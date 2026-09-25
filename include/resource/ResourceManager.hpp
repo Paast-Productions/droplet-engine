@@ -13,7 +13,7 @@
 #include "resource/ResourceCatalog.hpp"
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/ThreadPool.hpp"
-#include "resource/loaders/TextureLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
 
 namespace Droplet
 {
@@ -143,10 +143,14 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
+<<<<<<< HEAD
                         std::filesystem::path texturePath = m_rootDirectory / metaEntry.assetPath;
 
                         TextureLoader loader;
                         auto texture = loader.Load(texturePath.string());
+=======
+                        auto texture = GliLoader::Load(metaEntry.assetPath);
+>>>>>>> 56849d4 (Refactor TextureLoader from class to namespace (GliLoader))
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 

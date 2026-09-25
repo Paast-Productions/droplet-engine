@@ -12,7 +12,7 @@ project "AssetManager-AssetLoading"
         rootPath .. "/Samples/AssetManager/AssetLoading.cpp",
         rootPath .. "/src/resource/ResourceCatalog.cpp",
         rootPath .. "/src/resource/ResourceManager.cpp",
-        rootPath .. "/src/resource/loaders/TextureLoader.cpp",
+        rootPath .. "/src/resource/loaders/GliLoader.cpp",
 	    rootPath .. "/src/resource/meta/MetaUtils.cpp",
         rootPath .. "/src/resource/ThreadPool.cpp"
     }
