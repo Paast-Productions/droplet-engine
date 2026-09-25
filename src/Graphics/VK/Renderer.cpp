@@ -16,6 +16,7 @@
 
 #include <SDL3/SDL_vulkan.h>
 #include <Graphics/VK/UniformBuffer.hpp>
+#include <Graphics/VK/TestData.hpp>
 
 
 const std::vector<char const*> validationLayers = {
@@ -26,25 +27,6 @@ constexpr bool enableValidationLayers = false;
 #else
 constexpr bool enableValidationLayers = true;
 #endif
-
-
-//testing values
-std::vector<Droplet::Graphics::VK::Vertex> g_vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 1.0f}},
-
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{0.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, -1.0f, 0.0f},{1.0f, 1.0f}}
-};
-
-
-const std::vector<uint16_t> g_indices = {
-	0, 1, 2, 2, 3, 0,
-	4, 5, 6, 6, 7, 4 };
 
 Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
 	m_window{p_windowConfig} {}
@@ -408,6 +390,7 @@ void Renderer::createGraphicsPipeline()
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
 	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchainSurfaceFormat };
+	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_descriptorSetLayout;
 	m_graphicsPipeline.emplace(m_device, m_physicalDevice, shaderModule, pipelineConfig);
 }
 
@@ -452,15 +435,16 @@ void Renderer::CreateCommandBuffers()
 	m_commandBufferIds = m_commandPool.value().Allocate(MAX_FRAMES_IN_FLIGHT);
 }
 
-//Defines new layout for images?
-void Renderer::transition_image_layout(
-	uint32_t                imageIndex,
+//Change data layout of image
+void Renderer::TransitionImageLayout(
+	vk::Image               image,
 	vk::ImageLayout         old_layout,
 	vk::ImageLayout         new_layout,
 	vk::AccessFlags2        src_access_mask,
 	vk::AccessFlags2        dst_access_mask,
 	vk::PipelineStageFlags2 src_stage_mask,
-	vk::PipelineStageFlags2 dst_stage_mask)
+	vk::PipelineStageFlags2 dst_stage_mask,
+	vk::ImageAspectFlags    image_aspect_flags)
 {
 	vk::ImageMemoryBarrier2 barrier = {
 		.srcStageMask = src_stage_mask,
@@ -471,73 +455,103 @@ void Renderer::transition_image_layout(
 		.newLayout = new_layout,
 		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-		.image = m_swapchainImages[imageIndex],
+		.image = image,
 		.subresourceRange = {
-			   .aspectMask = vk::ImageAspectFlagBits::eColor,
-			   .baseMipLevel = 0,
-			   .levelCount = 1,
-			   .baseArrayLayer = 0,
-			   .layerCount = 1} };
-	vk::DependencyInfo dependency_info = {
+			.aspectMask = image_aspect_flags,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1} };
+	vk::DependencyInfo dependencyInfo = {
 		.dependencyFlags = {},
 		.imageMemoryBarrierCount = 1,
 		.pImageMemoryBarriers = &barrier };
-
-	m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get().pipelineBarrier2(dependency_info);
+	Droplet::Graphics::VK::CommandBufferId id;
+	id.Index = m_frameIndex;
+	m_commandPool->GetBuffer(id).PipelineBarrier(dependencyInfo);
 }
+
 
 //Main drawing operations are here!
 void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 {
 	assert(m_graphicsPipeline.has_value());
 	
-	auto &_commandBuffer = m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get(); // TODO: Make this get the wrapper, rather than the raw RAII object
-	_commandBuffer.begin({});
+	auto &commandBuffer = m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get(); // TODO: Make this get the wrapper, rather than the raw RAII object
+	commandBuffer.begin({});
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
-	transition_image_layout(
-		imageIndex,
+	TransitionImageLayout(
+		m_swapchainImages[imageIndex],
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
-		{},                                                        // srcAccessMask (no need to wait for previous operations)
-		vk::AccessFlagBits2::eColorAttachmentWrite,                // dstAccessMask
-		vk::PipelineStageFlagBits2::eColorAttachmentOutput,        // srcStage
-		vk::PipelineStageFlagBits2::eColorAttachmentOutput         // dstStage
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor
 	);
-	vk::ClearValue              clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
-	vk::RenderingAttachmentInfo attachmentInfo = {
+
+	TransitionImageLayout(
+		*m_depthBuffer->GetImage(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::ImageAspectFlagBits::eDepth
+	);
+
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
+
+	vk::RenderingAttachmentInfo colorAttachmentInfo = {
 		.imageView = m_swapchainImageViews[imageIndex],
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
 		.clearValue = clearColor };
-	vk::RenderingInfo renderingInfo = {
+
+	vk::RenderingAttachmentInfo depthAttachmentInfo = {
+		.imageView = *m_depthBuffer.value().GetView(),
+		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eDontCare,
+		.clearValue = clearDepth };
+
+
+	vk::RenderingInfo renderingInfo = 
+	{
 		.renderArea = {.offset = {0, 0}, .extent = m_swapchainExtent},
 		.layerCount = 1,
 		.colorAttachmentCount = 1,
-		.pColorAttachments = &attachmentInfo };
+		.pColorAttachments = &colorAttachmentInfo,
+		.pDepthAttachment = &depthAttachmentInfo 
+	};
 
-	_commandBuffer.beginRendering(renderingInfo);
-	_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
-	_commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchainExtent.height), static_cast<float>(m_swapchainExtent.width), -static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f));
-	_commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchainExtent));
-	_commandBuffer.bindVertexBuffers(0, **m_vertexBuffer.value().GetVertexBuffer(), { 0 });
-	_commandBuffer.bindIndexBuffer(**m_indexBuffer.value().GetIndexBuffer(), 0, vk::IndexType::eUint16);
-	_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0, *m_descriptorSets[m_frameIndex], nullptr);
-	_commandBuffer.drawIndexed(static_cast<uint32_t>(g_indices.size()), 1, 0, 0, 0);
-	_commandBuffer.endRendering();
+	commandBuffer.beginRendering(renderingInfo);
+	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchainExtent.height), static_cast<float>(m_swapchainExtent.width), -static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchainExtent));
+	commandBuffer.bindVertexBuffers(0, **m_vertexBuffer->GetVertexBuffer(), { 0 });
+	commandBuffer.bindIndexBuffer(**m_indexBuffer->GetIndexBuffer(), 0, vk::IndexType::eUint16);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline->GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
+	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	commandBuffer.endRendering();
 
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
-	transition_image_layout(
-		imageIndex,
+	TransitionImageLayout(
+		m_swapchainImages[imageIndex],
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::ePresentSrcKHR,
-		vk::AccessFlagBits2::eColorAttachmentWrite,                // srcAccessMask
-		{},                                                        // dstAccessMask
-		vk::PipelineStageFlagBits2::eColorAttachmentOutput,        // srcStage
-		vk::PipelineStageFlagBits2::eBottomOfPipe                  // dstStage
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		{},
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eBottomOfPipe,
+		vk::ImageAspectFlagBits::eColor
 	);
-	_commandBuffer.end();
+	commandBuffer.end();
 }
 
 //Need to create fences and semaphores for each frame in flight
@@ -637,7 +651,7 @@ void Renderer::CreateTextureSampler()
 											 .addressModeV = vk::SamplerAddressMode::eRepeat,
 											 .addressModeW = vk::SamplerAddressMode::eRepeat,
 											 .mipLodBias = 0.0f,
-											 .anisotropyEnable = vk::True,
+											 .anisotropyEnable = vk::False,
 											 .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
 											 .compareEnable = vk::False,
 											 .compareOp = vk::CompareOp::eAlways };
@@ -745,12 +759,11 @@ int Renderer::Initialize()
 
 	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
 
-	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_vertices);
-	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_indices);
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_VERTICES);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_INDICES);
 
-	unsigned char pixels[4]{ 128, 128, 128, 255 };
-
-	m_textureView.emplace(m_device, m_physicalDevice, &m_commandPool, m_queue, pixels, 1, 1, vk::Format::eR8G8B8A8Srgb, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
+	//Format is changed from the usual eR8G8B8A8Srbg/unorm
+	m_textureView.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
 	CreateTextureSampler();
 
@@ -805,8 +818,8 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
 	
-	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_vertices);
-	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, g_indices);
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_VERTICES);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_INDICES);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
