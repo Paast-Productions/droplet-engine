@@ -61,7 +61,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 	vk::ImageViewCreateInfo viewInfo{
 		.image = m_image,
 		.viewType = vk::ImageViewType::e2D,
-		.format = vk::Format::eR8G8B8A8Srgb,
+		.format = p_format,
 		.subresourceRange = {.aspectMask = vk::ImageAspectFlagBits::eColor, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1} };
 	m_view = vk::raii::ImageView(p_device, viewInfo);
 }
