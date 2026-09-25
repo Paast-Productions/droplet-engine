@@ -22,6 +22,9 @@ namespace Droplet::Graphics::VK
 		/// @param p_swapchainExtent reference to the swapchain extent
 		DepthBuffer(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::Extent2D &p_swapchainExtent);
 
+		/// @brief Clears the depth buffer data
+		void Clear();
+
 		/// @brief Image getter
 		/// @return pointer to the image
 		[[nodiscard]] inline const vk::raii::Image *GetImage()
