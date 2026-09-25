@@ -41,17 +41,10 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] BufferHandle StoreBuffer(const vk::raii::Device &p_device, const vk::raii::Buffer &buffer, vk::BufferUsageFlagBits usage);
         
     private:
-        [[nodiscard]] std::uint32_t PadSizeToMinAlignment(std::uint32_t p_originalSize) const;
-        
         std::vector<vk::raii::ImageView> m_textures {};
         std::vector<vk::Buffer> m_buffers {};
         
         std::uint32_t m_minUniformBufferOffsetAlignment {};
         
     };
-
-    inline std::uint32_t BufferStorage::PadSizeToMinAlignment(std::uint32_t p_originalSize) const
-    {
-        return (p_originalSize + m_minUniformBufferOffsetAlignment - 1) & ~(m_minUniformBufferOffsetAlignment - 1);
-    }
 }
