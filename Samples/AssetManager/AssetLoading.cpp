@@ -31,8 +31,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     Droplet::ResourceManager assetManager;
     assetManager.Initialize(assetDir);
-
-    Droplet::AssimpLoader assimpLoader;
+    
     Droplet::ResourceRecord assetRecord;
     //assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
     
