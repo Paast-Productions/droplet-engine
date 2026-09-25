@@ -7,7 +7,11 @@ using namespace Droplet::Graphics;
 
 ShaderCompiler::ShaderCompiler()
 {
-    slang::createGlobalSession(m_globalSession.writeRef());
+    SlangResult res = slang::createGlobalSession(m_globalSession.writeRef());
+    if (SLANG_FAILED(res))
+    {
+        throw std::runtime_error("Failed to initialize Slang Global Session.");
+    }
 }
 
 Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path)
