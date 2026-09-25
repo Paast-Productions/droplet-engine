@@ -18,7 +18,10 @@ project "Engine"
 
     dependson
     {
-        "ImGui",
+        --"GoogleTest",
+        --"ImGui",
+        "Sol2",
+        "Lua",
         "json"
         --"Jolt"
     }

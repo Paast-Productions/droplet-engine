@@ -1,5 +1,4 @@
-#include <iostream>
-#include <memory>
+﻿#include <print>
 
 #include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
@@ -10,10 +9,6 @@
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
 using namespace Droplet::Scene;
-
-// --------------------------------------------------
-// Example Component
-// --------------------------------------------------
 
 class PlayerComponent : public Component
 {
@@ -32,12 +27,7 @@ public:
     }
 };
 
-
-// --------------------------------------------------
-// Main
-// --------------------------------------------------
-
-int main()
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
     SceneManager sceneManager;
 
@@ -131,16 +121,17 @@ int main()
         sceneManager.Update(deltaTime);
     }
 
-    // ==================================================
-    // Deactivate / unload
-    // ==================================================
-    ScriptSystem scriptsystem;
 
+    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
 
-    sceneManager.DeactivateScene("Game");
 
-    sceneManager.UnloadScene("Game");
+    ScriptSystem::Get().Start();
+
+    while (true)
+    {
+        ScriptSystem::Get().Update(1.0);
+    }
 
     return 0;
-}
+}  
