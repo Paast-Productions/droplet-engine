@@ -12,8 +12,7 @@ TEST(ScriptManager, SetScriptDirectory)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 
-	bool found = manager.SetScriptDirectory("../src/TestScripts");
-	EXPECT_TRUE(found);
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
 }
 
 TEST(ScriptManager, CreateScript)
@@ -25,14 +24,9 @@ TEST(ScriptManager, CreateScript)
 
 	manager.SetScriptDirectory("../src/TestScripts");
 	Scene::ScriptComponent testComp("testScript.lua");
-	bool result = manager.CreateScript(&testComp, "testScript.lua");
-	EXPECT_TRUE(result);
-
-	result = manager.CreateScript(&testComp, "testScript2.lua");
-	EXPECT_TRUE(result);
-
-	result = manager.CreateScript(&testComp, "nonExisting.lua");
-	EXPECT_FALSE(result);
+	EXPECT_NO_THROW(manager.CreateScript(&testComp, "testScript.lua"));
+	EXPECT_NO_THROW(manager.CreateScript(&testComp, "testScript2.lua"));
+	EXPECT_THROW(manager.CreateScript(&testComp, "nonExisting.lua"), std::runtime_error);
 }
 
 TEST(ScriptManager, DetachAllInstancesToScript)
@@ -44,7 +38,7 @@ TEST(ScriptManager, DetachAllInstancesToScript)
 	Scene::ScriptComponent firstComp("testScript.lua");
 	Scene::ScriptComponent secondComp("testScript.lua");
 
-	ASSERT_TRUE(manager.SetScriptDirectory("../src/TestScripts"));
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
 
 	manager.CreateScript(&firstComp, "testScript.lua");
 	manager.CreateScript(&secondComp, "testScript.lua");
@@ -71,9 +65,9 @@ TEST(ScriptManager, LoadScript)
 
 	manager.SetScriptDirectory("../src/TestScripts");
 
-	EXPECT_TRUE(manager.LoadScript("testScript.lua"));
-	EXPECT_TRUE(manager.LoadScript("testScript3.lua"));
-	EXPECT_TRUE(manager.LoadScript("testScript2.lua"));
+	EXPECT_NO_THROW(manager.LoadScript("testScript.lua"));
+	EXPECT_NO_THROW(manager.LoadScript("testScript3.lua"));
+	EXPECT_NO_THROW(manager.LoadScript("testScript2.lua"));
 }
 
 TEST(ScriptManager, UnloadScript)
@@ -89,9 +83,9 @@ TEST(ScriptManager, UnloadScript)
 	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
-	EXPECT_TRUE(manager.UnloadScript("testScript.lua"));
-	EXPECT_TRUE(manager.UnloadScript("testScript3.lua"));
-	EXPECT_TRUE(manager.UnloadScript("testScript2.lua"));
+	EXPECT_NO_THROW(manager.UnloadScript("testScript.lua"));
+	EXPECT_NO_THROW(manager.UnloadScript("testScript3.lua"));
+	EXPECT_NO_THROW(manager.UnloadScript("testScript2.lua"));
 }
 
 TEST(ScriptManager, IsLoaded)
@@ -127,9 +121,9 @@ TEST(ScriptManager, ReloadScript)
 	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
-	EXPECT_TRUE(manager.ReloadScript("testScript.lua"));
-	EXPECT_TRUE(manager.ReloadScript("testScript3.lua"));
-	EXPECT_TRUE(manager.ReloadScript("testScript2.lua"));
+	EXPECT_NO_THROW(manager.ReloadScript("testScript.lua"));
+	EXPECT_NO_THROW(manager.ReloadScript("testScript3.lua"));
+	EXPECT_NO_THROW(manager.ReloadScript("testScript2.lua"));
 }
 
 TEST(ScriptManager, GetLoadedScript)

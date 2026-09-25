@@ -10,7 +10,7 @@ TEST(ScriptSystem, LoadScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");
-	EXPECT_TRUE(system.LoadScript("testScript.lua"));
+	EXPECT_NO_THROW(system.LoadScript("testScript.lua"));
 }
 
 TEST(ScriptSystem, UnloadScript)
@@ -18,7 +18,7 @@ TEST(ScriptSystem, UnloadScript)
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");
 	system.LoadScript("testScript.lua");
-	EXPECT_TRUE(system.UnloadScript("testScript.lua"));
+	EXPECT_NO_THROW(system.UnloadScript("testScript.lua"));
 }
 
 TEST(ScriptSystem, CreateScript)
@@ -26,8 +26,7 @@ TEST(ScriptSystem, CreateScript)
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");
 	ScriptComponent component("");
-	bool result = system.CreateScript(&component, "testScript.lua");
-	EXPECT_TRUE(result);
+	EXPECT_NO_THROW(system.CreateScript(&component, "testScript.lua"));
 }
 
 TEST(ScriptSystem, DestroyScript)
