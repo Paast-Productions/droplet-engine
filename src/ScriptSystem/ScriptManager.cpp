@@ -142,24 +142,22 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
 }
 
-bool ScriptManager::UnloadScript(const std::string& p_scriptFile)
+void ScriptManager::UnloadScript(const std::string& p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
-
-		return false; // cant unload something that isn't loaded
+		throw std::runtime_error("Trying to unload a script that is not loaded");
 	}
 
 	for (const std::unique_ptr<ScriptInstance>& scriptInstance : m_scriptInstances) // check every instance
 	{
 		if (scriptInstance->GetScriptPath() == p_scriptFile)
 		{
-			return false; // a instance is using this script file
+			throw std::runtime_error("A instance is using this script file");
 		}
 	}
 
 	m_loadedScripts.erase(p_scriptFile);
-	return true; 
 }
 
 bool ScriptManager::IsLoaded(const std::string& p_scriptFile)

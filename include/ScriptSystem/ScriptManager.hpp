@@ -104,7 +104,7 @@ namespace Droplet::Script
 		/// @brief Unloads a previously loaded Lua script
 		/// @param p_scriptFile Path or name of the Lua script to unload.
 		/// @return True if the script was successfully unloaded, otherwise false.
-		bool UnloadScript(const std::string &p_scriptFile);
+		void UnloadScript(const std::string &p_scriptFile);
 
 		/// @brief Checks whether a Lua script is currently loaded
 		/// @param p_scriptFile Path or name of the Lua script to check.
