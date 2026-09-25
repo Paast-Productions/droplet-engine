@@ -12,6 +12,8 @@
 #include <assimp/postprocess.h>
 #include <json/json.hpp>
 
+#include "MetaUtils.hpp"
+
 using json = nlohmann::json;
 
 namespace Droplet::AssimpLoader
@@ -91,16 +93,20 @@ namespace Droplet::AssimpLoader
 	}
     
     
-	std::unique_ptr<MeshResource> LoadMesh(const std::filesystem::path &p_assetPath, const json &p_typeSpecificData)
+	std::unique_ptr<MeshResource> LoadMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 	{
 	    thread_local Assimp::Importer s_importer;
-	    
-		p_typeSpecificData; // HACK
-		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_SortByPType);
-
+        
+        bool generateNormals = p_loadSettings.value("generate_normals", MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS);
+        bool joinVertices    = p_loadSettings.value("join_identical_vertices", MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES);
+        bool triangulate     = p_loadSettings.value("triangulate", MetaUtils::C_MESH_DEFAULT_TRIANGULATE);
+        
+        unsigned int flags = aiProcess_SortByPType;
+        if (generateNormals) flags |= aiProcess_ForceGenNormals;
+        if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
+        if (triangulate)     flags |= aiProcess_Triangulate;
+        
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 		if (meshData == nullptr)
 		{
 			s_importer.FreeScene();
@@ -130,16 +136,20 @@ namespace Droplet::AssimpLoader
 		return std::make_unique<MeshResource>(mesh);
 	}
 
-	std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const json &p_typeSpecificData)
+	std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 	{
         thread_local Assimp::Importer s_importer;
         
-		p_typeSpecificData;	// HACK
-		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_SortByPType);
-
+        bool generateNormals = p_loadSettings.value("generate_normals", MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS);
+        bool joinVertices    = p_loadSettings.value("join_identical_vertices", MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES);
+        bool triangulate     = p_loadSettings.value("triangulate", MetaUtils::C_MESH_DEFAULT_TRIANGULATE);
+        
+        unsigned int flags = aiProcess_SortByPType;
+        if (generateNormals) flags |= aiProcess_ForceGenNormals;
+        if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
+        if (triangulate)     flags |= aiProcess_Triangulate;
+        
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 		if (meshData == nullptr)
 		{
 			s_importer.FreeScene();
@@ -190,17 +200,21 @@ namespace Droplet::AssimpLoader
 		return std::make_unique<SkinnedMeshResource>(skinnedMesh);
 	}
 
-	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName,
-		const nlohmann::json &p_typeSpecificData)
+	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings)
 	{
         thread_local Assimp::Importer s_importer;
         
-		p_typeSpecificData; // HACK
-		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), // TODO: Use p_typeSpecificData when importing mesh
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_PopulateArmatureData |
-			aiProcess_SortByPType);
+		std::string animName =  p_loadSettings.value("name", "");
+        bool generateNormals =  MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS;
+        bool joinVertices =     MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES;
+        bool triangulate =      MetaUtils::C_MESH_DEFAULT_TRIANGULATE;
+        
+        unsigned int flags = aiProcess_SortByPType | aiProcess_PopulateArmatureData;
+        if (generateNormals)    flags |= aiProcess_ForceGenNormals;
+        if (joinVertices)       flags |= aiProcess_JoinIdenticalVertices;
+        if (triangulate)        flags |= aiProcess_Triangulate;
+        
+		const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 
 		if (meshData == nullptr)
 		{
@@ -218,8 +232,7 @@ namespace Droplet::AssimpLoader
 		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
 		{
 			aiAnimation *anim = meshData->mAnimations[i];
-			std::string animName = anim->mName.C_Str();
-			if (animName != p_animName)
+			if (animName != anim->mName.C_Str())
 			{
 				continue;
 			}

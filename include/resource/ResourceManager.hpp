@@ -143,7 +143,7 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
-                        auto texture = GliLoader::Load(metaEntry.assetPath);
+                        auto texture = GliLoader::LoadTexture2D(metaEntry.assetPath);
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 

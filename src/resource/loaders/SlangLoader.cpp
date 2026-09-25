@@ -1,15 +1,20 @@
 #include "resource/loaders/SlangLoader.hpp"
 
 #include "graphics/vk/ShaderCompiler.hpp"
+#include "resource/meta/MetaUtils.hpp"
+
+using json = nlohmann::json;
 
 namespace Droplet::SlangLoader
 {
-    std::unique_ptr<ShaderResource> CompileAndLoad(ShaderResource::ShaderType p_type, const std::filesystem::path &p_shaderPath)
+    std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
     {
+        ShaderResource::ShaderType type = p_loadSettings.value("shader_type", MetaUtils::C_SHADER_DEFAULT_TYPE);
+        
         try
         {
             thread_local Graphics::ShaderCompiler s_compiler;
-            return std::make_unique<ShaderResource>(p_type, s_compiler.CompileShader(p_shaderPath));
+            return std::make_unique<ShaderResource>(type, s_compiler.CompileShader(p_shaderPath));
         }
         catch (const std::exception&)
         {
