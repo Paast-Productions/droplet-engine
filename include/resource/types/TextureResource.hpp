@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "resource/IResource.hpp"
 
 namespace Droplet
@@ -95,40 +97,36 @@ namespace Droplet
 		/// @brief Sets the format of the texture data.
 		/// @param p_format The format of the texture data.
 		/// @param p_bytesPerPixel The number of bytes per pixel in the texture data.
-		void SetFormat(TextureFormat p_format, int p_bytesPerPixel) { m_format = p_format; m_bytesPerPixel = p_bytesPerPixel; }
+		void SetFormat(TextureFormat p_format, int p_bytesPerPixel);
 
 		/// @brief Sets the number of mipmap levels in the texture.
 		/// @param p_mipLevels The number of mipmap levels in the texture.
-		void SetMipLevels(int p_mipLevels) { m_mipLevels = p_mipLevels; }
+		void SetMipLevels(int p_mipLevels);
 
 		/// @brief Sets the pixel data for the texture.
 		/// @param p_pixelData The pixel data for the texture.
-		void SetPixelData(const std::vector<std::byte> &p_pixelData) { m_pixelData = p_pixelData; }
+		void SetPixelData(const std::vector<std::byte> &p_pixelData);
 
 		/// @brief Sets the pixel data for the texture
 		/// @param p_data Pointer to the raw data
 		/// @param p_size The size of the data
-		void SetPixelData(const void *p_data, size_t p_size)
-		{
-			const auto *bytes = static_cast<const std::byte *>(p_data);
-			m_pixelData.assign(bytes, bytes + p_size);
-		}
+		void SetPixelData(const void *p_data, size_t p_size);
 
 		/// @brief Gets the format of the texture data.
 		/// @return The format of the texture data.
-		[[nodiscard]] TextureFormat GetFormat() const { return m_format; }
+		[[nodiscard]] TextureFormat GetFormat() const;
 
 		/// @brief Gets the number of bytes per pixel in the texture data.
 		/// @return The number of bytes per pixel in the texture data.
-		[[nodiscard]] int GetBytesPerPixel() const { return m_bytesPerPixel; }
+		[[nodiscard]] int GetBytesPerPixel() const;
 
 		/// @brief Gets the number of mipmap levels in the texture.
 		/// @return The number of mipmap levels in the texture.
-		[[nodiscard]] int GetMipLevels() const { return m_mipLevels; }
+		[[nodiscard]] int GetMipLevels() const;
 
 		/// @brief Gets the pixel data for the texture.
 		/// @return A vector of bytes representing the pixel data for the texture.
-		[[nodiscard]] const std::vector<std::byte> &GetPixelData() const { return m_pixelData; }
+		[[nodiscard]] const std::vector<std::byte> &GetPixelData() const;
 
 	private:
 		TextureFormat	m_format = TextureFormat::Unknown;	// The format of the texture data
