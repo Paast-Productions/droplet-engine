@@ -21,7 +21,7 @@ namespace Droplet::Script
 		/// @brief Destroy the script system.
 		~ScriptSystem();
 
-		static ScriptSystem &Get()
+		[[nodiscard]] static ScriptSystem &Get()
 		{
 			static ScriptSystem scriptSystem;
 			return scriptSystem;

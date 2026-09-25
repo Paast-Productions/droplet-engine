@@ -109,7 +109,7 @@ namespace Droplet::Script
 		/// @brief Checks whether a Lua script is currently loaded
 		/// @param p_scriptFile Path or name of the Lua script to check.
 		/// @return True if the script is loaded, otherwise false.
-		bool IsLoaded(const std::string &p_scriptFile);
+		[[nodiscard]] bool IsLoaded(const std::string &p_scriptFile);
 
 		/// @brief Reloads a Lua script from its source file
 		/// The existing loaded version is replaced with the current version of
@@ -127,7 +127,7 @@ namespace Droplet::Script
 		/// @param p_scriptFile Path or name of the loaded Lua script.
 		/// @return Pointer to the loaded script result, or nullptr if the script
 		/// is not loaded.
-		sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
+		[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
 
 		/// @brief Activates a script component
 		/// An activated script is added to the collection of scripts that are updated each frame
@@ -150,7 +150,7 @@ namespace Droplet::Script
 		/// Searches for a script using its file name and returns the path to the corresponding file
 		/// @param p_scriptFile Name of the script file to find.
 		/// @return Path to the script file.
-		std::filesystem::path FindScript(const std::string &p_scriptFile);
+		[[nodiscard]] std::filesystem::path FindScript(const std::string &p_scriptFile);
 
 		/// @brief Destroys a script instance internally
 		/// @param p_scriptInstance Script instance to destroy.
@@ -160,7 +160,7 @@ namespace Droplet::Script
 		/// @param p_scriptFile Path to the Lua script file.
 		/// @return True if the file has changed since it was last loaded,
 		/// otherwise false.
-		bool HasScriptFileChanged(const std::string &p_scriptFile);
+		[[nodiscard]] bool HasScriptFileChanged(const std::string &p_scriptFile);
 
 	private:
 		/// @brief Reference to the Lua state used by the script manager

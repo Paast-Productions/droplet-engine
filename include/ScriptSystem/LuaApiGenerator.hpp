@@ -106,6 +106,6 @@ namespace Droplet::Script
 		/// default value for a particular type.
 		/// @param p_type Type for which a default Lua value should be generated.
 		/// @return String representation of the default Lua value for the type.
-		static std::string GetDefaultLuaValue(const std::string &p_type);
+		[[nodiscard]] static std::string GetDefaultLuaValue(const std::string &p_type);
 	};
 };

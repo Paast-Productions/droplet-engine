@@ -20,7 +20,7 @@ namespace Droplet::Script
 
 		/// @brief Gets the underlying Lua state.
 		/// @return Reference to the managed Lua state.
-		sol::state &GetState();
+		[[nodiscard]] sol::state &GetState();
 
 	private:
 		/// @brief The Lua state managed by this handler.

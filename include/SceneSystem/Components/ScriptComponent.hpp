@@ -44,7 +44,7 @@ namespace Droplet::Scene
         /// @brief Gets the path of the associated Lua script.
         ///
         /// @return Reference to the stored script path.
-        const std::string &GetScriptPath() const;
+        [[nodiscard]] const std::string &GetScriptPath() const;
 
         /// @brief Detaches the script from this component.
         ///

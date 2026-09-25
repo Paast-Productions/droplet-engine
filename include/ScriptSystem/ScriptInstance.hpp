@@ -60,7 +60,7 @@ namespace Droplet::Script
 
 		/// @brief Gets the path of the Lua script associated with this instance.
 		/// @return The path to the associated Lua script.
-		std::string GetScriptPath();
+		[[nodiscard]] std::string GetScriptPath();
 
 	private:
 		/// @brief ScriptComponent associated with this script instance.
