@@ -1,4 +1,4 @@
-﻿#include "BufferStorage.hpp"
+﻿/*#include "BufferStorage.hpp"
 
 using namespace Droplet::Graphics::VK;
 
@@ -51,4 +51,4 @@ BufferHandle BufferStorage::StoreBuffer(const vk::raii::Device &p_device, const 
     p_device.updateDescriptorSets(writes, nullptr);
     
     return static_cast<BufferHandle>(newHandle);
-}
+}*/

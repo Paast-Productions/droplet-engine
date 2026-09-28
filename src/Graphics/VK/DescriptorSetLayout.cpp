@@ -1,4 +1,4 @@
-﻿#include "DescriptorSetLayout.hpp"
+﻿/*#include "DescriptorSetLayout.hpp"
 
 #include <array>
 #include <limits>
@@ -7,12 +7,12 @@ using namespace Droplet::Graphics::VK;
 
 DescriptorSetLayout::DescriptorSetLayout(const vk::raii::Device& p_device)
 {
-    /*std::array<vk::DescriptorType, 3> types 
+    std::array<vk::DescriptorType, 3> types 
     {
         vk::DescriptorType::eUniformBuffer,
         vk::DescriptorType::eStorageBuffer,
         vk::DescriptorType::eCombinedImageSampler
-    };*/
+    };
     
     std::array<vk::DescriptorType, 3> types {};
     types[static_cast<size_t>(BufferBindingType::UNIFORM)] = vk::DescriptorType::eUniformBuffer;
@@ -50,4 +50,4 @@ DescriptorSetLayout::DescriptorSetLayout(const vk::raii::Device& p_device)
     };
     
     m_descriptorSetLayout = {p_device, createInfo};
-}
+}*/

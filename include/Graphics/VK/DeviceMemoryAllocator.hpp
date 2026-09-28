@@ -1,5 +1,5 @@
 ﻿#pragma once
-
+/*
 #include <vector>
 #include <any>
 
@@ -51,4 +51,4 @@ namespace Droplet::Graphics::VK
     {
         return (p_originalSize + m_minAlignment - 1) & ~(m_minAlignment - 1);
     }
-}
+}*/

@@ -1,4 +1,4 @@
-﻿#include "DeviceMemoryAllocator.hpp"
+﻿/*#include "DeviceMemoryAllocator.hpp"
 
 #include <memory>
 
@@ -78,4 +78,4 @@ void DeviceMemoryAllocator::Build(const vk::raii::Device &p_device, const vma::r
     };
  
     vk::raii::DescriptorSet a { p_device.allocateDescriptorSets(allocateInfo).at(0)};   
-}
+}*/

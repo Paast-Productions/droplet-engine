@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Graphics/VK/DescriptorPool.hpp>
+/*#include <Graphics/VK/DescriptorPool.hpp>
 #include <Graphics/VK/DescriptorSet.hpp>
 #include <vk_mem_alloc_raii.hpp>
 
@@ -47,4 +47,4 @@ namespace Droplet::Graphics::VK
         std::uint32_t m_minUniformBufferOffsetAlignment {};
         
     };
-}
+}*/

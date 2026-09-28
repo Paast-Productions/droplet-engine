@@ -1,7 +1,7 @@
 #pragma once
 
-#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#include <vulkan/vulkan_raii.hpp>
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 #include <glm/glm.hpp>
@@ -23,10 +23,9 @@ namespace Droplet::Graphics::VK
 		UniformBuffer() = delete;
 
 		/// @brief Uniform Buffer constructor
-		/// @param p_device RAII pointer reference to the Device
-		/// @param p_physDevice RAII pointer reference to the hardware Device
-		UniformBuffer(vk::raii::Device const &p_device,
-			vk::raii::PhysicalDevice const &p_physDevice);
+		/// @param p_allocator Global VMA Allocator
+		UniformBuffer(const vma::raii::Allocator &p_allocator);
+		
 		~UniformBuffer() = default;
 
 		/// @brief Updates the buffer
@@ -34,36 +33,17 @@ namespace Droplet::Graphics::VK
 		void UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const;
 
 		/// @brief Buffer Getter
-		/// @return RAII pointer to the uniform buffer
-		const vk::raii::Buffer *GetBuffer();
-
-		/// @brief Device Memory Getter
-		/// @return RAII pointer to the device memory of the buffer
-		const vk::raii::DeviceMemory *GetDeviceMemory();
-
-		/// @brief Buffer Mapping Getter
-		/// @return void pointer to the mapped buffer
-		const void *GetMappedBuffer();
+		/// @return RAII pointer to the VMA uniform buffer
+		const vma::raii::Buffer &GetBuffer();
+		
 	private:
 
-		vk::raii::Buffer	   m_uniformBuffer = nullptr;
-		vk::raii::DeviceMemory m_deviceMemory = nullptr;
-		void *m_mappedBuffer; // GPU Memory Address
+		vma::raii::Buffer m_buffer { nullptr };
 	};
 
-	inline const vk::raii::Buffer *UniformBuffer::GetBuffer()
+	inline const vma::raii::Buffer &UniformBuffer::GetBuffer()
 	{
-		return &m_uniformBuffer;
-	}
-
-	inline const vk::raii::DeviceMemory *UniformBuffer::GetDeviceMemory()
-	{
-		return &m_deviceMemory;
-	}
-
-	inline const void *UniformBuffer::GetMappedBuffer()
-	{
-		return &m_mappedBuffer;
+		return m_buffer;
 	}
 }
 

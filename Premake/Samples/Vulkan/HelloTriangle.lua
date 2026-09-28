@@ -28,13 +28,16 @@ project "Vulkan-HelloTriangle"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "VulkanMemoryAllocator"
     }
 
     links {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+        AddQuotation("vulkan-1")
     }

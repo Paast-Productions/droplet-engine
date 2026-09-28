@@ -21,6 +21,7 @@
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/VulkanContext.hpp>
+#include <Graphics/VK/Allocator.hpp>
 
 
 // HACK: Implementation subject to change
@@ -134,6 +135,8 @@ private:
 	std::optional<Droplet::Graphics::VK::VertexBuffer> m_vertexBuffer;
 
 	//Needs one buffer per frame in flight to avoid read write issues
+	
+	Droplet::Graphics::VK::Allocator m_allocator { nullptr };
 	std::optional<Droplet::Graphics::VK::UniformBuffer> m_uniformBuffers[MAX_FRAMES_IN_FLIGHT];
 
 	std::uint32_t							 m_frameIndex = 0;
