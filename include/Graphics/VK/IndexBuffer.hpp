@@ -30,11 +30,11 @@ namespace Droplet::Graphics::VK
 			vk::raii::PhysicalDevice const &p_physDevice,
 			CommandPool const &p_commandPool,
 			vk::raii::Queue const &p_queue,
-			const std::vector<uint16_t> &p_indices);
+			const std::vector<std::uint16_t> &p_indices);
 
 		/// @brief Getter-function for the index buffer
 		/// @returns Vulkan Buffer Pointer
-		[[nodiscard]] const vk::raii::Buffer *GetIndexBuffer() const;
+		[[nodiscard]] const vk::raii::Buffer &GetIndexBuffer() const;
 		
 		/// @brief Getter-function for the device memory
 		/// @returns Vulkan Device Memory Pointer
@@ -46,9 +46,9 @@ namespace Droplet::Graphics::VK
 		
 	};
 
-	inline const vk::raii::Buffer *IndexBuffer::GetIndexBuffer() const
+	inline const vk::raii::Buffer &IndexBuffer::GetIndexBuffer() const
 	{
-		return &m_indexBuffer;
+		return m_indexBuffer;
 	}
 
 	inline const vk::raii::DeviceMemory *IndexBuffer::GetDeviceMemory() const

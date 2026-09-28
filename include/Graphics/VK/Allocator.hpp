@@ -14,7 +14,11 @@ namespace Droplet::Graphics::VK
         /// @brief Allocator nullptr constructor
         /// @param p_nullptr nullptr
         Allocator(nullptr_t p_nullptr);
-    
+        
+        /// @brief Constructor for a Vulkan Memory Allocator... Allocator
+        /// @param p_instance Vulkan Instance
+        /// @param p_physicalDevice Vulkan Physical Device
+        /// @param p_device Vulkan Logical Device
         Allocator(const vk::raii::Instance &p_instance, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::Device &p_device);
     
         Allocator(const Allocator &) = delete;
@@ -26,7 +30,9 @@ namespace Droplet::Graphics::VK
         
         bool operator==(const Allocator &p_other) const;
         
-        const vma::raii::Allocator &Get();
+        /// @brief Getter-function for a vma allocator
+        /// @returns vma allocator
+        [[nodiscard]] const vma::raii::Allocator &Get();
     
     private:
     
