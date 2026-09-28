@@ -51,6 +51,7 @@ namespace Droplet
         // Common
         GUID guid = C_INVALID_GUID;
         ResourceType type = ResourceType::None;
+        std::string name;
         std::string assetPath;
         ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU;
         std::vector<GUID> dependencies;

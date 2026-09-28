@@ -24,8 +24,7 @@ namespace Droplet::AssimpLoader
 	[[nodiscard]] std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings);
 
 	/// @brief Loads an animation from an asset file.
-	/// @param p_meshFile Path to the asset file storing the animation.
-	/// @param p_animName The name given to the animation within the asset file.
+	/// @param p_assetPath Path to the asset file storing the animation.
 	/// @param p_loadSettings Mesh specific import settings.
 	/// @return A unique pointer with the stored animation data.
 	[[nodiscard]] std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings);

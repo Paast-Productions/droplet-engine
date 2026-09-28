@@ -122,11 +122,12 @@ namespace Droplet
         return ShaderResource::ShaderType::Vertex; // Default to vertex
     }
 
-    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_assetPath, const json &p_explicitLoadSettings)
+    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath, const json &p_explicitLoadSettings)
     {
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
         entry.type = p_type;
+        entry.name = p_name;
         entry.assetPath = p_assetPath;
         
         // Set type-specific flags
@@ -146,7 +147,7 @@ namespace Droplet
             break;
         case ResourceType::Animation:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
-            entry.loadSettings["name"] = C_ANIMATION_DEFAULT_NAME;
+            entry.loadSettings["target"] = p_name;
             break;
         case ResourceType::Shader:
             entry.loadFlags = ResourceLoadFlag::LoadGPU;

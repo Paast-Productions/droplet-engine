@@ -1,6 +1,7 @@
-#include "AssimpLoader.hpp"
+#include "resource/loaders/AssimpLoader.hpp"
 
 #include "resource/IResource.hpp"
+#include "resource/meta/MetaUtils.hpp"
 
 #include <vector>
 #include <string>
@@ -11,8 +12,6 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <json/json.hpp>
-
-#include "MetaUtils.hpp"
 
 using json = nlohmann::json;
 
@@ -204,7 +203,7 @@ namespace Droplet::AssimpLoader
 	{
         thread_local Assimp::Importer s_importer;
         
-		std::string animName =  p_loadSettings.value("name", "");
+		std::string animName =  p_loadSettings.value("target", "missing_name");
         bool generateNormals =  MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS;
         bool joinVertices =     MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES;
         bool triangulate =      MetaUtils::C_MESH_DEFAULT_TRIANGULATE;
@@ -316,7 +315,7 @@ namespace Droplet::AssimpLoader
 		}
 
 		AnimationResource animation{};
-		animation.SetName(p_animName);
+		animation.SetName(animName);
 		animation.SetKeyframes(animKeyframes);
 
 		// Log Info: Successfully loaded p_meshFile

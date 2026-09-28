@@ -17,9 +17,6 @@ namespace Droplet::MetaUtils
     // Textures
     static constexpr bool C_TEXTURE_DEFAULT_GENERATE_MIPMAPS = false;
     
-    // Animations
-    static constexpr std::string_view C_ANIMATION_DEFAULT_NAME = "";
-    
     // Shaders
     static constexpr ShaderResource::ShaderType C_SHADER_DEFAULT_TYPE = ShaderResource::ShaderType::Vertex;
     
@@ -47,5 +44,6 @@ namespace Droplet::MetaUtils
     /// @param p_assetPath The path to the asset file the resource is stored within.
     /// @param p_explicitLoadSettings Explicit load settings JSON blob. Fields that do not yet exist will be created with default values.
     /// @return A generated meta entry.
-    [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_assetPath, const nlohmann::json &p_explicitLoadSettings);
+    [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath, 
+        const nlohmann::json &p_explicitLoadSettings = nlohmann::json::object());
 }
