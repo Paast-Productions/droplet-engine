@@ -19,6 +19,7 @@
 #include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
+#include <Graphics/VK/Swapchain.hpp>
 
 
 // HACK: Implementation subject to change
@@ -44,12 +45,7 @@ private:
 	bool					isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice);
 	void					pickPhysicalDevice();
 	void					createLogicalDevice();
-	vk::SurfaceFormatKHR	chooseSwapSurfaceFormat(std::vector<vk::SurfaceFormatKHR> const &availableFormats);
-	vk::PresentModeKHR		chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const &availablePresentModes);
-	vk::Extent2D			chooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities);
-	uint32_t				chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const &surfaceCapabilities);
-	void					createSwapChain();
-	void					createImageViews();
+
 	void					createGraphicsPipeline();
 	void					createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
 	vk::raii::ShaderModule  createShaderModule(const std::vector<char> &code) const;
@@ -64,9 +60,6 @@ private:
 	void					CreateDescriptorSets();
 
 	void					createSyncObjects();
-
-	void					recreateSwapChain();
-	void					cleanupSwapChain();
 
 	/// @brief Changes the layout of an image from one to another
 	/// @param image The image to be translated
@@ -98,11 +91,9 @@ private:
 	vk::raii::Device						m_device = nullptr;
 	std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
 	vk::raii::Queue							m_queue = nullptr;
-	vk::raii::SwapchainKHR					m_swapchain = nullptr;
-	std::vector<vk::Image>					m_swapchainImages	{};
-	vk::SurfaceFormatKHR					m_swapchainSurfaceFormat;
-	vk::Extent2D							m_swapchainExtent;
-	std::vector<vk::raii::ImageView>		m_swapchainImageViews;
+
+
+	std::optional < Droplet::Graphics::VK::Swapchain> m_swapchain;
 
 	std::optional<Droplet::Graphics::VK::CommandPool> m_commandPool;
 	std::vector<Droplet::Graphics::VK::CommandBufferId> m_commandBufferIds;
