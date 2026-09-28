@@ -35,8 +35,7 @@ Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
 Renderer::~Renderer()
 {
 	m_device.waitIdle();
-	cleanupSwapChain();
-
+	m_swapchain->Cleanup();
 }
 
 //File reading function for loading the shader file
@@ -262,134 +261,13 @@ bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
 	return supportsVulkan1_3 && supportsGraphicsAndPresent && supportsAllRequiredExtensions && supportsRequiredFeatures;
 }
 
-//Choosing the color format of the surface for the swapchain
-vk::SurfaceFormatKHR Renderer::chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &availableFormats) 
-{
-	const auto formatIt = std::ranges::find_if(
-		availableFormats,
-		[](const auto &format) { return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear; });
-	return formatIt != availableFormats.end() ? *formatIt : availableFormats[0];
-}
-
-//I don't really remember
-uint32_t Renderer::chooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR const &surfaceCapabilities)
-{
-	auto minImageCount = std::max(3u, surfaceCapabilities.minImageCount);
-	if ((0 < surfaceCapabilities.maxImageCount) && (surfaceCapabilities.maxImageCount < minImageCount))
-	{
-		minImageCount = surfaceCapabilities.maxImageCount;
-	}
-	return minImageCount;
-}
-
-//Creation of the swapchain
-void Renderer::createSwapChain() 
-{
-	vk::SurfaceCapabilitiesKHR surfaceCapabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(*m_surface);
-	m_swapchainExtent = chooseSwapExtent(surfaceCapabilities);
-	uint32_t minImageCount = chooseSwapMinImageCount(surfaceCapabilities);
-
-	std::vector<vk::SurfaceFormatKHR> availableFormats = m_physicalDevice.getSurfaceFormatsKHR(*m_surface);
-	m_swapchainSurfaceFormat = chooseSwapSurfaceFormat(availableFormats);
-
-	std::vector<vk::PresentModeKHR> availablePresentModes = m_physicalDevice.getSurfacePresentModesKHR(*m_surface);
-
-	vk::SwapchainCreateInfoKHR swapChainCreateInfo{ .surface = *m_surface,
-											   .minImageCount = minImageCount,
-											   .imageFormat = m_swapchainSurfaceFormat.format,
-											   .imageColorSpace = m_swapchainSurfaceFormat.colorSpace,
-											   .imageExtent = m_swapchainExtent,
-											   .imageArrayLayers = 1,
-											   .imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
-											   .imageSharingMode = vk::SharingMode::eExclusive,
-											   .preTransform = surfaceCapabilities.currentTransform,
-											   .compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
-											   .presentMode = chooseSwapPresentMode(availablePresentModes),
-											   .clipped = true };
-
-	m_swapchain = vk::raii::SwapchainKHR(m_device, swapChainCreateInfo);
-	m_swapchainImages = m_swapchain.getImages();
-}
-
-//Choose the size of the surface to be swapped --> Could be wrong
-vk::Extent2D Renderer::chooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities)
-{
-	// currentExtent is only set to the special "undefined" value described above
-	// when the window manager lets us choose the extent ourselves; any other value
-	// means the surface already dictates a fixed extent that we must use as-is.
-	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-	{
-		return capabilities.currentExtent;
-	}
-	int width, height;
-	SDL_GetWindowSize(m_window.Get(), &width, &height);
-
-	return {
-		std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
-		std::clamp<uint32_t>(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
-	};
-}
-
-//Clean the buffer and destroy the swapchain
-void Renderer::cleanupSwapChain()
-{
-	m_swapchainImageViews.clear();
-	m_swapchain = nullptr;
-}
-
-//Cleaning and creating a new swapchain and respective image views
-void Renderer::recreateSwapChain()
-{
-	int width = 0, height = 0;
-	SDL_GetWindowSize(m_window.Get(), &width, &height);
-	while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0) {
-		SDL_GetWindowSize(m_window.Get(), &width, &height);
-		SDL_WaitEvent(&p_event);
-	}
-	if (SDL_ShouldQuit(&p_init)) {
-		SDL_SetInitialized(&p_init, false);
-		return;
-	}
-
-	m_device.waitIdle();
-
-	cleanupSwapChain();
-	createSwapChain();
-	createImageViews();
-}
-
-//Use eMailbox to avoid tearing while still maintaining fairly low latency by rendering new images that are as up to date as possible right until the vertical blank (higher energy usage?)
-vk::PresentModeKHR Renderer::chooseSwapPresentMode(std::vector<vk::PresentModeKHR> const &availablePresentModes)
-{
-	assert(std::ranges::any_of(availablePresentModes, [](auto presentMode) { return presentMode == vk::PresentModeKHR::eFifo; }));
-	return std::ranges::any_of(availablePresentModes,
-		[](const vk::PresentModeKHR value) { return vk::PresentModeKHR::eMailbox == value; }) ?
-		vk::PresentModeKHR::eMailbox :
-		vk::PresentModeKHR::eFifo;
-}
-
-//Create image views for the swap chain surfaces --> Maybe like shader resourceviews
-void Renderer::createImageViews()
-{
-	assert(m_swapchainImageViews.empty());
-
-	vk::ImageViewCreateInfo imageViewCreateInfo{ .viewType = vk::ImageViewType::e2D,
-												.format = m_swapchainSurfaceFormat.format,
-												.subresourceRange = {vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1} };
-	for (auto &image : m_swapchainImages)
-	{
-		imageViewCreateInfo.image = image;
-		m_swapchainImageViews.emplace_back(m_device, imageViewCreateInfo);
-	}
-}
-
 void Renderer::createGraphicsPipeline()
 {
 	std::cout << std::filesystem::current_path().generic_string() << std::endl;
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
-	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchainSurfaceFormat };
+	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat()};
 	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_descriptorSetLayout;
 	m_graphicsPipeline.emplace(m_device, m_physicalDevice, shaderModule, pipelineConfig);
 }
@@ -401,7 +279,7 @@ void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
-	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchainSurfaceFormat };
+	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat() };
 	m_graphicsPipeline.emplace(m_device, m_physicalDevice, shaderModule, pipelineConfig);
 }
 
@@ -482,7 +360,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
 	TransitionImageLayout(
-		m_swapchainImages[imageIndex],
+		m_swapchain->GetImages()->at(imageIndex),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -507,7 +385,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo = {
-		.imageView = m_swapchainImageViews[imageIndex],
+		.imageView = m_swapchain->GetImageViews()->at(imageIndex),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -523,7 +401,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	vk::RenderingInfo renderingInfo = 
 	{
-		.renderArea = {.offset = {0, 0}, .extent = m_swapchainExtent},
+		.renderArea = {.offset = {0, 0}, .extent = m_swapchain->GetExtent()},
 		.layerCount = 1,
 		.colorAttachmentCount = 1,
 		.pColorAttachments = &colorAttachmentInfo,
@@ -532,8 +410,8 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
-	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchainExtent.height), static_cast<float>(m_swapchainExtent.width), -static_cast<float>(m_swapchainExtent.height), 0.0f, 1.0f));
-	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchainExtent));
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain->GetExtent().height), static_cast<float>(m_swapchain->GetExtent().width), -static_cast<float>(m_swapchain->GetExtent().height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain->GetExtent()));
 	commandBuffer.bindVertexBuffers(0, **m_vertexBuffer->GetVertexBuffer(), { 0 });
 	commandBuffer.bindIndexBuffer(**m_indexBuffer->GetIndexBuffer(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline->GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
@@ -542,7 +420,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 	TransitionImageLayout(
-		m_swapchainImages[imageIndex],
+		m_swapchain->GetImages()->at(imageIndex),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::ePresentSrcKHR,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
@@ -560,7 +438,7 @@ void Renderer::createSyncObjects()
 {
 	assert(m_presentCompleteSemaphores.empty() && m_renderFinishedSemaphores.empty() && m_inFlightFences.empty());
 
-	for (size_t i = m_swapchainImages.size(); i > 0; i--)
+	for (size_t i = m_swapchain->GetImages()->size(); i > 0; i--)
 	{
 		m_renderFinishedSemaphores.emplace_back(m_device, vk::SemaphoreCreateInfo());
 	}
@@ -583,13 +461,20 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to wait for fence!");
 	}
 
-	auto [result, imageIndex] = m_swapchain.acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphores[m_frameIndex], nullptr);
+	auto [result, imageIndex] = m_swapchain->GetSwapchain()->acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphores[m_frameIndex], nullptr);
 
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
-		recreateSwapChain();
+		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		{
+			SDL_WaitEvent(&m_event);
+		}
+
+		m_device.waitIdle();
+		m_swapchain->Cleanup();
+		m_swapchain->Recreate(m_device, m_physicalDevice, *m_window.Get(), m_surface);
 		return;
 	}
 	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
@@ -600,7 +485,7 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	m_uniformBuffers[m_frameIndex].value().UpdateBuffer(m_swapchainExtent);
+	m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
 
 	// Only reset the fence if we are submitting work
 	m_device.resetFences(*m_inFlightFences[m_frameIndex]);
@@ -621,7 +506,7 @@ void Renderer::drawFrame()
 	const vk::PresentInfoKHR presentInfoKHR{ .waitSemaphoreCount = 1,
 											.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex],
 											.swapchainCount = 1,
-											.pSwapchains = &*m_swapchain,
+											.pSwapchains = &**m_swapchain->GetSwapchain(),
 											.pImageIndices = &imageIndex };
 	result = m_queue.presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
@@ -629,9 +514,12 @@ void Renderer::drawFrame()
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		recreateSwapChain();
+		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		{
+			SDL_WaitEvent(&m_event);
+		}
 		m_depthBuffer.reset();
-		m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
+		m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchain->GetExtent());
 	}
 	else
 	{
@@ -749,9 +637,7 @@ int Renderer::Initialize()
 
 	createLogicalDevice();
 
-	createSwapChain();
-
-	createImageViews();
+	m_swapchain.emplace(m_device, m_physicalDevice, *m_window.Get(), m_surface);
 
 	CreateDescriptorSetLayout();
 
@@ -759,7 +645,7 @@ int Renderer::Initialize()
 
 	createGraphicsPipeline();
 
-	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
+	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchain->GetExtent());
 
 	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_VERTICES);
 	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_INDICES);
@@ -810,15 +696,13 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	createLogicalDevice();
 
-	createSwapChain();
-
-	createImageViews();
+	m_swapchain.emplace(m_device, m_physicalDevice, *m_window.Get(), m_surface);
 
 	createGraphicsPipeline(p_shaderBlob);
 
 	CreateCommandPool();
 
-	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
+	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchain->GetExtent());
 	
 	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_TOEVERTICES);
 	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_TOEINDICES);
