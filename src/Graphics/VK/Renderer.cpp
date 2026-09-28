@@ -342,7 +342,7 @@ void Renderer::recreateSwapChain()
 {
 	int width = 0, height = 0;
 	SDL_GetWindowSize(m_window.Get(), &width, &height);
-	while ((width == 0 || height == 0) && !SDL_ShouldQuit(&p_init)) {
+	while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0) {
 		SDL_GetWindowSize(m_window.Get(), &width, &height);
 		SDL_WaitEvent(&p_event);
 	}
@@ -630,6 +630,8 @@ void Renderer::drawFrame()
 	{
 		m_framebufferResized = false;
 		recreateSwapChain();
+		m_depthBuffer.reset();
+		m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
 	}
 	else
 	{
@@ -818,8 +820,8 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchainExtent);
 	
-	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_VERTICES);
-	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_INDICES);
+	m_vertexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_TOEVERTICES);
+	m_indexBuffer.emplace(m_device, m_physicalDevice, m_commandPool.value(), m_queue, G_TOEINDICES);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
