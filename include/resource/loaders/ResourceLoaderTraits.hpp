@@ -23,12 +23,16 @@ namespace Droplet
         static_assert(sizeof(T) == 0, "No AssetLoaderTrait has been defined for this resource type.");
     };
     
+    // --- Textures ---
+    
     template<>
     struct ResourceLoaderTraits<Texture2DResource>
     {
-        static std::unique_ptr<Texture2DResource> LoadCPU(const std::filesystem::path& p_assetPath)
+        static std::unique_ptr<Texture2DResource> LoadCPU(
+            const std::filesystem::path& p_assetPath, 
+            const nlohmann::json &p_loadSettings)
         {
-            return GliLoader::LoadTexture2D(p_assetPath);
+            return GliLoader::LoadTexture2D(p_assetPath, p_loadSettings);
         }
     };
     
@@ -36,9 +40,11 @@ namespace Droplet
     // template<>
     // struct ResourceLoaderTraits<Texture2DResource>
     // {
-    //     static std::unique_ptr<Texture3DResource> LoadCPU(const std::filesystem::path& p_assetPath)
+    //     static std::unique_ptr<Texture3DResource> LoadCPU(
+    //          const std::filesystem::path& p_assetPath
+    //          const nlohmann::json &p_loadSettings)
     //     {
-    //         return GliLoader::LoadTexture3D(p_assetPath);
+    //         return GliLoader::LoadTexture3D(p_assetPath, p_loadSettings);
     //     }
     // };
     
@@ -46,11 +52,59 @@ namespace Droplet
     // template<>
     // struct ResourceLoaderTraits<MaterialResource>
     // {
-    //     static std::unique_ptr<MaterialResource> LoadCPU(const std::filesystem::path& p_assetPath)
+    //     static std::unique_ptr<MaterialResource> LoadCPU(
+    //          const std::filesystem::path& p_assetPath
+    //          const nlohmann::json &p_loadSettings)
     //     {
     //         
     //     }
     // };
     
+    // --- Meshes and Animations ---
     
+    template<>
+    struct ResourceLoaderTraits<MeshResource>
+    {
+        static std::unique_ptr<MeshResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            return AssimpLoader::LoadMesh(p_assetPath, p_loadSettings);
+        }
+    };
+    
+    template<>
+    struct ResourceLoaderTraits<SkinnedMeshResource>
+    {
+        static std::unique_ptr<SkinnedMeshResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            return AssimpLoader::LoadSkinnedMesh(p_assetPath, p_loadSettings);
+        }
+    };
+    
+    template<>
+    struct ResourceLoaderTraits<AnimationResource>
+    {
+        static std::unique_ptr<AnimationResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            return AssimpLoader::LoadAnimation(p_assetPath, p_loadSettings);
+        }
+    };
+    
+    // --- Shaders ---
+    
+    template<>
+    struct ResourceLoaderTraits<ShaderResource>
+    {
+        static std::unique_ptr<ShaderResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            return SlangLoader::CompileAndLoad(p_assetPath, p_loadSettings);
+        }
+    };
 }
