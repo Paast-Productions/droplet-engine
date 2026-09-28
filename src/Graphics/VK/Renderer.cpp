@@ -342,7 +342,8 @@ void Renderer::recreateSwapChain()
 {
 	int width = 0, height = 0;
 	SDL_GetWindowSize(m_window.Get(), &width, &height);
-	while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0) {
+	while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0) 
+	{
 		SDL_GetWindowSize(m_window.Get(), &width, &height);
 		SDL_WaitEvent(&p_event);
 	}
