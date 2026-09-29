@@ -27,7 +27,6 @@ project "Editor"
 
     files 
 	{
-        "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
     }
 	
