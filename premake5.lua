@@ -38,6 +38,7 @@ workspace "DropletEngine"
 -- [[ SOURCE ]] --
 
 include "Premake/Engine"
+include "Premake/Editor"
 include "Premake/Test"
 
 -- [[ SAMPLES ]] --
