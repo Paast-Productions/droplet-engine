@@ -74,6 +74,13 @@ namespace Droplet::Script
 			const std::string &p_functionName,
 			Args&&... p_args);
 
+
+		template<typename... Args>
+		sol::protected_function_result Call(
+			Droplet::Scene::Behaviour *p_scriptBehaviour,
+			const std::string &p_functionName,
+			Args&&... p_args);
+
 		/// @brief Creates a script instance and associates it with a component.
 		/// The created ScriptInstance establishes the relationship between the
 		/// specified component and the requested Lua script.
@@ -89,7 +96,9 @@ namespace Droplet::Script
 		/// associated ScriptInstance.
 		/// @param p_scriptComponent Component from which the script should be
 		/// detached.
-		void DetachScript(Droplet::Scene::Component *p_scriptComponent);
+		void DetachComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		void DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Decouples every instance to a certain script file.
 		/// Removes the specified scriptfile and its associated relationships.
@@ -135,12 +144,17 @@ namespace Droplet::Script
 		/// @brief Activates a script component
 		/// An activated script is added to the collection of scripts that are updated each frame
 		/// @param p_scriptComponent Component whose script should be activated.
-		void ActivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Deactivates a script component
 		/// A deactivated script is removed from the collection of scripts that are updated each frame
 		/// @param p_scriptComponent Component whose script should be deactivated.
-		void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
 		/// @brief Sets the directory Path
 		/// Purpose is to be able to find the scripts directory, easiest to do this 
 		/// @param p_directoryPath This is the path for your working directory to the scripts
@@ -219,6 +233,48 @@ namespace Droplet::Script
 			m_componentScripts.find(p_scriptComponent);
 
 		if (it == m_componentScripts.end())
+		{
+			//TODO: attach component to script
+			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
+		}
+		ScriptInstance *instance = it->second;
+		std::vector<ScriptInstance *>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
+
+		if (activeIterator == m_activeScripts.end())
+		{
+			//tried to call on an inactive component
+			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
+			//send error to logger 
+		}
+
+		return it->second->Call(p_functionName, std::forward<Args>(p_args)...);
+	}
+
+	/// @brief Calls a Lua function on the script attached to the game
+	/// The behaviour is used to find its associated ScriptInstance. If the
+	/// behaviour is null or does not have an attached script, an empty result
+	/// is returned
+	/// @tparam Args Types of the arguments passed to the Lua function.
+	/// @param p_scriptBehaviour Behaviour whose script should receive the call.
+	/// @param p_functionName Name of the Lua function to call.
+	/// @param p_args Arguments to forward to the Lua function.
+	/// @return Result of the protected Lua function call.
+	template <typename... Args>
+	inline sol::protected_function_result ScriptManager::Call(
+		Droplet::Scene::Behaviour *p_scriptBehaviour,
+		const std::string &p_functionName,
+		Args&&... p_args)
+	{
+		if (p_scriptBehaviour == nullptr)
+		{
+			// TODO: Send error to logging manager instead of sending a nullptr
+			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
+		}
+
+		std::unordered_map<Droplet::Scene::Behaviour *, ScriptInstance *>::iterator it =
+			m_behaviourScripts.find(p_scriptBehaviour);
+
+		if (it == m_behaviourScripts.end())
 		{
 			//TODO: attach component to script
 			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);

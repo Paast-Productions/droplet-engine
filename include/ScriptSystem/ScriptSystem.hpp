@@ -42,9 +42,9 @@ namespace Droplet::Script
 		/// @param testNode Component that will connect to the script instance.
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
 		/// @return Returns if the script instance could correctly be created
-		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+		void CreateComponentScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
-		void CreateScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
+		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
 
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.
@@ -60,15 +60,22 @@ namespace Droplet::Script
 		/// An activated script component is allowed to participate in the scripting
 		/// system's update and execution flow.
 		/// @param p_scriptComponent Script component to activate.
-		void ActivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Deactivates a script component.
 		/// A deactivated script component will no longer participate in the
 		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
 		/// @param p_scriptComponent Script component to deactivate.
-		void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
-		void DetachScript(Droplet::Scene::Component *p_scriptComponent);
+		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
+		void DetachComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		void DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
 		/// @brief Detaches components to a certain script
 		/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
 		void DetachAllInstancesToScript(const std::string &p_scriptPath);

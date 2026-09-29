@@ -27,12 +27,12 @@ void ScriptSystem::Update(float p_deltaTime)
 }
 
 
-void ScriptSystem::CreateScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
+void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
 	m_scriptManager.CreateComponentScript(p_sciptComponent, p_scriptFile);
 }
 
-void Droplet::Script::ScriptSystem::CreateScript(Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile)
+void ScriptSystem::CreateBehaviourScript(Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile)
 {
 	m_scriptManager.CreateBehaviourScript(p_scriptBehaviour, p_scriptFile);
 }
@@ -47,19 +47,34 @@ void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 	m_scriptManager.UnloadScript(p_scriptFile);
 }
 
-void ScriptSystem::ActivateScript(Scene::Component *p_scriptComponent)
+void ScriptSystem::ActivateComponentScript(Scene::Component *p_scriptComponent)
 {
-	m_scriptManager.ActivateScript(p_scriptComponent);
+	m_scriptManager.ActivateComponentScript(p_scriptComponent);
 }
 
-void ScriptSystem::DeactivateScript(Scene::Component *p_scriptComponent)
+void ScriptSystem::ActivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
 {
-	m_scriptManager.DeactivateScript(p_scriptComponent);
+	m_scriptManager.ActivateBehaviourScript(p_scriptBehaviour);
 }
 
-void ScriptSystem::DetachScript(Droplet::Scene::Component *p_scriptComponent)
+void ScriptSystem::DeactivateComponentScript(Scene::Component *p_scriptComponent)
 {
-	m_scriptManager.DetachScript(p_scriptComponent);
+	m_scriptManager.DeactivateComponentScript(p_scriptComponent);
+}
+
+void ScriptSystem::DeactivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
+{
+	m_scriptManager.DeactivateBehaviourScript(p_scriptBehaviour);
+}
+
+void ScriptSystem::DetachComponentScript(Scene::Component *p_scriptComponent)
+{
+	m_scriptManager.DetachComponentScript(p_scriptComponent);
+}
+
+void ScriptSystem::DetachBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
+{
+	m_scriptManager.DetachBehaviourScript(p_scriptBehaviour);
 }
 
 void ScriptSystem::SetScriptPath(const std::string &p_directoryPath)

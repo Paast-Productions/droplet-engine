@@ -1,6 +1,6 @@
 ﻿#include <print>
 
-#include "SceneSystem/Behaviour/ScriptBehaviour.hpp"
+#include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
