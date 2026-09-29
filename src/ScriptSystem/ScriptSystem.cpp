@@ -26,7 +26,6 @@ void ScriptSystem::Update(float p_deltaTime)
 	m_scriptManager.CheckForFileChanges();
 }
 
-
 void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
 	m_scriptManager.CreateComponentScript(p_sciptComponent, p_scriptFile);
