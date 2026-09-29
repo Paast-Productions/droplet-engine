@@ -11,23 +11,29 @@
 class ThreadPool
 {
 public:
-	/// @brief Creates threads that will execute the worker loop.
-	ThreadPool();
-	/// @brief Stops the threadpool and worker loop and join all threads.
-	~ThreadPool();
+    /// @return The global instance of the thread pool.
+    static ThreadPool &GetInstance();
 
 	ThreadPool(const ThreadPool &other) = delete;
 	ThreadPool &operator=(const ThreadPool &p_other) = delete;
 	ThreadPool(ThreadPool &&p_other) noexcept = delete;
 	ThreadPool &operator=(ThreadPool &&p_other) noexcept = delete;
 
+    /// @brief Starts the worker threads. Must be called at engine startup.
+    void Initialize();
 
+    /// @brief Stops the worker threads. Must be called at engine shutdown.
+    void Shutdown();
+    
 	/// @brief Push a function that a thread will execute. 
 	/// Everything inside the {} will be executed
 	/// @param p_task Pointer to a function 
 	void PushTask(std::function<void()> p_task);
 
 private:
+    ThreadPool() = default;
+    ~ThreadPool();
+    
 	/// @brief Worker loop that sleeps while idle and execute tasks as they become available.
 	void WorkerLoop();
     
