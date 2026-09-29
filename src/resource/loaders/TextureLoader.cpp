@@ -17,7 +17,6 @@ namespace Droplet
 
 		if (!fs::exists(filePath))
 		{
-			std::cout << "File not found: " << filePath << std::endl;
 			throw std::runtime_error("File was not found");
 		}
 
@@ -26,7 +25,7 @@ namespace Droplet
 		{
 			if (fs::file_size(filePath) == 0)
 			{
-				throw std::runtime_error("Texture fil is empty: " + filePath.string());
+				throw std::runtime_error("Texture file is empty: " + filePath.string());
 			}
 			texture = gli::load(filePath.string());
 		}
@@ -34,8 +33,21 @@ namespace Droplet
 		{
 			fs::path inputPath = filePath;
 			filePath.replace_extension(".ktx");
-			ConvertPNGToKTX(inputPath.string(), filePath.string());
-			
+			try 
+			{
+				ConvertPNGToKTX(inputPath.string(), filePath.string());
+
+			}
+			catch (const std::exception &e)
+			{
+				std::cout << "Could not load texture from main Error message: " << e.what() << std::endl;;
+			}
+
+			if (fs::file_size(filePath) == 0)
+			{
+				throw std::runtime_error("Converted texture is empty: " + filePath.string());
+			}
+
 			texture = gli::load(filePath.string());
 		}
 		else
@@ -69,8 +81,7 @@ namespace Droplet
 
 		if (!data)
 		{
-			std::cout << "Could not load PNG file" << std::endl;
-			return false;
+			throw std::runtime_error("PNG file empty");
 		}
 
 		gli::texture2d texture(
@@ -82,8 +93,7 @@ namespace Droplet
 		std::memcpy(texture.data(), data, width * height * 4);
 		if (texture.empty())
 		{
-			std::cout << "Print when texture is empty" << std::endl;
-			return {};
+			throw std::runtime_error("Gli::texture empty");
 		}
 
 		stbi_image_free(data);
