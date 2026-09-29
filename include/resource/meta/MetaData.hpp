@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource/GUID.hpp"
+#include "resource/GuidUtils.hpp"
 #include "resource/IResource.hpp"
 
 #include <json/json.hpp>
