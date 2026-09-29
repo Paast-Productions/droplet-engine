@@ -57,7 +57,7 @@ void SceneViewWindow::RenderImpl()
 		};
 
 		// TODO: Send data to camera update (mousePosNormalizedToCamView, isMouseHovering)
-		m_editorCamera.Update();
+		m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
 	}
 
 	// TODO: Request the engine renderer to render the camera view to a texture
