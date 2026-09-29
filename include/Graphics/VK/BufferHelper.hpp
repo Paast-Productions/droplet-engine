@@ -10,9 +10,9 @@
 /// @param p_physDevice RAII pointer reference to hardware device
 /// @param p_typeFilter Type bits of the hardwares memory requirements
 /// @param p_properties Memory property flags
-/// @returns memory type index
-uint32_t FindMemoryType(
-	const vk::raii::PhysicalDevice& p_physDevice, 
+/// @returns Memory type index
+std::uint32_t FindMemoryType(
+	const vk::raii::PhysicalDevice &p_physDevice, 
 	uint32_t p_typeFilter, 
 	vk::MemoryPropertyFlags p_properties);
 
@@ -32,7 +32,7 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
 
 /// @brief Submits a copy command to the queue
 /// @param p_queue RAII pointer reference to the Vulkan Queue
-/// @param p_commandPool pointer reference to a CommandPool instance
+/// @param p_commandPool Pointer reference to a CommandPool instance
 /// @param p_srcBuffer Reference to the buffer to copy from
 /// @param p_dstBuffer Reference to the buffer to copy to
 /// @param p_size Size of the source buffer in bytes

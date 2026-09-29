@@ -51,13 +51,13 @@ private:
 	/// @param p_device Pointer to the vulkan device
 	/// @param code Vector containing raw code
 	/// @return A vulkan shader module
-	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &code) const;
+	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
 
 	/// @brief Creates a shader module from a blob containing code
 	/// @param p_device Pointer to the vulkan device
 	/// @param code Blob containing code
 	/// @return A vulkan shader module
-	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &code) const;
+	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
 	
 	/// @brief Creates the command pool
 	void					CreateCommandPool();
@@ -67,7 +67,7 @@ private:
 
 	/// @brief Records a command buffer for rendering an image
 	/// @param imageIndex which image to render to
-	void					RecordCommandBuffer(uint32_t imageIndex);
+	void					RecordCommandBuffer(uint32_t p_imageIndex);
 
 	/// @brief Creates the texture sampler
 	void					CreateTextureSampler();
@@ -85,23 +85,23 @@ private:
 	void					CreateSyncObjects();
 
 	/// @brief Changes the layout of an image from one to another
-	/// @param image The image to be translated
-	/// @param old_layout The old layout of the image
-	/// @param new_layout The new layout of the image 
-	/// @param src_access_mask Source access mask
-	/// @param dst_access_mask Destination access mask
-	/// @param src_stage_mask Source stage mask
-	/// @param dst_stage_mask Destination stage mask
-	/// @param image_aspect_flags Image aspect flags and/or bits
+	/// @param p_image The image to be translated
+	/// @param p_old_layout The old layout of the image
+	/// @param p_new_layout The new layout of the image 
+	/// @param p_src_access_mask Source access mask
+	/// @param p_dst_access_mask Destination access mask
+	/// @param p_src_stage_mask Source stage mask
+	/// @param p_dst_stage_mask Destination stage mask
+	/// @param p_image_aspect_flags Image aspect flags and/or bits
 	void					TransitionImageLayout(
-		vk::Image               image,
-		vk::ImageLayout         old_layout,
-		vk::ImageLayout         new_layout,
-		vk::AccessFlags2        src_access_mask,
-		vk::AccessFlags2        dst_access_mask,
-		vk::PipelineStageFlags2 src_stage_mask,
-		vk::PipelineStageFlags2 dst_stage_mask,
-		vk::ImageAspectFlags    image_aspect_flags);
+		vk::Image               p_image,
+		vk::ImageLayout         p_old_layout,
+		vk::ImageLayout         p_new_layout,
+		vk::AccessFlags2        p_src_access_mask,
+		vk::AccessFlags2        p_dst_access_mask,
+		vk::PipelineStageFlags2 p_src_stage_mask,
+		vk::PipelineStageFlags2 p_dst_stage_mask,
+		vk::ImageAspectFlags    p_image_aspect_flags);
 
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 

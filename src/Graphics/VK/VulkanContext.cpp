@@ -16,16 +16,16 @@ const std::vector<char const *> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
 
 /// @brief Callback function for the debug messenger
-/// @param severity Severity flags of the error
-/// @param type Type flag of the error
-/// @param pCallbackData pointer to callback data 
+/// @param p_severity Severity flags of the error
+/// @param p_type Type flag of the error
+/// @param p_pCallbackData pointer to callback data 
 /// @param void pointer 
 /// @return false, to keep running
-static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT severity, vk::DebugUtilsMessageTypeFlagsEXT type, const vk::DebugUtilsMessengerCallbackDataEXT *pCallbackData, void *)
+static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT p_severity, vk::DebugUtilsMessageTypeFlagsEXT p_type, const vk::DebugUtilsMessengerCallbackDataEXT *p_pCallbackData, void *)
 {
-	if (severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eError || severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
+	if (p_severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eError || p_severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
 	{
-		std::cerr << "validation layer: type " << to_string(type) << " msg: " << pCallbackData->pMessage << std::endl;
+		std::cerr << "validation layer: type " << to_string(p_type) << " msg: " << p_pCallbackData->pMessage << std::endl;
 	}
 
 	return vk::False;
@@ -106,24 +106,24 @@ void VulkanContext::CreateLogicalDevice()
 }
 
 //Checking if the device supports the correct features and API version
-bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
+bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
 {
 	// Check if the physicalDevice supports the Vulkan 1.3 API version
-	bool supportsVulkan1_3 = physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
+	bool supportsVulkan1_3 = p_physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
 
 	// Check if any of the queue families support both graphics and presentation to our surface
-	auto     queueFamilies = physicalDevice.getQueueFamilyProperties();
+	auto     queueFamilies = p_physicalDevice.getQueueFamilyProperties();
 	uint32_t qfpIndex = 0;
 	bool     supportsGraphicsAndPresent =
 		std::ranges::any_of(queueFamilies,
-			[&physicalDevice, &surface = this->m_surface, &qfpIndex](auto const &qfp) {
-				bool const suitable = (qfp.queueFlags & vk::QueueFlagBits::eGraphics) && physicalDevice.getSurfaceSupportKHR(qfpIndex, *surface);
+			[&p_physicalDevice, &surface = this->m_surface, &qfpIndex](auto const &qfp) {
+				bool const suitable = (qfp.queueFlags & vk::QueueFlagBits::eGraphics) && p_physicalDevice.getSurfaceSupportKHR(qfpIndex, *surface);
 				qfpIndex++;
 				return suitable;
 			});
 
 	// Check if all required physicalDevice extensions are available
-	auto availableDeviceExtensions = physicalDevice.enumerateDeviceExtensionProperties();
+	auto availableDeviceExtensions = p_physicalDevice.enumerateDeviceExtensionProperties();
 	bool supportsAllRequiredExtensions =
 		std::ranges::all_of(m_requiredDeviceExtension,
 			[&availableDeviceExtensions](auto const &requiredDeviceExtension) {
@@ -132,7 +132,7 @@ bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &physicalDev
 			});
 
 	// Check if the physicalDevice supports the required features
-	auto features = physicalDevice.template getFeatures2<vk::PhysicalDeviceFeatures2,
+	auto features = p_physicalDevice.template getFeatures2<vk::PhysicalDeviceFeatures2,
 		vk::PhysicalDeviceVulkan11Features,
 		vk::PhysicalDeviceVulkan13Features,
 		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();

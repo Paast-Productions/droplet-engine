@@ -10,7 +10,7 @@ namespace Droplet::Graphics::VK
 	{
 	public:
 		/// @brief Get the Vulkan RAII CommandBuffer associated with the instance. 
-		[[nodiscard]] vk::raii::CommandBuffer& Get();
+		[[nodiscard]] vk::raii::CommandBuffer &Get();
 		
 		/// @brief Set the command buffer to start recording commands.
 		/// @param p_flags Specify the usage behavior of the command buffer.

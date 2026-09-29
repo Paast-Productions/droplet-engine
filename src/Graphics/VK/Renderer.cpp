@@ -77,9 +77,9 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 	m_graphicsPipeline.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), shaderModule, pipelineConfig);
 }
 
-[[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &code) const
+[[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
 {
-	vk::ShaderModuleCreateInfo createInfo{ .codeSize = code.size() * sizeof(char), .pCode = reinterpret_cast<const uint32_t*>(code.data()) };
+	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_code.size() * sizeof(char), .pCode = reinterpret_cast<const uint32_t*>(p_code.data()) };
 	vk::raii::ShaderModule     shaderModule{ p_device, createInfo};
 
 	return shaderModule;
@@ -145,7 +145,7 @@ void Renderer::TransitionImageLayout(
 
 
 //Main drawing operations are here!
-void Renderer::RecordCommandBuffer(uint32_t imageIndex)
+void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
 	assert(m_graphicsPipeline.has_value());
 	
@@ -154,7 +154,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
 	TransitionImageLayout(
-		m_swapchain->GetImages()->at(imageIndex),
+		m_swapchain->GetImages()->at(p_imageIndex),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -179,7 +179,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo = {
-		.imageView = m_swapchain->GetImageViews()->at(imageIndex),
+		.imageView = m_swapchain->GetImageViews()->at(p_imageIndex),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -214,7 +214,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 	TransitionImageLayout(
-		m_swapchain->GetImages()->at(imageIndex),
+		m_swapchain->GetImages()->at(p_imageIndex),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::ePresentSrcKHR,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
