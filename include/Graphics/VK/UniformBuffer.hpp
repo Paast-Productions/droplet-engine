@@ -20,14 +20,14 @@ namespace Droplet::Graphics::VK
 		{
 			m_bufferSize = sizeof p_data;
 			
-			vk::BufferCreateInfo bufferCreateInfo
+			const vk::BufferCreateInfo bufferCreateInfo
 			{
 				.size = m_bufferSize, 
 				.usage = vk::BufferUsageFlagBits::eUniformBuffer,
 				.sharingMode = vk::SharingMode::eExclusive
 			};
 
-			vma::AllocationCreateInfo allocCreateInfo
+			constexpr vma::AllocationCreateInfo allocCreateInfo
 			{
 				.flags = vma::AllocationCreateFlagBits::eHostAccessRandom,
 				.usage = vma::MemoryUsage::eAuto,
