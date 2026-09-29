@@ -106,7 +106,7 @@ namespace Droplet
             }
                 
             // Push metafile write operation to worker thread
-            m_threadPool.PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
+            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
             {
                MetaUtils::Write(metaPath, metaData); 
             });
@@ -123,7 +123,7 @@ namespace Droplet
         std::string ext = p_assetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-        m_threadPool.PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
+        ThreadPool::GetInstance().PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
             res.assetPathStr = std::move(assetPathStr);

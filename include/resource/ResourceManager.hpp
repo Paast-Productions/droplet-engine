@@ -11,9 +11,9 @@
 #include "resource/loaders/ResourceLoaderTraits.hpp"
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceCatalog.hpp"
-#include "resource/ThreadPool.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
+#include "core/ThreadPool.hpp"
 
 namespace Droplet
 {
@@ -127,7 +127,7 @@ namespace Droplet
             
             if (loadAsync)
             {
-                m_threadPool.PushTask([this, p_guid, metaEntry]()
+                ThreadPool::GetInstance().PushTask([this, p_guid, metaEntry]()
                 {
                     // --- Async Worker Thread ---
                     std::unique_ptr<T> loadedResource = ResourceLoaderTraits<T>::LoadCPU(metaEntry.assetPath, metaEntry.loadSettings);
@@ -191,8 +191,7 @@ namespace Droplet
         bool m_isInitialized = false;
         ResourceCatalog m_catalog;
         std::unordered_map<GUID, ResourceRecord> m_registry;
-
-        ThreadPool m_threadPool;
+        
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
     };
