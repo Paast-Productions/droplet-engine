@@ -7,13 +7,12 @@
 #include <filesystem>
 #include <cassert>
 #include <functional>
-#include <iostream>
 
+#include "resource/loaders/ResourceLoaderTraits.hpp"
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceCatalog.hpp"
-#include "resource/types/Texture2DResource.hpp"
 #include "resource/ThreadPool.hpp"
-#include "resource/loaders/GliLoader.hpp"
+
 #include "core/ThreadSafeQueue.hpp"
 
 namespace Droplet
@@ -40,6 +39,16 @@ namespace Droplet
         std::atomic<uint32_t> refCount{0};
         
         std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
+    };
+    
+    struct AsyncLoadResult
+    {
+        bool succeeded = true;
+        
+        GUID guid;
+        IResource* resource;
+        ResourceLoadFlag loadFlags;
+    };
     };
 
     /// @brief Universal resource manager class.
@@ -69,8 +78,9 @@ namespace Droplet
         template<typename T>
         ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
+            static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource");
             assert(m_isInitialized && "ResourceManager is not initialized.");
-
+            
             MetaEntry metaEntry;
             if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
             {
@@ -80,86 +90,52 @@ namespace Droplet
             }
 
             bool loadAsync = false;
-
+            auto [it, wasInserted] = m_registry.try_emplace(p_guid);
+            if (wasInserted)
             {
-                std::lock_guard<std::mutex> lock(m_registryMutex);
-
-                auto [it, wasInserted] = m_registry.try_emplace(p_guid);
-                if (wasInserted)
-                {
-                    // Asset was just created in-place -> Update state
-                    it->second.state = ResourceState::Queued;
-                    it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
-                    loadAsync = true;
-                }
+                // Resource was just created in-place -> Update its state
+                it->second.state = ResourceState::LoadingAsync;
+                it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
+                loadAsync = true;
             }
             
             ResourceHandle<T> handle(p_guid, this);
 
             // Handle callback
+            if (p_onLoadCallback)
             {
-                std::lock_guard<std::mutex> lock(m_registryMutex);
-
-                auto it = m_registry.find(p_guid);
-
-                if (p_onLoadCallback)
+                if (it->second.state == ResourceState::Ready)
                 {
-                    if (it->second.state == ResourceState::Ready)
-                    {
-                        p_onLoadCallback(handle); // Resource is already loaded -> Trigger callback now
-                    }
-                    else if (it->second.state != ResourceState::Failed)
-                    {
-                        // Resource is not loaded and has not failed -> Store callback until loaded
-                        // Capture handle by value inside lambda to guarantee that ref count is >= 1
-                        it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
-                            {
-                                p_onLoadCallback(handle);
-                            });
-                        
-                    }
+                    p_onLoadCallback(handle);
+                }
+                else if (it->second.state != ResourceState::Failed)
+                {
+                    // Resource is not loaded and has not failed -> Store callback until loaded
+                    // Capture handle by value inside lambda to guarantee that ref count is >= 1
+                    it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
+                        {
+                            p_onLoadCallback(handle);
+                        });
                 }
             }
+            
             if (loadAsync)
             {
-                // Push every thing inside the {} to a thread and the thread
-                // will execute the commands.
-                // This thread will load an asset and the loader is decided by the
-                // if statement (not best solution for scalability)
                 m_threadPool.PushTask([this, p_guid, metaEntry]()
                 {
-
-                    {
-                        // lock the registry so that only one thread can affect a resource state
-                        std::lock_guard<std::mutex> lock(m_registryMutex);
-
-                        auto it = m_registry.find(p_guid);
-
-                        if (it == m_registry.end())
-                        {
-                            return;
-                        }
-                        it->second.state = ResourceState::LoadingAsync;
-                    }
-
-                    if constexpr (std::is_same_v<T, Texture2DResource>)
-                    {
-                        auto texture = GliLoader::Load(metaEntry.assetPath);
-                        {
-                            std::lock_guard<std::mutex> lock(m_registryMutex);
-
-                            auto it = m_registry.find(p_guid);
-
-                            if (it == m_registry.end())
-                            {
-                                return;
-                            }
-                            it->second.resource = std::move(texture);
-                            it->second.state = ResourceState::ReadyAsync;
-                        }
-                    }
+                    // --- Async Worker Thread ---
+                    std::unique_ptr<T> loadedResource = ResourceLoaderTraits<T>::LoadCPU(metaEntry.assetPath, metaEntry.loadSettings);
+                    
+                    AsyncLoadResult res;
+                    res.succeeded = (loadedResource != nullptr);
+                    res.guid = p_guid;
+                    res.resource = loadedResource.release();
+                    res.loadFlags = metaEntry.loadFlags;
+                    
+                    m_asyncLoadResults.Push(res);
                 });
             }
+            
             return handle;
         }
 
@@ -184,7 +160,7 @@ namespace Droplet
             }
             else
             {
-                return 0;
+                return C_INVALID_GUID;
             }
         }
 
@@ -225,14 +201,12 @@ namespace Droplet
         
         bool m_isInitialized = false;
         ResourceCatalog m_catalog;
-
-        std::filesystem::path m_rootDirectory;
         
         std::unordered_map<GUID, ResourceRecord> m_registry;
         std::mutex m_registryMutex; 
 
         ThreadPool m_threadPool;
-        ThreadSafeQueue<std::function<void()>> m_mainThreadTasks;
+        ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
     };
     
 }
