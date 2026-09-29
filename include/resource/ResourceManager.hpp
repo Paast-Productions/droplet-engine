@@ -102,7 +102,7 @@ namespace Droplet
                 auto it = m_registry.find(p_guid);
 
                 if (p_onLoadCallback)
-                {
+                {  
                     if (it->second.state == ResourceState::Ready)
                     {
                         p_onLoadCallback(handle); // Resource is already loaded -> Trigger callback now
@@ -143,8 +143,10 @@ namespace Droplet
 
                     if constexpr (std::is_same_v<T, Texture2DResource>)
                     {
+                        std::filesystem::path texturePath = m_rootDirectory / metaEntry.assetPath;
+
                         TextureLoader loader;
-                        auto texture = loader.Load(metaEntry.assetPath);
+                        auto texture = loader.Load(texturePath.string());
                         {
                             std::lock_guard<std::mutex> lock(m_registryMutex);
 
@@ -156,15 +158,10 @@ namespace Droplet
                             }
                             it->second.resource = std::move(texture);
                             it->second.state = ResourceState::ReadyAsync;
-                            std::cout << "Refcount1 " << it->second.refCount << std::endl;
                         }
                     }
                 });
-                auto it = m_registry.find(p_guid);
-                std::cout << "Refcount2 " << it->second.refCount << std::endl;
             }
-            auto it = m_registry.find(p_guid);
-            std::cout << "Refcount3 " << it->second.refCount << std::endl;
             return handle;
         }
 
@@ -230,6 +227,8 @@ namespace Droplet
         
         bool m_isInitialized = false;
         ResourceCatalog m_catalog;
+
+        std::filesystem::path m_rootDirectory;
         
         std::unordered_map<GUID, ResourceRecord> m_registry;
         std::mutex m_registryMutex; 

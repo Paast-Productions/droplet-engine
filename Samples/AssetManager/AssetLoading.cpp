@@ -37,16 +37,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     //assetRecord.resource = assimpLoader.LoadAnimation("CorruptedWoodFish.fbx", "Fish|ArmatureAction", nlohmann::json());
     
     fs::path currentPath = fs::current_path();
-    std::string path = "C:/Users/Proj/Documents/Blender Assets/basic_fish_colors_base.ktx";
+    std::string path = "C:/Users/Proj/Documents/Blender Assets/Test_BlackPixel.ktx";
     std::vector<Droplet::MetaEntry> metaData;
 
-    // If meta file does not exist, generate a new so that you can use GUID
-    //auto entry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Texture2D, "basic_fish_colors_base.ktx", path);
-    //metaData.push_back(entry);
-
-    // If meta file does exist, Read the path and extract the data
     std::filesystem::path metaPath = path + ".meta";
+    // If meta file does not exist, generate a new so that you can use GUID
+    /*auto newEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Texture2D, "Test_BlackPixel.ktx", path);
+    metaData.push_back(newEntry);
+    Droplet::MetaUtils::Write(metaPath, metaData);*/
+
+    
+    // If meta file does exist, Read the path and extract the data
     Droplet::MetaUtils::Read(metaPath, metaData);
+
+    //
+
 
     try
     {
@@ -62,8 +67,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
             
         }
     }
-    catch (std::exception) {
-        std::println("Failed to load texture.");
+    catch (const std::exception &e) {
+        std::cout << "Could not load texture from main Error message: " << e.what() << std::endl;;
     }
 
     return 0;

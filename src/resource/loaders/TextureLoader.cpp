@@ -21,25 +21,44 @@ namespace Droplet
 		}
 
 		std::string extension = filePath.extension().string();
-
 		if (extension == ".ktx" || extension == ".dds")
 		{
+			if (fs::file_size(filePath) == 0)
+			{
+				throw std::runtime_error("Texture file is empty: " + filePath.string());
+			}
 			texture = gli::load(filePath.string());
-			std::cout << texture.format() << std::endl;
 		}
-		else
+		else if(extension == ".png")
 		{
 			fs::path inputPath = filePath;
 			filePath.replace_extension(".ktx");
-			std::cout << inputPath.string() << std::endl;
-			ConvertPNGToKTX(inputPath.string(), filePath.string());
+			try 
+			{
+				ConvertPNGToKTX(inputPath.string(), filePath.string());
+
+			}
+			catch (const std::exception &e)
+			{
+				std::cout << "Could not load texture from main Error message: " << e.what() << std::endl;;
+			}
+
+			if (fs::file_size(filePath) == 0)
+			{
+				throw std::runtime_error("Converted texture is empty: " + filePath.string());
+			}
+
+			texture = gli::load(filePath.string());
+		}
+		else
+		{
+			throw std::runtime_error("File format is invalid");
 		}
 
 		if (texture.empty())
 		{
-			throw std::runtime_error("Could not load texture: " + p_path);
+			throw std::runtime_error("Loaded Texture is empty: " + p_path);
 		}
-
 		// Translate the gli texture to our custom format
 		TextureResource::TextureFormat format;
 		format = ConvertTextureFormat(texture.format());
@@ -58,29 +77,28 @@ namespace Droplet
 		int width = 0;
 		int height = 0;
 		int channels = 0;
-
 		stbi_uc* data = stbi_load(p_inputPath.c_str(), &width, &height, &channels, 4);
 
 		if (!data)
 		{
-			std::cout << "Could not load PNG file" << std::endl;
-			return false;
+			throw std::runtime_error("PNG file empty");
 		}
 
-		gli::texture texture;
-
+		gli::texture2d texture(
+			gli::FORMAT_RGBA8_UNORM_PACK8,
+			gli::extent2d(width, height),
+			1
+		);
+		
 		std::memcpy(texture.data(), data, width * height * 4);
+		if (texture.empty())
+		{
+			throw std::runtime_error("Gli::texture empty");
+		}
 
 		stbi_image_free(data);
 
-		if (!gli::save(texture, p_outputPath))
-		{
-			std::cout << "Could not save KTX file" << std::endl;
-			return {};
-		}
-
-		texture = gli::load(p_outputPath);
-		return true;
+		return gli::save(texture, p_outputPath);
 	}
 
 	TextureResource::TextureFormat TextureLoader::ConvertTextureFormat(gli::format p_format)
@@ -88,22 +106,17 @@ namespace Droplet
 		switch (p_format)
 		{
 		case gli::FORMAT_R8_UNORM_PACK8:
-			std::cout << "TextureResourceFormat: R8_UNORM" << std::endl;
 			return TextureResource::TextureFormat::R8_Unorm;
 
 		case gli::FORMAT_RGB8_UNORM_PACK8:
-			std::cout << "TextureResourceFormat: RGB8_UNORM" << std::endl;
 			return TextureResource::TextureFormat::RGB8_Unorm;
 
 		case gli::FORMAT_RGBA8_UNORM_PACK8:
-			std::cout << "TextureResourceFormat: RGBA8_UNORM" << std::endl;
 			return TextureResource::TextureFormat::RGBA8_Unorm;
 
 		case gli::FORMAT_RGBA_BP_UNORM_BLOCK16:
-			std::cout << "TextureResourceFormat: BC7" << std::endl;
 			return TextureResource::TextureFormat::BC7;
 		default:
-			std::cout << "TextureResourceFormat: Vi fick ingen :(" << std::endl;
 			return TextureResource::TextureFormat::Unknown;
 		}
 	}
