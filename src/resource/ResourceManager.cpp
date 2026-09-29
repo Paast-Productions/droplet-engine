@@ -1,8 +1,11 @@
-﻿#include "resource/ResourceManager.hpp"
+#include "resource/ResourceManager.hpp"
 
+#include "core/StringUtils.hpp"
 #include "resource/meta/MetaUtils.hpp"
 
-// #include "IResource"
+#include "resource/loaders/AssimpLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
+#include "resource/loaders/SlangLoader.hpp"
 
 namespace Droplet
 {
@@ -27,36 +30,51 @@ namespace Droplet
 
     void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
     {
-        std::vector<MetaEntry> metaEntry;
+        std::string assetPathStr = p_assetPath.generic_string();
+        std::filesystem::path metaPath = assetPathStr + ".meta";
         
-        std::filesystem::path metaPath = p_assetPath.generic_string() + ".meta";
-        if (std::filesystem::exists(metaPath))
-        {
-            std::string assetPathStr = p_assetPath.generic_string();
-            
-            // Thread pool dispatch here with lambda[this, p_assetPath, assetPathStr, cachedMetaData]
+        std::string ext = p_assetPath.extension().generic_string();
+        StringUtils::ToLowerInPlace(ext);
+        
+
+        m_threadPool.PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
             // --- Async Worker Thread ---
             std::vector<std::pair<ResourceType, std::string>> foundResources;
             
-            // Run assimp/whatever to detect resources in asset file
-            
-            // Dispatch back to main thread with lambda[this, assetPathStr, resourceList, cachedMetaData]
-            // --- Main Thread ---
-            // Use private function to compare cached metadata to resource list and append/remove bodies here
-            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(assetPathStr, foundResources);
-            
-            // Overwrite .meta file with result (dispatch I/O thread to perform this task)
-            // --- Async I/O Thread --- 
-            std::filesystem::path writePath = assetPathStr + ".meta";
-            MetaUtils::Write(writePath, newMetaData);
-            
-            // --- Main Thread ---
-            // Update internal catalog
-            for (const auto &entry : newMetaData)
+            if (ext == ".fbx" || ext == ".gltf" || ext == ".obj")
             {
-                m_catalog.RegisterMetaEntry(assetPathStr, entry);
+                foundResources = AssimpLoader::ListAssetResources(p_assetPath);
             }
-        }
+            else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
+            {
+                foundResources = GliLoader::ListAssetResources(p_assetPath);
+            }
+            else if (ext == ".slang")
+            {
+                foundResources = SlangLoader::ListAssetResources(p_assetPath);
+            }
+            
+            m_mainThreadTasks.Push([this, assetPathStr, metaPath, foundResources]()
+            {
+                // --- Main Thread ---
+                
+                // Compare found resources with ones already registered for this asset (if there are any) and determine
+                // which are old (keep), which are new (add) and which have been erased (remove).
+                std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(assetPathStr, foundResources);
+                
+                // Update internal catalog
+                for (const auto &entry : newMetaData)
+                {
+                    m_catalog.RegisterMetaEntry(assetPathStr, entry);
+                }
+                
+                m_threadPool.PushTask([metaPath, metaData = std::move(newMetaData)]()
+                {
+                   // --- Async Worker Thread --- 
+                   MetaUtils::Write(metaPath, metaData); 
+                });
+            });
+        });
     }
 
     void ResourceManager::IncrementRef(GUID p_guid)

@@ -14,6 +14,7 @@
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/ThreadPool.hpp"
 #include "resource/loaders/GliLoader.hpp"
+#include "core/ThreadSafeQueue.hpp"
 
 namespace Droplet
 {
@@ -54,7 +55,7 @@ namespace Droplet
         void Initialize(const std::filesystem::path &p_rootDirectory);
 
         // TODO: This function should process uploads and trigger callbacks (and should be called in main update loop)
-        // void Update();
+        void Update();
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources.
         /// @param p_assetPath The path to the asset to be registered. Must be within 
@@ -231,6 +232,7 @@ namespace Droplet
         std::mutex m_registryMutex; 
 
         ThreadPool m_threadPool;
+        ThreadSafeQueue<std::function<void()>> m_mainThreadTasks;
     };
     
 }
