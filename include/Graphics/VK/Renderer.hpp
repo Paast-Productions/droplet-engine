@@ -140,15 +140,14 @@ private:
 	vk::raii::Sampler					 m_textureSampler = nullptr;
 
 	std::optional<Droplet::Graphics::VK::ImageView>	   m_textureView;
-	std::optional<Droplet::Graphics::VK::UniformBuffer> m_uniformBuffer;
-	std::optional<Droplet::Graphics::VK::DepthBuffer>  m_depthBuffer;
-	std::optional<Droplet::Graphics::VK::IndexBuffer>  m_indexBuffer;
-	std::optional<Droplet::Graphics::VK::VertexBuffer> m_vertexBuffer;
+	Droplet::Graphics::VK::DepthBuffer m_depthBuffer { nullptr };
+	Droplet::Graphics::VK::IndexBuffer m_indexBuffer { nullptr };
+	Droplet::Graphics::VK::VertexBuffer m_vertexBuffer { nullptr };
 
 	//Needs one buffer per frame in flight to avoid read write issues
 	
 	Droplet::Graphics::VK::Allocator m_allocator { nullptr };
-	std::optional<Droplet::Graphics::VK::UniformBuffer> m_uniformBuffers[MAX_FRAMES_IN_FLIGHT];
+	std::array<Droplet::Graphics::VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
 	
 	struct UniformBufferObject
 	{

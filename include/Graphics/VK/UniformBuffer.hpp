@@ -12,17 +12,24 @@ namespace Droplet::Graphics::VK
 	public:
 		UniformBuffer() = delete;
 		
+		UniformBuffer(nullptr_t p_nullptr)
+		{
+			m_buffer = { p_nullptr };
+		}
+		
 		/// @brief Uniform Buffer constructor
 		/// @param p_allocator Global VMA Allocator
 		/// @param p_data Data to store in the buffer
 		template <typename T>
 		UniformBuffer(const vma::raii::Allocator &p_allocator, const T &p_data)
 		{
-			m_bufferSize = sizeof p_data;
+			static_assert(sizeof(p_data) % sizeof(std::uint32_t) * 4 == 0, "[ERROR: Uniform Buffer]\nSize of p_data must be a multiple of 16 bytes");
+			
+			m_bufferMaxSize = sizeof(p_data);
 			
 			const vk::BufferCreateInfo bufferCreateInfo
 			{
-				.size = m_bufferSize, 
+				.size = m_bufferMaxSize, 
 				.usage = vk::BufferUsageFlagBits::eUniformBuffer,
 				.sharingMode = vk::SharingMode::eExclusive
 			};
@@ -34,45 +41,83 @@ namespace Droplet::Graphics::VK
 				.requiredFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
 			};
 	
-			m_buffer = vma::raii::Buffer{p_allocator, bufferCreateInfo, allocCreateInfo};
+			m_buffer = vma::raii::Buffer {p_allocator, bufferCreateInfo, allocCreateInfo};
 	
 			UpdateBuffer(p_data);
 		}
 		
+		UniformBuffer(const UniformBuffer &) = delete;
+		UniformBuffer &operator=(const UniformBuffer &) = delete;
+		
+		UniformBuffer(UniformBuffer &&p_other) noexcept
+		{
+			m_buffer = std::move(p_other.m_buffer);
+			m_bufferMaxSize = std::move(p_other.m_bufferMaxSize);
+		}
+		
+		UniformBuffer &operator=(UniformBuffer &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+			
+			m_buffer = std::move(p_other.m_buffer);
+			m_bufferMaxSize = std::move(p_other.m_bufferMaxSize);
+			
+			return *this;
+		}
+		
 		~UniformBuffer() = default;
-
+		
+		bool operator==(const UniformBuffer &p_other) const
+		{
+			if (m_buffer == p_other.m_buffer && m_bufferMaxSize == p_other.m_bufferMaxSize)
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		
 		/// @brief Updates the buffer
 		/// @param p_data The data to 
 		template <typename T>
 		void UpdateBuffer(const T& p_data) const
 		{
-			if (sizeof p_data > m_bufferSize)
+			static_assert(sizeof(p_data) % sizeof(std::uint32_t) * 4 == 0, "[ERROR: Uniform Buffer]\nSize of p_data must be a multiple of 16 bytes");
+			
+			if (sizeof(p_data) > m_bufferMaxSize)
 			{
-				throw std::runtime_error(std::format("[Uniform Buffer: ERROR]\nData to be copied into buffer is bigger than the buffer!\nSize of buffer: {0}\nSize of data: {1}", m_bufferSize, sizeof p_data));
+				throw std::runtime_error(std::format("[ERROR: Uniform Buffer]\nData to be copied into buffer is bigger than the buffer!\nSize of buffer: {0}\nSize of data: {1}", m_bufferMaxSize, sizeof p_data));
 			}
 			
-			vma::AllocationInfo allocInfo = m_buffer.getAllocation().getInfo();
-			
-			std::memcpy(allocInfo.pMappedData, &p_data, sizeof p_data);
+			const vma::raii::Allocation &allocation = m_buffer.getAllocation();
+			allocation.copyFromMemory(&p_data, 0, sizeof(p_data));
 		}
 
 		/// @brief Buffer Getter
 		/// @returns RAII pointer to the VMA uniform buffer
-		[[nodiscard]] const vma::raii::Buffer &Get();
+		[[nodiscard]] const vma::raii::Buffer &Get() const;
 		
-		/// @brief Buffer Size Getter
-		/// @returns Size of the VMA buffer
-		[[nodiscard]] std::size_t Size();
+		/// @brief Max Buffer Size Getter
+		/// @returns Max size of the VMA buffer
+		[[nodiscard]] std::size_t MaxSize() const;
 		
 	private:
 		vma::raii::Buffer m_buffer { nullptr };
-		std::size_t m_bufferSize { 0 };
+		std::size_t m_bufferMaxSize { 0 };
 		
 	};
 
-	inline const vma::raii::Buffer &UniformBuffer::Get()
+	inline const vma::raii::Buffer &UniformBuffer::Get() const
 	{
 		return m_buffer;
+	}
+	
+	inline std::size_t UniformBuffer::MaxSize() const
+	{
+		return m_bufferMaxSize;
 	}
 }
 

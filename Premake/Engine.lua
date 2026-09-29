@@ -3,6 +3,11 @@ project "Engine"
 
     location(projectsPath)
 
+    defines
+    {
+        "ROOT_PATH=" .. AddQuotation(rootPath)
+    }
+
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 

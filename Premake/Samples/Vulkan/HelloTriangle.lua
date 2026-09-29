@@ -3,10 +3,13 @@ project "Vulkan-HelloTriangle"
     kind "ConsoleApp"
     location(projectPath)
 
+
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(rootPath .. "/Samples/Vulkan/")
     objdir(objBuildPath .. "/%{prj.name}")
-    
+
+
+
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",

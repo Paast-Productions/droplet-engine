@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <Graphics/VK/ImageView.hpp>
 #include <BufferHelper.hpp>
 #include <Graphics/VK/CommandPool.hpp>
@@ -75,29 +76,48 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 					 vk::ImageTiling p_tiling, 
 					 vk::ImageUsageFlags p_usage, 
 					 vk::MemoryPropertyFlags p_properties)
+=======
+#include "ImageView.hpp"
+
+using namespace Droplet::Graphics::VK;
+
+ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p_image)
 {
-	vk::ImageCreateInfo imageInfo{.imageType = vk::ImageType::e2D,
-								  .format = p_format,
-								  .extent = {p_width, p_height, 1},
-								  .mipLevels = 1,
-								  .arrayLayers = 1,
-								  .samples = vk::SampleCountFlagBits::e1,
-								  .tiling = p_tiling,
-								  .usage = p_usage,
-								  .sharingMode = vk::SharingMode::eExclusive };
+    vk::ImageViewCreateInfo viewInfo
+    {
+        .image = p_image,
+        .viewType = vk::ImageViewType::e2D,
+        .format = vk::Format::eR8G8B8A8Srgb,
+        .subresourceRange = 
+        {
+            .aspectMask = vk::ImageAspectFlagBits::eColor,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        } 
+    };
+	
+    m_imageView = vk::raii::ImageView { p_device, viewInfo };
+}
 
-	m_image = vk::raii::Image(p_device, imageInfo);
-
-	vk::MemoryRequirements memRequirements = m_image.getMemoryRequirements();
-	vk::MemoryAllocateInfo allocInfo{ .allocationSize = memRequirements.size,
-									 .memoryTypeIndex = FindMemoryType(p_physicalDevice, memRequirements.memoryTypeBits, p_properties) };
-	m_imageMemory = vk::raii::DeviceMemory(p_device, allocInfo);
-	m_image.bindMemory(m_imageMemory, 0);
-
-	vk::ImageViewCreateInfo viewInfo{
-		.image = m_image,
-		.viewType = vk::ImageViewType::e2D,
-		.format = p_format,
-		.subresourceRange = {.aspectMask = p_aspectFlagBits, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1} };
-	m_view = vk::raii::ImageView(p_device, viewInfo);
+ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p_image, const vk::Format p_format, const vk::ImageAspectFlagBits p_aspectFlagBits)
+>>>>>>> e8264eb (Vulkan Buffers: Add VMA)
+{
+    vk::ImageViewCreateInfo viewInfo 
+    {
+        .image = p_image,
+        .viewType = vk::ImageViewType::e3D,
+        .format = p_format,
+        .subresourceRange =
+        {
+            .aspectMask = p_aspectFlagBits,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        }
+    };
+    
+    m_imageView = vk::raii::ImageView { p_device, viewInfo };
 }

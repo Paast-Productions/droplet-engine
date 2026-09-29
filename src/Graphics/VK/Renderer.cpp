@@ -485,20 +485,35 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	CreateGraphicsPipeline(p_shaderBlob);
 
-	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
+	m_allocator = { m_instance, m_physicalDevice, m_device };
+	
+	m_depthBuffer = { m_allocator.Get(), m_device, m_physicalDevice, m_swapchainExtent };
 
-	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES);
-	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES);
+	m_vertexBuffer = { m_allocator.Get(), g_vertices };
+	m_indexBuffer = { m_allocator.Get(), g_indices };
+	
+	m_depthBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent() };
 
+	m_vertexBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES };
+	m_indexBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES };
+	
+	for (auto &uniformBuffer : m_uniformBuffers)
+	{
+		const UniformBufferObject ubo
+		{
+			.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 0.1f, 10.0f)
+		};
+
+		uniformBuffer = { m_allocator.Get(), ubo };
+	}
+	
 	//Format is changed from the usual eR8G8B8A8Srbg/unorm
 	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
 
 	CreateTextureSampler();
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		m_uniformBuffers[i].emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice());
-	}
 
 	CreateDescriptorPool();
 
