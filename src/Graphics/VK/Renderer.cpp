@@ -35,7 +35,7 @@ Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
 Renderer::~Renderer()
 {
 	m_device.waitIdle();
-	m_swapchain->Cleanup();
+	m_swapchain->Cleanup(m_device);
 }
 
 //File reading function for loading the shader file
@@ -263,8 +263,6 @@ bool Renderer::isDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
 
 void Renderer::createGraphicsPipeline()
 {
-	std::cout << std::filesystem::current_path().generic_string() << std::endl;
-
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(readFile("../../src/Graphics/VK/Shaders/slang.spv"));
 	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat()};
@@ -275,8 +273,6 @@ void Renderer::createGraphicsPipeline()
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
 void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
-	std::cout << std::filesystem::current_path().generic_string() << std::endl;
-
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = createShaderModule(p_shaderBlob);
 	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat() };
@@ -472,9 +468,10 @@ void Renderer::drawFrame()
 			SDL_WaitEvent(&m_event);
 		}
 
-		m_device.waitIdle();
-		m_swapchain->Cleanup();
+		m_swapchain->Cleanup(m_device);
 		m_swapchain->Recreate(m_device, m_physicalDevice, *m_window.Get(), m_surface);
+		m_depthBuffer.reset();
+		m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchain->GetExtent());
 		return;
 	}
 	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
@@ -518,6 +515,8 @@ void Renderer::drawFrame()
 		{
 			SDL_WaitEvent(&m_event);
 		}
+		m_swapchain->Cleanup(m_device);
+		m_swapchain->Recreate(m_device, m_physicalDevice, *m_window.Get(), m_surface);
 		m_depthBuffer.reset();
 		m_depthBuffer.emplace(m_device, m_physicalDevice, m_swapchain->GetExtent());
 	}
