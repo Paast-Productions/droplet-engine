@@ -20,6 +20,7 @@
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
+#include <Graphics/VK/DeviceContext.hpp>
 
 
 // HACK: Implementation subject to change
@@ -39,17 +40,17 @@ public:
 	inline static			SDL_InitState p_init {};
 
 private:
-	void					createInstance();
-	void					setupDebugMessenger();
-	void					createSurface();
-	bool					isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice);
-	void					pickPhysicalDevice();
-	void					createLogicalDevice();
+	//void					createInstance();
+	//void					setupDebugMessenger();
+	//void					createSurface();
+	//bool					isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice);
+	//void					pickPhysicalDevice();
+	//void					createLogicalDevice();
 
 	void					createGraphicsPipeline();
 	void					createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
-	vk::raii::ShaderModule  createShaderModule(const std::vector<char> &code) const;
-	vk::raii::ShaderModule  createShaderModule(const Slang::ComPtr<slang::IBlob> &code) const;
+	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &code) const;
+	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &code) const;
 	void					CreateCommandPool();
 	void					CreateCommandBuffers();
 	void					RecordCommandBuffer(uint32_t imageIndex);
@@ -83,14 +84,16 @@ private:
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 	//Declaration order matters for destruction order!!!!
-	vk::raii::Context						m_context;
-	vk::raii::Instance						m_instance = nullptr;
-	vk::raii::DebugUtilsMessengerEXT		m_debugMessenger = nullptr;
-	vk::raii::SurfaceKHR					m_surface = nullptr;
-	vk::raii::PhysicalDevice				m_physicalDevice = nullptr;
-	vk::raii::Device						m_device = nullptr;
-	std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
-	vk::raii::Queue							m_queue = nullptr;
+	//vk::raii::Context						m_context;
+	//vk::raii::Instance					m_instance = nullptr;
+	//vk::raii::DebugUtilsMessengerEXT		m_debugMessenger = nullptr;
+	//vk::raii::SurfaceKHR					m_surface = nullptr;
+	//vk::raii::PhysicalDevice				m_physicalDevice = nullptr;
+	//vk::raii::Device						m_device = nullptr;
+	//std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
+	//vk::raii::Queue						m_queue = nullptr;
+
+	std::optional<Droplet::Graphics::VK::DeviceContext> m_context;
 
 	SDL_Event m_event;
 
@@ -123,5 +126,5 @@ private:
 
 	bool								 m_framebufferResized = false;
 
-	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
+	//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 	};
