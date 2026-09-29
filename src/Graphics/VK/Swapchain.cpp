@@ -74,14 +74,16 @@ vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capab
 	};
 }
 
-void Swapchain::Cleanup()
+void Swapchain::Cleanup(const vk::raii::Device &p_device)
 {
+	p_device.waitIdle();
 	m_swapchainImageViews.clear();
 	m_swapchain = nullptr;
 }
 
 void Swapchain::Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_surface)
 {
+	p_device.waitIdle();
 	CreateSwapchain(p_device, p_physicalDevice, p_window, p_surface);
 	CreateImageViews(p_device);
 }

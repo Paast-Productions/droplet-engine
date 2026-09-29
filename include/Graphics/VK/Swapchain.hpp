@@ -28,7 +28,7 @@ namespace Droplet::Graphics::VK
 		Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		/// @brief Clears the swapchain images and sets the pointer to nullptr
-		void Cleanup();
+		void Cleanup(const vk::raii::Device &p_device);
 
 		/// Creates a new swapchain and images just like the constructor
 		void Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_surface);

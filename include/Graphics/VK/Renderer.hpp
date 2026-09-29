@@ -92,6 +92,7 @@ private:
 	std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
 	vk::raii::Queue							m_queue = nullptr;
 
+	SDL_Event m_event;
 
 	std::optional < Droplet::Graphics::VK::Swapchain> m_swapchain;
 
