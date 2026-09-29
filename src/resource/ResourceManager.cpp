@@ -33,10 +33,83 @@ namespace Droplet
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         // Perform all queued tasks
-        std::function<void()> task;
-        while (m_mainThreadTasks.Pop(task))
+        AsyncLoadResult loadRes;
+        while (m_asyncLoadResults.Pop(loadRes))
         {
-            task();
+            auto it = m_registry.find(loadRes.guid);
+            if (it == m_registry.end())
+            {
+                // Resource was destroyed before load finished
+                delete loadRes.resource; // Release the allocated resource stored in the load result
+                continue;
+            }
+            
+            ResourceRecord &record = it->second;
+            
+            if (!loadRes.succeeded)
+            {
+                record.state = ResourceState::Failed;
+                delete loadRes.resource; // Safety delete (resource should already be nullptr)
+                continue;
+            }
+            record.resource.reset(loadRes.resource);
+            
+            switch (loadRes.loadFlags)
+            {
+                case ResourceLoadFlag::LoadCPU:
+                {
+                    record.state = ResourceState::Ready;
+                    break;
+                }
+                case ResourceLoadFlag::LoadGPU:
+                {
+                    record.state = ResourceState::Uploading;
+                                        
+                    // TODO: Implement upload to GPU upload queue or upload here directly
+                    
+                    record.resource.reset(); // Release resource from RAM
+                    record.state = ResourceState::Ready;
+                    break;
+                }
+                case ResourceLoadFlag::LoadBoth:
+                {
+                    record.state = ResourceState::Uploading;
+                                        
+                    // TODO: Implement upload to GPU upload queue or upload here directly
+                                        
+                    record.state = ResourceState::Ready;
+                    break;
+                }
+            }
+            
+            std::vector<std::function<void()>> callbacksToInvoke;
+            callbacksToInvoke.swap(record.loadCallbacks);
+            
+            // Invoke all callbacks registered for the resource
+            for (auto &callback : callbacksToInvoke)
+            {
+                callback();
+            }
+        }
+        
+        AsyncRegisterResult regRes;
+        while (m_asyncRegisterResults.Pop(regRes))
+        {
+            // Compare found resources with ones already registered for this asset (if there are any) and determine
+            // which are old (keep), which are new (add) and which have been erased (remove).
+            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.assetPathStr, regRes.foundResources);
+                
+            // Update internal catalog
+            for (const auto &entry : newMetaData)
+            {
+                m_catalog.RegisterMetaEntry(regRes.assetPathStr, entry);
+            }
+                
+            // Push metafile write operation to worker thread
+            m_threadPool.PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
+            {
+               MetaUtils::Write(metaPath, metaData); 
+            });
         }
     }
 
@@ -50,44 +123,26 @@ namespace Droplet
         std::string ext = p_assetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-
         m_threadPool.PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
             // --- Async Worker Thread ---
-            std::vector<std::pair<ResourceType, std::string>> foundResources;
+            AsyncRegisterResult res;
+            res.assetPathStr = std::move(assetPathStr);
+            res.metaPath = std::move(metaPath);
             
             if (ext == ".fbx" || ext == ".gltf" || ext == ".obj")
             {
-                foundResources = AssimpLoader::ListAssetResources(p_assetPath);
+                res.foundResources = AssimpLoader::ListAssetResources(p_assetPath);
             }
             else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
             {
-                foundResources = GliLoader::ListAssetResources(p_assetPath);
+                res.foundResources = GliLoader::ListAssetResources(p_assetPath);
             }
             else if (ext == ".slang")
             {
-                foundResources = SlangLoader::ListAssetResources(p_assetPath);
+                res.foundResources = SlangLoader::ListAssetResources(p_assetPath);
             }
             
-            m_mainThreadTasks.Push([this, assetPathStr, metaPath, foundResources]()
-            {
-                // --- Main Thread ---
-                
-                // Compare found resources with ones already registered for this asset (if there are any) and determine
-                // which are old (keep), which are new (add) and which have been erased (remove).
-                std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(assetPathStr, foundResources);
-                
-                // Update internal catalog
-                for (const auto &entry : newMetaData)
-                {
-                    m_catalog.RegisterMetaEntry(assetPathStr, entry);
-                }
-                
-                m_threadPool.PushTask([metaPath, metaData = std::move(newMetaData)]()
-                {
-                   // --- Async Worker Thread --- 
-                   MetaUtils::Write(metaPath, metaData); 
-                });
-            });
+            m_asyncRegisterResults.Push(res);
         });
     }
 

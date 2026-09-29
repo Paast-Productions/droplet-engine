@@ -49,6 +49,12 @@ namespace Droplet
         IResource* resource;
         ResourceLoadFlag loadFlags;
     };
+    
+    struct AsyncRegisterResult
+    {
+        std::string assetPathStr;
+        std::filesystem::path metaPath;
+        std::vector<std::pair<ResourceType, std::string>> foundResources;
     };
 
     /// @brief Universal resource manager class.
@@ -207,6 +213,7 @@ namespace Droplet
 
         ThreadPool m_threadPool;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
+        ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
     };
     
 }
