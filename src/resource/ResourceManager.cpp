@@ -150,8 +150,6 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::lock_guard<std::mutex> lock(m_registryMutex);
-        
         auto it = m_registry.find(p_guid);
         if (it != m_registry.end())
         {
@@ -163,8 +161,6 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::lock_guard<std::mutex> lock(m_registryMutex);
-        
         auto it = m_registry.find(p_guid);
         if (it != m_registry.end())
         {
@@ -175,11 +171,24 @@ namespace Droplet
         }
     }
 
+    uint32_t ResourceManager::GetRef(GUID p_guid)
+    {
+        assert(m_isInitialized && "AssetManager is not initialized.");
+
+        auto it = m_registry.find(p_guid);
+        if (it != m_registry.end())
+        {
+            return it->second.refCount;
+        }
+        else
+        {
+            return C_INVALID_GUID;
+        }
+    }
+
     ResourceState ResourceManager::GetState(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
-        
-        std::lock_guard<std::mutex> lock(m_registryMutex); // This is not ideal for polling (performance)
             
         auto it = m_registry.find(p_guid);
         if (it != m_registry.end())

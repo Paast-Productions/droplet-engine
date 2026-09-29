@@ -94,7 +94,7 @@ namespace Droplet
                 // TODO: Log this as a warning/error
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
-
+            
             bool loadAsync = false;
             auto [it, wasInserted] = m_registry.try_emplace(p_guid);
             if (wasInserted)
@@ -153,22 +153,7 @@ namespace Droplet
         /// @param p_guid The globally unique identifier of the resource.
         void DecrementRef(GUID p_guid);
 
-        uint32_t GetRef(GUID p_guid)
-        {
-            assert(m_isInitialized && "AssetManager is not initialized.");
-
-            std::lock_guard<std::mutex> lock(m_registryMutex);
-
-            auto it = m_registry.find(p_guid);
-            if (it != m_registry.end())
-            {
-                return it->second.refCount;
-            }
-            else
-            {
-                return C_INVALID_GUID;
-            }
-        }
+        uint32_t GetRef(GUID p_guid);
 
         /// @brief Queries the load state of a resource in the internal registry.
         /// @param p_guid The globally unique identifier of the resource.
@@ -183,8 +168,6 @@ namespace Droplet
         T *GetResource(GUID p_guid)
         {
             assert(m_isInitialized && "AssetManager is not initialized.");
-            
-            std::lock_guard<std::mutex> lock(m_registryMutex);
             
             auto it = m_registry.find(p_guid);
             if (it != m_registry.end() && it->second.state == ResourceState::Ready)
@@ -207,9 +190,7 @@ namespace Droplet
         
         bool m_isInitialized = false;
         ResourceCatalog m_catalog;
-        
         std::unordered_map<GUID, ResourceRecord> m_registry;
-        std::mutex m_registryMutex; 
 
         ThreadPool m_threadPool;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
