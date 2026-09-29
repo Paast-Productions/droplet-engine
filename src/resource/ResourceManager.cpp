@@ -30,6 +30,8 @@ namespace Droplet
 
     void ResourceManager::Update()
     {
+        assert(m_isInitialized && "Resource manager is not initialized.");
+        
         // Perform all queued tasks
         std::function<void()> task;
         while (m_mainThreadTasks.Pop(task))
@@ -40,6 +42,8 @@ namespace Droplet
 
     void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
     {
+        assert(m_isInitialized && "Resource manager is not initialized.");
+        
         std::string assetPathStr = p_assetPath.generic_string();
         std::filesystem::path metaPath = assetPathStr + ".meta";
         
@@ -89,7 +93,7 @@ namespace Droplet
 
     void ResourceManager::IncrementRef(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::lock_guard<std::mutex> lock(m_registryMutex);
         
@@ -102,7 +106,7 @@ namespace Droplet
 
     void ResourceManager::DecrementRef(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::lock_guard<std::mutex> lock(m_registryMutex);
         
@@ -118,7 +122,7 @@ namespace Droplet
 
     ResourceState ResourceManager::GetState(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::lock_guard<std::mutex> lock(m_registryMutex); // This is not ideal for polling (performance)
             

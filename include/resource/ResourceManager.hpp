@@ -54,7 +54,7 @@ namespace Droplet
         /// resources from.
         void Initialize(const std::filesystem::path &p_rootDirectory);
 
-        // TODO: This function should process uploads and trigger callbacks (and should be called in main update loop)
+        /// @brief Should be called every frame. Processes the internal task queue.
         void Update();
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources.
