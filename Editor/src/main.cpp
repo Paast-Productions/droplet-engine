@@ -13,19 +13,19 @@ class DropletInstance; // TODO: Get definition from Droplet Engine
 	return nullptr;
 }
 
-static void DryOff(DropletInstance *instance)
+static void DryOff([[maybe_unused]] DropletInstance *instance)
 {
 	// TODO: Close Droplet Engine
 }
 
-[[nodiscard]] static SDL_Window *InitSDL(DropletInstance *instance)
+[[nodiscard]] static SDL_Window *InitSDL([[maybe_unused]] DropletInstance *instance)
 {
 	// TODO: Get window from Engine
 
 	return nullptr;
 }
 
-static void check_vk_result(VkResult err)
+/*static void check_vk_result(VkResult err)
 {
 	if (err == 0)
 		return;
@@ -34,11 +34,12 @@ static void check_vk_result(VkResult err)
 
 	if (err < 0)
 		abort();
-}
+}*/
 
-static void InitImGui(DropletInstance *instance, SDL_Window *window)
+static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
-	IMGUI_CHECKVERSION();
+	// TODO
+	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
 	ImGuiIO &io = ImGui::GetIO();
@@ -50,8 +51,7 @@ static void InitImGui(DropletInstance *instance, SDL_Window *window)
 	ImGui_ImplSDL3_InitForVulkan(window);
 
 	ImGui_ImplVulkan_InitInfo init_info = {};
-	// TODO
-	/*init_info.Instance = YOUR_INSTANCE;
+	init_info.Instance = YOUR_INSTANCE;
 	init_info.PhysicalDevice = YOUR_PHYSICAL_DEVICE;
 	init_info.Device = YOUR_DEVICE;
 	init_info.QueueFamily = YOUR_QUEUE_FAMILY;
@@ -64,9 +64,9 @@ static void InitImGui(DropletInstance *instance, SDL_Window *window)
 	init_info.PipelineInfoMain.RenderPass = wd->RenderPass;
 	init_info.PipelineInfoMain.Subpass = 0;
 	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.CheckVkResultFn = check_vk_result;*/
+	init_info.CheckVkResultFn = check_vk_result;
 
-	ImGui_ImplVulkan_Init(&init_info);
+	ImGui_ImplVulkan_Init(&init_info);*/
 
 	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
 }
