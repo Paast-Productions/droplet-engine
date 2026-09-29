@@ -28,6 +28,16 @@ namespace Droplet
         m_isInitialized = true;
     }
 
+    void ResourceManager::Update()
+    {
+        // Perform all queued tasks
+        std::function<void()> task;
+        while (m_mainThreadTasks.Pop(task))
+        {
+            task();
+        }
+    }
+
     void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
     {
         std::string assetPathStr = p_assetPath.generic_string();
