@@ -46,6 +46,7 @@ namespace Droplet::Core
 				nlohmann::json j;
 				fileRead >> j;
 				p_data = j.get<T>();
+
 			}
 			catch (nlohmann::json::parse_error& ex)
 			{
@@ -69,7 +70,7 @@ namespace Droplet::Core
 				{
 					throw std::runtime_error("Failed to open file for writing: " + p_readFromFile);
 				}
-				fileWrite << j.dump(4) << ",\n";
+				fileWrite << j.dump(4) << "\n";
 				fileWrite.close();
 				return true;
 			}
