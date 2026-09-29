@@ -1,4 +1,4 @@
-#include <Graphics/VK/DeviceContext.hpp>
+#include <Graphics/VK/VulkanContext.hpp>
 
 
 #include <ranges>
@@ -27,7 +27,7 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL debugCallback(vk::DebugUtilsMessageSever
 }
 
 //Setup of the debug messenger
-void DeviceContext::SetupDebugMessenger()
+void VulkanContext::SetupDebugMessenger()
 {
 	if (!enableValidationLayers)
 		return;
@@ -43,7 +43,7 @@ void DeviceContext::SetupDebugMessenger()
 }
 
 //Iterating through a list of available GPUs and choosing one to use
-void DeviceContext::PickPhysicalDevice()
+void VulkanContext::PickPhysicalDevice()
 {
 	std::vector<vk::raii::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
 	auto const                            devIter = std::ranges::find_if(physicalDevices, [&](auto const &physicalDevice) { return IsDeviceSuitable(physicalDevice); });
@@ -55,7 +55,7 @@ void DeviceContext::PickPhysicalDevice()
 }
 
 //Creation of a vulkan device
-void DeviceContext::CreateLogicalDevice()
+void VulkanContext::CreateLogicalDevice()
 {
 	std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
 
@@ -101,7 +101,7 @@ void DeviceContext::CreateLogicalDevice()
 }
 
 //Checking if the device supports the correct features and API version
-bool DeviceContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
+bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &physicalDevice)
 {
 	// Check if the physicalDevice supports the Vulkan 1.3 API version
 	bool supportsVulkan1_3 = physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
@@ -155,7 +155,7 @@ std::vector<const char *> getRequiredInstanceExtensions()
 }
 
 //Creating a surface for rendering onto
-void DeviceContext::CreateSurface(SDL_Window &p_window)
+void VulkanContext::CreateSurface(SDL_Window &p_window)
 {
 	VkSurfaceKHR _surface;
 	if (!SDL_Vulkan_CreateSurface(&p_window, *m_instance, nullptr, &_surface))
@@ -165,7 +165,7 @@ void DeviceContext::CreateSurface(SDL_Window &p_window)
 	m_surface = vk::raii::SurfaceKHR(m_instance, _surface);
 }
 
-void DeviceContext::CreateInstance()
+void VulkanContext::CreateInstance()
 {
 	constexpr vk::ApplicationInfo appInfo{ .pApplicationName = "Hello Triangle!",
 										   .applicationVersion = VK_MAKE_VERSION(1,0,0),
@@ -216,7 +216,7 @@ void DeviceContext::CreateInstance()
 	m_instance = vk::raii::Instance(m_context, createInfo);
 }
 
-DeviceContext::DeviceContext(SDL_Window &p_window)
+VulkanContext::VulkanContext(SDL_Window &p_window)
 {
 	CreateInstance();
 	SetupDebugMessenger();
