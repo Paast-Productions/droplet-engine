@@ -21,6 +21,7 @@ namespace Droplet
             return;
         }
         
+        m_rootDirectory = std::filesystem::absolute(p_rootDirectory);
         m_isInitialized = true;
     }
 

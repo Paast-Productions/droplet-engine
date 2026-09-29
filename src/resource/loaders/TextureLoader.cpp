@@ -17,6 +17,7 @@ namespace Droplet
 
 		if (!fs::exists(filePath))
 		{
+			std::cout << "File not found: " << filePath << std::endl;
 			throw std::runtime_error("File was not found");
 		}
 

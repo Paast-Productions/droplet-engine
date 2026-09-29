@@ -22,7 +22,7 @@ protected:
 
 	bool WaitForResource(
 		GUID p_guid,
-		std::chrono::milliseconds p_timeout = std::chrono::seconds(5))
+		std::chrono::milliseconds p_timeout = std::chrono::seconds(1))
 	{
 		auto start = std::chrono::steady_clock::now();
 
