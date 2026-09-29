@@ -59,7 +59,7 @@ void Renderer::windowResize()
 	m_framebufferResized = true;
 }
 
-void Renderer::createGraphicsPipeline()
+void Renderer::CreateGraphicsPipeline()
 {
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = CreateShaderModule(*m_context->GetDevice(), readFile("../../src/Graphics/VK/Shaders/slang.spv"));
@@ -69,7 +69,7 @@ void Renderer::createGraphicsPipeline()
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
-void Renderer::createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
+void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = CreateShaderModule(*m_context->GetDevice(), p_shaderBlob);
@@ -228,7 +228,7 @@ void Renderer::RecordCommandBuffer(uint32_t imageIndex)
 
 //Need to create fences and semaphores for each frame in flight
 //Creation of objects for parallellization, semaphores for GPU, fences for CPU
-void Renderer::createSyncObjects()
+void Renderer::CreateSyncObjects()
 {
 	assert(m_presentCompleteSemaphores.empty() && m_renderFinishedSemaphores.empty() && m_inFlightFences.empty());
 
@@ -432,7 +432,7 @@ int Renderer::Initialize()
 
 	CreateCommandPool();
 
-	createGraphicsPipeline();
+	CreateGraphicsPipeline();
 
 	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
 
@@ -455,7 +455,7 @@ int Renderer::Initialize()
 
 	CreateCommandBuffers();
 
-	createSyncObjects();
+	CreateSyncObjects();
 
 	return 0;
 }
@@ -479,14 +479,21 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	m_swapchain.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
 
-	createGraphicsPipeline(p_shaderBlob);
+	CreateDescriptorSetLayout();
 
 	CreateCommandPool();
 
+	CreateGraphicsPipeline(p_shaderBlob);
+
 	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
-	
-	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_TOEVERTICES);
-	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_TOEINDICES);
+
+	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES);
+	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES);
+
+	//Format is changed from the usual eR8G8B8A8Srbg/unorm
+	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+	CreateTextureSampler();
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
@@ -499,7 +506,7 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	CreateCommandBuffers();
 
-	createSyncObjects();
+	CreateSyncObjects();
 
 	return 0;
 }

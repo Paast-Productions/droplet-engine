@@ -40,27 +40,49 @@ public:
 	inline static			SDL_InitState p_init {};
 
 private:
-	//void					createInstance();
-	//void					setupDebugMessenger();
-	//void					createSurface();
-	//bool					isDeviceSuitable(vk::raii::PhysicalDevice const& physicalDevice);
-	//void					pickPhysicalDevice();
-	//void					createLogicalDevice();
+	/// @brief Creates the graphics pipeline
+	void					CreateGraphicsPipeline();
 
-	void					createGraphicsPipeline();
-	void					createGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
+	/// @brief Creates a graphics pipeline based on a shader
+	/// @param p_shaderBlob shader to be used
+	void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
+
+	/// @brief Creates a shader module from a vector containing raw code
+	/// @param p_device Pointer to the vulkan device
+	/// @param code Vector containing raw code
+	/// @return A vulkan shader module
 	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &code) const;
+
+	/// @brief Creates a shader module from a blob containing code
+	/// @param p_device Pointer to the vulkan device
+	/// @param code Blob containing code
+	/// @return A vulkan shader module
 	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &code) const;
+	
+	/// @brief Creates the command pool
 	void					CreateCommandPool();
+
+	/// @brief Creates commandbuffers
 	void					CreateCommandBuffers();
+
+	/// @brief Records a command buffer for rendering an image
+	/// @param imageIndex which image to render to
 	void					RecordCommandBuffer(uint32_t imageIndex);
 
+	/// @brief Creates the texture sampler
 	void					CreateTextureSampler();
+
+	/// @brief Creates the descriptorset layout
 	void					CreateDescriptorSetLayout();
+
+	/// @brief Creates the descriptor pool
 	void					CreateDescriptorPool();
+
+	/// @brief Creates the descriptorsets
 	void					CreateDescriptorSets();
 
-	void					createSyncObjects();
+	/// @brief Creates sync objects for preventing race conditions etc
+	void					CreateSyncObjects();
 
 	/// @brief Changes the layout of an image from one to another
 	/// @param image The image to be translated
@@ -84,14 +106,6 @@ private:
 	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 	//Declaration order matters for destruction order!!!!
-	//vk::raii::Context						m_context;
-	//vk::raii::Instance					m_instance = nullptr;
-	//vk::raii::DebugUtilsMessengerEXT		m_debugMessenger = nullptr;
-	//vk::raii::SurfaceKHR					m_surface = nullptr;
-	//vk::raii::PhysicalDevice				m_physicalDevice = nullptr;
-	//vk::raii::Device						m_device = nullptr;
-	//std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
-	//vk::raii::Queue						m_queue = nullptr;
 
 	std::optional<Droplet::Graphics::VK::VulkanContext> m_context;
 
