@@ -16,14 +16,13 @@ project "AssetManager-AssetLoading"
 	    rootPath .. "/src/resource/meta/MetaUtils.cpp",
         rootPath .. "/src/resource/ThreadPool.cpp"
     }
+    local vkPath = os.getenv("VULKAN_SDK")
 
     libdirs {
         targetBuildPath .. "/Engine",
         targetBuildPath .. "/External/lib",
-
+        vkPath .. "/Lib"
     }
-    
-    local vkPath = os.getenv("VULKAN_SDK")
 
     includedirs {
         rootPath .. "/include",
@@ -43,7 +42,8 @@ project "AssetManager-AssetLoading"
     links {
         "Engine",
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd")
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd")
     }
 
     defines {
