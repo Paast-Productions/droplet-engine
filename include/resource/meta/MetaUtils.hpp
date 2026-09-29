@@ -32,7 +32,7 @@ namespace Droplet::MetaUtils
     /// @param p_metaFilePath The path to the .meta file.
     /// @param p_metaData Struct containing the metadata to be written to the .meta file.
     /// @return True if the metadata was successfully written to the file, otherwise false.
-    bool Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData);
+    bool Write(const std::filesystem::path &p_metaFilePath, const std::vector<MetaEntry> &p_metaData);
 
     /// @brief Determines the shader type based on its name.
     /// @param p_shaderPath The path to the shader file.
