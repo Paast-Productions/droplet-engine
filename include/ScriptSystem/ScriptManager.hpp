@@ -86,18 +86,25 @@ namespace Droplet::Script
 		/// specified component and the requested Lua script.
 		/// @param p_scriptComponent Component that will own the script instance.
 		/// @param p_scriptFile Path or name of the Lua script to associate with the component.
-		/// @return Pointer to the created ScriptInstance.
 		void CreateComponentScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
 
+		/// @brief Creates a script instance and associates it with a behaviour.
+		/// The created ScriptInstance establishes the relationship between the
+		/// specified behaviour and the requested Lua script.
+		/// @param p_scriptBehaviour Behaviour that will own the script instance.
+		/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
 
 		/// @brief Detaches the script instance from a component.
 		/// This removes the relationship between the specified component and its
 		/// associated ScriptInstance.
-		/// @param p_scriptComponent Component from which the script should be
-		/// detached.
+		/// @param p_scriptComponent Component from which the script should be detached.
 		void DetachComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
+		/// @brief Detaches the script instance from a behaviour.
+		/// This removes the relationship between the specified component and its
+		/// associated ScriptInstance.
+		/// @param p_scriptBehaviour Behaviour from which the script should be detached.
 		void DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Decouples every instance to a certain script file.
@@ -146,6 +153,9 @@ namespace Droplet::Script
 		/// @param p_scriptComponent Component whose script should be activated.
 		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
+		/// @brief Activates a script behaviour
+		/// An activated script is added to the collection of scripts that are updated each frame
+		/// @param p_scriptBehaviour Behaviour whose script should be activated.
 		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Deactivates a script component
@@ -153,6 +163,9 @@ namespace Droplet::Script
 		/// @param p_scriptComponent Component whose script should be deactivated.
 		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
+		/// @brief Deactivates a script behaviour
+		/// A deactivated script is removed from the collection of scripts that are updated each frame
+		/// @param p_scriptBehaviour Behaviour whose script should be deactivated.
 		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Sets the directory Path
@@ -188,10 +201,9 @@ namespace Droplet::Script
 		std::vector<std::unique_ptr<ScriptInstance>> m_scriptInstances;
 
 		/// @brief Maps script components to their associated script instances
-		/// This relationship allows the manager to find the ScriptInstance
-		/// associated with a particular TestNode.
 		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *> m_componentScripts;
 
+		/// @brief Maps script behaviour to their associated script instances
 		std::unordered_map<Droplet::Scene::Behaviour *, ScriptInstance *> m_behaviourScripts;
 
 		/// @brief Stores all Lua scripts that have been loaded

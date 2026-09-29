@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SceneSystem/Behaviour.hpp"
+#include <SceneSystem/Behaviour.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <string>
 
@@ -8,6 +8,16 @@ using namespace Droplet::Script;
 
 namespace Droplet::Scene
 {
+    /// @brief Behaviour that attaches a Lua script to game.
+    ///
+    /// ScriptBehaviour connects a scene a Lua script to the game. It stores the
+    /// path to the associated script and forwards script lifecycle operations
+    /// to the ScriptSystem.
+    ///
+    /// A Lua script attached through a ScriptBehaviour can implement behavior
+    /// such as movement, animation, interaction, or other game-specific logic.
+    /// The component participates in the Node lifecycle through its Start()
+    /// and Update() functions.
     class ScriptBehaviour : public Behaviour
     {
     public:
