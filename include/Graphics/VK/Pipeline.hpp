@@ -5,7 +5,13 @@
 #undef VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
+#ifdef _WIN32
 #include <slang/slang.h>
+#elifdef __linux__
+#include <shader-slang/slang.h>
+#endif
+
+
 
 namespace Droplet::Graphics::VK
 {

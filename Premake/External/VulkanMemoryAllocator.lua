@@ -15,15 +15,28 @@
         rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/src/VmaUsage.cpp",
     }
 
-    local vkPath = os.getenv('VULKAN_SDK')
+    if _TARGET_OS == "windows" then
 
-    includedirs
-    {
-        vkPath .. "/Include",
-        rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/include",
-        rootPath .. "/External/VulkanMemoryAllocator/include",
-        targetBuildPath .. "/External/include"
-    }
+        local vkPath = os.getenv('VULKAN_SDK')
+
+        includedirs
+        {
+            vkPath .. "/Include",
+            rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/include",
+            rootPath .. "/External/VulkanMemoryAllocator/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/include",
+            rootPath .. "/External/VulkanMemoryAllocator/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     local vulkanMemoryAllocatorPath = targetBuildPath .. "/External/include"
 

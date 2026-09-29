@@ -14,15 +14,26 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
+        local vkPath = os.getenv("VULKAN_SDK")
 
-    includedirs
-    {
-        "../include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
-    
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
     libdirs
     {
         targetBuildPath .. "/External/lib",
@@ -38,7 +49,13 @@ project "Test"
 
     links
     {
+<<<<<<< HEAD
         "Engine", 
         "gtest",
         AddQuotation("lua-5.4.7")
     }
+=======
+        "Engine",
+        "gtest"
+    }
+>>>>>>> 7aee90e (Linux: Fix Compatability)

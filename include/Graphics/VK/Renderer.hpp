@@ -11,8 +11,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #undef GLM_FORCE_DEPTH_ZERO_TO_ONE
 
+#ifdef _WIN32
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
+#elifdef __linux__
+#include <shader-slang/slang.h>
+#include <shader-slang/slang-com-ptr.h>
+#endif
 
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Pipeline.hpp>

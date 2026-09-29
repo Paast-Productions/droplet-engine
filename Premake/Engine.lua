@@ -6,15 +6,29 @@ project "Engine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
 
-    includedirs
-    {
-        "../include",
-        "../include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+        -- vkPath required as windows doesn't add the vulkan sdk to lib path'
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson
     {
