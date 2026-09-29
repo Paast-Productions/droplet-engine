@@ -11,9 +11,9 @@ namespace Droplet
     /// @brief Determines if a resource is loaded into RAM, VRAM or both.
     enum class ResourceLoadFlag : uint8_t
     {
-        LoadCPU = 1 << 0,
-        LoadGPU = 1 << 0,
-        LoadBoth  = LoadCPU
+        LoadCPU  = 1 << 0,           // Binary: 01
+        LoadGPU  = 1 << 1,           // Binary: 10
+        LoadBoth = LoadCPU | LoadGPU // Binary: 11
     };
     
     // Bitwise or
