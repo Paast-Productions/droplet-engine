@@ -1,9 +1,10 @@
 #pragma once
 
-#include "resource/ResourceManager.hpp"
 #include "resource/types/MeshResource.hpp"
 #include "resource/types/SkinnedMeshResource.hpp"
 #include "resource/types/AnimationResource.hpp"
+
+#include <json/json.hpp>
 
 #include <vector>
 #include <string>
