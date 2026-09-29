@@ -18,7 +18,12 @@ namespace Droplet::Scene
         /// TODO: Placeholder as the correct method is not yet inplemented
         const std::string &GetMeshPath() const;
 
+    protected:
+		void RenderInternalUI() override;
+
     private:
         std::string m_meshPath;
+
+        // TODO: Material settings
     };
 }

@@ -22,8 +22,15 @@ void ScriptComponent::Start()
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-    ScriptSystem::Get().Update(1.0);
+	ScriptSystem::Get().Update(1.0);
+
     //TODO: Lua script update will be implemented later.
+}
+
+void ScriptComponent::RenderInternalUI()
+{
+	// TODO: Handle case where script does not have a RenderUI function.
+	Call("RenderUI");
 }
 
 const std::string &ScriptComponent::GetScriptPath() const

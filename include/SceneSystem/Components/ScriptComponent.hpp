@@ -78,6 +78,11 @@ namespace Droplet::Scene
             const std::string &p_functionName,
             Args&&... p_args);
 
+    protected:
+
+        /// @brief Renders the UI defined in the script.
+		void RenderInternalUI() override;
+
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
