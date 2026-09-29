@@ -1,5 +1,6 @@
 #pragma once
 #include <EditorWindow.hpp>
+#include <ImGui/imgui.h>
 
 namespace Droplet::Editor
 {
