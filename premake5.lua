@@ -7,6 +7,8 @@ workspace "DropletEngine"
     cppdialect "C++23"
 	startproject "Engine"
     warnings "Extra"
+    externalanglebrackets "On"
+    externalwarnings "Off"
     fatalwarnings { "All" }
     configurations { "debug", "release" }
 
@@ -36,6 +38,7 @@ workspace "DropletEngine"
 -- [[ SOURCE ]] --
 
 include "Premake/Engine"
+include "Premake/Editor"
 include "Premake/Test"
 
 -- [[ SAMPLES ]] --
@@ -43,6 +46,7 @@ include "Premake/Test"
 include "Premake/Samples/Vulkan/HelloTriangle"
 include "Premake/Samples/Scene/Scene"
 include "Premake/Samples/Transform/Transform"
+include "Premake/Samples/Scripting/ScriptingMain"
 
 -- [[ EXTERNAL ]] --
 

@@ -20,6 +20,10 @@
 !/External
 !/External/**
 
+# Editor
+!/Editor
+!/Editor/**
+
 # Test
 !/Test
 !/Test/**

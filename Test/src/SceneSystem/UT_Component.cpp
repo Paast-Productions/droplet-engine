@@ -2,18 +2,26 @@
 
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Node.hpp"
+#include "SceneSystem/Scene.hpp"
 
+using namespace Droplet::Scene;
 
 class ComponentTest : public ::testing::Test
 {
 protected:
 
+    std::shared_ptr<Scene> scene;
     std::shared_ptr<Node> node;
 
     void SetUp() override
     {
+		scene = 
+            std::make_shared<Scene>("Game");
+
+		scene->Load();
+
         node =
-            std::make_shared<Node>("TestNode");
+            scene->AddNode("TestNode");
     }
 };
 

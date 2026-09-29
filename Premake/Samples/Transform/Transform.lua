@@ -4,7 +4,7 @@ project "Transform"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Vulkan/")
+    debugdir(rootPath .. "/Samples/Transform/")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT

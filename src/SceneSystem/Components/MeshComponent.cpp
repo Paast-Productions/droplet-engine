@@ -1,5 +1,7 @@
 #include "MeshComponent.hpp"
 
+using namespace Droplet::Scene;
+
 MeshComponent::MeshComponent(const std::string &p_meshPath)
     : m_meshPath((p_meshPath))
 {

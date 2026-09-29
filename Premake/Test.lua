@@ -6,6 +6,8 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+    local vkPath = os.getenv("VULKAN_SDK")
+
     files 
     {
         "../Test/src/**.hpp",
@@ -30,11 +32,13 @@ project "Test"
     dependson 
     {
         "GoogleTest",
-        "Engine"
+        "Engine",
+        "Sol2"
     }
 
     links
     {
-        "Engine",
-        "gtest"
+        "Engine", 
+        "gtest",
+        AddQuotation("lua-5.4.7")
     }

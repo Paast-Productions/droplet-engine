@@ -1,36 +1,20 @@
 #include "Transform.hpp"
-// #include "Node.hpp"
+#include <Node.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <stdexcept>
 
 using namespace Droplet::Scene;
 
-// HACK: Temporary implementation until actual implementation is accessible.
-class Droplet::Scene::Node
+Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
-public:
-	std::shared_ptr <Node> GetParent() const
+	// Ensure that the Transform is being constructed by its owning Node.
+	if (&(m_owner->GetTransform()) != this)
 	{
-		return m_parent;
+		throw std::runtime_error("Transforms may only be constructed by their owning Node.");
 	}
-
-	std::unique_ptr<Transform> &GetTransform()
-	{
-		return m_transform;
-	}
-
-private:
-	std::shared_ptr<Node> m_parent;
-	std::unique_ptr<Transform> m_transform;
-};
-
-
-Transform::Transform(std::weak_ptr<Node> p_owner) 
-	: m_owner(std::move(p_owner))
-{
-
 }
 
 glm::vec3 Transform::GetPosition(Space p_space) const
@@ -80,7 +64,7 @@ glm::quat Transform::GetRotation(Space p_space) const
 		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
 
 		glm::quat parentWorldRotation = glm::quat_cast(parentWorldMatrix);
-		return parentWorldRotation;
+		return parentWorldRotation * m_rotation;
 	}
 }
 
@@ -111,7 +95,7 @@ glm::vec3 Transform::GetScale() const
 	return m_scale;
 }
 
-glm::mat4 Transform::GetMatrix(Space p_space) const
+glm::mat4 Transform::GetMatrix(Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -126,9 +110,19 @@ glm::mat4 Transform::GetMatrix(Space p_space) const
 	{
 	default:
 	case Space::Local:
+		if (m_isDirty)
+		{
+			UpdateLocalMatrix();
+		}
+
 		return m_localMatrix;
 
 	case Space::World:
+		if (m_isDirty)
+		{
+			RecalculateMatrices();
+		}
+
 		return m_worldMatrix;
 	}
 }
@@ -259,6 +253,8 @@ void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -288,6 +284,8 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 		m_rotation = localRot;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -351,12 +349,20 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 	}
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
+
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().MakeDirty();
+	}
 }
 
 void Transform::RecalculateMatrices()
@@ -431,6 +437,8 @@ void Transform::Rotate(const glm::quat &p_delta, Space p_space)
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -460,6 +468,8 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
+
+	ValidateRotation();
 
 	MakeDirty();
 }
@@ -496,6 +506,8 @@ void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -526,6 +538,8 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 		break;
 	}
 
+	ValidateRotation();
+
 	MakeDirty();
 }
 
@@ -545,11 +559,9 @@ void Transform::UpdateLocalMatrix()
 
 bool Transform::HasParent() const
 {
-	if (m_owner.expired())
-		return false;
+	assert(m_owner != nullptr && "Transform must have an owner Node.");
 
-	std::weak_ptr<Node> parentNode = m_owner.lock()->GetParent();
-	return !parentNode.expired();
+	return m_owner->GetParent() != nullptr;
 }
 
 Transform *Transform::GetParentTransform() const
@@ -557,5 +569,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return m_owner.lock()->GetParent()->GetTransform().get();
+	return &(m_owner->GetParent()->GetTransform());
 }
