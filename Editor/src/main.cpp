@@ -4,6 +4,27 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 
+class DropletInstance; // TODO: Get definition from Droplet Engine
+
+// Initialization
+[[nodiscard]] static DropletInstance *Soak()
+{
+	// TODO: Init Droplet Engine
+	return nullptr;
+}
+
+static void DryOff(DropletInstance *instance)
+{
+	// TODO: Close Droplet Engine
+}
+
+[[nodiscard]] static SDL_Window *InitSDL(DropletInstance *instance)
+{
+	// TODO: Get window from Engine
+
+	return nullptr;
+}
+
 static void check_vk_result(VkResult err)
 {
 	if (err == 0)
@@ -15,21 +36,7 @@ static void check_vk_result(VkResult err)
 		abort();
 }
 
-static SDL_Window *InitSDL()
-{
-	SDL_WindowFlags windowFlags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE);
-
-	SDL_Window *wnd = SDL_CreateWindow("Droplet Editor", 1280, 720, windowFlags);
-	if (!wnd)
-	{
-		SDL_Log("Failed to create window: %s", SDL_GetError());
-		return nullptr;
-	}
-
-	return wnd;
-}
-
-static void InitImGui(SDL_Window *window)
+static void InitImGui(DropletInstance *instance, SDL_Window *window)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -60,8 +67,11 @@ static void InitImGui(SDL_Window *window)
 	init_info.CheckVkResultFn = check_vk_result;*/
 
 	ImGui_ImplVulkan_Init(&init_info);
+
+	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
 }
 
+// Frame
 static void NewFrame()
 {
 	ImGui_ImplSDL3_NewFrame();
@@ -74,26 +84,31 @@ static void SubmitFrame(SDL_Window *window)
 	SDL_RenderPresent(SDL_GetRenderer(window));
 }
 
-static void DrawFrame([[maybe_unused]] SDL_Window *window)
+static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
 	// Create docking space over the entire window
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 }
 
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-	SDL_Window *wnd = InitSDL();
+	DropletInstance *instance = Soak();
+
+	SDL_Window *wnd = InitSDL(instance);
 	if (!wnd)
 	{
 		return 1;
 	}
 
-	InitImGui(wnd);
+	InitImGui(instance, wnd);
 
 	// Run main loop
 	bool done = false;
 	while (!done)
 	{
+		// TODO: Update engine
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
@@ -104,8 +119,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		NewFrame();
 
-		DrawFrame(wnd);
+		DrawFrame(instance, wnd);
 
 		SubmitFrame(wnd);
 	}
+
+	DryOff(instance);
 }
