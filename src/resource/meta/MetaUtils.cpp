@@ -3,6 +3,8 @@
 
 #include <fstream>
 
+#include "core/StringUtils.hpp"
+
 using json = nlohmann::json;
 
 namespace Droplet
@@ -47,7 +49,7 @@ namespace Droplet
         return true;
     }
 
-    bool MetaUtils::Write(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
+    bool MetaUtils::Write(const std::filesystem::path &p_metaFilePath, const std::vector<MetaEntry> &p_metaData)
     {
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
@@ -82,10 +84,8 @@ namespace Droplet
     ShaderResource::ShaderType MetaUtils::EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
     {
         std::string shaderFileName = p_shaderPath.filename().generic_string();
-        std::transform(shaderFileName.begin(), shaderFileName.end(), shaderFileName.begin(), [](unsigned char c)
-        {
-            return tolower(c);
-        });
+        StringUtils::ToLowerInPlace(shaderFileName);
+        
         if (shaderFileName.starts_with("vs_"))
         {
             return ShaderResource::ShaderType::Vertex;
