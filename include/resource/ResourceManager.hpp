@@ -156,15 +156,10 @@ namespace Droplet
                             }
                             it->second.resource = std::move(texture);
                             it->second.state = ResourceState::ReadyAsync;
-                            std::cout << "Refcount1 " << it->second.refCount << std::endl;
                         }
                     }
                 });
-                auto it = m_registry.find(p_guid);
-                std::cout << "Refcount2 " << it->second.refCount << std::endl;
             }
-            auto it = m_registry.find(p_guid);
-            std::cout << "Refcount3 " << it->second.refCount << std::endl;
             return handle;
         }
 
