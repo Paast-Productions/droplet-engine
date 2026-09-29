@@ -44,7 +44,7 @@ namespace Droplet
         /// @return True if the queue is empty, otherwise false.
         [[nodiscard]] bool IsEmpty() const
         {
-            std::lock<std::mutex> lock(m_mutex);
+            std::scoped_lock lock(m_mutex);
             return m_queue.empty();
         }
         
