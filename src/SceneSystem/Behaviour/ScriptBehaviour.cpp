@@ -1,15 +1,17 @@
 #include "ScriptBehaviour.hpp"
+#include <print>
 
-Droplet::Scene::ScriptBehaviour::ScriptBehaviour(const std::string &p_scriptPath)
+Droplet::Scene::ScriptBehaviour::ScriptBehaviour([[maybe_unused]]const std::string &p_scriptPath)
 	: m_scriptPath((p_scriptPath))
 {
-	//auto &ScriptSystem = ScriptSystem::Get();
-	//scriptSystem.CreateScript(this, m_scriptPath);
+	auto &scriptSystem = ScriptSystem::Get();
+	std::print("ScriptPath: {}\n", p_scriptPath);
+	scriptSystem.CreateBehaviourScript(this, m_scriptPath);
+	scriptSystem.ActivateBehaviourScript(this);
 }
 
 void Droplet::Scene::ScriptBehaviour::Start()
 {
-
 }
 
 void Droplet::Scene::ScriptBehaviour::Update([[maybe_unused]] float p_deltaTime)

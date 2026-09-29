@@ -397,9 +397,6 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
-	std::filesystem::path scriptDirectory =
-		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
-
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())

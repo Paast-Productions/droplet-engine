@@ -122,9 +122,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         sceneManager.Update(deltaTime);
     }
 
-
+    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     ScriptBehaviour scriptBehaviour("testScript.lua");
 
+    while (true)
+    {
+        ScriptSystem::Get().Update(1.0f);
+    }
 
     return 0;
 }  
