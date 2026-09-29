@@ -30,8 +30,7 @@ public:
 private:
 	/// @brief Worker loop that sleeps while idle and execute tasks as they become available.
 	void WorkerLoop();
-
-private:
+    
 	std::mutex m_taskMutex;
 	std::condition_variable m_condition; 
 
