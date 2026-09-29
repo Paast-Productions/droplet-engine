@@ -17,8 +17,6 @@
 
 namespace Droplet
 {
-    class IResource;
-
     /// @brief Represents all states that a resource can have.
     enum class ResourceState
     {
@@ -40,7 +38,8 @@ namespace Droplet
         
         std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
     };
-    
+
+    /// @brief The package sent back from a worker thread after a load operation has been completed.
     struct AsyncLoadResult
     {
         bool succeeded = true;
@@ -49,7 +48,8 @@ namespace Droplet
         IResource* resource;
         ResourceLoadFlag loadFlags;
     };
-    
+
+    /// @brief The package sent back from a worker thread after a register operation has been completed.
     struct AsyncRegisterResult
     {
         std::string assetPathStr;
@@ -69,17 +69,17 @@ namespace Droplet
         /// resources from.
         void Initialize(const std::filesystem::path &p_rootDirectory);
 
-        /// @brief Should be called every frame. Processes the internal task queue.
+        /// @brief Should be called every frame. Processes the internal task queues.
         void Update();
 
-        /// @brief Parses an asset file and generates a .meta file based on its internal resources.
+        /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
         /// @param p_assetPath The path to the asset to be registered. Must be within 
         void RegisterAsset(const std::filesystem::path &p_assetPath);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
         /// @param p_guid The guid of the resource.
-        /// @param p_onLoadCallback Callback triggered when the resource's state is ready.
+        /// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
         /// @return A handle to the resource. Make sure to check its validity before use.
         template<typename T>
         ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
@@ -153,6 +153,9 @@ namespace Droplet
         /// @param p_guid The globally unique identifier of the resource.
         void DecrementRef(GUID p_guid);
 
+        /// @brief Retrieves the current reference count for a resource.
+        /// @param p_guid The guid of the resource.
+        /// @return The reference count.
         uint32_t GetRef(GUID p_guid);
 
         /// @brief Queries the load state of a resource in the internal registry.
@@ -192,8 +195,8 @@ namespace Droplet
         ResourceCatalog m_catalog;
         std::unordered_map<GUID, ResourceRecord> m_registry;
         
-        ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
+        ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
     };
     
 }

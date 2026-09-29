@@ -32,7 +32,31 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        // Perform all queued tasks
+        // A possible performance improvement for this function could be to limit the number of processed load and register
+        // operations per call.
+        
+        // --- Process Register Results ---
+        AsyncRegisterResult regRes;
+        while (m_asyncRegisterResults.Pop(regRes))
+        {
+            // Compare found resources with ones already registered for this asset (if there are any) and determine
+            // which are old (keep), which are new (add) and which have been erased (remove).
+            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.assetPathStr, regRes.foundResources);
+                
+            // Update internal catalog
+            for (const auto &entry : newMetaData)
+            {
+                m_catalog.RegisterMetaEntry(regRes.assetPathStr, entry);
+            }
+                
+            // Push metafile write operation to worker thread
+            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
+            {
+               MetaUtils::Write(metaPath, metaData); 
+            });
+        }
+        
+        // --- Process Load Results ---
         AsyncLoadResult loadRes;
         while (m_asyncLoadResults.Pop(loadRes))
         {
@@ -90,26 +114,6 @@ namespace Droplet
             {
                 callback();
             }
-        }
-        
-        AsyncRegisterResult regRes;
-        while (m_asyncRegisterResults.Pop(regRes))
-        {
-            // Compare found resources with ones already registered for this asset (if there are any) and determine
-            // which are old (keep), which are new (add) and which have been erased (remove).
-            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.assetPathStr, regRes.foundResources);
-                
-            // Update internal catalog
-            for (const auto &entry : newMetaData)
-            {
-                m_catalog.RegisterMetaEntry(regRes.assetPathStr, entry);
-            }
-                
-            // Push metafile write operation to worker thread
-            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
-            {
-               MetaUtils::Write(metaPath, metaData); 
-            });
         }
     }
 
