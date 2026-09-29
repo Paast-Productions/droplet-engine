@@ -7,10 +7,8 @@ namespace Droplet::Scene
     /// @brief Base class for game-level behaviours.
     ///
     /// Behaviour provides a common interface for logic that is attached to
-    /// the game rather than to an individual Node.
-    ///
-    /// Similar to a Component, a Behaviour provides lifecycle functions such
-    /// as Start() and Update(). The main distinction is that Components are
+    /// the game.
+    /// The main distinction is that Components are
     /// attached to Nodes, while Behaviours are attached to the game and can
     /// operate on the scene through the SceneManager.
     ///
@@ -29,7 +27,7 @@ namespace Droplet::Scene
         ///
         /// Derived behaviours can override this function to perform
         /// initialization that should occur when the game starts.
-        virtual void Start();
+        virtual void Start() {}
 
         /// @brief Updates the Behaviour.
         ///

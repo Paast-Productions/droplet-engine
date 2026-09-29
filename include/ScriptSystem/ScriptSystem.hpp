@@ -4,6 +4,7 @@
 #include "LuaStateHandler.hpp"
 
 #include <SceneSystem/Component.hpp>
+#include <SceneSystem/Behaviour.hpp>
 
 namespace Droplet::Script
 {
@@ -42,6 +43,8 @@ namespace Droplet::Script
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
 		/// @return Returns if the script instance could correctly be created
 		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+
+		void CreateScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
 
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.

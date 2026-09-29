@@ -29,9 +29,13 @@ void ScriptSystem::Update(float p_deltaTime)
 
 void ScriptSystem::CreateScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
-	m_scriptManager.CreateScript(p_sciptComponent, p_scriptFile);
+	m_scriptManager.CreateComponentScript(p_sciptComponent, p_scriptFile);
 }
 
+void Droplet::Script::ScriptSystem::CreateScript(Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile)
+{
+	m_scriptManager.CreateBehaviourScript(p_scriptBehaviour, p_scriptFile);
+}
 
 void ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {

@@ -3,6 +3,7 @@
 #include "ScriptInstance.hpp"
 
 #include <SceneSystem/Component.hpp>
+#include <SceneSystem/Behaviour.hpp>
 #include <vector>
 #include <string>
 #include <filesystem>
@@ -79,7 +80,9 @@ namespace Droplet::Script
 		/// @param p_scriptComponent Component that will own the script instance.
 		/// @param p_scriptFile Path or name of the Lua script to associate with the component.
 		/// @return Pointer to the created ScriptInstance.
-		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+		void CreateComponentScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+
+		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
 
 		/// @brief Detaches the script instance from a component.
 		/// This removes the relationship between the specified component and its
@@ -173,7 +176,9 @@ namespace Droplet::Script
 		/// @brief Maps script components to their associated script instances
 		/// This relationship allows the manager to find the ScriptInstance
 		/// associated with a particular TestNode.
-		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *> m_scripts;
+		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *> m_componentScripts;
+
+		std::unordered_map<Droplet::Scene::Behaviour *, ScriptInstance *> m_behaviourScripts;
 
 		/// @brief Stores all Lua scripts that have been loaded
 		/// The script path and modification time are stored together with the
@@ -211,9 +216,9 @@ namespace Droplet::Script
 		}
 
 		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *>::iterator it =
-			m_scripts.find(p_scriptComponent);
+			m_componentScripts.find(p_scriptComponent);
 
-		if (it == m_scripts.end())
+		if (it == m_componentScripts.end())
 		{
 			//TODO: attach component to script
 			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
