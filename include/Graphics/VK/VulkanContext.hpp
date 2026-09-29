@@ -9,13 +9,13 @@
 
 namespace Droplet::Graphics::VK
 {
-	class DeviceContext
+	class VulkanContext
 	{
 	public:
-		DeviceContext() = delete;
-		~DeviceContext() = default;
+		VulkanContext() = delete;
+		~VulkanContext() = default;
 
-		DeviceContext(SDL_Window &p_window);
+		VulkanContext(SDL_Window &p_window);
 
 		[[nodiscard]] const vk::raii::Instance *GetInstance();
 		[[nodiscard]] const vk::raii::Device *GetDevice();
@@ -43,32 +43,32 @@ namespace Droplet::Graphics::VK
 		std::vector<const char *>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 	};
 
-	inline const vk::raii::Instance *DeviceContext::GetInstance()
+	inline const vk::raii::Instance *VulkanContext::GetInstance()
 	{
 		return &m_instance;
 	}
 
-	inline const vk::raii::Device *DeviceContext::GetDevice()
+	inline const vk::raii::Device *VulkanContext::GetDevice()
 	{
 		return &m_device;
 	}
 
-	inline const vk::raii::PhysicalDevice *DeviceContext::GetPhysicalDevice()
+	inline const vk::raii::PhysicalDevice *VulkanContext::GetPhysicalDevice()
 	{
 		return &m_physicalDevice;
 	}
 
-	inline const vk::raii::SurfaceKHR *DeviceContext::GetSurface()
+	inline const vk::raii::SurfaceKHR *VulkanContext::GetSurface()
 	{
 		return &m_surface;
 	}
 
-	inline const vk::raii::Queue *DeviceContext::GetQueue()
+	inline const vk::raii::Queue *VulkanContext::GetQueue()
 	{
 		return &m_queue;
 	}
 
-	inline const std::uint32_t DeviceContext::GetQueueIndex()
+	inline const std::uint32_t VulkanContext::GetQueueIndex()
 	{
 		return m_queueIndex;
 	}

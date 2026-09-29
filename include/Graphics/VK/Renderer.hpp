@@ -20,7 +20,7 @@
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
-#include <Graphics/VK/DeviceContext.hpp>
+#include <Graphics/VK/VulkanContext.hpp>
 
 
 // HACK: Implementation subject to change
@@ -93,7 +93,7 @@ private:
 	//std::uint32_t							m_queueIndex = static_cast<std::uint32_t>(~0);
 	//vk::raii::Queue						m_queue = nullptr;
 
-	std::optional<Droplet::Graphics::VK::DeviceContext> m_context;
+	std::optional<Droplet::Graphics::VK::VulkanContext> m_context;
 
 	SDL_Event m_event;
 
