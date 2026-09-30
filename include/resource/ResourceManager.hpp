@@ -23,7 +23,6 @@ namespace Droplet
         Unloaded,
         Queued,
         LoadingAsync,
-        ReadyAsync,
         Uploading,
         Ready,
         Failed
@@ -34,7 +33,7 @@ namespace Droplet
     {
         std::unique_ptr<IResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
-        std::atomic<uint32_t> refCount{0};
+        uint32_t refCount = 0;
         
         std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
     };
@@ -101,7 +100,7 @@ namespace Droplet
             {
                 // Resource was just created in-place -> Update its state
                 it->second.state = ResourceState::LoadingAsync;
-                it->second.refCount.store(0, std::memory_order_relaxed); // Incremented when handle is constructed
+                it->second.refCount = 0; // Incremented when handle is constructed
                 loadAsync = true;
             }
             
@@ -144,6 +143,8 @@ namespace Droplet
             
             return handle;
         }
+        
+        std::vector<MetaEntry> GetRegisteredResources(ResourceType p_type=ResourceType::None) const;
 
         /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.

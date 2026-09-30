@@ -157,7 +157,7 @@ namespace Droplet
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
         {
-            it->second.refCount.fetch_add(1); // TODO: Look into which memory_order to use here
+            it->second.refCount += 1;
         }
     }
 
@@ -168,7 +168,7 @@ namespace Droplet
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
         {
-            if (it->second.refCount.fetch_sub(1) == 1) // TODO: Look into which memory_order to use here
+            if (it->second.refCount - 1 == 0)
             {
                 m_liveResources.erase(it);
             }
