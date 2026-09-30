@@ -2,6 +2,7 @@
 
 #include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
 
 class Time; // Forward declaration ahead of time implementation
 
@@ -25,6 +26,7 @@ namespace Droplet
 		Engine(EngineConfig p_config);
 		
 		void Run();
+		void ShutDown();
 		
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
 		
@@ -32,5 +34,6 @@ namespace Droplet
 		
 	private:
 		Renderer m_renderer;
+		Script::ScriptSystem m_scriptSystem;
 	};
 }
