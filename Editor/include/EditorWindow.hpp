@@ -25,7 +25,7 @@ namespace Droplet::Editor
 
 		/// @brief Toggles the visibility of the toolbar.
 		/// @param visible True to show the toolbar, false to hide it.
-		void ToggleToolbar(bool visible) { m_hasToolbar = visible; }
+		void ToggleToolbar(bool p_visible) { m_hasToolbar = p_visible; }
 		
 		/// @brief Checks if the editor window has a toolbar.
 		/// @return True if the editor window has a toolbar, false otherwise.
@@ -55,11 +55,11 @@ namespace Droplet::Editor
 
 		/// @brief Sets the name of the editor window.
 		/// @param name The name to set for the editor window.
-		void SetName(const std::string &name) { m_name = name; }
+		void SetName(const std::string &p_name) { m_name = p_name; }
 		
 		/// @brief Sets the window flags for the editor window.
 		/// @param flags The ImGui window flags to set for the editor window.
-		void SetWindowFlags(ImGuiWindowFlags flags) { m_windowFlags = flags; }
+		void SetWindowFlags(ImGuiWindowFlags p_flags) { m_windowFlags = p_flags; }
 
 	private:
 		bool m_hasToolbar = true;
