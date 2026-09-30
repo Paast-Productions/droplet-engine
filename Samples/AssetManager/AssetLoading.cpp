@@ -7,7 +7,6 @@
 #include "resource/meta/MetaData.hpp"
 #include "resource/meta/MetaUtils.hpp"
 #include "resource/types/Texture2DResource.hpp"
-#include "Logger.hpp"
 
 #include <filesystem>
 #include <string>
@@ -25,7 +24,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     
     // Simulate engine initialize
     Droplet::ThreadPool::GetInstance().Initialize();
-    Droplet::Debug::Logger::GetInstance().Log(Droplet::Debug::Logger::LogType::Info, "Testing logger");
     
     // Initialize resource manager
     fs::path assetDir = fs::current_path() / fs::path("assets");

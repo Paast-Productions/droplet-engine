@@ -10,11 +10,11 @@ project "AssetManager-AssetLoading"
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/AssetManager/AssetLoading.cpp",
-        rootPath .. "/src/resource/ResourceCatalog.cpp",
         rootPath .. "/src/resource/ResourceManager.cpp",
         rootPath .. "/src/resource/loaders/GliLoader.cpp",
 	    rootPath .. "/src/resource/meta/MetaUtils.cpp",
-        rootPath .. "/src/resource/ThreadPool.cpp"
+        rootPath .. "/src/core/ThreadPool.cpp",
+        rootPath .. "/src/Debug/Logger.cpp"
     }
     local vkPath = os.getenv("VULKAN_SDK")
 

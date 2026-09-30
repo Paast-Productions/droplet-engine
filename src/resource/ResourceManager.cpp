@@ -13,18 +13,17 @@ namespace Droplet
     {
         if (m_isInitialized)
         {
-            // Log RM already initialized
+            // TODO: Log RM already initialized
             return;
         }
         
         if (!m_registry.ScanDirectory(p_rootDirectory))
         {
-            // Log error (directory does not exist)
+            // TODO: Log error (directory does not exist)
             m_isInitialized = false;
             return;
         }
         
-        m_rootDirectory = std::filesystem::absolute(p_rootDirectory);
         m_isInitialized = true;
     }
 
