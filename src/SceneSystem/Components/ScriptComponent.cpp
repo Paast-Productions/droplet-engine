@@ -8,7 +8,7 @@ using namespace Droplet::Script;
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
 {
-    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
+
 }
 
 void ScriptComponent::Start()

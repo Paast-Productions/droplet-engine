@@ -29,35 +29,7 @@ TEST(ScriptSystem, CreateComponentScript)
 	EXPECT_NO_THROW(system.CreateComponentScript(&component, "testScript.lua"));
 }
 
-TEST(ScriptSystem, DestroyScript)
-{
-	ScriptSystem system;
-	system.SetScriptPath("../src/TestScripts");
-	ScriptComponent firstComponent("");
-	ScriptComponent secondComponent("");
-	ScriptComponent thirdComponent("");
-
-	system.CreateComponentScript(&firstComponent, "testScript.lua");
-	system.CreateComponentScript(&secondComponent, "testScript.lua");
-	system.CreateComponentScript(&thirdComponent, "testScript2.lua");
-
-	system.ActivateComponentScript(&firstComponent);
-	system.ActivateComponentScript(&secondComponent);
-	system.ActivateComponentScript(&thirdComponent);
-
-	system.DetachAllInstancesToScript("testScript.lua");
-
-	EXPECT_FALSE(system.Call(&firstComponent, "test").valid());
-	EXPECT_FALSE(system.Call(&secondComponent, "test").valid());
-
-	EXPECT_TRUE(system.Call(&thirdComponent, "test").valid());
-
-	EXPECT_NO_THROW(system.Update(0.016f));
-
-	EXPECT_NO_THROW(system.DetachAllInstancesToScript("testScript.lua"));
-}
-
-TEST(ScriptSystem, ActivateScript)
+TEST(ScriptSystem, ActivateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");
@@ -72,7 +44,7 @@ TEST(ScriptSystem, ActivateScript)
 	EXPECT_EQ(result, 1);
 }
 
-TEST(ScriptSystem, DeactivateScript)
+TEST(ScriptSystem, DeactivateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");

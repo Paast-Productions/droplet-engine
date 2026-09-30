@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <SceneSystem/Scene.hpp>
 #include <ScriptSystem/ScriptInstance.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Node.hpp>
@@ -11,7 +12,7 @@
 	 // Lua state initialization
 	 LuaStateHandler stateHandler;
 
-	 auto scene = std::make_shared<Scene>();
+	 auto scene = std::make_shared<Scene>("Scene1");
 	 Node testNode(scene, "TestNode");
 
 	 auto script = stateHandler.GetState().load(R"(
@@ -40,7 +41,7 @@ TEST(ScriptInstance, OnStart)
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
 	
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -79,7 +80,7 @@ TEST(ScriptInstance, OnStartUndefined)
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
 
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -113,7 +114,7 @@ TEST(ScriptInstance, onUpdate)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -156,7 +157,7 @@ TEST(ScriptInstance, OnUpdateUndefined)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -195,7 +196,7 @@ TEST(ScriptInstance, Call)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -238,7 +239,7 @@ TEST(ScriptInstance, CallUndefinedFunction)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -268,7 +269,7 @@ TEST(ScriptInstance, callTooManyArguments)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -310,7 +311,7 @@ TEST(ScriptInstance, callTooFewArguments)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
@@ -352,7 +353,7 @@ TEST(ScriptInstance, callError)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	auto scene = std::make_shared<Scene>();
+	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
