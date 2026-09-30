@@ -34,6 +34,8 @@
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Allocator.hpp>
 
+#include <ImGui/imgui_impl_vulkan.h>
+
 
 // HACK: Implementation subject to change
 
@@ -58,8 +60,17 @@ namespace Droplet::Graphics
 		void	drawFrame();
 		void	windowResize();
 
-		SDL_Event				p_event {};
-		inline static			SDL_InitState p_init {};
+	[[nodiscard]] SDL_Window *GetWindow();
+
+	/// @brief Fills and returns initInfo for ImGui
+	/// @return ImGui init info
+	ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
+
+	/// @brief Wait for the Vulkan device to be idle
+	void WaitIdle();
+
+	SDL_Event				p_event;
+	inline static			SDL_InitState p_init {};
 
 	private:
 		/// @brief Creates the graphics pipeline

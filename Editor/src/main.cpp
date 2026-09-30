@@ -3,8 +3,16 @@
 #include <ImGui/imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include <Graphics/VK/Renderer.hpp>
 
 class DropletInstance; // TODO: Get definition from Droplet Engine
+
+Droplet::Graphics::SDL::WindowConfig config =
+{
+	.Width = 640,
+	.Height = 400
+};
+Renderer rend(config);
 
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
@@ -18,28 +26,10 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	// TODO: Close Droplet Engine
 }
 
-[[nodiscard]] static SDL_Window *InitSDL([[maybe_unused]] DropletInstance *instance)
-{
-	// TODO: Get window from Engine
-
-	return nullptr;
-}
-
-/*static void check_vk_result(VkResult err)
-{
-	if (err == 0)
-		return;
-
-	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-
-	if (err < 0)
-		abort();
-}*/
-
 static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
 	// TODO
-	/*IMGUI_CHECKVERSION();
+	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
 	ImGuiIO &io = ImGui::GetIO();
@@ -50,23 +40,10 @@ static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForVulkan(window);
 
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = YOUR_INSTANCE;
-	init_info.PhysicalDevice = YOUR_PHYSICAL_DEVICE;
-	init_info.Device = YOUR_DEVICE;
-	init_info.QueueFamily = YOUR_QUEUE_FAMILY;
-	init_info.Queue = YOUR_QUEUE;
-	init_info.PipelineCache = YOUR_PIPELINE_CACHE;
-	init_info.DescriptorPool = YOUR_DESCRIPTOR_POOL;
-	init_info.MinImageCount = 2;
-	init_info.ImageCount = 2;
-	init_info.Allocator = YOUR_ALLOCATOR;
-	init_info.PipelineInfoMain.RenderPass = wd->RenderPass;
-	init_info.PipelineInfoMain.Subpass = 0;
-	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.CheckVkResultFn = check_vk_result;
+	ImGui_ImplVulkan_InitInfo init_info = rend.GetImGuiInitInfo();
 
-	ImGui_ImplVulkan_Init(&init_info);*/
+	ImGui_ImplVulkan_Init(&init_info);
+
 
 	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
 }
@@ -74,6 +51,7 @@ static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused
 // Frame
 static void NewFrame()
 {
+	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 }
@@ -84,18 +62,13 @@ static void SubmitFrame(SDL_Window *window)
 	SDL_RenderPresent(SDL_GetRenderer(window));
 }
 
-static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
-{
-	// Create docking space over the entire window
-	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-}
-
-
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	DropletInstance *instance = Soak();
 
-	SDL_Window *wnd = InitSDL(instance);
+	rend.Initialize();
+
+	SDL_Window *wnd = rend.GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -119,10 +92,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		NewFrame();
 
-		DrawFrame(instance, wnd);
+		rend.drawFrame();
+		ImGui::ShowDemoWindow();
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 		SubmitFrame(wnd);
 	}
+
+	rend.WaitIdle();
+	ImGui_ImplVulkan_Shutdown();
 
 	DryOff(instance);
 }

@@ -22,6 +22,9 @@ vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice,
 Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig)
 {
 	assert(p_device != nullptr && p_shaderModule != nullptr);
+
+	vk::PipelineCacheCreateInfo cacheInfo{};
+	vk::raii::PipelineCache pipelineCache(p_device, cacheInfo);
 	
 	// TODO: Make dynamic
 	vk::PipelineShaderStageCreateInfo vertShaderStageInfo
@@ -154,5 +157,5 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 		}
 	};
 
-	m_pipeline = vk::raii::Pipeline(p_device, nullptr, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
+	m_pipeline = vk::raii::Pipeline(p_device, m_cache, pipelineCreateInfoChain.get<vk::GraphicsPipelineCreateInfo>());
 }

@@ -49,22 +49,25 @@ project "Editor"
     end
 
     dependson 
-	{
+    {
         "Engine",
         "ImGui",
         "json"
     }
 
     files 
-	{
+    {
         "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
     }
 	
 
     links 
-	{
+    {
         "Engine",
         "ImGui",
-        AddQuotation("SDL3")
+        AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }
