@@ -32,7 +32,15 @@ namespace Droplet
             const std::filesystem::path& p_assetPath, 
             const nlohmann::json &p_loadSettings)
         {
-            return GliLoader::LoadTexture2D(p_assetPath, p_loadSettings);
+            try
+            {
+                return GliLoader::LoadTexture2D(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
         }
     };
     
@@ -69,7 +77,15 @@ namespace Droplet
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
         {
-            return AssimpLoader::LoadMesh(p_assetPath, p_loadSettings);
+            try
+            {
+                return AssimpLoader::LoadMesh(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
         }
     };
     
@@ -80,7 +96,16 @@ namespace Droplet
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
         {
-            return AssimpLoader::LoadSkinnedMesh(p_assetPath, p_loadSettings);
+            try
+            {
+                return AssimpLoader::LoadSkinnedMesh(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
         }
     };
     
@@ -91,7 +116,16 @@ namespace Droplet
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
         {
-            return AssimpLoader::LoadAnimation(p_assetPath, p_loadSettings);
+            try
+            {
+                return AssimpLoader::LoadAnimation(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
         }
     };
     
@@ -104,7 +138,16 @@ namespace Droplet
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
         {
-            return SlangLoader::CompileAndLoad(p_assetPath, p_loadSettings);
+            try
+            {
+                return SlangLoader::CompileAndLoad(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
         }
     };
 }
