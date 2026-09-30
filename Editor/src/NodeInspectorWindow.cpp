@@ -2,7 +2,7 @@
 
 using namespace Droplet::Editor;
 
-void NodeInspectorWindow::SetCurrentNode(Droplet::Scene::Node p_nodeToInspect)
+void NodeInspectorWindow::SetCurrentNode(Droplet::Scene::Node *p_nodeToInspect)
 {
 	m_currentNode = p_nodeToInspect;
 }

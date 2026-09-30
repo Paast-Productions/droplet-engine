@@ -13,7 +13,7 @@ namespace Droplet::Editor
 		NodeInspectorWindow() = default;
 		~NodeInspectorWindow() = default;
 
-		void SetCurrentNode(Droplet::Scene::Node p_nodeToInspect);
+		void SetCurrentNode(Droplet::Scene::Node *p_nodeToInspect);
 
 	protected:
 		void InitImpl() override;
@@ -22,6 +22,6 @@ namespace Droplet::Editor
 		void RenderToolbar() override;
 
 	private:
-		Droplet::Scene::Node m_currentNode;
+		Droplet::Scene::Node *m_currentNode;
 	};
 }
