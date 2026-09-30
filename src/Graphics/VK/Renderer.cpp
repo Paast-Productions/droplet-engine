@@ -244,9 +244,21 @@ void Renderer::CreateSyncObjects()
 	}
 }
 
+void Renderer::UpdateCamera(float p_deltaTime)
+{
+	m_camera.ProcessInput(p_deltaTime);
+}
+
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
 void Renderer::drawFrame()
 {
+	// Create temporary deltaTime that Update's will use
+	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+
+	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
+	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
+	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
+	s_lastFrameTime = currentTime;
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
 		//       while renderFinishedSemaphores is indexed by imageIndex
 	auto fenceResult = m_context->GetDevice()->waitForFences(*m_inFlightFences[m_frameIndex], vk::True, UINT64_MAX);
@@ -279,8 +291,26 @@ void Renderer::drawFrame()
 		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+	// old code
+	//m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
 
-	m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
+	UpdateCamera(deltaTime);
+
+	const auto extent = m_swapchain->GetExtent();
+
+	float aspectRatio =
+		static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	glm::mat4 view = m_camera.GetViewMatrix();
+
+	glm::mat4 projection = m_camera.GetProjectionMatrix(aspectRatio);
+
+	m_uniformBuffers[m_frameIndex]->UpdateBuffer(
+		//extent,
+		view,
+		projection
+	);
 
 	// Only reset the fence if we are submitting work
 	m_context->GetDevice()->resetFences(*m_inFlightFences[m_frameIndex]);
