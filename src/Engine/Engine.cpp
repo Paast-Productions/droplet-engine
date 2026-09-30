@@ -20,8 +20,6 @@ Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
 			m_renderer.windowResize();
 		}
 
-		m_renderer.drawFrame();
-
 		if (m_renderer.p_event.type == SDL_EVENT_KEY_DOWN) 
 		{
 			if (m_renderer.p_event.key.key == SDLK_ESCAPE) 
@@ -30,6 +28,7 @@ Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
 			}
 		}
 	}
+	m_renderer.drawFrame();
 	
 	// Other system that need updating go here.
 	
