@@ -1,6 +1,6 @@
 #pragma once
 #include <EditorWindow.hpp>
-#include <ImGui/imgui.h>
+#include <SceneSystem/Node.hpp>
 
 namespace Droplet::Editor
 {
@@ -13,10 +13,15 @@ namespace Droplet::Editor
 		NodeInspectorWindow() = default;
 		~NodeInspectorWindow() = default;
 
+		void SetCurrentNode(Droplet::Scene::Node p_nodeToInspect);
+
 	protected:
 		void InitImpl() override;
 		void CloseImpl() override;
 		void RenderImpl() override;
 		void RenderToolbar() override;
+
+	private:
+		Droplet::Scene::Node m_currentNode;
 	};
 }
