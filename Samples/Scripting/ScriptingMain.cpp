@@ -8,6 +8,8 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
+#include "Time.hpp"
+
 using namespace Droplet::Scene;
 
 class PlayerComponent : public Component
@@ -29,6 +31,7 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
+    Droplet::Time &time = time.Get();
     SceneManager sceneManager;
 
     // ==================================================
@@ -130,7 +133,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     while (true)
     {
-        ScriptSystem::Get().Update(1.0);
+        time.Update();
+
+        ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;

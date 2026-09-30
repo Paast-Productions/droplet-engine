@@ -7,5 +7,5 @@ function OnUpdate(dt)
 	local position = Vec3.new(100.0, 1.0, 90.0)
 	transform:SetPosition(position, TransformSpace.Local)
 
-	print(position.x)
+	print(position.x, dt)
 end
