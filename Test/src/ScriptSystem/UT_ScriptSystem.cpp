@@ -21,12 +21,12 @@ TEST(ScriptSystem, UnloadScript)
 	EXPECT_NO_THROW(system.UnloadScript("testScript.lua"));
 }
 
-TEST(ScriptSystem, CreateScript)
+TEST(ScriptSystem, CreateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/TestScripts");
 	ScriptComponent component("");
-	EXPECT_NO_THROW(system.CreateScript(&component, "testScript.lua"));
+	EXPECT_NO_THROW(system.CreateComponentScript(&component, "testScript.lua"));
 }
 
 TEST(ScriptSystem, DestroyScript)
@@ -37,13 +37,13 @@ TEST(ScriptSystem, DestroyScript)
 	ScriptComponent secondComponent("");
 	ScriptComponent thirdComponent("");
 
-	system.CreateScript(&firstComponent, "testScript.lua");
-	system.CreateScript(&secondComponent, "testScript.lua");
-	system.CreateScript(&thirdComponent, "testScript2.lua");
+	system.CreateComponentScript(&firstComponent, "testScript.lua");
+	system.CreateComponentScript(&secondComponent, "testScript.lua");
+	system.CreateComponentScript(&thirdComponent, "testScript2.lua");
 
-	system.ActivateScript(&firstComponent);
-	system.ActivateScript(&secondComponent);
-	system.ActivateScript(&thirdComponent);
+	system.ActivateComponentScript(&firstComponent);
+	system.ActivateComponentScript(&secondComponent);
+	system.ActivateComponentScript(&thirdComponent);
 
 	system.DetachAllInstancesToScript("testScript.lua");
 
@@ -63,8 +63,8 @@ TEST(ScriptSystem, ActivateScript)
 	system.SetScriptPath("../src/TestScripts");
 	ScriptComponent component("");
 	
-	system.CreateScript(&component, "testScript3.lua");
-	system.ActivateScript(&component);
+	system.CreateComponentScript(&component, "testScript3.lua");
+	system.ActivateComponentScript(&component);
 	
 	system.Update(1);
 	float result = system.Call(&component, "GetDT");
@@ -78,10 +78,10 @@ TEST(ScriptSystem, DeactivateScript)
 	system.SetScriptPath("../src/TestScripts");
 	ScriptComponent component("");
 
-	system.CreateScript(&component, "testScript3.lua");
-	system.ActivateScript(&component);
+	system.CreateComponentScript(&component, "testScript3.lua");
+	system.ActivateComponentScript(&component);
 	system.Update(1);
-	system.DeactivateScript(&component);
+	system.DeactivateComponentScript(&component);
 	system.Update(1);
 	auto result = system.Call(&component, "GetDT");
 
