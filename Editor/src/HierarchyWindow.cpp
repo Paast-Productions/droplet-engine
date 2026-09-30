@@ -1,8 +1,10 @@
 #include "HierarchyWindow.hpp"
+#include "InteractionState.hpp"
 
 #include <SceneSystem/SceneManager.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
+
 
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
@@ -63,7 +65,18 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         flags |= ImGuiTreeNodeFlags_Leaf;
     }
 
+    if (m_interactionState->IsNodeSelected(p_node))
+    {
+        flags |= ImGuiTreeNodeFlags_Selected;
+    }
+
     const bool opened = ImGui::TreeNodeEx(p_node.get(), flags, "%s", p_node->GetName().c_str());
+
+    if (ImGui::IsItemClicked())
+    {
+        m_interactionState->ClearNodeSelection();
+        m_interactionState->SelectNode(p_node);
+    }
 
     if (opened)
     {
