@@ -30,13 +30,18 @@ namespace Droplet
         /// @return True if the asset is registered and contains resources, otherwise false.
         bool GetCachedMetaDataForAsset(const std::string &p_assetPath, std::vector<MetaEntry> &p_metaData);
 
-        /// @brief Registers and updates a resource in the catalog.
+        /// @brief Retrieves a list of all resources in the registry, optionally filtered by type.
+        /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
+        /// @return A vector of pointers to the registered metadata entries.
+        std::vector<const MetaEntry *> GetEntries(ResourceType p_type = ResourceType::None) const;
+
+        /// @brief Registers and updates a resource in the registry.
         /// @param p_assetPath The path to the asset file.
         /// @param p_metaEntry The meta entry to be registered.
         void RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry);
         
     private:
-        std::unordered_map<GUID, MetaEntry> m_guidToDataMap;
+        std::unordered_map<GUID, MetaEntry> m_guidToEntryMap;
         std::unordered_map<std::string, std::vector<GUID>> m_assetToResourcesMap;
     };
 }

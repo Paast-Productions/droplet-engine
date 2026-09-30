@@ -150,6 +150,12 @@ namespace Droplet
         });
     }
 
+    
+    std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(ResourceType p_type) const
+    {
+        return m_registry.GetEntries(p_type);
+    }
+
     void ResourceManager::IncrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");

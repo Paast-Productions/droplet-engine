@@ -143,8 +143,11 @@ namespace Droplet
             
             return handle;
         }
-        
-        std::vector<MetaEntry> GetRegisteredResources(ResourceType p_type=ResourceType::None) const;
+
+        /// @brief Retrieves a list of registered resources, optionally filtered by type.
+        /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
+        /// @return A vector of pointers to the registered metadata entries.
+        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type=ResourceType::None) const;
 
         /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.

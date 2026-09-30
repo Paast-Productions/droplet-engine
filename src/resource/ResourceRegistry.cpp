@@ -1,5 +1,7 @@
 ﻿#include "resource/ResourceRegistry.hpp"
 
+#include <Windows.h>
+
 #include "resource/meta/MetaUtils.hpp"
 
 namespace Droplet
@@ -40,8 +42,8 @@ namespace Droplet
 
     bool ResourceRegistry::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
     {
-        auto it = m_guidToDataMap.find(p_guid);
-        if (it != m_guidToDataMap.end())
+        auto it = m_guidToEntryMap.find(p_guid);
+        if (it != m_guidToEntryMap.end())
         {
             p_metaEntry = it->second;
             return true;
@@ -59,8 +61,8 @@ namespace Droplet
         {
             for (GUID guid : it->second)
             {
-                auto metaDataIt = m_guidToDataMap.find(guid);
-                if (metaDataIt != m_guidToDataMap.end())
+                auto metaDataIt = m_guidToEntryMap.find(guid);
+                if (metaDataIt != m_guidToEntryMap.end())
                 {
                     p_metaData.push_back(metaDataIt->second);
                 }
@@ -72,9 +74,25 @@ namespace Droplet
         return false; // Asset is not registered
     }
 
+    std::vector<const MetaEntry *> ResourceRegistry::GetEntries(ResourceType p_type) const
+    {
+        std::vector<const MetaEntry *> result;
+        result.reserve(m_guidToEntryMap.size());
+        
+        for (const auto &[guid, entry] : m_guidToEntryMap)
+        {
+            if (p_type == ResourceType::None || entry.type == p_type)
+            {
+                result.push_back(&entry);
+            }
+        }
+        
+        return result;
+    }
+
     void ResourceRegistry::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
     {
-        m_guidToDataMap[p_metaEntry.guid] = p_metaEntry;
+        m_guidToEntryMap[p_metaEntry.guid] = p_metaEntry;
         
         auto& guidList = m_assetToResourcesMap[p_assetPath];
         if (std::find(guidList.begin(), guidList.end(), p_metaEntry.guid) == guidList.end())
