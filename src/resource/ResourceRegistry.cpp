@@ -1,10 +1,10 @@
-﻿#include "resource/ResourceCatalog.hpp"
+﻿#include "resource/ResourceRegistry.hpp"
 
 #include "resource/meta/MetaUtils.hpp"
 
 namespace Droplet
 {
-    bool ResourceCatalog::ScanDirectory(const std::filesystem::path &p_directory)
+    bool ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
     {
         if (!std::filesystem::exists(p_directory))
         {
@@ -38,7 +38,7 @@ namespace Droplet
         return true;
     }
 
-    bool ResourceCatalog::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
+    bool ResourceRegistry::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
     {
         auto it = m_guidToDataMap.find(p_guid);
         if (it != m_guidToDataMap.end())
@@ -50,7 +50,7 @@ namespace Droplet
         return false;
     }
 
-    bool ResourceCatalog::GetCachedMetaDataForAsset(const std::string &p_assetPath,
+    bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,
         std::vector<MetaEntry> &p_metaData)
     {
         p_metaData.clear();
@@ -72,7 +72,7 @@ namespace Droplet
         return false; // Asset is not registered
     }
 
-    void ResourceCatalog::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
+    void ResourceRegistry::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
     {
         m_guidToDataMap[p_metaEntry.guid] = p_metaEntry;
         

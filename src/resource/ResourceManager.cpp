@@ -17,7 +17,7 @@ namespace Droplet
             return;
         }
         
-        if (!m_catalog.ScanDirectory(p_rootDirectory))
+        if (!m_registry.ScanDirectory(p_rootDirectory))
         {
             // Log error (directory does not exist)
             m_isInitialized = false;
@@ -46,7 +46,7 @@ namespace Droplet
             // Update internal catalog
             for (const auto &entry : newMetaData)
             {
-                m_catalog.RegisterMetaEntry(regRes.assetPathStr, entry);
+                m_registry.RegisterMetaEntry(regRes.assetPathStr, entry);
             }
                 
             // Push metafile write operation to worker thread
@@ -60,8 +60,8 @@ namespace Droplet
         AsyncLoadResult loadRes;
         while (m_asyncLoadResults.Pop(loadRes))
         {
-            auto it = m_registry.find(loadRes.guid);
-            if (it == m_registry.end())
+            auto it = m_liveResources.find(loadRes.guid);
+            if (it == m_liveResources.end())
             {
                 // Resource was destroyed before load finished
                 delete loadRes.resource; // Release the allocated resource stored in the load result
@@ -154,8 +154,8 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
             it->second.refCount.fetch_add(1); // TODO: Look into which memory_order to use here
         }
@@ -165,12 +165,12 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
             if (it->second.refCount.fetch_sub(1) == 1) // TODO: Look into which memory_order to use here
             {
-                m_registry.erase(it);
+                m_liveResources.erase(it);
             }
         }
     }
@@ -179,8 +179,8 @@ namespace Droplet
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
 
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
             return it->second.refCount;
         }
@@ -194,8 +194,8 @@ namespace Droplet
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
             
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
             return it->second.state;
         }
@@ -207,7 +207,7 @@ namespace Droplet
         const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
     {
         std::vector<MetaEntry> oldMetaData;
-        m_catalog.GetCachedMetaDataForAsset(p_assetPath, oldMetaData); // If it fails, old metadata remains empty
+        m_registry.GetCachedMetaDataForAsset(p_assetPath, oldMetaData); // If it fails, old metadata remains empty
         
         std::vector<MetaEntry> out;
         out.reserve(p_foundResources.size());

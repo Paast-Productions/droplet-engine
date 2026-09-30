@@ -10,7 +10,7 @@
 
 #include "resource/loaders/ResourceLoaderTraits.hpp"
 #include "resource/ResourceHandle.hpp"
-#include "resource/ResourceCatalog.hpp"
+#include "resource/ResourceRegistry.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
 #include "core/ThreadPool.hpp"
@@ -88,7 +88,7 @@ namespace Droplet
             assert(m_isInitialized && "ResourceManager is not initialized.");
             
             MetaEntry metaEntry;
-            if (!m_catalog.GetResourceMetaData(p_guid, metaEntry))
+            if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
                 // TODO: Log this as a warning/error
@@ -96,7 +96,7 @@ namespace Droplet
             }
             
             bool loadAsync = false;
-            auto [it, wasInserted] = m_registry.try_emplace(p_guid);
+            auto [it, wasInserted] = m_liveResources.try_emplace(p_guid);
             if (wasInserted)
             {
                 // Resource was just created in-place -> Update its state
@@ -145,11 +145,11 @@ namespace Droplet
             return handle;
         }
 
-        /// @brief Increments the reference count of a resource in the internal registry.
+        /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         void IncrementRef(GUID p_guid);
 
-        /// @brief Decrements the reference count of a resource in the internal registry.
+        /// @brief Decrements the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         void DecrementRef(GUID p_guid);
 
@@ -158,12 +158,12 @@ namespace Droplet
         /// @return The reference count.
         uint32_t GetRef(GUID p_guid);
 
-        /// @brief Queries the load state of a resource in the internal registry.
+        /// @brief Queries the load state of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         /// @return The state that the resource is currently in.
         ResourceState GetState(GUID p_guid);
 
-        /// @brief Gets the raw resource stored in the internal registry specified by a GUID.
+        /// @brief Gets the raw resource stored in the internal cache specified by a GUID.
         /// @tparam T The resource type.
         /// @param p_guid The globally unique identifier of the resource.
         /// @return The resource.
@@ -172,8 +172,8 @@ namespace Droplet
         {
             assert(m_isInitialized && "AssetManager is not initialized.");
             
-            auto it = m_registry.find(p_guid);
-            if (it != m_registry.end() && it->second.state == ResourceState::Ready)
+            auto it = m_liveResources.find(p_guid);
+            if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
             {
                 // Asset is ready to be used
                 return static_cast<T*>(it->second.resource.get());
@@ -192,8 +192,8 @@ namespace Droplet
             const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
         
         bool m_isInitialized = false;
-        ResourceCatalog m_catalog;
-        std::unordered_map<GUID, ResourceRecord> m_registry;
+        ResourceRegistry m_registry;
+        std::unordered_map<GUID, ResourceRecord> m_liveResources;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;

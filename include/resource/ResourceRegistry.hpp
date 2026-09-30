@@ -10,7 +10,7 @@
 namespace Droplet
 {
     /// @brief Maps asset path strings to GUIDs
-    class ResourceCatalog
+    class ResourceRegistry
     {
     public:
         /// @brief Scans the provided directory recursively for .meta files to populate its internal map of GUIDs.
