@@ -2,7 +2,6 @@
 #include <memory>
 
 #include "SceneSystem/SceneManager.hpp"
-#include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
@@ -137,12 +136,6 @@ int main()
     // Deactivate / unload
     // ==================================================
 
-    ScriptBehaviour scriptBehaviour("testtScript.lua");
-
-    while (true)
-    {
-        ScriptSystem::Get().Update(1.0);
-    }
 
     return 0;
 }
