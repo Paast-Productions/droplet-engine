@@ -39,6 +39,10 @@ public:
 	SDL_Event				p_event {};
 	inline static			SDL_InitState p_init {};
 
+	/// @brief Public function to apply mouse movements on the camera
+	/// @param p_xOffset position on the screen along the x-axis
+	/// @param p_yOffset position on the screen along the y-axis
+	void ProcessMouseMovement(float p_xOffset, float p_yOffset);
 private:
 	/// @brief Creates the graphics pipeline
 	void					CreateGraphicsPipeline();
