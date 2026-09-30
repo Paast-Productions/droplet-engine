@@ -1,5 +1,6 @@
 ﻿#include <print>
 
+#include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
@@ -108,27 +109,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     sceneManager.ActivateScene("Game");
 
-    // ==================================================
-    // Game loop
-    // ==================================================
+    //ScriptBehaviour scriptBehaviour("testScript.lua");
 
-    constexpr float deltaTime = 0.016f;
-
-    for (int frame = 0; frame < 5; ++frame)
-    {
-        std::cout
-            << "\n--- Frame "
-            << frame
-            << " ---\n";
-
-        sceneManager.Update(deltaTime);
-    }
-
-
-    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
-
-
     ScriptSystem::Get().Start();
 
     while (true)

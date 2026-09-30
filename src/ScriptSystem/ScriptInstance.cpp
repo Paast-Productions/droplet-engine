@@ -5,13 +5,16 @@
 using namespace Droplet;
 using namespace Droplet::Script;
 
-ScriptInstance::ScriptInstance(Scene::Component *p_scriptComponent, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
-	m_scriptComponent(p_scriptComponent),
+ScriptInstance::ScriptInstance(Scene::Node *p_owner, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
+	m_owner(p_owner),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
 	m_scriptPath(p_scriptPath)
 {
-	m_environment["self"] = m_scriptComponent->GetOwner();
+	if (m_owner) 
+	{
+		m_environment["self"] = p_owner;
+	}
 
 	sol::protected_function scriptFunction = p_script;
 
