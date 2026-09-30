@@ -25,6 +25,7 @@ workspace "DropletEngine"
         runtime "Release"
         defines { "NDEBUG" }
         optimize "On"
+    filter {}
 
     -- Paths
 
@@ -44,13 +45,19 @@ include "Premake/Test"
 
 -- [[ SAMPLES ]] --
 
+group "Samples"
+
 include "Premake/Samples/Vulkan/HelloTriangle"
 include "Premake/Samples/Engine/HelloEngine"
 include "Premake/Samples/Scene/Scene"
 include "Premake/Samples/Transform/Transform"
 include "Premake/Samples/Scripting/ScriptingMain"
 
+group ""
+
 -- [[ EXTERNAL ]] --
+
+group "External"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
@@ -73,3 +80,5 @@ if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/Jolt"
     include "Premake/External/Linux/Sol2"
 end
+
+group ""
