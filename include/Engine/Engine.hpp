@@ -24,8 +24,6 @@ namespace Droplet
 	public:
 		Engine(EngineConfig p_config);
 		
-		void Run();
-		
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
 		
 		[[nodiscard]] Graphics::SDL::Window &GetWindow();

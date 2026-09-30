@@ -6,10 +6,6 @@ Droplet::Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfi
 		throw std::runtime_error("Error while initializing renderer.");
 }
 
-void Droplet::Engine::Run()
-{
-}
-
 Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
 	while (SDL_PollEvent(&m_renderer.p_event))
