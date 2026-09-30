@@ -135,7 +135,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     {
         time.Update();
 
-        ScriptSystem::Get().Update(time.GetRuntime());
+        ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;
