@@ -133,7 +133,7 @@ namespace Droplet
             res.assetPathStr = std::move(assetPathStr);
             res.metaPath = std::move(metaPath);
             
-            if (ext == ".fbx" || ext == ".gltf" || ext == ".obj")
+            if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
             {
                 res.foundResources = AssimpLoader::ListAssetResources(p_assetPath);
             }
