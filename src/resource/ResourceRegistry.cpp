@@ -8,7 +8,7 @@ namespace Droplet
 {
     bool ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
     {
-        if (!std::filesystem::exists(p_directory))
+        if (!std::filesystem::is_directory(p_directory))
         {
             return false;        
         }
