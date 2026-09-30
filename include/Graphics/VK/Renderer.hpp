@@ -61,21 +61,24 @@ namespace Droplet::Graphics
 		void	drawFrame();
 		void	windowResize();
 
-	[[nodiscard]] SDL_Window *GetWindow();
+		[[nodiscard]] SDL_Window *GetWindow();
 
-	/// @brief Fills and returns initInfo for ImGui
-	/// @return ImGui init info
-	ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
+		/// @brief Fills and returns initInfo for ImGui
+		/// @return ImGui init info
+		ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
 
-	/// @brief Wait for the Vulkan device to be idle
-	void WaitIdle();
+		/// @brief Wait for the Vulkan device to be idle
+		void WaitIdle();
 
-	SDL_Event				p_event;
-	inline static			SDL_InitState p_init {};
+		/// @brief Public function to apply mouse movements on the camera
+		/// @param p_xOffset position on the screen along the x-axis
+		/// @param p_yOffset position on the screen along the y-axis
+		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
 
+		SDL_Event				p_event;
+		inline static			SDL_InitState p_init {};
+		
 	private:
-		/// @brief Creates the graphics pipeline
-		void					CreateGraphicsPipeline();
 
 		/// @brief Creates a graphics pipeline based on a shader
 		/// @param p_shaderBlob shader to be used

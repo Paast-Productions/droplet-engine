@@ -331,7 +331,12 @@ void Renderer::CreateSyncObjects()
 
 void Renderer::UpdateCamera(float p_deltaTime)
 {
-	m_camera.ProcessInput(p_deltaTime);
+	m_camera.ProcessInput(p_deltaTime, m_window);
+}
+
+void Renderer::ProcessMouseMovement(float p_xOffset, float p_yOffset)
+{
+	m_camera.ProcessMouseMovement(p_xOffset, p_yOffset);
 }
 
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
@@ -382,7 +387,6 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 	// old code
-	//m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
 
 	UpdateCamera(deltaTime);
 
@@ -408,6 +412,15 @@ void Renderer::drawFrame()
 	
 	m_uniformBuffers.at(m_frameIndex).UpdateBuffer(ubo);
 
+<<<<<<< HEAD
+=======
+	glm::mat4 projection = m_camera.GetProjectionMatrix(aspectRatio);
+
+	m_uniformBuffers[m_frameIndex]->UpdateBuffer(
+		view,
+		projection
+	);
+>>>>>>> 9d710e9 (Added mouse control for camera and doxygen comments)
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
