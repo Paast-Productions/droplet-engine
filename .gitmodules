@@ -25,3 +25,6 @@
 [submodule "External/json"]
 	path = External/json
 	url = git@github.com:nlohmann/json.git
+[submodule "External/VulkanMemoryAllocator"]
+	path = External/VulkanMemoryAllocator
+	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git

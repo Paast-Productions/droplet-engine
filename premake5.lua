@@ -38,6 +38,7 @@ workspace "DropletEngine"
 -- [[ SOURCE ]] --
 
 include "Premake/Engine"
+include "Premake/Editor"
 include "Premake/Test"
 
 -- [[ SAMPLES ]] --
@@ -51,6 +52,7 @@ include "Premake/Samples/Scripting/ScriptingMain"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
+include "Premake/External/VulkanMemoryAllocator"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
