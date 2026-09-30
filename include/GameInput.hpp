@@ -1,0 +1,115 @@
+#pragma once
+
+#include <SDL3/SDL.h>
+#include <unordered_set>
+#include <unordered_map>
+#include <utility>
+
+namespace Droplet
+{
+	/// @brief Customized keycodes using SDL_Scancode
+	enum class Key : std::uint32_t
+	{
+		KeyA = SDL_SCANCODE_A,
+		KeyB = SDL_SCANCODE_B,
+		KeyC = SDL_SCANCODE_C,
+		KeyD = SDL_SCANCODE_D,
+		KeyE = SDL_SCANCODE_E,
+		KeyF = SDL_SCANCODE_F,
+		KeyG = SDL_SCANCODE_G,
+		KeyH = SDL_SCANCODE_H,
+		KeyI = SDL_SCANCODE_I,
+		KeyJ = SDL_SCANCODE_J,
+		KeyK = SDL_SCANCODE_K,
+		KeyL = SDL_SCANCODE_L,
+		KeyM = SDL_SCANCODE_M,
+		KeyN = SDL_SCANCODE_N,
+		KeyO = SDL_SCANCODE_O,
+		KeyP = SDL_SCANCODE_P,
+		KeyQ = SDL_SCANCODE_Q,
+		KeyR = SDL_SCANCODE_R,
+		KeyS = SDL_SCANCODE_S,
+		KeyT = SDL_SCANCODE_T,
+		KeyU = SDL_SCANCODE_U,
+		KeyV = SDL_SCANCODE_V,
+		KeyW = SDL_SCANCODE_W,
+		KeyX = SDL_SCANCODE_X,
+		KeyY = SDL_SCANCODE_Y,
+		KeyZ = SDL_SCANCODE_Z,
+
+		Key1 = SDL_SCANCODE_1,
+		Key2 = SDL_SCANCODE_2,
+		Key3 = SDL_SCANCODE_3,
+		Key4 = SDL_SCANCODE_4,
+		Key5 = SDL_SCANCODE_5,
+		Key6 = SDL_SCANCODE_6,
+		Key7 = SDL_SCANCODE_7,
+		Key8 = SDL_SCANCODE_8,
+		Key9 = SDL_SCANCODE_9,
+		Key0 = SDL_SCANCODE_0,
+
+		KeyEnter = SDL_SCANCODE_RETURN,
+		KeyEscape = SDL_SCANCODE_ESCAPE,
+		KeyBackspace = SDL_SCANCODE_BACKSPACE,
+		KeyTab = SDL_SCANCODE_TAB,
+		KeySpace = SDL_SCANCODE_SPACE,
+
+		KeyF1 = SDL_SCANCODE_F1,
+		KeyF2 = SDL_SCANCODE_F2,
+		KeyF3 = SDL_SCANCODE_F3,
+		KeyF4 = SDL_SCANCODE_F4,
+		KeyF5 = SDL_SCANCODE_F5,
+		KeyF6 = SDL_SCANCODE_F6,
+		KeyF7 = SDL_SCANCODE_F7,
+		KeyF8 = SDL_SCANCODE_F8,
+		KeyF9 = SDL_SCANCODE_F9,
+		KeyF10 = SDL_SCANCODE_F10,
+		KeyF11 = SDL_SCANCODE_F11,
+		KeyF12 = SDL_SCANCODE_F12,
+	};
+
+	/// @brief A universal singleton GameInput class
+	class GameInput
+	{
+	public:
+		GameInput() = default;
+		~GameInput() = default;
+
+		/// @brief Retrieves the static instance of the GameInput.
+		/// @return Reference to the GameInput instance.
+		[[nodiscard]] static GameInput &Get()
+		{
+			static GameInput gameInput;
+			return gameInput;
+		}
+
+		/// @brief Retrieves the inputs and updates the internal key states.
+		void Update();
+
+		/// @brief Check whether a key is pressed.
+		/// @param p_key The key to be checked.
+		/// @return True if key was pressed current frame, else false.
+		[[nodiscard]] bool KeyPressed(const Key p_key);
+
+		/// @brief Check whether a key is held.
+		/// @param p_key The key to be checked.
+		/// @return True if key is held, else false.
+		[[nodiscard]] bool KeyHeld(const Key p_key);
+
+		/// @brief Check whether a key is released.
+		/// @param p_key The key to be checked.
+		/// @return True if key was released current frame, else false.
+		[[nodiscard]] bool KeyReleased(const Key p_key);
+
+		/// @brief Toggles a key.
+		/// @param p_key The key to be toggled.
+		/// @return True or false, depending on the key state. Returns false by default.
+		[[nodiscard]] bool KeyToggle(const Key p_key);
+
+	private:
+		std::unordered_set<Key> m_currentKeys{};
+		std::unordered_set<Key> m_previousKeys{};
+		std::unordered_map<Key, bool> m_toggledKeys{};
+
+	};
+}
