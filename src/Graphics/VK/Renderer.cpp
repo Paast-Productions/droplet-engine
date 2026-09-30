@@ -329,9 +329,21 @@ void Renderer::CreateSyncObjects()
 	}
 }
 
+void Renderer::UpdateCamera(float p_deltaTime)
+{
+	m_camera.ProcessInput(p_deltaTime);
+}
+
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
 void Renderer::drawFrame()
 {
+	// Create temporary deltaTime that Update's will use
+	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+
+	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
+	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
+	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
+	s_lastFrameTime = currentTime;
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
 		//       while renderFinishedSemaphores is indexed by imageIndex
 	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
@@ -369,23 +381,33 @@ void Renderer::drawFrame()
 		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+	// old code
+	//m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
 
+	UpdateCamera(deltaTime);
 
-	///TEMP CHRONO AND BUFFER UPDATE CODE
-	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-	static TimePoint s_startTime{ std::chrono::high_resolution_clock::now() };
-	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
-	const float time = { std::chrono::duration<float>(currentTime - s_startTime).count() };
+	const auto extent = m_swapchain.GetExtent();
 
-	const VK::UniformBufferObject ubo
+	float aspectRatio =
+		static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	struct BufferData
 	{
-		.model = rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
+		glm::mat4 model = {};
+		glm::mat4 view = {};
+		glm::mat4 projection = {};
 	};
-	/////////
+	
+	BufferData ubo
+	{
+		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = m_camera.GetViewMatrix(),
+		.projection = m_camera.GetProjectionMatrix(aspectRatio)
+	};
+	
+	m_uniformBuffers.at(m_frameIndex).UpdateBuffer(ubo);
 
-	m_uniformBuffers[m_frameIndex].UpdateBuffer(ubo);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);

@@ -33,6 +33,7 @@
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Allocator.hpp>
+#include <Graphics/VK/Camera.hpp>
 
 #include <ImGui/imgui_impl_vulkan.h>
 
@@ -132,7 +133,7 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		//Declaration order matters for destruction order!!!!
+		void UpdateCamera(float p_deltaTime);
 
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
@@ -169,7 +170,10 @@ namespace Droplet::Graphics
 		std::uint32_t							 m_frameIndex = 0;
 
 		bool								 m_framebufferResized = false;
+		
+		Camera m_camera;
 
-		std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
+		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }
+
