@@ -18,6 +18,6 @@ namespace Droplet::Editor::Resource
 		void RenderImpl() override;
 
 	private:
-
+		GUID selectedResourceGUID = C_INVALID_GUID; /// The GUID of the currently selected resource in the resource browser.
 	};
 }

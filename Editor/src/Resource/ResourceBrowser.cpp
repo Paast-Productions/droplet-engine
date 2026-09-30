@@ -26,21 +26,37 @@ void ResourceBrowser::RenderImpl()
 	ImVec2 cursorStartPos = GetCursorPos();
 	ImVec2 listSize = ImVec2(windowSize.x * 0.5f, 0);
 
+	// Selectable and draggable resource entries
 	BeginChild("Resource List", listSize, ImGuiChildFlags_ResizeX);
 	{
 		for (std::size_t i = 0; i < resources.size(); i++)
 		{
-			// TODO: Render selectable and draggable resource entry
+			const MetaEntry *entry = resources[i];
+
+			if (Selectable(entry->name.c_str(), selectedResourceGUID == entry->guid))
+			{
+				if (selectedResourceGUID == entry->guid)
+				{
+					selectedResourceGUID = C_INVALID_GUID; // Deselect the resource if it was already selected
+				}
+				else
+				{
+					selectedResourceGUID = entry->guid; // Select the resource if it was not already selected
+				}
+			}
 		}
 	}
 	EndChild();
 
 	SetCursorPos(ImVec2(cursorStartPos.x + GetItemRectSize().x, cursorStartPos.y));
 
+	// Details of selected resource
 	BeginChild("Resource Inspector");
 	{
-		// TODO: Render resource details when a resource is selected
+		if (selectedResourceGUID != C_INVALID_GUID)
+		{
+			// TODO: Fetch the resource details using the GUID and render them here
+		}
 	}
 	EndChild();
-
 }
