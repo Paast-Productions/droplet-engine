@@ -4,18 +4,17 @@
 
 namespace Droplet
 {
-	/// @brief A universal Time class
+	/// @brief A universal singleton Time class
 	class Time
 	{
 	public:
 		/// @brief Constructs the Time class.
 		Time();
 
-		/// @brief Constructs the Time class.
-		/// @param p_fixedDeltaTime A parameter to set the fixed delta time.
-		Time(const float p_fixedDeltaTime);
 		~Time() = default;
 
+		/// @brief Retrieves the static instance of the Time.
+		/// @return Reference to the Time instance.
 		[[nodiscard]] static Time &Get()
 		{
 			static Time time;
@@ -34,17 +33,13 @@ namespace Droplet
 		/// @returns The runtime since start.
 		[[nodiscard]] float GetRuntime() const;
 
-		/// @brief Get the current time.
-		/// @returns The current time.
-		[[nodiscard]] std::chrono::high_resolution_clock::time_point GetCurrentTime() const;
-
 		/// @brief Get the fixed delta time in seconds.
 		/// @returns The fixed delta time.
 		[[nodiscard]] float GetFixedDeltaTime() const;
 
-		/// @brief Check if a fixed update should be executed.
-		/// @returns True if fixed update should be executed, false if not.
-		[[nodiscard]] bool ShouldFixedUpdate();
+		/// @brief Set the fixed delta time in seconds.
+		/// @param p_fixedDeltaTime The new fixed delta time.
+		void SetFixedDeltaTime(const float p_fixedDeltaTime);
 
 	private:
 		std::chrono::high_resolution_clock::time_point m_startTime{};
@@ -52,6 +47,10 @@ namespace Droplet
 		float m_deltaTime = 0.0f;
 		float m_fixedDeltaTime = 1.0f / 20.0f;
 		float m_accumulator = 0.0f;
+
+		/// @brief Get the current time.
+		/// @returns The current time.
+		[[nodiscard]] std::chrono::high_resolution_clock::time_point GetCurrentTime() const;
 
 	};
 }

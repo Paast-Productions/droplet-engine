@@ -8,13 +8,6 @@ namespace Droplet
 		m_lastTime = GetCurrentTime();
 	}
 
-	Time::Time(const float p_fixedDeltaTime = 1.0f / 20.0f)
-	{
-		m_startTime = GetCurrentTime();
-		m_lastTime = GetCurrentTime();
-		m_fixedDeltaTime = p_fixedDeltaTime;
-	}
-
 	void Time::Update()
 	{
 		std::chrono::high_resolution_clock::time_point now = GetCurrentTime();
@@ -35,24 +28,18 @@ namespace Droplet
 		return std::chrono::duration<float>(GetCurrentTime() - m_startTime).count();
 	}
 
-	std::chrono::high_resolution_clock::time_point Time::GetCurrentTime() const
-	{
-		return std::chrono::high_resolution_clock::now();
-	}
-
 	float Time::GetFixedDeltaTime() const
 	{
 		return m_fixedDeltaTime;
 	}
 
-	bool Time::ShouldFixedUpdate()
+	void Time::SetFixedDeltaTime(const float p_fixedDeltaTime)
 	{
-		if (m_accumulator >= m_fixedDeltaTime)
-		{
-			m_accumulator -= m_fixedDeltaTime;
-			return true;
-		}
+		m_fixedDeltaTime = p_fixedDeltaTime;
+	}
 
-		return false;
+	std::chrono::high_resolution_clock::time_point Time::GetCurrentTime() const
+	{
+		return std::chrono::high_resolution_clock::now();
 	}
 }
