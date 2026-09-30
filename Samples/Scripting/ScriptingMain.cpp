@@ -106,24 +106,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     sceneManager.ActivateScene("Game");
 
-    // ==================================================
-    // Game loop
-    // ==================================================
+    //ScriptBehaviour scriptBehaviour("testScript.lua");
 
-    constexpr float deltaTime = 0.016f;
-
-    for (int frame = 0; frame < 5; ++frame)
-    {
-        std::cout
-            << "\n--- Frame "
-            << frame
-            << " ---\n";
-
-        sceneManager.Update(deltaTime);
-    }
-
-    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
-    ScriptBehaviour scriptBehaviour("testScript.lua");
+    player->AddComponent<ScriptComponent>("testScript.lua");
+    ScriptSystem::Get().Start();
 
     while (true)
     {

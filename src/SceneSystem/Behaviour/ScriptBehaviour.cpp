@@ -6,6 +6,7 @@ Droplet::Scene::ScriptBehaviour::ScriptBehaviour([[maybe_unused]]const std::stri
 {
 	auto &scriptSystem = ScriptSystem::Get();
 	std::print("ScriptPath: {}\n", p_scriptPath);
+	scriptSystem.SetScriptPath("../../../src/TestScripts");
 	scriptSystem.CreateBehaviourScript(this, m_scriptPath);
 	scriptSystem.ActivateBehaviourScript(this);
 }
@@ -16,7 +17,7 @@ void Droplet::Scene::ScriptBehaviour::Start()
 
 void Droplet::Scene::ScriptBehaviour::Update([[maybe_unused]] float p_deltaTime)
 {
-	ScriptSystem::Get().Update(1.0);
+
 }
 
 const std::string &Droplet::Scene::ScriptBehaviour::GetScriptPath() const
@@ -26,15 +27,15 @@ const std::string &Droplet::Scene::ScriptBehaviour::GetScriptPath() const
 
 void Droplet::Scene::ScriptBehaviour::DetachScript()
 {
-	//ScriptSystem::Get().DetachScript(this);
+	ScriptSystem::Get().DetachBehaviourScript(this);
 }
 
 void Droplet::Scene::ScriptBehaviour::ActivateScript()
 {
-	//ScriptSystem::Get().ActivateScript(this);
+	ScriptSystem::Get().ActivateBehaviourScript(this);
 }
 
 void Droplet::Scene::ScriptBehaviour::DeactivateScript()
 {
-	//ScriptSystem::Get().DeactivateScript(this);
+	ScriptSystem::Get().DeactivateBehaviourScript(this);
 }

@@ -8,6 +8,7 @@ using namespace Droplet::Script;
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
 {
+    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
 }
 
 void ScriptComponent::Start()
@@ -21,7 +22,6 @@ void ScriptComponent::Start()
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-    ScriptSystem::Get().Update(1.0);
     //TODO: Lua script update will be implemented later.
 }
 
