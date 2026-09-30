@@ -6,11 +6,11 @@
 
 namespace Droplet
 {
-    bool ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
+    void ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
     {
         if (!std::filesystem::is_directory(p_directory))
         {
-            return false;        
+            throw std::runtime_error("Directory does not exist.");        
         }
         
         for (const auto &item : std::filesystem::recursive_directory_iterator(p_directory))
@@ -36,24 +36,21 @@ namespace Droplet
                 }
             }
         }
-        
-        return true;
     }
 
-    bool ResourceRegistry::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
+    MetaEntry ResourceRegistry::GetResourceMetaData(GUID p_guid)
     {
         auto it = m_guidToEntryMap.find(p_guid);
         if (it != m_guidToEntryMap.end())
         {
-            p_metaEntry = it->second;
-            return true;
+            return it->second;
         }
     
-        return false;
+        throw std::runtime_error("Resource does not exist in registry.");
     }
 
     bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,
-        std::vector<MetaEntry> &p_metaData)
+                                                     std::vector<MetaEntry> &p_metaData)
     {
         p_metaData.clear();
         auto it = m_assetToResourcesMap.find(p_assetPath);
@@ -94,7 +91,7 @@ namespace Droplet
     {
         m_guidToEntryMap[p_metaEntry.guid] = p_metaEntry;
         
-        auto& guidList = m_assetToResourcesMap[p_assetPath];
+        auto &guidList = m_assetToResourcesMap[p_assetPath];
         if (std::find(guidList.begin(), guidList.end(), p_metaEntry.guid) == guidList.end())
         {
             guidList.push_back(p_metaEntry.guid);

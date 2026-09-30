@@ -85,9 +85,13 @@ namespace Droplet
         {
             static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource");
             assert(m_isInitialized && "ResourceManager is not initialized.");
-            
+
             MetaEntry metaEntry;
-            if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
+            try
+            {
+                metaEntry = m_registry.GetResourceMetaData(p_guid);
+            }
+            catch (...)
             {
                 // Handle missing resource
                 // TODO: Log this as a warning/error
@@ -160,7 +164,7 @@ namespace Droplet
         /// @brief Retrieves the current reference count for a resource.
         /// @param p_guid The guid of the resource.
         /// @return The reference count.
-        uint32_t GetRef(GUID p_guid);
+        std::uint32_t GetRef(GUID p_guid);
 
         /// @brief Queries the load state of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.

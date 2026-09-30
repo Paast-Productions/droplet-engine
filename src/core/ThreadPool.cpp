@@ -3,7 +3,7 @@
 
 namespace Droplet
 {
-    ThreadPool & ThreadPool::GetInstance()
+    ThreadPool &ThreadPool::GetInstance()
     {
         static ThreadPool instance;
         return instance;
@@ -37,8 +37,7 @@ namespace Droplet
             }
         }
     }
-
-    // Comments
+    
     void ThreadPool::PushTask(std::function<void()> p_task)
     {
         {

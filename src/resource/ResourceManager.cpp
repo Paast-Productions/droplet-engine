@@ -13,13 +13,19 @@ namespace Droplet
     {
         if (m_isInitialized)
         {
-            // TODO: Log RM already initialized
+            // TODO: Log warning: RM already initialized
             return;
         }
         
-        if (!m_registry.ScanDirectory(p_rootDirectory))
+
+        try
         {
-            // TODO: Log error (directory does not exist)
+            m_registry.ScanDirectory(p_rootDirectory);
+
+        }
+        catch (...)
+        {
+            // TODO: Log error: Directory does not exist
             m_isInitialized = false;
             return;
         }
@@ -180,7 +186,7 @@ namespace Droplet
         }
     }
 
-    uint32_t ResourceManager::GetRef(GUID p_guid)
+    std::uint32_t ResourceManager::GetRef(GUID p_guid)
     {
         assert(m_isInitialized && "AssetManager is not initialized.");
 

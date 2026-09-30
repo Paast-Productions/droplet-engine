@@ -24,7 +24,8 @@ namespace Droplet
     };
     
     // --- Textures ---
-    
+
+    /// @brief Resource loader trait for Texture2DResource.
     template<>
     struct ResourceLoaderTraits<Texture2DResource>
     {
@@ -43,6 +44,7 @@ namespace Droplet
             }
         }
     };
+    
     
     // TODO: Implement 3D texture loading
     // template<>
@@ -70,6 +72,7 @@ namespace Droplet
     
     // --- Meshes and Animations ---
     
+    /// @brief Resource loader trait for MeshResource.
     template<>
     struct ResourceLoaderTraits<MeshResource>
     {
@@ -89,6 +92,7 @@ namespace Droplet
         }
     };
     
+    /// @brief Resource loader trait for SkinnedMeshResource.
     template<>
     struct ResourceLoaderTraits<SkinnedMeshResource>
     {
@@ -109,6 +113,7 @@ namespace Droplet
         }
     };
     
+    /// @brief Resource loader trait for AnimationResource.
     template<>
     struct ResourceLoaderTraits<AnimationResource>
     {
@@ -131,6 +136,7 @@ namespace Droplet
     
     // --- Shaders ---
     
+    /// @brief Resource loader trait for ShaderResource.
     template<>
     struct ResourceLoaderTraits<ShaderResource>
     {

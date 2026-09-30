@@ -15,14 +15,13 @@ namespace Droplet
     public:
         /// @brief Scans the provided directory recursively for .meta files to populate its internal map of GUIDs.
         /// @param p_directory The directory to be scanned.
-        /// @return True if directory exists and was scanned, otherwise false.
-        bool ScanDirectory(const std::filesystem::path &p_directory);
+        /// @throw std::runtime_error If the directory does not exist.
+        void ScanDirectory(const std::filesystem::path &p_directory);
 
         /// @brief Meta entry data for a specific resource.
         /// @param p_guid The GUID of the resource.
-        /// @param p_metaEntry The entry data for that resource in the metafile.
-        /// @return The globally unique identifier.
-        bool GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry);
+        /// @throw std::runtime_error If the resource is not registered.
+        MetaEntry GetResourceMetaData(GUID p_guid);
 
         /// @brief Fetches all metadata bodies associated with a specific asset.
         /// @param p_assetPath The path to the asset (not its .meta file)

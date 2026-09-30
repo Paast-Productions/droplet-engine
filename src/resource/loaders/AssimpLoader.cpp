@@ -83,9 +83,9 @@ namespace Droplet::AssimpLoader
 		};
 
 		// Calculates the total size of a vertex based of what's set in vertexLayout
-		for (MeshResource::VertexAttribute v : vertexLayout)
+		for (MeshResource::VertexAttribute attribute : vertexLayout)
 		{
-			p_vertexByteSize += v.second;
+			p_vertexByteSize += attribute.second;
 		}
 
 		return vertexLayout;
@@ -126,9 +126,8 @@ namespace Droplet::AssimpLoader
 
 		MeshResource mesh{};
 		mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-
-		// Log Info: Successfully loaded p_meshFile
-		std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
+        
+		std::println("Successfully loaded {}", p_assetPath.generic_string()); // TODO: Remove temp log
 
 		s_importer.FreeScene();
 

@@ -41,6 +41,8 @@ namespace Droplet
             return true;
         }
         
+        
+        /// @brief Checks if the queue is empty.
         /// @return True if the queue is empty, otherwise false.
         [[nodiscard]] bool IsEmpty() const
         {
