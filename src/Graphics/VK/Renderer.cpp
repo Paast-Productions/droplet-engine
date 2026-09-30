@@ -28,14 +28,16 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
-Renderer::Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig) :
+using namespace Droplet::Graphics;
+
+Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_window{p_windowConfig} {}
 
 //Idle the device to allow for cleanup of swapchain and destroy window
 Renderer::~Renderer()
 {
-	m_context->GetDevice()->waitIdle();
-	m_swapchain->Cleanup(*m_context->GetDevice());
+	m_context.GetDevice().waitIdle();
+	m_swapchain->Cleanup(m_context.GetDevice());
 }
 
 //File reading function for loading the shader file
@@ -62,19 +64,19 @@ void Renderer::windowResize()
 void Renderer::CreateGraphicsPipeline()
 {
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-	vk::raii::ShaderModule shaderModule = CreateShaderModule(*m_context->GetDevice(), readFile("../../src/Graphics/VK/Shaders/slang.spv"));
-	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat()};
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), readFile("../../src/Graphics/VK/Shaders/slang.spv"));
+	VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat()};
 	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_descriptorSetLayout;
-	m_graphicsPipeline.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), shaderModule, pipelineConfig);
+	m_graphicsPipeline.emplace(m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig);
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
 void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-	vk::raii::ShaderModule shaderModule = CreateShaderModule(*m_context->GetDevice(), p_shaderBlob);
-	Droplet::Graphics::VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat() };
-	m_graphicsPipeline.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), shaderModule, pipelineConfig);
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), p_shaderBlob);
+	VK::PipelineConfig pipelineConfig = { .SwapchainSurfaceFormat = m_swapchain->GetSurfaceFormat() };
+	m_graphicsPipeline.emplace(m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig);
 }
 
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
@@ -97,7 +99,7 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 //Needed for creation of commandBuffers
 void Renderer::CreateCommandPool()
 {
-	m_commandPool.emplace(*m_context->GetDevice(), m_context->GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+	m_commandPool.emplace(m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 }
 
 //One buffer per frame in flight
@@ -165,7 +167,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	);
 
 	TransitionImageLayout(
-		*m_depthBuffer->GetImage(),
+		m_depthBuffer.GetImage(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eDepthAttachmentOptimal,
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
@@ -186,7 +188,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		.clearValue = clearColor };
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo = {
-		.imageView = *m_depthBuffer.value().GetView(),
+		.imageView = m_depthBuffer.GetView(),
 		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eDontCare,
@@ -206,8 +208,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline->Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain->GetExtent().height), static_cast<float>(m_swapchain->GetExtent().width), -static_cast<float>(m_swapchain->GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain->GetExtent()));
-	commandBuffer.bindVertexBuffers(0, **m_vertexBuffer->GetVertexBuffer(), { 0 });
-	commandBuffer.bindIndexBuffer(**m_indexBuffer->GetIndexBuffer(), 0, vk::IndexType::eUint16);
+	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
+	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline->GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	commandBuffer.endRendering();
@@ -234,13 +236,13 @@ void Renderer::CreateSyncObjects()
 
 	for (size_t i = m_swapchain->GetImages()->size(); i > 0; i--)
 	{
-		m_renderFinishedSemaphores.emplace_back(*m_context->GetDevice(), vk::SemaphoreCreateInfo());
+		m_renderFinishedSemaphores.emplace_back(m_context.GetDevice(), vk::SemaphoreCreateInfo());
 	}
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		m_presentCompleteSemaphores.emplace_back(*m_context->GetDevice(), vk::SemaphoreCreateInfo());
-		m_inFlightFences.emplace_back(*m_context->GetDevice(), vk::FenceCreateInfo{ .flags = vk::FenceCreateFlagBits::eSignaled });
+		m_presentCompleteSemaphores.emplace_back(m_context.GetDevice(), vk::SemaphoreCreateInfo());
+		m_inFlightFences.emplace_back(m_context.GetDevice(), vk::FenceCreateInfo{ .flags = vk::FenceCreateFlagBits::eSignaled });
 	}
 }
 
@@ -249,13 +251,13 @@ void Renderer::drawFrame()
 {
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
 		//       while renderFinishedSemaphores is indexed by imageIndex
-	auto fenceResult = m_context->GetDevice()->waitForFences(*m_inFlightFences[m_frameIndex], vk::True, UINT64_MAX);
+	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
 	if (fenceResult != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to wait for fence!");
 	}
 
-	auto [result, imageIndex] = m_swapchain->GetSwapchain()->acquireNextImage(UINT64_MAX, *m_presentCompleteSemaphores[m_frameIndex], nullptr);
+	auto [result, imageIndex] = m_swapchain->GetSwapchain()->acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_frameIndex], nullptr);
 
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
@@ -266,10 +268,9 @@ void Renderer::drawFrame()
 			SDL_WaitEvent(&m_event);
 		}
 
-		m_swapchain->Cleanup(*m_context->GetDevice());
-		m_swapchain->Recreate(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
-		m_depthBuffer.reset();
-		m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
+		m_swapchain->Cleanup(m_context.GetDevice());
+		m_swapchain->Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_depthBuffer = { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain->GetExtent() };
 		return;
 	}
 	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
@@ -280,10 +281,10 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	m_uniformBuffers[m_frameIndex]->UpdateBuffer(m_swapchain->GetExtent());
+	m_uniformBuffers[m_frameIndex].UpdateBuffer(m_swapchain->GetExtent());
 
 	// Only reset the fence if we are submitting work
-	m_context->GetDevice()->resetFences(*m_inFlightFences[m_frameIndex]);
+	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
 	m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get().reset();
 	RecordCommandBuffer(imageIndex);
@@ -296,14 +297,14 @@ void Renderer::drawFrame()
 									  .pCommandBuffers = &*m_commandPool->GetBuffer(m_commandBufferIds[m_frameIndex]).Get(),
 									  .signalSemaphoreCount = 1,
 									  .pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex] };
-	m_context->GetQueue()->submit(submitInfo, *m_inFlightFences[m_frameIndex]);
+	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
 	const vk::PresentInfoKHR presentInfoKHR{ .waitSemaphoreCount = 1,
 											.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex],
 											.swapchainCount = 1,
 											.pSwapchains = &**m_swapchain->GetSwapchain(),
 											.pImageIndices = &imageIndex };
-	result = m_context->GetQueue()->presentKHR(presentInfoKHR);
+	result = m_context.GetQueue().presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
@@ -313,10 +314,9 @@ void Renderer::drawFrame()
 		{
 			SDL_WaitEvent(&m_event);
 		}
-		m_swapchain->Cleanup(*m_context->GetDevice());
-		m_swapchain->Recreate(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
-		m_depthBuffer.reset();
-		m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
+		m_swapchain->Cleanup(m_context.GetDevice());
+		m_swapchain->Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_depthBuffer = { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain->GetExtent() };
 	}
 	else
 	{
@@ -330,7 +330,7 @@ void Renderer::drawFrame()
 
 void Renderer::CreateTextureSampler()
 {
-	vk::PhysicalDeviceProperties properties = m_context->GetPhysicalDevice()->getProperties();
+	vk::PhysicalDeviceProperties properties = m_context.GetPhysicalDevice().getProperties();
 	vk::SamplerCreateInfo        samplerInfo{ .magFilter = vk::Filter::eLinear,
 											 .minFilter = vk::Filter::eLinear,
 											 .mipmapMode = vk::SamplerMipmapMode::eLinear,
@@ -342,7 +342,7 @@ void Renderer::CreateTextureSampler()
 											 .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
 											 .compareEnable = vk::False,
 											 .compareOp = vk::CompareOp::eAlways };
-	m_textureSampler = vk::raii::Sampler(*m_context->GetDevice(), samplerInfo);
+	m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
 }
 
 //Descriptor pool is increased in size for the sampler
@@ -355,7 +355,7 @@ void Renderer::CreateDescriptorPool()
 												   .maxSets = MAX_FRAMES_IN_FLIGHT,
 												   .poolSizeCount = static_cast<uint32_t>(poolSize.size()),
 												   .pPoolSizes = poolSize.data() };
-	m_descriptorPool = vk::raii::DescriptorPool(*m_context->GetDevice(), poolInfo);
+	m_descriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
 }
 
 //Sets layout of buffer
@@ -366,7 +366,7 @@ void Renderer::CreateDescriptorSetLayout() {
 			//Specify where the sampler is to be used with the ShaderStageFlag
 			 {.binding = 1, .descriptorType = vk::DescriptorType::eCombinedImageSampler, .descriptorCount = 1, .stageFlags = vk::ShaderStageFlagBits::eFragment}} };
 	vk::DescriptorSetLayoutCreateInfo layoutInfo{ .bindingCount = static_cast<uint32_t>(bindings.size()), .pBindings = bindings.data() };
-	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(*m_context->GetDevice(), layoutInfo);
+	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_context.GetDevice(), layoutInfo);
 }
 
 void Renderer::CreateDescriptorSets()
@@ -378,12 +378,12 @@ void Renderer::CreateDescriptorSets()
 		.pSetLayouts = layouts.data() };
 
 	m_descriptorSets.clear();
-	m_descriptorSets = m_context->GetDevice()->allocateDescriptorSets(allocInfo);
+	m_descriptorSets = m_context.GetDevice().allocateDescriptorSets(allocInfo);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		vk::DescriptorBufferInfo bufferInfo{ .buffer = *m_uniformBuffers[i].value().GetBuffer(), .offset = 0, .range = sizeof(Droplet::Graphics::VK::UniformBufferObject) };
-		vk::DescriptorImageInfo  imageInfo{ .sampler = m_textureSampler, .imageView = *m_textureView.value().GetView(), .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal };
+		vk::DescriptorBufferInfo bufferInfo{ .buffer = m_uniformBuffers[i].Get(), .offset = 0, .range = sizeof(Droplet::Graphics::VK::UniformBufferObject) };
+		vk::DescriptorImageInfo  imageInfo{ .sampler = m_textureSampler, .imageView = m_textureView.Get(), .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal };
 
 		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{ 
 		{
@@ -404,7 +404,7 @@ void Renderer::CreateDescriptorSets()
 				.pImageInfo = &imageInfo}
 			} 
 		};
-		m_context->GetDevice()->updateDescriptorSets(descriptorWrites, {});
+		m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
 	}
 }
 
@@ -413,7 +413,7 @@ int Renderer::Initialize()
 {
 	try
 	{
-		m_context.emplace(*m_window.Get());
+		m_context = { m_window.Get(), m_vkContext };
 	}
 	catch (const vk::SystemError &err)
 	{
@@ -426,7 +426,7 @@ int Renderer::Initialize()
 		return 1;
 	}
 
-	m_swapchain.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
+	m_swapchain.emplace(m_context.GetDevice(), m_context.GetPhysicalDevice(), *m_window.Get(), m_context.GetSurface());
 
 	CreateDescriptorSetLayout();
 
@@ -434,20 +434,44 @@ int Renderer::Initialize()
 
 	CreateGraphicsPipeline();
 
-	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
+	m_allocator = { m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() };
+	
+	m_depthBuffer = { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain->GetExtent() };
 
-	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES);
-	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES);
+	m_vertexBuffer = { m_allocator.Get(), G_VERTICES };
+	m_indexBuffer = { m_allocator.Get(), G_INDICES };
 
+	m_image = {
+		m_allocator.Get(),
+		G_CATDESPAIR,
+		G_CATDIM,
+		G_CATDIM,
+		vk::Format::eR5G6B5UnormPack16,
+		vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+	};
+	
 	//Format is changed from the usual eR8G8B8A8Srbg/unorm
-	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
+	m_textureView = {
+		m_context.GetDevice(),
+		m_image.Get()
+	};
+	
 	CreateTextureSampler();
 
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	for (auto &uniformBuffer : m_uniformBuffers)
 	{
-		m_uniformBuffers[i].emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice());
+		const VK::UniformBufferObject ubo
+		{
+			.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->GetExtent().width) / static_cast<float>(m_swapchain->GetExtent().height), 0.1f, 10.0f)
+		};
+
+		uniformBuffer = { m_allocator.Get(), ubo };
 	}
+
 
 	CreateDescriptorPool();
 
@@ -464,7 +488,7 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
 	try
 	{
-		m_context.emplace(*m_window.Get());
+		m_context = {m_window.Get(), m_vkContext};
 	}
 	catch (const vk::SystemError &err)
 	{
@@ -477,7 +501,7 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 		return 1;
 	}
 
-	m_swapchain.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
+	m_swapchain.emplace(m_context.GetDevice(), m_context.GetPhysicalDevice(), *m_window.Get(), m_context.GetSurface());
 
 	CreateDescriptorSetLayout();
 
@@ -485,35 +509,43 @@ int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 
 	CreateGraphicsPipeline(p_shaderBlob);
 
-	m_allocator = { m_instance, m_physicalDevice, m_device };
+	m_allocator = { m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() };
 	
-	m_depthBuffer = { m_allocator.Get(), m_device, m_physicalDevice, m_swapchainExtent };
+	m_depthBuffer = { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain->GetExtent() };
 
-	m_vertexBuffer = { m_allocator.Get(), g_vertices };
-	m_indexBuffer = { m_allocator.Get(), g_indices };
-	
-	m_depthBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent() };
-
-	m_vertexBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES };
-	m_indexBuffer = { *m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES };
+	m_vertexBuffer = { m_allocator.Get(), G_VERTICES };
+	m_indexBuffer = { m_allocator.Get(), G_INDICES };
 	
 	for (auto &uniformBuffer : m_uniformBuffers)
 	{
-		const UniformBufferObject ubo
+		const VK::UniformBufferObject ubo
 		{
 			.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 			.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.height), 0.1f, 10.0f)
+			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain->GetExtent().width) / static_cast<float>(m_swapchain->GetExtent().height), 0.1f, 10.0f)
 		};
 
 		uniformBuffer = { m_allocator.Get(), ubo };
 	}
 	
+	m_image = {
+		m_allocator.Get(),
+		G_CATDESPAIR,
+		G_CATDIM,
+		G_CATDIM,
+		vk::Format::eR5G6B5UnormPack16,
+		vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+	};
+	
 	//Format is changed from the usual eR8G8B8A8Srbg/unorm
-	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
+	m_textureView = {
+		m_context.GetDevice(),
+		m_image.Get()
+	};
 
 	CreateTextureSampler();
-
 
 	CreateDescriptorPool();
 

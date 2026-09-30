@@ -1,10 +1,7 @@
-#include <Graphics/VK/VulkanContext.hpp>
-
+#include <Graphics/VK/Context.hpp>
 
 #include <ranges>
 #include <iostream>
-
-using namespace Droplet::Graphics::VK;
 
 #ifdef NDEBUG
 constexpr bool enableValidationLayers = false;
@@ -12,8 +9,16 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
-const std::vector<char const *> validationLayers = {
-	"VK_LAYER_KHRONOS_validation" };
+using namespace Droplet::Graphics::VK;
+
+Context::Context(SDL_Window *p_window, const vk::raii::Context& p_context)
+{
+	CreateInstance(p_context);
+	SetupDebugMessenger();
+	CreateSurface(p_window);
+	PickPhysicalDevice();
+	CreateLogicalDevice();
+}
 
 /// @brief Callback function for the debug messenger
 /// @param p_severity Severity flags of the error
@@ -32,7 +37,7 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSever
 }
 
 //Setup of the debug messenger
-void VulkanContext::SetupDebugMessenger()
+void Context::SetupDebugMessenger()
 {
 	if (!enableValidationLayers)
 		return;
@@ -48,7 +53,7 @@ void VulkanContext::SetupDebugMessenger()
 }
 
 //Iterating through a list of available GPUs and choosing one to use
-void VulkanContext::PickPhysicalDevice()
+void Context::PickPhysicalDevice()
 {
 	std::vector<vk::raii::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
 	auto const                            devIter = std::ranges::find_if(physicalDevices, [&](auto const &physicalDevice) { return IsDeviceSuitable(physicalDevice); });
@@ -60,7 +65,7 @@ void VulkanContext::PickPhysicalDevice()
 }
 
 //Creation of a vulkan device
-void VulkanContext::CreateLogicalDevice()
+void Context::CreateLogicalDevice()
 {
 	std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
 
@@ -106,7 +111,7 @@ void VulkanContext::CreateLogicalDevice()
 }
 
 //Checking if the device supports the correct features and API version
-bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
+bool Context::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
 {
 	// Check if the physicalDevice supports the Vulkan 1.3 API version
 	bool supportsVulkan1_3 = p_physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
@@ -147,7 +152,7 @@ bool VulkanContext::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalD
 //Fetches required SDL instance extensions
 std::vector<const char *> getRequiredInstanceExtensions()
 {
-	uint32_t extensionCount = 0;
+	std::uint32_t extensionCount = 0;
 	auto     sdlExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
 
 	std::vector extensions(sdlExtensions, sdlExtensions + extensionCount);
@@ -160,17 +165,17 @@ std::vector<const char *> getRequiredInstanceExtensions()
 }
 
 //Creating a surface for rendering onto
-void VulkanContext::CreateSurface(SDL_Window &p_window)
+void Context::CreateSurface(SDL_Window *p_window)
 {
 	VkSurfaceKHR _surface;
-	if (!SDL_Vulkan_CreateSurface(&p_window, *m_instance, nullptr, &_surface))
+	if (!SDL_Vulkan_CreateSurface(p_window, *m_instance, nullptr, &_surface))
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
 	m_surface = vk::raii::SurfaceKHR(m_instance, _surface);
 }
 
-void VulkanContext::CreateInstance()
+void Context::CreateInstance(const vk::raii::Context &p_context)
 {
 	constexpr vk::ApplicationInfo appInfo{ .pApplicationName = "Hello Triangle!",
 										   .applicationVersion = VK_MAKE_VERSION(1,0,0),
@@ -182,11 +187,11 @@ void VulkanContext::CreateInstance()
 	std::vector<char const *> requiredLayers;
 	if (enableValidationLayers)
 	{
-		requiredLayers.assign(validationLayers.begin(), validationLayers.end());
+		requiredLayers.assign(m_validationLayers.begin(), m_validationLayers.end());
 	}
 
 	// Check if the required layers are supported by the Vulkan implementation.
-	auto layerProperties = m_context.enumerateInstanceLayerProperties();
+	auto layerProperties = p_context.enumerateInstanceLayerProperties();
 	auto unsupportedLayerIt = std::ranges::find_if(requiredLayers,
 		[&layerProperties](auto const &requiredLayer) {
 			return std::ranges::none_of(layerProperties,
@@ -201,7 +206,7 @@ void VulkanContext::CreateInstance()
 	auto requiredExtensions = getRequiredInstanceExtensions();
 
 	// Check if the required extensions are supported by the Vulkan implementation.
-	auto extensionProperties = m_context.enumerateInstanceExtensionProperties();
+	auto extensionProperties = p_context.enumerateInstanceExtensionProperties();
 	auto unsupportedPropertyIt =
 		std::ranges::find_if(requiredExtensions,
 			[&extensionProperties](auto const &requiredExtension) {
@@ -218,14 +223,5 @@ void VulkanContext::CreateInstance()
 									  .ppEnabledLayerNames = requiredLayers.data(),
 									  .enabledExtensionCount = static_cast<uint32_t>(requiredExtensions.size()),
 									  .ppEnabledExtensionNames = requiredExtensions.data() };
-	m_instance = vk::raii::Instance(m_context, createInfo);
-}
-
-VulkanContext::VulkanContext(SDL_Window &p_window)
-{
-	CreateInstance();
-	SetupDebugMessenger();
-	CreateSurface(p_window);
-	PickPhysicalDevice();
-	CreateLogicalDevice();
+	m_instance = vk::raii::Instance(p_context, createInfo);
 }

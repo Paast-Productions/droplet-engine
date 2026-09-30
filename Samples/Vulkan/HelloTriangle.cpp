@@ -10,7 +10,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Flags = 0
 	};
 	
-	Renderer rnd 
+	Droplet::Graphics::Renderer rnd 
 	{
 		windowConfig
 	};

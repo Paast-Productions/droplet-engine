@@ -1,5 +1,8 @@
 ﻿#include "Allocator.hpp"
 
+#include <print>
+#include <iostream>
+
 using namespace Droplet::Graphics::VK;
 
 Allocator::Allocator(const nullptr_t p_nullptr)
@@ -9,23 +12,25 @@ Allocator::Allocator(const nullptr_t p_nullptr)
 
 Allocator::Allocator(const vk::raii::Instance &p_instance, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::Device &p_device)
 {
-    vma::VulkanFunctions vulkanFunctions 
-    {
-        .vkGetInstanceProcAddr = &vkGetInstanceProcAddr,
-        .vkGetDeviceProcAddr = &vkGetDeviceProcAddr
-    };
-    
     vma::AllocatorCreateInfo allocatorCreateInfo 
     {
         .flags = vma::AllocatorCreateFlagBits::eExtMemoryBudget,
         .physicalDevice = p_physicalDevice,
-        .device = p_device,
-        .pVulkanFunctions = &vulkanFunctions,
-        .instance = p_instance,
+        .device = nullptr,
+        .pVulkanFunctions = nullptr,
+        .instance = nullptr,
         .vulkanApiVersion = VK_API_VERSION_1_4,
     };
     
-    m_allocator = { vma::raii::Allocator {p_instance, p_device, allocatorCreateInfo} };
+    try
+    {
+        m_allocator = vma::raii::Allocator { p_instance, p_device, allocatorCreateInfo };
+    }
+    catch (const std::exception &e)
+    {
+        std::print(std::cerr, "Allocator Error: {0}", e.what());
+        std::flush(std::cerr);
+    }
 }
 
 Allocator::Allocator(Allocator &&p_other) noexcept

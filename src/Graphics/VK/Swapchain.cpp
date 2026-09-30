@@ -22,7 +22,7 @@ std::uint32_t Swapchain::ChooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR cons
 	return minImageCount;
 }
 
-void Swapchain::CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface)
+void Swapchain::CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface)
 {
 	vk::SurfaceCapabilitiesKHR surfaceCapabilities = p_physicalDevice.getSurfaceCapabilitiesKHR(*p_swapSurface);
 	m_swapchainExtent = ChooseSwapExtent(surfaceCapabilities, p_window);
@@ -52,11 +52,11 @@ void Swapchain::CreateSwapchain(const vk::raii::Device &p_device, const vk::raii
 
 Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface)
 {
-	CreateSwapchain(p_device, p_physicalDevice, p_window, p_swapSurface);
+	CreateSwapchain(p_device, p_physicalDevice, &p_window, p_swapSurface);
 	CreateImageViews(p_device);
 }
 
-vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window &p_window)
+vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window *p_window)
 {
 	// currentExtent is only set to the special "undefined" value described above
 	// when the window manager lets us choose the extent ourselves; any other value
@@ -65,8 +65,8 @@ vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capab
 	{
 		return capabilities.currentExtent;
 	}
-	int width, height;
-	SDL_GetWindowSize(&p_window, &width, &height);
+	int width {0}, height {0};
+	SDL_GetWindowSize(p_window, &width, &height);
 
 	return {
 		std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
@@ -81,7 +81,7 @@ void Swapchain::Cleanup(const vk::raii::Device &p_device)
 	m_swapchain = nullptr;
 }
 
-void Swapchain::Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_surface)
+void Swapchain::Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_surface)
 {
 	p_device.waitIdle();
 	CreateSwapchain(p_device, p_physicalDevice, p_window, p_surface);

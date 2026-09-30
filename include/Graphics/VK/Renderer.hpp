@@ -28,137 +28,144 @@
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
 #include <Graphics/VK/ImageView.hpp>
-#include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
-#include <Graphics/VK/VulkanContext.hpp>
+#include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Allocator.hpp>
 
 
 // HACK: Implementation subject to change
 
-class Renderer
+namespace Droplet::Graphics
 {
-public:
-	Renderer() = delete;
-	Renderer(Droplet::Graphics::SDL::WindowConfig p_windowConfig);
-	~Renderer();
-	int		Initialize();
-	int		Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
-	void	drawFrame();
-	void	windowResize();
-
-	SDL_Event				p_event {};
-	inline static			SDL_InitState p_init {};
-
-private:
-	/// @brief Creates the graphics pipeline
-	void					CreateGraphicsPipeline();
-
-	/// @brief Creates a graphics pipeline based on a shader
-	/// @param p_shaderBlob shader to be used
-	void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
-
-	/// @brief Creates a shader module from a vector containing raw code
-	/// @param p_device Pointer to the vulkan device
-	/// @param code Vector containing raw code
-	/// @return A vulkan shader module
-	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
-
-	/// @brief Creates a shader module from a blob containing code
-	/// @param p_device Pointer to the vulkan device
-	/// @param code Blob containing code
-	/// @return A vulkan shader module
-	vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
-	
-	/// @brief Creates the command pool
-	void					CreateCommandPool();
-
-	/// @brief Creates commandbuffers
-	void					CreateCommandBuffers();
-
-	/// @brief Records a command buffer for rendering an image
-	/// @param imageIndex which image to render to
-	void					RecordCommandBuffer(uint32_t p_imageIndex);
-
-	/// @brief Creates the texture sampler
-	void					CreateTextureSampler();
-
-	/// @brief Creates the descriptorset layout
-	void					CreateDescriptorSetLayout();
-
-	/// @brief Creates the descriptor pool
-	void					CreateDescriptorPool();
-
-	/// @brief Creates the descriptorsets
-	void					CreateDescriptorSets();
-
-	/// @brief Creates sync objects for preventing race conditions etc
-	void					CreateSyncObjects();
-
-	/// @brief Changes the layout of an image from one to another
-	/// @param p_image The image to be translated
-	/// @param p_old_layout The old layout of the image
-	/// @param p_new_layout The new layout of the image 
-	/// @param p_src_access_mask Source access mask
-	/// @param p_dst_access_mask Destination access mask
-	/// @param p_src_stage_mask Source stage mask
-	/// @param p_dst_stage_mask Destination stage mask
-	/// @param p_image_aspect_flags Image aspect flags and/or bits
-	void					TransitionImageLayout(
-		vk::Image               p_image,
-		vk::ImageLayout         p_old_layout,
-		vk::ImageLayout         p_new_layout,
-		vk::AccessFlags2        p_src_access_mask,
-		vk::AccessFlags2        p_dst_access_mask,
-		vk::PipelineStageFlags2 p_src_stage_mask,
-		vk::PipelineStageFlags2 p_dst_stage_mask,
-		vk::ImageAspectFlags    p_image_aspect_flags);
-
-	static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-
-	//Declaration order matters for destruction order!!!!
-
-	std::optional<Droplet::Graphics::VK::VulkanContext> m_context;
-
-	SDL_Event m_event;
-
-	std::optional < Droplet::Graphics::VK::Swapchain> m_swapchain;
-
-	std::optional<Droplet::Graphics::VK::CommandPool> m_commandPool;
-	std::vector<Droplet::Graphics::VK::CommandBufferId> m_commandBufferIds;
-	std::optional<Droplet::Graphics::VK::Pipeline> m_graphicsPipeline;
-	Droplet::Graphics::SDL::Window			m_window;
-
-	std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
-	std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
-	std::vector<vk::raii::Fence>		 	m_inFlightFences;
-
-	vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
-	vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
-	std::vector<vk::raii::DescriptorSet> m_descriptorSets;
-	vk::raii::Sampler					 m_textureSampler = nullptr;
-
-	std::optional<Droplet::Graphics::VK::ImageView>	   m_textureView;
-	Droplet::Graphics::VK::DepthBuffer m_depthBuffer { nullptr };
-	Droplet::Graphics::VK::IndexBuffer m_indexBuffer { nullptr };
-	Droplet::Graphics::VK::VertexBuffer m_vertexBuffer { nullptr };
-
-	//Needs one buffer per frame in flight to avoid read write issues
-	
-	Droplet::Graphics::VK::Allocator m_allocator { nullptr };
-	std::array<Droplet::Graphics::VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
-	
-	struct UniformBufferObject
+	namespace VK
 	{
-		glm::mat4 model {};
-		glm::mat4 view {};
-		glm::mat4 proj {};
+		struct UniformBufferObject
+		{
+			glm::mat4 model {};
+			glm::mat4 view {};
+			glm::mat4 proj {};
+		};
+	}
+	
+	class Renderer
+	{
+	public:
+		Renderer() = delete;
+		Renderer(SDL::WindowConfig p_windowConfig);
+		~Renderer();
+		int		Initialize();
+		int		Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
+		void	drawFrame();
+		void	windowResize();
+
+		SDL_Event				p_event {};
+		inline static			SDL_InitState p_init {};
+
+	private:
+		/// @brief Creates the graphics pipeline
+		void					CreateGraphicsPipeline();
+
+		/// @brief Creates a graphics pipeline based on a shader
+		/// @param p_shaderBlob shader to be used
+		void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
+
+		/// @brief Creates a shader module from a vector containing raw code
+		/// @param p_device Pointer to the vulkan device
+		/// @param code Vector containing raw code
+		/// @return A vulkan shader module
+		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
+
+		/// @brief Creates a shader module from a blob containing code
+		/// @param p_device Pointer to the vulkan device
+		/// @param code Blob containing code
+		/// @return A vulkan shader module
+		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
+		
+		/// @brief Creates the command pool
+		void					CreateCommandPool();
+
+		/// @brief Creates commandbuffers
+		void					CreateCommandBuffers();
+
+		/// @brief Records a command buffer for rendering an image
+		/// @param imageIndex which image to render to
+		void					RecordCommandBuffer(uint32_t p_imageIndex);
+
+		/// @brief Creates the texture sampler
+		void					CreateTextureSampler();
+
+		/// @brief Creates the descriptorset layout
+		void					CreateDescriptorSetLayout();
+
+		/// @brief Creates the descriptor pool
+		void					CreateDescriptorPool();
+
+		/// @brief Creates the descriptorsets
+		void					CreateDescriptorSets();
+
+		/// @brief Creates sync objects for preventing race conditions etc
+		void					CreateSyncObjects();
+
+		/// @brief Changes the layout of an image from one to another
+		/// @param p_image The image to be translated
+		/// @param p_old_layout The old layout of the image
+		/// @param p_new_layout The new layout of the image 
+		/// @param p_src_access_mask Source access mask
+		/// @param p_dst_access_mask Destination access mask
+		/// @param p_src_stage_mask Source stage mask
+		/// @param p_dst_stage_mask Destination stage mask
+		/// @param p_image_aspect_flags Image aspect flags and/or bits
+		void					TransitionImageLayout(
+			vk::Image               p_image,
+			vk::ImageLayout         p_old_layout,
+			vk::ImageLayout         p_new_layout,
+			vk::AccessFlags2        p_src_access_mask,
+			vk::AccessFlags2        p_dst_access_mask,
+			vk::PipelineStageFlags2 p_src_stage_mask,
+			vk::PipelineStageFlags2 p_dst_stage_mask,
+			vk::ImageAspectFlags    p_image_aspect_flags);
+
+		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
+		//Declaration order matters for destruction order!!!!
+
+		SDL::Window m_window;
+		vk::raii::Context m_vkContext;
+		VK::Context m_context { nullptr };
+
+		SDL_Event m_event {};
+
+		std::optional<VK::Swapchain> m_swapchain;
+
+		std::optional<VK::CommandPool> m_commandPool;
+		std::vector<VK::CommandBufferId> m_commandBufferIds;
+		std::optional<VK::Pipeline> m_graphicsPipeline;
+
+		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
+		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
+		std::vector<vk::raii::Fence>		 	m_inFlightFences;
+
+		vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
+		vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
+		std::vector<vk::raii::DescriptorSet> m_descriptorSets;
+		vk::raii::Sampler					 m_textureSampler = nullptr;
+
+		VK::Image		m_image { nullptr };
+		VK::ImageView	m_textureView { nullptr };
+		VK::DepthBuffer	m_depthBuffer { nullptr };
+		VK::IndexBuffer	m_indexBuffer { nullptr };
+		VK::VertexBuffer m_vertexBuffer { nullptr };
+
+		//Needs one buffer per frame in flight to avoid read write issues
+		
+		VK::Allocator m_allocator { nullptr };
+		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
+		
+		std::uint32_t							 m_frameIndex = 0;
+
+		bool								 m_framebufferResized = false;
+
+		std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
-
-	std::uint32_t							 m_frameIndex = 0;
-
-	bool								 m_framebufferResized = false;
-
-	std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
-};
+}

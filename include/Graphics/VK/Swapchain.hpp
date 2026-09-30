@@ -31,7 +31,7 @@ namespace Droplet::Graphics::VK
 		void Cleanup(const vk::raii::Device &p_device);
 
 		/// Creates a new swapchain and images just like the constructor
-		void Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_surface);
+		void Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_surface);
 
 		/// @brief Swapchain extent getter
 		/// @return The swapchain extent
@@ -59,7 +59,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_physicalDevice Pointer to the hardware device
 		/// @param p_window Reference to the SDL window
 		/// @param p_swapSurface Pointer to the swapchain surface
-		void CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface);
+		void CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		/// @brief Chooses the swapchain surface format amongst the available options
 		/// @param p_availableFormats Available swapchain surface format options
@@ -75,7 +75,7 @@ namespace Droplet::Graphics::VK
 		/// @param capabilities The capabilities of the swapchain surface
 		/// @param p_window Reference to the SDL window
 		/// @return The new swapchain extent
-		vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window &p_window);
+		vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window *p_window);
 
 		/// @brief Chooses a swapchain present mode from available options
 		/// @param p_availablePresentModes Available present mode options

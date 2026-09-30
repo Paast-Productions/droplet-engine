@@ -3,8 +3,6 @@
 
 using namespace Droplet::Graphics::VK;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight)
 {
 	std::array<vk::DescriptorPoolSize, 3> poolSize
@@ -34,44 +32,6 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p
 	};
 	
 	m_descriptorPool = vk::raii::DescriptorPool(p_device, poolInfo);
-=======
-DescriptorPool::DescriptorPool(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight)
-=======
-DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight)
->>>>>>> 0b5237f (Intermediary Commit)
-{
-	std::array<vk::DescriptorPoolSize, 3> poolSize
-	{
-		{
-			{
-				.type = vk::DescriptorType::eUniformBuffer,
-				.descriptorCount = p_maxFramesInFlight
-			},
-			{
-				.type = vk::DescriptorType::eStorageBuffer,
-				.descriptorCount = p_maxFramesInFlight
-			},
-			{
-				.type = vk::DescriptorType::eCombinedImageSampler,
-				.descriptorCount = p_maxFramesInFlight
-			}
-		} 
-	};
-	
-	vk::DescriptorPoolCreateInfo poolInfo
-	{ 
-		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind,
-		.maxSets = p_maxFramesInFlight,
-		.poolSizeCount = static_cast<std::uint32_t>(poolSize.size()),
-		.pPoolSizes = poolSize.data() 
-	};
-	
-	m_descriptorPool = vk::raii::DescriptorPool(p_device, poolInfo);
-<<<<<<< HEAD
-
->>>>>>> 9a4555f (Added descriptor pool class)
-=======
->>>>>>> 0b5237f (Intermediary Commit)
 }
 
 /*void DescriptorPool::CreateDescriptorSets(vk::raii::Device const &p_device, std::uint32_t p_maxFramesInFlight, std::optional<UniformBuffer> const &p_uniformBuffers)
@@ -104,15 +64,7 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p
 																 .pImageInfo = &imageInfo}} };
 		p_device.updateDescriptorSets(descriptorWrites, {});
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
 }
-=======
-}*/
->>>>>>> 9a4555f (Added descriptor pool class)
-=======
-}
->>>>>>> 0b5237f (Intermediary Commit)
 
 //defines shader stages, binding indices and descriptortype
 void DescriptorPool::CreateDescriptorSetLayout(vk::raii::Device const &p_device)
@@ -140,12 +92,5 @@ void DescriptorPool::AddDescriptorImage(vk::raii::Sampler const &p_sampler, vk::
 		.sampler = *p_sampler, 
 		.imageView = *p_imageView, 
 		.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal });
-<<<<<<< HEAD
-<<<<<<< HEAD
-}*/
-=======
 }
->>>>>>> 9a4555f (Added descriptor pool class)
-=======
-}*/
->>>>>>> 0b5237f (Intermediary Commit)
+*/

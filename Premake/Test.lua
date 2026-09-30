@@ -49,13 +49,7 @@ project "Test"
 
     links
     {
-<<<<<<< HEAD
         "Engine", 
         "gtest",
         AddQuotation("lua-5.4.7")
     }
-=======
-        "Engine",
-        "gtest"
-    }
->>>>>>> 7aee90e (Linux: Fix Compatability)

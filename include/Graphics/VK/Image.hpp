@@ -51,7 +51,7 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_image = std::move(p_other.m_image);
+			m_image = std::move(p_other.m_image); 
 			
 			return *this;
 		}
