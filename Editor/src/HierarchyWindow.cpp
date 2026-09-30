@@ -12,14 +12,14 @@ using namespace Droplet::Scene;
 void HierarchyWindow::InitImpl()
 {
 	// Create a test scene manager and load a test scene
-
+	//TODO: Remove this when the hierarchy window is integrated engine instance
     m_testSceneManager = std::make_shared<SceneManager>();
 
     m_testSceneManager->LoadScene("TestScene");
     
     const auto scene = m_testSceneManager->GetScene("TestScene");
 
-    auto root = scene->AddNode("Root");
+    auto root = scene->AddNode("Root");    
 
     auto player = root->AddChild(scene->AddNode("Player"));
 
@@ -35,10 +35,12 @@ void HierarchyWindow::RenderImpl()
     if (!m_instance)
     {
         //return;
+		//TODO: This should return when the hierarchy window is integrated with the engine instance
     }
     
     const auto scene = m_testSceneManager->GetScene("TestScene");
     //const auto sceneManager = m_instance->GetSceneManager();
+	//TODO: Get the currently viewed scene from the engine instance instead of using the test scene manager
 
     if (!scene)
     {
