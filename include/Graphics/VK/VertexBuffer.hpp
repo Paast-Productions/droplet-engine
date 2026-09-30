@@ -1,10 +1,13 @@
 #pragma once
 
-#include <vector>
-
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
+
+#include <vector>
 #include <glm/glm.hpp>
+
+#include <Graphics/VK/CommandPool.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -52,7 +55,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_vertices vector containing Vertex struct data
 		VertexBuffer(vk::raii::Device const &p_device,
 			vk::raii::PhysicalDevice const &p_physDevice,
-			vk::raii::CommandPool const &p_commandPool,
+			CommandPool const &p_commandPool,
 			vk::raii::Queue const &p_queue,
 			const std::vector<Vertex> &p_vertices);
 
@@ -68,13 +71,16 @@ namespace Droplet::Graphics::VK
 		vk::raii::DeviceMemory	m_bufferMemory = nullptr;
 	};
 
-	//I'm worried this may be illegal
-	inline const vk::raii::Buffer *VertexBuffer::GetVertexBuffer()
+	/// @brief Getter for Vertex buffer reference
+	/// @return Vertex buffer pointer
+	[[nodiscard]] inline const vk::raii::Buffer *VertexBuffer::GetVertexBuffer()
 	{
 		return &m_vertexBuffer;
 	}
 
-	inline const vk::raii::DeviceMemory *VertexBuffer::GetDeviceMemory()
+	/// @brief Getter for device memory reference
+	/// @return Devcice memory pointer
+	[[nodiscard]] inline const vk::raii::DeviceMemory *VertexBuffer::GetDeviceMemory()
 	{
 		return &m_bufferMemory;
 	}

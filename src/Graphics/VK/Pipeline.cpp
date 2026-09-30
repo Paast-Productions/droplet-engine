@@ -1,8 +1,25 @@
 #include "Graphics/VK/Pipeline.hpp"
 
+#include <Graphics/VK/VertexBuffer.hpp>
+
 using namespace Droplet::Graphics::VK;
 
-Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig)
+vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice, const std::vector<vk::Format> &p_candidates, vk::ImageTiling p_tiling, vk::FormatFeatureFlags p_features)
+{
+	for (const auto format : p_candidates) {
+		vk::FormatProperties props = p_physicalDevice.getFormatProperties(format);
+
+		if (((p_tiling == vk::ImageTiling::eLinear) && ((props.linearTilingFeatures & p_features) == p_features)) ||
+			((p_tiling == vk::ImageTiling::eOptimal) && ((props.optimalTilingFeatures & p_features) == p_features)))
+		{
+			return format;
+		}
+	}
+
+	throw std::runtime_error("failed to find supported format!");
+}
+
+Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig)
 {
 	assert(p_device != nullptr && p_shaderModule != nullptr);
 	
@@ -26,6 +43,17 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModul
 		fragShaderStageInfo
 	};
 
+	//--Added for basic model rendering functionality
+	auto bindingDescription = Vertex::GetBindingDescription();
+	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
+	vk::PipelineVertexInputStateCreateInfo   vertexInputInfo
+	{ 
+		.vertexBindingDescriptionCount = 1,
+		.pVertexBindingDescriptions = &bindingDescription,
+		.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size()),
+		.pVertexAttributeDescriptions = attributeDescriptions.data() 
+	};
+	//--
 	
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly
 	{
@@ -57,6 +85,17 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModul
 		.sampleShadingEnable = p_pipelineConfig.UseMultisampling ? vk::True : vk::False
 	};
 
+	//--Added for basic model rendering functionality
+	vk::PipelineDepthStencilStateCreateInfo depthStencil
+	{
+		.depthTestEnable = vk::True,
+		.depthWriteEnable = vk::True,
+		.depthCompareOp = vk::CompareOp::eLess,
+		.depthBoundsTestEnable = vk::False,
+		.stencilTestEnable = vk::False 
+	};
+	//--
+
 	// Blending is enabled or disabled via the pipeline config
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment
 	{
@@ -81,9 +120,18 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModul
 
 	m_pipelineLayout = vk::raii::PipelineLayout(p_device, p_pipelineConfig.PipelineLayoutInfo);
 
-	vk::PipelineVertexInputStateCreateInfo   vertexInputInfo {};
+	vk::Format depthFormat = FindSupportedFormat(
+		p_physicalDevice,
+		{ 
+			vk::Format::eD32Sfloat, 
+			vk::Format::eD32SfloatS8Uint, 
+			vk::Format::eD24UnormS8Uint 
+		},
+			vk::ImageTiling::eOptimal,
+			vk::FormatFeatureFlagBits::eDepthStencilAttachment
+	);
 	
-	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain 
+	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain
 	{
 		{
 			 .stageCount = 2,
@@ -93,6 +141,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModul
 			 .pViewportState = &viewportState,
 			 .pRasterizationState = &rasterizer,
 			 .pMultisampleState = &multisampling,
+			 .pDepthStencilState = &depthStencil,
 			 .pColorBlendState = &colorBlending,
 			 .pDynamicState = &dynamicState,
 			 .layout = m_pipelineLayout,
@@ -100,7 +149,8 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::ShaderModul
 		},
 		{
 			.colorAttachmentCount = 1,
-			.pColorAttachmentFormats = &p_pipelineConfig.SwapchainSurfaceFormat.format
+			.pColorAttachmentFormats = &p_pipelineConfig.SwapchainSurfaceFormat.format,
+			.depthAttachmentFormat = depthFormat
 		}
 	};
 
