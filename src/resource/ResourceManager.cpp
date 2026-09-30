@@ -1,8 +1,11 @@
-﻿#include "resource/ResourceManager.hpp"
+#include "resource/ResourceManager.hpp"
 
+#include "core/StringUtils.hpp"
 #include "resource/meta/MetaUtils.hpp"
 
-// #include "IResource"
+#include "resource/loaders/AssimpLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
+#include "resource/loaders/SlangLoader.hpp"
 
 namespace Droplet
 {
@@ -10,92 +13,200 @@ namespace Droplet
     {
         if (m_isInitialized)
         {
-            // Log RM already initialized
+            // TODO: Log warning: RM already initialized
             return;
         }
         
-        if (!m_catalog.ScanDirectory(p_rootDirectory))
+
+        try
         {
-            // Log error (directory does not exist)
+            m_registry.ScanDirectory(p_rootDirectory);
+
+        }
+        catch (...)
+        {
+            // TODO: Log error: Directory does not exist
             m_isInitialized = false;
             return;
         }
         
-        m_rootDirectory = std::filesystem::absolute(p_rootDirectory);
         m_isInitialized = true;
     }
 
-    void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
+    void ResourceManager::Update()
     {
-        std::vector<MetaEntry> metaEntry;
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::filesystem::path metaPath = p_assetPath.generic_string() + ".meta";
-        if (std::filesystem::exists(metaPath))
+        // A possible performance improvement for this function could be to limit the number of processed load and register
+        // operations per call.
+        
+        // --- Process Register Results ---
+        AsyncRegisterResult regRes;
+        while (m_asyncRegisterResults.Pop(regRes))
         {
-            std::string assetPathStr = p_assetPath.generic_string();
-            
-            // Thread pool dispatch here with lambda[this, p_assetPath, assetPathStr, cachedMetaData]
-            // --- Async Worker Thread ---
-            std::vector<std::pair<ResourceType, std::string>> foundResources;
-            
-            // Run assimp/whatever to detect resources in asset file
-            
-            // Dispatch back to main thread with lambda[this, assetPathStr, resourceList, cachedMetaData]
-            // --- Main Thread ---
-            // Use private function to compare cached metadata to resource list and append/remove bodies here
-            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(assetPathStr, foundResources);
-            
-            // Overwrite .meta file with result (dispatch I/O thread to perform this task)
-            // --- Async I/O Thread --- 
-            std::filesystem::path writePath = assetPathStr + ".meta";
-            MetaUtils::Write(writePath, newMetaData);
-            
-            // --- Main Thread ---
+            // Compare found resources with ones already registered for this asset (if there are any) and determine
+            // which are old (keep), which are new (add) and which have been erased (remove).
+            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.assetPathStr, regRes.foundResources);
+                
             // Update internal catalog
             for (const auto &entry : newMetaData)
             {
-                m_catalog.RegisterMetaEntry(assetPathStr, entry);
+                m_registry.RegisterMetaEntry(regRes.assetPathStr, entry);
+            }
+                
+            // Push metafile write operation to worker thread
+            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
+            {
+               MetaUtils::Write(metaPath, metaData); 
+            });
+        }
+        
+        // --- Process Load Results ---
+        AsyncLoadResult loadRes;
+        while (m_asyncLoadResults.Pop(loadRes))
+        {
+            auto it = m_liveResources.find(loadRes.guid);
+            if (it == m_liveResources.end())
+            {
+                // Resource was destroyed before load finished
+                delete loadRes.resource; // Release the allocated resource stored in the load result
+                continue;
+            }
+            
+            LiveResource &liveResource = it->second;
+            
+            if (!loadRes.succeeded)
+            {
+                liveResource.state = ResourceState::Failed;
+                delete loadRes.resource; // Safety delete (resource should already be nullptr)
+                continue;
+            }
+            liveResource.resource.reset(loadRes.resource);
+            
+            switch (loadRes.loadFlags)
+            {
+                case ResourceLoadFlag::LoadCPU:
+                {
+                    liveResource.state = ResourceState::Ready;
+                    break;
+                }
+                case ResourceLoadFlag::LoadGPU:
+                {
+                    liveResource.state = ResourceState::Uploading;
+                                        
+                    // TODO: Implement upload to GPU upload queue or upload here directly
+                    
+                    liveResource.resource.reset(); // Release resource from RAM
+                    liveResource.state = ResourceState::Ready;
+                    break;
+                }
+                case ResourceLoadFlag::LoadBoth:
+                {
+                    liveResource.state = ResourceState::Uploading;
+                                        
+                    // TODO: Implement upload to GPU upload queue or upload here directly
+                                        
+                    liveResource.state = ResourceState::Ready;
+                    break;
+                }
+            }
+            
+            std::vector<std::function<void()>> callbacksToInvoke;
+            callbacksToInvoke.swap(liveResource.loadCallbacks);
+            
+            // Invoke all callbacks registered for the resource
+            for (auto &callback : callbacksToInvoke)
+            {
+                callback();
             }
         }
     }
 
+    void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
+    {
+        assert(m_isInitialized && "Resource manager is not initialized.");
+        
+        std::string assetPathStr = p_assetPath.generic_string();
+        std::filesystem::path metaPath = assetPathStr + ".meta";
+        
+        std::string ext = p_assetPath.extension().generic_string();
+        StringUtils::ToLowerInPlace(ext);
+        
+        ThreadPool::GetInstance().PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
+            // --- Async Worker Thread ---
+            AsyncRegisterResult res;
+            res.assetPathStr = std::move(assetPathStr);
+            res.metaPath = std::move(metaPath);
+            
+            if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
+            {
+                res.foundResources = AssimpLoader::ListAssetResources(p_assetPath);
+            }
+            else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
+            {
+                res.foundResources = GliLoader::ListAssetResources(p_assetPath);
+            }
+            else if (ext == ".slang")
+            {
+                res.foundResources = SlangLoader::ListAssetResources(p_assetPath);
+            }
+            
+            m_asyncRegisterResults.Push(res);
+        });
+    }
+
+    
+    std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(ResourceType p_type) const
+    {
+        return m_registry.GetEntries(p_type);
+    }
+
     void ResourceManager::IncrementRef(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::lock_guard<std::mutex> lock(m_registryMutex);
-        
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
-            it->second.refCount.fetch_add(1); // TODO: Look into which memory_order to use here
+            it->second.refCount += 1;
         }
     }
 
     void ResourceManager::DecrementRef(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::lock_guard<std::mutex> lock(m_registryMutex);
-        
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
-            if (it->second.refCount.fetch_sub(1) == 1) // TODO: Look into which memory_order to use here
+            if (it->second.refCount - 1 == 0)
             {
-                m_registry.erase(it);
+                m_liveResources.erase(it);
             }
+        }
+    }
+
+    std::uint32_t ResourceManager::GetRef(GUID p_guid)
+    {
+        assert(m_isInitialized && "AssetManager is not initialized.");
+
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
+        {
+            return it->second.refCount;
+        }
+        else
+        {
+            return C_INVALID_GUID;
         }
     }
 
     ResourceState ResourceManager::GetState(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
-        
-        std::lock_guard<std::mutex> lock(m_registryMutex); // This is not ideal for polling (performance)
+        assert(m_isInitialized && "Resource manager is not initialized.");
             
-        auto it = m_registry.find(p_guid);
-        if (it != m_registry.end())
+        auto it = m_liveResources.find(p_guid);
+        if (it != m_liveResources.end())
         {
             return it->second.state;
         }
@@ -107,7 +218,7 @@ namespace Droplet
         const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
     {
         std::vector<MetaEntry> oldMetaData;
-        m_catalog.GetCachedMetaDataForAsset(p_assetPath, oldMetaData); // If it fails, old metadata remains empty
+        m_registry.GetCachedMetaDataForAsset(p_assetPath, oldMetaData); // If it fails, old metadata remains empty
         
         std::vector<MetaEntry> out;
         out.reserve(p_foundResources.size());

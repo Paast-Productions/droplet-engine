@@ -1,4 +1,4 @@
-#include "resource/GUID.hpp"
+#include "resource/GuidUtils.hpp"
 
 #include <random>
 

@@ -1,0 +1,159 @@
+#pragma once
+
+#include "resource/loaders/AssimpLoader.hpp"
+#include "resource/loaders/GliLoader.hpp"
+#include "resource/loaders/SlangLoader.hpp"
+
+#include "resource/types/Texture2DResource.hpp"
+#include "resource/types/Texture3DResource.hpp"
+#include "resource/types/MaterialResource.hpp"
+#include "resource/types/AnimationResource.hpp"
+#include "resource/types/MeshResource.hpp"
+#include "resource/types/SkinnedMeshResource.hpp"
+#include "resource/types/ShaderResource.hpp"
+
+namespace Droplet
+{
+    /// @brief Fallback template. If the compiler hits this, load was called on a type that doesn't have a defined
+    /// load trait.
+    /// @tparam T The resource.
+    template<typename T>
+    struct ResourceLoaderTraits
+    {
+        static_assert(sizeof(T) == 0, "No AssetLoaderTrait has been defined for this resource type.");
+    };
+    
+    // --- Textures ---
+
+    /// @brief Resource loader trait for Texture2DResource.
+    template<>
+    struct ResourceLoaderTraits<Texture2DResource>
+    {
+        static std::unique_ptr<Texture2DResource> LoadCPU(
+            const std::filesystem::path& p_assetPath, 
+            const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return GliLoader::LoadTexture2D(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+        }
+    };
+    
+    
+    // TODO: Implement 3D texture loading
+    // template<>
+    // struct ResourceLoaderTraits<Texture2DResource>
+    // {
+    //     static std::unique_ptr<Texture3DResource> LoadCPU(
+    //          const std::filesystem::path& p_assetPath
+    //          const nlohmann::json &p_loadSettings)
+    //     {
+    //         return GliLoader::LoadTexture3D(p_assetPath, p_loadSettings);
+    //     }
+    // };
+    
+    // TODO: Implement material loading
+    // template<>
+    // struct ResourceLoaderTraits<MaterialResource>
+    // {
+    //     static std::unique_ptr<MaterialResource> LoadCPU(
+    //          const std::filesystem::path& p_assetPath
+    //          const nlohmann::json &p_loadSettings)
+    //     {
+    //         
+    //     }
+    // };
+    
+    // --- Meshes and Animations ---
+    
+    /// @brief Resource loader trait for MeshResource.
+    template<>
+    struct ResourceLoaderTraits<MeshResource>
+    {
+        static std::unique_ptr<MeshResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return AssimpLoader::LoadMesh(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+        }
+    };
+    
+    /// @brief Resource loader trait for SkinnedMeshResource.
+    template<>
+    struct ResourceLoaderTraits<SkinnedMeshResource>
+    {
+        static std::unique_ptr<SkinnedMeshResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return AssimpLoader::LoadSkinnedMesh(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
+        }
+    };
+    
+    /// @brief Resource loader trait for AnimationResource.
+    template<>
+    struct ResourceLoaderTraits<AnimationResource>
+    {
+        static std::unique_ptr<AnimationResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return AssimpLoader::LoadAnimation(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
+        }
+    };
+    
+    // --- Shaders ---
+    
+    /// @brief Resource loader trait for ShaderResource.
+    template<>
+    struct ResourceLoaderTraits<ShaderResource>
+    {
+        static std::unique_ptr<ShaderResource> LoadCPU(
+            const std::filesystem::path &p_assetPath,
+            const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return SlangLoader::CompileAndLoad(p_assetPath, p_loadSettings);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+
+        }
+    };
+}

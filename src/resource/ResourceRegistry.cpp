@@ -1,14 +1,16 @@
-﻿#include "resource/ResourceCatalog.hpp"
+﻿#include "resource/ResourceRegistry.hpp"
+
+#include <Windows.h>
 
 #include "resource/meta/MetaUtils.hpp"
 
 namespace Droplet
 {
-    bool ResourceCatalog::ScanDirectory(const std::filesystem::path &p_directory)
+    void ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
     {
-        if (!std::filesystem::exists(p_directory))
+        if (!std::filesystem::is_directory(p_directory))
         {
-            return false;        
+            throw std::runtime_error("Directory does not exist.");        
         }
         
         for (const auto &item : std::filesystem::recursive_directory_iterator(p_directory))
@@ -34,24 +36,21 @@ namespace Droplet
                 }
             }
         }
-        
-        return true;
     }
 
-    bool ResourceCatalog::GetResourceMetaData(GUID p_guid, MetaEntry &p_metaEntry)
+    MetaEntry ResourceRegistry::GetResourceMetaData(GUID p_guid)
     {
-        auto it = m_guidToDataMap.find(p_guid);
-        if (it != m_guidToDataMap.end())
+        auto it = m_guidToEntryMap.find(p_guid);
+        if (it != m_guidToEntryMap.end())
         {
-            p_metaEntry = it->second;
-            return true;
+            return it->second;
         }
     
-        return false;
+        throw std::runtime_error("Resource does not exist in registry.");
     }
 
-    bool ResourceCatalog::GetCachedMetaDataForAsset(const std::string &p_assetPath,
-        std::vector<MetaEntry> &p_metaData)
+    bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,
+                                                     std::vector<MetaEntry> &p_metaData)
     {
         p_metaData.clear();
         auto it = m_assetToResourcesMap.find(p_assetPath);
@@ -59,8 +58,8 @@ namespace Droplet
         {
             for (GUID guid : it->second)
             {
-                auto metaDataIt = m_guidToDataMap.find(guid);
-                if (metaDataIt != m_guidToDataMap.end())
+                auto metaDataIt = m_guidToEntryMap.find(guid);
+                if (metaDataIt != m_guidToEntryMap.end())
                 {
                     p_metaData.push_back(metaDataIt->second);
                 }
@@ -72,11 +71,27 @@ namespace Droplet
         return false; // Asset is not registered
     }
 
-    void ResourceCatalog::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
+    std::vector<const MetaEntry *> ResourceRegistry::GetEntries(ResourceType p_type) const
     {
-        m_guidToDataMap[p_metaEntry.guid] = p_metaEntry;
+        std::vector<const MetaEntry *> result;
+        result.reserve(m_guidToEntryMap.size());
         
-        auto& guidList = m_assetToResourcesMap[p_assetPath];
+        for (const auto &[guid, entry] : m_guidToEntryMap)
+        {
+            if (p_type == ResourceType::None || entry.type == p_type)
+            {
+                result.push_back(&entry);
+            }
+        }
+        
+        return result;
+    }
+
+    void ResourceRegistry::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
+    {
+        m_guidToEntryMap[p_metaEntry.guid] = p_metaEntry;
+        
+        auto &guidList = m_assetToResourcesMap[p_assetPath];
         if (std::find(guidList.begin(), guidList.end(), p_metaEntry.guid) == guidList.end())
         {
             guidList.push_back(p_metaEntry.guid);
