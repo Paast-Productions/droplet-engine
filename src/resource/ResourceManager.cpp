@@ -68,46 +68,46 @@ namespace Droplet
                 continue;
             }
             
-            ResourceRecord &record = it->second;
+            LiveResource &liveResource = it->second;
             
             if (!loadRes.succeeded)
             {
-                record.state = ResourceState::Failed;
+                liveResource.state = ResourceState::Failed;
                 delete loadRes.resource; // Safety delete (resource should already be nullptr)
                 continue;
             }
-            record.resource.reset(loadRes.resource);
+            liveResource.resource.reset(loadRes.resource);
             
             switch (loadRes.loadFlags)
             {
                 case ResourceLoadFlag::LoadCPU:
                 {
-                    record.state = ResourceState::Ready;
+                    liveResource.state = ResourceState::Ready;
                     break;
                 }
                 case ResourceLoadFlag::LoadGPU:
                 {
-                    record.state = ResourceState::Uploading;
+                    liveResource.state = ResourceState::Uploading;
                                         
                     // TODO: Implement upload to GPU upload queue or upload here directly
                     
-                    record.resource.reset(); // Release resource from RAM
-                    record.state = ResourceState::Ready;
+                    liveResource.resource.reset(); // Release resource from RAM
+                    liveResource.state = ResourceState::Ready;
                     break;
                 }
                 case ResourceLoadFlag::LoadBoth:
                 {
-                    record.state = ResourceState::Uploading;
+                    liveResource.state = ResourceState::Uploading;
                                         
                     // TODO: Implement upload to GPU upload queue or upload here directly
                                         
-                    record.state = ResourceState::Ready;
+                    liveResource.state = ResourceState::Ready;
                     break;
                 }
             }
             
             std::vector<std::function<void()>> callbacksToInvoke;
-            callbacksToInvoke.swap(record.loadCallbacks);
+            callbacksToInvoke.swap(liveResource.loadCallbacks);
             
             // Invoke all callbacks registered for the resource
             for (auto &callback : callbacksToInvoke)

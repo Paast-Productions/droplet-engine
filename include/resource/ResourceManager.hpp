@@ -30,7 +30,7 @@ namespace Droplet
     };
 
     /// @brief Contains relevant information about a specific loaded resource.
-    struct ResourceRecord
+    struct LiveResource
     {
         std::unique_ptr<IResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
@@ -193,7 +193,7 @@ namespace Droplet
         
         bool m_isInitialized = false;
         ResourceRegistry m_registry;
-        std::unordered_map<GUID, ResourceRecord> m_liveResources;
+        std::unordered_map<GUID, LiveResource> m_liveResources;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
