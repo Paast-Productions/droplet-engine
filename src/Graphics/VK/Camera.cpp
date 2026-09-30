@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <iostream>
 
-void Camera::ProcessInput(float p_deltaTime)
+void Camera::ProcessInput(float p_deltaTime, const Droplet::Graphics::SDL::Window &p_window)
 {
 	const bool *keyboardState = SDL_GetKeyboardState(nullptr);
 
@@ -32,6 +32,11 @@ void Camera::ProcessInput(float p_deltaTime)
 	{
 		ProcessKeyboard(CameraMovement::DOWN, p_deltaTime);
 	}
+	if (keyboardState[SDL_SCANCODE_Q])
+	{
+		m_relativeMouse = ! m_relativeMouse;
+		SDL_SetWindowRelativeMouseMode(p_window.Get(), m_relativeMouse);
+	}
 }
 
 Camera::Camera(
@@ -39,67 +44,53 @@ Camera::Camera(
 	glm::vec3 p_up,
 	float p_yaw,
 	float p_pitch)
-	: position(p_position),
-	up(p_up),
-	worldUp(up),
-	yaw(p_yaw),
-	pitch(p_pitch)
+	: m_position(p_position),
+	m_up(p_up),
+	m_worldUp(p_up),
+	m_yaw(p_yaw),
+	m_pitch(p_pitch)
 {
 	UpdateCameraVectors();
 }
 
 void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime)
 {
-	float velocity = movementSpeed * deltaTime;
-
-	std::cout
-		<< "deltaTime: " << deltaTime
-		<< " | speed: " << movementSpeed
-		<< " | velocity: " << velocity
-		<< " | pos before: "
-		<< position.x << ", "
-		<< position.y << ", "
-		<< position.z << '\n';
+	float velocity = m_movementSpeed * deltaTime;
 
 	switch (direction)
 	{
 	case CameraMovement::FORWARD:
-		position += front * velocity;
+		m_position += m_front * velocity;
 		break;
 	case CameraMovement::BACKWARD:
-		position -= front * velocity;
+		m_position -= m_front * velocity;
 		break;
 	case CameraMovement::LEFT:
-		position -= right * velocity;
+		m_position -= m_right * velocity;
 		break;
 	case CameraMovement::RIGHT:
-		position += right * velocity;
+		m_position += m_right * velocity;
 		break;
 	case CameraMovement::UP:
-		position += up * velocity;
+		m_position += m_up * velocity;
 		break;
 	case CameraMovement::DOWN:
-		position -= up * velocity;
+		m_position -= m_up * velocity;
 		break;
 	}
-	std::cout
-		<< "pos after: "
-		<< position.x << ", "
-		<< position.y << ", "
-		<< position.z << '\n';
 }
 
-void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)
+void Camera::ProcessMouseMovement(float p_xOffset, float p_yOffset, bool p_constrainPitch)
 {
-	xOffset *= mouseSensitivity;
-	yOffset *= mouseSensitivity;
+	p_xOffset *= m_mouseSensitivity;
+	p_yOffset *= m_mouseSensitivity;
 
-	yaw += xOffset;
-	pitch += yOffset;
+	m_yaw += p_xOffset;
+	m_pitch += p_yOffset;
 
-	if (constrainPitch)
+	if (p_constrainPitch)
 	{
-		pitch = std::clamp(pitch, -89.0f, 89.0f);
+		m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
 	}
 
 	UpdateCameraVectors();
@@ -108,19 +99,19 @@ void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPi
 void Camera::UpdateCameraVectors()
 {
 	glm::vec3 newFront;
-	newFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	newFront.y = sin(glm::radians(pitch));
-	newFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front = glm::normalize(newFront);
+	newFront.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	newFront.y = sin(glm::radians(m_pitch));
+	newFront.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	m_front = glm::normalize(newFront);
 
-	right = glm::normalize(glm::cross(front, worldUp));
-	up = glm::normalize(glm::cross(right, front));
+	m_right = glm::normalize(glm::cross(m_front, m_worldUp));
+	m_up = glm::normalize(glm::cross(m_right, m_front));
 
 }
 
 glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(position, position + front, up);
+	return glm::lookAt(m_position, m_position + m_front, m_up);
 }
 
 glm::mat4 Camera::GetProjectionMatrix(float p_aspectRatio, 
@@ -128,18 +119,12 @@ glm::mat4 Camera::GetProjectionMatrix(float p_aspectRatio,
 									  float p_farPlane) const
 {
 	glm::mat4 projection = glm::perspective(
-		glm::radians(zoom),
+		glm::radians(m_zoom),
 		p_aspectRatio,
 		p_nearPlane,
 		p_farPlane
 	);
 
-	//projection[1][1] *= -1.0f;
-
 	return projection;
-	/*return glm::perspective(
-		glm::radians(zoom), 
-		p_aspectRatio, 
-		p_nearPlane, 
-		p_farPlane);*/
+
 }

@@ -30,9 +30,9 @@ namespace Droplet::Graphics::VK
 		~UniformBuffer() = default;
 
 		/// @brief Updates the buffer
-		/// @param p_swapchainExtent The extent of the swapchain
+		/// @param p_view The view matrix of the camera
+		/// @param p_projection The projection matrix of the camera
 		void UpdateBuffer(
-			/*const vk::Extent2D &p_swapchainExtent,*/
 			const glm::mat4 &p_view,
 			const glm::mat4 &p_projection
 		) const;

@@ -41,6 +41,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				{
 					done = true;
 				}
+				
+			}
+
+			if (rnd.p_event.type == SDL_EVENT_MOUSE_MOTION)
+			{
+				float xOffset = -rnd.p_event.motion.xrel;
+				float yOffset = rnd.p_event.motion.yrel;
+
+				rnd.ProcessMouseMovement(xOffset, yOffset);
 			}
 		}
 
