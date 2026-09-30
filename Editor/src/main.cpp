@@ -3,6 +3,7 @@
 #include <ImGui/imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include "HierarchyWindow.hpp"
 
 class DropletInstance; // TODO: Get definition from Droplet Engine
 

@@ -12,7 +12,25 @@ namespace Droplet::Editor
 		InteractionState() = default;
 		~InteractionState() = default;
 
-		// TODO: Add methods for managing the interaction state, such as selecting nodes, deselecting nodes, and querying the current selection.
+        /// @brief Selects a node.
+        /// @param p_node The node to select.
+        void SelectNode(const std::shared_ptr<Droplet::Scene::Node> &p_node);
+
+        /// @brief Deselects a node.
+        /// @param p_node The node to deselect.
+        void DeselectNode(const std::shared_ptr<Droplet::Scene::Node> &p_node);
+
+        /// @brief Clears all selected nodes.
+        void ClearNodeSelection();
+
+        /// @brief Checks whether a node is selected.
+        /// @param p_node The node to check.
+        /// @return True if the node is selected.
+        [[nodiscard]] bool IsNodeSelected(const std::shared_ptr<Droplet::Scene::Node> &p_node) const;
+
+        /// @brief Gets all currently selected nodes.
+        /// @return The currently selected nodes.
+        [[nodiscard]] std::vector<std::shared_ptr<Droplet::Scene::Node>>GetSelectedNodes() const;
 
 	private:
 
