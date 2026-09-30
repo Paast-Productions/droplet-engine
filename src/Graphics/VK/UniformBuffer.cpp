@@ -30,7 +30,9 @@ UniformBuffer::UniformBuffer(vk::raii::Device const &p_device,
 	m_mappedBuffer = m_deviceMemory.mapMemory(0, bufferSize);
 }
 
-void UniformBuffer::UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const
+void UniformBuffer::UpdateBuffer(/*const vk::Extent2D &p_swapchainExtent,*/
+								 const glm::mat4 &p_view,
+								 const glm::mat4 &p_projection) const
 {
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
 	
@@ -38,12 +40,20 @@ void UniformBuffer::UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const
 	const TimePoint  currentTime { std::chrono::high_resolution_clock::now() };
 	const float time = { std::chrono::duration<float>(currentTime - s_startTime).count() };
 
-	const UniformBufferObject ubo
+	/*const UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(p_swapchainExtent.width) / static_cast<float>(p_swapchainExtent.height), 0.1f, 10.0f)
-	};
+	};*/
 
-	std::memcpy(m_mappedBuffer, &ubo, sizeof(ubo));
+	const UniformBufferObject ubo{
+
+		.model = rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = p_view,
+		.proj = p_projection
+
+	};
+	//std::memcpy(m_mappedBuffer, &ubo, sizeof(ubo));
+	memcpy(m_mappedBuffer, &ubo, sizeof(ubo));
 }

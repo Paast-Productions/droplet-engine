@@ -31,7 +31,11 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Updates the buffer
 		/// @param p_swapchainExtent The extent of the swapchain
-		void UpdateBuffer(const vk::Extent2D &p_swapchainExtent) const;
+		void UpdateBuffer(
+			/*const vk::Extent2D &p_swapchainExtent,*/
+			const glm::mat4 &p_view,
+			const glm::mat4 &p_projection
+		) const;
 
 		/// @brief Buffer Getter
 		/// @return RAII pointer to the uniform buffer

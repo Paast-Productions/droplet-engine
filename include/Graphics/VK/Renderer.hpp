@@ -21,7 +21,7 @@
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/VulkanContext.hpp>
-
+#include <Graphics/VK/Camera.hpp>
 
 // HACK: Implementation subject to change
 
@@ -84,6 +84,8 @@ private:
 	/// @brief Creates sync objects for preventing race conditions etc
 	void					CreateSyncObjects();
 
+	void UpdateCamera(float p_deltaTime);
+
 	/// @brief Changes the layout of an image from one to another
 	/// @param p_image The image to be translated
 	/// @param p_old_layout The old layout of the image
@@ -139,6 +141,8 @@ private:
 	std::uint32_t							 m_frameIndex = 0;
 
 	bool								 m_framebufferResized = false;
+
+	Camera m_camera;
 
 	//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 	};
