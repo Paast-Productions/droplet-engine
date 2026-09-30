@@ -1,5 +1,6 @@
 #pragma once
 #include <EditorWindow.hpp>
+#include <ResourceManager.hpp>
 #include <string>
 
 namespace Droplet::Editor::Resource
