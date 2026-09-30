@@ -66,7 +66,7 @@ namespace Droplet::Editor
 		std::string m_name = "Window";
 		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_MenuBar;
 
-		/// @brie  f Opens the editor window. This method is called before rendering the window.
+		/// @brief Opens the editor window. This method is called before rendering the window.
 		void OpenWindow();
 
 		/// @brief Closes the editor window. This method is called after rendering the window.
