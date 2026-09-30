@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "SceneSystem/SceneManager.hpp"
-#include "SceneSystem/Behaviour/ScriptBehaviours.hpp"
+#include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
