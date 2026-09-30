@@ -17,6 +17,8 @@ using namespace Droplet::Scene;
 class PlayerComponent : public Component
 {
 public:
+    std::string_view GetTypeName() override { return "PlayerComponent"; }
+
     void Start() override
     {
         std::cout << "PlayerComponent started\n";
