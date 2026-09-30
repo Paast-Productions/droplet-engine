@@ -10,6 +10,10 @@ void Droplet::Engine::Run()
 {
 }
 
+void Droplet::Engine::ShutDown()
+{
+}
+
 Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
 	while (SDL_PollEvent(&m_renderer.p_event))
