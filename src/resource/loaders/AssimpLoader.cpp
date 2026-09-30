@@ -342,7 +342,7 @@ namespace Droplet::AssimpLoader
 		if (meshData->HasMeshes())
 		{
 			ResourceType rType = ResourceType::Mesh;
-			if (meshData->HasSkeletons())
+			if (meshData->HasAnimations())
 			{
 				rType = ResourceType::SkinnedMesh;
 			}
