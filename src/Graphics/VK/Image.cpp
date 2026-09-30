@@ -41,6 +41,7 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	const vk::ImageCreateInfo imageInfo
 	{ 
+		.flags = static_cast<vk::ImageCreateFlagBits>(0), 
 		.imageType = vk::ImageType::e2D,
 		.format = p_format,
 		.extent = 
@@ -66,7 +67,15 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.preferredFlags = p_properties, 
 	};
 	
-	m_image = vma::raii::Image {p_allocator, imageInfo, allocCreateInfo};
+	try
+	{
+		m_image = vma::raii::Image {p_allocator, imageInfo, allocCreateInfo};
+	}
+	catch (const std::exception &e)
+	{
+		std::print(std::cerr, "Error: {0}", e.what());
+		std::flush(std::cerr);
+	}
 	
 	// SETUP DEVICE BARRIERS
 	

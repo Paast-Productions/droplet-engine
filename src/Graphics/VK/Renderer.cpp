@@ -377,10 +377,7 @@ void Renderer::drawFrame()
 		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-	// old code
 
-	//Droplet::GameInput::Get().Update();
-	//UpdateCamera(deltaTime);
 	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 
 	const auto extent = m_swapchain.GetExtent();
@@ -405,6 +402,7 @@ void Renderer::drawFrame()
 	RecordCommandBuffer(imageIndex);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	
 	const vk::SubmitInfo   submitInfo
 	{ 
 		.waitSemaphoreCount = 1,

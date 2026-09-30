@@ -35,7 +35,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
-#include <Graphics/VK/Allocator.hpp>
+
 
 #include <ImGui/imgui_impl_vulkan.h>
 
@@ -81,6 +81,9 @@ namespace Droplet::Graphics
 		inline static			SDL_InitState p_init {};
 		
 	private:
+		
+		/// @brief Creates a graphics pipeline
+		void					CreateGraphicsPipeline();
 
 		/// @brief Creates a graphics pipeline based on a shader
 		/// @param p_shaderBlob shader to be used
@@ -100,6 +103,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
+
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
@@ -182,4 +186,3 @@ namespace Droplet::Graphics
 		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }
-

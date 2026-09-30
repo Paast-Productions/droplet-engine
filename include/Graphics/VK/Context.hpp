@@ -68,7 +68,7 @@ namespace Droplet::Graphics::VK
 
 			std::swap(m_requiredDeviceExtension, p_other.m_requiredDeviceExtension);
 			std::swap(m_validationLayers, p_other.m_validationLayers);
-
+			
 			return *this;
 		}
 		
