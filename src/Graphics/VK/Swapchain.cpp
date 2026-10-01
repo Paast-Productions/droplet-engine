@@ -47,12 +47,12 @@ void Swapchain::CreateSwapchain(const vk::raii::Device &p_device, const vk::raii
 											   .clipped = true };
 
 	m_swapchain = vk::raii::SwapchainKHR(p_device, swapChainCreateInfo);
-	m_swapchainImages = m_swapchain.getImages();
+	m_swapchainImages = { m_swapchain.getImages() };
 }
 
-Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface)
+Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface)
 {
-	CreateSwapchain(p_device, p_physicalDevice, &p_window, p_swapSurface);
+	CreateSwapchain(p_device, p_physicalDevice, p_window, p_swapSurface);
 	CreateImageViews(p_device);
 }
 

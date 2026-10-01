@@ -51,15 +51,15 @@ namespace Droplet::Graphics::VK
         {
             return m_imageView == p_other.m_imageView;
         }
-        
-        const vk::raii::ImageView &Get();
+
+        [[nodiscard]] const vk::raii::ImageView &Get() const;
         
     private:
         vk::raii::ImageView m_imageView { nullptr };
     
     };
 
-    inline const vk::raii::ImageView &ImageView::Get()
+    inline const vk::raii::ImageView &ImageView::Get() const
     {
         return m_imageView;
     }

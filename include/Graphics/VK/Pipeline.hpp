@@ -60,7 +60,13 @@ namespace Droplet::Graphics::VK
 	{
 	public:
 		Pipeline() = delete;
-
+	
+		Pipeline(nullptr_t p_nullptr)
+		{
+			m_pipelineLayout = { p_nullptr };
+			m_pipeline = { p_nullptr };
+		}
+		
 		// TODO: refactor vk::raii:ShaderModule to accept multiple ShaderModules
 
 		/// @brief Pipeline constructor
@@ -72,14 +78,42 @@ namespace Droplet::Graphics::VK
 
 		~Pipeline() = default;
 
+		Pipeline(const Pipeline &p_other) = delete;
+		Pipeline &operator=(const Pipeline &p_other) = delete;
+		
+		Pipeline(Pipeline &&p_other) noexcept
+		{
+			std::swap(m_pipeline, p_other.m_pipeline);
+			std::swap(m_pipelineLayout, p_other.m_pipelineLayout);
+		}
+		
+		Pipeline &operator=(Pipeline &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;	
+			}
+			
+			std::swap(m_pipeline, p_other.m_pipeline);
+			std::swap(m_pipelineLayout, p_other.m_pipelineLayout);
+			
+			return *this;
+		} 
+		
+		bool operator==(const Pipeline &p_other) const
+		{
+			return (m_pipeline == p_other.m_pipeline				&&
+					m_pipelineLayout == p_other.m_pipelineLayout);
+		}
+		
 		/// @brief Getter-function for a vulkan pipeline
 		/// @returns Vulkan Pipeline 
 		[[nodiscard]] const vk::raii::Pipeline &Get();
 		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout();
 
 	private:
-		vk::raii::PipelineLayout m_pipelineLayout = nullptr;
-		vk::raii::Pipeline m_pipeline = nullptr;
+		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
+		vk::raii::Pipeline m_pipeline { nullptr };
 	};
 
 	inline const vk::raii::Pipeline &Pipeline::Get()

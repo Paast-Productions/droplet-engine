@@ -3,6 +3,9 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
+#undef VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 #include <SDL3/SDL.h>
 
@@ -14,19 +17,62 @@ namespace Droplet::Graphics::VK
 	class Swapchain
 	{
 	public:
-		/// @brief Deleted default constructor
 		Swapchain() = delete;
+		
+		Swapchain(nullptr_t p_nullptr)
+		{
+			m_swapchain = { p_nullptr };
+			m_swapchainImages = {};
+			m_swapchainSurfaceFormat = {};
+			m_swapchainExtent = {};
+		}
+		
+		Swapchain(const Swapchain &p_other) = delete;
+		Swapchain &operator=(const Swapchain &p_other) = delete;
 
-		/// @brief Deafult destructor
-		~Swapchain() = default;
-
+		Swapchain(Swapchain &&p_other) noexcept
+		{
+			std::swap(m_swapchain, p_other.m_swapchain);
+			std::swap(m_swapchainImages, p_other.m_swapchainImages);
+			std::swap(m_swapchainImageViews, p_other.m_swapchainImageViews);
+			std::swap(m_swapchainSurfaceFormat, p_other.m_swapchainSurfaceFormat);
+			std::swap(m_swapchainExtent, p_other.m_swapchainExtent);
+		}
+		
+		Swapchain &operator=(Swapchain &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+			
+			std::swap(m_swapchain, p_other.m_swapchain);
+			std::swap(m_swapchainImages, p_other.m_swapchainImages);
+			std::swap(m_swapchainImageViews, p_other.m_swapchainImageViews);
+			std::swap(m_swapchainSurfaceFormat, p_other.m_swapchainSurfaceFormat);
+			std::swap(m_swapchainExtent, p_other.m_swapchainExtent);
+			
+			return *this;
+		}
+		
 		/// @brief Swapchain Constructor
 		/// @param p_device Pointer to the device
 		/// @param p_physicalDevice Pointer to the hardware device
 		/// @param p_window Reference to the window
 		/// @param p_swapSurface Pointer to the swapchain surface
-		Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window &p_window, const vk::raii::SurfaceKHR &p_swapSurface);
+		Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
+		~Swapchain() = default;
+		
+		[[nodiscard]] bool operator==(const Swapchain &p_other) const
+		{
+			return (m_swapchain == p_other.m_swapchain								&&
+					m_swapchainImages == p_other.m_swapchainImages					&&
+					m_swapchainImageViews == p_other.m_swapchainImageViews			&&
+					m_swapchainSurfaceFormat == p_other.m_swapchainSurfaceFormat	&&
+					m_swapchainExtent == p_other.m_swapchainExtent);
+		}
+		
 		/// @brief Clears the swapchain images and sets the pointer to nullptr
 		void Cleanup(const vk::raii::Device &p_device);
 
@@ -35,23 +81,23 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Swapchain extent getter
 		/// @return The swapchain extent
-		const vk::Extent2D GetExtent();
+		vk::Extent2D GetExtent() const;
 
 		/// @brief Surface format getter
 		/// @return Reference to the swapchain surface format
-		const vk::SurfaceFormatKHR &GetSurfaceFormat();
+		const vk::SurfaceFormatKHR &GetSurfaceFormat() const;
 
 		/// @brief Swapchain imageview getter
 		/// @return Pointer to the swapchain image views
-		const std::vector<vk::raii::ImageView> *GetImageViews();
+		const std::vector<vk::raii::ImageView> &GetImageViews() const;
 
 		/// @brief Swapchain iamge getter
 		/// @return Pointer to the swapchain images
-		const std::vector<vk::Image> *GetImages();
+		const std::vector<vk::Image> &GetImages() const;
 
 		/// @brief Swapchain getter
 		/// @return Pointer to the swapchain
-		const vk::raii::SwapchainKHR *GetSwapchain();
+		const vk::raii::SwapchainKHR &Get() const;
 	private:
 
 		/// @brief Class helper function for creating/recreating the swapchain
@@ -86,36 +132,36 @@ namespace Droplet::Graphics::VK
 		/// @param p_device Pointer to the vulkan device
 		void CreateImageViews(const vk::raii::Device &p_device);
 
-		vk::raii::SwapchainKHR				 m_swapchain = nullptr;
-		std::vector<vk::Image>				 m_swapchainImages;
-		std::vector<vk::raii::ImageView>     m_swapchainImageViews;
-		vk::SurfaceFormatKHR				 m_swapchainSurfaceFormat;
-		vk::Extent2D						 m_swapchainExtent;
+		vk::raii::SwapchainKHR				m_swapchain = nullptr;
+		std::vector<vk::Image>				m_swapchainImages;
+		std::vector<vk::raii::ImageView>    m_swapchainImageViews;
+		vk::SurfaceFormatKHR				m_swapchainSurfaceFormat;
+		vk::Extent2D						m_swapchainExtent;
 	};
 
-	[[nodiscard]] inline const vk::Extent2D Swapchain::GetExtent()
+	[[nodiscard]] inline vk::Extent2D Swapchain::GetExtent() const
 	{
 		return m_swapchainExtent;
 	}
 
-	[[nodiscard]] inline const vk::SurfaceFormatKHR &Swapchain::GetSurfaceFormat()
+	[[nodiscard]] inline const vk::SurfaceFormatKHR &Swapchain::GetSurfaceFormat() const
 	{
 		return m_swapchainSurfaceFormat;
 	}
 
-	[[nodiscard]] inline const std::vector<vk::raii::ImageView> *Swapchain::GetImageViews()
+	[[nodiscard]] inline const std::vector<vk::raii::ImageView> &Swapchain::GetImageViews() const
 	{
-		return &m_swapchainImageViews;
+		return m_swapchainImageViews;
 	}
 
-	[[nodiscard]] inline const std::vector<vk::Image> *Swapchain::GetImages()
+	[[nodiscard]] inline const std::vector<vk::Image> &Swapchain::GetImages() const
 	{
-		return &m_swapchainImages;
+		return m_swapchainImages;
 	}
 
-	[[nodiscard]] inline const vk::raii::SwapchainKHR *Swapchain::GetSwapchain()
+	[[nodiscard]] inline const vk::raii::SwapchainKHR &Swapchain::Get() const
 	{
-		return &m_swapchain;
+		return m_swapchain;
 	}
 }
 

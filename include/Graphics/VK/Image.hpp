@@ -20,6 +20,7 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Constructor for image view based on image/texture
 		/// @param p_allocator VMA RAII Allocator
+		/// @param p_commandBuffer Vulkan 
 		/// @param p_pixels unsigned char pointer to the image/texture data
 		/// @param p_width width of the texture in pixels
 		/// @param p_height height of the texture in pixels
@@ -27,14 +28,15 @@ namespace Droplet::Graphics::VK
 		/// @param p_tiling Image tiling flag
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
-		Image(const vma::raii::Allocator &p_allocator, 
-			const unsigned char *p_pixels,
-			std::uint32_t p_width,
-			std::uint32_t p_height,
-			vk::Format p_format,
-			vk::ImageTiling p_tiling,
-			vk::ImageUsageFlags p_usage,
-			vk::MemoryPropertyFlags p_properties);
+		Image(const vma::raii::Allocator &p_allocator,
+			  const vk::raii::CommandBuffer &p_commandBuffer,
+			  const unsigned char *p_pixels,
+			  std::uint32_t p_width,
+			  std::uint32_t p_height,
+			  vk::Format p_format,
+			  vk::ImageTiling p_tiling,
+			  vk::ImageUsageFlags p_usage,
+			  vk::MemoryPropertyFlags p_properties);
 		
 		Image(const Image &p_other) = delete;
 		Image &operator=(const Image &p_other) = delete;
@@ -81,14 +83,14 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Image getter
 		/// @return pointer to the image
-		[[nodiscard]] const vma::raii::Image &Get();
+		[[nodiscard]] const vma::raii::Image &Get() const;
 
 	private:
 		vma::raii::Image m_image = nullptr;
 		
 	};
 
-	inline const vma::raii::Image &Image::Get()
+	inline const vma::raii::Image &Image::Get() const
 	{
 		return m_image;
 	}

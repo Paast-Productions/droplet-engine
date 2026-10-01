@@ -2,6 +2,7 @@
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
@@ -54,8 +55,6 @@ namespace Droplet::Graphics
 		Renderer() = delete;
 		Renderer(SDL::WindowConfig p_windowConfig);
 		~Renderer();
-		int		Initialize();
-		int		Initialize(const Slang::ComPtr<slang::IBlob>& p_shaderBlob);
 		void	drawFrame();
 		void	windowResize();
 
@@ -78,18 +77,12 @@ namespace Droplet::Graphics
 
 		/// @brief Creates a shader module from a blob containing code
 		/// @param p_device Pointer to the vulkan device
-		/// @param code Blob containing code
+		/// @param p_shaderBlob Blob containing code
 		/// @return A vulkan shader module
 		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
 		
-		/// @brief Creates the command pool
-		void					CreateCommandPool();
-
-		/// @brief Creates commandbuffers
-		void					CreateCommandBuffers();
-
 		/// @brief Records a command buffer for rendering an image
-		/// @param imageIndex which image to render to
+		/// @param p_imageIndex which image to render to
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
@@ -116,8 +109,8 @@ namespace Droplet::Graphics
 		/// @param p_src_stage_mask Source stage mask
 		/// @param p_dst_stage_mask Destination stage mask
 		/// @param p_image_aspect_flags Image aspect flags and/or bits
-		void					TransitionImageLayout(
-			vk::Image               p_image,
+		void TransitionImageLayout(
+			vk::Image				p_image,
 			vk::ImageLayout         p_old_layout,
 			vk::ImageLayout         p_new_layout,
 			vk::AccessFlags2        p_src_access_mask,
@@ -133,14 +126,15 @@ namespace Droplet::Graphics
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
+		VK::Allocator m_allocator { nullptr };
 
 		SDL_Event m_event {};
 
-		std::optional<VK::Swapchain> m_swapchain;
+		VK::Swapchain m_swapchain { nullptr };
 
-		std::optional<VK::CommandPool> m_commandPool;
-		std::vector<VK::CommandBufferId> m_commandBufferIds;
-		std::optional<VK::Pipeline> m_graphicsPipeline;
+		VK::CommandPool m_commandPool { nullptr };
+		//std::vector<std::size_t> m_commandBufferIds;
+		VK::Pipeline m_graphicsPipeline { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
@@ -159,7 +153,6 @@ namespace Droplet::Graphics
 
 		//Needs one buffer per frame in flight to avoid read write issues
 		
-		VK::Allocator m_allocator { nullptr };
 		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
 		
 		std::uint32_t							 m_frameIndex = 0;

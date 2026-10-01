@@ -1,6 +1,10 @@
+#include "DepthBuffer.hpp"
+
+#include <print>
+#include <iostream>
+
 #include <vulkan/vulkan_raii.hpp>
 
-#include <Graphics/VK/DepthBuffer.hpp>
 
 using namespace Droplet::Graphics::VK;
 
@@ -16,11 +20,28 @@ DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii
 		vk::ImageTiling::eOptimal,
 		vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 	
-	m_image = {p_allocator, p_swapchainExtent.width, p_swapchainExtent.height,
-		depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, 
-		vk::MemoryPropertyFlagBits::eDeviceLocal};
+	try
+	{
+		m_image = {p_allocator, p_swapchainExtent.width, p_swapchainExtent.height,
+			depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, 
+			vk::MemoryPropertyFlagBits::eDeviceLocal};
+	} catch (const vk::Error &err)
+	{
+		std::print(std::cerr, "DepthBuffer-Image Error: {0}", err.what());
+		std::flush(std::cerr);
+		exit(-1);
+	}
 	
-	m_imageView = {p_device, m_image.Get(), depthFormat, vk::ImageAspectFlagBits::eDepth};
+	try
+	{
+		m_imageView = {p_device, m_image.Get(), depthFormat, vk::ImageAspectFlagBits::eDepth};
+	} catch (const vk::Error &err)
+	{
+		std::print(std::cerr, "DepthBuffer-ImageView Error: {0}", err.what());
+		std::flush(std::cerr);
+		exit(-1);
+	}
+	
 }
 
 //Check what formats the hardware supports

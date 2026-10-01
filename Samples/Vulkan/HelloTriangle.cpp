@@ -10,15 +10,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Flags = 0
 	};
 	
-	Droplet::Graphics::Renderer rnd 
-	{
-		windowConfig
-	};
+	Droplet::Graphics::Renderer rnd { windowConfig };
 
-	if (rnd.Initialize() == 1)
+	/*if (rnd.Initialize() == 1)
 	{
 		return 1;
-	}
+	}*/
 
 	bool done = false;
 	while (!done)

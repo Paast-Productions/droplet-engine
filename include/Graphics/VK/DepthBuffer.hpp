@@ -64,11 +64,11 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Image getter
 		/// @return pointer to the image
-		[[nodiscard]] const vk::raii::Image &GetImage();
+		[[nodiscard]] const vma::raii::Image &GetImage() const;
 
 		/// @brief ImageView getter
 		/// @return pointer to the imageview
-		[[nodiscard]] const vk::raii::ImageView &GetView();
+		[[nodiscard]] const vk::raii::ImageView &GetView() const;
 
 	private:
 
@@ -87,12 +87,12 @@ namespace Droplet::Graphics::VK
 		ImageView m_imageView { nullptr };
 	};
 
-	inline const vk::raii::Image &DepthBuffer::GetImage()
+	inline const vma::raii::Image &DepthBuffer::GetImage() const
 	{
 		return m_image.Get();
 	}
 
-	inline const vk::raii::ImageView &DepthBuffer::GetView()
+	inline const vk::raii::ImageView &DepthBuffer::GetView() const
 	{
 		return m_imageView.Get();
 	}
