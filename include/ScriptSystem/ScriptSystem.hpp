@@ -22,6 +22,15 @@ namespace Droplet::Script
 		/// @brief Destroy the script system.
 		~ScriptSystem();
 
+		/// @brief Copy constructor deleting any attempt to create a 
+		/// new scriptsystem using an existing scriptsystem
+		/// @param ScriptSystem
+		ScriptSystem(const ScriptSystem &) = delete;
+
+		/// @brief Copy assignment operator deleting itself
+		/// @param ScriptSystem
+		ScriptSystem &operator=(const ScriptSystem &) = delete;
+
 		[[nodiscard]] static ScriptSystem &Get()
 		{
 			static ScriptSystem scriptSystem;
