@@ -54,6 +54,7 @@ jobs:
             com.lunarg.vulkan.sdl2 `
             com.lunarg.vulkan.glm `
             com.lunarg.vulkan.vma `
+            com.lunarg.vulkan.debug `
             copy_only=1
           
           if ($LASTEXITCODE -ne 0) {
