@@ -4,9 +4,9 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - feature/ci-action
+  #push:
+  #  branches:
+  #    - 
     
   pull_request: 
     branches:
