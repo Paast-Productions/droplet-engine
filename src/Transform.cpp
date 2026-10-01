@@ -1,5 +1,5 @@
 #include "Transform.hpp"
-#include <Node.hpp>
+#include <SceneSystem/Node.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
