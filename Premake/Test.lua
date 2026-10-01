@@ -35,7 +35,8 @@ project "Test"
     libdirs
     {
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
+        targetBuildPath .. "/External/lib64",
+        vkPath .. "/Lib"
     }
 
     dependson 
