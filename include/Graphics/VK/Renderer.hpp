@@ -22,6 +22,7 @@
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/VulkanContext.hpp>
 #include <Graphics/VK/Camera.hpp>
+#include <Graphics/VK/CameraController.hpp>
 
 // HACK: Implementation subject to change
 
@@ -42,7 +43,6 @@ public:
 	/// @brief Public function to apply mouse movements on the camera
 	/// @param p_xOffset position on the screen along the x-axis
 	/// @param p_yOffset position on the screen along the y-axis
-	void ProcessMouseMovement(float p_xOffset, float p_yOffset);
 private:
 	/// @brief Creates the graphics pipeline
 	void					CreateGraphicsPipeline();
@@ -87,8 +87,6 @@ private:
 
 	/// @brief Creates sync objects for preventing race conditions etc
 	void					CreateSyncObjects();
-
-	void UpdateCamera(float p_deltaTime);
 
 	/// @brief Changes the layout of an image from one to another
 	/// @param p_image The image to be translated
@@ -147,6 +145,7 @@ private:
 	bool								 m_framebufferResized = false;
 
 	Camera m_camera;
+	CameraController m_cameraController;
 
 	//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName };
 	};
