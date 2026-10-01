@@ -313,78 +313,193 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 void Droplet::Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 {
     
-	p_luaState.new_enum<Key>(
-		"Key",
-		{
-			{"A", Key::KeyA},
-			{"B", Key::KeyB},
-			{"C", Key::KeyC},
-			{"D", Key::KeyD},
-			{"E", Key::KeyE},
-			{"F", Key::KeyF},
-			{"G", Key::KeyG},
-			{"H", Key::KeyH},
-			{"I", Key::KeyI},
-			{"J", Key::KeyJ},
-			{"K", Key::KeyK},
-			{"L", Key::KeyL},
-			{"M", Key::KeyM},
-			{"N", Key::KeyN},
-			{"O", Key::KeyO},
-			{"P", Key::KeyP},
-			{"Q", Key::KeyQ},
-			{"R", Key::KeyR},
-			{"S", Key::KeyS},
-			{"T", Key::KeyT},
-			{"U", Key::KeyU},
-			{"V", Key::KeyV},
-			{"W", Key::KeyW},
-			{"X", Key::KeyX},
-			{"Y", Key::KeyY},
-			{"Z", Key::KeyZ},
+    p_luaState.new_enum<Key>(
+        "Key",
+        {
+            {"A", Key::KeyA},
+            {"B", Key::KeyB},
+            {"C", Key::KeyC},
+            {"D", Key::KeyD},
+            {"E", Key::KeyE},
+            {"F", Key::KeyF},
+            {"G", Key::KeyG},
+            {"H", Key::KeyH},
+            {"I", Key::KeyI},
+            {"J", Key::KeyJ},
+            {"K", Key::KeyK},
+            {"L", Key::KeyL},
+            {"M", Key::KeyM},
+            {"N", Key::KeyN},
+            {"O", Key::KeyO},
+            {"P", Key::KeyP},
+            {"Q", Key::KeyQ},
+            {"R", Key::KeyR},
+            {"S", Key::KeyS},
+            {"T", Key::KeyT},
+            {"U", Key::KeyU},
+            {"V", Key::KeyV},
+            {"W", Key::KeyW},
+            {"X", Key::KeyX},
+            {"Y", Key::KeyY},
+            {"Z", Key::KeyZ},
 
-			{"1", Key::Key1},
-			{"2", Key::Key2},
-			{"3", Key::Key3},
-			{"4", Key::Key4},
-			{"5", Key::Key5},
-			{"6", Key::Key6},
-			{"7", Key::Key7},
-			{"8", Key::Key8},
-			{"9", Key::Key9},
-			{"0", Key::Key0},
+            {"1", Key::Key1},
+            {"2", Key::Key2},
+            {"3", Key::Key3},
+            {"4", Key::Key4},
+            {"5", Key::Key5},
+            {"6", Key::Key6},
+            {"7", Key::Key7},
+            {"8", Key::Key8},
+            {"9", Key::Key9},
+            {"0", Key::Key0},
 
             {"Enter", Key::KeyEnter},
             {"Escape", Key::KeyEscape},
             {"Backspace", Key::KeyBackspace},
             {"Tab", Key::KeyTab},
-		    {"Space", Key::KeySpace},
-			{"F1", Key::KeyF1},
-			{"F2", Key::KeyF2},
-			{"F3", Key::KeyF3},
-			{"F4", Key::KeyF4},
-			{"F5", Key::KeyF5},
-			{"F6", Key::KeyF6},
-			{"F7", Key::KeyF7},
-			{"F8", Key::KeyF8},
-			{"F9", Key::KeyF9},
-			{"F10", Key::KeyF10},
-			{"F11", Key::KeyF11},
-			{"F12", Key::KeyF12}
-		}
-	);
+            {"Space", Key::KeySpace},
+            {"F1", Key::KeyF1},
+            {"F2", Key::KeyF2},
+            {"F3", Key::KeyF3},
+            {"F4", Key::KeyF4},
+            {"F5", Key::KeyF5},
+            {"F6", Key::KeyF6},
+            {"F7", Key::KeyF7},
+            {"F8", Key::KeyF8},
+            {"F9", Key::KeyF9},
+            {"F10", Key::KeyF10},
+            {"F11", Key::KeyF11},
+            {"F12", Key::KeyF12}
+        }
+    );
 
+    p_luaState.new_enum<Mouse>(
+        "Mouse",
+        {
+            {"LMB", Mouse::LMB},
+            {"RMB", Mouse::RMB}
+        }
+    );
 
     p_luaState.new_usertype<GameInput>(
         "Input",
         "KeyPressed", &GameInput::KeyPressed,
         "KeyHeld", &GameInput::KeyHeld,
-        "KeyReleased", &GameInput::KeyReleased
-        //"MousePressed", &GameInput::MousePressed,
-        //"MouseHeld", &GameInput::MouseHeld,
-        //"MouseReleased", &GameInput::MouseReleased,
-        //"GetCursorX", &GameInput::GetCursorX,
-        //"GetCursorY", &GameInput::GetCursorY
+        "KeyReleased", &GameInput::KeyReleased,
+        "KeyToggle", &GameInput::KeyToggle,
+        "MousePressed", &GameInput::MousePressed,
+        "MouseHeld", &GameInput::MouseHeld,
+        "MouseReleased", &GameInput::MouseReleased,
+        "GetCursorX", &GameInput::GetCursorX,
+        "GetCursorY", &GameInput::GetCursorY,
+        "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
+        "GetDeltaMouseY", &GameInput::GetDeltaMouseY
+        //"SetCursorPosition",          //Add when we get the sdl window
+        //[](GameInput& input, float x, float y)
+        //{
+        //    
+        //    //SDL_Window *window = 
+        //    //input.SetCursorPosition(window, x, y);
+        //}
     );
+
+    LuaClassDefinition keyDef;
+    keyDef.name = "Key";
+
+    keyDef.properties =
+    {
+        { "A", "Key" },
+        { "B", "Key" },
+        { "C", "Key" },
+        { "D", "Key" },
+        { "E", "Key" },
+        { "F", "Key" },
+        { "G", "Key" },
+        { "H", "Key" },
+        { "I", "Key" },
+        { "J", "Key" },
+        { "K", "Key" },
+        { "L", "Key" },
+        { "M", "Key" },
+        { "N", "Key" },
+        { "O", "Key" },
+        { "P", "Key" },
+        { "Q", "Key" },
+        { "R", "Key" },
+        { "S", "Key" },
+        { "T", "Key" },
+        { "U", "Key" },
+        { "V", "Key" },
+        { "W", "Key" },
+        { "X", "Key" },
+        { "Y", "Key" },
+        { "Z", "Key" },
+
+        { "Num1", "Key" },
+        { "Num2", "Key" },
+        { "Num3", "Key" },
+        { "Num4", "Key" },
+        { "Num5", "Key" },
+        { "Num6", "Key" },
+        { "Num7", "Key" },
+        { "Num8", "Key" },
+        { "Num9", "Key" },
+        { "Num0", "Key" },
+
+        { "Enter", "Key" },
+        { "Escape", "Key" },
+        { "Backspace", "Key" },
+        { "Tab", "Key" },
+        { "Space", "Key" },
+
+        { "F1", "Key" },
+        { "F2", "Key" },
+        { "F3", "Key" },
+        { "F4", "Key" },
+        { "F5", "Key" },
+        { "F6", "Key" },
+        { "F7", "Key" },
+        { "F8", "Key" },
+        { "F9", "Key" },
+        { "F10", "Key" },
+        { "F11", "Key" },
+        { "F12", "Key" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(keyDef);
+
+    LuaClassDefinition mouseDef;
+    mouseDef.name = "Mouse";
+
+    mouseDef.properties =
+    {
+        { "LMB", "Mouse" },
+        { "RMB", "Mouse" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(mouseDef);
+
+    LuaClassDefinition inputDef;
+    inputDef.name = "Input";
+
+    inputDef.functions =
+    {
+        { "KeyPressed", "boolean", {{ "key", "Key" }} },
+        { "KeyHeld", "boolean", {{ "key", "Key" }} },
+        { "KeyReleased", "boolean", {{ "key", "Key" }} },
+        { "KeyToggle", "boolean", {{ "key", "Key" }} },
+
+        { "MousePressed", "boolean", {{ "button", "Mouse" }} },
+        { "MouseHeld", "boolean", {{ "button", "Mouse" }} },
+        { "MouseReleased", "boolean", {{ "button", "Mouse" }} },
+
+        { "GetCursorX", "number", {} },
+        { "GetCursorY", "number", {} },
+        { "GetDeltaMouseX", "number", {} },
+        { "GetDeltaMouseY", "number", {} }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(inputDef);
 }
 
