@@ -88,6 +88,8 @@ namespace Droplet::Script
 
 		/// @brief Lua function used for the script's update lifecycle event.
 		sol::protected_function m_onUpdate;
+
+		
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.

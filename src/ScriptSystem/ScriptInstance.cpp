@@ -16,6 +16,8 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 		m_environment["self"] = p_owner;
 	}
 
+
+
 	sol::protected_function scriptFunction = p_script;
 
 	sol::set_environment(m_environment, scriptFunction);
