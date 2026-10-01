@@ -1,13 +1,27 @@
 #include <Engine.hpp>
 
-Droplet::Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
+using namespace Droplet;
+
+Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
+{
+}
+
+void Droplet::Engine::Initialize()
 {
 	if (m_renderer.Initialize() == 1)
 		throw std::runtime_error("Error while initializing renderer.");
 }
 
-Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
+void Droplet::Engine::ShutDown()
 {
+}
+
+DROPLET_RETURNTYPE Droplet::Engine::Update()
+{
+	// Time
+	Time::Get().Update();
+
+	// Window
 	while (SDL_PollEvent(&m_renderer.p_event))
 	{
 		if (m_renderer.p_event.type == SDL_EVENT_QUIT)
@@ -28,9 +42,20 @@ Droplet::DROPLET_RETURNTYPE Droplet::Engine::Update()
 			}
 		}
 	}
+
+	// Scriptsystem
+	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+
+	// Rendering
 	m_renderer.drawFrame();
 	
 	// Other system that need updating go here.
 	
 	return DROPLET_RETURNTYPE::OK;
+}
+
+Graphics::SDL::Window &Droplet::Engine::GetWindow()
+{
+	// TODO: insert return statement here
+	return m_renderer.m_window;
 }
