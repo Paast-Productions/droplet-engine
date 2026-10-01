@@ -27,8 +27,7 @@ protected:
 	    m_emptyKtxPath = baseDir / "Textures" / "EmptyTexture.ktx";
 	    m_nonTexturePath = baseDir / "Textures" / "NonTexture.txt";
 	    m_invalidPath = baseDir / "Textures" / "ThisPathDoesNotExist.ktx";
-
-	    std::cout << "--- DEBUG ASSET PATH: " << m_validKtxPath.string() << " ---" << std::endl;
+	    
 		ASSERT_TRUE(fs::exists(m_validKtxPath)) << "Missing test asset: " << m_validKtxPath;
 		ASSERT_TRUE(fs::exists(m_validPngPath)) << "Missing test asset: " << m_validPngPath;
 	    
