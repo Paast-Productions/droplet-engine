@@ -1,10 +1,23 @@
----@type TestNode
+---@type Node
 self = nil
 
 function OnStart() end
 
 ---@param dt number
 function OnUpdate(dt) end
+
+---@class Node
+Node = {}
+
+---@return string
+function Node:GetName()
+    return ""
+end
+
+---@return Transform
+function Node:GetTransform()
+    return nil
+end
 
 ---@class Transform
 Transform = {}
@@ -104,4 +117,20 @@ end
 ---@param target Vec3
 function Transform:LookAt(target)
 end
+
+---@class Vec3
+---@field x number
+---@field y number
+---@field z number
+Vec3 = {}
+
+---@class Quat
+---@field w number
+---@field x number
+---@field y number
+---@field z number
+Quat = {}
+
+---@class Mat4
+Mat4 = {}
 

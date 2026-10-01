@@ -51,6 +51,25 @@ void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
         "GetName", &Droplet::Scene::Node::GetName,
         "GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform)
     );
+
+    LuaClassDefinition classDef;
+    classDef.name = "Node";
+
+    classDef.functions =
+    {
+        {
+            "GetName",
+            "string",
+            {}
+        },
+        {
+            "GetTransform",
+            "Transform",
+            {}
+        }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }
 
 void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
@@ -255,5 +274,35 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
         "Mat4",
         sol::constructors<glm::mat4(float)>()
     );
+
+    LuaClassDefinition vec3Def;
+    vec3Def.name = "Vec3";
+
+    vec3Def.properties =
+    {
+        { "x", "number" },
+        { "y", "number" },
+        { "z", "number" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(vec3Def);
+
+    LuaClassDefinition quatDef;
+    quatDef.name = "Quat";
+
+    quatDef.properties =
+    {
+        { "w", "number" },
+        { "x", "number" },
+        { "y", "number" },
+        { "z", "number" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(quatDef);
+
+    LuaClassDefinition mat4Def;
+    mat4Def.name = "Mat4";
+
+    LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
 }
 

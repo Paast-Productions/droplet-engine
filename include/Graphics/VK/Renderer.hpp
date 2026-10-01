@@ -23,8 +23,9 @@
 #include <Graphics/VK/VulkanContext.hpp>
 
 
-// HACK: Implementation subject to change
+namespace Droplet{class Engine;}
 
+// HACK: Implementation subject to change
 class Renderer
 {
 public:
@@ -40,6 +41,7 @@ public:
 	inline static			SDL_InitState p_init {};
 
 private:
+	friend class Droplet::Engine;
 	/// @brief Creates the graphics pipeline
 	void					CreateGraphicsPipeline();
 

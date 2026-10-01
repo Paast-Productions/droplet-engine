@@ -27,6 +27,8 @@ protected:
 
 class TestComponent : public Component
 {
+public:
+    std::string_view GetTypeName() override { return "TestComponent"; }
 };
 
 TEST_F(ComponentTest, OwnerInitiallyNull)

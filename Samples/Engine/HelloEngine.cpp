@@ -3,5 +3,14 @@
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
-	std::cout << "Hello engine!" << std::endl;
+	Droplet::Engine engine({
+		Droplet::Graphics::SDL::WindowConfig {
+			640, 480, {}
+		}
+	});
+
+	while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
+	{
+		
+	}
 }

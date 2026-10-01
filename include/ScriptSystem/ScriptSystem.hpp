@@ -4,6 +4,7 @@
 #include "LuaStateHandler.hpp"
 
 #include <SceneSystem/Component.hpp>
+#include <SceneSystem/Behaviour.hpp>
 
 namespace Droplet::Script
 {
@@ -38,38 +39,61 @@ namespace Droplet::Script
 		void Update(float p_deltaTime);
 
 		/// @brief Creates a script instance for a component.
-		/// @param testNode Component that will connect to the script instance.
+		/// @param p_scriptComponent Component that will connect to the script instance.
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
-		/// @return Returns if the script instance could correctly be created
-		void CreateScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+		void CreateComponentScript(Droplet::Scene::Component *p_scriptComponent, const std::string &p_scriptFile);
+
+		/// @brief Creates a script instance for a behaviour
+		/// @param p_scirptBehaviour Behaviour that will connect to the script instance.
+		/// @param p_scriptFile Path to the Lua script file associated with the instance.
+		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
 
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.
-		/// @return True if the script was loaded successfully, otherwise false.
 		void LoadScript(const std::string &p_scriptFile);
 
 		/// @brief Unloads a previously loaded Lua script.
 		/// @param p_scriptFile Path to the Lua script file.
-		/// @return True if the script was unloaded successfully, otherwise false.
 		void UnloadScript(const std::string &p_scriptFile);
 
 		/// @brief Activates a script component.
 		/// An activated script component is allowed to participate in the scripting
 		/// system's update and execution flow.
 		/// @param p_scriptComponent Script component to activate.
-		void ActivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
-		/// @brief Deactivates a script component.
+		/// @brief Activates a script component.
+		/// An activated script behaviour is allowed to participate in the scripting
+		/// system's update and execution flow.
+		/// @param p_scriptBehaviour Script behaviour to activate.
+		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
+		/// @brief Deactivates a script behaviour.
 		/// A deactivated script component will no longer participate in the
 		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
 		/// @param p_scriptComponent Script component to deactivate.
-		void DeactivateScript(Droplet::Scene::Component *p_scriptComponent);
+		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
-		void DetachScript(Droplet::Scene::Component *p_scriptComponent);
+		/// @brief Deactivates a script behaviour.
+		/// A deactivated script component will no longer participate in the
+		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
+		/// @param p_scriptBehaviour Script component to deactivate.
+		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+		
+		/// @brief Detach Script from Component
+		/// @param p_scriptComponent 
+		void DetachComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
+		/// @brief Detach Script from Behaviour
+		/// @param p_scriptBehaviour
+		void DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
 		/// @brief Detaches components to a certain script
 		/// @param p_scriptInstance This is the lua file you want to disconnect all instances to
 		void DetachAllInstancesToScript(const std::string &p_scriptPath);
-
+		
+		/// @brief Set path for where the scripts is
+		/// @param p_directoryPath
 		void SetScriptPath(const std::string &p_directoryPath);
 
 		/// @brief Calls a Lua function on a script component.
