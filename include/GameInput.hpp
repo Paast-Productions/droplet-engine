@@ -138,6 +138,14 @@ namespace Droplet
 		/// @returns The cursor y position.
 		[[nodiscard]] float GetCursorY() const;
 
+		/// @brief Get the delta mouse x.
+		/// @returns The cursor x delta.
+		[[nodiscard]] float GetDeltaMouseX() const;
+
+		/// @brief Get the delta mouse y.
+		/// @returns The cursor y delta.
+		[[nodiscard]] float GetDeltaMouseY() const;
+
 		/// @brief Set the cursor position.
 		/// @param p_window The pointer to the SDL window instance.
 		/// @param p_x The new cursor x position.
@@ -154,6 +162,8 @@ namespace Droplet
 		// Mouse variables
 		float m_mouseX = 0.0f;
 		float m_mouseY = 0.0f;
+		float m_prevMouseX = 0.0f;
+		float m_prevMouseY = 0.0f;
 		std::array<bool, 2> m_currentMouse = { false };
 		std::array<bool, 2> m_previousMouse = { false };
 

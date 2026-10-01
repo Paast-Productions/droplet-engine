@@ -14,6 +14,8 @@ namespace Droplet
         m_previousKeys = m_currentKeys;
         m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
         m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
+        m_prevMouseX = m_mouseX;
+        m_prevMouseY = m_mouseY;
 
         SDL_Event event;
         while(SDL_PollEvent(&event))
@@ -117,6 +119,16 @@ namespace Droplet
     float GameInput::GetCursorY() const
     {
         return m_mouseY;
+    }
+
+    float GameInput::GetDeltaMouseX() const
+    {
+        return m_mouseX - m_prevMouseX;
+    }
+
+    float GameInput::GetDeltaMouseY() const
+    {
+        return m_mouseY - m_prevMouseY;
     }
 
     void GameInput::SetCursorPosition(SDL_Window *&p_window, float p_x, float p_y)
