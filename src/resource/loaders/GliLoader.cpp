@@ -92,6 +92,12 @@ namespace Droplet::GliLoader
 		    {
 			    throw std::runtime_error("File was not found");
 		    }
+        
+            // Protect against empty files as gli crashes when it attempts to load one
+            if (fs::file_size(p_assetPath) == 0)
+            {
+                throw std::runtime_error("File is empty.");
+            }
 
 		    std::string extension = p_assetPath.extension().string();
 
