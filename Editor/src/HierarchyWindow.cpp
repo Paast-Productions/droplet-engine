@@ -4,6 +4,7 @@
 #include <SceneSystem/SceneManager.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
+#include <memory>
 
 
 using namespace Droplet::Editor;
@@ -80,13 +81,44 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         m_interactionState->SelectNode(p_node);
     }
 
+    if (ImGui::BeginDragDropSource())
+    {
+        Node *draggedNode = p_node.get();
+
+        ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
+
+        ImGui::Text("%s", p_node->GetName().c_str());
+
+        ImGui::EndDragDropSource();
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_NODE"))
+        {
+            Node *draggedNode = *static_cast<Node **>(payload->Data);
+
+            auto draggedNodeShared = draggedNode->shared_from_this();
+
+            auto oldParent = draggedNodeShared->GetParent();
+
+            if (oldParent)
+            {
+                oldParent->RemoveChild(draggedNodeShared);
+            }
+
+            p_node->AddChild(draggedNodeShared);
+        }
+
+        ImGui::EndDragDropTarget();
+    }
+
     if (opened)
     {
         for (const auto &child : p_node->GetChildren())
         {
             DrawNode(child);
         }
-
         ImGui::TreePop();
     }
 }
