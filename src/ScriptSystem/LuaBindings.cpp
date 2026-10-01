@@ -3,6 +3,8 @@
 #include "Transform.hpp"
 #include <glm/glm.hpp>
 #include "GameInput.hpp"
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_video.h>
 
 #include <print>
 #include <filesystem>

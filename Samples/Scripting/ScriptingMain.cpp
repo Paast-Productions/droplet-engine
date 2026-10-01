@@ -8,6 +8,7 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
+#include "GameInput.hpp"
 
 #include "Time.hpp"
 
@@ -115,13 +116,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
+    
     ScriptSystem::Get().Start();
 
     while (true)
     {
-        time.Update();
+        Droplet::GameInput::Get().Update();
 
-        ScriptSystem::Get().Update(time.GetDeltaTime());
+        if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeySpace))
+        {
+            std::print("Space key pressed\n");
+        }
+        //ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;
