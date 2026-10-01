@@ -1,3 +1,6 @@
+# To reduce the tun time of this action, it might be relevant to cache externals. This is not done currently.
+# Linux is not currently being tested.defaults: 
+# Release configuration is not currently being tested.
 name: Build
 
 on:

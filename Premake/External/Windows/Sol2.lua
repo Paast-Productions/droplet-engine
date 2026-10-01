@@ -1,4 +1,5 @@
-project "Sol2"
+-- Strangely long compile time at the moment. Investigate fruther.
+roject "Sol2"
     kind "Utility"
     location(projectsPath)
 
