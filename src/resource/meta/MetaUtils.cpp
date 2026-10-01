@@ -34,7 +34,7 @@ namespace Droplet
                     resourceData.assetPath = entry.value("path", std::string{});
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.dependencies = entry.value("dependencies", std::vector<GUID>{});
-                    resourceData.loadSettings = entry.value("specificData", json::object());
+                    resourceData.loadSettings = entry.value("loadSettings", json::object());
                     
                     p_metaData.push_back(resourceData);
                 }
