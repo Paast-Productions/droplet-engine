@@ -1,15 +1,15 @@
-project "Vulkan-HelloTriangle"
+project "Engine-HelloEngine"
 
     kind "ConsoleApp"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Vulkan/")
+    debugdir(rootPath .. "/Samples/Engine/")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",
+        rootPath .. "/Samples/Engine/HelloEngine.cpp",
     }
         
     local vkPath = os.getenv("VULKAN_SDK")
@@ -40,5 +40,5 @@ project "Vulkan-HelloTriangle"
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        AddQuotation("lua-5.4.7")
+         AddQuotation("lua-5.4.7")
     }
