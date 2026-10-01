@@ -179,7 +179,7 @@ namespace Droplet
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
         {
-            if (it->second.refCount - 1 == 0)
+            if (--it->second.refCount == 0)
             {
                 m_liveResources.erase(it);
             }
