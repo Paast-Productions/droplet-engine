@@ -219,6 +219,7 @@ namespace Droplet::Script
 		/// @brief Is the path from the working directory to the map that 
 		/// contains all the lua script files
 		std::filesystem::path m_scriptDirectoryPath;
+
 	};
 
 	/// @brief Calls a Lua function on the script attached to a component
