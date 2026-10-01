@@ -16,7 +16,9 @@ project "Engine-HelloEngine"
     
     libdirs {
         targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
+        vkPath .. "/Lib",
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/lib64"
     }
 
 
@@ -28,7 +30,8 @@ project "Engine-HelloEngine"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "Sol2"
     }
 
     links {
@@ -36,5 +39,6 @@ project "Engine-HelloEngine"
         "ImGui",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+         AddQuotation("lua-5.4.7")
     }
