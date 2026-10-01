@@ -34,6 +34,7 @@
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
+#include <Graphics/VK/CameraController.hpp>
 
 #include <ImGui/imgui_impl_vulkan.h>
 
@@ -175,8 +176,8 @@ namespace Droplet::Graphics
 		bool								 m_framebufferResized = false;
 		
 		Camera m_camera;
+		CameraController m_cameraController;
 
 		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }
-

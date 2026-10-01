@@ -330,16 +330,6 @@ void Renderer::CreateSyncObjects()
 	}
 }
 
-void Renderer::UpdateCamera(float p_deltaTime)
-{
-	m_camera.ProcessInput(p_deltaTime, m_window);
-}
-
-void Renderer::ProcessMouseMovement(float p_xOffset, float p_yOffset)
-{
-	m_camera.ProcessMouseMovement(p_xOffset, p_yOffset);
-}
-
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
 void Renderer::drawFrame()
 {
@@ -390,7 +380,8 @@ void Renderer::drawFrame()
 	// old code
 
 	//Droplet::GameInput::Get().Update();
-	UpdateCamera(deltaTime);
+	//UpdateCamera(deltaTime);
+	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 
 	const auto extent = m_swapchain.GetExtent();
 
@@ -398,31 +389,14 @@ void Renderer::drawFrame()
 		static_cast<float>(extent.width) /
 		static_cast<float>(extent.height);
 
-	struct BufferData
-	{
-		glm::mat4 model = {};
-		glm::mat4 view = {};
-		glm::mat4 projection = {};
-	};
-	
-	BufferData ubo
+	Droplet::Graphics::VK::UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.view = m_camera.GetViewMatrix(),
-		.projection = m_camera.GetProjectionMatrix(aspectRatio)
+		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
 	
 	m_uniformBuffers.at(m_frameIndex).UpdateBuffer(ubo);
-
-<<<<<<< HEAD
-=======
-	glm::mat4 projection = m_camera.GetProjectionMatrix(aspectRatio);
-
-	m_uniformBuffers[m_frameIndex]->UpdateBuffer(
-		view,
-		projection
-	);
->>>>>>> 9d710e9 (Added mouse control for camera and doxygen comments)
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
