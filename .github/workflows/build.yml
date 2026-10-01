@@ -78,7 +78,7 @@ jobs:
           $archive = "$env:RUNNER_TEMP\premake.zip"
           $destination = "env:RUNNER_TEMP\premake"
           
-          Invoke-Webrequest `
+          Invoke-WebRequest `
             "https://github.com/premake/premake-core/releases/download/v$version/premake-$version-windows.zip" `
             -OutFile $archive
           
