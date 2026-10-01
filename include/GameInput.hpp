@@ -82,6 +82,13 @@ namespace Droplet
 		RMB = 1,
 	};
 
+	/// @brief Customized mouse codes using ...
+	enum class Mouse : std::uint8_t
+	{
+		LMB = 0,
+		RMB = 1,
+	};
+
 	/// @brief A universal singleton GameInput class
 	class GameInput
 	{
