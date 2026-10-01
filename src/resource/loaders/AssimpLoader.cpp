@@ -313,6 +313,11 @@ namespace Droplet::AssimpLoader
 			}
 		}
 
+		if (animKeyframes.size() == 0)
+		{
+			throw std::runtime_error(std::format("No animation with name {} was found", animName));
+		}
+
 		AnimationResource animation{};
 		animation.SetName(animName);
 		animation.SetKeyframes(animKeyframes);
