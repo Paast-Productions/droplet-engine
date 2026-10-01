@@ -245,16 +245,6 @@ void Renderer::CreateSyncObjects()
 	}
 }
 
-void Renderer::UpdateCamera(float p_deltaTime)
-{
-	m_camera.ProcessInput(p_deltaTime, m_window);
-}
-
-void Renderer::ProcessMouseMovement(float p_xOffset, float p_yOffset)
-{
-	m_camera.ProcessMouseMovement(p_xOffset, p_yOffset);
-}
-
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
 void Renderer::drawFrame()
 {
@@ -300,7 +290,8 @@ void Renderer::drawFrame()
 	// old code
 
 	//Droplet::GameInput::Get().Update();
-	UpdateCamera(deltaTime);
+	//UpdateCamera(deltaTime);
+	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 
 	const auto extent = m_swapchain->GetExtent();
 
