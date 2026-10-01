@@ -34,11 +34,17 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         }
     };
     
+    // Tell slang which directory to search in
+    std::string searchDirectory = p_path.parent_path().generic_string();
+    const char* searchPaths[] = { searchDirectory.c_str() };
+    
     slang::SessionDesc sessionDesc 
     {  
         .targets = &targetDesc,
         .targetCount = 1,
         .defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
+        .searchPaths = searchPaths,
+        .searchPathCount = 1,
         .compilerOptionEntries = options.data(),
         .compilerOptionEntryCount = static_cast<std::uint32_t>(options.size()) 
     };
@@ -47,11 +53,10 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
     
     Slang::ComPtr<slang::IModule> module {};
     
-    // TODO: FIX FILEPATH TO SLANG SHADER
-    
     {
         Slang::ComPtr<slang::IBlob> errorBlob {};
-        module = localSession->loadModule(p_path.filename().string().c_str(), errorBlob.writeRef());
+        std::string moduleName = p_path.stem().string();
+        module = localSession->loadModule(moduleName.c_str(), errorBlob.writeRef());
         
         if (!module)
         {

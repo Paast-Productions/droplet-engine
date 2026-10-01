@@ -18,8 +18,7 @@ namespace Droplet::SlangLoader
         }
         catch (const std::exception&)
         {
-            // TODO: Log the error
-            return nullptr;
+            throw std::runtime_error("Failed to compile shader.");
         }
     }
 

@@ -12,6 +12,7 @@ namespace Droplet::SlangLoader
     /// @param p_type The shader type (should be taken from the meta entry).
     /// @param p_shaderPath The path to the shader file.
     /// @return A shader resource.
+    /// @throw std::runtime_error If the shader compilation failed.
     [[nodiscard]] std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const nlohmann::json &p_loadSettings);
 
     /// @brief Lists the resources in a shader file. This function is just a formality as shader files only contain
