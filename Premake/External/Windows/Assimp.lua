@@ -1,3 +1,4 @@
+-- TODO: Compile only for the formats we actually need.
 project "Assimp"
     kind "StaticLib"
     location(projectsPath)
