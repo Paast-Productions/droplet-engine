@@ -1,6 +1,10 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - feature/ci-action
+    
   pull_request: 
     branches:
       - main
