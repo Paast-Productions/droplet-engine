@@ -19,6 +19,11 @@
 
 	defines{ "TRACY_ENABLE", "TRACY_DETAILED" }
 	
+	filter {"system:windows"}
+		buildoptions {"/Zi"}
+	
+	filter {}
+	
     includedirs
 	{
         vkPath .. "/Include/",
@@ -43,12 +48,10 @@
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyFileMeta.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyFileRead.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyFileWrite.hpp") .. " " .. AddQuotation(tracyPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyLocks.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyMemory.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyMmap.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyPopcnt.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyPrint.hpp") .. " " .. AddQuotation(tracyPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracySafeFileWrite.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracyShortPtr.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracySlab.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/server/TracySort.hpp") .. " " .. AddQuotation(tracyPath),
@@ -87,7 +90,7 @@
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyApi.h") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyFormat.h") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/tracy_lz4.hpp") .. " " .. AddQuotation(tracyPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/tracy_lz4c.hpp") .. " " .. AddQuotation(tracyPath),
+        "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/tracy_lz4hc.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyAlign.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyAlloc.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyAssert.hpp") .. " " .. AddQuotation(tracyPath),
@@ -97,7 +100,6 @@
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyProtocol.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyQueue.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracySocket.hpp") .. " " .. AddQuotation(tracyPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/Tracy.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyStackFrames.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracyString.hpp") .. " " .. AddQuotation(tracyPath),
         "{COPY} " .. AddQuotation(rootPath .. "/External/tracy/public/common/TracySystem.hpp") .. " " .. AddQuotation(tracyPath),
