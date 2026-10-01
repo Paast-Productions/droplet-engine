@@ -31,13 +31,12 @@ project "Scripting-Main"
         "Engine",
         --"ImGui",
         "Sol2",
-        "Lua"
     }
 
     links {
         "Engine",
         --"ImGui",
-        "lua_static",
+        "lua-5.4.7",
         "winmm",
         "gdi32",
         "shell32",
