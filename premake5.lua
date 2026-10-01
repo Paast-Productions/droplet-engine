@@ -5,6 +5,7 @@ workspace "DropletEngine"
 
     location "Generated"
     cppdialect "C++23"
+    multiprocessorcompile "On"
 	startproject "Engine"
     warnings "Extra"
     externalanglebrackets "On"
