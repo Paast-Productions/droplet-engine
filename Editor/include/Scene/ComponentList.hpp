@@ -12,5 +12,6 @@ namespace Droplet::Editor::Scene
 	/// @brief Shows a component list popup window that allows the user to select a component from the registered components.
 	/// @param p_outName A pointer to a string that will be filled with the name of the selected component if the user selects one.
 	/// @return True if the user has selected a component, false otherwise.
+	/// @throws std::invalid_argument if p_outName is null.
 	bool ShowComponentList(std::string *p_outName);
 }
