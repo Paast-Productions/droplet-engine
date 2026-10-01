@@ -67,15 +67,7 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.preferredFlags = p_properties, 
 	};
 	
-	try
-	{
-		m_image = vma::raii::Image {p_allocator, imageInfo, allocCreateInfo};
-	}
-	catch (const std::exception &e)
-	{
-		std::print(std::cerr, "Error: {0}", e.what());
-		std::flush(std::cerr);
-	}
+	m_image = vma::raii::Image {p_allocator, imageInfo, allocCreateInfo};
 	
 	// SETUP DEVICE BARRIERS
 	

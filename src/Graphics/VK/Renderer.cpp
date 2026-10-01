@@ -286,7 +286,6 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		.pDepthAttachment = &depthAttachmentInfo 
 	};
 	
-	
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));

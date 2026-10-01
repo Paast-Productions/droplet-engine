@@ -98,6 +98,7 @@ namespace Droplet::Graphics::VK
 		/// @brief Swapchain getter
 		/// @return Pointer to the swapchain
 		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const;
+
 	private:
 
 		/// @brief Class helper function for creating/recreating the swapchain

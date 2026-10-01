@@ -103,7 +103,6 @@ namespace Droplet::Graphics
 		
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
-
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
