@@ -2,6 +2,8 @@ project "Test"
 
     location(projectsPath)
 
+    removefatalwarnings { "All" }
+
     kind "ConsoleApp"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
