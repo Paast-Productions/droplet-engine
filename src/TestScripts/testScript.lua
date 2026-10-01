@@ -3,9 +3,12 @@ function OnStart()
 end
 
 function OnUpdate(dt)
-	local transform = self:GetTransform()
+	
+	if Input::KeyPressed(Key.Space)
+		print("Space is pressed")
+	end
 	--local position = Vec3.new(100.0, 1.0, 90.0)
 	--transform:SetPosition(position, TransformSpace.Local)
 
-	print("yohoho")
 end
+

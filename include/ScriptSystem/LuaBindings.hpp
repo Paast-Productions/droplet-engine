@@ -34,6 +34,7 @@ namespace Droplet::Script
 		static void RegisterNode(sol::state_view p_luaState);
 		static void RegisterTransform(sol::state_view p_luaState);
 		static void RegisterGLM(sol::state_view p_luaState);
+		static void RegisterInput(sol::state_view p_luaState);
 
 		// TODO: Implement additional engine bindings as functionality is added.
 

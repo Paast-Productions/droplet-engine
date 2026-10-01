@@ -2,6 +2,7 @@
 #include "Node.hpp"
 #include "Transform.hpp"
 #include <glm/glm.hpp>
+#include "GameInput.hpp"
 
 #include <print>
 #include <filesystem>
@@ -17,6 +18,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
     RegisterNode(p_luaState);
     RegisterTransform(p_luaState);
     RegisterGLM(p_luaState);
+	RegisterInput(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
@@ -304,5 +306,83 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     mat4Def.name = "Mat4";
 
     LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
+}
+
+void Droplet::Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
+{
+    
+	p_luaState.new_enum<Key>(
+		"Key",
+		{
+			{"A", Key::KeyA},
+			{"B", Key::KeyB},
+			{"C", Key::KeyC},
+			{"D", Key::KeyD},
+			{"E", Key::KeyE},
+			{"F", Key::KeyF},
+			{"G", Key::KeyG},
+			{"H", Key::KeyH},
+			{"I", Key::KeyI},
+			{"J", Key::KeyJ},
+			{"K", Key::KeyK},
+			{"L", Key::KeyL},
+			{"M", Key::KeyM},
+			{"N", Key::KeyN},
+			{"O", Key::KeyO},
+			{"P", Key::KeyP},
+			{"Q", Key::KeyQ},
+			{"R", Key::KeyR},
+			{"S", Key::KeyS},
+			{"T", Key::KeyT},
+			{"U", Key::KeyU},
+			{"V", Key::KeyV},
+			{"W", Key::KeyW},
+			{"X", Key::KeyX},
+			{"Y", Key::KeyY},
+			{"Z", Key::KeyZ},
+
+			{"1", Key::Key1},
+			{"2", Key::Key2},
+			{"3", Key::Key3},
+			{"4", Key::Key4},
+			{"5", Key::Key5},
+			{"6", Key::Key6},
+			{"7", Key::Key7},
+			{"8", Key::Key8},
+			{"9", Key::Key9},
+			{"0", Key::Key0},
+
+            {"Enter", Key::KeyEnter},
+            {"Escape", Key::KeyEscape},
+            {"Backspace", Key::KeyBackspace},
+            {"Tab", Key::KeyTab},
+		    {"Space", Key::KeySpace},
+			{"F1", Key::KeyF1},
+			{"F2", Key::KeyF2},
+			{"F3", Key::KeyF3},
+			{"F4", Key::KeyF4},
+			{"F5", Key::KeyF5},
+			{"F6", Key::KeyF6},
+			{"F7", Key::KeyF7},
+			{"F8", Key::KeyF8},
+			{"F9", Key::KeyF9},
+			{"F10", Key::KeyF10},
+			{"F11", Key::KeyF11},
+			{"F12", Key::KeyF12}
+		}
+	);
+
+
+    p_luaState.new_usertype<GameInput>(
+        "Input",
+        "KeyPressed", &GameInput::KeyPressed,
+        "KeyHeld", &GameInput::KeyHeld,
+        "KeyReleased", &GameInput::KeyReleased
+        //"MousePressed", &GameInput::MousePressed,
+        //"MouseHeld", &GameInput::MouseHeld,
+        //"MouseReleased", &GameInput::MouseReleased,
+        //"GetCursorX", &GameInput::GetCursorX,
+        //"GetCursorY", &GameInput::GetCursorY
+    );
 }
 
