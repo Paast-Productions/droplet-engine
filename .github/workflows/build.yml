@@ -1,0 +1,116 @@
+name: Build
+
+on:
+  pull_request: 
+    branches:
+      - main
+      - dev
+    
+  workflow_dispatch: 
+    
+permissions:
+  contents: read
+  
+concurrency: 
+  group: droplet-build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  VULKAN_SDK_VERSION: 1.4.357.0
+  PREMAKE_VERSION: 5.0.0-beta8
+
+jobs:
+  build:
+    name: Windows Debug
+    runs-on: windows-2025-vs2026
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install Vulkan SDK
+        shell: pwsh
+        run: |
+          $version = "${{ env.VULKAN_SDK_VERSION }}"
+          $installer = "$env:RUNNER_TEMP\vulkan-sdk.exe"
+          $sdkPath = "C:\\VulkanSDK\$version"
+          
+          Invoke-WebRequest `
+            https://sdk.lunarg.com/sdk/download/$version/windows/vulkan_sdk.exe `
+            -OutFile $installer
+          
+          & $installer `
+            --root $sdkPath `
+            --accept-licenses `
+            --default-answer `
+            --confirm-command `
+            install `
+            com.lunarg.vulkan.sdl2
+          
+          if ($LASTEXITCODE -ne 0) {
+            throw "Vulkan SDK installation failed."
+          }
+          
+          if (-not (Test-Path "$sdkPath\Lib\SDL3.lib")) {
+            throw "SDL3.lib was not found in the Vulkan SDK."
+          }
+          
+          "$VULKAN_SDK=$sdkPath" | Out-File `
+            -FilePath $env:GITHUB_ENV `
+            -Encoding utf8 `
+            -Append
+          
+          "$sdkPath\Bin" | Out-File `
+            -FilePath $env:GITHUB_PATH `
+            -Encoding utf8 `
+            -Append
+
+      - name: Install Premake
+        shell: pwsh
+        run: |
+          $version = "${{ env.PREMAKE_VERSION }}"
+          $archive = "$env:RUNNER_TEMP\premake.zip"
+          $destination = "env:RUNNER_TEMP\premake"
+          
+          Invoke-Webrequest `
+            "https://github.com/premake/premake-core/releases/download/v$version/premake-$version-windows.zip" `
+            -OutFile $archive
+          
+          Expand-Archive `
+            -Path $archive `
+            -DestinationPath $destination
+          
+          $premake = Get-ChildItem `
+            -Path $destination `
+            -Filter premake5.exe `
+            -Recurse |
+              Select-Object -First 1
+          
+          if (-not $premake) {
+            throw "premake5.exe not found."
+          }
+          
+          $premake.DirectoryName | Out-File `
+            -FilePath $env:GITHUB_PATH `
+            -Encoding utf8 `
+            -Append
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
+        with:
+          msbuild-architecture: 'x64'
+          vs-version: '[18.0, 19.0)'
+
+      - name: Generate Visual Studio solution
+        run: premake5 vs2026
+
+      - name: Build
+        shell: pwsh
+        run: |
+          msbuild Generated\DropletEngine.slnx `
+          /m `
+          /p:Configuration=debug `
+          /p:Platform=x64 `
+          /verbosity=minimal

@@ -4,6 +4,8 @@
 !.gitignore
 !LICENSE
 !README.md
+!.github/
+!.github/**
 
 # Source
 !/include
