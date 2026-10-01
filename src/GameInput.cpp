@@ -123,12 +123,12 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
-        return m_prevMouseX - m_mouseX;
+        return m_mouseX - m_prevMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
-        return m_prevMouseY - m_mouseY;
+        return m_mouseY - m_prevMouseY;
     }
 
     void GameInput::SetCursorPosition(SDL_Window *&p_window, float p_x, float p_y)
