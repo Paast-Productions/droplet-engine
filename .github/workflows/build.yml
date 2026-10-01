@@ -51,7 +51,10 @@ jobs:
             --default-answer `
             --confirm-command `
             install `
-            com.lunarg.vulkan.sdl2
+            com.lunarg.vulkan.sdl2 `
+            com.lunarg.vulkan.glm `
+            com.lunarg.vulkan.vma `
+            copy_only=1
           
           if ($LASTEXITCODE -ne 0) {
             throw "Vulkan SDK installation failed."
@@ -59,6 +62,14 @@ jobs:
           
           if (-not (Test-Path "$sdkPath\Lib\SDL3.lib")) {
             throw "SDL3.lib was not found in the Vulkan SDK."
+          }
+          
+          if (-not (Test-Path "$sdkPath\Include\glm")) {
+            throw "GLM was not found in the Vulkan SDK."
+          }
+          
+          if (-not (Test-Path "$sdkPath\Include\vma\vk_mem_alloc.h")) {
+            throw "VMA was not found in the Vulkan SDK."
           }
           
           "VULKAN_SDK=$sdkPath" | Out-File `
