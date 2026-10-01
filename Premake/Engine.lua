@@ -23,6 +23,7 @@ project "Engine"
         "Sol2",
         "Lua",
         "json",
+        "tracy",
         "VulkanMemoryAllocator"
         --"Jolt"
     }
