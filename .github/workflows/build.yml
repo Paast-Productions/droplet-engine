@@ -61,7 +61,7 @@ jobs:
             throw "SDL3.lib was not found in the Vulkan SDK."
           }
           
-          "$VULKAN_SDK=$sdkPath" | Out-File `
+          "VULKAN_SDK=$sdkPath" | Out-File `
             -FilePath $env:GITHUB_ENV `
             -Encoding utf8 `
             -Append
