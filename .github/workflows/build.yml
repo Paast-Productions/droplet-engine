@@ -117,4 +117,4 @@ jobs:
           /m `
           /p:Configuration=debug `
           /p:Platform=x64 `
-          /verbosity=minimal
+          /verbosity:minimal
