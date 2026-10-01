@@ -4,6 +4,7 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_events.h>
 #include <cstdlib>
+#include <iostream>
 
 namespace Droplet
 {
@@ -17,54 +18,51 @@ namespace Droplet
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
 
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
+    }
+
+    void GameInput::ProcessEvent(const SDL_Event &p_event)
+    {
+        // Keyboard events
+        if (p_event.type == SDL_EVENT_KEY_DOWN)
         {
-            // Keyboard events
-            if (event.type == SDL_EVENT_KEY_DOWN)
+            // Ignore key repeat events.
+            if (!p_event.key.repeat)
             {
-                // Ignore key repeat events.
-                if (!event.key.repeat)
-                {
-                    m_currentKeys.insert(static_cast<Key>(event.key.scancode));
-                }
+                m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
             }
-            else if (event.type == SDL_EVENT_KEY_UP)
-            {
-                m_currentKeys.erase(static_cast<Key>(event.key.scancode));
-            }
+        }
+        else if (p_event.type == SDL_EVENT_KEY_UP)
+        {
+            m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
+        }
 
-            // Mouse events
-            if (std::abs(event.motion.x) >= C_EPSILON)
-            {
-                m_mouseX = event.motion.x;
-            }
-            if (std::abs(event.motion.y) >= C_EPSILON)
-            {
-                m_mouseY = event.motion.y;
-            }
+        // Mouse events
+        if (p_event.type == SDL_EVENT_MOUSE_MOTION)
+        {
+            m_mouseX = p_event.motion.x;
+            m_mouseY = p_event.motion.y;
+        }
 
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            if (p_event.button.button == SDL_BUTTON_LEFT)
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
-                }
+                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
             }
-            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+            if (p_event.button.button == SDL_BUTTON_RIGHT)
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
-                }
+                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
+            }
+        }
+        else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+        {
+            if (p_event.button.button == SDL_BUTTON_LEFT)
+            {
+                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
+            }
+            if (p_event.button.button == SDL_BUTTON_RIGHT)
+            {
+                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
             }
         }
     }
@@ -123,13 +121,11 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
-        return m_prevMouseX - m_mouseX;
         return m_mouseX - m_prevMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
-        return m_prevMouseY - m_mouseY;
         return m_mouseY - m_prevMouseY;
     }
 

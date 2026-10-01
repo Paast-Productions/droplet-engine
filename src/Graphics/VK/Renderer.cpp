@@ -17,6 +17,7 @@
 #include <SDL3/SDL_vulkan.h>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/TestData.hpp>
+#include <GameInput.hpp>
 
 
 const std::vector<char const*> validationLayers = {
@@ -298,6 +299,7 @@ void Renderer::drawFrame()
 	}
 	// old code
 
+	//Droplet::GameInput::Get().Update();
 	UpdateCamera(deltaTime);
 
 	const auto extent = m_swapchain->GetExtent();
