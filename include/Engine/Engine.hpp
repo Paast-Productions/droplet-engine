@@ -45,6 +45,5 @@ namespace Droplet
 	private:
 		/// @brief The renderer instance, should only be one.
 		Renderer m_renderer;
-		Script::ScriptSystem m_scriptSystem;
 	};
 }
