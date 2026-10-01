@@ -53,6 +53,8 @@ public:
 	/// @brief Get the vector of the direction the camera is facing
 	/// @returns glm::vec3 Vector of which the camera is facing 
 	glm::vec3 GetFront() const;
+	/// @brief Get the value of the cameras zoom value
+	/// @returns The value of how much the zoom is applied on the camera
 	float GetZoom() const;
 
 private:
