@@ -37,7 +37,7 @@ project "Scripting-Main"
     links {
         "Engine",
         --"ImGui",
-        "lua-5.4.7",
+        "lua_static",
         "winmm",
         "gdi32",
         "shell32",
