@@ -181,7 +181,14 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
-		throw std::runtime_error("Failed to load script");
+
+		std::print(
+			"Failed to load script '{}': {}\n",
+			scriptPath.string(),
+			error.what()
+		);
+
+		throw std::runtime_error("Failed to load script: ");
 	}
 	
 	std::error_code errorCode;
