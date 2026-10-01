@@ -4,6 +4,7 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_events.h>
 #include <cstdlib>
+#include <print>
 
 namespace Droplet
 {
@@ -20,9 +21,9 @@ namespace Droplet
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
-            // Keyboard events
             if (event.type == SDL_EVENT_KEY_DOWN)
             {
+
                 // Ignore key repeat events.
                 if (!event.key.repeat)
                 {

@@ -110,6 +110,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // Activate the scene
     // ==================================================
 
+    SDL_CreateWindow("Droplet", 1280, 720, SDL_WINDOW_VULKAN);
+
     sceneManager.ActivateScene("Game");
 
     //ScriptBehaviour scriptBehaviour("testScript.lua");
@@ -123,11 +125,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     {
         Droplet::GameInput::Get().Update();
 
-        if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeySpace))
-        {
-            std::print("Space key pressed\n");
-        }
-        //ScriptSystem::Get().Update(time.GetDeltaTime());
+        ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;

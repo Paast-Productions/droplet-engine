@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LuaStateHandler.hpp"
+#include "GameInput.hpp"
 
 #include <SceneSystem/Node.hpp>
 #include <string>
@@ -24,6 +25,7 @@ namespace Droplet::Script
 		/// @param p_scriptPath Path to the Lua script.
 		ScriptInstance(
 			Droplet::Scene::Node *p_owner,
+			Droplet::GameInput &p_gameInput,
 			LuaStateHandler &p_stateHandler,
 			sol::load_result &p_script,
 			const std::string &p_scriptPath);
@@ -82,6 +84,8 @@ namespace Droplet::Script
 
 		/// @brief Lua function used for the script's update lifecycle event.
 		sol::protected_function m_onUpdate;
+
+		
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.
