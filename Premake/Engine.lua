@@ -21,7 +21,6 @@ project "Engine"
         --"GoogleTest",
         "ImGui",
         "Sol2",
-        "Lua",
         "json",
         "VulkanMemoryAllocator"
         --"Jolt"

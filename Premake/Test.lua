@@ -34,12 +34,11 @@ project "Test"
         "GoogleTest",
         "Engine",
         "Sol2",
-        "Lua"
     }
 
     links
     {
         "Engine", 
         "gtest",
-        "lua_static"
+        "lua-5.4.7"
     }
