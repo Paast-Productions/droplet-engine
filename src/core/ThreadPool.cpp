@@ -11,6 +11,13 @@ namespace Droplet
 
     void ThreadPool::Initialize()
     {
+        if (!m_workerThreads.empty())
+        {
+            return;
+        }
+        
+        m_running = true;
+        
         // Uses function max() to ensure nr of threads is never 0
         m_nrOfThreads = std::max(1u, std::thread::hardware_concurrency() / 2);
 
@@ -35,6 +42,12 @@ namespace Droplet
             {
                 worker.join();
             }
+        }
+        
+        m_workerThreads.clear();
+        while (!m_tasks.empty())
+        {
+            m_tasks.pop();
         }
     }
     
@@ -64,7 +77,6 @@ namespace Droplet
         while (true)
         {
             std::function<void()> task;
-
             {
                 std::unique_lock<std::mutex> lock(m_taskMutex);
 
@@ -82,11 +94,13 @@ namespace Droplet
                 m_tasks.pop();
 
             }
-            try {
+            try 
+            {
                 task();
             }
-            catch (const std::exception &e){
-                std::cout << "Could not execute task" << e.what() << std::endl;
+            catch (const std::exception &)
+            {
+                // TODO: Log this
             }
         }
     }
