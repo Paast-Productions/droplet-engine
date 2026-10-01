@@ -1,41 +1,59 @@
 #include <SDL3/SDL.h>
-
-#include "Graphics/VK/Camera.hpp"
 #include <algorithm>
 #include <iostream>
 
+#include "Graphics/VK/Camera.hpp"
+
+#include "GameInput.hpp"
+
+
+using namespace Droplet;
 void Camera::ProcessInput(float p_deltaTime, const Droplet::Graphics::SDL::Window &p_window)
 {
-	const bool *keyboardState = SDL_GetKeyboardState(nullptr);
-
-	if (keyboardState[SDL_SCANCODE_W])
+	//const bool *keyboardState = SDL_GetKeyboardState(nullptr);
+	//if(keyboardState[SDL_SCANCODE_Q])
+	if (GameInput::Get().KeyHeld(Key::KeyW))
 	{
 		ProcessKeyboard(CameraMovement::FORWARD, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_S])
+	if (GameInput::Get().KeyHeld(Key::KeyS))
 	{
 		ProcessKeyboard(CameraMovement::BACKWARD, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_D])
+	if (GameInput::Get().KeyHeld(Key::KeyD))
 	{
 		ProcessKeyboard(CameraMovement::RIGHT, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_A])
+	if (GameInput::Get().KeyHeld(Key::KeyA))
 	{
 		ProcessKeyboard(CameraMovement::LEFT, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_SPACE])
+	if (GameInput::Get().KeyHeld(Key::KeySpace))
 	{
 		ProcessKeyboard(CameraMovement::UP, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_LCTRL])
+	if (GameInput::Get().KeyHeld(Key::KeyShift))
 	{
 		ProcessKeyboard(CameraMovement::DOWN, p_deltaTime);
 	}
-	if (keyboardState[SDL_SCANCODE_Q])
+	if (GameInput::Get().KeyPressed(Key::KeyQ))
 	{
-		m_relativeMouse = ! m_relativeMouse;
+		m_relativeMouse = !m_relativeMouse;
 		SDL_SetWindowRelativeMouseMode(p_window.Get(), m_relativeMouse);
+	}
+
+
+	if (m_relativeMouse)
+	{
+		ProcessMouseMovement(
+			-GameInput::Get().GetDeltaMouseX(),
+			GameInput::Get().GetDeltaMouseY()
+			);
+		// Get window ptr and size to reset mouse to center
+		SDL_Window *window = p_window.Get();
+		int width, height;
+		SDL_GetWindowSize(window, &width, &height);
+		GameInput::Get().SetCursorPosition(window, static_cast<float>(width) / 2, static_cast<float>(height / 2));
 	}
 }
 

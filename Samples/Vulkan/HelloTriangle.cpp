@@ -1,4 +1,5 @@
 ﻿#include <Graphics/VK/Renderer.hpp>
+#include <GameInput.hpp>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
@@ -20,8 +21,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 	bool done = false;
 	while (!done)
 	{
+		Droplet::GameInput::Get().Update();
 		while (SDL_PollEvent(&rnd.p_event))
 		{
+			Droplet::GameInput::Get().ProcessEvent(rnd.p_event);
+
 			if (rnd.p_event.type == SDL_EVENT_QUIT)
 			{
 				done = true;
@@ -41,15 +45,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				
 			}
 
-			if (rnd.p_event.type == SDL_EVENT_MOUSE_MOTION)
-			{
-				float xOffset = -rnd.p_event.motion.xrel;
-				float yOffset = rnd.p_event.motion.yrel;
+			//if (rnd.p_event.type == SDL_EVENT_MOUSE_MOTION)
+			//{
+			//	//float xOffset = -rnd.p_event.motion.xrel;
+			//	//float yOffset = rnd.p_event.motion.yrel;
 
-				rnd.ProcessMouseMovement(xOffset, yOffset);
-			}
+			//	//rnd.ProcessMouseMovement(xOffset, yOffset);
+			//}
 		}
-
 		rnd.drawFrame();
 	}
     
