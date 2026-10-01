@@ -36,7 +36,7 @@ namespace Droplet
                 return false;
             }
             
-            p_item = m_queue.front();
+            p_item = std::move(m_queue.front());
             m_queue.pop();
             return true;
         }
