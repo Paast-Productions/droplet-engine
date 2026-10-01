@@ -4,22 +4,32 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 
+#include <tracy/public/tracy/Tracy.hpp>
+//#include <tracy/public/tracy/TracyVulkan.hpp>
+//#include <tracy/public/tracy/TracyLua.hpp>
+
 class DropletInstance; // TODO: Get definition from Droplet Engine
 
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
+	ZoneScoped;
+
 	// TODO: Init Droplet Engine
 	return nullptr;
 }
 
 static void DryOff([[maybe_unused]] DropletInstance *instance)
 {
+	ZoneScoped;
+
 	// TODO: Close Droplet Engine
 }
 
-[[nodiscard]] static SDL_Window *InitSDL([[maybe_unused]] DropletInstance *instance)
+[[maybe_unused]] [[nodiscard]] static SDL_Window *InitSDL([[maybe_unused]] DropletInstance *instance)
 {
+	ZoneScoped;
+
 	// TODO: Get window from Engine
 
 	return nullptr;
@@ -36,8 +46,10 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 		abort();
 }*/
 
-static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
+[[maybe_unused]] static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
+	ZoneScoped;
+
 	// TODO
 	/*IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -72,20 +84,26 @@ static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused
 }
 
 // Frame
-static void NewFrame()
+[[maybe_unused]] static void NewFrame()
 {
+	ZoneScoped;
+
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 }
 
-static void SubmitFrame(SDL_Window *window)
+[[maybe_unused]] static void SubmitFrame(SDL_Window *window)
 {
+	ZoneScoped;
+
 	ImGui::Render();
 	SDL_RenderPresent(SDL_GetRenderer(window));
 }
 
-static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
+[[maybe_unused]] static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
+	ZoneScoped;
+
 	// Create docking space over the entire window
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 }
@@ -93,35 +111,45 @@ static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-	DropletInstance *instance = Soak();
+	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
 
-	SDL_Window *wnd = InitSDL(instance);
-	if (!wnd)
-	{
-		return 1;
-	}
+	ZoneScopedN("Editor");
 
-	InitImGui(instance, wnd);
+	[[maybe_unused]] DropletInstance *instance = Soak();
+
+	//SDL_Window *wnd = InitSDL(instance);
+	//if (!wnd)
+	//{
+	//	return 1;
+	//}
+
+	//InitImGui(instance, wnd);
+
+	FrameMark;
 
 	// Run main loop
 	bool done = false;
 	while (!done)
 	{
+		ZoneScopedN("Main Loop");
+
 		// TODO: Update engine
 
-		SDL_Event event;
+		/*SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL3_ProcessEvent(&event);
 			if (event.type == SDL_EVENT_QUIT)
 				done = true;
-		}
+		}*/
 
-		NewFrame();
+		//NewFrame();
 
-		DrawFrame(instance, wnd);
+		//DrawFrame(instance, wnd);
 
-		SubmitFrame(wnd);
+		//SubmitFrame(wnd);
+
+		FrameMark;
 	}
 
 	DryOff(instance);

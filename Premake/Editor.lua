@@ -7,6 +7,13 @@ project "Editor"
     objdir(objBuildPath .. "/%{prj.name}")
 
     local vkPath = os.getenv("VULKAN_SDK")
+
+	defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+	
+	filter {"system:windows"}
+		buildoptions {"/Zi"}
+	
+	filter {}
 	
     includedirs 
 	{
@@ -22,7 +29,8 @@ project "Editor"
 	{
         "Engine",
         "ImGui",
-        "json"
+        "json",
+        "tracy"
     }
 
     files 
@@ -43,5 +51,6 @@ project "Editor"
 	{
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3")
     }
