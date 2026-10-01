@@ -2,6 +2,8 @@ project "Test"
 
     location(projectsPath)
 
+    removefatalwarnings { "All" }
+
     kind "ConsoleApp"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
@@ -18,7 +20,7 @@ project "Test"
 
     includedirs
     {
-        "../include", 
+        rootPath .. "/include", 
         vkPath .. "/Include",
         targetBuildPath .. "/External/include"
     }
@@ -26,19 +28,26 @@ project "Test"
     libdirs
     {
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
+        targetBuildPath .. "/External/lib64",
+        vkPath .. "/Lib"
     }
 
     dependson 
     {
         "GoogleTest",
-        "Engine"
+        "Engine",
+        "Assimp",
+        "json",
+        "stb"
     }
 
     links
     {
         "Engine",
-        "gtest"
+        "gtest",
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd")
     }
 
     defines

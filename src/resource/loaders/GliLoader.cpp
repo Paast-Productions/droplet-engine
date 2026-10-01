@@ -81,54 +81,60 @@ namespace Droplet::GliLoader
     }
     
 	std::unique_ptr<Texture2DResource> LoadTexture2D(const fs::path &p_assetPath, const nlohmann::json &p_loadSettings)
-	{
-        bool generateMipMaps = p_loadSettings.value("generate_mipmaps", MetaUtils::C_TEXTURE_DEFAULT_GENERATE_MIPMAPS);
-        generateMipMaps;
-        // TODO: Use load setting
-        // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
-        // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
+	    {
+            bool generateMipMaps = p_loadSettings.value("generate_mipmaps", MetaUtils::C_TEXTURE_DEFAULT_GENERATE_MIPMAPS);
+            generateMipMaps;
+            // TODO: Use load setting
+            // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
+            // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
+
+		    if (!fs::exists(p_assetPath))
+		    {
+			    throw std::runtime_error("File was not found");
+		    }
+
+		    std::string extension = p_assetPath.extension().string();
+
+            gli::texture texture;
+            gli::texture2d texture2d;
+		    if (extension == ".ktx" || extension == ".dds")
+		    {
+			    texture = gli::load(p_assetPath.string());
+		        if (texture.empty())
+		        {
+		            throw std::runtime_error("Texture is empty.");
+		        }
+		    }
+		    else
+		    {
+			    fs::path outputPath = p_assetPath;
+			    outputPath.replace_extension(".ktx");
+			    texture = ConvertPNGToKTX(p_assetPath, outputPath);
+		        // NOTE: Doing this during runtime could be problematic as two threads could potentially try to read/write
+		        // to the same file at the same time. We should change this!
+		        if (texture.empty())
+		        {
+		            throw std::runtime_error("Texture is empty.");
+		        }
+		    }
+            texture2d = gli::texture2d(texture);
+            if (texture2d.empty())
+            {
+                throw std::runtime_error("Texture is empty.");
+            }
+
+		    // Translate the gli texture to our custom format
+		    TextureResource::TextureFormat format = ConvertTextureFormat(texture2d.format());
+		    auto resource = std::make_unique<Texture2DResource>();
+		    resource->SetDimensions(texture2d.extent().x, texture2d.extent().y);
         
-		gli::texture texture;
+		    resource->SetMipLevels(static_cast<int>(texture2d.levels())); // Temporary until we use loadsetting for mipmap
+        
+		    resource->SetPixelData(texture2d.data(), texture2d.size());
+		    resource->SetFormat(format, static_cast<int>(texture2d.size()));
 
-		if (!fs::exists(p_assetPath))
-		{
-			throw std::runtime_error("File was not found");
-		}
-
-		std::string extension = p_assetPath.extension().string();
-
-		if (extension == ".ktx" || extension == ".dds")
-		{
-			texture = gli::load(p_assetPath.string());
-			std::cout << texture.format() << std::endl;
-		}
-		else
-		{
-			fs::path outputPath = p_assetPath;
-			outputPath.replace_extension(".ktx");
-			std::cout << outputPath.string() << std::endl;
-			texture = ConvertPNGToKTX(p_assetPath, outputPath);
-		    // NOTE: Doing this during runtime could be problematic as two threads could potentially try to read/write
-		    // to the same file at the same time. We should change this!
-		}
-
-		if (texture.empty())
-		{
-			throw std::runtime_error("Could not load texture: " + p_assetPath.generic_string());
-		}
-
-		// Translate the gli texture to our custom format
-		TextureResource::TextureFormat format;
-		format = ConvertTextureFormat(texture.format());
-
-		auto resource = std::make_unique<Texture2DResource>();
-		resource->SetDimensions(texture.extent().x, texture.extent().y);
-		resource->SetMipLevels(static_cast<int>(texture.levels()));
-		resource->SetPixelData(texture.data(), texture.size());
-		resource->SetFormat(format, static_cast<int>(texture.size()));
-
-		return resource;
-	}
+		    return resource;
+	    }
     
     std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
     const std::filesystem::path &p_assetPath)
