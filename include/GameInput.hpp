@@ -1,9 +1,11 @@
 #pragma once
 
-#include <SDL3/SDL.h>
+#include <SDL3/SDL_scancode.h>
+#include <SDL3/SDL_video.h>
 #include <unordered_set>
 #include <unordered_map>
-#include <utility>
+#include <array>
+#include <cstdint>
 
 namespace Droplet
 {
@@ -68,6 +70,13 @@ namespace Droplet
 		KeyF12 = SDL_SCANCODE_F12,
 	};
 
+	/// @brief Customized mouse codes using ...
+	enum class Mouse : std::uint8_t
+	{
+		LMB = 0,
+		RMB = 1,
+	};
+
 	/// @brief A universal singleton GameInput class
 	class GameInput
 	{
@@ -83,7 +92,7 @@ namespace Droplet
 			return gameInput;
 		}
 
-		/// @brief Retrieves the inputs and updates the internal key states.
+		/// @brief Retrieves the inputs and updates the internal mouse and key states.
 		void Update();
 
 		/// @brief Check whether a key is pressed.
@@ -93,23 +102,60 @@ namespace Droplet
 
 		/// @brief Check whether a key is held.
 		/// @param p_key The key to be checked.
-		/// @return True if key is held, else false.
+		/// @returns True if key is held, else false.
 		[[nodiscard]] bool KeyHeld(const Key p_key);
 
 		/// @brief Check whether a key is released.
 		/// @param p_key The key to be checked.
-		/// @return True if key was released current frame, else false.
+		/// @returns True if key was released current frame, else false.
 		[[nodiscard]] bool KeyReleased(const Key p_key);
 
 		/// @brief Toggles a key.
 		/// @param p_key The key to be toggled.
-		/// @return True or false, depending on the key state. Returns false by default.
+		/// @returns True or false, depending on the key state. Returns false by default.
 		[[nodiscard]] bool KeyToggle(const Key p_key);
 
+		/// @brief Check whether a mouse button is pressed.
+		/// @param p_mouse The mouse button to be checked.
+		/// @returns True if mouse button was pressed current frame, else false.
+		[[nodiscard]] bool MousePressed(const Mouse p_mouse);
+
+		/// @brief Check whether a mouse button is held.
+		/// @param p_mouse The mouse button to be checked.
+		/// @returns True if mouse button is held, else false.
+		[[nodiscard]] bool MouseHeld(const Mouse p_mouse);
+
+		/// @brief Check whether a mouse button is released.
+		/// @param p_mouse The mouse button to be checked.
+		/// @returns True if mouse button was released current frame, else false.
+		[[nodiscard]] bool MouseReleased(const Mouse p_mouse);
+
+		/// @brief Get the current cursor x position.
+		/// @returns The cursor x position.
+		[[nodiscard]] float GetCursorX() const;
+
+		/// @brief Get the current cursor y position.
+		/// @returns The cursor y position.
+		[[nodiscard]] float GetCursorY() const;
+
+		/// @brief Set the cursor position.
+		/// @param p_window The pointer to the SDL window instance.
+		/// @param p_x The new cursor x position.
+		/// @param p_y The new cursor y position.
+		/// @note SDL3 only wants this to be called in the main thread.
+		void SetCursorPosition(SDL_Window *&p_window, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+
 	private:
+		// Keyboard variables
 		std::unordered_set<Key> m_currentKeys{};
 		std::unordered_set<Key> m_previousKeys{};
 		std::unordered_map<Key, bool> m_toggledKeys{};
+
+		// Mouse variables
+		float m_mouseX = 0.0f;
+		float m_mouseY = 0.0f;
+		std::array<bool, 2> m_currentMouse = { false };
+		std::array<bool, 2> m_previousMouse = { false };
 
 	};
 }
