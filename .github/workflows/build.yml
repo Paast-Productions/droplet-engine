@@ -76,7 +76,7 @@ jobs:
         run: |
           $version = "${{ env.PREMAKE_VERSION }}"
           $archive = "$env:RUNNER_TEMP\premake.zip"
-          $destination = "env:RUNNER_TEMP\premake"
+          $destination = "$env:RUNNER_TEMP\premake"
           
           Invoke-WebRequest `
             "https://github.com/premake/premake-core/releases/download/v$version/premake-$version-windows.zip" `
