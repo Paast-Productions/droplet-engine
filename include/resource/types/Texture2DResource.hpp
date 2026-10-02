@@ -1,11 +1,17 @@
 #pragma once
 #include "resource/types/TextureResource.hpp"
 
+#include <memory>
+
 namespace Droplet {
     /// @brief Class for 2D texture resources.s
 	class Texture2DResource : public TextureResource
 	{
 	public:
+        /// @brief Creates a fallback instance of a 2D texture (magenta/black checkerboard).
+        /// @return The 2D texture.
+        static std::unique_ptr<Texture2DResource> CreateFallback();
+	    
 		/// @brief Sets the width and height of the texture.
 		/// @param p_width The width of the texture.
 		/// @param p_height The height of the texture.

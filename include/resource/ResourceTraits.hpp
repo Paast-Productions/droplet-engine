@@ -25,7 +25,7 @@ namespace Droplet
     
     // --- Textures ---
 
-    /// @brief Resource loader trait for Texture2DResource.
+    /// @brief Resource traits for Texture2DResource.
     template<>
     struct ResourceTraits<Texture2DResource>
     {
@@ -42,6 +42,11 @@ namespace Droplet
                 // TODO: Log error
                 return nullptr;
             }
+        }
+        
+        static std::unique_ptr<Texture2DResource> CreateFallback()
+        {
+            return Texture2DResource::CreateFallback();
         }
     };
     
@@ -72,7 +77,7 @@ namespace Droplet
     
     // --- Meshes and Animations ---
     
-    /// @brief Resource loader trait for MeshResource.
+    /// @brief Resource traits for MeshResource.
     template<>
     struct ResourceTraits<MeshResource>
     {
@@ -92,7 +97,7 @@ namespace Droplet
         }
     };
     
-    /// @brief Resource loader trait for SkinnedMeshResource.
+    /// @brief Resource traits for SkinnedMeshResource.
     template<>
     struct ResourceTraits<SkinnedMeshResource>
     {
@@ -113,7 +118,7 @@ namespace Droplet
         }
     };
     
-    /// @brief Resource loader trait for AnimationResource.
+    /// @brief Resource traits for AnimationResource.
     template<>
     struct ResourceTraits<AnimationResource>
     {
@@ -136,7 +141,7 @@ namespace Droplet
     
     // --- Shaders ---
     
-    /// @brief Resource loader trait for ShaderResource.
+    /// @brief Resource traits for ShaderResource.
     template<>
     struct ResourceTraits<ShaderResource>
     {
