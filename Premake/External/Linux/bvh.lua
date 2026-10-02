@@ -2,6 +2,8 @@ project "bvh"
     kind "StaticLib"
     location(projectsPath)
 
+    warnings "Off"
+
     local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
 
     targetdir(targetBuildPath .. "/External")

@@ -2,11 +2,13 @@ project "bvh"
     kind "Utility"
     location(projectsPath)
 
+    warnings "Off"
+
     local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
-    
+	    
     filter "configurations:release"
         prebuildcommands{
             "{MKDIR} %{prj.objdir}",
