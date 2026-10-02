@@ -18,16 +18,16 @@ namespace Droplet
     /// load trait.
     /// @tparam T The resource.
     template<typename T>
-    struct ResourceLoaderTraits
+    struct ResourceTraits
     {
-        static_assert(sizeof(T) == 0, "No AssetLoaderTrait has been defined for this resource type.");
+        static_assert(sizeof(T) == 0, "No traits has been defined for this resource type.");
     };
     
     // --- Textures ---
 
     /// @brief Resource loader trait for Texture2DResource.
     template<>
-    struct ResourceLoaderTraits<Texture2DResource>
+    struct ResourceTraits<Texture2DResource>
     {
         static std::unique_ptr<Texture2DResource> LoadCPU(
             const std::filesystem::path& p_assetPath, 
@@ -46,7 +46,7 @@ namespace Droplet
     };
     
     
-    // TODO: Implement 3D texture loading
+    // TODO: Implement 3D texture traits
     // template<>
     // struct ResourceLoaderTraits<Texture2DResource>
     // {
@@ -58,7 +58,7 @@ namespace Droplet
     //     }
     // };
     
-    // TODO: Implement material loading
+    // TODO: Implement material traits
     // template<>
     // struct ResourceLoaderTraits<MaterialResource>
     // {
@@ -74,7 +74,7 @@ namespace Droplet
     
     /// @brief Resource loader trait for MeshResource.
     template<>
-    struct ResourceLoaderTraits<MeshResource>
+    struct ResourceTraits<MeshResource>
     {
         static std::unique_ptr<MeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
@@ -94,7 +94,7 @@ namespace Droplet
     
     /// @brief Resource loader trait for SkinnedMeshResource.
     template<>
-    struct ResourceLoaderTraits<SkinnedMeshResource>
+    struct ResourceTraits<SkinnedMeshResource>
     {
         static std::unique_ptr<SkinnedMeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
@@ -115,7 +115,7 @@ namespace Droplet
     
     /// @brief Resource loader trait for AnimationResource.
     template<>
-    struct ResourceLoaderTraits<AnimationResource>
+    struct ResourceTraits<AnimationResource>
     {
         static std::unique_ptr<AnimationResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
@@ -138,7 +138,7 @@ namespace Droplet
     
     /// @brief Resource loader trait for ShaderResource.
     template<>
-    struct ResourceLoaderTraits<ShaderResource>
+    struct ResourceTraits<ShaderResource>
     {
         static std::unique_ptr<ShaderResource> LoadCPU(
             const std::filesystem::path &p_assetPath,

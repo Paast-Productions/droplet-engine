@@ -8,7 +8,7 @@
 #include <cassert>
 #include <functional>
 
-#include "resource/loaders/ResourceLoaderTraits.hpp"
+#include "resource/ResourceTraits.hpp"
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
@@ -134,7 +134,7 @@ namespace Droplet
                 {
                     // --- Async Worker Thread ---
                     std::filesystem::path absAssetPath = m_rootDirectory / metaEntry.relAssetPath;
-                    std::unique_ptr<T> loadedResource = ResourceLoaderTraits<T>::LoadCPU(absAssetPath, metaEntry.loadSettings);
+                    std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, metaEntry.loadSettings);
                     
                     AsyncLoadResult res;
                     res.succeeded = (loadedResource != nullptr);
