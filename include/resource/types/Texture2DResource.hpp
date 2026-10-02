@@ -8,7 +8,7 @@ namespace Droplet {
 	class Texture2DResource : public TextureResource
 	{
 	public:
-        /// @brief Creates a fallback instance of a 2D texture (magenta/black checkerboard).
+        /// @brief Creates a fallback instance of a 2D texture resource (magenta/black checkerboard).
         /// @return The 2D texture.
         static std::unique_ptr<Texture2DResource> CreateFallback();
 	    
