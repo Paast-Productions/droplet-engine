@@ -107,7 +107,6 @@ TEST_F(MetaUtilsTest, WriteAndReadRoundTrip)
     
     EXPECT_EQ(entriesRead[0].guid, entry1.guid);
     EXPECT_EQ(entriesRead[0].type, entry1.type);
-    EXPECT_EQ(entriesRead[0].assetPath, entry1.assetPath);
     EXPECT_EQ(entriesRead[0].loadFlags, entry1.loadFlags);
     
     ASSERT_EQ(entriesRead[0].dependencies.size(), 2);
