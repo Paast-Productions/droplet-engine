@@ -3,11 +3,11 @@
         {
             "dependencies": [],
             "guid": 500,
-            "loadFlags": 2,
+            "loadFlags": 1,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "path": "Test_BlackPixel.png",
+            "name": "Test_BlackPixel",
             "type": 1
         }
     ]

@@ -2,13 +2,12 @@
     "resources": [
         {
             "dependencies": [],
-            "guid": 10501397414557308574,
+            "guid": 700,
             "loadFlags": 1,
-            "name": "Test_BlackPixel.ktx",
-            "path": "Textures/Test_BlackPixel.ktx",
-            "specificData": {
+            "loadSettings": {
                 "generate_mipmaps": false
             },
+            "name": "Test_Missing",
             "type": 1
         }
     ]
