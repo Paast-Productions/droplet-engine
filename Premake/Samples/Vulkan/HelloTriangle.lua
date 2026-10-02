@@ -31,7 +31,7 @@ project "Vulkan-HelloTriangle"
     dependson {
         "Engine",
         "ImGui",
-        "tracy"
+        "tracy",
         "Sol2"
     }
 
