@@ -16,6 +16,7 @@ namespace Droplet::Script
 	class LuaBindings
 	{
 	public:
+
 		/// @brief Registers all available engine bindings with Lua.
 		/// This function serves as the main entry point for registering C++
 		/// functionality that should be exposed to the Lua scripting environment.
@@ -24,22 +25,27 @@ namespace Droplet::Script
 		static void RegisterBindings(sol::state_view p_luaState);
 
 	private:
+
 		/// @brief Register all global functions for Lua.
 		/// Creates OnStart and OnUpdate for lua api
 		/// @param p_luaState Lua state in which should register 
 		static void RegisterGlobalFunctions();
+
 		/// @brief Registers the Node type with Lua.
 		/// Exposes the functionality of Node that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterNode(sol::state_view p_luaState);
+
 		/// @brief Registers the Transform
 		/// Exposes the functionality of Transform that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterTransform(sol::state_view p_luaState);
+
 		/// @brief Registers the GLM type with Lua.
 		/// Exposes the functionality of GLM that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterGLM(sol::state_view p_luaState);
+
 		/// @brief Registers the GameInput type with Lua.
 		/// Exposes the functionality of GameInput that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Node bindings should be registered.

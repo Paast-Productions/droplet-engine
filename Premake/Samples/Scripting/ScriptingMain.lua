@@ -22,7 +22,6 @@ project "Scripting-Main"
         vkPath .. "/Lib"
     }
 
-
     includedirs {
         rootPath .. "/include",
         vkPath .. "/include",
@@ -31,13 +30,13 @@ project "Scripting-Main"
 
     dependson {
         "Engine",
-        --"ImGui",
+        "ImGui",
         "Sol2",
     }
 
     links {
         "Engine",
-        --"ImGui",
+        "ImGui",
         "lua-5.4.7",
         "winmm",
         "gdi32",

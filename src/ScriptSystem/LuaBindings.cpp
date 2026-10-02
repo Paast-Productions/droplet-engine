@@ -22,6 +22,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
     RegisterTransform(p_luaState);
     RegisterGLM(p_luaState);
 	RegisterInput(p_luaState);
+	RegisterImGui(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "TestScripts"; // Not sure if this should be hardcoded like this :)
@@ -506,6 +507,34 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 
 void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaState)
 {
+	sol::table imgui = p_luaState.create_table("ImGui");
 
+    imgui.set_function("Text",
+		[](const std::string &p_text)
+		{
+			ImGui::TextUnformatted(p_text.c_str());
+	    }
+    );
+
+    imgui.set_function("Separator",
+        []()
+        {
+			ImGui::Separator();
+        }
+    );
+
+    imgui.set_function("Spacing",
+        []()
+        {
+            ImGui::Spacing();
+        }
+    );
+
+    imgui.set_function("Button",
+        [](const std::string &p_label)
+        {
+            return ImGui::Button(p_label.c_str());
+        }
+    );
 }
 
