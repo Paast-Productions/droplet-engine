@@ -41,7 +41,6 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	const vk::ImageCreateInfo imageInfo
 	{ 
-		.flags = static_cast<vk::ImageCreateFlagBits>(0), 
 		.imageType = vk::ImageType::e2D,
 		.format = p_format,
 		.extent = 
