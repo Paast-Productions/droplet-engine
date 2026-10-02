@@ -2,11 +2,11 @@
 
 #include <string>
 #include <memory>
-#include <atomic>
 #include <mutex>
 #include <filesystem>
 #include <cassert>
 #include <functional>
+#include <typeindex>
 
 #include "resource/ResourceTraits.hpp"
 #include "resource/ResourceHandle.hpp"
@@ -172,7 +172,18 @@ namespace Droplet
         /// @return The state that the resource is currently in.
         ResourceState GetState(GUID p_guid);
 
-        /// @brief Gets the raw resource stored in the internal cache specified by a GUID.
+        /// @brief Registers a resource type 
+        /// @tparam T 
+        template<typename T>
+        void RegisterResourceType()
+        {
+            static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource.");
+            
+            m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback();
+        }
+
+        /// @brief Gets the raw resource stored in the internal cache specified by a GUID. If the guid does not reference
+        /// a registered resource, a fallback resource of the requested type will be returned instead.
         /// @tparam T The resource type.
         /// @param p_guid The globally unique identifier of the resource.
         /// @return The resource.
@@ -187,8 +198,15 @@ namespace Droplet
                 // Asset is ready to be used
                 return static_cast<T*>(it->second.resource.get());
             }
+
+            // Resource with guid was not found -> hand over fallback for that resource type
+            auto fallbackIt = m_fallbackResources.find(typeid(T));
+            if (fallbackIt != m_fallbackResources.end())
+            {
+                return static_cast<T*>(fallbackIt->second.get());
+            }
             
-            return nullptr;
+            return nullptr; // Worst case scenario return nullptr
         }
     
     private:
@@ -204,6 +222,7 @@ namespace Droplet
         std::filesystem::path m_rootDirectory; // Absolute path to the root directory
         ResourceRegistry m_registry;
         std::unordered_map<GUID, LiveResource> m_liveResources;
+        std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
