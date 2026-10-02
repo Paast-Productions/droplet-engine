@@ -17,7 +17,7 @@ using json = nlohmann::json;
 
 namespace Droplet::AssimpLoader
 {
-    static constexpr double C_EPSILON = 0.0001;
+    static constexpr double C_EPSILON = 0.00001;
     
     /// @brief Helper function that constructs a vertex buffer.
     /// @param p_meshData The imported mesh object.
@@ -116,6 +116,12 @@ namespace Droplet::AssimpLoader
 		{
 			s_importer.FreeScene();
 			throw std::runtime_error("Mesh does not contain mesh data.");
+		}
+
+		if (meshData->mNumMeshes != 1)
+		{
+			s_importer.FreeScene();
+			throw std::runtime_error(std::format("Mesh file {} contains multiple meshes.", p_assetPath.generic_string()));
 		}
 
 		// Store the mesh data into p_assetRecord.resource
