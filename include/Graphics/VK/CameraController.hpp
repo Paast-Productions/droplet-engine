@@ -4,6 +4,7 @@
 #include "Camera.hpp"
 #include <Graphics/SDL/Window.hpp>
 
+/// @brief Class that controlls the camera 
 class CameraController
 { 
 public:
