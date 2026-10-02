@@ -15,6 +15,10 @@ namespace Droplet::Scene
         explicit MeshComponent(const std::string &p_meshPath);
         void Update(float p_deltaTime) override;
 
+        /// @brief Gets the type name of the component.
+        /// @return The type name of the component.
+		std::string_view GetTypeName() override { return "MeshComponent"; }
+
         /// TODO: Placeholder as the correct method is not yet inplemented
         const std::string &GetMeshPath() const;
 

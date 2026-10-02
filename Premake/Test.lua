@@ -33,12 +33,12 @@ project "Test"
     {
         "GoogleTest",
         "Engine",
-        "Sol2"
+        "Sol2",
     }
 
     links
     {
         "Engine", 
         "gtest",
-        AddQuotation("lua-5.4.7")
+        "lua-5.4.7"
     }

@@ -19,10 +19,10 @@ project "Engine"
     dependson
     {
         --"GoogleTest",
-        --"ImGui",
+        "ImGui",
         "Sol2",
-        "Lua",
-        "json"
+        "json",
+        "VulkanMemoryAllocator"
         --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }

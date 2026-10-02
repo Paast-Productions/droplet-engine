@@ -2,7 +2,7 @@
 
 #include "LuaStateHandler.hpp"
 
-#include <SceneSystem/Component.hpp>
+#include <SceneSystem/Node.hpp>
 #include <string>
 
 namespace Droplet::Script
@@ -23,7 +23,7 @@ namespace Droplet::Script
 		/// @param p_script Loaded Lua script used to populate the script environment.
 		/// @param p_scriptPath Path to the Lua script.
 		ScriptInstance(
-			Droplet::Scene::Component *p_scriptComponent,
+			Droplet::Scene::Node *p_owner,
 			LuaStateHandler &p_stateHandler,
 			sol::load_result &p_script,
 			const std::string &p_scriptPath);
@@ -64,7 +64,7 @@ namespace Droplet::Script
 
 	private:
 		/// @brief ScriptComponent associated with this script instance.
-		Droplet::Scene::Component *m_scriptComponent;
+		Droplet::Scene::Node *m_owner;
 
 		/// @brief Reference to the Lua state used by the script instance.
 		LuaStateHandler &m_stateHandler;

@@ -1,5 +1,6 @@
 ﻿#include <print>
 
+#include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
@@ -8,11 +9,15 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
+#include "Time.hpp"
+
 using namespace Droplet::Scene;
 
 class PlayerComponent : public Component
 {
 public:
+    std::string_view GetTypeName() override { return "PlayerComponent"; }
+
     void Start() override
     {
         std::cout << "PlayerComponent started\n";
@@ -29,6 +34,7 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
+    Droplet::Time &time = time.Get();
     SceneManager sceneManager;
 
     // ==================================================
@@ -105,32 +111,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     sceneManager.ActivateScene("Game");
 
-    // ==================================================
-    // Game loop
-    // ==================================================
-
-    constexpr float deltaTime = 0.016f;
-
-    for (int frame = 0; frame < 5; ++frame)
-    {
-        std::cout
-            << "\n--- Frame "
-            << frame
-            << " ---\n";
-
-        sceneManager.Update(deltaTime);
-    }
-
+    //ScriptBehaviour scriptBehaviour("testScript.lua");
 
     ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
-
-
     ScriptSystem::Get().Start();
 
     while (true)
     {
-        ScriptSystem::Get().Update(1.0);
+        time.Update();
+
+        ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;

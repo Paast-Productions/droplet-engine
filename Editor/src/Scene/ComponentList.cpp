@@ -1,15 +1,48 @@
 #include "ComponentList.hpp"
 #include <ComponentRegistry.hpp>
+#include <Component.hpp>
 #include <ImGui/imgui.h>
 
 using namespace Droplet::Editor::Scene;
 using namespace Droplet::Scene;
 
-bool Droplet::Editor::Scene::OpenComponentList(std::string *p_outName)
+void Droplet::Editor::Scene::OpenComponentList()
 {
 	using namespace ImGui;
 
-	const auto &registry = ComponentRegistry::GetRegistry();
+	OpenPopup("Component List");
+}
 
-	// TODO: Open a popup window at the cursor with a list of registered components and allow the user to select one as well as search through them.
+bool Droplet::Editor::Scene::ShowComponentList(std::string *p_outName)
+{
+	using namespace ImGui;
+
+	if (!p_outName)
+	{
+		throw std::invalid_argument("p_outName cannot be null");
+	}
+
+	bool selected = false;
+
+	if (BeginPopup("Component List"))
+	{
+		const auto &registry = ComponentRegistry::GetRegistry();
+
+		for (const auto &[name, _] : registry)
+		{
+			if (Selectable(name.c_str()))
+			{
+				if (p_outName)
+				{
+					*p_outName = name;
+				}
+
+				CloseCurrentPopup();
+				selected = true;
+			}
+		}
+		EndPopup();
+	}
+
+	return selected;
 }
