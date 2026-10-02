@@ -5,6 +5,9 @@
 #include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
+#include <Graphics/VK/CommandPool.hpp>
+#include <Graphics/VK/Context.hpp>
+
 namespace Droplet::Graphics::VK
 {
 	/// @brief ImageView class for storing textures/image buffers to be bound to shader stages
@@ -29,14 +32,15 @@ namespace Droplet::Graphics::VK
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
 		Image(const vma::raii::Allocator &p_allocator,
-			  const vk::raii::CommandBuffer &p_commandBuffer,
-			  const unsigned char *p_pixels,
-			  std::uint32_t p_width,
-			  std::uint32_t p_height,
-			  vk::Format p_format,
-			  vk::ImageTiling p_tiling,
-			  vk::ImageUsageFlags p_usage,
-			  vk::MemoryPropertyFlags p_properties);
+			Droplet::Graphics::VK::CommandPool &p_commandPool,
+			Droplet::Graphics::VK::Context &p_context,
+			const unsigned char *p_pixels,
+			std::uint32_t p_width,
+			std::uint32_t p_height,
+			vk::Format p_format,
+			vk::ImageTiling p_tiling,
+			vk::ImageUsageFlags p_usage,
+			vk::MemoryPropertyFlags p_properties);
 		
 		Image(const Image &p_other) = delete;
 		Image &operator=(const Image &p_other) = delete;

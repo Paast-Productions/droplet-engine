@@ -20,6 +20,7 @@
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/TestData.hpp>
 
+#include <Graphics/VK/BufferHelper.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -61,7 +62,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	m_image = {
 		m_allocator.Get(),
-		m_commandPool.GetBufferAt(m_frameIndex),
+		m_commandPool,
+		m_context,
 		G_CATDESPAIR,
 		G_CATDIM,
 		G_CATDIM,
@@ -74,7 +76,9 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	//Format is changed from the usual eR8G8B8A8Srbg/unorm
 	m_textureView = {
 		m_context.GetDevice(),
-		m_image.Get()
+		m_image.Get(),
+		vk::Format::eR8G8B8A8Srgb,
+		vk::ImageAspectFlagBits::eColor
 	};
 	
 	CreateTextureSampler();

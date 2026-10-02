@@ -7,7 +7,8 @@
 using namespace Droplet::Graphics::VK;
 
 Image::Image(const vma::raii::Allocator &p_allocator,
-			 const vk::raii::CommandBuffer &p_commandBuffer,
+			 Droplet::Graphics::VK::CommandPool &p_commandPool,
+			 Droplet::Graphics::VK::Context &p_context,
 			 const unsigned char *p_pixels, 
 			 std::uint32_t p_width, 
 			 std::uint32_t p_height, 
@@ -40,7 +41,6 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	const vk::ImageCreateInfo imageInfo
 	{ 
-		.flags = static_cast<vk::ImageCreateFlagBits>(0), 
 		.imageType = vk::ImageType::e2D,
 		.format = p_format,
 		.extent = 
@@ -100,8 +100,8 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.srcAccessMask = {},
 		.dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
 		.dstAccessMask = vk::AccessFlagBits2::eTransferWrite,
-		.oldLayout = vk::ImageLayout::eUndefined,
-		.newLayout = vk::ImageLayout::eTransferDstOptimal,
+		.oldLayout = vk::ImageLayout::eTransferDstOptimal,
+		.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
 		.srcQueueFamilyIndex = vk::QueueFamilyIgnored,
 		.dstQueueFamilyIndex = vk::QueueFamilyIgnored,
 		.image = m_image,
@@ -163,22 +163,22 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.regionCount = 1,
 		.pRegions = bufferImageCopies.data()
 	};
-	
-	vk::CommandBufferBeginInfo beginInfo 
-	{
-		.sType = vk::StructureType::eCommandBufferBeginInfo,
-		.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
-	};
-	
-	p_commandBuffer.begin(beginInfo);
-	p_commandBuffer.pipelineBarrier2(stagingDependencyInfo);
 
-	TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-	p_commandBuffer.copyBufferToImage2(copyBufferToImageInfo);
-	TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+	p_commandPool.ImmediateSubmit(p_context.GetDevice(), p_context.GetQueue(),
+		[&](Droplet::Graphics::VK::CommandBuffer &p_commandBuffer)
+		{
+			TransitionImageLayout(p_commandBuffer.Get(), m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 
-	p_commandBuffer.pipelineBarrier2(imageDependencyInfo);
-	p_commandBuffer.end();
+			vk::BufferImageCopy region{ .bufferOffset = 0,
+									   .bufferRowLength = 0,
+									   .bufferImageHeight = 0,
+									   .imageSubresource = {.aspectMask = vk::ImageAspectFlagBits::eColor, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
+									   .imageOffset = {0, 0, 0},
+									   .imageExtent = {p_width, p_height, 1} };
+			p_commandBuffer.Get().copyBufferToImage(stagingBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, region);
+
+			TransitionImageLayout(p_commandBuffer.Get(), m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+		});
 }
 
 Image::Image(const vma::raii::Allocator &p_allocator,
