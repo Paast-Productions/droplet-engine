@@ -5,6 +5,7 @@
 #include "GameInput.hpp"
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
+#include <ImGui/imgui.h>
 
 #include <print>
 #include <filesystem>
@@ -310,7 +311,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
 }
 
-void Droplet::Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
+void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 {
     
     p_luaState.new_enum<Key>(
@@ -501,5 +502,10 @@ void Droplet::Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
     };
 
     LuaBindings::m_luaClassDefinitions.push_back(inputDef);
+}
+
+void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaState)
+{
+
 }
 
