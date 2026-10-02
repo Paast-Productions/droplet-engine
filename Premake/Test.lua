@@ -32,7 +32,7 @@ project "Test"
     {
         "GoogleTest",
         "Engine",
-        "Sol2"
+        "Sol2",
     }
 
     links

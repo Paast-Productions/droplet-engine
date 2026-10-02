@@ -1,25 +1,24 @@
-project "Scripting-Main"
+project "Engine-HelloEngine"
 
     kind "ConsoleApp"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(targetBuildPath .. "/%{prj.name}")
+    debugdir(rootPath .. "/Samples/Engine/")
     objdir(objBuildPath .. "/%{prj.name}")
-
-    local vkPath = os.getenv("VULKAN_SDK")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
-    
     files {
-        rootPath .. "/Samples/Scripting/ScriptingMain.cpp"
+        rootPath .. "/Samples/Engine/HelloEngine.cpp",
     }
-
+        
+    local vkPath = os.getenv("VULKAN_SDK")
+    
     libdirs {
-        targetBuildPath .. "/Library",
+        targetBuildPath .. "/Engine",
+        vkPath .. "/Lib",
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/bin",
-        vkPath .. "/Lib"
+        targetBuildPath .. "/External/lib64"
     }
 
 
@@ -31,18 +30,15 @@ project "Scripting-Main"
 
     dependson {
         "Engine",
-        --"ImGui",
-        "Sol2",
+        "ImGui",
+        "Sol2"
     }
 
     links {
         "Engine",
-        --"ImGui",
-        "lua-5.4.7",
-        "winmm",
-        "gdi32",
-        "shell32",
+        "ImGui",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+         AddQuotation("lua-5.4.7")
     }

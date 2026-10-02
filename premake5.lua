@@ -5,6 +5,7 @@ workspace "DropletEngine"
 
     location "Generated"
     cppdialect "C++23"
+    multiprocessorcompile "On"
 	startproject "Engine"
     warnings "Extra"
     externalanglebrackets "On"
@@ -44,6 +45,7 @@ include "Premake/Test"
 -- [[ SAMPLES ]] --
 
 include "Premake/Samples/Vulkan/HelloTriangle"
+include "Premake/Samples/Engine/HelloEngine"
 include "Premake/Samples/Scene/Scene"
 include "Premake/Samples/Transform/Transform"
 include "Premake/Samples/Scripting/ScriptingMain"
@@ -61,7 +63,6 @@ if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/Gli"
     include "Premake/External/Windows/Jolt"
     include "Premake/External/Windows/Sol2"
-    include "Premake/External/Windows/Lua"
 end
 
 if _TARGET_OS == 'linux' then
@@ -70,5 +71,4 @@ if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/Gli"
     include "Premake/External/Linux/Jolt"
     include "Premake/External/Linux/Sol2"
-    include "Premake/External/Linux/Lua"
 end
