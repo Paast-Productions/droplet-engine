@@ -278,41 +278,74 @@ namespace Droplet::AssimpLoader
 				}),
 				animKeyframes.end());
 			
-			std::uint32_t posIndex = 0, rotIndex = 0, scaIndex = 0; // Translation indices
-			for (AnimationResource::AnimKeyframe &a : animKeyframes) // Store each bone keyframe
+			for (AnimationResource::AnimKeyframe &a : animKeyframes)
 			{
-				double t = a.time;
-				for (std::size_t j = 0; j < meshData->mAnimations[i]->mNumChannels; j++) // Channels are bones
+				const double t = a.time;
+
+				for (std::size_t j = 0; j < anim->mNumChannels; ++j)
 				{
-					aiNodeAnim *nodeAnim = anim->mChannels[j]; // Current bone
+					aiNodeAnim *nodeAnim = anim->mChannels[j];
+
 					AnimationResource::BoneKeyframe boneKeyframe{};
 					boneKeyframe.boneName = nodeAnim->mNodeName.C_Str();
 
-				    double keyTime = nodeAnim->mPositionKeys[posIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON && posIndex < nodeAnim->mNumPositionKeys) // Position
+					// Position
+					if (nodeAnim->mNumPositionKeys > 0)
 					{
-						aiVectorKey posKey = nodeAnim->mPositionKeys[posIndex];
-						aiVector3D pos = posKey.mValue;
-						boneKeyframe.pos = { pos.x, pos.y, pos.z };
-						posIndex++;
+						// You need an appropriate position index here.
+						std::uint32_t posIndex = 0;
+
+						while (posIndex + 1 < nodeAnim->mNumPositionKeys &&
+							nodeAnim->mPositionKeys[posIndex + 1].mTime / anim->mTicksPerSecond <= t)
+						{
+							++posIndex;
+						}
+
+						const double keyTime = nodeAnim->mPositionKeys[posIndex].mTime / anim->mTicksPerSecond;
+
+						if (std::abs(t - keyTime) < C_EPSILON)
+						{
+							const auto &pos = nodeAnim->mPositionKeys[posIndex].mValue;
+							boneKeyframe.pos = { pos.x, pos.y, pos.z };
+						}
 					}
 
-				    keyTime = nodeAnim->mRotationKeys[rotIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON && rotIndex < nodeAnim->mNumRotationKeys) // Rotation
+					// Rotation
+					if (nodeAnim->mNumRotationKeys > 0)
 					{
-						aiQuatKey rotKey = nodeAnim->mRotationKeys[rotIndex];
-						aiQuaternion rot = rotKey.mValue;
-						boneKeyframe.rot = { rot.w, rot.x, rot.y, rot.z };
-						rotIndex++;
+						std::uint32_t rotIndex = 0;
+
+						while (rotIndex + 1 < nodeAnim->mNumRotationKeys &&
+							nodeAnim->mRotationKeys[rotIndex + 1].mTime / anim->mTicksPerSecond <= t)
+						{
+							rotIndex++;
+						}
+
+						const double keyTime = nodeAnim->mRotationKeys[rotIndex].mTime / anim->mTicksPerSecond;
+						if (std::abs(t - keyTime) < C_EPSILON)
+						{
+							const auto &rot = nodeAnim->mRotationKeys[rotIndex].mValue;
+							boneKeyframe.rot = { rot.w, rot.x, rot.y, rot.z };
+						}
 					}
 
-				    keyTime = nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON && scaIndex < nodeAnim->mNumScalingKeys) // Scale
+					// Scale
+					if (nodeAnim->mNumScalingKeys > 0)
 					{
-						aiVectorKey scaKey = nodeAnim->mScalingKeys[scaIndex];
-						aiVector3D sca = scaKey.mValue;
-						boneKeyframe.scale = { sca.x, sca.y, sca.z };
-						scaIndex++;
+						std::uint32_t scaIndex = 0;
+
+						while (scaIndex + 1 < nodeAnim->mNumScalingKeys &&
+							nodeAnim->mScalingKeys[scaIndex + 1].mTime / anim->mTicksPerSecond <= t)
+						{
+							scaIndex++;
+						}
+
+						const double keyTime = nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond;
+						if (std::abs(t - keyTime) < C_EPSILON)
+						{
+							const auto &scale = nodeAnim->mScalingKeys[scaIndex].mValue;
+							boneKeyframe.scale = { scale.x, scale.y, scale.z };
+						}
 					}
 
 					a.boneKeyframes.push_back(boneKeyframe);
