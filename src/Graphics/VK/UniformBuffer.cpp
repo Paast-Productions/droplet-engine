@@ -30,8 +30,7 @@ UniformBuffer::UniformBuffer(vk::raii::Device const &p_device,
 	m_mappedBuffer = m_deviceMemory.mapMemory(0, bufferSize);
 }
 
-void UniformBuffer::UpdateBuffer(/*const vk::Extent2D &p_swapchainExtent,*/
-								 const glm::mat4 &p_view,
+void UniformBuffer::UpdateBuffer(const glm::mat4 &p_view,
 								 const glm::mat4 &p_projection) const
 {
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
