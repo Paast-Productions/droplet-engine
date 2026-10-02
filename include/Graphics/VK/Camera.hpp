@@ -44,9 +44,9 @@ public:
 
 	/// @brief Return the projection matrix
 	/// @returns A glm::mat4
-	/// @param p_aspectRatio
-	/// @param p_nearPlane
-	/// @param p_farPlane
+	/// @param p_aspectRatio The width divided by height
+	/// @param p_nearPlane The near plane that is needed for projection matrix
+	/// @param p_farPlane The far plane that is needed for projection matrix
 	glm::mat4 GetProjectionMatrix(float p_aspectRatio, float p_nearPlane = 0.1f, float p_farPlane = 100.f) const;
 
 private:
