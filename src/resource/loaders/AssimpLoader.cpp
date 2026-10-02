@@ -292,7 +292,6 @@ namespace Droplet::AssimpLoader
 					// Position
 					if (nodeAnim->mNumPositionKeys > 0)
 					{
-						// You need an appropriate position index here.
 						std::uint32_t posIndex = 0;
 
 						while (posIndex + 1 < nodeAnim->mNumPositionKeys &&
