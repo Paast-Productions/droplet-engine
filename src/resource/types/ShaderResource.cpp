@@ -6,6 +6,11 @@ namespace Droplet
     ShaderResource::ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_byteCode)
         : m_type(p_type), m_byteCode(p_byteCode) {}
 
+    std::unique_ptr<ShaderResource> ShaderResource::CreateFallback()
+    {
+        return std::make_unique<ShaderResource>(ShaderType::Vertex, nullptr);
+    }
+
     ShaderResource::ShaderType ShaderResource::GetType() const
     {
         return m_type;

@@ -162,7 +162,11 @@ namespace Droplet
                 // TODO: Log error
                 return nullptr;
             }
-
+        }
+        
+        static std::unique_ptr<ShaderResource> CreateFallback()
+        {
+            return ShaderResource::CreateFallback();
         }
     };
 }
