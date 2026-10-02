@@ -576,7 +576,7 @@ void Renderer::CreateDescriptorSets()
 				.pImageInfo = &imageInfo}
 			} 
 		};
-		m_context->GetDevice()->updateDescriptorSets(descriptorWrites, {});
+		m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
 	}
 }
 
@@ -589,16 +589,15 @@ static void CheckVkResult(VkResult p_err)
 
 ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 {
-	CreateImGuiPool();
 	//TODO: CREATE PIPELINE CACHE
 	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = **m_context->GetInstance();
-	init_info.PhysicalDevice = **m_context->GetPhysicalDevice();
-	init_info.Device = **m_context->GetDevice();
-	init_info.QueueFamily = m_context->GetQueueIndex();
-	init_info.Queue = **m_context->GetQueue();
+	init_info.Instance = *m_context.GetInstance();
+	init_info.PhysicalDevice = *m_context.GetPhysicalDevice();
+	init_info.Device = *m_context.GetDevice();
+	init_info.QueueFamily = m_context.GetQueueIndex();
+	init_info.Queue = *m_context.GetQueue();
 	init_info.PipelineCache = nullptr;
-	init_info.DescriptorPool = *m_imGuiDescriptorPool;
+	//init_info.DescriptorPool = *m_imGuiDescriptorPool;
 	init_info.MinImageCount = 2;
 	init_info.ImageCount = 2;
 	init_info.Allocator = nullptr;
@@ -616,108 +615,5 @@ SDL_Window *Renderer::GetWindow()
 
 void Renderer::WaitIdle()
 {
-	m_context->GetDevice()->waitIdle();
-}
-
-//Creation of renderer
-int Renderer::Initialize()
-{
-	try
-	{
-		m_context.emplace(*m_window.Get());
-	}
-	catch (const vk::SystemError &err)
-	{
-		std::cerr << "Vulkan Error: " << err.what() << std::endl;
-		return 1;
-	}
-	catch (const std::exception &err)
-	{
-		std::cerr << "Error: " << err.what() << std::endl;
-		return 1;
-	}
-
-	m_swapchain.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
-
-	CreateDescriptorSetLayout();
-
-	CreateCommandPool();
-
-	CreateGraphicsPipeline();
-
-	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
-
-	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES);
-	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES);
-
-	//Format is changed from the usual eR8G8B8A8Srbg/unorm
-	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-	CreateTextureSampler();
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		m_uniformBuffers[i].emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice());
-	}
-
-	CreateDescriptorPool();
-
-	CreateDescriptorSets();
-
-	CreateCommandBuffers();
-
-	CreateSyncObjects();
-
-	return 0;
-}
-
-int Renderer::Initialize(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
-{
-	try
-	{
-		m_context.emplace(*m_window.Get());
-	}
-	catch (const vk::SystemError &err)
-	{
-		std::cerr << "Vulkan Error: " << err.what() << std::endl;
-		return 1;
-	}
-	catch (const std::exception &err)
-	{
-		std::cerr << "Error: " << err.what() << std::endl;
-		return 1;
-	}
-
-	m_swapchain.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), *m_window.Get(), *m_context->GetSurface());
-
-	CreateDescriptorSetLayout();
-
-	CreateCommandPool();
-
-	CreateGraphicsPipeline(p_shaderBlob);
-
-	m_depthBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_swapchain->GetExtent());
-
-	m_vertexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_VERTICES);
-	m_indexBuffer.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_INDICES);
-
-	//Format is changed from the usual eR8G8B8A8Srbg/unorm
-	m_textureView.emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice(), m_commandPool.value(), *m_context->GetQueue(), G_CATDESPAIR, G_CATDIM, G_CATDIM, vk::Format::eR5G6B5UnormPack16, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal);
-
-	CreateTextureSampler();
-
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
-		m_uniformBuffers[i].emplace(*m_context->GetDevice(), *m_context->GetPhysicalDevice());
-	}
-
-	CreateDescriptorPool();
-
-	CreateDescriptorSets();
-
-	CreateCommandBuffers();
-
-	CreateSyncObjects();
-
-	return 0;
+	m_context.GetDevice().waitIdle();
 }
