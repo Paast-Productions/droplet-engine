@@ -31,7 +31,6 @@ namespace Droplet
                     MetaEntry resourceData;
                     resourceData.guid = entry.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
-                    resourceData.assetPath = entry.value("path", std::string{});
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.dependencies = entry.value("dependencies", std::vector<GUID>{});
                     resourceData.loadSettings = entry.value("loadSettings", json::object());
@@ -67,7 +66,6 @@ namespace Droplet
             
             j["guid"] = resourceData.guid;
             j["type"] = static_cast<uint8_t>(resourceData.type);
-            j["path"] = resourceData.assetPath;
             j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
             j["dependencies"] = resourceData.dependencies;
             j["loadSettings"] = resourceData.loadSettings;
@@ -128,7 +126,7 @@ namespace Droplet
         entry.guid = GuidUtils::Generate();
         entry.type = p_type;
         entry.name = p_name;
-        entry.assetPath = p_assetPath;
+        entry.relAssetPath = p_assetPath;
         
         // Set type-specific flags
         switch (p_type)
