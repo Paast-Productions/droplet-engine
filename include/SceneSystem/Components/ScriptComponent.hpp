@@ -27,6 +27,10 @@ namespace Droplet::Scene
         /// with this component.
         explicit ScriptComponent(const std::string &p_scriptPath);
 
+		/// @brief Gets the type name of the component.
+        /// @return The type name of the component.
+        std::string_view GetTypeName() override { return "ScriptComponent"; }
+
         /// @brief Updates the associated Lua script.
         ///
         /// Called during the Node's update cycle and forwards the update to

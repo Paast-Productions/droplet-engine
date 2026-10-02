@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string_view>
 
 namespace Droplet::Scene
 {
@@ -22,6 +23,13 @@ namespace Droplet::Scene
 
         /// @brief Virtual destructor.
         virtual ~Component() = default;
+
+		/// @brief Gets the type name of the component. 
+        /// 
+        /// This function must be overridden by derived classes to return the correct type name, 
+        /// as it is used for serialization and identification of component types.
+        /// @return The type name of the component.
+        virtual std::string_view GetTypeName() = 0;
 
         /// @brief Called when the owning Node starts.
         ///
