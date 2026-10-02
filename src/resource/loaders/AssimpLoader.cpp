@@ -283,7 +283,7 @@ namespace Droplet::AssimpLoader
 					boneKeyframe.boneName = nodeAnim->mNodeName.C_Str();
 
 				    double keyTime = nodeAnim->mPositionKeys[posIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON) // Position
+					if (std::abs(t - keyTime) < C_EPSILON && posIndex < nodeAnim->mNumPositionKeys) // Position
 					{
 						aiVectorKey posKey = nodeAnim->mPositionKeys[posIndex];
 						aiVector3D pos = posKey.mValue;
@@ -292,15 +292,16 @@ namespace Droplet::AssimpLoader
 					}
 
 				    keyTime = nodeAnim->mRotationKeys[rotIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON) // Rotation
+					if (std::abs(t - keyTime) < C_EPSILON && rotIndex < nodeAnim->mNumRotationKeys) // Rotation
 					{
 						aiQuatKey rotKey = nodeAnim->mRotationKeys[rotIndex];
 						aiQuaternion rot = rotKey.mValue;
 						boneKeyframe.rot = { rot.w, rot.x, rot.y, rot.z };
 						rotIndex++;
 					}
+
 				    keyTime = nodeAnim->mScalingKeys[scaIndex].mTime / anim->mTicksPerSecond;
-					if (std::abs(t - keyTime) < C_EPSILON) // Scale
+					if (std::abs(t - keyTime) < C_EPSILON && scaIndex < nodeAnim->mNumScalingKeys) // Scale
 					{
 						aiVectorKey scaKey = nodeAnim->mScalingKeys[scaIndex];
 						aiVector3D sca = scaKey.mValue;
