@@ -109,8 +109,6 @@ namespace Droplet::Scene
         /// or belongs to a Scene.
         std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child);
 
-		void SetParent(const std::shared_ptr<Node> &p_parent);
-
         /// @brief Removes a child Node.
         ///
         /// Removes the specified Node from the hierarchy and clears its

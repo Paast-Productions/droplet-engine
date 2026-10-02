@@ -75,44 +75,49 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
 
     const bool opened = ImGui::TreeNodeEx(p_node.get(), flags, "%s", p_node->GetName().c_str());
 
-    if (ImGui::IsItemClicked())
+    const bool visible = ImGui::IsItemVisible();
+
+	// Only handle interactions if the item is visible to avoid unnecessary processing for off-screen items
+    if (visible)
     {
-        m_interactionState->ClearNodeSelection();
-        m_interactionState->SelectNode(p_node);
-    }
-
-    if (ImGui::BeginDragDropSource())
-    {
-        Node *draggedNode = p_node.get();
-
-        ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
-
-        ImGui::Text("%s", p_node->GetName().c_str());
-
-        ImGui::EndDragDropSource();
-    }
-
-    if (ImGui::BeginDragDropTarget())
-    {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_NODE"))
+        if (ImGui::IsItemClicked())
         {
-            Node *draggedNode = *static_cast<Node **>(payload->Data);
-
-            auto draggedNodeShared = draggedNode->shared_from_this();
-
-            auto oldParent = draggedNodeShared->GetParent();
-
-            if (oldParent)
-            {
-                oldParent->RemoveChild(draggedNodeShared);
-            }
-
-            p_node->AddChild(draggedNodeShared);
+            m_interactionState->ClearNodeSelection();
+            m_interactionState->SelectNode(p_node);
         }
 
-        ImGui::EndDragDropTarget();
-    }
+        if (ImGui::BeginDragDropSource())
+        {
+            Node *draggedNode = p_node.get();
 
+            ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
+
+            ImGui::Text("%s", p_node->GetName().c_str());
+
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_NODE"))
+            {
+                Node *draggedNode = *static_cast<Node **>(payload->Data);
+
+                auto draggedNodeShared = draggedNode->shared_from_this();
+
+                auto oldParent = draggedNodeShared->GetParent();
+
+                if (oldParent)
+                {
+                    oldParent->RemoveChild(draggedNodeShared);
+                }
+
+                p_node->AddChild(draggedNodeShared);
+            }
+
+            ImGui::EndDragDropTarget();
+        }
+    }
     if (opened)
     {
         for (const auto &child : p_node->GetChildren())
