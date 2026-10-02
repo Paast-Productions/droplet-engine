@@ -39,16 +39,16 @@ namespace Droplet::Graphics::VK
 		
 		Context(Context &&p_other) noexcept
 		{
-			m_instance = std::move(p_other.m_instance);
-			m_debugMessenger = std::move(p_other.m_debugMessenger); 
-			m_surface = std::move(p_other.m_surface);
-			m_physicalDevice = std::move(p_other.m_physicalDevice);
-			m_device = std::move(p_other.m_device);
-			m_queueIndex = std::move(p_other.m_queueIndex);
-			m_queue = std::move(p_other.m_queue);
+			std::swap(m_instance, p_other.m_instance);
+			std::swap(m_debugMessenger, p_other.m_debugMessenger);
+			std::swap(m_surface, p_other.m_surface);
+			std::swap(m_physicalDevice, p_other.m_physicalDevice);
+			std::swap(m_device, p_other.m_device);
+			std::swap(m_queueIndex, p_other.m_queueIndex);
+			std::swap(m_queue, p_other.m_queue);
 
-			m_requiredDeviceExtension = std::move(m_requiredDeviceExtension);
-			m_validationLayers = std::move(m_validationLayers);
+			std::swap(m_requiredDeviceExtension, p_other.m_requiredDeviceExtension);
+			std::swap(m_validationLayers, p_other.m_validationLayers);
 		}
 		
 		Context &operator=(Context &&p_other) noexcept
@@ -58,17 +58,17 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_instance = std::move(p_other.m_instance);
-			m_debugMessenger = std::move(p_other.m_debugMessenger); 
-			m_surface = std::move(p_other.m_surface);
-			m_physicalDevice = std::move(p_other.m_physicalDevice);
-			m_device = std::move(p_other.m_device);
-			m_queueIndex = std::move(p_other.m_queueIndex);
-			m_queue = std::move(p_other.m_queue);
+			std::swap(m_instance, p_other.m_instance);
+			std::swap(m_debugMessenger, p_other.m_debugMessenger);
+			std::swap(m_surface, p_other.m_surface);
+			std::swap(m_physicalDevice, p_other.m_physicalDevice);
+			std::swap(m_device, p_other.m_device);
+			std::swap(m_queueIndex, p_other.m_queueIndex);
+			std::swap(m_queue, p_other.m_queue);
 
-			m_requiredDeviceExtension = std::move(m_requiredDeviceExtension);
-			m_validationLayers = std::move(m_validationLayers);
-			
+			std::swap(m_requiredDeviceExtension, p_other.m_requiredDeviceExtension);
+			std::swap(m_validationLayers, p_other.m_validationLayers);
+
 			return *this;
 		}
 		

@@ -6,8 +6,8 @@
 
 using namespace Droplet::Scene;
 
-Node::Node(std::shared_ptr<Scene> p_scene, const std::string &p_name)
-	: m_scene(p_scene), m_name(p_name), m_transform(this)
+Node::Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name)
+    : m_name(p_name), m_transform(this), m_scene(p_scene)
 {
     if (!m_scene.lock())
     {
@@ -19,7 +19,7 @@ void Node::Start()
 {
     auto scene = m_scene.lock();
 
-	if (!scene || !scene->IsActive())
+    if (!scene || !scene->IsActive())
     {
         return;
     }
@@ -49,7 +49,7 @@ void Node::Update(float p_deltaTime)
         return;
     }
 
-	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
+    // TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
     for (const auto &component : m_components)
     {
@@ -76,7 +76,7 @@ void Node::RenderUI()
 {
     // TODO: implement node UI rendering wrapper logic
 
-	// Recursively call RenderUI on components
+    // Recursively call RenderUI on components
     for (const auto &component : m_components)
     {
         component->RenderUI();
@@ -113,13 +113,13 @@ bool Node::IsActive() const
         return false;
     }
 
-	// If the Node has a parent, it is only considered active if its parent is also active.
+    // If the Node has a parent, it is only considered active if its parent is also active.
     if (auto parent = m_parent.lock())
     {
         return parent->IsActive();
     }
 
-	return true;
+    return true;
 }
 
 bool Node::IsActiveSelf() const
@@ -139,7 +139,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
     }
 
-	// Check for cycles in the hierarchy
+    // Check for cycles in the hierarchy
     if (auto parent = GetParent())
     {
         while (parent)
@@ -157,7 +157,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
     if (p_child->GetScene() != m_scene.lock())
     {
-		throw std::runtime_error(
+        throw std::runtime_error(
             "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
             "Nodes belong to different Scenes."
         );
@@ -165,12 +165,12 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
     if (auto prevParent = p_child->GetParent())
     {
-		prevParent->RemoveChild(p_child);
+        prevParent->RemoveChild(p_child);
     }
     else
     {
-		// Child was a root. Remove it from the scene's root nodes.
-		m_scene.lock()->SetRoot(p_child, false);
+        // Child was a root. Remove it from the scene's root nodes.
+        m_scene.lock()->SetRoot(p_child, false);
     }
 
     p_child->m_parent = shared_from_this();
@@ -195,16 +195,16 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 
     if (p_child.get()->m_parent.lock() != shared_from_this())
     {
-		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
-	}
+        throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
+    }
 
-	if (p_child->GetScene() != m_scene.lock())
-	{
-		throw std::runtime_error(
-			"Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
-			"Nodes belong to different Scenes."
-		);
-	}
+    if (p_child->GetScene() != m_scene.lock())
+    {
+        throw std::runtime_error(
+            "Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
+            "Nodes belong to different Scenes."
+        );
+    }
 
     auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
@@ -217,8 +217,23 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 
     m_children.erase(it);
 
-	// Add the removed child to the scene's root nodes
+    // Add the removed child to the scene's root nodes
     m_scene.lock()->SetRoot(p_child, true);
+}
+
+std::shared_ptr<Node> Node::GetParent() const
+{
+    return m_parent.lock();
+}
+
+const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
+{
+    return m_children;
+}
+
+const std::string& Node::GetName() const
+{
+    return m_name;
 }
 
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
@@ -236,19 +251,4 @@ void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
     }
 
     m_components.erase(it);
-}
-
-const std::string& Node::GetName() const
-{
-    return m_name;
-}
-
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
-{
-    return m_children;
-}
-
-std::shared_ptr<Node> Node::GetParent() const
-{
-    return m_parent.lock();
 }

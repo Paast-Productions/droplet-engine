@@ -80,7 +80,7 @@ void Context::CreateLogicalDevice()
 			break;
 		}
 	}
-	if (m_queueIndex == ~0)
+	if (m_queueIndex == static_cast<std::uint32_t>(~0))
 	{
 		throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
 	}

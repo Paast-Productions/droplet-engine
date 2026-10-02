@@ -6,9 +6,7 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"

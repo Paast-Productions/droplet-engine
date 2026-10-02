@@ -7,16 +7,46 @@ project "Editor"
     objdir(objBuildPath .. "/%{prj.name}")
 
     local vkPath = os.getenv("VULKAN_SDK")
-	
-    includedirs 
-	{
-        "../include",
-        "../include/**",
-        "../Editor/include",
-        "../Editor/include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+
+    if _TARGET_OS == "windows" then
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine"
+        }
+
+    end
 
     dependson 
 	{
@@ -31,13 +61,6 @@ project "Editor"
         "../Editor/src/**.cpp"
     }
 	
-    libdirs 
-	{
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64",
-        targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
-    }
 
     links 
 	{

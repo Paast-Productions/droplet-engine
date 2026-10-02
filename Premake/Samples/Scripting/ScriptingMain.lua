@@ -17,15 +17,27 @@ project "Scripting-Main"
         targetBuildPath .. "/External/lib",
         targetBuildPath .. "/External/bin"
     }
-    
-    
-    local vkPath = os.getenv("VULKAN_SDK")
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+    if _TARGET_OS == "windows" then
+
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            rootPath .. "/include",
+            vkPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson {
         "Engine",

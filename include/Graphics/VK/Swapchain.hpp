@@ -23,8 +23,8 @@ namespace Droplet::Graphics::VK
 		{
 			m_swapchain = { p_nullptr };
 			m_swapchainImages = {};
-			m_swapchainSurfaceFormat = {};
-			m_swapchainExtent = {};
+			m_swapchainSurfaceFormat = vk::SurfaceFormatKHR{};
+			m_swapchainExtent = vk::Extent2D{};
 		}
 		
 		Swapchain(const Swapchain &p_other) = delete;
@@ -81,23 +81,23 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Swapchain extent getter
 		/// @return The swapchain extent
-		vk::Extent2D GetExtent() const;
+		[[nodiscard]] vk::Extent2D GetExtent() const;
 
 		/// @brief Surface format getter
 		/// @return Reference to the swapchain surface format
-		const vk::SurfaceFormatKHR &GetSurfaceFormat() const;
+		[[nodiscard]] const vk::SurfaceFormatKHR &GetSurfaceFormat() const;
 
 		/// @brief Swapchain imageview getter
 		/// @return Pointer to the swapchain image views
-		const std::vector<vk::raii::ImageView> &GetImageViews() const;
+		[[nodiscard]] const std::vector<vk::raii::ImageView> &GetImageViews() const;
 
 		/// @brief Swapchain iamge getter
 		/// @return Pointer to the swapchain images
-		const std::vector<vk::Image> &GetImages() const;
+		[[nodiscard]] const std::vector<vk::Image> &GetImages() const;
 
 		/// @brief Swapchain getter
 		/// @return Pointer to the swapchain
-		const vk::raii::SwapchainKHR &Get() const;
+		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const;
 	private:
 
 		/// @brief Class helper function for creating/recreating the swapchain
