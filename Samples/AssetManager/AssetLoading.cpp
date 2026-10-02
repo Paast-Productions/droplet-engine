@@ -32,7 +32,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     resourceManager.Initialize(assetDir);
     
     // Register an asset
-    resourceManager.RegisterAsset(assetDir / "CorruptedWoodFish.fbx");
+    resourceManager.RegisterAsset(assetDir / "CorruptedWoodFish1.fbx");
     Sleep(5);
     resourceManager.Update();
     
