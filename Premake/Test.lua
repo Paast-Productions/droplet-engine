@@ -14,8 +14,6 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
     includedirs
     {
         "../include", 
@@ -34,11 +32,13 @@ project "Test"
         "GoogleTest",
         "Engine",
         "Sol2",
+        "tracy"
     }
 
     links
     {
         "Engine", 
         "gtest",
+        "tracy",
         "lua-5.4.7"
     }

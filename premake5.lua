@@ -54,6 +54,7 @@ include "Premake/Samples/Scripting/ScriptingMain"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
+include "Premake/External/tracy"
 include "Premake/External/VulkanMemoryAllocator"
 
 if _TARGET_OS == 'windows' then
