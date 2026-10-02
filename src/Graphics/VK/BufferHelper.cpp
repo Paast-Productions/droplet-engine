@@ -51,7 +51,7 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(const vk::raii:
 	});
 }*/
 
-void TransitionImageLayout(Droplet::Graphics::VK::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
+void TransitionImageLayout(const vk::raii::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
 {
 	vk::ImageMemoryBarrier barrier{ .oldLayout = p_oldLayout,
 								   .newLayout = p_newLayout,
@@ -83,5 +83,5 @@ void TransitionImageLayout(Droplet::Graphics::VK::CommandBuffer &p_commandBuffer
 	{
 		throw std::invalid_argument("unsupported layout transition!");
 	}
-	p_commandBuffer.Get().pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
+	p_commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
 }

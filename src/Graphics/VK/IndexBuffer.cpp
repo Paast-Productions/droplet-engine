@@ -9,7 +9,7 @@ IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator, const std::vec
 	const vk::BufferCreateInfo bufferCreateInfo 
 	{
 		.size = bufferSize,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
+		.usage = vk::BufferUsageFlagBits::eIndexBuffer,
 		.sharingMode = vk::SharingMode::eExclusive
 	};
 	

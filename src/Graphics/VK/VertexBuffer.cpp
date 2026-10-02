@@ -9,7 +9,7 @@ VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::v
 	const vk::BufferCreateInfo bufferCreateInfo
 	{
 		.size = bufferSize,
-		.usage = vk::BufferUsageFlagBits::eTransferSrc,
+		.usage = vk::BufferUsageFlagBits::eVertexBuffer,
 		.sharingMode = vk::SharingMode::eExclusive
 	};
 	

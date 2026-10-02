@@ -2,6 +2,7 @@
 
 #include <print>
 #include <iostream>
+#include <Graphics/Vk/BufferHelper.hpp>
 
 using namespace Droplet::Graphics::VK;
 
@@ -171,7 +172,11 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	p_commandBuffer.begin(beginInfo);
 	p_commandBuffer.pipelineBarrier2(stagingDependencyInfo);
+
+	//TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 	p_commandBuffer.copyBufferToImage2(copyBufferToImageInfo);
+	//TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+
 	p_commandBuffer.pipelineBarrier2(imageDependencyInfo);
 	p_commandBuffer.end();
 }
