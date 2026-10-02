@@ -21,7 +21,6 @@ namespace Droplet
         try
         {
             m_registry.ScanDirectory(p_rootDirectory);
-
         }
         catch (...)
         {
@@ -31,6 +30,7 @@ namespace Droplet
         }
         
         m_isInitialized = true;
+        m_rootDirectory = p_rootDirectory;
     }
 
     void ResourceManager::Update()
@@ -46,16 +46,16 @@ namespace Droplet
         {
             // Compare found resources with ones already registered for this asset (if there are any) and determine
             // which are old (keep), which are new (add) and which have been erased (remove).
-            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.assetPathStr, regRes.foundResources);
+            std::vector<MetaEntry> newMetaData = CompareAndCompileMetaData(regRes.relAssetPath, regRes.foundResources);
                 
             // Update internal catalog
             for (const auto &entry : newMetaData)
             {
-                m_registry.RegisterMetaEntry(regRes.assetPathStr, entry);
+                m_registry.RegisterMetaEntry(regRes.relAssetPath.generic_string(), entry);
             }
                 
             // Push metafile write operation to worker thread
-            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.metaPath), metaData = std::move(newMetaData)]()
+            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.absoluteMetaPath), metaData = std::move(newMetaData)]()
             {
                MetaUtils::Write(metaPath, metaData); 
             });
@@ -79,6 +79,15 @@ namespace Droplet
             {
                 liveResource.state = ResourceState::Failed;
                 delete loadRes.resource; // Safety delete (resource should already be nullptr)
+                
+                // Trigger callbacks
+                std::vector<std::function<void()>> callbacksToInvoke;
+                callbacksToInvoke.swap(liveResource.loadCallbacks);
+                for (auto &callback : callbacksToInvoke)
+                {
+                    callback();
+                }
+                
                 continue;
             }
             liveResource.resource.reset(loadRes.resource);
@@ -122,33 +131,41 @@ namespace Droplet
         }
     }
 
-    void ResourceManager::RegisterAsset(const std::filesystem::path &p_assetPath)
+    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
         
-        std::string assetPathStr = p_assetPath.generic_string();
-        std::filesystem::path metaPath = assetPathStr + ".meta";
+        std::filesystem::path relAssetPath(p_relAssetPath);
+        if (relAssetPath.is_absolute())
+        {
+            // TODO: Log error here
+            return;
+        }
         
-        std::string ext = p_assetPath.extension().generic_string();
+        // Calculate absolute path for loaders
+        std::filesystem::path absAssetPath = m_rootDirectory / relAssetPath;
+        std::filesystem::path absMetaPath = absAssetPath.generic_string() + ".meta";
+        
+        std::string ext = absAssetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-        ThreadPool::GetInstance().PushTask([this, p_assetPath, assetPathStr, metaPath, ext](){
+        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, ext](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
-            res.assetPathStr = std::move(assetPathStr);
-            res.metaPath = std::move(metaPath);
+            res.relAssetPath = relAssetPath; // Relative for registry
+            res.absoluteMetaPath = absMetaPath; // Absolute for meta write
             
             if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
             {
-                res.foundResources = AssimpLoader::ListAssetResources(p_assetPath);
+                res.foundResources = AssimpLoader::ListAssetResources(absAssetPath);
             }
             else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
             {
-                res.foundResources = GliLoader::ListAssetResources(p_assetPath);
+                res.foundResources = GliLoader::ListAssetResources(absAssetPath);
             }
             else if (ext == ".slang")
             {
-                res.foundResources = SlangLoader::ListAssetResources(p_assetPath);
+                res.foundResources = SlangLoader::ListAssetResources(absAssetPath);
             }
             
             m_asyncRegisterResults.Push(res);
@@ -179,7 +196,7 @@ namespace Droplet
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
         {
-            if (it->second.refCount - 1 == 0)
+            if (--it->second.refCount == 0)
             {
                 m_liveResources.erase(it);
             }
@@ -214,11 +231,11 @@ namespace Droplet
         return ResourceState::Unloaded;
     }
 
-    std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::string &p_assetPath,
+    std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,
         const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
     {
         std::vector<MetaEntry> oldMetaData;
-        m_registry.GetCachedMetaDataForAsset(p_assetPath, oldMetaData); // If it fails, old metadata remains empty
+        m_registry.GetCachedMetaDataForAsset(p_relAssetPath.generic_string(), oldMetaData); // If it fails, old metadata remains empty
         
         std::vector<MetaEntry> out;
         out.reserve(p_foundResources.size());
@@ -242,7 +259,7 @@ namespace Droplet
             else
             {
                 // Resource does not exist in the old metadata -> create a new entry for it
-                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName, p_assetPath));
+                out.push_back(MetaUtils::GenerateDefaultMetaEntry(foundType, foundName, p_relAssetPath.generic_string()));
             }
         }
         

@@ -1,7 +1,5 @@
 ﻿#include "resource/ResourceRegistry.hpp"
 
-#include <Windows.h>
-
 #include "resource/meta/MetaUtils.hpp"
 
 namespace Droplet
@@ -17,17 +15,18 @@ namespace Droplet
         {
             if (item.is_regular_file() && item.path().extension() == ".meta")
             {
-                std::filesystem::path metaPath = item.path();
-                metaPath.replace_extension(""); // Remove ".meta" from the path
-                
-                std::string assetPath = metaPath.generic_string();
-                
                 std::vector<MetaEntry> entries;
                 if (MetaUtils::Read(item.path(), entries))
                 {   
-                    for (const auto& entry : entries)
+                    // Calculate the relative asset path
+                    std::filesystem::path absAssetPath = item.path();
+                    absAssetPath.replace_extension(""); // Drop .meta
+                    std::string relAssetPath = std::filesystem::relative(absAssetPath, p_directory).generic_string();
+                    
+                    for (auto &entry : entries)
                     {
-                        RegisterMetaEntry(assetPath, entry);
+                        entry.relAssetPath = relAssetPath;
+                        RegisterMetaEntry(entry.relAssetPath, entry);
                     }
                 }
                 else
@@ -87,11 +86,11 @@ namespace Droplet
         return result;
     }
 
-    void ResourceRegistry::RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry)
+    void ResourceRegistry::RegisterMetaEntry(const std::string &p_relAssetPath, const MetaEntry &p_metaEntry)
     {
         m_guidToEntryMap[p_metaEntry.guid] = p_metaEntry;
         
-        auto &guidList = m_assetToResourcesMap[p_assetPath];
+        auto &guidList = m_assetToResourcesMap[p_relAssetPath];
         if (std::find(guidList.begin(), guidList.end(), p_metaEntry.guid) == guidList.end())
         {
             guidList.push_back(p_metaEntry.guid);

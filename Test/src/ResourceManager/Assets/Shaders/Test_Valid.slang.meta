@@ -2,12 +2,12 @@
     "resources": [
         {
             "dependencies": [],
+            "name": "Test_Valid",
             "guid": 600,
             "loadFlags": 2,
             "loadSettings": {
                 "shader_type": 0
             },
-            "path": "Test_Valid.slang",
             "type": 6
         }
     ]

@@ -35,9 +35,9 @@ namespace Droplet
         std::vector<const MetaEntry *> GetEntries(ResourceType p_type = ResourceType::None) const;
 
         /// @brief Registers and updates a resource in the registry.
-        /// @param p_assetPath The path to the asset file.
+        /// @param p_relAssetPath The path to the asset file relative to the directory that was scanned for meta entries.
         /// @param p_metaEntry The meta entry to be registered.
-        void RegisterMetaEntry(const std::string &p_assetPath, const MetaEntry &p_metaEntry);
+        void RegisterMetaEntry(const std::string &p_relAssetPath, const MetaEntry &p_metaEntry);
         
     private:
         std::unordered_map<GUID, MetaEntry> m_guidToEntryMap;

@@ -51,8 +51,8 @@ namespace Droplet
     /// @brief The package sent back from a worker thread after a register operation has been completed.
     struct AsyncRegisterResult
     {
-        std::string assetPathStr;
-        std::filesystem::path metaPath;
+        std::filesystem::path relAssetPath;
+        std::filesystem::path absoluteMetaPath;
         std::vector<std::pair<ResourceType, std::string>> foundResources;
     };
 
@@ -64,16 +64,16 @@ namespace Droplet
         ~ResourceManager() = default;
 
         /// @brief Initializes the resource manager for a specific root directory.
-        /// @param p_rootDirectory The root directory that containing all assets that the manager should be able to load
-        /// resources from.
+        /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
+        /// be able to load resources from.
         void Initialize(const std::filesystem::path &p_rootDirectory);
 
         /// @brief Should be called every frame. Processes the internal task queues.
         void Update();
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
-        /// @param p_assetPath The path to the asset to be registered. Must be within 
-        void RegisterAsset(const std::filesystem::path &p_assetPath);
+        /// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
+        void RegisterAsset(const std::filesystem::path &p_relAssetPath);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
@@ -133,7 +133,8 @@ namespace Droplet
                 ThreadPool::GetInstance().PushTask([this, p_guid, metaEntry]()
                 {
                     // --- Async Worker Thread ---
-                    std::unique_ptr<T> loadedResource = ResourceLoaderTraits<T>::LoadCPU(metaEntry.assetPath, metaEntry.loadSettings);
+                    std::filesystem::path absAssetPath = m_rootDirectory / metaEntry.relAssetPath;
+                    std::unique_ptr<T> loadedResource = ResourceLoaderTraits<T>::LoadCPU(absAssetPath, metaEntry.loadSettings);
                     
                     AsyncLoadResult res;
                     res.succeeded = (loadedResource != nullptr);
@@ -193,13 +194,14 @@ namespace Droplet
     private:
         /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
         /// were found in the asset file.
-        /// @param p_assetPath The path to the asset file that the resource is stored in.
+        /// @param p_relAssetPath The path to the asset file that the resource is stored in.
         /// @param p_foundResources The resources found in the asset file.
         /// @return The updated list of resources that should be listed for the asset.
-        std::vector<MetaEntry> CompareAndCompileMetaData(const std::string &p_assetPath, 
+        std::vector<MetaEntry> CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath, 
             const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
         
         bool m_isInitialized = false;
+        std::filesystem::path m_rootDirectory; // Absolute path to the root directory
         ResourceRegistry m_registry;
         std::unordered_map<GUID, LiveResource> m_liveResources;
         

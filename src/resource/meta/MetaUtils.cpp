@@ -31,7 +31,7 @@ namespace Droplet
                     MetaEntry resourceData;
                     resourceData.guid = entry.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
-                    resourceData.assetPath = entry.value("path", std::string{});
+                    resourceData.name = entry.value("name", "");
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.dependencies = entry.value("dependencies", std::vector<GUID>{});
                     resourceData.loadSettings = entry.value("loadSettings", json::object());
@@ -67,7 +67,7 @@ namespace Droplet
             
             j["guid"] = resourceData.guid;
             j["type"] = static_cast<uint8_t>(resourceData.type);
-            j["path"] = resourceData.assetPath;
+            j["name"] = resourceData.name;
             j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
             j["dependencies"] = resourceData.dependencies;
             j["loadSettings"] = resourceData.loadSettings;
@@ -122,13 +122,13 @@ namespace Droplet
         return ShaderResource::ShaderType::Vertex; // Default to vertex
     }
 
-    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath, const json &p_explicitLoadSettings)
+    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_relAssetPath, const json &p_explicitLoadSettings)
     {
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
         entry.type = p_type;
         entry.name = p_name;
-        entry.assetPath = p_assetPath;
+        entry.relAssetPath = p_relAssetPath;
         
         // Set type-specific flags
         switch (p_type)
@@ -151,7 +151,7 @@ namespace Droplet
             break;
         case ResourceType::Shader:
             entry.loadFlags = ResourceLoadFlag::LoadGPU;
-            entry.loadSettings["shader_type"] = EvaluateShaderTypeFromPath(p_assetPath);
+            entry.loadSettings["shader_type"] = EvaluateShaderTypeFromPath(p_relAssetPath);
             break;
         case ResourceType::Material:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
