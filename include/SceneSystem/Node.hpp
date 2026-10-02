@@ -9,6 +9,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <Transform.hpp>
+#include "BoundingBox.hpp"
 
 namespace Droplet::Scene
 {
@@ -227,6 +228,24 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const std::shared_ptr<Component> &p_component);
 
+        // --------------------------------------------------
+        // Bounds
+        // --------------------------------------------------
+
+        /// @brief Gets the Node's local-space bounding box.
+        [[nodiscard]] const BoundingBox &GetBounds() const;
+
+        /// @brief Sets the Node's local-space bounding box.
+        void SetBounds(const BoundingBox &p_bounds);
+
+        /// @brief Gets the Node's world-space bounding box.
+        [[nodiscard]] BoundingBox GetWorldBounds() const;
+
+        /// @brief Gets whether the Node should participate in bounds checks.
+        [[nodiscard]] bool IsBoundsEnabled() const;
+
+        /// @brief Enables or disables bounds checks for this Node.
+        void SetBoundsEnabled(bool p_enabled);
 
     private:
         std::string m_name;
@@ -266,5 +285,10 @@ namespace Droplet::Scene
         // Components
 
         std::vector<std::shared_ptr<Component>> m_components{};
+
+        // Bounds
+
+        BoundingBox m_bounds{};
+        bool m_boundsEnabled = true;
     };
 }

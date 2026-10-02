@@ -252,3 +252,23 @@ std::shared_ptr<Node> Node::GetParent() const
 {
     return m_parent.lock();
 }
+
+const BoundingBox &Node::GetBounds() const
+{
+    return m_bounds;
+}
+
+void Node::SetBounds(const BoundingBox &p_bounds)
+{
+    m_bounds = p_bounds;
+}
+
+bool Node::IsBoundsEnabled() const
+{
+    return m_boundsEnabled;
+}
+
+void Node::SetBoundsEnabled(bool p_enabled)
+{
+    m_boundsEnabled = p_enabled;
+}
