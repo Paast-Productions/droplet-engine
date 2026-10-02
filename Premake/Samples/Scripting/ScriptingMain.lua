@@ -45,7 +45,7 @@ project "Scripting-Main"
 
     dependson {
         "Engine",
-        --"ImGui",
+        "ImGui",
         "Sol2",
         "tracy"
     }
