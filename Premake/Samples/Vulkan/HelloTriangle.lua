@@ -28,12 +28,14 @@ project "Vulkan-HelloTriangle"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd")
