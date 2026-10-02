@@ -27,7 +27,8 @@ project "SceneSystem"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+		"bvh"
     }
 
     links {

@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+#include <bvh/v2/bvh.h>
+#include <bvh/v2/node.h>
+#include <bvh/v2/default_builder.h>
+
 namespace Droplet
 {
     /// @brief Class for mesh resources.
@@ -16,6 +20,8 @@ namespace Droplet
 		struct MeshBVH
 		{
 			// TODO
+			bvh::v2::Bvh<> bvh;	// Bounding volume hierarchy for the mesh
+			auto bvh = bvh::v2::DefaultBuilder<Node>::build(thread_pool, bboxes, centers, config);
 		};
 
 		/// @brief Sets the mesh data for the resource.
