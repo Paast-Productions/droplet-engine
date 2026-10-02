@@ -14,6 +14,7 @@
 #include <cstdint> // Necessary for uint32_t
 #include <filesystem>
 #include <string>
+#include <chrono>
 
 #include <SDL3/SDL_vulkan.h>
 #include <Graphics/VK/UniformBuffer.hpp>
@@ -32,23 +33,19 @@ constexpr bool enableValidationLayers = true;
 using namespace Droplet::Graphics;
 
 Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window { p_windowConfig },
-	m_context { m_window.Get(), m_vkContext },
-	m_allocator { m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_swapchain { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
-	m_commandPool { m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
-	m_depthBuffer { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer { m_allocator.Get(), G_INDICES },
-	m_vertexBuffer { m_allocator.Get(), G_VERTICES }
+	m_window		{ p_windowConfig },
+	m_context		{ m_window.Get(), m_vkContext },
+	m_allocator		{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_commandPool	{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
+	m_swapchain		{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+	m_depthBuffer	{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
+	m_indexBuffer	{ m_allocator.Get(), G_INDICES },
+	m_vertexBuffer	{ m_allocator.Get(), G_VERTICES }
 {
 	// TODO: <REFACTOR>
 	CreateDescriptorSetLayout();
 	
 	CreateGraphicsPipeline();
-
-	CreateTextureSampler();
-
-	CreateDescriptorPool();
 
 	for (auto &uniformBuffer : m_uniformBuffers)
 	{
@@ -80,6 +77,10 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		m_image.Get()
 	};
 	
+	CreateTextureSampler();
+
+	CreateDescriptorPool();
+
 	CreateDescriptorSets();
 
 	CreateSyncObjects();
@@ -365,7 +366,22 @@ void Renderer::drawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	m_uniformBuffers[m_frameIndex].UpdateBuffer(m_swapchain.GetExtent());
+
+	///TEMP CHRONO AND BUFFER UPDATE CODE
+	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+	static TimePoint s_startTime{ std::chrono::high_resolution_clock::now() };
+	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
+	const float time = { std::chrono::duration<float>(currentTime - s_startTime).count() };
+
+	const VK::UniformBufferObject ubo
+	{
+		.model = rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
+	};
+	/////////
+
+	m_uniformBuffers[m_frameIndex].UpdateBuffer(ubo);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
