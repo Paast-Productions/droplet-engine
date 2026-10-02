@@ -28,7 +28,6 @@ project "Engine"
         --"GoogleTest",
         "ImGui",
         "Sol2",
-        "Lua",
         "json",
         "tracy",
         "VulkanMemoryAllocator"

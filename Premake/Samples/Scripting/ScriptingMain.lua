@@ -31,7 +31,6 @@ project "Scripting-Main"
         "Engine",
         --"ImGui",
         "Sol2",
-        "Lua",
         "tracy"
     }
 

@@ -40,5 +40,5 @@ project "Test"
         "Engine", 
         "gtest",
         "tracy",
-        AddQuotation("lua-5.4.7")
+        "lua-5.4.7"
     }
