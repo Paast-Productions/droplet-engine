@@ -14,8 +14,6 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
     includedirs
     {
         "../include", 
@@ -26,7 +24,8 @@ project "Test"
     libdirs
     {
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
+        targetBuildPath .. "/External/lib64",
+        vkPath .. "/Lib"
     }
 
     dependson 
@@ -40,5 +39,8 @@ project "Test"
     {
         "Engine", 
         "gtest",
-        AddQuotation("lua-5.4.7")
+        AddQuotation("lua-5.4.7"),
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

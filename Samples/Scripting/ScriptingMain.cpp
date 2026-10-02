@@ -8,6 +8,7 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
+#include "GameInput.hpp"
 
 #include "Time.hpp"
 
@@ -109,17 +110,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // Activate the scene
     // ==================================================
 
+    SDL_CreateWindow("Droplet", 1280, 720, SDL_WINDOW_VULKAN);
+
     sceneManager.ActivateScene("Game");
 
     //ScriptBehaviour scriptBehaviour("testScript.lua");
 
     ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
+    
     ScriptSystem::Get().Start();
 
     while (true)
     {
-        time.Update();
+        Droplet::GameInput::Get().Update();
 
         ScriptSystem::Get().Update(time.GetDeltaTime());
     }

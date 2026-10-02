@@ -32,13 +32,25 @@ namespace Droplet::Script
 		/// Exposes the functionality of Node that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterNode(sol::state_view p_luaState);
+		/// @brief Registers the Transform
+		/// Exposes the functionality of Transform that is intended to be accessible from Lua scripts.
+		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterTransform(sol::state_view p_luaState);
+		/// @brief Registers the GLM type with Lua.
+		/// Exposes the functionality of GLM that is intended to be accessible from Lua scripts.
+		/// @param p_luaState Lua state in which the Node bindings should be registered.
 		static void RegisterGLM(sol::state_view p_luaState);
+		/// @brief Registers the GameInput type with Lua.
+		/// Exposes the functionality of GameInput that is intended to be accessible from Lua scripts.
+		/// @param p_luaState Lua state in which the Node bindings should be registered.
+		static void RegisterInput(sol::state_view p_luaState);
 
 		// TODO: Implement additional engine bindings as functionality is added.
 
 	private:
+		/// @brief vector of all GlobalFunctionDefinition for .d.lua file
 		static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
+		/// @brief vector of all LuaClassDefinition for .d.lua file
 		static std::vector<LuaClassDefinition> m_luaClassDefinitions;
 	};
 }
