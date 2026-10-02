@@ -173,9 +173,9 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	p_commandBuffer.begin(beginInfo);
 	p_commandBuffer.pipelineBarrier2(stagingDependencyInfo);
 
-	//TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+	TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 	p_commandBuffer.copyBufferToImage2(copyBufferToImageInfo);
-	//TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+	TransitionImageLayout(p_commandBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
 
 	p_commandBuffer.pipelineBarrier2(imageDependencyInfo);
 	p_commandBuffer.end();

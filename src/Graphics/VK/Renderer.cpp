@@ -205,17 +205,9 @@ void Renderer::TransitionImageLayout(
 		.pImageMemoryBarriers = &barrier 
 	};
 	
-	vk::CommandBufferBeginInfo beginInfo 
-	{
-		.sType = vk::StructureType::eCommandBufferBeginInfo,
-		.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
-	};
-	
 	const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 	
-	commandBuffer.begin(beginInfo);
 	commandBuffer.pipelineBarrier2(dependencyInfo);
-	commandBuffer.end();
 }
 
 
@@ -223,6 +215,8 @@ void Renderer::TransitionImageLayout(
 void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
 	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+
+	commandBuffer.begin({});
 
 	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
 	TransitionImageLayout(
@@ -287,7 +281,6 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	};
 	
 	
-	commandBuffer.begin({});
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
@@ -297,7 +290,6 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	commandBuffer.endRendering();
-	commandBuffer.end();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 	
 	TransitionImageLayout(
@@ -310,6 +302,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::PipelineStageFlagBits2::eBottomOfPipe,
 		vk::ImageAspectFlagBits::eColor
 	);
+
+	commandBuffer.end();
 }
 
 //Need to create fences and semaphores for each frame in flight
