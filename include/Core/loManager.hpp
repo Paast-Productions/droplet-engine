@@ -12,21 +12,15 @@ namespace Droplet::Core::JsonIO
 		};
 
 		/// @brief Reads data from a JSON file.
-		/// JSON error handling is done using the log function.
-		/// The logger class logs the error to the logger.json file.
 		/// @param p_path The name of the JSON file to read from.
 		nlohmann::json Read(const std::string &p_path);
 
 		/// @brief Writes data to a JSON file.
-		/// JSON error handling is done using the log function.
-		/// The logger class logs the error to the logger.json file.
 		/// @param p_path The name of the JSON file to write to.
 		/// @param p_data The data to be loaded to the JSON file.
 		void Write(const std::string &p_path, const nlohmann::json &p_data);
 
 		/// @brief Modifies data in a JSON file based on the specified action.
-		/// JSON error handling is done using the log function.
-		/// The logger class logs the error to the logger.json file.
 		/// @param p_path The name of the JSON file to modify.
 		/// @param p_data The data to be used for the modification.
 		/// @param p_modifyAction The action to perform (insert or delete).
