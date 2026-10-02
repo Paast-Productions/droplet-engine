@@ -103,21 +103,18 @@ TEST_F(ResourceRegistryScanTest, ScanDirectoryValid)
     ASSERT_NO_THROW(registry.ScanDirectory(m_scanDir));
     
     // Verify the registry found and parsed your specific hardcoded files
-    // (We don't check total size here, because you might add more meta files to this folder later!)
     EXPECT_NO_THROW(registry.GetResourceMetaData(500));
     EXPECT_NO_THROW(registry.GetResourceMetaData(600));
 
-    // Let's go a step further and ensure it parsed your JSON correctly
+    // Ensure it parsed your JSON correctly
     MetaEntry texEntry = registry.GetResourceMetaData(500);
-    EXPECT_EQ(texEntry.assetPath, "Test_BlackPixel.png");
-    // Assuming ResourceType::Texture2D == 1 based on your JSON
-    EXPECT_EQ(static_cast<uint8_t>(texEntry.type), 1); 
+    EXPECT_EQ(texEntry.relAssetPath, "Textures/Test_BlackPixel.png");
+    EXPECT_EQ(static_cast<uint8_t>(texEntry.type), static_cast<uint8_t>(ResourceType::Texture2D)); 
     EXPECT_EQ(texEntry.loadSettings["generate_mipmaps"], false);
 
     MetaEntry shaderEntry = registry.GetResourceMetaData(600);
-    EXPECT_EQ(shaderEntry.assetPath, "Test_Valid.slang");
-    // Assuming ResourceType::Shader == 6 based on your JSON
-    EXPECT_EQ(static_cast<uint8_t>(shaderEntry.type), 6);
+    EXPECT_EQ(shaderEntry.relAssetPath, "Shaders/Test_Valid.slang");
+    EXPECT_EQ(static_cast<uint8_t>(shaderEntry.type), static_cast<uint8_t>(ResourceType::Shader));
 }
 
 TEST_F(ResourceRegistryScanTest, ScanDirectoryInvalidThrows)
