@@ -8,6 +8,8 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
+#include "Serialization/SceneSerializer.hpp"
+
 using namespace Droplet::Scene;
 
 class PlayerComponent : public Component
