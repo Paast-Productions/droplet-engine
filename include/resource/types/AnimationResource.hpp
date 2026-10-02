@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace Droplet
 {
@@ -29,6 +30,10 @@ namespace Droplet
 			float time = 0.0f;
 			std::vector<BoneKeyframe> boneKeyframes{};
 		};
+
+        /// @brief Generates a fallback instance of an animation resource (0 duration).
+        /// @return The animation.
+        static std::unique_ptr<AnimationResource> CreateFallback();
 	    
 	    /// @brief Sets the animation name
 	    /// @param p_name The animation name to be set

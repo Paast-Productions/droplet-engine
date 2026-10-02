@@ -4,6 +4,25 @@
 
 namespace Droplet
 {
+    std::unique_ptr<AnimationResource> AnimationResource::CreateFallback()
+    {
+        auto fallback = std::make_unique<AnimationResource>();
+        
+        fallback->SetName("Fallback_Animation");
+        fallback->SetIsLooping(false);
+        
+        AnimKeyframe dummyFrame;
+        dummyFrame.time = 0.0f;
+        
+        // Create one keyframe at 0.0
+        // Leave boneKeyFrames empty so it does not manipulate any bones
+        std::vector<AnimKeyframe> keyframes;
+        keyframes.push_back(dummyFrame);
+        fallback->SetKeyframes(keyframes);
+        
+        return fallback;
+    }
+
     void AnimationResource::SetName(const std::string &p_name)
     {
         m_name = p_name;

@@ -135,7 +135,11 @@ namespace Droplet
                 // TODO: Log error
                 return nullptr;
             }
-
+        }
+        
+        static std::unique_ptr<AnimationResource> CreateFallback()
+        {
+            return AnimationResource::CreateFallback();
         }
     };
     
