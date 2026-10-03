@@ -1,9 +1,25 @@
+#include <gtest/gtest.h>
 #include "core/MeshBVH.hpp"
 #include <vector>
 
-#include <gtest/gtest.h>
-
 using namespace Droplet;
+
+class TestMeshBVH : public MeshBVH
+{
+public:
+	std::shared_ptr<bvh::v2::Bvh<bvh::v2::Node<float, 3>>>	&GetBVH()				{ return m_bvh; }
+	std::vector<bvh::v2::PrecomputedTri<float>>				&GetPrecomputedTris()	{ return m_precomputedTris; }
+};
+
+class MeshBVHTest : public ::testing::Test
+{
+protected:
+
+	void SetUp() override
+	{
+
+	}
+};
 
 namespace
 {
@@ -17,8 +33,20 @@ namespace
 		return mesh;
 	}
 
-	// Create a simple triangle mesh with one triangle
-	const std::vector<glm::vec3> &SimpleTriangleMesh()
+	// Create a triangle mesh with a degenerate triangle
+	const std::vector<glm::vec3> &InvalidTriangleMesh()
+	{
+		static std::vector<glm::vec3> mesh = {
+			{ 0.0f, 0.0f, 0.0f },	// Vertex 1
+			{ 0.0f, 0.0f, 0.0f },	// Vertex 2
+			{ 1.0f, 1.0f, 0.0f },	// Vertex 3
+		};
+
+		return mesh;
+	}
+
+	// Create a triangle mesh with one triangle
+	const std::vector<glm::vec3> &TriangleMesh()
 	{
 		static std::vector<glm::vec3> mesh = {
 			{ 0.0f, 0.0f, 0.0f },	// Vertex 1
@@ -29,8 +57,8 @@ namespace
 		return mesh;
 	}
 
-	// Create a simple quad mesh with two triangles
-	const std::vector<glm::vec3> &SimpleQuadMesh()
+	// Create a quad mesh with two triangles
+	const std::vector<glm::vec3> &QuadMesh()
 	{
 		static std::vector<glm::vec3> mesh = {
 			{ 0.0f, 0.0f, 0.0f },	// Vertex 1
@@ -45,8 +73,8 @@ namespace
 		return mesh;
 	}
 
-	// Create a simple cube mesh with 12 triangles
-	const std::vector<glm::vec3> &SimpleCubeMesh()
+	// Create a cube mesh with 12 triangles
+	const std::vector<glm::vec3> &CubeMesh()
 	{
 		static std::vector<glm::vec3> mesh = {
 			// Front (z = 1)
@@ -76,33 +104,38 @@ namespace
 
 		return mesh;
 	}
-
-	// Create a triangle mesh with a degenerate triangle
-	const std::vector<glm::vec3> &InvalidTriangleMesh()
-	{
-		static std::vector<glm::vec3> mesh = {
-			{ 0.0f, 0.0f, 0.0f },	// Vertex 1
-			{ 0.0f, 0.0f, 0.0f },	// Vertex 2
-			{ 1.0f, 1.0f, 0.0f },	// Vertex 3
-		};
-
-		return mesh;
-	}
 }
 
-class MeshBVHTest : public ::testing::Test
-{
 
-};
+// Construction
 
-class TestMeshBVH : public MeshBVH
+TEST(MeshBvhTest, ConstructTriangleBVH)
 {
-public:
-	std::shared_ptr<bvh::v2::Bvh<bvh::v2::Node<float, 3>>>	&GetBVH()				{ return m_bvh; }
-	std::vector<bvh::v2::PrecomputedTri<float>>				&GetPrecomputedTris()	{ return m_precomputedTris; }
-};
+	TestMeshBVH bvh(TriangleMesh());
+}
 
-TEST(MeshBvhTest, ConstructSimpleBVH)
+// Raycasting
+
+TEST(MeshBvhTest, RaycastTriangleHit)
 {
-	TestMeshBVH bvh(SimpleTriangleMesh());
+	TestMeshBVH bvh(TriangleMesh());
+
+	auto hit = bvh.Raycast(glm::vec3(0.5f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, 1.0f, 1e-6f);
+}
+
+TEST(MeshBvhTest, RaycastTriangleMiss)
+{
+	TestMeshBVH bvh(TriangleMesh());
+
+	auto hit = bvh.Raycast(glm::vec3(1.5f, 1.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	EXPECT_FALSE(hit.didHit);
+}
+
+TEST(MeshBvhTest, RaycastQuadHit)
+{
+	TestMeshBVH bvh(QuadMesh());
 }
