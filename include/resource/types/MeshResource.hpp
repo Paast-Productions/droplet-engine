@@ -1,7 +1,7 @@
 #pragma once
 #include <resource/IResource.hpp>
 #include <resource/loaders/BvhLoader.hpp>
-#include <core/MeshBVH.hpp>
+#include <math/MeshBVH.hpp>
 
 #include <string>
 #include <vector>
@@ -48,7 +48,7 @@ namespace Droplet
 
 		/// @brief Gets the bounding volume hierarchy (BVH) for the mesh resource.
 		/// @return A reference to the BVH for the mesh resource.
-		[[nodiscard]] const MeshBVH &GetBVH() const { return m_bvh; }
+		[[nodiscard]] const Math::MeshBVH &GetBVH() const { return m_bvh; }
 
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
@@ -57,6 +57,6 @@ namespace Droplet
 		std::size_t						m_vertexByteSize = 0;	// Byte size of a single vertex
 		std::vector<VertexAttribute>	m_vertexLayout{};		// List of attribute names and their byte sizes
 
-		MeshBVH							m_bvh{};				// Bounding volume hierarchy for the mesh
+		Math::MeshBVH					m_bvh{};				// Bounding volume hierarchy for the mesh
 	};
 }

@@ -1,12 +1,13 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <math/Ray.hpp>
 #include <glm/glm.hpp>
 #include <bvh/v2/bvh.h>
 #include <bvh/v2/node.h>
 #include <bvh/v2/tri.h>
 
-namespace Droplet
+namespace Droplet::Math
 {
 	/// @brief Class for a mesh bounding volume hierarchy (BVH).
 	class MeshBVH
@@ -40,7 +41,7 @@ namespace Droplet
 		/// @return A RayHit struct containing information about the result.
 		/// @throw std::runtime_error If the BVH is not initialized.
 		/// @throw std::invalid_argument If the minimum distance is greater than or equal to the maximum distance.
-		[[nodiscard]] RayHit Raycast(const glm::vec3 &p_rayOrigin, const glm::vec3 &p_rayDirection, float p_minDist = 0.0f, float p_maxDist = -1.0f) const;
+		[[nodiscard]] RayHit Raycast(const Math::Ray &p_ray, float p_minDist = 0.0f, float p_maxDist = -1.0f) const;
 
 	protected:
 		std::shared_ptr<bvh::v2::Bvh<bvh::v2::Node<float, 3>>>	m_bvh{nullptr};

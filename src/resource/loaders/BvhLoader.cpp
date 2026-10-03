@@ -1,4 +1,4 @@
-#include "BvhLoader.hpp"
+#include "resource/loaders/BvhLoader.hpp"
 #include <resource/types/MeshResource.hpp>
 #include <vector>
 
@@ -49,5 +49,5 @@ void Droplet::BvhLoader::GenerateMeshBVH(MeshResource &p_meshResource)
 		tris.push_back(position);
     }
 
-	p_meshResource.m_bvh = MeshBVH(tris);
+	p_meshResource.m_bvh = Math::MeshBVH(tris);
 }
