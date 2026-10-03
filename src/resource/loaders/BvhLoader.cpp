@@ -1,4 +1,5 @@
 #include "resource/loaders/BvhLoader.hpp"
+#include <math/bounds/MeshBVH.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <vector>
 

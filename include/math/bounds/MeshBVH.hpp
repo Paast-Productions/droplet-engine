@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <math/Ray.hpp>
+#include <math/bounds/Ray.hpp>
 #include <glm/glm.hpp>
 #include <bvh/v2/bvh.h>
 #include <bvh/v2/node.h>

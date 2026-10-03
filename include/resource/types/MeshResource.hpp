@@ -1,7 +1,7 @@
 #pragma once
 #include <resource/IResource.hpp>
 #include <resource/loaders/BvhLoader.hpp>
-#include <math/MeshBVH.hpp>
+#include <math/bounds/MeshBVH.hpp>
 
 #include <string>
 #include <vector>
