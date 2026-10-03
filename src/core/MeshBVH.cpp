@@ -27,6 +27,16 @@ using PrecomputedTri = v2::PrecomputedTri<Scalar>;
 
 MeshBVH::MeshBVH(std::vector<glm::vec3> p_triangleList)
 {
+    if (p_triangleList.empty())
+    {
+        throw std::invalid_argument("Triangle list is empty.");
+    }
+
+    if (p_triangleList.size() % 3 != 0)
+    {
+        throw std::invalid_argument("Triangle list size must be a multiple of 3.");
+	}
+
 	// Convert the triangle list to a vector of Tri objects
 	std::vector<Tri> tris;
 	tris.resize(p_triangleList.size() / 3);
