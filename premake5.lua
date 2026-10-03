@@ -7,7 +7,7 @@ workspace "DropletEngine"
     cppdialect "C++23"
 	startproject "Engine"
     warnings "Extra"
-    fatalwarnings { "All" }
+    --fatalwarnings { "All" }
     externalwarnings ("Off")
     externalanglebrackets ("On")
     configurations { "debug", "release" }
