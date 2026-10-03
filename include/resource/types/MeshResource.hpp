@@ -1,27 +1,20 @@
 #pragma once
 #include <resource/IResource.hpp>
+#include <resource/loaders/BvhLoader.hpp>
+#include <core/MeshBVH.hpp>
 
 #include <string>
 #include <vector>
-
-#include <bvh/v2/bvh.h>
-#include <bvh/v2/node.h>
-#include <bvh/v2/tri.h>
 
 namespace Droplet
 {
     /// @brief Class for mesh resources.
 	class MeshResource : public IResource
 	{
+		friend class BvhLoader;
+
 	public:
 		using VertexAttribute = std::pair<std::string, std::size_t>;
-
-		/// @brief Struct for bounding volume hierarchy (BVH) data for the mesh.
-		struct MeshBVH
-		{
-			bvh::v2::Bvh<bvh::v2::Node<float, 3>> bvh;
-			std::vector<bvh::v2::PrecomputedTri<float>> precomputedTris;
-		};
 
 		/// @brief Sets the mesh data for the resource.
 		/// @param p_vertexData The vertex data for the mesh.
@@ -55,11 +48,7 @@ namespace Droplet
 
 		/// @brief Gets the bounding volume hierarchy (BVH) for the mesh resource.
 		/// @return A reference to the BVH for the mesh resource.
-		[[nodiscard]] const std::weak_ptr<MeshBVH> GetBVH() const { return m_bvh; }
-
-		/// @brief Sets the bounding volume hierarchy (BVH) for the mesh resource.
-		/// @param bvh The BVH to set for the mesh resource.
-		void SetBVH(std::shared_ptr<MeshBVH> p_bvh) { m_bvh = p_bvh; }
+		[[nodiscard]] const MeshBVH &GetBVH() const { return m_bvh; }
 
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
@@ -68,6 +57,6 @@ namespace Droplet
 		std::size_t						m_vertexByteSize = 0;	// Byte size of a single vertex
 		std::vector<VertexAttribute>	m_vertexLayout{};		// List of attribute names and their byte sizes
 
-		std::shared_ptr<MeshBVH>		m_bvh{};				// Bounding volume hierarchy for the mesh
+		MeshBVH							m_bvh{};				// Bounding volume hierarchy for the mesh
 	};
 }
