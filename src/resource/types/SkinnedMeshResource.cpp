@@ -74,4 +74,79 @@ namespace Droplet
     {
         return m_boneMap;
     }
+
+    void SkinnedMeshResource::GenerateBoneBounds()
+    {
+        // Ensure layout has bone_indices attribute
+        std::size_t boneIndexDataOffset = 0;
+        std::size_t boneIndexDataSize = 0;
+
+        if (!FindVertexAttribute("bone_indices", boneIndexDataOffset, boneIndexDataSize))
+        {
+            throw std::runtime_error("SkinnedMeshResource vertex layout does not contain bone_indices attribute.");
+        }
+
+		// Ensure layout has bone_weights attribute
+        std::size_t boneWeightsDataOffset = 0;
+        std::size_t boneWeightsDataSize = 0;
+
+        if (!FindVertexAttribute("bone_weights", boneWeightsDataOffset, boneWeightsDataSize))
+        {
+            throw std::runtime_error("SkinnedMeshResource vertex layout does not contain bone_weights attribute.");
+        }
+
+		// Get position attribute offset and size
+        std::size_t posDataOffset = 0;
+        std::size_t posDataSize = 0;
+
+        if (!FindVertexAttribute("POSITION", posDataOffset, posDataSize))
+        {
+            throw std::runtime_error("SkinnedMeshResource vertex layout does not contain POSITION attribute.");
+        }
+
+		std::size_t numBoneIndices = boneIndexDataSize / sizeof(int);
+
+		// For each bone: find all vertices influenced by this bone, transform them to bone space using the offset matrix, and compute the OBB.
+        for (int boneIndex = 0; boneIndex < m_bones.size(); ++boneIndex)
+        {
+            std::vector<glm::vec3> boneSpaceVertices;
+
+            for (std::size_t vertexIndex = 0; vertexIndex < m_vertexData.size() / m_vertexByteSize; ++vertexIndex)
+            {
+                const std::byte *vertexPtr = m_vertexData.data() + vertexIndex * m_vertexByteSize;
+                const int *boneIndices = reinterpret_cast<const int *>(vertexPtr + boneIndexDataOffset);
+                const float *boneWeights = reinterpret_cast<const float *>(vertexPtr + boneWeightsDataOffset);
+
+                // Check if the current bone influences this vertex
+                for (std::size_t i = 0; i < numBoneIndices; ++i)
+                {
+                    if (boneIndices[i] != boneIndex)
+                    {
+                        continue; // This bone does not influence this vertex
+					}
+
+                    if (boneWeights[i] <= 0.0f)
+                    {
+                        break; // Skip if the weight is zero or negative
+					}
+
+                    // Get the position of the vertex
+                    const glm::vec3 *positionPtr = reinterpret_cast<const glm::vec3 *>(vertexPtr + posDataOffset);
+                    glm::vec4 meshSpacePosition = glm::vec4(*positionPtr, 1.0f);
+
+                    // Transform to bone space using the offset matrix
+                    glm::vec4 boneSpacePosition = m_bones[boneIndex].offsetMat * meshSpacePosition;
+                    boneSpaceVertices.push_back(glm::vec3(boneSpacePosition));
+
+                    break; // No need to check other indices for this vertex
+                }
+            }
+
+            // Compute the OBB for the collected bone space vertices
+            if (!boneSpaceVertices.empty())
+            {
+                m_bones[boneIndex].bounds = Math::OBB::FromPoints(boneSpaceVertices);
+			}
+		}
+    }
 }

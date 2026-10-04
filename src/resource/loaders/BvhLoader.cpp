@@ -10,24 +10,12 @@ void Droplet::BvhLoader::GenerateMeshBVH(MeshResource &p_meshResource)
     const std::vector<MeshResource::VertexAttribute> &vertexLayout = p_meshResource.GetVertexLayout();
 	std::size_t vertexByteSize = p_meshResource.GetVertexByteSize();
 
-	// Ensure layout has POSITION attribute
-    auto positionIt = std::find_if(vertexLayout.begin(), vertexLayout.end(),
-		[](const MeshResource::VertexAttribute &attr) {
-            return attr.first == "POSITION"; 
-        });
+    std::size_t posDataOffset = 0;
+    std::size_t posDataSize = 0;
 
-    if (positionIt == vertexLayout.end())
+	if (!p_meshResource.FindVertexAttribute("POSITION", posDataOffset, posDataSize))
     {
         throw std::runtime_error("MeshResource vertex layout does not contain POSITION attribute.");
-	}
-
-    std::size_t posDataOffset = 0;
-
-	// Iterate through the vertex layout and add up the byte sizes of all attributes 
-    // before POSITION to get the offset of the position data in the vertex data
-    for (auto it = vertexLayout.begin(); it != positionIt; ++it)
-    {
-        posDataOffset += it->second;
 	}
 
     std::vector<glm::vec3> tris;

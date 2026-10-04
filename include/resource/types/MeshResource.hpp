@@ -50,6 +50,13 @@ namespace Droplet
 		/// @return A reference to the BVH for the mesh resource.
 		[[nodiscard]] const Math::MeshBVH &GetBVH() const { return m_bvh; }
 
+		/// @brief Finds a vertex attribute in the mesh resource's vertex layout.
+		/// @param p_attribute The name of the vertex attribute to find.
+		/// @param p_offset The byte offset of the vertex attribute in the vertex data.
+		/// @param p_size The byte size of the vertex attribute in the vertex data.
+		/// @return True if the vertex attribute was found in the vertex layout, otherwise false.
+		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t p_offset, std::size_t p_size) const;
+
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
 		std::vector<std::uint32_t>		m_indexData{};			// Index data
