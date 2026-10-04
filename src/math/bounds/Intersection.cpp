@@ -8,9 +8,22 @@ using namespace Droplet::Math;
 
 constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Plane &p_plane)
 {
-	// TODO
+	float intersectionDistance;
+	bool result = glm::intersectRayPlane(p_ray.pos, p_ray.dir, p_plane.GetOrigin(), p_plane.normal, intersectionDistance);
 
-	return RayHit();
+	RayHit hit{};
+	hit.didHit = result;
+	hit.distance = intersectionDistance;
+	hit.hitPoint = p_ray.pos + p_ray.dir * intersectionDistance;
+	hit.hitNormal = p_plane.normal;
+
+	// Flip the normal if the ray is coming from behind the plane
+	if (glm::dot(p_ray.dir, p_plane.normal) > 0.0f)
+	{
+		hit.hitNormal = -p_plane.normal;
+	}
+
+	return hit;
 }
 
 constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const AABB &p_aabb)
@@ -29,9 +42,17 @@ constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[may
 
 constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Sphere &p_sphere)
 {
-	// TODO
+	glm::vec3 intersectionPoint;
+	glm::vec3 intersectionNormal;
+	bool result = glm::intersectRaySphere(p_ray.pos, p_ray.dir, p_sphere.center, p_sphere.radius * p_sphere.radius, intersectionPoint, intersectionNormal);
 
-	return RayHit();
+	RayHit hit{};
+	hit.didHit = result;
+	hit.distance = glm::length(intersectionPoint - p_ray.pos);
+	hit.hitPoint = intersectionPoint;
+	hit.hitNormal = intersectionNormal;
+
+	return hit;
 }
 
 constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Frustum &p_frustum)

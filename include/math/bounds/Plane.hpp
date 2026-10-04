@@ -17,6 +17,15 @@ namespace Droplet::Math
 		/// @param p_distance The distance from the origin to the plane along the normal vector.
 		Plane(const glm::vec3 &p_normal, float p_distance) : normal(p_normal), distance(p_distance) {}
 
+		/// @brief Constructs a plane from a point and a normal vector.
+		/// @param p_origin A point on the plane.
+		/// @param p_normal The normal vector of the plane.
+		Plane(const glm::vec3 &p_origin, const glm::vec3 &p_normal)
+		{
+			normal = glm::normalize(p_normal);
+			distance = glm::dot(normal, p_origin);
+		}
+
 		/// @brief Constructs a plane from three points in 3D space.
 		/// @param p1 The first point.
 		[[nodiscard]] inline glm::vec3 GetNormal() const
@@ -29,6 +38,11 @@ namespace Droplet::Math
 		[[nodiscard]] inline float GetDistance() const
 		{
 			return distance;
+		}
+
+		[[nodiscard]] inline glm::vec3 GetOrigin() const
+		{
+			return normal * distance;
 		}
 	};
 }
