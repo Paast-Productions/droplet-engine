@@ -35,8 +35,8 @@ namespace Droplet::Math
 
 		/// @brief Transforms a ray by a given transformation matrix.
 		/// @note This function does not normalize the direction vector after transformation. 
-		/// @param ray The ray to be transformed.
-		/// @param transform The transformation matrix to apply to the ray.
+		/// @param p_ray The ray to be transformed.
+		/// @param p_transform The transformation matrix to apply to the ray.
 		/// @return A new Ray that is the result of transforming the input ray by the given matrix.
 		[[nodiscard]] static inline Ray Transform(const Ray &p_ray, const glm::mat4x4 &p_transform)
 		{
