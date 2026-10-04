@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <memory>
-#include <math/bounds/Ray.hpp>
+#include <math/bounds/Intersection.hpp>
 #include <glm/glm.hpp>
 #include <bvh/v2/bvh.h>
 #include <bvh/v2/node.h>
@@ -13,16 +13,6 @@ namespace Droplet::Math
 	class MeshBVH
 	{
 	public:
-
-		/// @brief Struct for storing information about a ray hit.
-		struct RayHit
-		{
-			glm::vec3	hitPoint	= glm::vec3(0.0f);
-			glm::vec3	hitNormal	= glm::vec3(0.0f);
-			float		distance	= 0.0f;
-			bool		didHit		= false;
-		};
-
 		/// @brief Default constructor for MeshBVH.
 		MeshBVH() = default;
 		/// @brief Constructs a MeshBVH from a list of triangles.

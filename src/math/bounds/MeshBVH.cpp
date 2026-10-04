@@ -67,7 +67,7 @@ MeshBVH::MeshBVH(std::vector<glm::vec3> p_triangleList)
 	});
 }
 
-MeshBVH::RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) const
+RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) const
 {
 	if (!m_bvh)
 	{
