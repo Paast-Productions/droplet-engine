@@ -46,6 +46,7 @@ namespace Droplet::Math
 		}
 
 		/// @brief Gets the minimum corner of the AABB.
+		/// @return The minimum corner of the AABB.
 		[[nodiscard]] inline glm::vec3 GetMin() const
 		{
 			return center - extents;
