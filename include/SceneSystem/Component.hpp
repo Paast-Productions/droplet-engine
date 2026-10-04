@@ -1,5 +1,5 @@
 #pragma once
-
+#include <json/json.hpp>
 #include <memory>
 
 namespace Droplet::Scene
@@ -45,6 +45,8 @@ namespace Droplet::Scene
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
         std::shared_ptr<Node> GetOwner() const;
+
+        virtual nlohmann::json SerializeComponent() { return nlohmann::json{}; }
 
     protected:
 

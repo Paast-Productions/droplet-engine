@@ -215,6 +215,11 @@ namespace Droplet::Scene
             return components;
         }
 
+
+        /// @brief Gets all components 
+        /// 
+        /// @return A vector of shared pointers to the components, the member variable of this class
+        [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const;
         /// @brief Removes a specific Component from the Node.
         ///
         /// Removes the specified Component from the Node's list of Components.

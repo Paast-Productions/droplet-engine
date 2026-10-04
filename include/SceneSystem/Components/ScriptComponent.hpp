@@ -78,6 +78,9 @@ namespace Droplet::Scene
             const std::string &p_functionName,
             Args&&... p_args);
 
+
+        nlohmann::json SerializeComponent() override;
+
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;

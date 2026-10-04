@@ -45,3 +45,8 @@ void ScriptComponent::DeactivateScript()
 {
     ScriptSystem::Get().DeactivateScript(this);
 }
+
+nlohmann::json Droplet::Scene::ScriptComponent::SerializeComponent()
+{
+    return nlohmann::json();
+}

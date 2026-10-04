@@ -221,6 +221,11 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
     m_scene.lock()->SetRoot(p_child, true);
 }
 
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
+{
+    return m_components;
+}
+
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
 {
     if (!p_component)

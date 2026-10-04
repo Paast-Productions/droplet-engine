@@ -39,10 +39,10 @@ nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Scene::Node&
     json["components"] = nlohmann::json::array();
     std::unordered_map<std::string, std::function<std::shared_ptr<Scene::Component>()>> registry = Scene::ComponentRegistry::GetRegistry();
     
-    for (const auto& componentType : registry)
-    {
-        
-    }
+    //for (const auto& component : p_node.GetAllComponents())
+    //{
+    //    //component->SerializeComponent();
+    //}
 
     json["children"] = nlohmann::json::array();
 
