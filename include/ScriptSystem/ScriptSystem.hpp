@@ -117,6 +117,18 @@ namespace Droplet::Script
 		sol::protected_function_result Call(
 			Droplet::Scene::Component *p_scriptComponent, const std::string &p_functionName, Args&&... p_args);
 
+		/// @brief Calls a Lua function on a script component.
+		/// The supplied arguments are forwarded to the Lua function. The result
+		/// contains the status and return values of the protected Lua function call.
+		/// @tparam Args Types of the arguments passed to the Lua function.
+		/// @param p_scriptComponent Script component containing the function to call.
+		/// @param p_functionName Name of the Lua function to call.
+		/// @param p_args Arguments to forward to the Lua function.
+		/// @return Result of the protected Lua function call.
+		template<typename... Args>
+		sol::protected_function_result Call(
+			Droplet::Scene::Behaviour *p_scriptBehavior, const std::string& p_functionName, Args&&... p_args);
+
 	private:
 		/// @brief Handles the Lua state used by the scripting system.
 		LuaStateHandler m_luaStateHandler;
@@ -136,5 +148,18 @@ namespace Droplet::Script
 		Droplet::Scene::Component *p_scriptComponent, const std::string &p_functionName, Args&&... p_args)
 	{
 		return m_scriptManager.Call(p_scriptComponent, p_functionName, std::forward<Args>(p_args)...);
+	}
+
+	/// @brief Calls a Lua function through the ScriptManager.
+	/// @tparam Args Types of the arguments passed to the Lua function.
+	/// @param p_scriptComponent Script component containing the function to call.
+	/// @param p_functionName Name of the Lua function to call.
+	/// @param p_args Arguments to forward to the Lua function.
+	/// @return Result of the protected Lua function call.
+	template<typename... Args>
+	inline sol::protected_function_result ScriptSystem::Call(
+		Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string& p_functionName, Args&&... p_args)
+	{
+		return m_scriptManager.Call(p_scriptBehaviour, p_functionName, std::forward<Args>(p_args)...);
 	}
 }

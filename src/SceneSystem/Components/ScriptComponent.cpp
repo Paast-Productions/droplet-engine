@@ -44,3 +44,7 @@ void ScriptComponent::DeactivateScript()
 {
     ScriptSystem::Get().DeactivateComponentScript(this);
 }
+
+void Droplet::Scene::ScriptComponent::RenderInternalUI()
+{
+}
