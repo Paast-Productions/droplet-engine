@@ -12,15 +12,15 @@ namespace
 {
 	constexpr float EPSILON = 1e-5f;
 
-	[[nodiscard]] float SignedDistanceToPlane(const Plane &plane, const glm::vec3 &point)
+	[[nodiscard]] float SignedDistanceToPlane(const Plane &p_plane, const glm::vec3 &p_point)
 	{
-		return glm::dot(plane.normal, point) - plane.distance;
+		return glm::dot(p_plane.normal, p_point) - p_plane.distance;
 	}
 
-	[[nodiscard]] std::array<glm::vec3, 8> GetCorners(const AABB &aabb)
+	[[nodiscard]] std::array<glm::vec3, 8> GetCorners(const AABB &p_aabb)
 	{
-		glm::vec3 min = aabb.GetMin();
-		glm::vec3 max = aabb.GetMax();
+		glm::vec3 min = p_aabb.GetMin();
+		glm::vec3 max = p_aabb.GetMax();
 
 		return {
 			glm::vec3(min.x, min.y, min.z),
@@ -34,29 +34,29 @@ namespace
 		};
 	}
 
-	[[nodiscard]] std::array<glm::vec3, 8> GetCorners(const OBB &obb)
+	[[nodiscard]] std::array<glm::vec3, 8> GetCorners(const OBB &p_obb)
 	{
-		glm::vec3 axisX = obb.orientation[0] * obb.extents.x;
-		glm::vec3 axisY = obb.orientation[1] * obb.extents.y;
-		glm::vec3 axisZ = obb.orientation[2] * obb.extents.z;
+		glm::vec3 axisX = p_obb.orientation[0] * p_obb.extents.x;
+		glm::vec3 axisY = p_obb.orientation[1] * p_obb.extents.y;
+		glm::vec3 axisZ = p_obb.orientation[2] * p_obb.extents.z;
 
 		return {
-			obb.center - axisX - axisY - axisZ,
-			obb.center + axisX - axisY - axisZ,
-			obb.center - axisX + axisY - axisZ,
-			obb.center + axisX + axisY - axisZ,
-			obb.center - axisX - axisY + axisZ,
-			obb.center + axisX - axisY + axisZ,
-			obb.center - axisX + axisY + axisZ,
-			obb.center + axisX + axisY + axisZ,
+			p_obb.center - axisX - axisY - axisZ,
+			p_obb.center + axisX - axisY - axisZ,
+			p_obb.center - axisX + axisY - axisZ,
+			p_obb.center + axisX + axisY - axisZ,
+			p_obb.center - axisX - axisY + axisZ,
+			p_obb.center + axisX - axisY + axisZ,
+			p_obb.center - axisX + axisY + axisZ,
+			p_obb.center + axisX + axisY + axisZ,
 		};
 	}
 
-	[[nodiscard]] bool IntersectThreePlanes(const Plane &p0, const Plane &p1, const Plane &p2, glm::vec3 &outPoint)
+	[[nodiscard]] bool IntersectThreePlanes(const Plane &p_p0, const Plane &p_p1, const Plane &p_p2, glm::vec3 &p_outPoint)
 	{
-		glm::vec3 n0 = p0.normal;
-		glm::vec3 n1 = p1.normal;
-		glm::vec3 n2 = p2.normal;
+		glm::vec3 n0 = p_p0.normal;
+		glm::vec3 n1 = p_p1.normal;
+		glm::vec3 n2 = p_p2.normal;
 
 		glm::vec3 n1xn2 = glm::cross(n1, n2);
 		float denominator = glm::dot(n0, n1xn2);
@@ -66,63 +66,63 @@ namespace
 			return false;
 		}
 
-		outPoint = (p0.distance * n1xn2 +
-			p1.distance * glm::cross(n2, n0) +
-			p2.distance * glm::cross(n0, n1)) / denominator;
+		p_outPoint = (p_p0.distance * n1xn2 +
+			p_p1.distance * glm::cross(n2, n0) +
+			p_p2.distance * glm::cross(n0, n1)) / denominator;
 
 		return true;
 	}
 
-	[[nodiscard]] bool GetFrustumCorners(const Frustum &frustum, std::array<glm::vec3, 8> &corners)
+	[[nodiscard]] bool GetFrustumCorners(const Frustum &p_frustum, std::array<glm::vec3, 8> &p_corners)
 	{
-		const Plane &left = frustum.GetPlane(0);
-		const Plane &right = frustum.GetPlane(1);
-		const Plane &top = frustum.GetPlane(2);
-		const Plane &bottom = frustum.GetPlane(3);
-		const Plane &nearPlane = frustum.GetPlane(4);
-		const Plane &farPlane = frustum.GetPlane(5);
+		const Plane &left = p_frustum.GetPlane(0);
+		const Plane &right = p_frustum.GetPlane(1);
+		const Plane &top = p_frustum.GetPlane(2);
+		const Plane &bottom = p_frustum.GetPlane(3);
+		const Plane &nearPlane = p_frustum.GetPlane(4);
+		const Plane &farPlane = p_frustum.GetPlane(5);
 
 		return
-			IntersectThreePlanes(left, top, nearPlane, corners[0]) &&
-			IntersectThreePlanes(right, top, nearPlane, corners[1]) &&
-			IntersectThreePlanes(left, bottom, nearPlane, corners[2]) &&
-			IntersectThreePlanes(right, bottom, nearPlane, corners[3]) &&
-			IntersectThreePlanes(left, top, farPlane, corners[4]) &&
-			IntersectThreePlanes(right, top, farPlane, corners[5]) &&
-			IntersectThreePlanes(left, bottom, farPlane, corners[6]) &&
-			IntersectThreePlanes(right, bottom, farPlane, corners[7]);
+			IntersectThreePlanes(left, top, nearPlane, p_corners[0]) &&
+			IntersectThreePlanes(right, top, nearPlane, p_corners[1]) &&
+			IntersectThreePlanes(left, bottom, nearPlane, p_corners[2]) &&
+			IntersectThreePlanes(right, bottom, nearPlane, p_corners[3]) &&
+			IntersectThreePlanes(left, top, farPlane, p_corners[4]) &&
+			IntersectThreePlanes(right, top, farPlane, p_corners[5]) &&
+			IntersectThreePlanes(left, bottom, farPlane, p_corners[6]) &&
+			IntersectThreePlanes(right, bottom, farPlane, p_corners[7]);
 	}
 
-	[[nodiscard]] bool IsPointInsideAABB(const AABB &aabb, const glm::vec3 &point)
+	[[nodiscard]] bool IsPointInsideAABB(const AABB &p_aabb, const glm::vec3 &p_point)
 	{
-		glm::vec3 min = aabb.GetMin();
-		glm::vec3 max = aabb.GetMax();
+		glm::vec3 min = p_aabb.GetMin();
+		glm::vec3 max = p_aabb.GetMax();
 
-		return point.x >= min.x - EPSILON && point.x <= max.x + EPSILON &&
-			point.y >= min.y - EPSILON && point.y <= max.y + EPSILON &&
-			point.z >= min.z - EPSILON && point.z <= max.z + EPSILON;
+		return p_point.x >= min.x - EPSILON && p_point.x <= max.x + EPSILON &&
+			p_point.y >= min.y - EPSILON && p_point.y <= max.y + EPSILON &&
+			p_point.z >= min.z - EPSILON && p_point.z <= max.z + EPSILON;
 	}
 
-	[[nodiscard]] bool IsPointInsideOBB(const OBB &obb, const glm::vec3 &point)
+	[[nodiscard]] bool IsPointInsideOBB(const OBB &p_obb, const glm::vec3 &p_point)
 	{
-		glm::vec3 local = glm::transpose(obb.orientation) * (point - obb.center);
+		glm::vec3 local = glm::transpose(p_obb.orientation) * (p_point - p_obb.center);
 
-		return glm::abs(local.x) <= obb.extents.x + EPSILON &&
-			glm::abs(local.y) <= obb.extents.y + EPSILON &&
-			glm::abs(local.z) <= obb.extents.z + EPSILON;
+		return glm::abs(local.x) <= p_obb.extents.x + EPSILON &&
+			glm::abs(local.y) <= p_obb.extents.y + EPSILON &&
+			glm::abs(local.z) <= p_obb.extents.z + EPSILON;
 	}
 
-	[[nodiscard]] bool IsPointInsideSphere(const Sphere &sphere, const glm::vec3 &point)
+	[[nodiscard]] bool IsPointInsideSphere(const Sphere &p_sphere, const glm::vec3 &p_point)
 	{
-		glm::vec3 delta = point - sphere.center;
-		return glm::dot(delta, delta) <= sphere.radius * sphere.radius + EPSILON;
+		glm::vec3 delta = p_point - p_sphere.center;
+		return glm::dot(delta, delta) <= p_sphere.radius * p_sphere.radius + EPSILON;
 	}
 
-	[[nodiscard]] bool IsPointInsideFrustum(const Frustum &frustum, const glm::vec3 &point)
+	[[nodiscard]] bool IsPointInsideFrustum(const Frustum &p_frustum, const glm::vec3 &p_point)
 	{
 		for (int i = 0; i < 6; ++i)
 		{
-			if (SignedDistanceToPlane(frustum.GetPlane(i), point) < -EPSILON)
+			if (SignedDistanceToPlane(p_frustum.GetPlane(i), p_point) < -EPSILON)
 			{
 				return false;
 			}
@@ -131,25 +131,25 @@ namespace
 		return true;
 	}
 
-	[[nodiscard]] OBB ToOBB(const AABB &aabb)
+	[[nodiscard]] OBB ToOBB(const AABB &p_aabb)
 	{
-		return OBB(aabb.center, aabb.extents, glm::mat3(1.0f));
+		return OBB(p_aabb.center, p_aabb.extents, glm::mat3(1.0f));
 	}
 
-	[[nodiscard]] bool IntersectsOBBs(const OBB &a, const OBB &b)
+	[[nodiscard]] bool IntersectsOBBs(const OBB &p_a, const OBB &p_b)
 	{
 		constexpr float SAT_EPSILON = 1e-6f;
 
 		glm::vec3 aAxis[3] = {
-			glm::normalize(a.orientation[0]),
-			glm::normalize(a.orientation[1]),
-			glm::normalize(a.orientation[2]),
+			glm::normalize(p_a.orientation[0]),
+			glm::normalize(p_a.orientation[1]),
+			glm::normalize(p_a.orientation[2]),
 		};
 
 		glm::vec3 bAxis[3] = {
-			glm::normalize(b.orientation[0]),
-			glm::normalize(b.orientation[1]),
-			glm::normalize(b.orientation[2]),
+			glm::normalize(p_b.orientation[0]),
+			glm::normalize(p_b.orientation[1]),
+			glm::normalize(p_b.orientation[2]),
 		};
 
 		float r[3][3]{};
@@ -164,7 +164,7 @@ namespace
 			}
 		}
 
-		glm::vec3 delta = b.center - a.center;
+		glm::vec3 delta = p_b.center - p_a.center;
 		glm::vec3 t(
 			glm::dot(delta, aAxis[0]),
 			glm::dot(delta, aAxis[1]),
@@ -175,8 +175,9 @@ namespace
 
 		for (int i = 0; i < 3; ++i)
 		{
-			ra = a.extents[i];
-			rb = b.extents[0] * absR[i][0] + b.extents[1] * absR[i][1] + b.extents[2] * absR[i][2];
+			ra = p_a.extents[i];
+			rb = p_b.extents[0] * absR[i][0] + p_b.extents[1] * absR[i][1] + p_b.extents[2] * absR[i][2];
+
 			if (glm::abs(t[i]) > ra + rb)
 			{
 				return false;
@@ -185,8 +186,9 @@ namespace
 
 		for (int j = 0; j < 3; ++j)
 		{
-			ra = a.extents[0] * absR[0][j] + a.extents[1] * absR[1][j] + a.extents[2] * absR[2][j];
-			rb = b.extents[j];
+			ra = p_a.extents[0] * absR[0][j] + p_a.extents[1] * absR[1][j] + p_a.extents[2] * absR[2][j];
+			rb = p_b.extents[j];
+
 			if (glm::abs(t[0] * r[0][j] + t[1] * r[1][j] + t[2] * r[2][j]) > ra + rb)
 			{
 				return false;
@@ -197,8 +199,9 @@ namespace
 		{
 			for (int j = 0; j < 3; ++j)
 			{
-				ra = a.extents[(i + 1) % 3] * absR[(i + 2) % 3][j] + a.extents[(i + 2) % 3] * absR[(i + 1) % 3][j];
-				rb = b.extents[(j + 1) % 3] * absR[i][(j + 2) % 3] + b.extents[(j + 2) % 3] * absR[i][(j + 1) % 3];
+				ra = p_a.extents[(i + 1) % 3] * absR[(i + 2) % 3][j] + p_a.extents[(i + 2) % 3] * absR[(i + 1) % 3][j];
+				rb = p_b.extents[(j + 1) % 3] * absR[i][(j + 2) % 3] + p_b.extents[(j + 2) % 3] * absR[i][(j + 1) % 3];
+
 				if (glm::abs(t[(i + 2) % 3] * r[(i + 1) % 3][j] - t[(i + 1) % 3] * r[(i + 2) % 3][j]) > ra + rb)
 				{
 					return false;
@@ -209,10 +212,10 @@ namespace
 		return true;
 	}
 
-	[[nodiscard]] bool RaycastAABBInternal(const glm::vec3 &rayOrigin, const glm::vec3 &rayDir, const AABB &aabb, float &hitT, glm::vec3 &hitNormal)
+	[[nodiscard]] bool RaycastAABBInternal(const glm::vec3 &p_rayOrigin, const glm::vec3 &p_rayDir, const AABB &p_aabb, float &p_hitT, glm::vec3 &p_hitNormal)
 	{
-		glm::vec3 min = aabb.GetMin();
-		glm::vec3 max = aabb.GetMax();
+		glm::vec3 min = p_aabb.GetMin();
+		glm::vec3 max = p_aabb.GetMax();
 
 		float tMin = -std::numeric_limits<float>::infinity();
 		float tMax = std::numeric_limits<float>::infinity();
@@ -222,9 +225,9 @@ namespace
 
 		for (int axis = 0; axis < 3; ++axis)
 		{
-			if (glm::abs(rayDir[axis]) < EPSILON)
+			if (glm::abs(p_rayDir[axis]) < EPSILON)
 			{
-				if (rayOrigin[axis] < min[axis] || rayOrigin[axis] > max[axis])
+				if (p_rayOrigin[axis] < min[axis] || p_rayOrigin[axis] > max[axis])
 				{
 					return false;
 				}
@@ -232,8 +235,8 @@ namespace
 				continue;
 			}
 
-			float t1 = (min[axis] - rayOrigin[axis]) / rayDir[axis];
-			float t2 = (max[axis] - rayOrigin[axis]) / rayDir[axis];
+			float t1 = (min[axis] - p_rayOrigin[axis]) / p_rayDir[axis];
+			float t2 = (max[axis] - p_rayOrigin[axis]) / p_rayDir[axis];
 
 			glm::vec3 n1(0.0f);
 			glm::vec3 n2(0.0f);
@@ -271,13 +274,13 @@ namespace
 
 		if (tMin >= 0.0f)
 		{
-			hitT = tMin;
-			hitNormal = tMinNormal;
+			p_hitT = tMin;
+			p_hitNormal = tMinNormal;
 		}
 		else
 		{
-			hitT = tMax;
-			hitNormal = tMaxNormal;
+			p_hitT = tMax;
+			p_hitNormal = tMaxNormal;
 		}
 
 		return true;
