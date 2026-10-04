@@ -20,6 +20,8 @@ namespace Droplet::Math
 		/// @throw std::invalid_argument If the size of p_triangleList is empty or not a multiple of 3.
 		MeshBVH(std::vector<glm::vec3> p_triangleList);
 
+		/// @brief Checks if the BVH has been generated.
+		/// @return True if the BVH has been generated, false otherwise.
 		[[nodiscard]] bool IsGenerated() const { return m_bvh != nullptr; }
 
 		/// @brief Intersects a ray with the mesh BVH in model space.
