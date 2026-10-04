@@ -39,12 +39,64 @@ namespace Droplet::Math
 			}
 		}
 
+		/// @brief Constructs a new Frustum object with the specified view parameters.
+		/// @param p_origin The view origin (camera position).
+		/// @param p_fwd The view direction (camera forward vector).
+		/// @param p_up The view up vector (camera up vector).
+		/// @param p_fov The horizontal field of view angle in radians.
+		/// @param p_aspect The aspect ratio of the frustum (width / height).
+		/// @param p_near The distance to the near clipping plane.
+		/// @param p_far The distance to the far clipping plane.
+		Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::vec3 &p_up, float p_fov, float p_aspect, float p_near, float p_far);
+
 		/// @brief Gets the plane at the specified index.
 		/// @param p_index The index of the plane to retrieve (0-5).
 		/// @return The plane at the specified index.
 		[[nodiscard]] inline const Plane &GetPlane(int p_index) const
 		{
 			return planes[p_index];
+		}
+
+		/// @brief Gets the left plane of the frustum.
+		/// @return The left plane of the frustum.
+		[[nodiscard]] inline const Plane &GetLeft() const
+		{
+			return planes[0];
+		}
+
+		/// @brief Gets the right plane of the frustum.
+		/// @return The right plane of the frustum.
+		[[nodiscard]] inline const Plane &GetRight() const
+		{
+			return planes[1];
+		}
+
+		/// @brief Gets the top plane of the frustum.
+		/// @return The top plane of the frustum.
+		[[nodiscard]] inline const Plane &GetTop() const
+		{
+			return planes[2];
+		}
+
+		/// @brief Gets the bottom plane of the frustum.
+		/// @return The bottom plane of the frustum.
+		[[nodiscard]] inline const Plane &GetBottom() const
+		{
+			return planes[3];
+		}
+
+		/// @brief Gets the near plane of the frustum.
+		/// @return The near plane of the frustum.
+		[[nodiscard]] inline const Plane &GetNear() const
+		{
+			return planes[4];
+		}
+
+		/// @brief Gets the far plane of the frustum.
+		/// @return The far plane of the frustum.
+		[[nodiscard]] inline const Plane &GetFar() const
+		{
+			return planes[5];
 		}
 	};
 }

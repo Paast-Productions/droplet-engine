@@ -26,6 +26,16 @@ namespace Droplet::Math
 			distance = glm::dot(normal, p_origin);
 		}
 
+		/// @brief Constructs a plane from three points in 3D space.
+		/// @param p_point1 The first point on the plane.
+		/// @param p_point2 The second point on the plane.
+		/// @param p_point3 The third point on the plane.
+		Plane(const glm::vec3 &p_point1, const glm::vec3 &p_point2, const glm::vec3 &p_point3)
+		{
+			normal = glm::normalize(glm::cross(p_point2 - p_point1, p_point3 - p_point1));
+			distance = glm::dot(normal, p_point1);
+		}
+
 		/// @brief Returns the normal vector of the plane.
 		/// @return The normal vector of the plane.
 		[[nodiscard]] inline glm::vec3 GetNormal() const
