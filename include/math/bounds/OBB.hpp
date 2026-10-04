@@ -52,27 +52,27 @@ namespace Droplet::Math
 
 		/// @brief Creates an OBB that encompasses a set of points.
 		/// @note This function computes an OBB fitted for the given points using PCA (Principal Component Analysis).
-		/// @param points A vector of points to encompass.
+		/// @param p_points A vector of points to encompass.
 		/// @return An OBB that encompasses all the given points.
-		[[nodiscard]] static OBB FromPoints(const std::vector<glm::vec3> &points);
+		[[nodiscard]] static OBB FromPoints(const std::vector<glm::vec3> &p_points);
 
 		/// @brief Transforms the given OBB by the specified transformation matrix.
-		/// @param obb The OBB to be transformed.
-		/// @param mat The transformation matrix to apply to the OBB.
+		/// @param p_obb The OBB to be transformed.
+		/// @param p_mat The transformation matrix to apply to the OBB.
 		/// @return A new OBB that is the result of transforming the input OBB by the given matrix.
-		[[nodiscard]] static inline OBB Transform(const OBB &obb, const glm::mat4x4 &mat)
+		[[nodiscard]] static inline OBB Transform(const OBB &p_obb, const glm::mat4x4 &p_mat)
 		{
-			glm::vec3 newCenter = glm::vec3(mat * glm::vec4(obb.center, 1.0f));
-			glm::mat3 newOrientation = glm::mat3(mat) * obb.orientation;
+			glm::vec3 newCenter = glm::vec3(p_mat * glm::vec4(p_obb.center, 1.0f));
+			glm::mat3 newOrientation = glm::mat3(p_mat) * p_obb.orientation;
 
 			// Scale the extents based on the transformation matrix
 			glm::vec3 scale{
-				glm::length(glm::vec3(mat[0])),
-				glm::length(glm::vec3(mat[1])),
-				glm::length(glm::vec3(mat[2]))
+				glm::length(glm::vec3(p_mat[0])),
+				glm::length(glm::vec3(p_mat[1])),
+				glm::length(glm::vec3(p_mat[2]))
 			};
 
-			glm::vec3 newExtents = obb.extents * scale;
+			glm::vec3 newExtents = p_obb.extents * scale;
 
 			return OBB(newCenter, newExtents, newOrientation);
 		}
