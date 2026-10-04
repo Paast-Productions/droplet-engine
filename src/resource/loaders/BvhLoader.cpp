@@ -7,7 +7,6 @@ void Droplet::BvhLoader::GenerateMeshBVH(MeshResource &p_meshResource)
 {
     const std::vector<std::uint32_t> &indexData = p_meshResource.GetIndexData();
     const std::vector<std::byte> &vertexData = p_meshResource.GetVertexData();
-    const std::vector<MeshResource::VertexAttribute> &vertexLayout = p_meshResource.GetVertexLayout();
 	std::size_t vertexByteSize = p_meshResource.GetVertexByteSize();
 
     std::size_t posDataOffset = 0;

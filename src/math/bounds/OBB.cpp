@@ -5,19 +5,19 @@ using namespace Droplet::Math;
 
 // HACK: No idea if this function works. Tests must be written to verify it.
 
-OBB OBB::FromPoints(const std::vector<glm::vec3> &points)
+OBB OBB::FromPoints(const std::vector<glm::vec3> &p_points)
 {
 	OBB result{};
 
-	if (points.empty())
+	if (p_points.empty())
 	{
 		return result;
 	}
 
-	const size_t n = points.size();
+	const size_t n = p_points.size();
 	if (n == 1)
 	{
-		result.center = points[0];
+		result.center = p_points[0];
 		result.extents = glm::vec3(0.0f);
 		result.orientation = glm::mat3(1.0f);
 		return result;
@@ -25,7 +25,7 @@ OBB OBB::FromPoints(const std::vector<glm::vec3> &points)
 
 	// 1. Centroid
 	glm::vec3 mean(0.0f);
-	for (const auto &p : points)
+	for (const auto &p : p_points)
 	{
 		mean += p;
 	}
@@ -34,7 +34,7 @@ OBB OBB::FromPoints(const std::vector<glm::vec3> &points)
 
 	// 2. Covariance matrix (GLM helper)
 	//    points are absolute coordinates + pre-computed center
-	const glm::mat3 cov = glm::computeCovarianceMatrix(points.data(), n, mean);
+	const glm::mat3 cov = glm::computeCovarianceMatrix(p_points.data(), n, mean);
 
 	// 3. Eigen-decomposition
 	glm::vec3 eigenvalues;
@@ -64,7 +64,7 @@ OBB OBB::FromPoints(const std::vector<glm::vec3> &points)
 	glm::vec3 localMin(std::numeric_limits<float>::max());
 	glm::vec3 localMax(-std::numeric_limits<float>::max());
 
-	for (const auto &p : points)
+	for (const auto &p : p_points)
 	{
 		const glm::vec3 d = p - mean;
 		const glm::vec3 local(
