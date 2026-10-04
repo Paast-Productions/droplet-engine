@@ -40,11 +40,11 @@ namespace Droplet::Math
 		}
 
 		/// @brief Gets the plane at the specified index.
-		/// @param index The index of the plane to retrieve (0-5).
+		/// @param p_index The index of the plane to retrieve (0-5).
 		/// @return The plane at the specified index.
-		[[nodiscard]] inline const Plane &GetPlane(int index) const
+		[[nodiscard]] inline const Plane &GetPlane(int p_index) const
 		{
-			return planes[index];
+			return planes[p_index];
 		}
 	};
 }
