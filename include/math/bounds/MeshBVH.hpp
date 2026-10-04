@@ -26,8 +26,7 @@ namespace Droplet::Math
 
 		/// @brief Intersects a ray with the mesh BVH in model space.
 		/// @note Function assumes that the ray is in model space. If the ray is in world space, it should be transformed to model space before calling this function.
-		/// @param p_rayOrigin The origin of the ray.
-		/// @param p_rayDirection The direction of the ray.
+		/// @param p_ray The ray to intersect with the mesh BVH.
 		/// @param p_minDist The minimum distance for the intersection. Defaults to 0.0f.
 		/// @param p_maxDist The maximum distance for the intersection. Defaults to -1.0f, which means no maximum distance.
 		/// @return A RayHit struct containing information about the result.
