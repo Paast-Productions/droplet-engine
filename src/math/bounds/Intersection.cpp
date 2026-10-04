@@ -6,7 +6,7 @@
 using namespace Droplet::Math;
 
 
-constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Plane &p_plane)
+RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Plane &p_plane)
 {
 	float intersectionDistance;
 	bool result = glm::intersectRayPlane(p_ray.pos, p_ray.dir, p_plane.GetOrigin(), p_plane.normal, intersectionDistance);
@@ -26,21 +26,21 @@ constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[may
 	return hit;
 }
 
-constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const AABB &p_aabb)
+RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const AABB &p_aabb)
 {
 	// TODO
 
 	return RayHit();
 }
 
-constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const OBB &p_obb)
+RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const OBB &p_obb)
 {
 	// TODO
 
 	return RayHit();
 }
 
-constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Sphere &p_sphere)
+RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Sphere &p_sphere)
 {
 	glm::vec3 intersectionPoint;
 	glm::vec3 intersectionNormal;
@@ -55,7 +55,7 @@ constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[may
 	return hit;
 }
 
-constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Frustum &p_frustum)
+RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[maybe_unused]] const Frustum &p_frustum)
 {
 	// TODO
 
@@ -63,42 +63,42 @@ constexpr RayHit Droplet::Math::Raycast([[maybe_unused]] const Ray &p_ray, [[may
 }
 
 
-constexpr bool Droplet::Math::Contains([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const glm::vec3 &p_other)
+bool Droplet::Math::Contains([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const glm::vec3 &p_other)
 {
 	// TODO
 
 	return false;
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Plane &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Plane &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const AABB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const AABB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const OBB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const OBB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Sphere &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Sphere &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Frustum &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p_this, [[maybe_unused]] const Frustum &p_other)
 {
 	// TODO
 
@@ -106,42 +106,42 @@ constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const AABB &p
 }
 
 
-constexpr bool Droplet::Math::Contains([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const glm::vec3 &p_other)
+bool Droplet::Math::Contains([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const glm::vec3 &p_other)
 {
 	// TODO
 
 	return false;
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Plane &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Plane &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const AABB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const AABB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const OBB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const OBB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Sphere &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Sphere &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Frustum &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_this, [[maybe_unused]] const Frustum &p_other)
 {
 	// TODO
 
@@ -149,42 +149,42 @@ constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const OBB &p_
 }
 
 
-constexpr bool Droplet::Math::Contains([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const glm::vec3 &p_other)
+bool Droplet::Math::Contains([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const glm::vec3 &p_other)
 {
 	// TODO
 
 	return false;
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Plane &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Plane &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const AABB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const AABB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const OBB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const OBB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Sphere &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Sphere &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Frustum &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere &p_this, [[maybe_unused]] const Frustum &p_other)
 {
 	// TODO
 
@@ -192,42 +192,42 @@ constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Sphere 
 }
 
 
-constexpr bool Droplet::Math::Contains([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const glm::vec3 &p_other)
+bool Droplet::Math::Contains([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const glm::vec3 &p_other)
 {
 	// TODO
 
 	return false;
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Plane &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Plane &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const AABB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const AABB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const OBB &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const OBB &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Sphere &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Sphere &p_other)
 {
 	// TODO
 
 	return IntersectType();
 }
 
-constexpr IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Frustum &p_other)
+IntersectType Droplet::Math::Intersects([[maybe_unused]] const Frustum &p_this, [[maybe_unused]] const Frustum &p_other)
 {
 	// TODO
 
