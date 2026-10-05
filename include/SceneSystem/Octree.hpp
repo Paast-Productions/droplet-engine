@@ -3,6 +3,7 @@
 #include <glm\fwd.hpp>
 #include <cstdint>
 #include <memory>
+#include <math/bounds/AABB.hpp>
 
 #include "Node.hpp"
 
@@ -51,7 +52,7 @@ namespace Droplet::Scene
 		struct TreeNode
 		{
 			bool isLeafNode = true;
-			// AABB variable
+			Droplet::Math::AABB volume;
 
 			std::shared_ptr<Node> element;
 			std::uint32_t totalChildren = 0;
