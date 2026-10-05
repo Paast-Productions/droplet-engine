@@ -66,6 +66,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		m_commandPool,
 		m_context,
 		G_CATDESPAIR,
+		78400,
 		G_CATDIM,
 		G_CATDIM,
 		vk::Format::eR8G8B8A8Srgb,

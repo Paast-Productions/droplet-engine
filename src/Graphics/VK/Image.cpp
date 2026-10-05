@@ -9,7 +9,8 @@ using namespace Droplet::Graphics::VK;
 Image::Image(const vma::raii::Allocator &p_allocator,
 			 Droplet::Graphics::VK::CommandPool &p_commandPool,
 			 Droplet::Graphics::VK::Context &p_context,
-			 const unsigned char *p_pixels, 
+			 const unsigned char *p_pixels,
+			 const std::size_t p_size,
 			 std::uint32_t p_width, 
 			 std::uint32_t p_height, 
 			 vk::Format p_format, 
@@ -20,11 +21,11 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	// CREATE NECESSARY BUFFERS
 	
-	vk::DeviceSize imageSize = static_cast<std::uint64_t>(p_width) * static_cast<std::uint64_t>(p_height) * 4;
+	vk::DeviceSize imageSize = p_size;
 	
 	vk::BufferCreateInfo bufferCreateInfo
 	{
-		.size = imageSize,
+		.size = p_size,
 		.usage = vk::BufferUsageFlagBits::eTransferSrc
 	};
 	
