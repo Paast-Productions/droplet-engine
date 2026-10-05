@@ -3,25 +3,41 @@ project "Engine"
 
     location(projectsPath)
 
+    defines
+    {
+        "ROOT_PATH=" .. AddQuotation(rootPath)
+    }
+
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
+    defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
 
-	defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
-	
-	filter {"system:windows"}
-		buildoptions {"/Zi"}
-	
-	filter {}
+    if _TARGET_OS == "windows" then
 
-    includedirs
-    {
-        "../include",
-        "../include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+        buildoptions {"/Zi"}
+        
+        -- vkPath required as windows doesn't add the vulkan sdk to lib path'
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson
     {

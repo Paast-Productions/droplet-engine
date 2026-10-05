@@ -2,7 +2,7 @@ require "Premake/Utilities/Clean"
 require "Premake/Utilities/Helper"
 
 workspace "DropletEngine"
-
+    
     location "Generated"
     cppdialect "C++23"
     multiprocessorcompile "On"
@@ -11,6 +11,7 @@ workspace "DropletEngine"
     externalanglebrackets "On"
     externalwarnings "Off"
     fatalwarnings { "All" }
+    multiprocessorcompile "On"
     configurations { "debug", "release" }
 
     architecture "x86_64"

@@ -1,12 +1,43 @@
 ﻿project "VulkanMemoryAllocator"
-    kind "Utility"
+
+    kind "StaticLib"
     location(projectsPath)
 
+    defines {"VMA_IMPLEMENTATION"}
+    
     warnings "Off"
 
     targetdir(targetBuildPath .. "/External/lib")
     objdir(objBuildPath .. "/%{prj.name}")
-    
+
+    files
+    {
+        rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/src/VmaUsage.cpp",
+    }
+
+    if _TARGET_OS == "windows" then
+
+        local vkPath = os.getenv('VULKAN_SDK')
+
+        includedirs
+        {
+            vkPath .. "/Include",
+            rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/include",
+            rootPath .. "/External/VulkanMemoryAllocator/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/External/VulkanMemoryAllocator/VulkanMemoryAllocator/include",
+            rootPath .. "/External/VulkanMemoryAllocator/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
     local vulkanMemoryAllocatorPath = targetBuildPath .. "/External/include"
 
     prebuildcommands

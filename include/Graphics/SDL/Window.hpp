@@ -40,8 +40,8 @@ namespace Droplet::Graphics::SDL
         
         /// @brief Getter-function for a raw SDL_Window pointer
         /// @returns Non-owning SDL_Window pointer
-        [[nodiscard]] SDL_Window* Get();
-    
+        [[nodiscard]] SDL_Window* Get() const;
+
     private:
         /// @brief Custom deleter function for SDL_Window*. This enables the usage of std::unique_ptr<>
         struct WindowDeleter
