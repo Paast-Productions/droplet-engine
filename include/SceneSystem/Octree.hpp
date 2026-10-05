@@ -68,6 +68,7 @@ namespace Droplet::Scene
 		{
 			bool isLeafNode = true;
 			Droplet::Math::AABB volume;
+			std::uint8_t level = 0;
 
 			std::shared_ptr<Node> element;
 			std::uint8_t totalChildren = 0;

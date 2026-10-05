@@ -54,9 +54,16 @@ namespace Droplet::Scene
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node)
 	{
+		if (p_node->level > C_MAX_DEPTH)
+		{
+			// Log info/warning: Node could not be added to octree due to max depth has been reached.
+			return;
+		}
+
 		// Check if element bounding box intersects with TreeNode volume.
 		if (Intersects(p_element->GetBoundingBox(), p_node->volume) == IntersectType::None)
 		{
+			// Log info/warning: Node could not be added to octree due to Node being outside the octree.
 			return;
 		}
 
@@ -69,6 +76,7 @@ namespace Droplet::Scene
 					if (p_node->children[i] == nullptr)
 					{
 						p_node->children[i] = std::make_unique<TreeNode>();
+						p_node->children[i]->level++;
 						p_node->children[i]->element = p_element;
 						p_node->children[i]->volume = p_element->GetBoundingBox();
 						p_node->totalChildren++;
