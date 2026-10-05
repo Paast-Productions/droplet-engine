@@ -10,18 +10,24 @@
 
 namespace Droplet::Graphics::VK
 {
-	/// @brief ImageView class for storing textures/image buffers to be bound to shader stages
+	/// @brief Image class for storing textures/image buffers to be bound to shader stages
 	class Image
 	{
 	public:
 		Image() = delete;
 		
+		/// @brief Image Nullptr Constructor
+		/// @param p_nullptr Nullptr
 		Image(nullptr_t p_nullptr)
 		{
 			m_image = { p_nullptr };
 		}
+		
+		// TODO: <REFACTOR>  
+		// EXPLANATION: Should be one singular constructor that can take in all combinations of flags.
+		// If you would like a specific combination, create a factory class
 
-		/// @brief Constructor for image view based on image/texture
+		/// @brief Constructor for image based on texture data
 		/// @param p_allocator VMA RAII Allocator
 		/// @param p_commandPool Vulkan Command Pool
 		/// @param p_context Vulkan Context
@@ -44,6 +50,24 @@ namespace Droplet::Graphics::VK
 			vk::ImageTiling p_tiling,
 			vk::ImageUsageFlags p_usage,
 			vk::MemoryPropertyFlags p_properties);
+		
+		/// @brief Constructor for creating an imageview
+		/// @param p_allocator VMA RAII Allocator
+		/// @param p_width width of the image
+		/// @param p_height height of the image
+		/// @param p_format data format of the image
+		/// @param p_tiling Image tiling flag
+		/// @param p_usage Image usage flags
+		/// @param p_properties Memory property flags
+		Image(const vma::raii::Allocator &p_allocator,
+			std::uint32_t p_width,
+			std::uint32_t p_height,
+			vk::Format p_format,
+			vk::ImageTiling p_tiling,
+			vk::ImageUsageFlags p_usage,
+			vk::MemoryPropertyFlags p_properties);
+	
+		// TODO: </REFACTOR>
 		
 		Image(const Image &p_other) = delete;
 		Image &operator=(const Image &p_other) = delete;
@@ -72,22 +96,6 @@ namespace Droplet::Graphics::VK
 			return m_image == p_other.m_image;
 		}
 		
-		/// @brief Constructor for creating an imageview
-		/// @param p_allocator VMA RAII Allocator
-		/// @param p_width width of the image
-		/// @param p_height height of the image
-		/// @param p_format data format of the image
-		/// @param p_tiling Image tiling flag
-		/// @param p_usage Image usage flags
-		/// @param p_properties Memory property flags
-		Image(const vma::raii::Allocator &p_allocator,
-			std::uint32_t p_width,
-			std::uint32_t p_height,
-			vk::Format p_format,
-			vk::ImageTiling p_tiling,
-			vk::ImageUsageFlags p_usage,
-			vk::MemoryPropertyFlags p_properties);
-
 		/// @brief Image getter
 		/// @return pointer to the image
 		[[nodiscard]] const vma::raii::Image &Get() const;

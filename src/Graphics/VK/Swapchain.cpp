@@ -56,21 +56,21 @@ Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalD
 	CreateImageViews(p_device);
 }
 
-vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window *p_window)
+vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &p_capabilities, SDL_Window *p_window)
 {
 	// currentExtent is only set to the special "undefined" value described above
 	// when the window manager lets us choose the extent ourselves; any other value
 	// means the surface already dictates a fixed extent that we must use as-is.
-	if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+	if (p_capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 	{
-		return capabilities.currentExtent;
+		return p_capabilities.currentExtent;
 	}
 	int width {0}, height {0};
 	SDL_GetWindowSize(p_window, &width, &height);
 
 	return {
-		std::clamp<uint32_t>(width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width),
-		std::clamp<uint32_t>(height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height)
+		std::clamp<uint32_t>(width, p_capabilities.minImageExtent.width, p_capabilities.maxImageExtent.width),
+		std::clamp<uint32_t>(height, p_capabilities.minImageExtent.height, p_capabilities.maxImageExtent.height)
 	};
 }
 

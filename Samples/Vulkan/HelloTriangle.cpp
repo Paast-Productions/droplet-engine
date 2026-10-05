@@ -6,8 +6,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 	// Window Config
 	Droplet::Graphics::SDL::WindowConfig windowConfig 
 	{
-		.Width = 640,
-		.Height = 480,
+		.Width = 1280,
+		.Height = 720,
 		.Flags = 0
 	};
 	
@@ -22,23 +22,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 	while (!done)
 	{
 		Droplet::GameInput::Get().Update();
-		while (SDL_PollEvent(&rnd.p_event))
+		while (SDL_PollEvent(&rnd.Event))
 		{
-			Droplet::GameInput::Get().ProcessEvent(rnd.p_event);
+			Droplet::GameInput::Get().ProcessEvent(rnd.Event);
 
-			if (rnd.p_event.type == SDL_EVENT_QUIT)
+			if (rnd.Event.type == SDL_EVENT_QUIT)
 			{
 				done = true;
 			}
 
-			if (rnd.p_event.type == SDL_EVENT_WINDOW_RESIZED || rnd.p_event.type == SDL_EVENT_WINDOW_MINIMIZED)
+			if (rnd.Event.type == SDL_EVENT_WINDOW_RESIZED || rnd.Event.type == SDL_EVENT_WINDOW_MINIMIZED)
 			{
 				rnd.windowResize();
 			}
 
-			if (rnd.p_event.type == SDL_EVENT_KEY_DOWN) 
+			if (rnd.Event.type == SDL_EVENT_KEY_DOWN) 
 			{
-				if (rnd.p_event.key.key == SDLK_ESCAPE) 
+				if (rnd.Event.key.key == SDLK_ESCAPE) 
 				{
 					done = true;
 				}

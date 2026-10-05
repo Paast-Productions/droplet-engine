@@ -20,11 +20,11 @@ CommandPool::CommandPool(
 	try
 	{
 		m_commandPool = vk::raii::CommandPool {p_device, createInfo};
-	} catch (const vk::Error &err)
+	} 
+	catch (const vk::Error &err)
 	{
 		std::print(std::cerr, "CommandPool-CommandPool Error: {0}", err.what());
 		std::flush(std::cerr);
-		exit(-1);
 	}
 	
 	vk::CommandBufferAllocateInfo bufferAllocInfo
@@ -37,11 +37,11 @@ CommandPool::CommandPool(
 	try
 	{
 		m_commandBuffers = vk::raii::CommandBuffers{p_device, bufferAllocInfo};
-	} catch (const vk::Error &err)
+	} 
+	catch (const vk::Error &err)
 	{
 		std::print(std::cerr, "CommandPool-CommandBuffers Error: {0}", err.what());
 		std::flush(std::cerr);
-		exit(-1);
 	}
 }
 
@@ -57,11 +57,11 @@ std::size_t Droplet::Graphics::VK::CommandPool::Allocate(const vk::raii::Device 
 	try
 	{
 		m_commandBuffers.push_back(std::move(vk::raii::CommandBuffers{ p_device, allocInfo }.front()));
-	} catch (const vk::Error &err)
+	} 
+	catch (const vk::Error &err)
 	{
 		std::print(std::cerr, "ComandPool-CommandBuffer Error: {0}", err.what());
 		std::flush(std::cerr);
-		exit(-1);
 	}
 	return m_commandBuffers.size() - 1;
 }
@@ -81,7 +81,7 @@ std::size_t Droplet::Graphics::VK::CommandPool::Allocate(const vk::raii::Device 
 	return ids;
 }*/
 
-const vk::raii::CommandBuffer& CommandPool::GetBufferAt(const std::size_t p_id)
+const vk::raii::CommandBuffer &CommandPool::GetBufferAt(const std::size_t p_id)
 {
 	assert(p_id < m_commandBuffers.size());
 	return m_commandBuffers.at(p_id);

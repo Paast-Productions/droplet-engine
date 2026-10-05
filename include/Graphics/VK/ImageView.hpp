@@ -7,16 +7,23 @@
 
 namespace Droplet::Graphics::VK
 {
+    /// @brief Vulkan Image View wrapper class
     class ImageView
     {
     public:
         ImageView() = delete;
     
+        /// @brief Image View Nullptr Constructor
         ImageView(nullptr_t p_nullptr)
         {
             m_imageView = { p_nullptr };   
         }
         
+        // TODO: <REFACTOR>  
+        // EXPLANATION: Should be one singular constructor that can take in all combinations of flags.
+        // If you would like a specific combination, create a factory class
+        
+        /// @brief 
         ImageView(const vk::raii::Device &p_device, 
             const vma::raii::Image &p_image);
         
@@ -24,6 +31,8 @@ namespace Droplet::Graphics::VK
             const vma::raii::Image &p_image, 
             vk::Format p_format,
             vk::ImageAspectFlagBits p_aspectFlagBits);
+        
+        // TODO: </REFACTOR>
         
         ImageView(const ImageView &p_other) = delete;
         ImageView &operator=(const ImageView &p_other) = delete;
@@ -51,7 +60,9 @@ namespace Droplet::Graphics::VK
         {
             return m_imageView == p_other.m_imageView;
         }
-
+        
+        /// @brief Getter-function for a Vulkan Image View
+        /// @returns Vulkan Image View
         [[nodiscard]] const vk::raii::ImageView &Get() const;
         
     private:

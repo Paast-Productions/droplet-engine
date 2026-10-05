@@ -39,8 +39,10 @@ static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSever
 //Setup of the debug messenger
 void Context::SetupDebugMessenger()
 {
-	if (!enableValidationLayers)
+	if constexpr (!enableValidationLayers)
+	{
 		return;
+	}
 
 	vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
 		vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);

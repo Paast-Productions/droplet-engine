@@ -13,6 +13,10 @@ namespace Droplet::Graphics::VK
     public:
         DescriptorSet() = delete;
         
+        /// @brief Descriptor Set Constructor
+        /// @param p_device Vulkan Device
+        /// @param p_descriptorPool Vulkan Descriptor Pool
+        /// @param p_descriptorSetLayout Vulkan Descriptor Set Layout
         DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool& p_descriptorPool, const vk::raii::DescriptorSetLayout& p_descriptorSetLayout);
         
         DescriptorSet(const DescriptorSet &) = delete;
@@ -22,6 +26,8 @@ namespace Droplet::Graphics::VK
 
         ~DescriptorSet() = default;
         
+        /// @brief Getter-function for the Vulkan Descriptor Set
+        /// @returns Vulkan Descriptor Set
         [[nodiscard]] const std::vector<vk::raii::DescriptorSet> &Get() const;
         
     private:

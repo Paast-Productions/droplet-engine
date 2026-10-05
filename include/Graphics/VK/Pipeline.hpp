@@ -28,7 +28,6 @@ namespace Droplet::Graphics::VK
 	/// - std::vector<vk::DynamicState>		DynamicStates [{vk::DynamicState::eViewport, vk::DynamicState::eScissor}]
 	/// - vk::PipelineLayoutCreateInfo		PipelineLayoutInfo [{.setLayoutCount = 0, .pushConstantRangeCount = 0}]
 	/// - vk::SurfaceFormatKHR				SwapchainSurfaceFormat [{}]
-	
 	struct PipelineConfig
 	{
 		bool UseMultisampling = false;
@@ -61,6 +60,7 @@ namespace Droplet::Graphics::VK
 	public:
 		Pipeline() = delete;
 	
+		/// @brief Pipeline Nullptr Constructor
 		Pipeline(nullptr_t p_nullptr)
 		{
 			m_pipelineLayout = { p_nullptr };
@@ -109,6 +109,9 @@ namespace Droplet::Graphics::VK
 		/// @brief Getter-function for a vulkan pipeline
 		/// @returns Vulkan Pipeline 
 		[[nodiscard]] const vk::raii::Pipeline &Get();
+		
+		/// @brief Getter-function for a Vulkan Pipeline Layout
+		/// @returns Vulkan Pipeline Layout
 		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout();
 
 	private:

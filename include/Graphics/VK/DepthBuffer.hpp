@@ -63,11 +63,11 @@ namespace Droplet::Graphics::VK
 		void Clear();
 		
 		/// @brief Image getter
-		/// @return pointer to the image
+		/// @returns The depth buffers Vulkan Image
 		[[nodiscard]] const vma::raii::Image &GetImage() const;
 
 		/// @brief ImageView getter
-		/// @return pointer to the imageview
+		/// @returns The depth buffers Vulkan Image View
 		[[nodiscard]] const vk::raii::ImageView &GetView() const;
 
 	private:

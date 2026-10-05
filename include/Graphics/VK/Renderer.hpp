@@ -58,15 +58,25 @@ namespace Droplet::Graphics
 	{
 	public:
 		Renderer() = delete;
-		Renderer(SDL::WindowConfig p_windowConfig);
-		~Renderer();
-		void	drawFrame();
-		void	windowResize();
 
+		/// @brief Renderer Constructor
+		/// @param p_windowConfig Requested SDL Window Configuration
+		Renderer(SDL::WindowConfig p_windowConfig);
+		
+		~Renderer();
+		
+		/// @brief Renders a singular frame
+		void	drawFrame();
+		
+		/// @brief Resizes the window
+		void	windowResize();
+		
+		/// @brief Getter-function for an SDL_Window pointer
+		/// @returns An SDL Window
 		[[nodiscard]] SDL_Window *GetWindow();
 
 		/// @brief Fills and returns initInfo for ImGui
-		/// @return ImGui init info
+		/// @returns ImGui init info
 		ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
 
 		/// @brief Wait for the Vulkan device to be idle
@@ -77,8 +87,8 @@ namespace Droplet::Graphics
 		/// @param p_yOffset position on the screen along the y-axis
 		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
 
-		SDL_Event				p_event;
-		inline static			SDL_InitState p_init {};
+		SDL_Event				Event;
+		inline static			SDL_InitState s_Init {};
 		
 	private:
 		
@@ -92,13 +102,13 @@ namespace Droplet::Graphics
 		/// @brief Creates a shader module from a vector containing raw code
 		/// @param p_device Pointer to the vulkan device
 		/// @param code Vector containing raw code
-		/// @return A vulkan shader module
+		/// @returns A vulkan shader module
 		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
 
 		/// @brief Creates a shader module from a blob containing code
 		/// @param p_device Pointer to the vulkan device
 		/// @param p_shaderBlob Blob containing code
-		/// @return A vulkan shader module
+		/// @returns A vulkan shader module
 		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
 		
 		/// @brief Records a command buffer for rendering an image

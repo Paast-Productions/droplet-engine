@@ -1,8 +1,10 @@
-#include <Graphics/VK/CameraController.hpp>
+#include "CameraController.hpp"
+
 #include <GameInput.hpp>
 
-using namespace Droplet;
-void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const Droplet::Graphics::SDL::Window &p_window)
+using namespace Droplet::Graphics;
+
+void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const SDL::Window &p_window)
 {
 	float velocity = m_movementSpeed * p_deltaTime;
 

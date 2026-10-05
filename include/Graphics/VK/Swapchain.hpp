@@ -19,6 +19,7 @@ namespace Droplet::Graphics::VK
 	public:
 		Swapchain() = delete;
 		
+		/// @brief Swapchain Nullptr Constructor
 		Swapchain(nullptr_t p_nullptr)
 		{
 			m_swapchain = { p_nullptr };
@@ -56,10 +57,10 @@ namespace Droplet::Graphics::VK
 		}
 		
 		/// @brief Swapchain Constructor
-		/// @param p_device Pointer to the device
-		/// @param p_physicalDevice Pointer to the hardware device
-		/// @param p_window Reference to the window
-		/// @param p_swapSurface Pointer to the swapchain surface
+		/// @param p_device Reference to the device
+		/// @param p_physicalDevice Reference to the hardware device
+		/// @param p_window Pointer to the window
+		/// @param p_swapSurface Reference to the swapchain surface
 		Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		~Swapchain() = default;
@@ -88,24 +89,24 @@ namespace Droplet::Graphics::VK
 		[[nodiscard]] const vk::SurfaceFormatKHR &GetSurfaceFormat() const;
 
 		/// @brief Swapchain imageview getter
-		/// @return Pointer to the swapchain image views
+		/// @return Reference to the swapchain image views
 		[[nodiscard]] const std::vector<vk::raii::ImageView> &GetImageViews() const;
 
 		/// @brief Swapchain iamge getter
-		/// @return Pointer to the swapchain images
+		/// @return Reference to the swapchain images
 		[[nodiscard]] const std::vector<vk::Image> &GetImages() const;
 
 		/// @brief Swapchain getter
-		/// @return Pointer to the swapchain
+		/// @return Reference to the swapchain
 		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const;
 
 	private:
 
 		/// @brief Class helper function for creating/recreating the swapchain
-		/// @param p_device Pointer to the vulkan device
-		/// @param p_physicalDevice Pointer to the hardware device
-		/// @param p_window Reference to the SDL window
-		/// @param p_swapSurface Pointer to the swapchain surface
+		/// @param p_device Reference to the vulkan device
+		/// @param p_physicalDevice Reference to the hardware device
+		/// @param p_window Pointer to the SDL window
+		/// @param p_swapSurface Reference to the swapchain surface
 		void CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		/// @brief Chooses the swapchain surface format amongst the available options
@@ -119,10 +120,10 @@ namespace Droplet::Graphics::VK
 		std::uint32_t ChooseSwapMinImageCount(const vk::SurfaceCapabilitiesKHR &p_surfaceCapabilities);
 
 		/// @brief Choose swapchain extent depending on window size
-		/// @param capabilities The capabilities of the swapchain surface
+		/// @param p_capabilities The capabilities of the swapchain surface
 		/// @param p_window Reference to the SDL window
 		/// @return The new swapchain extent
-		vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &capabilities, SDL_Window *p_window);
+		vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &p_capabilities, SDL_Window *p_window);
 
 		/// @brief Chooses a swapchain present mode from available options
 		/// @param p_availablePresentModes Available present mode options
@@ -130,7 +131,7 @@ namespace Droplet::Graphics::VK
 		vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> &p_availablePresentModes);
 
 		/// @brief Creates swapchain image views
-		/// @param p_device Pointer to the vulkan device
+		/// @param p_device Reference to the vulkan device
 		void CreateImageViews(const vk::raii::Device &p_device);
 
 		vk::raii::SwapchainKHR				m_swapchain = nullptr;

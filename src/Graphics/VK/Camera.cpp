@@ -1,18 +1,16 @@
-#include <SDL3/SDL.h>
+#include "Camera.hpp"
+
 #include <algorithm>
-#include <iostream>
 
-#include "Graphics/VK/Camera.hpp"
 
-#include "GameInput.hpp"
+using namespace Droplet::Graphics;
 
-using namespace Droplet;
 Camera::Camera(
 	glm::vec3 p_position,
 	glm::vec3 p_up,
 	float p_yaw,
-	float p_pitch)
-	: m_position(p_position),
+	float p_pitch) : 
+	m_position(p_position),
 	m_up(p_up),
 	m_worldUp(p_up),
 	m_yaw(p_yaw),
