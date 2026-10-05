@@ -24,6 +24,8 @@ namespace Droplet::Scene
 
 		m_root = std::make_unique<TreeNode>();
 		m_root->volume = Droplet::Math::AABB(p_center, p_extents);
+
+		m_isInitialized = true;
 	}
 
 	void Octree::Update()
@@ -44,9 +46,10 @@ namespace Droplet::Scene
 		AddToTreeNode(p_element, m_root);
 	}
 
-	std::vector<const std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
 	{
-		std::vector<const std::shared_ptr<Node>> nodes;
+	std::vector<std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
+	{
+		std::vector<std::shared_ptr<Node>> nodes;
 		CheckIntersection(nodes, p_frustum, m_root.get());
 
 		return nodes;
@@ -89,7 +92,6 @@ namespace Droplet::Scene
 				AABB volumes[C_MAX_CHILDREN];
 				SliceVolumeBoxes(p_node->volume, volumes);
 
-				// Put all elements of the current tree node aside in a temporary container
 				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
 					std::shared_ptr<Node> node = p_node->children[i]->element;
@@ -98,7 +100,7 @@ namespace Droplet::Scene
 					p_node->children[i]->isLeafNode = false;
 					p_node->children[i]->volume = volumes[i];
 					p_node->children[i]->totalChildren = C_MAX_CHILDREN;
-					p_node->children[i] = nullptr;
+					p_node->children[i]->element = nullptr;
 
 					AddToTreeNode(node, p_node->children[i]);
 				}
@@ -121,7 +123,7 @@ namespace Droplet::Scene
 		p_childVolumes[7] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h); // -x -y -z 
 	}
 
-	void Octree::CheckIntersection(std::vector<const std::shared_ptr<Node>> &p_nodes, const Droplet::Math::Frustum &p_frustum,
+	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Droplet::Math::Frustum &p_frustum,
 		const TreeNode *p_treeNode)
 	{
 		switch (Intersects(p_frustum, p_treeNode->volume))
@@ -137,7 +139,10 @@ namespace Droplet::Scene
 			{
 				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
-					CheckIntersection(p_nodes, p_frustum, p_treeNode->children[i].get());
+					if (p_treeNode->children[i] != nullptr)
+					{
+						CheckIntersection(p_nodes, p_frustum, p_treeNode->children[i].get());
+					}
 				}
 			}
 			break;
@@ -154,7 +159,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddAllNodeElements(std::vector<const std::shared_ptr<Node>> &p_nodes, const TreeNode *p_treeNode)
+	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const TreeNode *p_treeNode)
 	{
 		if (p_treeNode->isLeafNode) // TreeNode is a Node element
 		{
@@ -162,7 +167,13 @@ namespace Droplet::Scene
 		}
 		else // TreeNode is a volume box
 		{
-			AddAllNodeElements(p_nodes, p_treeNode);
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child != nullptr)
+				{
+					AddAllNodeElements(p_nodes, child.get());
+				}
+			}
 		}
 	}
 }
