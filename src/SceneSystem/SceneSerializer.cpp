@@ -22,13 +22,32 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
     return json;
 }
 
-void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& json, [[maybe_unused]] Scene& p_scene)
+void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManager p_sceneManager)
 {
+    p_sceneManager.LoadScene(p_json["name"]);
 
+    auto scene = p_sceneManager.GetScene(p_json["name"]);
+
+    if (!scene)
+    {
+        std::cerr << "Failed to load Game scene\n";
+        throw std::runtime_error("Cannot load Scene '" + p_json["name"]);
+    }
+
+    for (const auto &rootJson : p_json["roots"])
+    {
+        auto root = scene->AddNode(rootJson["name"]);
+        for (const auto childJson : rootJson["children"])
+        {
+            DeserializeNode(childJson, root, scene);
+        }
+    }
+
+    int version = p_json["version"]; 
 }
 
 
-nlohmann::json SceneSerializer::SerializeNode(const Node& p_node)
+nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 {
     nlohmann::json json;
 
@@ -55,9 +74,10 @@ nlohmann::json SceneSerializer::SerializeNode(const Node& p_node)
     return json;
 }
 
-void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] Node& p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
+void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
 {
-    auto node = p_parentNode.AddChild(p_scene->AddNode(p_json["name"]));
+    auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
+    
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 
@@ -67,20 +87,25 @@ void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_j
 
         if (type == "ScriptComponent")
         {
-            //node->AddComponent<ScriptComponent>()
+            node->AddComponent<ScriptComponent>(componentJson["filepath"]);
         }
         else if (type == "MeshComponent")
         {
-
+            node->AddComponent<MeshComponent>(componentJson["filepath"]);
         }
         else if (type == "PlayerComponent")
         {
-
+            //Create the component and either do the deserialization here or you can call the components deserialize function.
         }
         else
         {
             
         }
+    }
+
+    for (const auto &childJson : p_json["children"])
+    {
+        DeserializeNode(childJson, node, p_scene);
     }
 }
 

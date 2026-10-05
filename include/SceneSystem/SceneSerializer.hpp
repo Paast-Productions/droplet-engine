@@ -1,8 +1,10 @@
 #pragma once
 #include <json/json.hpp>
 #include <SceneSystem/Scene.hpp>
-#include <SceneSystem/Component.hpp>
+
 #include <SceneSystem/Node.hpp>
+#include "Components/ScriptComponent.hpp"
+#include "Components/MeshComponent.hpp"
 
 
 namespace Droplet::Scene
@@ -14,12 +16,12 @@ namespace Droplet::Scene
 
 		nlohmann::json SerializeScene(const std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
-		void DeserializeScene(const nlohmann::json& p_json, Droplet::Scene::Scene& p_scene);
+		void DeserializeScene(const nlohmann::json& p_json, SceneManager p_sceneManager);
 
 	private:
 
 		nlohmann::json SerializeNode(const Droplet::Scene::Node& p_node);
-		void DeserializeNode(const nlohmann::json& p_json, Droplet::Scene::Node& p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
+		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
 
 		nlohmann::json SerializeTransform(const Droplet::Scene::Transform& p_transform);
