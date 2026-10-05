@@ -20,7 +20,7 @@ bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath,
     }
 
     // TODO : Call self from actual node/component
-    file << "---@type TestNode\n";
+    file << "---@type Node\n";
     file << "self = nil\n\n";
 
     GenerateGlobal(file, p_globals);
@@ -70,17 +70,28 @@ void LuaApiGenerator::GenerateGlobal(std::ofstream &p_file,
     }
 }
 
-void LuaApiGenerator::GenerateClasses(std::ofstream &p_file, 
+void LuaApiGenerator::GenerateClasses(
+    std::ofstream &p_file,
     const std::vector<LuaClassDefinition> &p_classes)
 {
-    for (const LuaClassDefinition& luaClass : p_classes)
+    for (const LuaClassDefinition &luaClass : p_classes)
     {
         p_file << "---@class " << luaClass.name << "\n";
+
+        for (const LuaParameterDefinition &luaProperty : luaClass.properties)
+        {
+            p_file << "---@field "
+                << luaProperty.name
+                << " "
+                << luaProperty.type
+                << "\n";
+        }
+
         p_file << luaClass.name << " = {}\n\n";
 
-        for (const LuaFunctionDefinition& luaFunction : luaClass.functions)
+        for (const LuaFunctionDefinition &luaFunction : luaClass.functions)
         {
-            for (const LuaParameterDefinition& luaParameter : luaFunction.parameters)
+            for (const LuaParameterDefinition &luaParameter : luaFunction.parameters)
             {
                 p_file << "---@param "
                     << luaParameter.name
@@ -125,7 +136,6 @@ void LuaApiGenerator::GenerateClasses(std::ofstream &p_file,
         }
     }
 }
-
 std::string LuaApiGenerator::GetDefaultLuaValue(const std::string &p_type)
 {
     if (p_type == "number")

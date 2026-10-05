@@ -8,8 +8,12 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+    defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+
     if _TARGET_OS == "windows" then
 
+        buildoptions {"/Zi"}
+        
         includedirs
         {
             "../include",
@@ -52,7 +56,8 @@ project "Editor"
     {
         "Engine",
         "ImGui",
-        "json"
+        "json",
+        "tracy"
     }
 
     files 
@@ -66,6 +71,7 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),

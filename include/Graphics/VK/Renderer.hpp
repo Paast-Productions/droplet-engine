@@ -38,6 +38,8 @@
 
 #include <ImGui/imgui_impl_vulkan.h>
 
+namespace Droplet{class Engine;}
+
 // HACK: Implementation subject to change
 
 namespace Droplet::Graphics

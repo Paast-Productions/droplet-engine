@@ -3,12 +3,16 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
 Node::Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name)
     : m_name(p_name), m_transform(this), m_scene(p_scene)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_scene.lock())
     {
         throw std::invalid_argument("Cannot create Node: Scene is null.");
@@ -17,6 +21,9 @@ Node::Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name)
 
 void Node::Start()
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     auto scene = m_scene.lock();
 
     if (!scene || !scene->IsActive())
@@ -49,7 +56,10 @@ void Node::Update(float p_deltaTime)
         return;
     }
 
-    // TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
     for (const auto &component : m_components)
     {
@@ -69,11 +79,19 @@ void Node::Render()
         return;
     }
 
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    // TODO
+
     return;
 }
 
 void Node::RenderUI()
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     // TODO: implement node UI rendering wrapper logic
 
     // Recursively call RenderUI on components
@@ -87,6 +105,9 @@ void Node::RenderUI()
 
 void Node::SetActive(bool p_active)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (m_active == p_active)
     {
         return;
@@ -129,6 +150,9 @@ bool Node::IsActiveSelf() const
 
 std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!p_child)
     {
         throw std::invalid_argument("Cannot add nullptr as a child Node.");
@@ -188,6 +212,9 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
 void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!p_child)
     {
         throw std::invalid_argument("Cannot remove nullptr as a child Node.");
@@ -238,6 +265,9 @@ const std::string& Node::GetName() const
 
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!p_component)
     {
         throw std::invalid_argument("Cannot remove nullptr Component.");

@@ -27,7 +27,9 @@ void ScriptManager::Update(float p_deltaTime)
 	}
 }
 
-void ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std::string &p_scriptFile)
+void ScriptManager::CreateComponentScript(
+	Scene::Component *p_scriptComponent, 
+	const std::string &p_scriptFile)
 {
 	if (!IsLoaded(p_scriptFile))
 	{
@@ -46,16 +48,16 @@ void ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std:
 		throw std::invalid_argument("p_scriptComponent is recived as nullptr");
 	}
 
-	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator existing = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator existing = m_componentScripts.find(p_scriptComponent);
 	ScriptInstance *oldinstance = nullptr;
 
-	if (existing != m_scripts.end())
+	if (existing != m_componentScripts.end())
 	{
 		oldinstance = existing->second;
 	}
 	// We want to own unique ptrs, but return a instance
 	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent, m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -64,18 +66,59 @@ void ScriptManager::CreateScript(Scene::Component *p_scriptComponent, const std:
 		DestroyInstance(oldinstance);
 	}
 	m_scriptInstances.push_back(std::move(scriptInstance));
-	m_scripts[p_scriptComponent] = instance;
+	m_componentScripts[p_scriptComponent] = instance;
 }
 
-void ScriptManager::DetachScript(Scene::Component *p_scriptComponent)
+void ScriptManager::CreateBehaviourScript(
+	Scene::Behaviour *p_scriptBehaviour,
+	const std::string &p_scriptFile)
+{
+	if (p_scriptBehaviour == nullptr)
+	{
+		throw std::invalid_argument("p_scriptBehaviour is recived as nullptr");
+	}
+
+	if (!IsLoaded(p_scriptFile))
+	{
+		LoadScript(p_scriptFile);
+	}
+	std::print("load script successfully\n");
+
+	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
+	if (loadResult == nullptr)
+	{
+		throw std::invalid_argument("loadResult is recived as nullptr");
+	}
+
+	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator existing = m_behaviourScripts.find(p_scriptBehaviour);
+	ScriptInstance *oldinstance = nullptr;
+
+	if (existing != m_behaviourScripts.end())
+	{
+		oldinstance = existing->second;
+	}
+
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, m_StateHandler, *loadResult, p_scriptFile);
+
+	ScriptInstance *instance = scriptInstance.get();
+
+	if (oldinstance != nullptr)
+	{
+		DestroyInstance(oldinstance);
+	}
+	m_scriptInstances.push_back(std::move(scriptInstance));
+	m_behaviourScripts[p_scriptBehaviour] = instance;
+}
+
+void ScriptManager::DetachComponentScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
 		return;
 	}
-	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_componentScripts.find(p_scriptComponent);
 
-	if (it == m_scripts.end())
+	if (it == m_componentScripts.end())
 	{
 		//Couldn't find send an error
 		return;
@@ -83,6 +126,23 @@ void ScriptManager::DetachScript(Scene::Component *p_scriptComponent)
 	
 	ScriptInstance *instance = it->second;
 	// Destroy it
+	DestroyInstance(instance);
+}
+
+void ScriptManager::DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	if (p_scriptBehaviour == nullptr)
+	{
+		return;
+	}
+	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator it = m_behaviourScripts.find(p_scriptBehaviour);
+
+	if (it == m_behaviourScripts.end())
+	{
+		return;
+	}
+
+	ScriptInstance *instance = it->second;
 	DestroyInstance(instance);
 }
 
@@ -231,15 +291,15 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	return &it->second.loadResult;
 }
 
-void ScriptManager::ActivateScript(Scene::Component *p_scriptComponent)
+void ScriptManager::ActivateComponentScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
-		return; //No nullptr allowed
+		return;
 	}
-	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_componentScripts.find(p_scriptComponent);
 
-	if (it == m_scripts.end())
+	if (it == m_componentScripts.end())
 	{
 		return;
 	}
@@ -248,33 +308,79 @@ void ScriptManager::ActivateScript(Scene::Component *p_scriptComponent)
 
 	if (std::find(m_activeScripts.begin(), m_activeScripts.end(), instance) != m_activeScripts.end())
 	{
-		return; // The instance is already activated
+		return;
 	}
 	m_activeScripts.push_back(instance);
 }
 
-void ScriptManager::DeactivateScript(Scene::Component *p_scriptComponent)
+void Droplet::Script::ScriptManager::ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	if (p_scriptBehaviour == nullptr)
+	{
+		return;
+	}
+	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator it = m_behaviourScripts.find(p_scriptBehaviour);
+
+	if (it == m_behaviourScripts.end())
+	{
+		return;
+	}
+
+	ScriptInstance *instance = it->second;
+
+	if (std::find(m_activeScripts.begin(), m_activeScripts.end(), instance) != m_activeScripts.end())
+	{
+		return;
+	}
+	m_activeScripts.push_back(instance);
+}
+
+void ScriptManager::DeactivateComponentScript(Scene::Component *p_scriptComponent)
 {
 	if (p_scriptComponent == nullptr)
 	{
-		return; //No nullptr allowed
+		return;
 	}
-	std::unordered_map <Scene::Component*, ScriptInstance*>::iterator it = m_scripts.find(p_scriptComponent);
+	std::unordered_map <Scene::Component*, ScriptInstance*>::iterator it = m_componentScripts.find(p_scriptComponent);
 
-	if (it == m_scripts.end())
+	if (it == m_componentScripts.end())
 	{
-		return;//no script found
+		return;
 	}
 
 	ScriptInstance *instance = it->second;
 	std::vector<ScriptInstance*>::iterator activeIt = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
 	if (activeIt == m_activeScripts.end())
 	{
-		return; // already inactive
+		return;
 	}
 
-	*activeIt = m_activeScripts.back(); // overide the script we want to change with the last in the vector
-	m_activeScripts.pop_back(); //we can now remove the last entry since it is a duplicate
+	*activeIt = m_activeScripts.back();
+	m_activeScripts.pop_back();
+}
+
+void Droplet::Script::ScriptManager::DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	if (p_scriptBehaviour == nullptr)
+	{
+		return;
+	}
+	std::unordered_map <Scene::Behaviour *, ScriptInstance *>::iterator it = m_behaviourScripts.find(p_scriptBehaviour);
+
+	if (it == m_behaviourScripts.end())
+	{
+		return;
+	}
+
+	ScriptInstance *instance = it->second;
+	std::vector<ScriptInstance *>::iterator activeIt = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
+	if (activeIt == m_activeScripts.end())
+	{
+		return;
+	}
+
+	*activeIt = m_activeScripts.back();
+	m_activeScripts.pop_back();
 }
 
 void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
@@ -291,9 +397,6 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
-	std::filesystem::path scriptDirectory =
-		std::filesystem::current_path() / ".." / ".." / ".." / "src" / "TestScripts";
-
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())
@@ -324,11 +427,25 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 		m_activeScripts.pop_back();
 	}
 
-	for (std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it = m_scripts.begin(); it != m_scripts.end();)
+	for (std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it =
+		m_componentScripts.begin(); it != m_componentScripts.end();)
 	{
 		if (it->second == p_scriptInstance)
 		{
-			it = m_scripts.erase(it);
+			it = m_componentScripts.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	for (std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator it =
+		m_behaviourScripts.begin(); it != m_behaviourScripts.end();)
+	{
+		if (it->second == p_scriptInstance)
+		{
+			it = m_behaviourScripts.erase(it);
 		}
 		else
 		{

@@ -11,8 +11,12 @@ project "Engine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+    defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+
     if _TARGET_OS == "windows" then
 
+        buildoptions {"/Zi"}
+        
         -- vkPath required as windows doesn't add the vulkan sdk to lib path'
         local vkPath = os.getenv("VULKAN_SDK")
 
@@ -40,8 +44,8 @@ project "Engine"
         --"GoogleTest",
         "ImGui",
         "Sol2",
-        "Lua",
         "json",
+        "tracy",
         "VulkanMemoryAllocator"
         --"Jolt"
     }

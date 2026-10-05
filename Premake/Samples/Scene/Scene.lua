@@ -39,10 +39,12 @@ project "SceneSystem"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy"
     }
 
     links {
         "Engine",
+        "tracy",
         "ImGui"
     }

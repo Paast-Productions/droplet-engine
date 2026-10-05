@@ -17,55 +17,58 @@ project "Vulkan-HelloTriangle"
 
     if _TARGET_OS == "windows" then
         local vkPath = os.getenv("VULKAN_SDK")
-
+    
         libdirs
         {
             targetBuildPath .. "/Engine",
-            vkPath .. "/Lib"
+            vkPath .. "/Lib",
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64"
         }
-
+    
         includedirs
         {
             rootPath .. "/include",
             vkPath .. "/Include",
             targetBuildPath .. "/External/include"
         }
-
+    
         links {
             "Engine",
             "ImGui",
             "VulkanMemoryAllocator",
+            "tracy",
             AddQuotation("SDL3"),
             AddQuotation("Shaderc"),
             AddQuotation("Slangd"),
+            AddQuotation("lua-5.4.7"),
             AddQuotation("vulkan-1")
         }
-
     else
-
         libdirs
         {
             targetBuildPath .. "/Engine"
         }
-
+    
         includedirs
         {
             rootPath .. "/include",
             targetBuildPath .. "/External/include"
         }
-
+    
         links {
             "Engine",
             "ImGui",
             "VulkanMemoryAllocator",
             AddQuotation("SDL3"),
-            AddQuotation("vulkan")
+            AddQuotation("vulkan"),
+            AddQuotation("lua-5.4.7")
         }
-
     end
-
+    
     dependson {
         "Engine",
         "ImGui",
-        "VulkanMemoryAllocator"
+        "tracy",
+        "Sol2"
     }

@@ -5,6 +5,10 @@
 #include <cstdio>
 #include <Graphics/VK/Renderer.hpp>
 
+#include <tracy/public/tracy/Tracy.hpp>
+//#include <tracy/public/tracy/TracyVulkan.hpp>
+//#include <tracy/public/tracy/TracyLua.hpp>
+
 class DropletInstance; // TODO: Get definition from Droplet Engine
 
 Droplet::Graphics::SDL::WindowConfig config =
@@ -19,17 +23,23 @@ Droplet::Graphics::Renderer g_rend(config);
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
+	ZoneScoped;
+
 	// TODO: Init Droplet Engine
 	return nullptr;
 }
 
 static void DryOff([[maybe_unused]] DropletInstance *instance)
 {
+	ZoneScoped;
+
 	// TODO: Close Droplet Engine
 }
 
 static void InitImGui([[maybe_unused]] SDL_Window *window)
 {
+	ZoneScoped;
+
 	// TODO
 	
 
@@ -45,21 +55,27 @@ static void InitImGui([[maybe_unused]] SDL_Window *window)
 }
 
 // Frame
-static void NewFrame()
+[[maybe_unused]] static void NewFrame()
 {
+	ZoneScoped;
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
 	ImGui::NewFrame();
 }
 
-static void SubmitFrame(SDL_Window *window)
+[[maybe_unused]] static void SubmitFrame(SDL_Window *window)
 {
+	ZoneScoped;
+
 	ImGui::EndFrame();
 	SDL_RenderPresent(SDL_GetRenderer(window));
 }
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
+	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+
+	ZoneScopedN("Editor");
 	bool show_demo_window = true;
 	bool show_another_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -82,11 +98,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
 	InitImGui(wnd);
+	FrameMark;
 
 	// Run main loop
 	bool done = false;
 	while (!done)
 	{
+		ZoneScopedN("Main Loop");
+
 		// TODO: Update engine
 
 		SDL_Event event;
@@ -152,6 +171,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 
+		FrameMark;
 	}
 
 	g_rend.WaitIdle();
