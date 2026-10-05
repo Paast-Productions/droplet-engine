@@ -61,6 +61,9 @@ namespace Droplet::Script
 		/// @return True if the script was successfully reloaded, otherwise false.
 		bool Reload(sol::load_result &p_script);
 
+		/// @brief Reloads the script instance with a new Lua script.
+		void RenderInternalUI();
+
 		/// @brief Gets the path of the Lua script associated with this instance.
 		/// @return The path to the associated Lua script.
 		[[nodiscard]] std::string GetScriptPath();
