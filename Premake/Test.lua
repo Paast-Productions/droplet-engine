@@ -54,5 +54,5 @@ project "Test"
     defines
     {
         "GLM_ENABLE_EXPERIMENTAL",
-        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/ResourceManager/Assets") .. '"'
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
     }
