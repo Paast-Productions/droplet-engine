@@ -205,7 +205,7 @@ namespace Droplet
 
     std::uint32_t ResourceManager::GetRef(GUID p_guid)
     {
-        assert(m_isInitialized && "AssetManager is not initialized.");
+        assert(m_isInitialized && "Resource manager is not initialized.");
 
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
