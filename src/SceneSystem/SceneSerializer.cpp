@@ -22,7 +22,7 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
     return json;
 }
 
-void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& json, [[maybe_unused]] const Scene& p_scene)
+void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& json, [[maybe_unused]] Scene& p_scene)
 {
 
 }
@@ -32,8 +32,8 @@ nlohmann::json SceneSerializer::SerializeNode(const Node& p_node)
 {
     nlohmann::json json;
 
+    
     json["name"] = p_node.GetName();
-
     json["transform"] = SerializeTransform(p_node.GetTransform());
 
     json["components"] = nlohmann::json::array();
@@ -50,16 +50,42 @@ nlohmann::json SceneSerializer::SerializeNode(const Node& p_node)
         json["children"].push_back(SerializeNode(*child));
     }
 
+  
+
     return json;
 }
 
-void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Node& p_node)
+void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] Node& p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
 {
+    auto node = p_parentNode.AddChild(p_scene->AddNode(p_json["name"]));
+    
+    DeserializeTransform(p_json["transform"], node->GetTransform());
 
+    for (const auto &componentJson : p_json["components"])
+    {
+        std::string type = componentJson["type"];
+
+        if (type == "ScriptComponent")
+        {
+            //node->AddComponent<ScriptComponent>()
+        }
+        else if (type == "MeshComponent")
+        {
+
+        }
+        else if (type == "PlayerComponent")
+        {
+
+        }
+        else
+        {
+            
+        }
+    }
 }
 
 
-nlohmann::json SceneSerializer::SerializeTransform([[maybe_unused]] const Transform& p_transform)
+nlohmann::json SceneSerializer::SerializeTransform( const Transform& p_transform)
 {
     nlohmann::json json;
     
@@ -72,7 +98,7 @@ nlohmann::json SceneSerializer::SerializeTransform([[maybe_unused]] const Transf
     return json;
 }
 
-void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Transform& p_transform)
+void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json& p_json, Transform& p_transform)
 {
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 
@@ -80,5 +106,8 @@ void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json
 
     glm::vec3 scale = glm::vec3(p_json["scale"][0], p_json["scale"][1], p_json["scale"][2]);
 
-    //TODO: Figure out how to make transform and add it to the node
+    p_transform.SetPosition(position);
+    p_transform.SetRotation(rotation);
+    p_transform.SetScale(scale);
+
 }

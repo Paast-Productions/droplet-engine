@@ -38,7 +38,7 @@ nlohmann::json Component::Serialize()
 
 	compJson["data"] = SerializeImpl();
 
-    return compJson;
+    return SerializeImpl();
 }
 
 void Component::Deserialize(nlohmann::json p_compJson)

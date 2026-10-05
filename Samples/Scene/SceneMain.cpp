@@ -32,6 +32,13 @@ public:
             << p_deltaTime
             << " seconds\n";
     }
+
+    nlohmann::json SerializeImpl() override
+    {
+        nlohmann::json json;
+        json["type"] = "PlayerComponent";
+        return json;
+    }
 };
 
 
@@ -90,6 +97,8 @@ int main()
     player->GetTransform().SetPosition(
         glm::vec3(10.0f, 0.0f, 0.0f));
 
+    player->GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+
     camera->GetTransform().SetPosition(
         glm::vec3(0.0f, 2.0f, -5.0f));
 
@@ -133,12 +142,18 @@ int main()
         sceneManager.Update(deltaTime);
     }
 
+    //==================================================
+    // Serialize
+    //==================================================
+
+    SceneSerializer seri;
+    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
+    Droplet::Core::JsonIO::Write("testJson.json", json);
+
     // ==================================================
     // Deactivate / unload
     // ==================================================
-    SceneSerializer seri;
-    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
-    Droplet::Core::JsonIO::Write("testJson.json",json);
+
 
     return 0;
 }
