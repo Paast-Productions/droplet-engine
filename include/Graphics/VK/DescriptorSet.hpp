@@ -4,8 +4,6 @@
 #include <vulkan/vulkan_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
-#include <Graphics/VK/DescriptorSetLayout.hpp>
-
 namespace Droplet::Graphics::VK
 {
     class DescriptorSet
