@@ -3,7 +3,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/ComponentRegistry.hpp>
+
 
 namespace Droplet::Serializer
 {
@@ -21,8 +21,6 @@ namespace Droplet::Serializer
 		nlohmann::json SerializeNode(const Droplet::Scene::Node& p_node);
 		void DeserializeNode(const nlohmann::json& p_json,const Droplet::Scene::Node& p_node);
 
-		nlohmann::json SerializeComponent(const Droplet::Scene::Component& p_component);
-		void DeserializeComponent(const nlohmann::json& p_json, const Droplet::Scene::Component& p_component);
 
 		nlohmann::json SerializeTransform(const Droplet::Scene::Transform& p_transform);
 		void DeserializeTransform(const nlohmann::json& p_json, const Droplet::Scene::Transform& p_transform);

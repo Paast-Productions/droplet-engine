@@ -46,7 +46,16 @@ void ScriptComponent::DeactivateScript()
     ScriptSystem::Get().DeactivateScript(this);
 }
 
-nlohmann::json Droplet::Scene::ScriptComponent::SerializeComponent()
+nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
 {
-    return nlohmann::json();
+    nlohmann::json json;
+
+    json["type"] = "ScriptComponent";
+    json["filepath"] = GetScriptPath();
+
+    return json;
+}
+
+void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+{
 }

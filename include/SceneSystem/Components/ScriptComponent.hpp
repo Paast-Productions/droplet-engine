@@ -79,7 +79,9 @@ namespace Droplet::Scene
             Args&&... p_args);
 
 
-        nlohmann::json SerializeComponent() override;
+        nlohmann::json SerializeImpl() override;
+        void DeserializeImpl(nlohmann::json p_compJson) override;
+
 
     private:
         /// @brief Path to the Lua script associated with this component.
