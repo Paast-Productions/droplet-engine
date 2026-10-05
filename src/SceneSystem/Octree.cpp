@@ -20,8 +20,7 @@ namespace Droplet::Scene
 		}
 
 		m_root = std::make_unique<TreeNode>();
-
-		// TODO: Create AABB to the root node
+		m_root->volume = Droplet::Math::AABB(p_center, p_extents);
 	}
 
 	void Octree::Update()
