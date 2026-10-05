@@ -55,7 +55,7 @@ namespace Droplet
 		/// @param p_offset The byte offset of the vertex attribute in the vertex data.
 		/// @param p_size The byte size of the vertex attribute in the vertex data.
 		/// @return True if the vertex attribute was found in the vertex layout, otherwise false.
-		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t p_offset, std::size_t p_size) const;
+		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t &p_offset, std::size_t &p_size) const;
 
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
