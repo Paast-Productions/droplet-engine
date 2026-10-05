@@ -21,8 +21,8 @@ namespace Droplet::Math
 	/// @brief Struct for storing information about a ray hit.
 	struct RayHit
 	{
-		glm::vec3	hitPoint = glm::vec3(0.0f);
-		glm::vec3	hitNormal = glm::vec3(0.0f);
+		glm::vec3	point = glm::vec3(0.0f);
+		glm::vec3	normal = glm::vec3(0.0f);
 		float		distance = 0.0f;
 		bool		didHit = false;
 	};

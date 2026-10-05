@@ -115,7 +115,7 @@ RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) cons
 	{
 		hit.didHit = true;
 		hit.distance = ray.tmax;
-		hit.hitPoint = p_ray.pos + p_ray.dir * ray.tmax;
+		hit.point = p_ray.pos + p_ray.dir * ray.tmax;
 
 		std::size_t j = SHOULD_PERMUTE ? primID : m_bvh->prim_ids[primID];
 		const v2::PrecomputedTri<float> &tri = m_precomputedTris[j];
@@ -132,7 +132,7 @@ RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) cons
 			normal = -normal;
 		}
 
-		hit.hitNormal = normal;
+		hit.normal = normal;
 	}
 
 	return hit;

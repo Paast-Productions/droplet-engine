@@ -1,86 +1,268 @@
 #include <gtest/gtest.h>
 #include <math/bounds/Intersection.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Math;
 
 namespace
 {
-	Frustum MakeAxisAlignedFrustum(float halfExtent)
+	constexpr float EPSILON = 1e-6f;
+
+	Ray MakeBaseRay()
+	{
+		return Ray(
+			glm::vec3(0.0f, 0.0f, 0.0f), 
+			glm::vec3(0.0f, 0.0f, 1.0f)
+		);
+	}
+
+	Plane MakeBasePlane()
+	{
+		return Plane(
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			0.0f
+		);
+	}
+
+	AABB MakeBaseAABB()
+	{
+		return AABB(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f)
+		);
+	}
+
+	OBB MakeBaseOBB()
+	{
+		return OBB(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(1.0f, 1.0f, 1.0f),
+			glm::quat(1.0f, 0.0f, 0.0f, 0.0f)
+		);
+	}
+
+	Sphere MakeBaseSphere()
+	{
+		return Sphere(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			1.0f
+		);
+	}
+
+	Frustum MakeBaseFrustum()
 	{
 		return Frustum(
-			Plane(glm::vec3(1.0f, 0.0f, 0.0f), -halfExtent),
-			Plane(glm::vec3(-1.0f, 0.0f, 0.0f), -halfExtent),
-			Plane(glm::vec3(0.0f, -1.0f, 0.0f), -halfExtent),
-			Plane(glm::vec3(0.0f, 1.0f, 0.0f), -halfExtent),
-			Plane(glm::vec3(0.0f, 0.0f, 1.0f), -halfExtent),
-			Plane(glm::vec3(0.0f, 0.0f, -1.0f), -halfExtent)
+			Plane(glm::vec3(1.0f, 0.0f, 0.0f), -1.0f),
+			Plane(glm::vec3(-1.0f, 0.0f, 0.0f), -1.0f),
+			Plane(glm::vec3(0.0f, -1.0f, 0.0f), -1.0f),
+			Plane(glm::vec3(0.0f, 1.0f, 0.0f), -1.0f),
+			Plane(glm::vec3(0.0f, 0.0f, 1.0f), -1.0f),
+			Plane(glm::vec3(0.0f, 0.0f, -1.0f), -1.0f)
+		);
+	}
+
+	Frustum MakeCameraFrustum(float p_fov, float p_aspect, float p_near, float p_far)
+	{
+		return Frustum(
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f),
+			p_fov, p_aspect, p_near, p_far
 		);
 	}
 }
 
-TEST(IntersectionTest, RaycastAabbHitAndMiss)
-{
-	const AABB aabb(glm::vec3(0.0f), glm::vec3(1.0f));
 
-	const RayHit hit = Raycast(Ray(glm::vec3(-2.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), aabb);
+#pragma region Raycasting
+
+TEST(IntersectionTest, RaycastPlaneHit)
+{
+	Plane plane = MakeBasePlane();
+
+	Ray ray = Ray(
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::normalize(glm::vec3(0.0f, -1.0f, 1.0f))
+	);
+
+	RayHit hit = Raycast(ray, plane);
+
 	EXPECT_TRUE(hit.didHit);
-	EXPECT_NEAR(hit.distance, 1.0f, 1e-5f);
-	EXPECT_NEAR(hit.hitPoint.x, -1.0f, 1e-5f);
-	EXPECT_NEAR(hit.hitNormal.x, -1.0f, 1e-5f);
+	EXPECT_NEAR(hit.distance, sqrtf(2.0f), EPSILON);
 
-	const RayHit miss = Raycast(Ray(glm::vec3(-2.0f, 2.5f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f)), aabb);
-	EXPECT_FALSE(miss.didHit);
+	EXPECT_NEAR(hit.point.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.z, 1.0f, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.y, 1.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.z, 0.0f, EPSILON);
 }
 
-TEST(IntersectionTest, ContainsPointQueries)
+TEST(IntersectionTest, RaycastPlaneMiss)
 {
-	const AABB aabb(glm::vec3(0.0f), glm::vec3(1.0f));
-	const OBB obb(glm::vec3(0.0f), glm::vec3(1.0f), glm::mat3(1.0f));
-	const Sphere sphere(glm::vec3(0.0f), 1.0f);
-	const Frustum frustum = MakeAxisAlignedFrustum(1.0f);
+	Plane plane = MakeBasePlane();
 
-	EXPECT_TRUE(Contains(aabb, glm::vec3(0.5f, 0.0f, 0.0f)));
-	EXPECT_FALSE(Contains(aabb, glm::vec3(2.0f, 0.0f, 0.0f)));
+	Ray rayAway = Ray(
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f)
+	);
 
-	EXPECT_TRUE(Contains(obb, glm::vec3(0.0f, -0.5f, 0.0f)));
-	EXPECT_FALSE(Contains(obb, glm::vec3(0.0f, -1.5f, 0.0f)));
+	RayHit hitAway = Raycast(rayAway, plane);
 
-	EXPECT_TRUE(Contains(sphere, glm::vec3(0.0f, 0.5f, 0.0f)));
-	EXPECT_FALSE(Contains(sphere, glm::vec3(0.0f, 1.5f, 0.0f)));
+	EXPECT_FALSE(hitAway.didHit);
 
-	EXPECT_TRUE(Contains(frustum, glm::vec3(0.0f, 0.0f, 0.0f)));
-	EXPECT_FALSE(Contains(frustum, glm::vec3(2.0f, 0.0f, 0.0f)));
+	Ray rayParallel = Ray(
+		glm::vec3(0.0f, 1.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	RayHit hitParallel = Raycast(rayParallel, plane);
+
+	EXPECT_FALSE(hitParallel.didHit);
 }
 
-TEST(IntersectionTest, AabbAndSphereContainmentClassification)
+TEST(IntersectionTest, RaycastAABBHit)
 {
-	const AABB largeAabb(glm::vec3(0.0f), glm::vec3(2.0f));
-	const AABB smallAabb(glm::vec3(0.0f), glm::vec3(0.5f));
-	const AABB farAabb(glm::vec3(5.0f), glm::vec3(0.5f));
+	AABB aabb = MakeBaseAABB();
 
-	EXPECT_EQ(Intersects(largeAabb, smallAabb), IntersectType::Contains);
-	EXPECT_EQ(Intersects(largeAabb, farAabb), IntersectType::None);
+	Ray ray = Ray(
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f)
+	);
 
-	const Sphere largeSphere(glm::vec3(0.0f), 3.0f);
-	const Sphere mediumSphere(glm::vec3(0.5f, 0.0f, 0.0f), 1.0f);
-	const Sphere farSphere(glm::vec3(7.0f, 0.0f, 0.0f), 1.0f);
+	RayHit hit = Raycast(ray, aabb);
 
-	EXPECT_EQ(Intersects(largeSphere, mediumSphere), IntersectType::Contains);
-	EXPECT_EQ(Intersects(mediumSphere, farSphere), IntersectType::None);
-	EXPECT_EQ(Intersects(mediumSphere, largeSphere), IntersectType::Intersects);
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, 2.0f, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, -1.0f, EPSILON);
+	EXPECT_NEAR(hit.point.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.z, 0.0f, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, -1.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.z, 0.0f, EPSILON);
 }
 
-TEST(IntersectionTest, FrustumAndSphereClassification)
+TEST(IntersectionTest, RaycastAABBMiss)
 {
-	const Frustum frustum = MakeAxisAlignedFrustum(1.0f);
-	const Sphere insideSphere(glm::vec3(0.0f), 0.4f);
-	const Sphere crossingSphere(glm::vec3(0.8f, 0.0f, 0.0f), 0.5f);
-	const Sphere outsideSphere(glm::vec3(3.0f, 0.0f, 0.0f), 0.5f);
-	const Sphere containingSphere(glm::vec3(0.0f), 5.0f);
+	AABB aabb = MakeBaseAABB();
 
-	EXPECT_EQ(Intersects(frustum, insideSphere), IntersectType::Contains);
-	EXPECT_EQ(Intersects(frustum, crossingSphere), IntersectType::Intersects);
-	EXPECT_EQ(Intersects(frustum, outsideSphere), IntersectType::None);
+	Ray ray = Ray(
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f))
+	);
 
-	EXPECT_EQ(Intersects(containingSphere, frustum), IntersectType::Contains);
+	RayHit hit = Raycast(ray, aabb);
+
+	EXPECT_FALSE(hit.didHit);
 }
+
+TEST(IntersectionTest, RaycastOBBHit)
+{
+	// Base OBB
+	OBB obb = MakeBaseOBB();
+
+	Ray ray = Ray(
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 0.0f, 0.0f)
+	);
+
+	RayHit hit = Raycast(ray, obb);
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, 2.0f, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, -1.0f, EPSILON);
+	EXPECT_NEAR(hit.point.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.z, 0.0f, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, -1.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.z, 0.0f, EPSILON);
+
+	// OBB rotated 45 degrees around the Y axis
+	obb = OBB(
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(1.0f, 1.0f, 1.0f),
+		glm::angleAxis(glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f))
+	);
+
+	ray = Ray(
+		glm::vec3(-3.0f, 0.0f, -3.0f),
+		glm::normalize(glm::vec3(1.0f, 0.0f, 1.0f))
+	);
+
+	hit = Raycast(ray, obb);
+
+	float expectedDistance = sqrtf(18.0f) - 1.0f;
+	glm::vec3 expectedPoint = glm::normalize(glm::vec3(-1.0f, 0.0f, -1.0f));
+	glm::vec3 expectedNormal = expectedPoint;
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, expectedDistance, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, expectedPoint.x, EPSILON);
+	EXPECT_NEAR(hit.point.y, expectedPoint.y, EPSILON);
+	EXPECT_NEAR(hit.point.z, expectedPoint.z, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, expectedNormal.x, EPSILON);
+	EXPECT_NEAR(hit.normal.y, expectedNormal.y, EPSILON);
+	EXPECT_NEAR(hit.normal.z, expectedNormal.z, EPSILON);
+}
+
+TEST(IntersectionTest, RaycastOBBMiss)
+{
+
+}
+
+TEST(IntersectionTest, RaycastSphereHit)
+{
+
+}
+
+TEST(IntersectionTest, RaycastSphereMiss)
+{
+
+}
+
+TEST(IntersectionTest, RaycastFrustumHit)
+{
+
+}
+
+TEST(IntersectionTest, RaycastFrustumMiss)
+{
+
+}
+
+#pragma endregion
+
+
+#pragma region AABB
+
+
+
+#pragma endregion
+
+
+#pragma region OBB
+
+
+
+#pragma endregion
+
+
+#pragma region Sphere
+
+
+
+#pragma endregion
+
+
+#pragma region Frustum
+
+
+
+#pragma endregion

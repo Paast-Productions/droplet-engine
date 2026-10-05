@@ -212,7 +212,7 @@ namespace
 		return true;
 	}
 
-	[[nodiscard]] bool RaycastAABBInternal(const glm::vec3 &p_rayOrigin, const glm::vec3 &p_rayDir, const AABB &p_aabb, float &p_hitT, glm::vec3 &p_hitNormal)
+	[[nodiscard]] bool RaycastAABBInternal(const glm::vec3 &p_rayOrigin, const glm::vec3 &p_rayDir, const AABB &p_aabb, float &p_hitT, glm::vec3 &p_normal)
 	{
 		glm::vec3 min = p_aabb.GetMin();
 		glm::vec3 max = p_aabb.GetMax();
@@ -275,12 +275,12 @@ namespace
 		if (tMin >= 0.0f)
 		{
 			p_hitT = tMin;
-			p_hitNormal = tMinNormal;
+			p_normal = tMinNormal;
 		}
 		else
 		{
 			p_hitT = tMax;
-			p_hitNormal = tMaxNormal;
+			p_normal = tMaxNormal;
 		}
 
 		return true;
@@ -296,13 +296,13 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Plane &p_plane)
 	RayHit hit{};
 	hit.didHit = result;
 	hit.distance = intersectionDistance;
-	hit.hitPoint = p_ray.pos + p_ray.dir * intersectionDistance;
-	hit.hitNormal = p_plane.normal;
+	hit.point = p_ray.pos + p_ray.dir * intersectionDistance;
+	hit.normal = p_plane.normal;
 
 	// Flip the normal if the ray is coming from behind the plane
 	if (glm::dot(p_ray.dir, p_plane.normal) > 0.0f)
 	{
-		hit.hitNormal = -p_plane.normal;
+		hit.normal = -p_plane.normal;
 	}
 
 	return hit;
@@ -313,16 +313,16 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const AABB &p_aabb)
 	RayHit hit{};
 
 	float hitT = 0.0f;
-	glm::vec3 hitNormal(0.0f);
-	if (!RaycastAABBInternal(p_ray.pos, p_ray.dir, p_aabb, hitT, hitNormal))
+	glm::vec3 normal(0.0f);
+	if (!RaycastAABBInternal(p_ray.pos, p_ray.dir, p_aabb, hitT, normal))
 	{
 		return hit;
 	}
 
 	hit.didHit = true;
-	hit.hitPoint = p_ray.pos + p_ray.dir * hitT;
-	hit.hitNormal = hitNormal;
-	hit.distance = glm::length(hit.hitPoint - p_ray.pos);
+	hit.point = p_ray.pos + p_ray.dir * hitT;
+	hit.normal = normal;
+	hit.distance = glm::length(hit.point - p_ray.pos);
 	return hit;
 }
 
@@ -341,9 +341,9 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const OBB &p_obb)
 
 	RayHit hit{};
 	hit.didHit = true;
-	hit.hitPoint = p_ray.pos + p_ray.dir * hitT;
-	hit.hitNormal = glm::normalize(p_obb.orientation * localNormal);
-	hit.distance = glm::length(hit.hitPoint - p_ray.pos);
+	hit.point = p_ray.pos + p_ray.dir * hitT;
+	hit.normal = glm::normalize(p_obb.orientation * localNormal);
+	hit.distance = glm::length(hit.point - p_ray.pos);
 	return hit;
 }
 
@@ -356,8 +356,8 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Sphere &p_sphere)
 	RayHit hit{};
 	hit.didHit = result;
 	hit.distance = glm::length(intersectionPoint - p_ray.pos);
-	hit.hitPoint = intersectionPoint;
-	hit.hitNormal = intersectionNormal;
+	hit.point = intersectionPoint;
+	hit.normal = intersectionNormal;
 
 	return hit;
 }
@@ -376,7 +376,7 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Frustum &p_frustum)
 			continue;
 		}
 
-		if (!Contains(p_frustum, hit.hitPoint))
+		if (!Contains(p_frustum, hit.point))
 		{
 			continue;
 		}
