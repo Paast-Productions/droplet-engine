@@ -66,10 +66,10 @@ namespace Droplet::Graphics
 		~Renderer();
 		
 		/// @brief Renders a singular frame
-		void	drawFrame();
+		void	DrawFrame();
 		
 		/// @brief Resizes the window
-		void	windowResize();
+		void	ResizeWindow();
 		
 		/// @brief Getter-function for an SDL_Window pointer
 		/// @returns An SDL Window

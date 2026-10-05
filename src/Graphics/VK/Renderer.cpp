@@ -117,7 +117,7 @@ static std::vector<char> readFile(const std::string &filename)
 }
 
 //Called to notify the renderer of a window resizing event
-void Renderer::windowResize()
+void Renderer::ResizeWindow()
 {
 	m_framebufferResized = true;
 }
@@ -331,7 +331,7 @@ void Renderer::CreateSyncObjects()
 }
 
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
-void Renderer::drawFrame()
+void Renderer::DrawFrame()
 {
 	// Create temporary deltaTime that Update's will use
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;

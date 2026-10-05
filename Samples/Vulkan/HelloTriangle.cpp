@@ -33,7 +33,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 
 			if (rnd.Event.type == SDL_EVENT_WINDOW_RESIZED || rnd.Event.type == SDL_EVENT_WINDOW_MINIMIZED)
 			{
-				rnd.windowResize();
+				rnd.ResizeWindow();
 			}
 
 			if (rnd.Event.type == SDL_EVENT_KEY_DOWN) 
@@ -45,7 +45,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				
 			}
 		}
-		rnd.drawFrame();
+		rnd.DrawFrame();
 	}
     
     return 0;

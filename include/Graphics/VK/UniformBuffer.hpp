@@ -81,7 +81,7 @@ namespace Droplet::Graphics::VK
 		}
 		
 		/// @brief Updates the buffer
-		/// @param p_data The data to 
+		/// @param p_data The data to pass into the GPU
 		template <typename T>
 		void UpdateBuffer(const T& p_data) const
 		{

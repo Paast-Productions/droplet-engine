@@ -38,7 +38,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Get the vector of the direction the camera is facing
 		/// @returns glm::vec3 Vector of which the camera is facing 
-		[[nodiscard]] glm::vec3 GetFront() const;
+		[[nodiscard]] glm::vec3 GetForward() const;
 		
 		/// @brief Get the value of the direction to the right of the camera
 		/// @returns glm::vec3 Vector to the right of the camera
@@ -61,7 +61,7 @@ namespace Droplet::Graphics
 
 	private:
 		glm::vec3 m_position {};
-		glm::vec3 m_front {};
+		glm::vec3 m_forward {};
 		glm::vec3 m_up {};
 		glm::vec3 m_right {};
 		glm::vec3 m_worldUp {};

@@ -146,7 +146,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 
 		ImGui::Render();
-		g_rend.drawFrame();
+		g_rend.DrawFrame();
 
 		g_rend.WaitIdle();
 		ImGui::UpdatePlatformWindows();
