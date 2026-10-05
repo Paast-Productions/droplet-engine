@@ -30,6 +30,7 @@ project "Engine"
         "json",
         "Assimp",
         "Gli",
+        "bvh",
         "Stb"
     }
     --buildoptions { "-FIEnginePCH.hpp" }

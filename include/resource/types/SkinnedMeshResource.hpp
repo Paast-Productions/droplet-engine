@@ -1,6 +1,7 @@
 #pragma once
 #include "resource/types/MeshResource.hpp"
 
+#include <math/bounds/OBB.hpp>
 #include <glm/glm.hpp>
 
 #include <unordered_map>
@@ -23,7 +24,7 @@ namespace Droplet
 			std::string		name = "Bone";
 			int				parentIndex = -1;	// -1: root
 			glm::mat4		offsetMat{};		// Mesh-space to bone-space at bind pose (default pose)
-			glm::vec3		bounds[2]{};		// AABB in bone space at bind pose
+			Math::OBB		bounds{};			// OBB in bone space at bind pose
 		};
 
 		/// @brief Adds a bone to the skinned mesh resource.
@@ -46,6 +47,9 @@ namespace Droplet
 		/// @brief Gets the bone map for the skinned mesh.
 		/// @return A map of bone names to their indices in the bone vector.
 		[[nodiscard]] const std::unordered_map<std::string, int> &GetBoneMap() const;
+
+		/// @brief Generates the bounding volumes for each bone in the skinned mesh.
+		void GenerateBoneBounds();
 
 	private:
 		std::vector<Bone>						m_bones;

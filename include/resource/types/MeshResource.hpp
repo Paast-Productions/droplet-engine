@@ -1,5 +1,7 @@
 #pragma once
-#include "resource/IResource.hpp"
+#include <resource/IResource.hpp>
+#include <resource/loaders/BvhLoader.hpp>
+#include <math/bounds/MeshBVH.hpp>
 
 #include <string>
 #include <vector>
@@ -9,14 +11,10 @@ namespace Droplet
     /// @brief Class for mesh resources.
 	class MeshResource : public IResource
 	{
+		friend class BvhLoader;
+
 	public:
 		using VertexAttribute = std::pair<std::string, std::size_t>;
-
-		/// @brief Struct for bounding volume hierarchy (BVH) data for the mesh.
-		struct MeshBVH
-		{
-			// TODO
-		};
 
 		/// @brief Sets the mesh data for the resource.
 		/// @param p_vertexData The vertex data for the mesh.
@@ -48,6 +46,17 @@ namespace Droplet
 		/// @return A vector of pairs representing the vertex layout for the mesh data. Each pair contains the attribute name and its byte size.
 		[[nodiscard]] const std::vector<VertexAttribute>	&GetVertexLayout() const	{ return m_vertexLayout; }
 
+		/// @brief Gets the bounding volume hierarchy (BVH) for the mesh resource.
+		/// @return A reference to the BVH for the mesh resource.
+		[[nodiscard]] const Math::MeshBVH &GetBVH() const { return m_bvh; }
+
+		/// @brief Finds a vertex attribute in the mesh resource's vertex layout.
+		/// @param p_attribute The name of the vertex attribute to find.
+		/// @param p_offset The byte offset of the vertex attribute in the vertex data.
+		/// @param p_size The byte size of the vertex attribute in the vertex data.
+		/// @return True if the vertex attribute was found in the vertex layout, otherwise false.
+		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t p_offset, std::size_t p_size) const;
+
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
 		std::vector<std::uint32_t>		m_indexData{};			// Index data
@@ -55,9 +64,6 @@ namespace Droplet
 		std::size_t						m_vertexByteSize = 0;	// Byte size of a single vertex
 		std::vector<VertexAttribute>	m_vertexLayout{};		// List of attribute names and their byte sizes
 
-		MeshBVH							m_bvh{};				// Bounding volume hierarchy for the mesh
-
-	private:
-
+		Math::MeshBVH					m_bvh{};				// Bounding volume hierarchy for the mesh
 	};
 }

@@ -28,3 +28,6 @@
 [submodule "External/Stb"]
 	path = External/Stb
 	url = git@github.com:nothings/stb.git
+[submodule "external/bvh"]
+	path = External/bvh
+	url = git@github.com:madmann91/bvh.git

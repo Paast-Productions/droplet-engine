@@ -36,6 +36,7 @@ project "AssetManager-AssetLoading"
         "Assimp",
         "json",
 	    "Gli",
+	    "bvh",
 	    "Stb"
     }
 

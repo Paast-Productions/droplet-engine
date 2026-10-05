@@ -38,6 +38,7 @@ project "Test"
         "Engine",
         "Assimp",
         "json",
+        "bvh",
         "stb"
     }
 
