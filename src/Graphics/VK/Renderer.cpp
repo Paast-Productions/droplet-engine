@@ -386,7 +386,7 @@ void Renderer::drawFrame()
 		static_cast<float>(extent.width) /
 		static_cast<float>(extent.height);
 
-	Droplet::Graphics::VK::UniformBufferObject ubo
+	VK::UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.view = m_camera.GetViewMatrix(),
