@@ -53,6 +53,7 @@ namespace Droplet
 		[[nodiscard]] const std::unordered_map<std::string, int> &GetBoneMap() const;
 
 		/// @brief Generates the bounding volumes for each bone in the skinned mesh.
+		/// @throw std::runtime_error If vertex layout is incorrect.
 		void GenerateBoneBounds();
 
 	private:
