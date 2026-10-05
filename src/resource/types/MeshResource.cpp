@@ -45,6 +45,15 @@ std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
     fallback->SetMeshData(vertexData, indices, vertexByteSize, layout);
     
     // TODO: Should bvh be generated here?
+
+    try
+    {
+        BvhLoader::GenerateMeshBVH(*fallback);
+    }
+    catch (...)
+    {
+        // TODO: Log bvh generation failure
+    }
     
     return fallback;
 }
