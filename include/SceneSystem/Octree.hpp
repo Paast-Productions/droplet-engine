@@ -35,7 +35,7 @@ namespace Droplet::Scene
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
-		 std::vector<const std::shared_ptr<Node>> GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum);
+		std::vector<const std::shared_ptr<Node>> GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum);
 
 	private:
 		struct TreeNode;
@@ -61,8 +61,8 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void AddAllNodeElements(std::vector<const std::shared_ptr<Node>> &p_nodes, const TreeNode *p_treeNode);
 
-		static constexpr std::uint32_t C_MAX_CHILDREN = 8;
-		static constexpr std::uint32_t C_MAX_DEPTH = 4;
+		static constexpr std::uint8_t C_MAX_CHILDREN = 8;
+		static constexpr std::uint8_t C_MAX_DEPTH = 4;
 
 		struct TreeNode
 		{
@@ -70,7 +70,7 @@ namespace Droplet::Scene
 			Droplet::Math::AABB volume;
 
 			std::shared_ptr<Node> element;
-			std::uint32_t totalChildren = 0;
+			std::uint8_t totalChildren = 0;
 			std::unique_ptr<TreeNode> children[C_MAX_CHILDREN] = { nullptr };
 		};
 
