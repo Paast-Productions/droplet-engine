@@ -80,4 +80,6 @@ void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json
     glm::quat rotation = glm::quat(p_json["rotation"][0], p_json["rotation"][1], p_json["rotation"][2], p_json["rotation"][3]);
 
     glm::vec3 scale = glm::vec3(p_json["scale"][0], p_json["scale"][1], p_json["scale"][2]);
+
+    //TODO: Figure out how to make transform and add it to the node
 }
