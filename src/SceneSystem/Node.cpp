@@ -1,8 +1,9 @@
 #include "Node.hpp"
 #include "Scene.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
+
 #include <stdexcept>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Droplet::Scene;
 
@@ -255,6 +256,10 @@ std::shared_ptr<Node> Node::GetParent() const
 
 const BoundingBox &Node::GetBounds() const
 {
+    if (m_boundsOverride)
+    {
+        return m_boundsOverride->GetBounds();
+    }
     return m_bounds;
 }
 

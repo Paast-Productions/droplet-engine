@@ -3,6 +3,8 @@
 #include <memory>
 #include <string_view>
 
+#include "BoundingBox.hpp"
+
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
@@ -54,11 +56,39 @@ namespace Droplet::Scene
         /// owner no longer exists.
         std::shared_ptr<Node> GetOwner() const;
 
+        /// @brief Determines whether the component provides custom bounds.
+        ///
+        /// Components normally use the bounding box provided by their Node.
+        /// Components that provide their own bounds, such as a MeshComponent,
+        /// should override this function and return true.
+        ///
+        /// @return True if the component provides custom bounds, otherwise false.
+        virtual bool HasBoundsOverride() const
+        {
+            return false;
+        }
+
+        /// @brief Gets the custom bounds provided by the component.
+        ///
+        /// This function is used by components that provide bounds that are
+        /// more specific than the Node's default bounding box. For example,
+        /// a MeshComponent can provide bounds calculated from its mesh.
+        ///
+        /// The default implementation returns a default BoundingBox and should
+        /// only be used when HasBoundsOverride() returns false.
+        ///
+        /// @return The bounding box provided by the component.
+        virtual const BoundingBox &GetBounds() const
+        {
+            static BoundingBox defaultBounds;
+            return defaultBounds;
+        }
+
     protected:
 
 		/// @brief Internal rendering function for the component's UI.
 		/// Overloaded by derived components to implement their own UI rendering logic.
-        virtual void RenderInternalUI() {}
+        virtual void RenderInternalUI() {}   
 
     private:
         friend class Node;
