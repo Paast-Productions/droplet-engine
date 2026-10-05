@@ -12,6 +12,8 @@
 #include "resource/types/SkinnedMeshResource.hpp"
 #include "resource/types/ShaderResource.hpp"
 
+#include <json/json.hpp>
+
 namespace Droplet
 {
     /// @brief Fallback template. If the compiler hits this, load was called on a type that doesn't have a defined
@@ -114,7 +116,11 @@ namespace Droplet
                 // TODO: Log error
                 return nullptr;
             }
-
+        }
+        
+        static std::unique_ptr<SkinnedMeshResource> CreateFallback()
+        {
+            return SkinnedMeshResource::CreateFallback();
         }
     };
     

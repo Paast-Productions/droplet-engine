@@ -26,6 +26,10 @@ namespace Droplet
 			glm::mat4		offsetMat{};		// Mesh-space to bone-space at bind pose (default pose)
 			Math::OBB		bounds{};			// OBB in bone space at bind pose
 		};
+	    
+	    /// @brief Creates a fallback instance of a skinned mesh resource (cube with one ).
+	    /// @return The skinned mesh resource.
+	    static std::unique_ptr<SkinnedMeshResource> CreateFallback();
 
 		/// @brief Adds a bone to the skinned mesh resource.
 		/// @param p_name The name of the bone.
