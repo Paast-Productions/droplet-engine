@@ -94,6 +94,23 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 	return true;
 }
 
+void ScriptInstance::RenderInternalUI() 
+{
+	sol::protected_function renderUI = m_environment["RenderUI"];
+
+	if (!renderUI.valid())
+	{
+		return;
+	}
+
+	sol::protected_function_result result = renderUI();
+
+	if (!result.valid())
+	{
+		sol::error error = result;
+	}
+}
+
 std::string ScriptInstance::GetScriptPath()
 {
 	return m_scriptPath;

@@ -9,6 +9,7 @@
 
 #include <print>
 #include <filesystem>
+#include <tuple>
 
 using namespace Droplet;
 
@@ -509,31 +510,81 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 {
 	sol::table imgui = p_luaState.create_table("ImGui");
 
-    imgui.set_function("Text",
+    imgui.set_function(
+        "Text",
 		[](const std::string &p_text)
 		{
 			ImGui::TextUnformatted(p_text.c_str());
 	    }
     );
 
-    imgui.set_function("Separator",
+    imgui.set_function(
+        "Separator",
         []()
         {
 			ImGui::Separator();
         }
     );
 
-    imgui.set_function("Spacing",
+    imgui.set_function(
+        "Spacing",
         []()
         {
             ImGui::Spacing();
         }
     );
 
-    imgui.set_function("Button",
+    imgui.set_function(
+        "Button",
         [](const std::string &p_label)
         {
             return ImGui::Button(p_label.c_str());
+        }
+    );
+
+    imgui.set_function(
+        "Checkbox",
+        [](const std::string &p_label, bool p_value)
+        {
+            bool value = p_value;
+
+            const bool changed = ImGui::Checkbox(p_label.c_str(), &value);
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "DragFloat",
+        [](const std::string& p_label, float p_value, float p_speed, float p_min, float p_max)
+        {
+            float value = p_value;
+
+            const bool changed = ImGui::DragFloat(
+                p_label.c_str(),
+                &value,
+                p_speed,
+                p_min,
+                p_max
+            );
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "DragInt",
+        [](const std::string& p_label, int p_value, float p_speed, int p_min, int p_max)
+        {
+            int value = p_value;
+
+            const bool changed = ImGui::DragInt(
+                p_label.c_str(),
+                &value,
+                p_speed,
+                p_min,
+                p_max
+            );
+            return std::make_tuple(changed, value);
         }
     );
 }
