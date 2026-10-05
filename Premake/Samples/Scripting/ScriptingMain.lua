@@ -31,12 +31,13 @@ project "Scripting-Main"
         "Engine",
         --"ImGui",
         "Sol2",
-        "Lua"
+        "tracy"
     }
 
     links {
         "Engine",
         --"ImGui",
+        "tracy",
         "lua-5.4.7",
         "winmm",
         "gdi32",

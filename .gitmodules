@@ -19,9 +19,12 @@
 [submodule "External/Sol2"]
 	path = External/Sol2
 	url = git@github.com:ThePhD/sol2.git
-[submodule "External/Lua"]
-	path = External/Lua
-	url = git@github.com:walterschell/Lua.git
 [submodule "External/json"]
 	path = External/json
 	url = git@github.com:nlohmann/json.git
+[submodule "External/VulkanMemoryAllocator"]
+	path = External/VulkanMemoryAllocator
+	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
+[submodule "External/tracy"]
+	path = External/tracy
+	url = git@github.com:wolfpld/tracy.git

@@ -8,6 +8,13 @@ project "Engine"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+	defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+	
+	filter {"system:windows"}
+		buildoptions {"/Zi"}
+	
+	filter {}
+
     includedirs
     {
         "../include",
@@ -19,10 +26,11 @@ project "Engine"
     dependson
     {
         --"GoogleTest",
-        --"ImGui",
+        "ImGui",
         "Sol2",
-        "Lua",
-        "json"
+        "json",
+        "tracy",
+        "VulkanMemoryAllocator"
         --"Jolt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
