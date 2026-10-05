@@ -172,8 +172,9 @@ namespace Droplet
         /// @return The state that the resource is currently in.
         ResourceState GetState(GUID p_guid);
 
-        /// @brief Registers a resource type 
-        /// @tparam T 
+        /// @brief Registers a resource type and initializes its fallback instance.
+        /// @note This function must be called during engine startup for every resource type the engine supports.
+        /// @tparam T The resource class to register. Must inherit from IResource.
         template<typename T>
         void RegisterResourceType()
         {
@@ -199,7 +200,7 @@ namespace Droplet
                 return static_cast<T*>(it->second.resource.get());
             }
 
-            // Resource with guid was not found -> hand over fallback for that resource type
+            // Resource with guid was not found or is not ready -> hand over fallback for that resource type
             auto fallbackIt = m_fallbackResources.find(typeid(T));
             if (fallbackIt != m_fallbackResources.end())
             {
