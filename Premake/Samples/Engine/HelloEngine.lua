@@ -40,5 +40,6 @@ project "Engine-HelloEngine"
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-         AddQuotation("lua-5.4.7")
+        AddQuotation("lua-5.4.7"),
+        AddQuotation("vulkan-1")
     }
