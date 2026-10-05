@@ -377,6 +377,7 @@ void Renderer::DrawFrame()
 		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
+	// old code
 
 	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 

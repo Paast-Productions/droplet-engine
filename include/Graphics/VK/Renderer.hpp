@@ -36,9 +36,7 @@
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
 
-
 #include <ImGui/imgui_impl_vulkan.h>
-
 
 // HACK: Implementation subject to change
 

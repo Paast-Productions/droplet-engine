@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Camera.hpp>
 

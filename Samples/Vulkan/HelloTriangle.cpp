@@ -27,6 +27,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 			Droplet::GameInput::Get().ProcessEvent(rnd.Event);
 
 			if (rnd.Event.type == SDL_EVENT_QUIT)
+
 			{
 				done = true;
 			}
