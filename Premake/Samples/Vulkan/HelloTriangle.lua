@@ -13,6 +13,7 @@ project "Vulkan-HelloTriangle"
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Vulkan/HelloTriangle.cpp",
+        srcPath .. "/stdafx.cpp"
     }
 
     if _TARGET_OS == "windows" then
