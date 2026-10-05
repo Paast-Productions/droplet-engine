@@ -10,6 +10,8 @@
 #include <print>
 #include <filesystem>
 #include <tuple>
+#include <algorithm>
+#include <vector>
 
 using namespace Droplet;
 
@@ -587,5 +589,162 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
             return std::make_tuple(changed, value);
         }
     );
+
+    imgui.set_function(
+        "SliderFloat",
+        [](const std::string& p_label,
+            float p_value,
+            float p_min,
+            float p_max)
+        {
+            float value = p_value;
+
+            const bool changed = ImGui::SliderFloat(
+                p_label.c_str(),
+                &value,
+                p_min,
+                p_max
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "SliderInt",
+        [](const std::string& p_label,
+            int p_value,
+            int p_min,
+            int p_max)
+        {
+            int value = p_value;
+
+            const bool changed = ImGui::SliderInt(
+                p_label.c_str(),
+                &value,
+                p_min,
+                p_max
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "InputFloat",
+        [](const std::string& p_label, float p_value)
+        {
+            float value = p_value;
+
+            const bool changed = ImGui::InputFloat(
+                p_label.c_str(),
+                &value
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "InputInt",
+        [](const std::string& p_label, int p_value)
+        {
+            int value = p_value;
+
+            const bool changed = ImGui::InputInt(
+                p_label.c_str(),
+                &value
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "InputText",
+        [](const std::string& p_label, const std::string& p_value)
+        {
+            std::vector<char> buffer(p_value.size() + 256, '\0');
+
+            std::copy(p_value.begin(), p_value.end(), buffer.begin());
+
+            const bool changed = ImGui::InputText(p_label.c_str(), buffer.data(), buffer.size());
+
+            return std::make_tuple(changed, std::string(buffer.data()));
+        }
+    );
+
+    imgui.set_function(
+        "DragVec3",
+        [](const std::string& p_label, glm::vec3 p_value, float p_speed)
+        {
+            glm::vec3 value = p_value;
+
+            const bool changed = ImGui::DragFloat3(
+                p_label.c_str(),
+                &value.x,
+                p_speed
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "CollapsingHeader",
+        [](const std::string& p_label)
+        {
+            return ImGui::CollapsingHeader(p_label.c_str());
+        }
+    );
+
+    imgui.set_function(
+        "Combo",
+        [](const std::string& p_label, int p_selectedIndex, sol::table p_options)
+        {
+            const int optionCount = static_cast<int>(p_options.size());
+
+            if (optionCount == 0)
+            {
+                return std::make_tuple(p_selectedIndex != 0, 0);
+            }
+
+            int selectedIndex = std::clamp(p_selectedIndex, 1, optionCount);
+
+            bool changed = selectedIndex != p_selectedIndex;
+
+            const std::string preview = p_options.get<std::string>(selectedIndex);
+
+            if (ImGui::BeginCombo(p_label.c_str(), preview.c_str()))
+            {
+                for (int index = 1; index <= optionCount; ++index)
+                {
+                    const std::string option = p_options.get<std::string>(index);
+
+                    const bool isSelected = index == selectedIndex;
+
+                    ImGui::PushID(index);
+
+                    if (ImGui::Selectable(option.c_str(), isSelected))
+                    {
+                        selectedIndex = index;
+                        changed = true;
+                    }
+
+                    if (isSelected)
+                    {
+                        ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::PopID();
+                }
+
+                ImGui::EndCombo();
+            }
+
+            return std::make_tuple(changed, selectedIndex);
+        }
+    );
+
 }
 

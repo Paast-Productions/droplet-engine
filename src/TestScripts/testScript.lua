@@ -26,6 +26,11 @@ function RenderUI()
     assert(type(ImGui.Spacing) == "function", "ImGui.Spacing is missing")
 	assert(type(ImGui.DragFloat) == "function")
 	assert(type(ImGui.DragInt) == "function")
+	assert(type(ImGui.SliderFloat) == "function")
+	assert(type(ImGui.SliderInt) == "function")
+	assert(type(ImGui.InputText) == "function")
+	assert(type(ImGui.CollapsingHeader) == "function")
+	assert(type(ImGui.Combo) == "function")
 
     print("RenderUI call and ImGui bindings are working!")
 end
