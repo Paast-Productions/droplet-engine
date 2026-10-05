@@ -1,10 +1,10 @@
 #include "SceneSerializer.hpp"
 
 
-using namespace Droplet::Serializer;
+using namespace Droplet::Scene;
 using namespace Droplet;
 
-nlohmann::json SceneSerializer::SerializeScene([[maybe_unused]] const Scene::Scene& p_scene)
+nlohmann::json SceneSerializer::SerializeScene([[maybe_unused]] const Scene& p_scene)
 {
     nlohmann::json json;
 
@@ -22,13 +22,13 @@ nlohmann::json SceneSerializer::SerializeScene([[maybe_unused]] const Scene::Sce
     return json;
 }
 
-void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& json, [[maybe_unused]] const Scene::Scene& p_scene)
+void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& json, [[maybe_unused]] const Scene& p_scene)
 {
 
 }
 
 
-nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Scene::Node& p_node)
+nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Node& p_node)
 {
     nlohmann::json json;
 
@@ -54,13 +54,13 @@ nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Scene::Node&
     return nlohmann::json();
 }
 
-void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Scene::Node& p_node)
+void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Node& p_node)
 {
 
 }
 
 
-nlohmann::json Serializer::SceneSerializer::SerializeTransform([[maybe_unused]] const Scene::Transform& p_transform)
+nlohmann::json SceneSerializer::SerializeTransform([[maybe_unused]] const Transform& p_transform)
 {
     nlohmann::json json;
     
@@ -73,7 +73,7 @@ nlohmann::json Serializer::SceneSerializer::SerializeTransform([[maybe_unused]] 
     return json;
 }
 
-void Serializer::SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Scene::Transform& p_transform)
+void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Transform& p_transform)
 {
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 

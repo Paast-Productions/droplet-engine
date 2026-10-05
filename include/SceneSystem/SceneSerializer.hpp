@@ -5,7 +5,7 @@
 #include <SceneSystem/Node.hpp>
 
 
-namespace Droplet::Serializer
+namespace Droplet::Scene
 {
 	class SceneSerializer
 	{
