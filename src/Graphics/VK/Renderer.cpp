@@ -125,7 +125,7 @@ void Renderer::windowResize()
 void Renderer::CreateGraphicsPipeline()
 {
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), readFile("../../src/Graphics/VK/Shaders/slang.spv"));
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), readFile("slang.spv"));
 	VK::PipelineConfig pipelineConfig
 	{
 		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()

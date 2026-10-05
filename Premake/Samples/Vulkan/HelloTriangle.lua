@@ -5,7 +5,7 @@ project "Vulkan-HelloTriangle"
 
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Vulkan/")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
 
