@@ -66,6 +66,31 @@ TEST_F(ResourceManagerTest, LoadInvalidGUID)
     EXPECT_FALSE(handle.IsValid());
 }
 
+TEST_F(ResourceManagerTest, UnregisteredFallbackReturnsNull)
+{
+    ResourceHandle<Texture2DResource> handle = m_resourceManager.LoadResource<Texture2DResource>(C_INVALID_GUID);
+    
+    // Because no fallback was registered, it must return nullptr
+    EXPECT_EQ(handle.Get(), nullptr);
+}
+
+TEST_F(ResourceManagerTest, RegisteredFallbackReturnedOnInvalidLoad)
+{
+    m_resourceManager.RegisterResourceType<Texture2DResource>();
+
+    // Request an invalid handle
+    ResourceHandle<Texture2DResource> handle = m_resourceManager.LoadResource<Texture2DResource>(C_INVALID_GUID);
+
+    // 3. The handle itself is not ready (because it doesn't exist)
+    EXPECT_FALSE(handle.IsReady());
+    
+    // Get() should safely return 2x2 magenta checkerboard
+    Texture2DResource* tex = handle.Get();
+    ASSERT_NE(tex, nullptr);
+    EXPECT_EQ(tex->GetWidth(), 2);
+    EXPECT_EQ(tex->GetHeight(), 2);
+}
+
 TEST_F(ResourceManagerTest, InvalidGUIDState)
 {
     EXPECT_EQ(
@@ -323,7 +348,6 @@ TEST_F(ResourceManagerTest, AsyncLoadFailureTriggersCallbackAndState)
             // The handle should exist, but be marked as failed
             EXPECT_FALSE(h.IsReady());
             EXPECT_TRUE(h.HasFailed());
-            EXPECT_EQ(h.Get(), nullptr);
         }
     );
 
@@ -331,5 +355,37 @@ TEST_F(ResourceManagerTest, AsyncLoadFailureTriggersCallbackAndState)
 
     EXPECT_EQ(m_resourceManager.GetState(missingGuid), ResourceState::Failed);
     EXPECT_TRUE(callbackFired);
+}
+
+TEST_F(ResourceManagerTest, AsyncLoadFailureReturnsFallback)
+{
+    m_resourceManager.RegisterResourceType<Texture2DResource>();
+
+    constexpr GUID missingGuid = 700; // A GUID registered to a file that doesn't exist
+
+    bool callbackFired = false;
+    ResourceHandle<Texture2DResource> handle = m_resourceManager.LoadResource<Texture2DResource>(
+        missingGuid, 
+        [&callbackFired](ResourceHandle<Texture2DResource> h) {
+            callbackFired = true;
+            
+            // State should be failed inside the callback
+            EXPECT_FALSE(h.IsReady());
+            EXPECT_TRUE(h.HasFailed());
+            
+            // But pointer must be valid (fallback resource)
+            EXPECT_NE(h.Get(), nullptr);
+            EXPECT_EQ(h.Get()->GetWidth(), 2);
+        }
+    );
+
+    UpdateUntilResolved(missingGuid);
+
+    // Verify final state
+    EXPECT_EQ(m_resourceManager.GetState(missingGuid), ResourceState::Failed);
+    EXPECT_TRUE(callbackFired);
+    
+    // The gameplay code querying the handle still gets the safe fallback
+    EXPECT_NE(handle.Get(), nullptr);
 }
 
