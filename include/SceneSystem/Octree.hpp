@@ -31,6 +31,8 @@ namespace Droplet::Scene
 		/// @param p_element The element to be added to the octree
 		void AddElement(const std::shared_ptr<Node> p_element);
 
+		//void RemoveElement()
+
 		// TODO: Implement getting list of nodes from frustum culling
 		// std::vector<const std::shared_ptr<Node>> GetNodesFromCulling(p_frustum);
 
@@ -44,7 +46,7 @@ namespace Droplet::Scene
 
 		/// @brief Slices a bounding volume into eights
 		/// @param p_boundingBox The box to be sliced
-		void SliceVolumeBoxes(/*p_boundingBox*/);
+		void SliceVolumeBoxes(const Droplet::Math::AABB &p_parentVolume, Droplet::Math::AABB *p_childVolumes);
 
 		static constexpr std::uint32_t C_MAX_CHILDREN = 8;
 		static constexpr std::uint32_t C_MAX_DEPTH = 4;
@@ -56,7 +58,7 @@ namespace Droplet::Scene
 
 			std::shared_ptr<Node> element;
 			std::uint32_t totalChildren = 0;
-			std::unique_ptr<TreeNode> children[C_MAX_CHILDREN];
+			std::unique_ptr<TreeNode> children[C_MAX_CHILDREN] = { nullptr };
 		};
 
 		bool m_isInitialized = false;
