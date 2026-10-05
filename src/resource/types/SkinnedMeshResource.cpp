@@ -22,7 +22,7 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     };
     
     SkinnedVertex vertices[8];
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 8; i++)
     {
         vertices[i].pos = glm::vec3(rawPos[i][0], rawPos[i][1], rawPos[i][2]);
             
@@ -65,6 +65,8 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     }
  
     fallback->GenerateBoneBounds();
+    
+    // TODO: Should bvh be generated here?
     
     return fallback;
 }

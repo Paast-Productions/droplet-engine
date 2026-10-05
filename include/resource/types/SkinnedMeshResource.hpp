@@ -27,7 +27,7 @@ namespace Droplet
 			Math::OBB		bounds{};			// OBB in bone space at bind pose
 		};
 	    
-	    /// @brief Creates a fallback instance of a skinned mesh resource (cube with one ).
+	    /// @brief Creates a fallback instance of a skinned mesh resource (unit cube with one bone).
 	    /// @return The skinned mesh resource.
 	    static std::unique_ptr<SkinnedMeshResource> CreateFallback();
 

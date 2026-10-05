@@ -15,6 +15,10 @@ namespace Droplet
 
 	public:
 		using VertexAttribute = std::pair<std::string, std::size_t>;
+	    
+	    /// @brief Creates a fallback instance of a mesh resource (unit cube).
+	    /// @return The mesh resource.
+	    static std::unique_ptr<MeshResource> CreateFallback();
 
 		/// @brief Sets the mesh data for the resource.
 		/// @param p_vertexData The vertex data for the mesh.

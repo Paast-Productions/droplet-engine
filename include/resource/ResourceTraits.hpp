@@ -97,6 +97,11 @@ namespace Droplet
                 return nullptr;
             }
         }
+        
+        static std::unique_ptr<MeshResource> CreateFallback()
+        {
+            return MeshResource::CreateFallback();
+        }
     };
     
     /// @brief Resource traits for SkinnedMeshResource.
