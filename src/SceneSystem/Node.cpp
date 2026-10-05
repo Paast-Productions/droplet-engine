@@ -237,6 +237,26 @@ void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
     }
 
     m_components.erase(it);
+
+    // Check if the component being removed provides the current bounds override.
+    const bool isBoundsOverride = (p_component == m_boundsOverride);
+
+    m_components.erase(it);
+
+    // If the removed component was the bounds override, find another one.
+    if (isBoundsOverride)
+    {
+        m_boundsOverride.reset();
+
+        for (const auto &component : m_components)
+        {
+            if (component->HasBoundsOverride())
+            {
+                m_boundsOverride = component;
+                break;
+            }
+        }
+    }
 }
 
 const std::string& Node::GetName() const
