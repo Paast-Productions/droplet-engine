@@ -31,8 +31,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     Droplet::ResourceManager resourceManager;
     resourceManager.Initialize(assetDir);
     
+    // Register resource types
+    resourceManager.RegisterResourceType<Droplet::Texture2DResource>();
+    resourceManager.RegisterResourceType<Droplet::MeshResource>();
+    resourceManager.RegisterResourceType<Droplet::SkinnedMeshResource>();
+    resourceManager.RegisterResourceType<Droplet::AnimationResource>();
+    resourceManager.RegisterResourceType<Droplet::ShaderResource>();
+    
     // Register an asset
-    resourceManager.RegisterAsset(assetDir / "CorruptedWoodFish1.fbx");
+    resourceManager.RegisterAsset(assetDir / "CorruptedWoodFish.fbx");
     Sleep(5);
     resourceManager.Update();
     
