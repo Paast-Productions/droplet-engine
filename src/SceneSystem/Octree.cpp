@@ -64,7 +64,7 @@ namespace Droplet::Scene
 		{
 			if (p_node->totalChildren < C_MAX_CHILDREN)
 			{
-				for (std::uint32_t i = 0; i < C_MAX_CHILDREN; i++)
+				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
 					if (p_node->children[i] == nullptr)
 					{
@@ -82,7 +82,7 @@ namespace Droplet::Scene
 				SliceVolumeBoxes(p_node->volume, volumes);
 
 				// Put all elements of the current tree node aside in a temporary container
-				for (std::uint32_t i = 0; i < C_MAX_CHILDREN; i++)
+				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
 					std::shared_ptr<Node> node = p_node->children[i]->element;
 
@@ -127,7 +127,7 @@ namespace Droplet::Scene
 			}
 			else // TreeNode is a volume box
 			{
-				for (std::uint32_t i = 0; i < C_MAX_CHILDREN; i++)
+				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
 					CheckIntersection(p_nodes, p_frustum, p_treeNode->children[i].get());
 				}
