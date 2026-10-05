@@ -46,7 +46,16 @@ namespace Droplet::Scene
 		AddToTreeNode(p_element, m_root);
 	}
 
+	void Octree::RemoveElement(const std::shared_ptr<Node> p_element)
 	{
+		if (!m_isInitialized)
+		{
+			return;
+		}
+
+		RemoveFromTreeNode(p_element, m_root);
+	}
+
 	std::vector<std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
 	{
 		std::vector<std::shared_ptr<Node>> nodes;
@@ -104,6 +113,27 @@ namespace Droplet::Scene
 
 					AddToTreeNode(node, p_node->children[i]);
 				}
+			}
+		}
+	}
+
+	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node)
+	{
+		for (std::unique_ptr<TreeNode> &c : p_node->children)
+		{
+			if (c == nullptr)
+			{
+				continue;
+			}
+
+			if (c->isLeafNode && c->element == p_element)
+			{
+				c = nullptr;
+				p_node->totalChildren--;
+			}
+			else
+			{
+				RemoveFromTreeNode(p_element, c);
 			}
 		}
 	}
