@@ -16,7 +16,7 @@ namespace Droplet::Scene
 
 		nlohmann::json SerializeScene(const std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
-		void DeserializeScene(const nlohmann::json& p_json, SceneManager p_sceneManager);
+		void DeserializeScene(const nlohmann::json& p_json, SceneManager &p_sceneManager);
 
 	private:
 

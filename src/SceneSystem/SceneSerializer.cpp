@@ -22,7 +22,7 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
     return json;
 }
 
-void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManager p_sceneManager)
+void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManager &p_sceneManager)
 {
     p_sceneManager.LoadScene(p_json["name"]);
 
@@ -37,13 +37,17 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManage
     for (const auto &rootJson : p_json["roots"])
     {
         auto root = scene->AddNode(rootJson["name"]);
+        DeserializeTransform(rootJson["transform"], root->GetTransform());
+        for (const auto componentJson : rootJson["components"])
+        {
+
+        }
         for (const auto childJson : rootJson["children"])
         {
             DeserializeNode(childJson, root, scene);
         }
     }
-
-    int version = p_json["version"]; 
+ 
 }
 
 
@@ -74,8 +78,30 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     return json;
 }
 
-void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
+void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
 {
+    // TODO: add to logger
+
+    if (!p_json.contains("name"))
+    {
+        throw std::runtime_error("Node is missing required field 'name'");
+    }
+
+    if (!p_json.contains("components"))
+    {
+        throw std::runtime_error("Node is missing required field 'components'");
+    }
+
+    if (!p_json.contains("transform"))
+    {
+        throw std::runtime_error("Node is missing required field 'transform'");
+    }
+
+    if (!p_json.contains("children"))
+    {
+        throw std::runtime_error("Node is missing required field 'name'");
+    }
+
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
     
     
@@ -83,14 +109,27 @@ void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_j
 
     for (const auto &componentJson : p_json["components"])
     {
+        if (!componentJson.contains("type"))
+        {
+            throw std::runtime_error("Component is missing required field 'type'");
+        }
+
         std::string type = componentJson["type"];
 
         if (type == "ScriptComponent")
         {
+            if (!componentJson.contains("filepath"))
+            {
+                throw std::runtime_error("component is missing required field 'filepath'");
+            }
             node->AddComponent<ScriptComponent>(componentJson["filepath"]);
         }
         else if (type == "MeshComponent")
         {
+            if (!componentJson.contains("filepath"))
+            {
+                throw std::runtime_error("component is missing required field 'filepath'");
+            }
             node->AddComponent<MeshComponent>(componentJson["filepath"]);
         }
         else if (type == "PlayerComponent")
@@ -110,7 +149,7 @@ void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_j
 }
 
 
-nlohmann::json SceneSerializer::SerializeTransform( const Transform& p_transform)
+nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)
 {
     nlohmann::json json;
     
@@ -123,8 +162,23 @@ nlohmann::json SceneSerializer::SerializeTransform( const Transform& p_transform
     return json;
 }
 
-void SceneSerializer::DeserializeTransform([[maybe_unused]] const nlohmann::json& p_json, Transform& p_transform)
+void SceneSerializer::DeserializeTransform(const nlohmann::json& p_json, Transform& p_transform)
 {
+    if (!p_json.contains("scale"))
+    {
+        throw std::runtime_error("transform is missing required field 'scale'");
+    }
+
+    if (!p_json.contains("rotation"))
+    {
+        throw std::runtime_error("transform is missing required field 'rotation'");
+    }
+
+    if (!p_json.contains("position"))
+    {
+        throw std::runtime_error("transform is missing required field 'position'");
+    }
+
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 
     glm::quat rotation = glm::quat(p_json["rotation"][0], p_json["rotation"][1], p_json["rotation"][2], p_json["rotation"][3]);
