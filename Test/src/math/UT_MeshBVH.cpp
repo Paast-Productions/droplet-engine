@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include <math/MeshBVH.hpp>
+#include <math/bounds/MeshBVH.hpp>
 #include <vector>
 
 using namespace Droplet;
 
-class TestMeshBVH : public MeshBVH
+class TestMeshBVH : public Math::MeshBVH
 {
 public:
 	std::shared_ptr<bvh::v2::Bvh<bvh::v2::Node<float, 3>>>	&GetBVH()				{ return m_bvh; }
@@ -120,7 +120,9 @@ TEST(MeshBvhTest, RaycastTriangleHit)
 {
 	TestMeshBVH bvh(TriangleMesh());
 
-	auto hit = bvh.Raycast(glm::vec3(0.5f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	Math::Ray ray(glm::vec3(0.5f, 0.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	auto hit = bvh.Raycast(ray);
 
 	EXPECT_TRUE(hit.didHit);
 	EXPECT_NEAR(hit.distance, 1.0f, 1e-6f);
@@ -130,7 +132,9 @@ TEST(MeshBvhTest, RaycastTriangleMiss)
 {
 	TestMeshBVH bvh(TriangleMesh());
 
-	auto hit = bvh.Raycast(glm::vec3(1.5f, 1.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	Math::Ray ray(glm::vec3(1.5f, 1.5f, -1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	auto hit = bvh.Raycast(ray);
 
 	EXPECT_FALSE(hit.didHit);
 }
