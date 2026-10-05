@@ -53,12 +53,12 @@ namespace
 	Frustum MakeBaseFrustum()
 	{
 		return Frustum(
-			Plane(glm::vec3(1.0f, 0.0f, 0.0f), -1.0f),
-			Plane(glm::vec3(-1.0f, 0.0f, 0.0f), -1.0f),
-			Plane(glm::vec3(0.0f, -1.0f, 0.0f), -1.0f),
-			Plane(glm::vec3(0.0f, 1.0f, 0.0f), -1.0f),
-			Plane(glm::vec3(0.0f, 0.0f, 1.0f), -1.0f),
-			Plane(glm::vec3(0.0f, 0.0f, -1.0f), -1.0f)
+			Plane(glm::vec3(1.0f, 0.0f, 0.0f), 1.0f),
+			Plane(glm::vec3(-1.0f, 0.0f, 0.0f), 1.0f),
+			Plane(glm::vec3(0.0f, 1.0f, 0.0f), 1.0f),
+			Plane(glm::vec3(0.0f, -1.0f, 0.0f), 1.0f),
+			Plane(glm::vec3(0.0f, 0.0f, 1.0f), 1.0f),
+			Plane(glm::vec3(0.0f, 0.0f, -1.0f), 1.0f)
 		);
 	}
 
@@ -214,27 +214,125 @@ TEST(IntersectionTest, RaycastOBBHit)
 
 TEST(IntersectionTest, RaycastOBBMiss)
 {
+	OBB obb = MakeBaseOBB();
 
+	Ray ray = Ray(
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::normalize(glm::vec3(1.0f, 1.0f, 0.0f))
+	);
+
+	RayHit hit = Raycast(ray, obb);
+
+	EXPECT_FALSE(hit.didHit);
 }
 
 TEST(IntersectionTest, RaycastSphereHit)
 {
+	Sphere sphere = MakeBaseSphere();
 
+	Ray ray = Ray(
+		glm::vec3(0.0f, 0.0f, -3.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	RayHit hit = Raycast(ray, sphere);
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, 2.0f, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.z, -1.0f, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.z, -1.0f, EPSILON);
 }
 
 TEST(IntersectionTest, RaycastSphereMiss)
 {
+	Sphere sphere = MakeBaseSphere();
 
+	Ray ray = Ray(
+		glm::vec3(0.0f, 0.0f, -3.0f),
+		glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f))
+	);
+
+	RayHit hit = Raycast(ray, sphere);
+
+	EXPECT_FALSE(hit.didHit);
 }
 
 TEST(IntersectionTest, RaycastFrustumHit)
 {
+	Frustum frustum = MakeBaseFrustum();
 
+	Ray ray = Ray(
+		glm::vec3(0.0f, 0.0f, -3.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	RayHit hit = Raycast(ray, frustum);
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, 2.0f, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.point.z, -1.0f, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.y, 0.0f, EPSILON);
+	EXPECT_NEAR(hit.normal.z, -1.0f, EPSILON);
+
+	frustum = MakeCameraFrustum(glm::radians(90.0f), 1.0f, 1.0f, 10.0f);
+
+	ray = Ray(
+		glm::vec3(5.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	float expectedDistance = 5.0f;
+	glm::vec3 expectedPoint = glm::vec3(5.0f, 0.0f, expectedDistance);
+	glm::vec3 expectedNormal = glm::normalize(glm::vec3(1.0f, 0.0f, -1.0f));
+
+	hit = Raycast(ray, frustum);
+
+	EXPECT_TRUE(hit.didHit);
+	EXPECT_NEAR(hit.distance, expectedDistance, EPSILON);
+
+	EXPECT_NEAR(hit.point.x, expectedPoint.x, EPSILON);
+	EXPECT_NEAR(hit.point.y, expectedPoint.y, EPSILON);
+	EXPECT_NEAR(hit.point.z, expectedPoint.z, EPSILON);
+
+	EXPECT_NEAR(hit.normal.x, expectedNormal.x, EPSILON);
+	EXPECT_NEAR(hit.normal.y, expectedNormal.y, EPSILON);
+	EXPECT_NEAR(hit.normal.z, expectedNormal.z, EPSILON);
 }
 
 TEST(IntersectionTest, RaycastFrustumMiss)
 {
+	Frustum frustum = MakeBaseFrustum();
 
+	Ray ray = Ray(
+		glm::vec3(0.0f, 0.0f, -3.0f),
+		glm::vec3(1.0f, 1.0f, 1.0f)
+	);
+
+	RayHit hit = Raycast(ray, frustum);
+
+	EXPECT_FALSE(hit.didHit);
+
+	frustum = MakeCameraFrustum(glm::radians(90.0f), 1.0f, 3.0f, 10.0f);
+
+	ray = Ray(
+		glm::vec3(1.65162f, 3.33028f, 0.0f),
+		glm::normalize(glm::vec3(-0.4144f, -0.786f, 0.32565f))
+	);
+
+	hit = Raycast(ray, frustum);
+
+	EXPECT_FALSE(hit.didHit);
 }
 
 #pragma endregion

@@ -367,6 +367,12 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Frustum &p_frustum)
 	RayHit closestHit{};
 	closestHit.distance = std::numeric_limits<float>::max();
 
+	const Plane *const cardinalPlanes[3][4] = {
+		{ &p_frustum.GetTop(), &p_frustum.GetBottom(), &p_frustum.GetNear(), &p_frustum.GetFar() },		// Left-Right
+		{ &p_frustum.GetLeft(), &p_frustum.GetRight(), &p_frustum.GetNear(), &p_frustum.GetFar() },		// Top-Bottom
+		{ &p_frustum.GetLeft(), &p_frustum.GetRight(), &p_frustum.GetTop(), &p_frustum.GetBottom() },	// Near-Far
+	};
+
 	for (int i = 0; i < 6; ++i)
 	{
 		RayHit hit = Raycast(p_ray, p_frustum.GetPlane(i));
@@ -376,7 +382,22 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Frustum &p_frustum)
 			continue;
 		}
 
-		if (!Contains(p_frustum, hit.point))
+		// Check if the hit point is beneath all four planes cardinal to this plane
+		bool allInside = true;
+
+		int cardinalIndex = i / 2;
+		for (int j = 0; j < 4; ++j)
+		{
+			const Plane *testPlane = cardinalPlanes[cardinalIndex][j];
+
+			if (!testPlane->IsBeneath(hit.point))
+			{
+				allInside = false;
+				break;
+			}
+		}
+
+		if (!allInside)
 		{
 			continue;
 		}
