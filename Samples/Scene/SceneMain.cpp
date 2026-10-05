@@ -7,7 +7,8 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
-
+#include "SceneSystem/SceneSerializer.hpp"
+#include "Core/IoManager.hpp"
 using namespace Droplet::Scene;
 
 // --------------------------------------------------
@@ -135,7 +136,9 @@ int main()
     // ==================================================
     // Deactivate / unload
     // ==================================================
-
+    SceneSerializer seri;
+    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
+    Droplet::Core::JsonIO::Write("testJson.json",json);
 
     return 0;
 }

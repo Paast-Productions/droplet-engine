@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-#include "Core/loManager.hpp"
+#include "Core/IoManager.hpp"
 
 namespace fs = std::filesystem;
 

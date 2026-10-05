@@ -12,7 +12,7 @@ namespace Droplet::Scene
 	public:
 		SceneSerializer() = default;
 
-		nlohmann::json SerializeScene(const Droplet::Scene::Scene& p_scene);
+		nlohmann::json SerializeScene(const std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
 		void DeserializeScene(const nlohmann::json& p_json, const Droplet::Scene::Scene& p_scene);
 

@@ -4,21 +4,21 @@
 using namespace Droplet::Scene;
 using namespace Droplet;
 
-nlohmann::json SceneSerializer::SerializeScene([[maybe_unused]] const Scene& p_scene)
+nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_scene)
 {
     nlohmann::json json;
 
     json["version"] = 1; // Should we even have version?, shouldn't be implemented like this tho
 
 
-    json["name"] = p_scene.GetName();
+    json["name"] = p_scene->GetName();
     json["roots"] = nlohmann::json::array();
 
-    for (const auto& root : p_scene.GetRoots())
+    for (const auto& root : p_scene->GetRoots())
     {
         json["roots"].push_back(SerializeNode(*root));
     }
-
+    
     return json;
 }
 
@@ -28,7 +28,7 @@ void SceneSerializer::DeserializeScene([[maybe_unused]] const nlohmann::json& js
 }
 
 
-nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Node& p_node)
+nlohmann::json SceneSerializer::SerializeNode(const Node& p_node)
 {
     nlohmann::json json;
 
@@ -50,8 +50,7 @@ nlohmann::json SceneSerializer::SerializeNode([[maybe_unused]]const Node& p_node
         json["children"].push_back(SerializeNode(*child));
     }
 
-    
-    return nlohmann::json();
+    return json;
 }
 
 void SceneSerializer::DeserializeNode([[maybe_unused]] const nlohmann::json& p_json, [[maybe_unused]] const Node& p_node)
