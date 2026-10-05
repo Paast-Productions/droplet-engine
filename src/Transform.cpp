@@ -1,10 +1,12 @@
 #include "Transform.hpp"
-#include <Node.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <stdexcept>
+#undef GLM_ENABLE_EXPERIMENTAL
+
+#include <SceneSystem/Node.hpp>
 
 using namespace Droplet::Scene;
 

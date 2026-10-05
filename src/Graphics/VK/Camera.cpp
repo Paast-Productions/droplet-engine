@@ -1,18 +1,15 @@
-#include <SDL3/SDL.h>
+#include "Camera.hpp"
+
 #include <algorithm>
-#include <iostream>
 
-#include "Graphics/VK/Camera.hpp"
+using namespace Droplet::Graphics;
 
-#include "GameInput.hpp"
-
-using namespace Droplet;
 Camera::Camera(
 	glm::vec3 p_position,
 	glm::vec3 p_up,
 	float p_yaw,
-	float p_pitch)
-	: m_position(p_position),
+	float p_pitch) : 
+	m_position(p_position),
 	m_up(p_up),
 	m_worldUp(p_up),
 	m_yaw(p_yaw),
@@ -41,24 +38,23 @@ void Camera::Rotate(float p_xOffset, float p_yOffset, bool p_constrainPitch)
 
 void Camera::UpdateCameraVectors()
 {
-	glm::vec3 newFront;
-	newFront.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-	newFront.y = sin(glm::radians(m_pitch));
-	newFront.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-	m_front = glm::normalize(newFront);
+	glm::vec3 newForward;
+	newForward.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	newForward.y = sin(glm::radians(m_pitch));
+	newForward.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+	m_forward = glm::normalize(newForward);
 
-	m_right = glm::normalize(glm::cross(m_front, m_worldUp));
-	m_up = glm::normalize(glm::cross(m_right, m_front));
-
+	m_right = glm::normalize(glm::cross(m_forward, m_worldUp));
+	m_up = glm::normalize(glm::cross(m_right, m_forward));
 }
 
 glm::vec3 Camera::GetPosition() const
 {
 	return m_position;
 }
-glm::vec3 Camera::GetFront() const
+glm::vec3 Camera::GetForward() const
 {
-	return m_front;
+	return m_forward;
 }
 
 glm::vec3 Camera::GetRight() const
@@ -72,7 +68,7 @@ glm::vec3 Camera::GetUp() const
 
 glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(m_position, m_position + m_front, m_up);
+	return glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 glm::mat4 Camera::GetProjectionMatrix(

@@ -42,16 +42,16 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(const vk::raii:
 	return { std::move(buffer), std::move(bufferMemory) };
 }
 
-void CopyBuffer(const vk::raii::Queue &p_queue, const Droplet::Graphics::VK::CommandPool &p_commandPool, const vk::raii::Buffer &p_srcBuffer, const vk::raii::Buffer &p_dstBuffer, vk::DeviceSize p_size)
+/*void CopyBuffer(const vk::raii::Queue &p_queue, const Droplet::Graphics::VK::CommandPool &p_commandPool, const vk::raii::Buffer &p_srcBuffer, const vk::raii::Buffer &p_dstBuffer, vk::DeviceSize p_size)
 {
 	p_commandPool.ImmediateSubmit(p_queue,
 	[&p_srcBuffer, &p_dstBuffer, p_size](Droplet::Graphics::VK::CommandBuffer& p_commandBuffer) // A command buffer is the parameter
 	{
 		p_commandBuffer.CopyBuffer(*p_srcBuffer, *p_dstBuffer, p_size); // What to perform on the command buffer
 	});
-}
+}*/
 
-void TransitionImageLayout(Droplet::Graphics::VK::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
+void TransitionImageLayout(const vk::raii::CommandBuffer &p_commandBuffer, const vk::raii::Image &p_image, vk::ImageLayout p_oldLayout, vk::ImageLayout p_newLayout)
 {
 	vk::ImageMemoryBarrier barrier{ .oldLayout = p_oldLayout,
 								   .newLayout = p_newLayout,
@@ -83,5 +83,5 @@ void TransitionImageLayout(Droplet::Graphics::VK::CommandBuffer &p_commandBuffer
 	{
 		throw std::invalid_argument("unsupported layout transition!");
 	}
-	p_commandBuffer.Get().pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
+	p_commandBuffer.pipelineBarrier(sourceStage, destinationStage, {}, {}, {}, barrier);
 }

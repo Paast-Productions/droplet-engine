@@ -6,23 +6,32 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
+        local vkPath = os.getenv("VULKAN_SDK")
 
-    includedirs
-    {
-        "../include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
-    
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
     libdirs
     {
         targetBuildPath .. "/External/lib",
