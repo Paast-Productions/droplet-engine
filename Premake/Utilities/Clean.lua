@@ -17,9 +17,15 @@ newaction {
     execute = function()
 
         local index = 1;
-        while (_ARGS[index] ~= nil) do
-            local arg = _ARGS[index]
+        local arg = _ARGS[index]
+        if (arg == nil) then
+            print("Cleaning All")
 
+            os.execute("{RMDIR} ./Generated")
+            os.execute("{RMDIR} ./Build")
+        end
+        
+        while (arg ~= nil) do
             if (arg == nil or arg == "-A" or arg == "-all") then
                 print("Cleaning All")
 
@@ -89,6 +95,7 @@ newaction {
             end
 
             index = index + 1
+            arg = _ARGS[index]
         end
     end
 }

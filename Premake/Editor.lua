@@ -8,29 +8,56 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-	defines{ 
+    defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
         "GLM_ENABLE_EXPERIMENTAL"
 	}
-	
-	filter {"system:windows"}
-		buildoptions {"/Zi"}
-	
-	filter {}
-	
-    includedirs 
-	{
-        "../include",
-        "../include/**",
-        "../Editor/include",
-        "../Editor/include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+
+    if _TARGET_OS == "windows" then
+
+        buildoptions {"/Zi"}
+        
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine"
+        }
+
+    end
 
     dependson 
-	{
+    {
         "Engine",
         "ImGui",
         "json",
@@ -38,27 +65,22 @@ project "Editor"
     }
 
     files 
-	{
+    {
         "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
     }
 
-    libdirs 
-	{
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64",
-        targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
-    }
-
     links 
-	{
+    {
         "Engine",
         "ImGui",
         "tracy",
+	    "VulkanMemoryAllocator",
         AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd"),
-        AddQuotation("Slangd"),
 		AddQuotation("lua-5.4.7")
     }

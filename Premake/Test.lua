@@ -8,32 +8,50 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
 	defines{ 
         "GLM_ENABLE_EXPERIMENTAL",
         'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
 	}
 
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"
     }
 
-    includedirs
-    {
-        rootPath .. "/include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
+    if _TARGET_OS == "windows" then
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
     
-    libdirs
-    {
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64",
-        vkPath .. "/Lib"
-    }
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			vkPath .. "/Lib"
+		}
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			"Lib"
+		}
+
+    end
 
     dependson 
     {

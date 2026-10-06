@@ -7,31 +7,47 @@ project "Transform"
     debugdir(rootPath .. "/Samples/Transform/")
     objdir(objBuildPath .. "/%{prj.name}")
     
-    -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
-    files {
-        rootPath .. "/Samples/Transform/TransformMain.cpp",
-        rootPath .. "/src/Transform.cpp"
-    }
-        
-    local vkPath = os.getenv("VULKAN_SDK")
-
 	defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
         "GLM_ENABLE_EXPERIMENTAL"
 	}
     
-    libdirs {
-        targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
+    -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
+    files {
+        rootPath .. "/Samples/Transform/TransformMain.cpp",
+        rootPath .. "/src/Transform.cpp"
     }
 
+    if _TARGET_OS == "windows" then
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+        local vkPath = os.getenv("VULKAN_SDK")
+    
+        libdirs {
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
+
+
+        includedirs {
+            rootPath .. "/include",
+            vkPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        libdirs {
+            targetBuildPath .. "/Engine"
+        }
+
+
+        includedirs {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson {
         "Engine",

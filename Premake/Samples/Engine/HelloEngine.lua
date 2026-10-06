@@ -4,7 +4,7 @@ project "Engine-HelloEngine"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Engine/")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
 	defines{ 
@@ -44,9 +44,11 @@ project "Engine-HelloEngine"
     links {
         "Engine",
         "ImGui",
-        "tracy",
+	    "tracy",
+	    "VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        AddQuotation("lua-5.4.7")
+        AddQuotation("lua-5.4.7"),
+        AddQuotation("vulkan-1")
     }

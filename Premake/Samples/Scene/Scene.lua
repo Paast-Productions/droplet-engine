@@ -22,14 +22,26 @@ project "SceneSystem"
         targetBuildPath .. "/Library"
     }
     
-    
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            rootPath .. "/include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson {
         "Engine",

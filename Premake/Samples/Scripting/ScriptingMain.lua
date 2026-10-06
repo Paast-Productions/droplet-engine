@@ -12,20 +12,39 @@ project "Scripting-Main"
         rootPath .. "/Samples/Scripting/ScriptingMain.cpp"
     }
 
-    libdirs {
-        targetBuildPath .. "/Library",
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/bin"
-    }
-    
-    
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            rootPath .. "/include",
+            vkPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+		libdirs {
+			targetBuildPath .. "/Library",
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/bin",
+			vkPath .. "/Lib"
+		}
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+		libdirs {
+			targetBuildPath .. "/Library",
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/bin"
+		}
+
+    end
 
     dependson {
         "Engine",
@@ -36,9 +55,13 @@ project "Scripting-Main"
 
     links {
         "Engine",
-        --"ImGui",
+        "ImGui",
         "tracy",
+        "lua-5.4.7",
         "winmm",
         "gdi32",
         "shell32",
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

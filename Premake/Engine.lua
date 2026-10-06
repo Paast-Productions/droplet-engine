@@ -3,49 +3,56 @@ project "Engine"
 
     location(projectsPath)
 
+    defines{
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation(rootPath)
+    }
+
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
 
-	defines{ 
-		"TRACY_ENABLE", 
-		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
-	}
-	
-	filter {"system:windows"}
-		buildoptions {"/Zi"}
-	
-	filter {}
+    if _TARGET_OS == "windows" then
 
-    includedirs
-    {
-        "../include",
-        "../include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+        buildoptions {"/Zi"}
+        
+        -- vkPath required as windows doesn't add the vulkan sdk to lib path'
+        local vkPath = os.getenv("VULKAN_SDK")
 
-    libdirs
-    {
-        targetBuildPath .. "/External/lib/",
-        targetBuildPath .. "/External/lib64/"
-    }
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson
     {
-        "GoogleTest",
+        --"GoogleTest",
         "ImGui",
+        "Sol2",
         "json",
+        "tracy",
+        "VulkanMemoryAllocator",
         "Jolt",
         "Assimp",
         "Stb",
         "Gli",
-        "bvh",
-        "tracy",
-        "Sol2",
-        "VulkanMemoryAllocator"
+        "bvh"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
