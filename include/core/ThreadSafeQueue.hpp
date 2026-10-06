@@ -16,7 +16,7 @@ namespace Droplet
         ThreadSafeQueue(const ThreadSafeQueue&) = delete;
         ThreadSafeQueue operator=(const ThreadSafeQueue&) = delete;
 
-        /// @brief Pushes an into the queue.
+        /// @brief Pushes an item into the queue.
         /// @param p_item The item to be pushed.
         void Push(T p_item)
         {
