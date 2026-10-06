@@ -38,7 +38,6 @@ project "Scripting-Main"
         "Engine",
         --"ImGui",
         "tracy",
-        "lua-5.4.7",
         "winmm",
         "gdi32",
         "shell32",

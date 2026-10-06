@@ -39,6 +39,5 @@ project "Engine-HelloEngine"
         "ImGui",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
-         AddQuotation("lua-5.4.7")
+        AddQuotation("Slangd")
     }

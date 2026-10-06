@@ -8,7 +8,11 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-	defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
 	
 	filter {"system:windows"}
 		buildoptions {"/Zi"}
@@ -38,7 +42,7 @@ project "Editor"
         "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
     }
-	
+
     libdirs 
 	{
         targetBuildPath .. "/External/lib",
@@ -52,5 +56,9 @@ project "Editor"
         "Engine",
         "ImGui",
         "tracy",
-        AddQuotation("SDL3")
+        AddQuotation("SDL3"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd"),
+		AddQuotation("lua-5.4.7")
     }

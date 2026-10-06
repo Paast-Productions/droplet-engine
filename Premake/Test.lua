@@ -10,6 +10,11 @@ project "Test"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+	defines{ 
+        "GLM_ENABLE_EXPERIMENTAL",
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
+	}
+
     files 
     {
         "../Test/src/**.hpp",
@@ -45,5 +50,10 @@ project "Test"
     links
     {
         "Engine",
-        "gtest"
+        "gtest",
+        "tracy",
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd"),
+		AddQuotation("lua-5.4.7")
     }
