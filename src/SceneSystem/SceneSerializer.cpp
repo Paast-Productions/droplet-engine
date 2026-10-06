@@ -40,7 +40,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManage
         DeserializeTransform(rootJson["transform"], root->GetTransform());
         for (const auto componentJson : rootJson["components"])
         {
-
+            DeserializeComponent(componentJson, root);
         }
         for (const auto childJson : rootJson["children"])
         {
@@ -109,42 +109,47 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
 
     for (const auto &componentJson : p_json["components"])
     {
-        if (!componentJson.contains("type"))
-        {
-            throw std::runtime_error("Component is missing required field 'type'");
-        }
-
-        std::string type = componentJson["type"];
-
-        if (type == "ScriptComponent")
-        {
-            if (!componentJson.contains("filepath"))
-            {
-                throw std::runtime_error("component is missing required field 'filepath'");
-            }
-            node->AddComponent<ScriptComponent>(componentJson["filepath"]);
-        }
-        else if (type == "MeshComponent")
-        {
-            if (!componentJson.contains("filepath"))
-            {
-                throw std::runtime_error("component is missing required field 'filepath'");
-            }
-            node->AddComponent<MeshComponent>(componentJson["filepath"]);
-        }
-        else if (type == "PlayerComponent")
-        {
-            //Create the component and either do the deserialization here or you can call the components deserialize function.
-        }
-        else
-        {
-            
-        }
+        DeserializeComponent(componentJson, node);
     }
 
     for (const auto &childJson : p_json["children"])
     {
         DeserializeNode(childJson, node, p_scene);
+    }
+}
+
+void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node)
+{
+    if (!p_json.contains("type"))
+    {
+        throw std::runtime_error("Component is missing required field 'type'");
+    }
+
+    std::string type = p_json["type"];
+
+    if (type == "ScriptComponent")
+    {
+        if (!p_json.contains("filepath"))
+        {
+            throw std::runtime_error("component is missing required field 'filepath'");
+        }
+        p_node->AddComponent<ScriptComponent>(p_json["filepath"]);
+    }
+    else if (type == "MeshComponent")
+    {
+        if (!p_json.contains("filepath"))
+        {
+            throw std::runtime_error("component is missing required field 'filepath'");
+        }
+        p_node->AddComponent<MeshComponent>(p_json["filepath"]);
+    }
+    else if (type == "PlayerComponent")
+    {
+        //Create the component and either do the deserialization here or you can call the components deserialize function.
+    }
+    else
+    {
+
     }
 }
 
