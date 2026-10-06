@@ -323,6 +323,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 	
@@ -369,7 +371,7 @@ void Renderer::DrawFrame()
 	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
 	s_lastFrameTime = currentTime;
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-		//       while renderFinishedSemaphores is indexed by imageIndex
+			//       while renderFinishedSemaphores is indexed by imageIndex
 	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
 	if (fenceResult != vk::Result::eSuccess)
 	{
@@ -378,9 +380,12 @@ void Renderer::DrawFrame()
 
 	auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_frameIndex], nullptr);
 
+	m_result = result;
+	m_imageIndex = imageIndex;
+
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
-	if (result == vk::Result::eErrorOutOfDateKHR)
+	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
 		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
@@ -395,14 +400,14 @@ void Renderer::DrawFrame()
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
 		};
-		
+
 		return;
 	}
 	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
 	// On any error code, aquireNextImage already threw an exception.
-	if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
+	if (m_result != vk::Result::eSuccess && m_result != vk::Result::eSuboptimalKHR)
 	{
-		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
+		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 	// old code
@@ -428,7 +433,7 @@ void Renderer::DrawFrame()
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	RecordCommandBuffer(imageIndex);
+	RecordCommandBuffer(m_imageIndex);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	
@@ -440,24 +445,31 @@ void Renderer::DrawFrame()
 		.commandBufferCount = 1,
 		.pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
 		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex] 
+		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
 	};
 	
 	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
+	ImGuiIO &io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
+
 	const vk::PresentInfoKHR presentInfoKHR
 	{
 		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex],
+		.pWaitSemaphores = &*m_renderFinishedSemaphores[m_imageIndex],
 		.swapchainCount = 1,
 		.pSwapchains = &*m_swapchain.Get(),
-		.pImageIndices = &imageIndex 
+		.pImageIndices = &m_imageIndex
 	};
 	
-	result = m_context.GetQueue().presentKHR(presentInfoKHR);
+	m_result = m_context.GetQueue().presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
-	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
+	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
 		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
@@ -476,7 +488,7 @@ void Renderer::DrawFrame()
 	else
 	{
 		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-		assert(result == vk::Result::eSuccess);
+		assert(m_result == vk::Result::eSuccess);
 	}
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
@@ -625,25 +637,41 @@ static void CheckVkResult(VkResult p_err)
 	throw ("[vulkan] Error: VkResult = %d\n", p_err);
 }
 
-ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
+void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 {
 	//TODO: CREATE PIPELINE CACHE
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = *m_context.GetInstance();
-	init_info.PhysicalDevice = *m_context.GetPhysicalDevice();
-	init_info.Device = *m_context.GetDevice();
-	init_info.QueueFamily = m_context.GetQueueIndex();
-	init_info.Queue = *m_context.GetQueue();
-	init_info.PipelineCache = nullptr;
-	init_info.DescriptorPool = *m_imGuiDescriptorPool;
-	init_info.MinImageCount = 2;
-	init_info.ImageCount = 2;
-	init_info.Allocator = nullptr;
-	init_info.PipelineInfoMain.RenderPass = nullptr;
-	init_info.PipelineInfoMain.Subpass = 0;
-	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.CheckVkResultFn = CheckVkResult;
-	return init_info;
+
+	p_initInfo.Instance = *m_context.GetInstance();
+	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
+	p_initInfo.Device = *m_context.GetDevice();
+	p_initInfo.QueueFamily = m_context.GetQueueIndex();
+	p_initInfo.Queue = *m_context.GetQueue();
+	p_initInfo.PipelineCache = VK_NULL_HANDLE;
+	p_initInfo.DescriptorPool = *m_imGuiDescriptorPool;
+	p_initInfo.MinImageCount = 2;
+	p_initInfo.ImageCount = 2;
+	p_initInfo.Allocator = nullptr;
+	p_initInfo.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
+	p_initInfo.PipelineInfoMain.Subpass = 0;
+	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	p_initInfo.CheckVkResultFn = CheckVkResult;
+
+	p_initInfo.UseDynamicRendering = VK_TRUE;
+
+	m_imGuiColorFormat = static_cast<VkFormat>(m_swapchain.GetSurfaceFormat().format);
+	VkFormat depthFormat = static_cast<VkFormat>(m_depthBuffer.GetFormat());
+
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
+	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
+	p_initInfo.PipelineInfoForViewports.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 }
 
 SDL_Window *Renderer::GetWindow()
