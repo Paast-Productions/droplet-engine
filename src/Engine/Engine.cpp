@@ -34,7 +34,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 
 	// Scenesystem
-	m_scenemanager.Update(Time::Get().GetDeltaTime());
+	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
 	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
