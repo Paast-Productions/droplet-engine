@@ -12,8 +12,11 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
+
+    local vkPath = os.getenv("VULKAN_SDK")
+    
     if _TARGET_OS == "windows" then
-        local vkPath = os.getenv("VULKAN_SDK")
+
 
         includedirs
         {
