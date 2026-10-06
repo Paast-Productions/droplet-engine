@@ -5,8 +5,8 @@
 #include <thread>
 
 #include <json/json.hpp>
-
-
+#include <iostream>
+#include <stacktrace>
 
 using json = nlohmann::json;
 using namespace Droplet::Debug;
@@ -23,7 +23,8 @@ Logger::~Logger()
         m_workerThread.join();
 }
 
-void Logger::Log(LogType p_type, const std::string &p_msg)
+void Logger::Log(LogType p_type, const std::string &p_msg,
+	const std::source_location &p_location)
 {
     std::string status{};
     switch (p_type)
@@ -34,8 +35,16 @@ void Logger::Log(LogType p_type, const std::string &p_msg)
     case LogType::Debug:   status = "Debug"; break;
     }
 
-    LogEntry logEntry{ std::chrono::system_clock::now(),
-        p_msg, status, std::this_thread::get_id() };
+    std::string lineNumber = "The line number: " + std::to_string(p_location.line());
+
+    LogEntry logEntry{ 
+    	std::chrono::system_clock::now(),
+        p_msg, status, 
+    	std::this_thread::get_id(),
+    	p_location.function_name(),
+        p_location.file_name(),
+        lineNumber
+    };
 
     Push(logEntry);
 }
@@ -55,7 +64,10 @@ void Logger::ProcessQueue()
             {"Level",     logEntry.status},
             {"Timestamp", timeStr},
             {"Message",   logEntry.msg},
-            {"ThreadID",  threadStr}
+			{"ThreadID",  threadStr},
+			{"Function",  logEntry.function},
+			{"File",      logEntry.path},
+			{"Line",      logEntry.lineNumber}
         };
 
 	    {
