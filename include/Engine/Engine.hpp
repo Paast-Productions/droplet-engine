@@ -39,13 +39,13 @@ namespace Droplet
 
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
-		[[nodiscard]] Scene::SceneManager &GetScenemanager();
+		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 		
 	private:
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
 		/// @brief The scenemanager instance, should only be one.
-		Scene::SceneManager m_scenemanager;
+		Scene::SceneManager m_sceneManager;
 	};
 }
