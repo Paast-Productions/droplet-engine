@@ -1,5 +1,6 @@
 require "Premake/Utilities/Clean"
 require "Premake/Utilities/Helper"
+require "Premake/Utilities/Doxygen"
 
 workspace "DropletEngine"
     
