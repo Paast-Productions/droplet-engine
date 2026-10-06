@@ -10,7 +10,7 @@
 #include "SceneSystem/Components/ScriptComponent.hpp"
 
 #include "Time.hpp"
-#include "Serialization/SceneSerializer.hpp"
+#include "SceneSystem/SceneSerializer.hpp"
 
 using namespace Droplet::Scene;
 

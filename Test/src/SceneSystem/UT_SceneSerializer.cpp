@@ -135,8 +135,6 @@ TEST_F(SceneSerializerTest, DeserializeNode)
     const nlohmann::json readResult = Droplet::Core::JsonIO::Read("testNodeJson");
     SceneManager testManager;
     serializer.DeserializeScene(readResult, testManager);
-
-    EXPECT_EQ(sceneManager.GetScene("testScene"), testManager.GetScene("testScene"));
     
     auto sceneOne = sceneManager.GetScene("testScene");
     auto sceneTwo = testManager.GetScene("testScene");
@@ -146,4 +144,40 @@ TEST_F(SceneSerializerTest, DeserializeNode)
 
     auto rootOne = sceneOne->GetRoots();
     auto rootTwo = sceneTwo->GetRoots();
+
+    EXPECT_EQ(rootOne.size(), rootTwo.size());
+
+    auto nodeOne = rootOne.at(0);
+    auto nodeTwo = rootTwo.at(0);
+
+    EXPECT_EQ(nodeOne->GetName(), nodeTwo->GetName());
+
+
+    // Transform
+
+    auto transformOne = nodeOne->GetTransform();
+    auto transformTwo = nodeTwo->GetTransform();
+
+
+    EXPECT_EQ(transformOne.GetPosition(), transformTwo.GetPosition());
+    EXPECT_EQ(transformOne.GetScale(), transformTwo.GetScale());
+    EXPECT_EQ(transformOne.GetRotation(), transformTwo.GetRotation());
+    
+}
+
+TEST_F(SceneSerializerTest, Serializechanges)
+{
+    sceneManager.LoadScene("testScene");
+    auto testScene = sceneManager.GetScene("testScene");
+    auto root = testScene->AddNode("Root");
+
+    nlohmann::json jsonOne = serializer.SerializeScene(testScene);
+    Droplet::Core::JsonIO::Write("testChangesBefore", jsonOne);
+
+    root->AddChild(testScene->AddNode("testNode"));
+    nlohmann::json jsonTwo = serializer.SerializeScene(testScene);
+    Droplet::Core::JsonIO::Write("testChangesAfter", jsonTwo);
+
+    EXPECT_NE(jsonOne, jsonTwo);
+   
 }
