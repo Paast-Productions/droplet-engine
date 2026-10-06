@@ -53,7 +53,7 @@ SDL_Window *Droplet::Engine::GetWindow()
 	return m_renderer.GetWindow();
 }
 
-Scene::SceneManager &Droplet::Engine::GetScenemanager()
+Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
-	return m_scenemanager;
+	return m_sceneManager;
 }
