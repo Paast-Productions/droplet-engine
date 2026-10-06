@@ -6,6 +6,12 @@ project "Vulkan-HelloTriangle"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(rootPath .. "/Samples/Vulkan/")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {

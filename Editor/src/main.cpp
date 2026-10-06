@@ -105,7 +105,7 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	ZoneScoped;
 
 	// Create docking space over the entire window
-	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+	//ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 }
 
 

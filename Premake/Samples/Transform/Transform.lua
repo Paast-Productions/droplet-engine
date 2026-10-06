@@ -14,6 +14,12 @@ project "Transform"
     }
         
     local vkPath = os.getenv("VULKAN_SDK")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
     libdirs {
         targetBuildPath .. "/Engine",

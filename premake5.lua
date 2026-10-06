@@ -53,6 +53,7 @@ include "Premake/Samples/Transform/Transform"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
+include "Premake/External/tracy"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
