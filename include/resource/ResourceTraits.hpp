@@ -31,6 +31,11 @@ namespace Droplet
     template<>
     struct ResourceTraits<Texture2DResource>
     {
+        static ResourceType GetType()
+        {
+            return ResourceType::Texture2D;
+        }
+        
         static std::unique_ptr<Texture2DResource> LoadCPU(
             const std::filesystem::path& p_assetPath, 
             const nlohmann::json &p_loadSettings)
@@ -83,6 +88,11 @@ namespace Droplet
     template<>
     struct ResourceTraits<MeshResource>
     {
+        static ResourceType GetType()
+        {
+            return ResourceType::Mesh;
+        }
+        
         static std::unique_ptr<MeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
@@ -108,6 +118,11 @@ namespace Droplet
     template<>
     struct ResourceTraits<SkinnedMeshResource>
     {
+        static ResourceType GetType()
+        {
+            return ResourceType::SkinnedMesh;
+        }
+        
         static std::unique_ptr<SkinnedMeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
@@ -133,6 +148,11 @@ namespace Droplet
     template<>
     struct ResourceTraits<AnimationResource>
     {
+        static ResourceType GetType()
+        {
+            return ResourceType::Animation;
+        }
+        
         static std::unique_ptr<AnimationResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
@@ -160,6 +180,11 @@ namespace Droplet
     template<>
     struct ResourceTraits<ShaderResource>
     {
+        static ResourceType GetType()
+        {
+            return ResourceType::Shader;
+        }
+        
         static std::unique_ptr<ShaderResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
             const nlohmann::json &p_loadSettings)
