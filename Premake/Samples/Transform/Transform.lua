@@ -4,7 +4,7 @@ project "Transform"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Vulkan/")
+    debugdir(rootPath .. "/Samples/Transform/")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
@@ -29,12 +29,14 @@ project "Transform"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd")

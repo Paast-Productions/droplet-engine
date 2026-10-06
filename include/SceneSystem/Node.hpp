@@ -93,7 +93,7 @@ namespace Droplet::Scene
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; }
 
         // --------------------------------------------------
-        // Children
+        // Children 
         // --------------------------------------------------
 
         /// @brief Adds a child Node.

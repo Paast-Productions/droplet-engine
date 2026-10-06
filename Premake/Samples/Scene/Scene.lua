@@ -28,10 +28,12 @@ project "SceneSystem"
     dependson {
         "Engine",
         "ImGui",
+        "tracy",
 		"bvh"
     }
 
     links {
         "Engine",
+        "tracy",
         "ImGui"
     }

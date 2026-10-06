@@ -16,8 +16,6 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
     includedirs
     {
         rootPath .. "/include", 
@@ -39,20 +37,13 @@ project "Test"
         "Assimp",
         "json",
         "bvh",
-        "stb"
+        "stb",
+        "Sol2",
+        "tracy"
     }
 
     links
     {
         "Engine",
-        "gtest",
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd"),
-        AddQuotation("Slangd")
-    }
-
-    defines
-    {
-        "GLM_ENABLE_EXPERIMENTAL",
-        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
+        "gtest"
     }
