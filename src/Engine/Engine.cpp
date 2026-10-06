@@ -2,8 +2,14 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : 
-	m_renderer(p_config.WindowConfig) {}
+Engine::Engine() : 
+	m_mainWindow(
+	{
+		.Width = 1280,
+		.Height = 720,
+		.Flags = 0
+	}),
+	m_renderer(m_mainWindow.Get()) {}
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
@@ -11,21 +17,21 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	Time::Get().Update();
 
 	// Window
-	while (SDL_PollEvent(m_event.Get()))
+	while (SDL_PollEvent(m_eventListener.Get()))
 	{
-		if (m_event.Get()->type == SDL_EVENT_QUIT)
+		if (m_eventListener.Get()->type == SDL_EVENT_QUIT)
 		{
 			return DROPLET_RETURNTYPE::EXIT;
 		}
 
-		if (m_event.Get()->type == SDL_EVENT_WINDOW_RESIZED || m_event.Get()->type == SDL_EVENT_WINDOW_MINIMIZED)
+		if (m_eventListener.Get()->type == SDL_EVENT_WINDOW_RESIZED || m_eventListener.Get()->type == SDL_EVENT_WINDOW_MINIMIZED)
 		{
 			m_renderer.ResizeWindow();
 		}
 
-		if (m_event.Get()->type == SDL_EVENT_KEY_DOWN) 
+		if (m_eventListener.Get()->type == SDL_EVENT_KEY_DOWN) 
 		{
-			if (m_event.Get()->key.key == SDLK_ESCAPE) 
+			if (m_eventListener.Get()->key.key == SDLK_ESCAPE) 
 			{
 				return DROPLET_RETURNTYPE::EXIT;
 			}
@@ -43,8 +49,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
+SDL_Window *Droplet::Engine::GetWindow() const
 {
 	// TODO: insert return statement here
-	return m_renderer.GetWindow();
+	return m_mainWindow.Get();
 }

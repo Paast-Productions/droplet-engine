@@ -13,8 +13,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Flags = 0
 	};
 	
-	Droplet::Graphics::Renderer rnd { windowConfig };
+	Droplet::Graphics::SDL::Window win { windowConfig };
 	Droplet::Graphics::SDL::Event event {};	
+	
+	Droplet::Graphics::Renderer rnd { win.Get() };
 
 	bool done = false;
 	while (!done)

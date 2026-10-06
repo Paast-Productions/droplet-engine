@@ -60,8 +60,8 @@ namespace Droplet::Graphics
 		Renderer() = delete;
 		
 		/// @brief Renderer Constructor
-		/// @param p_windowConfig Requested SDL Window Configuration
-		Renderer(SDL::WindowConfig p_windowConfig);
+		/// @param p_window Target SDL Window
+		Renderer(SDL_Window *p_window);
 		
 		~Renderer();
 		
@@ -70,10 +70,6 @@ namespace Droplet::Graphics
 		
 		/// @brief Resizes the window
 		void	ResizeWindow();
-		
-		/// @brief Getter-function for an SDL_Window pointer
-		/// @returns An SDL Window
-		[[nodiscard]] SDL_Window *GetWindow();
 
 		/// @brief Fills and returns initInfo for ImGui
 		/// @returns ImGui init info
@@ -145,17 +141,13 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		SDL::Window m_window;
+		SDL_Window *m_targetWindow;
+		
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
 		VK::Allocator m_allocator { nullptr };
-
-		SDL_Event m_event {};
-
 		VK::Swapchain m_swapchain { nullptr };
-
 		VK::CommandPool m_commandPool { nullptr };
-		//std::vector<std::size_t> m_commandBufferIds;
 		VK::Pipeline m_graphicsPipeline { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
@@ -174,16 +166,10 @@ namespace Droplet::Graphics
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
 		//Needs one buffer per frame in flight to avoid read write issues
-		
 		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
-		
 		std::uint32_t							 m_frameIndex = 0;
-
 		bool								 m_framebufferResized = false;
-		
 		Camera m_camera;
 		CameraController m_cameraController;
-
-		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }

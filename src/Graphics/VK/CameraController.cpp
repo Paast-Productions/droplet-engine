@@ -4,7 +4,7 @@
 
 using namespace Droplet::Graphics;
 
-void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const SDL::Window &p_window)
+void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, SDL_Window *p_window)
 {
 	float velocity = m_movementSpeed * p_deltaTime;
 
@@ -35,7 +35,7 @@ void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const S
 	if (GameInput::Get().KeyPressed(Key::KeyQ))
 	{
 		m_relativeMouse = !m_relativeMouse;
-		SDL_SetWindowRelativeMouseMode(p_window.Get(), m_relativeMouse);
+		SDL_SetWindowRelativeMouseMode(p_window, m_relativeMouse);
 	}
 
 	if (m_relativeMouse)
@@ -44,10 +44,10 @@ void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const S
 			-GameInput::Get().GetDeltaMouseX() * m_mouseSensitivity,
 			GameInput::Get().GetDeltaMouseY() * m_mouseSensitivity
 		);
+		
 		// Get window ptr and size to reset mouse to center
-		SDL_Window *window = p_window.Get();
-		int width, height;
-		SDL_GetWindowSize(window, &width, &height);
-		GameInput::Get().SetCursorPosition(window, static_cast<float>(width) / 2, static_cast<float>(height / 2));
+		int width {0}, height {0};
+		SDL_GetWindowSize(p_window, &width, &height);
+		GameInput::Get().SetCursorPosition(p_window, static_cast<float>(width) / 2, static_cast<float>(height) / 2);
 	}
 }

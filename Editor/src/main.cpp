@@ -18,8 +18,6 @@ Droplet::Graphics::SDL::WindowConfig config =
 	.Flags = 0
 };
 
-Droplet::Graphics::Renderer g_rend(config);
-
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
@@ -73,16 +71,16 @@ static void InitImGui([[maybe_unused]] SDL_Window *window)
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+	Droplet::Engine engine {};
 
+	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
 	ZoneScopedN("Editor");
 	bool show_demo_window = true;
 	bool show_another_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
+	
+	
 	DropletInstance *instance = Soak();
-
-	SDL_Window *wnd = g_rend.GetWindow();
 	if (!wnd)
 	{
 		return 1;

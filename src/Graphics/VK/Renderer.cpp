@@ -16,7 +16,6 @@
 #include <string>
 #include <chrono>
 
-#include <SDL3/SDL_vulkan.h>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/TestData.hpp>
 #include <GameInput.hpp>
@@ -34,12 +33,12 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window		{ p_windowConfig },
-	m_context		{ m_window.Get(), m_vkContext },
+Renderer::Renderer(SDL_Window *p_window) :
+	m_targetWindow	{ p_window },
+	m_context		{ m_targetWindow, m_vkContext },
 	m_allocator		{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_swapchain		{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_targetWindow, m_context.GetSurface() },
 	m_commandPool	{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
-	m_swapchain		{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
 	m_depthBuffer	{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
 	m_indexBuffer	{ m_allocator.Get(), G_INDICES },
 	m_vertexBuffer	{ m_allocator.Get(), G_VERTICES }
@@ -354,13 +353,14 @@ void Renderer::DrawFrame()
 	// here and does not need to be caught by an exception.
 	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		SDL_Event eventListener {};
+		while ((SDL_GetWindowFlags(m_targetWindow) & SDL_WINDOW_MINIMIZED) != 0)
 		{
-			SDL_WaitEvent(&m_event);
+			SDL_WaitEvent(&eventListener);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_targetWindow, m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -379,7 +379,7 @@ void Renderer::DrawFrame()
 	}
 	// old code
 
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	m_cameraController.UpdateCamera(m_camera, deltaTime, m_targetWindow);
 
 	const auto extent = m_swapchain.GetExtent();
 
@@ -431,13 +431,14 @@ void Renderer::DrawFrame()
 	// here and does not need to be caught by an exception.
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
+		SDL_Event eventListener {};
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_targetWindow) & SDL_WINDOW_MINIMIZED) != 0)
 		{
-			SDL_WaitEvent(&m_event);
+			SDL_WaitEvent(&eventListener);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_targetWindow, m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -616,11 +617,6 @@ ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	init_info.CheckVkResultFn = CheckVkResult;
 	return init_info;
-}
-
-SDL_Window *Renderer::GetWindow()
-{
-	return m_window.Get();
 }
 
 void Renderer::WaitIdle()
