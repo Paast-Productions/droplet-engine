@@ -2,6 +2,74 @@
 
 using namespace Droplet;
 
+std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
+{
+    auto fallback = std::make_unique<SkinnedMeshResource>();
+    
+    struct SkinnedVertex
+    {
+        glm::vec3 pos;
+        int b[4];   // Bone indices
+        float w[4]; // Bone weights
+    };
+    
+    // 8 vertices of a 1x1x1 unit cube
+    float rawPos[8][3] = {
+        {-0.5f, -0.5f,  0.5f}, { 0.5f, -0.5f,  0.5f},
+        { 0.5f,  0.5f,  0.5f}, {-0.5f,  0.5f,  0.5f},
+        {-0.5f, -0.5f, -0.5f}, { 0.5f, -0.5f, -0.5f},
+        { 0.5f,  0.5f, -0.5f}, {-0.5f,  0.5f, -0.5f}
+    };
+    
+    SkinnedVertex vertices[8];
+    for (int i = 0; i < 8; i++)
+    {
+        vertices[i].pos = glm::vec3(rawPos[i][0], rawPos[i][1], rawPos[i][2]);
+            
+        // Rig 100% to Bone 0
+        vertices[i].b[0] = 0; vertices[i].b[1] = 0; vertices[i].b[2] = 0; vertices[i].b[3] = 0;
+        vertices[i].w[0] = 1.0f; vertices[i].w[1] = 0.0f; vertices[i].w[2] = 0.0f; vertices[i].w[3] = 0.0f;
+    }
+
+    // 36 indices (standard cube)
+    std::vector<std::uint32_t> indices = {
+        0, 1, 2, 2, 3, 0, // Front
+        1, 5, 6, 6, 2, 1, // Right
+        7, 6, 5, 5, 4, 7, // Back
+        4, 0, 3, 3, 7, 4, // Left
+        4, 5, 1, 1, 0, 4, // Bottom
+        3, 2, 6, 6, 7, 3  // Top
+    };
+    
+    // Copy data into byte vector
+    std::size_t vertexByteSize = sizeof(SkinnedVertex);
+    std::vector<std::byte> vertexData(8 * vertexByteSize);
+    std::memcpy(vertexData.data(), vertices, vertexData.size());
+    
+    // NOTE: I'm unsure if these name strings are correct?
+    std::vector<MeshResource::VertexAttribute> layout = {
+        {"POSITION", sizeof(float) * 3},
+        {"bone_indices", sizeof(int) * 4},
+        {"bone_weights", sizeof(float) * 4}
+    };
+    
+    fallback->SetMeshData(vertexData, indices, vertexByteSize, layout);
+    try
+    {
+        int index = fallback->AddBone("root", -1, glm::mat4(1.0f));
+        index; // I love nodiscard + treat warnings as errors
+    }
+    catch (...)
+    {
+        // TODO: Log error (this should never be possible though)
+    }
+
+	// Generate bone bounds for the fallback mesh
+    fallback->GenerateBoneBounds();
+    
+    return fallback;
+}
+
 int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
 {
     if (m_boneMap.find(p_name) != m_boneMap.end())

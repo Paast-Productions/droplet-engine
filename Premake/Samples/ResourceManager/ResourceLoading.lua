@@ -1,4 +1,4 @@
-project "AssetManager-AssetLoading"
+project "ResourceManager-ResourceLoading"
 
     kind "ConsoleApp"
     location(projectPath)
@@ -9,7 +9,7 @@ project "AssetManager-AssetLoading"
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        rootPath .. "/Samples/AssetManager/AssetLoading.cpp",
+        rootPath .. "/Samples/ResourceManager/ResourceLoading.cpp",
         rootPath .. "/src/resource/ResourceManager.cpp",
         rootPath .. "/src/resource/loaders/GliLoader.cpp",
 	    rootPath .. "/src/resource/meta/MetaUtils.cpp",
@@ -49,4 +49,8 @@ project "AssetManager-AssetLoading"
 
     defines {
         "GLM_ENABLE_EXPERIMENTAL"
+    }
+
+    postbuildcommands {
+        "{COPYDIR} \"" .. rootPath .. "/Samples/ResourceManager/assets\" \"%{cfg.targetdir}/assets\""
     }

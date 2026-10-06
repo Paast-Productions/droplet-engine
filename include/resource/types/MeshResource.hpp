@@ -15,6 +15,10 @@ namespace Droplet
 
 	public:
 		using VertexAttribute = std::pair<std::string, std::size_t>;
+	    
+	    /// @brief Creates a fallback instance of a mesh resource (unit cube).
+	    /// @return The mesh resource.
+	    static std::unique_ptr<MeshResource> CreateFallback();
 
 		/// @brief Sets the mesh data for the resource.
 		/// @param p_vertexData The vertex data for the mesh.
@@ -55,7 +59,7 @@ namespace Droplet
 		/// @param p_offset The byte offset of the vertex attribute in the vertex data.
 		/// @param p_size The byte size of the vertex attribute in the vertex data.
 		/// @return True if the vertex attribute was found in the vertex layout, otherwise false.
-		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t p_offset, std::size_t p_size) const;
+		[[nodiscard]] bool FindVertexAttribute(const std::string &p_attribute, std::size_t &p_offset, std::size_t &p_size) const;
 
 	protected:
 		std::vector<std::byte>			m_vertexData{};			// Vertex data
