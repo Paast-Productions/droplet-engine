@@ -22,21 +22,38 @@ project "Scripting-Main"
         vkPath .. "/Lib"
     }
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+    if _TARGET_OS == "windows" then
+
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            rootPath .. "/include",
+            vkPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson {
         "Engine",
         "ImGui",
         "Sol2",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
+        "tracy",
         "lua-5.4.7",
         "winmm",
         "gdi32",

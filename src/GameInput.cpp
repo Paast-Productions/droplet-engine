@@ -4,7 +4,7 @@
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_events.h>
 #include <cstdlib>
-#include <print>
+#include <iostream>
 
 namespace Droplet
 {
@@ -18,54 +18,51 @@ namespace Droplet
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
 
-        SDL_Event event;
-        while(SDL_PollEvent(&event))
+    }
+
+    void GameInput::ProcessEvent(const SDL_Event &p_event)
+    {
+        // Keyboard events
+        if (p_event.type == SDL_EVENT_KEY_DOWN)
         {
-            if (event.type == SDL_EVENT_KEY_DOWN)
+            // Ignore key repeat events.
+            if (!p_event.key.repeat)
             {
+                m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
+            }
+        }
+        else if (p_event.type == SDL_EVENT_KEY_UP)
+        {
+            m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
+        }
 
-                // Ignore key repeat events.
-                if (!event.key.repeat)
-                {
-                    m_currentKeys.insert(static_cast<Key>(event.key.scancode));
-                }
-            }
-            else if (event.type == SDL_EVENT_KEY_UP)
-            {
-                m_currentKeys.erase(static_cast<Key>(event.key.scancode));
-            }
+        // Mouse events
+        if (p_event.type == SDL_EVENT_MOUSE_MOTION)
+        {
+            m_mouseX = p_event.motion.x;
+            m_mouseY = p_event.motion.y;
+        }
 
-            // Mouse events
-            if (std::abs(event.motion.x) >= C_EPSILON)
+        if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            if (p_event.button.button == SDL_BUTTON_LEFT)
             {
-                m_mouseX = event.motion.x;
+                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
             }
-            if (std::abs(event.motion.y) >= C_EPSILON)
+            if (p_event.button.button == SDL_BUTTON_RIGHT)
             {
-                m_mouseY = event.motion.y;
+                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
             }
-
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+        }
+        else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+        {
+            if (p_event.button.button == SDL_BUTTON_LEFT)
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
-                }
+                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
             }
-            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+            if (p_event.button.button == SDL_BUTTON_RIGHT)
             {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
-                }
+                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
             }
         }
     }

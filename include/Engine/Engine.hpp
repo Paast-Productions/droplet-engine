@@ -26,12 +26,6 @@ namespace Droplet
 	{
 	public:
 		Engine(EngineConfig p_config);
-
-		/// @brief Initialize any subsystem that need initializing
-		void Initialize();
-
-		/// @brief Shutdown all subsystems and clear up any allocated memory
-		void ShutDown();
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
@@ -40,10 +34,10 @@ namespace Droplet
 		/// @brief the purpose of GetWindow is to let other systems use the window. 
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
-		[[nodiscard]] Graphics::SDL::Window &GetWindow();
+		[[nodiscard]] SDL_Window *GetWindow();
 		
 	private:
 		/// @brief The renderer instance, should only be one.
-		Renderer m_renderer;
+		Graphics::Renderer m_renderer;
 	};
 }

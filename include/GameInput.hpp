@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
+#include <SDL3/SDL_events.h>
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
@@ -68,6 +69,10 @@ namespace Droplet
 		KeyF10 = SDL_SCANCODE_F10,
 		KeyF11 = SDL_SCANCODE_F11,
 		KeyF12 = SDL_SCANCODE_F12,
+
+		KeyLCTRL = SDL_SCANCODE_LCTRL,
+		KeyRCTRL = SDL_SCANCODE_RCTRL,
+		KeyShift = SDL_SCANCODE_LSHIFT
 	};
 
 	/// @brief Customized mouse codes using ...
@@ -92,8 +97,12 @@ namespace Droplet
 			return gameInput;
 		}
 
-		/// @brief Retrieves the inputs and updates the internal mouse and key states.
+		/// @brief Updates the internal mouse and key states.
 		void Update();
+
+		/// @brief Process SDL events from the main loop
+		/// @param The event that was created in main
+		void ProcessEvent(const SDL_Event &p_event);
 
 		/// @brief Check whether a key is pressed.
 		/// @param p_key The key to be checked.

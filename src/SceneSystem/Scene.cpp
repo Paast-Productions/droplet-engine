@@ -2,6 +2,7 @@
 #include "Node.hpp"
 #include <utility>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
@@ -12,6 +13,9 @@ Scene::Scene(const std::string &p_name)
 
 void Scene::Update(float p_deltaTime)
 {
+	ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_loaded || !m_active)
     {
         return;
@@ -26,6 +30,9 @@ void Scene::Update(float p_deltaTime)
 
 void Scene::Load()
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (m_loaded)
     {
         throw std::runtime_error(
@@ -39,6 +46,9 @@ void Scene::Load()
 
 void Scene::Unload()
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_loaded)
     {
         throw std::runtime_error(
@@ -51,6 +61,9 @@ void Scene::Unload()
 
 void Scene::Render()
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_loaded || !m_active)
     {
         return;
@@ -64,6 +77,9 @@ void Scene::Render()
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     auto node = std::make_shared<Node>(shared_from_this(), p_name);
 
     m_roots.push_back(node);
@@ -78,6 +94,9 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
 
 void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!p_makeRoot)
     {
         RemoveRoot(p_node);
@@ -105,6 +124,9 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot)
    
 void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!p_node)
     {
         throw std::invalid_argument("Cannot remove null Node from Scene.");
@@ -158,6 +180,9 @@ bool Scene::IsActive() const
 
 void Scene::SetActive(bool p_active)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (m_active == p_active)
     {
         return;

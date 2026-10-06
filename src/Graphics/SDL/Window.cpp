@@ -31,7 +31,7 @@ Window::~Window()
     SDL_Quit();
 }
 
-SDL_Window *Window::Get()
+SDL_Window *Window::Get() const
 {
     return m_sdlWindowHandle.get();
 }

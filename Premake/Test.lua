@@ -6,21 +6,32 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"
     }
 
-    includedirs
-    {
-        "../include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
-    
+    if _TARGET_OS == "windows" then
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
     libdirs
     {
         targetBuildPath .. "/External/lib",
@@ -33,13 +44,15 @@ project "Test"
         "GoogleTest",
         "Engine",
         "Sol2",
-        "ImGui"
+        "tracy"
     }
 
     links
     {
         "Engine", 
         "gtest",
+        "tracy",
+        "lua-5.4.7"
         "ImGui",
         AddQuotation("lua-5.4.7"),
         AddQuotation("SDL3"),
