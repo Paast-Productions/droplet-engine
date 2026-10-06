@@ -45,6 +45,12 @@ namespace Droplet::Scene
         /// @param sceneManager SceneManager associated with the game.
         void SetSceneManager(SceneManager *sceneManager);
 
+    protected:
+
+        /// @brief Internal rendering function for the component's UI.
+        /// Overloaded by derived components to implement their own UI rendering logic.
+        virtual void RenderInternalUI() {}
+
     private:
         /// @brief SceneManager associated with this Behaviour.
         ///

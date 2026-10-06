@@ -3,19 +3,20 @@
 #include <ScriptSystem/ScriptInstance.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Node.hpp>
+#include "GameInput.hpp"
  
  using namespace Droplet::Script;
  using namespace Droplet::Scene;
 
  TEST(ScriptInstance, getScriptPath)
  {
-	 // Lua state initialization
-	 LuaStateHandler stateHandler;
+	// Lua state initialization
+	LuaStateHandler stateHandler;
 
-	 auto scene = std::make_shared<Scene>("Scene1");
-	 Node testNode(scene, "TestNode");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
-	 auto script = stateHandler.GetState().load(R"(
+	auto script = stateHandler.GetState().load(R"(
 		function OnStart()
 		end
 
@@ -23,16 +24,17 @@
 		end
 	)");
 
-	 ASSERT_TRUE(script.valid());
+	ASSERT_TRUE(script.valid());
 
-	 ScriptInstance instance(
-		 &testNode,
-		 stateHandler,
-		 script,
-		 "TestScript.lua"
-	 );
+	ScriptInstance instance(
+		&testNode,
+		Droplet::GameInput::Get(),
+		stateHandler,
+		script,
+		"TestScript.lua"
+	);
 
-	 EXPECT_EQ(instance.GetScriptPath(), "TestScript.lua");
+	EXPECT_EQ(instance.GetScriptPath(), "TestScript.lua");
  }
 
 TEST(ScriptInstance, OnStart)
@@ -63,6 +65,7 @@ TEST(ScriptInstance, OnStart)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler, 
 		script, 
 		"TestScript.lua"
@@ -98,6 +101,7 @@ TEST(ScriptInstance, OnStartUndefined)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -137,6 +141,7 @@ TEST(ScriptInstance, onUpdate)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -176,6 +181,7 @@ TEST(ScriptInstance, OnUpdateUndefined)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -222,6 +228,7 @@ TEST(ScriptInstance, Call)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -254,6 +261,7 @@ TEST(ScriptInstance, CallUndefinedFunction)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -294,6 +302,7 @@ TEST(ScriptInstance, callTooManyArguments)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -336,6 +345,7 @@ TEST(ScriptInstance, callTooFewArguments)
 
 	ScriptInstance instance(
 		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -372,6 +382,7 @@ TEST(ScriptInstance, callError)
 
 	ScriptInstance instance(
 		&testNode,
+				Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
