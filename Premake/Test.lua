@@ -33,12 +33,14 @@ project "Test"
         "GoogleTest",
         "Engine",
         "Sol2",
+        "ImGui"
     }
 
     links
     {
         "Engine", 
         "gtest",
+        "ImGui",
         AddQuotation("lua-5.4.7"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
