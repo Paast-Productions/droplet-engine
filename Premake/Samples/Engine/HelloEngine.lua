@@ -31,14 +31,13 @@ project "Engine-HelloEngine"
     dependson {
         "Engine",
         "ImGui",
-        "Sol2"
+        "Sol2",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
-	"tracy",
-	"VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
