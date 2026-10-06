@@ -4,7 +4,7 @@ project "Engine-HelloEngine"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Engine/")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
@@ -37,6 +37,8 @@ project "Engine-HelloEngine"
     links {
         "Engine",
         "ImGui",
+	"tracy",
+	"VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
