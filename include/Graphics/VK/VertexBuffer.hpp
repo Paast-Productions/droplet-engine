@@ -1,10 +1,14 @@
 #pragma once
 
-#include <vector>
-
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
+
+#include <vector>
 #include <glm/glm.hpp>
+
+#include <Graphics/VK/CommandPool.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -38,44 +42,59 @@ namespace Droplet::Graphics::VK
 	class VertexBuffer
 	{
 	public:
-		/// @brief Deleted default constructor
 		VertexBuffer() = delete;
-
-		/// @brief Default destructor
-		~VertexBuffer() = default;
+		
+		/// @brief
+		VertexBuffer(nullptr_t p_nullptr)
+		{
+			m_vertexBuffer = { p_nullptr };
+		}
 
 		/// @brief Constructor for the VertexBuffer class
-		/// @param p_device RAII pointer reference to a Vulkan Device
-		/// @param p_physDevice RAII pointer reference to the hardware Device
-		/// @param p_commandPool RAII pointer reference to the Command Pool
-		/// @param p_queue RAII pointer reference to the Vulkan Queue
+		/// @param p_allocator VMA RAII Allocator 
 		/// @param p_vertices vector containing Vertex struct data
-		VertexBuffer(vk::raii::Device const &p_device,
-			vk::raii::PhysicalDevice const &p_physDevice,
-			vk::raii::CommandPool const &p_commandPool,
-			vk::raii::Queue const &p_queue,
+		VertexBuffer(const vma::raii::Allocator &p_allocator,
 			const std::vector<Vertex> &p_vertices);
+		
+		VertexBuffer(const VertexBuffer &) = delete;
+		VertexBuffer &operator=(const VertexBuffer &) = delete;
+		
+		VertexBuffer(VertexBuffer &&p_other) noexcept
+		{
+			m_vertexBuffer = std::move(p_other.m_vertexBuffer);
+		}
+		
+		VertexBuffer &operator=(VertexBuffer &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+			
+			m_vertexBuffer == std::move(p_other.m_vertexBuffer);
+			
+			return *this;
+		}
 
+		~VertexBuffer() = default;
+		
+		bool operator==(const VertexBuffer &p_other) const
+		{
+			return m_vertexBuffer == p_other.m_vertexBuffer;
+		}
+		
 		/// @brief VertexBuffer Getter
 		/// @return RAII pointer to the vertex buffer
-		const vk::raii::Buffer *GetVertexBuffer();
-
-		/// @brief DeviceMemory Getter
-		/// @return RAII pointer to the device memory
-		const vk::raii::DeviceMemory *GetDeviceMemory();
+		[[nodiscard]] const vma::raii::Buffer &Get();
+		
 	private:
-		vk::raii::Buffer		m_vertexBuffer = nullptr;
-		vk::raii::DeviceMemory	m_bufferMemory = nullptr;
+		vma::raii::Buffer m_vertexBuffer { nullptr };
 	};
 
-	//I'm worried this may be illegal
-	inline const vk::raii::Buffer *VertexBuffer::GetVertexBuffer()
+	/// @brief Getter for Vertex buffer reference
+	/// @return Vertex buffer pointer
+	inline const vma::raii::Buffer &VertexBuffer::Get()
 	{
-		return &m_vertexBuffer;
-	}
-
-	inline const vk::raii::DeviceMemory *VertexBuffer::GetDeviceMemory()
-	{
-		return &m_bufferMemory;
+		return m_vertexBuffer;
 	}
 }

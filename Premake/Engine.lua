@@ -3,35 +3,56 @@ project "Engine"
 
     location(projectsPath)
 
+    defines{
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation(rootPath)
+    }
+
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
 
-    includedirs
-    {
-        "../include",
-        "../include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+    if _TARGET_OS == "windows" then
 
-    libdirs
-    {
-        targetBuildPath .. "/External/lib/",
-        targetBuildPath .. "/External/lib64/"
-    }
+        buildoptions {"/Zi"}
+        
+        -- vkPath required as windows doesn't add the vulkan sdk to lib path'
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson
     {
-        "GoogleTest",
+        --"GoogleTest",
         "ImGui",
-        "Jolt",
+        "Sol2",
         "json",
+        "tracy",
+        "VulkanMemoryAllocator",
+        "Jolt",
         "Assimp",
+        "Stb",
         "Gli",
-        "bvh",
-        "Stb"
+        "bvh"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -41,8 +62,5 @@ project "Engine"
         "../src/**.cpp",
     }
 
-    defines {
-        "GLM_ENABLE_EXPERIMENTAL"
-    }
     --pchheader "%{prj.location}/EnginePCH.hpp"
     --pchsource "%{prj.location}/EnginePCH.cpp"

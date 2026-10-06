@@ -30,7 +30,7 @@ namespace Droplet::Scene
         /// @brief Constructs a Node with the specified name and Scene.
 		/// @param p_scene Shared pointer to the Scene that owns this Node.
         /// @param p_name Name of the Node.
-        explicit Node(std::shared_ptr<Scene> p_scene, const std::string &p_name);
+        explicit Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name);
 
         /// @brief Virtual destructor.
         virtual ~Node() = default;
@@ -93,7 +93,7 @@ namespace Droplet::Scene
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; }
 
         // --------------------------------------------------
-        // Children
+        // Children 
         // --------------------------------------------------
 
         /// @brief Adds a child Node.
