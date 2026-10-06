@@ -110,7 +110,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // ==================================================
     // Activate the scene
     // ==================================================
-
+    SDL_CreateWindow("Droplet", 1280, 720, SDL_WINDOW_VULKAN);
 
     sceneManager.ActivateScene("Game");
 
