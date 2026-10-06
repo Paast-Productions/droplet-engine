@@ -112,3 +112,38 @@ TEST_F(SceneSerializerTest, SerializeNode)
     EXPECT_TRUE(nodeJson.contains("components"));
 
 }
+
+TEST_F(SceneSerializerTest, DeserializeNode)
+{
+    sceneManager.LoadScene("testScene");
+    auto testScene = sceneManager.GetScene("testScene");
+    auto root = testScene->AddNode("Root");
+
+    auto testNode = root->AddChild(testScene->AddNode("testNode"));
+    auto testChild = testNode->AddChild(testScene->AddNode("testChild"));
+
+    glm::vec3 position = glm::vec3(1.0f, 2.0f, 3.0f);
+    testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
+
+    testNode->AddComponent<PlayerComponent>();
+
+
+    nlohmann::json json = serializer.SerializeScene(testScene);
+    Droplet::Core::JsonIO::Write("testNodeJson", json);
+    
+
+    const nlohmann::json readResult = Droplet::Core::JsonIO::Read("testNodeJson");
+    SceneManager testManager;
+    serializer.DeserializeScene(readResult, testManager);
+
+    EXPECT_EQ(sceneManager.GetScene("testScene"), testManager.GetScene("testScene"));
+    
+    auto sceneOne = sceneManager.GetScene("testScene");
+    auto sceneTwo = testManager.GetScene("testScene");
+
+    EXPECT_EQ(sceneOne->GetName(), sceneTwo->GetName());
+
+
+    auto rootOne = sceneOne->GetRoots();
+    auto rootTwo = sceneTwo->GetRoots();
+}

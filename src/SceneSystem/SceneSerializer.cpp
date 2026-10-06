@@ -81,14 +81,18 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
 {
     // TODO: add to logger
-
+    Droplet::Debug::Logger log;
+    Droplet::Debug::Logger::LogType lgType;
+    lgType = Droplet::Debug::Logger::LogType::Error;
     if (!p_json.contains("name"))
     {
+        log.Log(lgType, "Node is missing required field 'name'");
         throw std::runtime_error("Node is missing required field 'name'");
     }
 
     if (!p_json.contains("components"))
     {
+        log.Log(lgType, "Node is missing required field 'components'");
         throw std::runtime_error("Node is missing required field 'components'");
     }
 
