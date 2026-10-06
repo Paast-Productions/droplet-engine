@@ -27,13 +27,13 @@ namespace Droplet::Scene
 		/// @brief Updates the octree
 		void Update();
 
-		/// @brief Adds a node element to the octree
-		/// @param p_element The element to be added to the octree
-		void AddElement(const std::shared_ptr<Node> p_element);
+		/// @brief Adds a Node element to the octree
+		/// @param p_node The Node element to be added to the octree
+		void AddNode(const std::shared_ptr<Node> p_node);
 
-		/// @brief Removes a node element from the octree
-		/// @param p_element The element to be removed
-		void RemoveElement(const std::shared_ptr<Node> p_element);
+		/// @brief Removes a Node element from the octree
+		/// @param p_node The Node element to be removed
+		void RemoveNode(const std::shared_ptr<Node> p_node);
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
@@ -44,13 +44,13 @@ namespace Droplet::Scene
 
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_element The element to be added to the octree
-		/// @param p_node The TreeNode where the Node element should be set
-		void AddToTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node);
+		/// @param p_treeNode The TreeNode where the Node element should be set
+		void AddToTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Helper function for removing elements from the octree
 		/// @param p_element The element to be removed
-		/// @param p_node The TreeNode where to check for the Node element
-		void RemoveFromTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node);
+		/// @param p_treeNode The TreeNode where to check for the Node element
+		void RemoveFromTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Slices a bounding volume into eights
 		/// @param p_boundingBox The box to be sliced
