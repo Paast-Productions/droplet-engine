@@ -1,5 +1,7 @@
 #include "SceneManager.hpp"
 #include "SceneFactory.hpp"
+#include "SceneSerializer.hpp"
+
 #include "Scene.hpp"
 #include <algorithm>
 #include <stdexcept>
@@ -157,7 +159,7 @@ void SceneManager::Update(float p_deltaTime)
 
         ++it;
     }
-    
+        
 }
 
 void SceneManager::Render()

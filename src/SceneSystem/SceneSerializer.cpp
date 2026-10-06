@@ -1,6 +1,5 @@
 #include "SceneSerializer.hpp"
 
-
 using namespace Droplet::Scene;
 using namespace Droplet;
 
@@ -22,13 +21,13 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
     return json;
 }
 
-void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManager &p_sceneManager)
+void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_ptr<Scene> p_scene)
 {
-    p_sceneManager.LoadScene(p_json["name"]);
+    //p_sceneManager.LoadScene(p_json["name"]);
 
-    auto scene = p_sceneManager.GetScene(p_json["name"]);
+    //auto scene = p_sceneManager.GetScene(p_json["name"]);
 
-    if (!scene)
+    if (!p_scene)
     {
         std::cerr << "Failed to load Game scene\n";
         throw std::runtime_error("Cannot load Scene '" + p_json["name"]);
@@ -36,7 +35,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManage
 
     for (const auto &rootJson : p_json["roots"])
     {
-        auto root = scene->AddNode(rootJson["name"]);
+        auto root = p_scene->AddNode(rootJson["name"]);
         DeserializeTransform(rootJson["transform"], root->GetTransform());
         for (const auto componentJson : rootJson["components"])
         {
@@ -44,7 +43,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json, SceneManage
         }
         for (const auto childJson : rootJson["children"])
         {
-            DeserializeNode(childJson, root, scene);
+            DeserializeNode(childJson, root, p_scene);
         }
     }
  
