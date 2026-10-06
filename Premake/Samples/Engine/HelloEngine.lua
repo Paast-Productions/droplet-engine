@@ -38,6 +38,8 @@ project "Engine-HelloEngine"
     links {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
