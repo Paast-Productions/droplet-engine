@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LuaStateHandler.hpp"
+#include "GameInput.hpp"
 
 #include <SceneSystem/Node.hpp>
 #include <string>
@@ -18,12 +19,14 @@ namespace Droplet::Script
 		/// @brief Creates a script instance and initializes its Lua environment.
 		/// The provided Lua script is loaded into the instance's environment and
 		/// the associated ScriptComponent and script path are stored for later use.
-		/// @param p_ScriptComponent ScriptComponent associated with this script instance.
+		/// @param p_owner Node that ScriptInstance sit upon.
+		/// @param p_gameInput GameInput that we get from staic class
 		/// @param p_stateHandler Lua state handler used by the script instance.
 		/// @param p_script Loaded Lua script used to populate the script environment.
 		/// @param p_scriptPath Path to the Lua script.
 		ScriptInstance(
 			Droplet::Scene::Node *p_owner,
+			Droplet::GameInput &p_gameInput,
 			LuaStateHandler &p_stateHandler,
 			sol::load_result &p_script,
 			const std::string &p_scriptPath);
@@ -57,6 +60,9 @@ namespace Droplet::Script
 		/// @param p_script Loaded Lua script used to reload the instance.
 		/// @return True if the script was successfully reloaded, otherwise false.
 		bool Reload(sol::load_result &p_script);
+
+		/// @brief Reloads the script instance with a new Lua script.
+		void RenderInternalUI();
 
 		/// @brief Gets the path of the Lua script associated with this instance.
 		/// @return The path to the associated Lua script.

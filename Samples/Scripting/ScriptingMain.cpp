@@ -8,6 +8,8 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
+#include "GameInput.hpp"
+#include "ImGui/imgui.h"
 
 #include "Time.hpp"
 
@@ -23,7 +25,7 @@ public:
         std::cout << "PlayerComponent started\n";
     }
 
-    void Update(float p_deltaTime) override
+    void Update([[maybe_unused]] float p_deltaTime) override
     {
         std::cout
             << "PlayerComponent updating: "
@@ -108,18 +110,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // ==================================================
     // Activate the scene
     // ==================================================
-
+    [[maybe_unused]] SDL_Window *window = SDL_CreateWindow(
+        "Droplet",
+        1280,
+        720,
+        SDL_WINDOW_VULKAN); 
     sceneManager.ActivateScene("Game");
 
     //ScriptBehaviour scriptBehaviour("testScript.lua");
 
-    ScriptSystem::Get().SetScriptPath("../../../src/TestScripts");
+    ScriptSystem::Get().SetScriptPath("../../../src/Scripts");
     player->AddComponent<ScriptComponent>("testScript.lua");
+    
     ScriptSystem::Get().Start();
+
+
+    player->RenderUI();
+
 
     while (true)
     {
-        time.Update();
+        Droplet::GameInput::Get().Update();
+
+		SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+			Droplet::GameInput::Get().ProcessEvent(event);
+        }
 
         ScriptSystem::Get().Update(time.GetDeltaTime());
     }

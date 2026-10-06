@@ -12,8 +12,11 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
+
+    local vkPath = os.getenv("VULKAN_SDK")
+    
     if _TARGET_OS == "windows" then
-        local vkPath = os.getenv("VULKAN_SDK")
+
 
         includedirs
         {
@@ -35,7 +38,8 @@ project "Test"
     libdirs
     {
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
+        targetBuildPath .. "/External/lib64",
+        vkPath .. "/Lib"
     }
 
     dependson 
@@ -51,5 +55,9 @@ project "Test"
         "Engine", 
         "gtest",
         "tracy",
-        "lua-5.4.7"
+        "ImGui",
+        AddQuotation("lua-5.4.7"),
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

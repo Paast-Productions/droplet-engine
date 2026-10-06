@@ -64,6 +64,11 @@ namespace Droplet::Scene
         /// system's update cycle.
         void DeactivateScript();
 
+	protected:
+		/// @brief Internal rendering function for the component's UI.
+		/// Overloaded by derived components to implement their own UI rendering logic.
+		void RenderInternalUI() override;
+
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;

@@ -16,5 +16,5 @@ project "Sol2"
     }
 
     postbuildcommands{
-        "{COPY} " .. AddQuotation(objBuildPath .. "/Sol2/x64/lib/Debug") .. " " .. AddQuotation(targetBuildPath .. "/External/lib"),
+        "{COPYDIR} " .. AddQuotation(objBuildPath .. "/Sol2/x64/lib/Debug") .. " " .. AddQuotation(targetBuildPath .. "/External/lib"),
     }

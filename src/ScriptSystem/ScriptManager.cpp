@@ -1,13 +1,15 @@
 #include "ScriptManager.hpp"
+#include "GameInput.hpp"
 
 #include <iostream>
 #include <print>
 #include <stdexcept>
 
+
 using namespace Droplet;
 using namespace Droplet::Script;
 
-ScriptManager::ScriptManager(LuaStateHandler& p_statehandler) : m_StateHandler(p_statehandler)
+ScriptManager::ScriptManager(LuaStateHandler &p_statehandler) : m_StateHandler(p_statehandler)
 {
 }
 
@@ -55,9 +57,10 @@ void ScriptManager::CreateComponentScript(
 	{
 		oldinstance = existing->second;
 	}
-	// We want to own unique ptrs, but return a instance
-	// the caller gets a non-owning pointer, the manager should own the scriptinstances (in my humble opinion)
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), m_StateHandler, *loadResult, p_scriptFile);
+	
+	GameInput &input = GameInput::Get();
+
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), input, m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -98,7 +101,9 @@ void ScriptManager::CreateBehaviourScript(
 		oldinstance = existing->second;
 	}
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, m_StateHandler, *loadResult, p_scriptFile);
+	GameInput &input = GameInput::Get();
+
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, *loadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -181,7 +186,14 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
-		throw std::runtime_error("Failed to load script");
+
+		std::print(
+			"Failed to load script '{}': {}\n",
+			scriptPath.string(),
+			error.what()
+		);
+
+		throw std::runtime_error("Failed to load script: ");
 	}
 	
 	std::error_code errorCode;
@@ -393,7 +405,6 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 	}
 	m_scriptDirectoryPath = scriptDirectory;
 }
-
 
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
