@@ -33,6 +33,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		}
 	}
 
+	// Scenesystem
+	m_sceneManager.Update(Time::Get().GetDeltaTime());
+
 	// Scriptsystem
 	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 
@@ -48,4 +51,9 @@ SDL_Window *Droplet::Engine::GetWindow()
 {
 	// TODO: insert return statement here
 	return m_renderer.GetWindow();
+}
+
+Scene::SceneManager &Droplet::Engine::GetSceneManager()
+{
+	return m_sceneManager;
 }

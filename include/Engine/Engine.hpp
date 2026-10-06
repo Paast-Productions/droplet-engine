@@ -3,6 +3,7 @@
 #include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
+#include <SceneSystem/SceneManager.hpp>
 #include <Time.hpp>
 
 namespace Droplet
@@ -35,9 +36,16 @@ namespace Droplet
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow();
+
+		/// @brief Is meant to enable other classes to use functionality from scenemanager
+		/// @return A reference to engines scenemanager
+		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 		
 	private:
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
+
+		/// @brief The scenemanager instance, should only be one.
+		Scene::SceneManager m_sceneManager;
 	};
 }
