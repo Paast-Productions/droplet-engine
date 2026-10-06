@@ -3,6 +3,12 @@
 
 using namespace Droplet::Scene;
 
+std::shared_ptr<NodeBounds> Droplet::Scene::Component::GetBounds() const
+{
+    // TODO: Implement GetBounds()
+    return std::shared_ptr<NodeBounds>();
+}
+
 void Component::SetOwner(std::shared_ptr<Node> p_owner)
 {
     m_owner = p_owner;
