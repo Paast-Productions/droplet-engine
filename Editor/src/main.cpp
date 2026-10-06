@@ -173,12 +173,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::EndFrame();
 
 		ImGui::Render();
-		rend.drawFrame();
+		
+		rend.DrawFrame();
 
-		rend.WaitIdle();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 	}
 
 	g_rend.WaitIdle();
