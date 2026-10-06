@@ -7,13 +7,18 @@ project "SceneSystem"
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
     
+    local vkPath = os.getenv("VULKAN_SDK")
+
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Scene/SceneMain.cpp"
     }
 
     libdirs {
-        targetBuildPath .. "/Library"
+        targetBuildPath .. "/Library",
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/bin",
+        vkPath .. "/Lib"
     }
     
     if _TARGET_OS == "windows" then
@@ -37,14 +42,23 @@ project "SceneSystem"
 
     end
 
+
     dependson {
         "Engine",
         "ImGui",
+        "Sol2",
         "tracy"
     }
 
     links {
         "Engine",
+        "ImGui",
         "tracy",
-        "ImGui"
+        "lua-5.4.7",
+        "winmm",
+        "gdi32",
+        "shell32",
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

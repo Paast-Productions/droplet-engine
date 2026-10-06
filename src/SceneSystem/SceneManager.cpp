@@ -157,6 +157,7 @@ void SceneManager::Update(float p_deltaTime)
 
         ++it;
     }
+    
 }
 
 void SceneManager::Render()
