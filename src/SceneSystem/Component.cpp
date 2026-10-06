@@ -8,6 +8,11 @@ void Component::SetOwner(std::shared_ptr<Node> p_owner)
     m_owner = p_owner;
 }
 
+Droplet::Scene::Component::Component()
+{
+
+}
+
 void Component::RenderUI()
 {
     // TODO: implement component wrapper UI

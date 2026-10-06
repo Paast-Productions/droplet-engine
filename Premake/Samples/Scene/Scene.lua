@@ -6,6 +6,12 @@ project "SceneSystem"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
@@ -28,10 +34,12 @@ project "SceneSystem"
     dependson {
         "Engine",
         "ImGui",
+        "tracy",
 		"bvh"
     }
 
     links {
         "Engine",
+        "tracy",
         "ImGui"
     }

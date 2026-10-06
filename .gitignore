@@ -4,6 +4,8 @@
 !.gitignore
 !LICENSE
 !README.md
+!.github/
+!.github/**
 
 # Source
 !/include
@@ -20,6 +22,10 @@
 !/External
 !/External/**
 
+# Editor
+!/Editor
+!/Editor/**
+
 # Test
 !/Test
 !/Test/**
@@ -30,3 +36,4 @@
 
 !/Samples
 !/Samples/**
+src/Graphics/VK/Shaders/slang.spv

@@ -6,6 +6,7 @@
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
+#include "SceneSystem/Components/ScriptComponent.hpp"
 
 using namespace Droplet::Scene;
 
@@ -16,6 +17,8 @@ using namespace Droplet::Scene;
 class PlayerComponent : public Component
 {
 public:
+    std::string_view GetTypeName() override { return "PlayerComponent"; }
+
     void Start() override
     {
         std::cout << "PlayerComponent started\n";
@@ -133,9 +136,6 @@ int main()
     // Deactivate / unload
     // ==================================================
 
-    sceneManager.DeactivateScene("Game");
-
-    sceneManager.UnloadScene("Game");
 
     return 0;
 }

@@ -8,6 +8,17 @@ project "Engine"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
+	
+	filter {"system:windows"}
+		buildoptions {"/Zi"}
+	
+	filter {}
+
     includedirs
     {
         "../include",
@@ -26,12 +37,15 @@ project "Engine"
     {
         "GoogleTest",
         "ImGui",
-        "Jolt",
         "json",
+        "Jolt",
         "Assimp",
+        "Stb",
         "Gli",
         "bvh",
-        "Stb"
+        "tracy",
+        "Sol2",
+        "VulkanMemoryAllocator"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
@@ -41,8 +55,5 @@ project "Engine"
         "../src/**.cpp",
     }
 
-    defines {
-        "GLM_ENABLE_EXPERIMENTAL"
-    }
     --pchheader "%{prj.location}/EnginePCH.hpp"
     --pchsource "%{prj.location}/EnginePCH.cpp"

@@ -6,6 +6,12 @@ project "Vulkan-HelloTriangle"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(rootPath .. "/Samples/Vulkan/")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
@@ -16,7 +22,9 @@ project "Vulkan-HelloTriangle"
     
     libdirs {
         targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
+        vkPath .. "/Lib",
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/lib64"
     }
 
 
@@ -28,13 +36,17 @@ project "Vulkan-HelloTriangle"
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy",
+        "Sol2"
     }
 
     links {
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+        AddQuotation("lua-5.4.7")
     }
