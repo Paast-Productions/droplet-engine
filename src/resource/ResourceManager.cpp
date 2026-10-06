@@ -3,10 +3,6 @@
 #include "core/StringUtils.hpp"
 #include "resource/meta/MetaUtils.hpp"
 
-#include "resource/loaders/AssimpLoader.hpp"
-#include "resource/loaders/GliLoader.hpp"
-#include "resource/loaders/SlangLoader.hpp"
-
 namespace Droplet
 {
     void ResourceManager::Initialize(const std::filesystem::path &p_rootDirectory)
@@ -178,6 +174,74 @@ namespace Droplet
         return m_registry.GetEntries(p_type);
     }
 
+    std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(ResourceType p_type) const
+    {
+        return MetaUtils::GetSettingsSchema(p_type);
+    }
+
+    bool ResourceManager::UpdateMetaEntry(GUID p_guid, const MetaEntry &p_updatedEntry, bool hotReload)
+    {
+        assert(m_isInitialized && "Resource manager is not initialized.");
+        
+        // Safety check to not change meta while a worker thread could be reading from it
+        ResourceState state = GetState(p_guid);
+        if (state == ResourceState::LoadingAsync || state == ResourceState::Queued || state == ResourceState::Uploading)
+        {
+            // TODO: Log warning
+            return false;
+        }
+        
+        // Sanitize entry
+        MetaEntry originalEntry;
+        try
+        {
+            originalEntry = m_registry.GetResourceMetaData(p_guid);
+        }
+        catch (...)
+        {
+            // TODO: Log warning
+            return false;
+        }
+        MetaEntry sanitizedEntry = p_updatedEntry;
+        sanitizedEntry.guid = originalEntry.guid;
+        sanitizedEntry.type = originalEntry.type;
+        sanitizedEntry.relAssetPath = originalEntry.relAssetPath;
+        
+        // Fetch meta list from asset
+        std::string relAssetPathStr = sanitizedEntry.relAssetPath;
+        std::vector<MetaEntry> assetMetaData;
+        if (!m_registry.GetCachedMetaDataForAsset(relAssetPathStr, assetMetaData))
+        {
+            // TODO: Log asset not being registered
+            return false;
+        }
+        
+        // Replace old entry in our vector
+        for (auto &entry : assetMetaData)
+        {
+            if (entry.guid == p_guid)
+            {
+                entry = sanitizedEntry;
+                break;
+            }
+        }
+        m_registry.RegisterMetaEntry(relAssetPathStr, sanitizedEntry);
+        
+        // Push an overwrite task to a worker thread
+        std::filesystem::path absMetaPath = m_rootDirectory / (relAssetPathStr + ".meta");
+        ThreadPool::GetInstance().PushTask([metaPath = absMetaPath, metaData = std::move(assetMetaData)]()
+        {
+           MetaUtils::Write(metaPath, metaData); 
+        });
+        
+        if (hotReload)
+        {
+            HotReload(p_guid);
+        }
+        
+        return true;
+    }
+
     void ResourceManager::IncrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
@@ -231,8 +295,43 @@ namespace Droplet
         return ResourceState::Unloaded;
     }
 
+    void ResourceManager::HotReload(GUID p_guid)
+    {
+        assert(m_isInitialized && "Resource manager is not initialized.");
+        
+        auto it = m_liveResources.find(p_guid);
+        if (it == m_liveResources.end())
+        {
+            return; // Not loaded
+        }
+        
+        LiveResource &live = it->second;
+        
+        // Avoid ongoing loads/uploads
+        if (live.state == ResourceState::LoadingAsync || live.state == ResourceState::Queued || live.state == ResourceState::Uploading)
+        {
+            return;
+        }
+        
+        live.resource.reset(); // Clear RAM
+        live.state = ResourceState::LoadingAsync;
+        
+        MetaEntry metaEntry = m_registry.GetResourceMetaData(p_guid);
+        
+        // Look up the load dispatcher for the resource type and call it
+        auto dispatcherIt = m_loadDispatchers.find(metaEntry.type);
+        if (dispatcherIt != m_loadDispatchers.end())
+        {
+            dispatcherIt->second(p_guid, metaEntry);
+        }
+        else
+        {
+            // TODO: Log error (type is not registered)
+        }
+    }
+
     std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,
-        const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
+                                                                      const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
     {
         std::vector<MetaEntry> oldMetaData;
         m_registry.GetCachedMetaDataForAsset(p_relAssetPath.generic_string(), oldMetaData); // If it fails, old metadata remains empty

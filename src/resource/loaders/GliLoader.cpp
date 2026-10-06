@@ -82,7 +82,7 @@ namespace Droplet::GliLoader
     
 	std::unique_ptr<Texture2DResource> LoadTexture2D(const fs::path &p_assetPath, const nlohmann::json &p_loadSettings)
 	    {
-            bool generateMipMaps = p_loadSettings.value("generate_mipmaps", MetaUtils::C_TEXTURE_DEFAULT_GENERATE_MIPMAPS);
+            bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
             generateMipMaps;
             // TODO: Use load setting
             // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)

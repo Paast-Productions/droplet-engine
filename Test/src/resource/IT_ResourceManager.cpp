@@ -389,3 +389,87 @@ TEST_F(ResourceManagerTest, AsyncLoadFailureReturnsFallback)
     EXPECT_NE(handle.Get(), nullptr);
 }
 
+TEST_F(ResourceManagerTest, GetSettingsSchema_ReturnsCorrectDescriptors)
+{
+    auto schema = m_resourceManager.GetSettingsSchema(ResourceType::Texture2D);
+    
+    ASSERT_EQ(schema.size(), 1);
+    EXPECT_EQ(schema[0].key, MetaLoadSettings::C_GENERATE_MIPMAPS.key);
+    EXPECT_EQ(schema[0].type, MetaLoadSettings::Type::Bool);
+    
+    auto shaderSchema = m_resourceManager.GetSettingsSchema(ResourceType::Shader);
+    ASSERT_EQ(shaderSchema.size(), 1);
+    EXPECT_EQ(shaderSchema[0].key, MetaLoadSettings::C_SHADER_TYPE.key);
+    EXPECT_EQ(shaderSchema[0].type, MetaLoadSettings::Type::Enum);
+}
+
+TEST_F(ResourceManagerTest, UpdateMetaEntry_UpdatesRegistry)
+{
+    constexpr GUID textureGuid = 500;
+    auto textures = m_resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    ASSERT_FALSE(textures.empty());
+    
+    // Create a local copy to modify
+    MetaEntry originalEntry;
+    bool found = false;
+    for (auto &entry : textures)
+    {
+        if (entry->guid == textureGuid)
+        {
+            originalEntry = *entry;
+            found = true;
+            break;
+        }
+    }
+    ASSERT_TRUE(found) << "Could not find texture GUID 500 for testing.";
+    
+    MetaEntry updatedEntry = originalEntry;
+    
+    // Modify setting
+    updatedEntry.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key] = true;
+    
+    // Push update (without triggering hot reload for this isolated test)
+    bool success = m_resourceManager.UpdateMetaEntry(textureGuid, updatedEntry, false);
+    EXPECT_TRUE(success);
+    
+    // Yield briefly to let the ThreadPool process the disk write task
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    // Ensure RAM registry was correctly updated
+    auto newTextures = m_resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    EXPECT_EQ(newTextures[0]->loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key].get<bool>(), true);
+    
+    // --- Restore State ---
+    // Push the original entry back to revert the .meta file and registry
+    success = m_resourceManager.UpdateMetaEntry(textureGuid, originalEntry, false);
+    EXPECT_TRUE(success);
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+TEST_F(ResourceManagerTest, HotReload_EvictsAndReloads)
+{
+    m_resourceManager.RegisterResourceType<Texture2DResource>();
+    constexpr GUID textureGuid = 500;
+    
+    // Fully load the resource normally
+    ResourceHandle<Texture2DResource> handle = m_resourceManager.LoadResource<Texture2DResource>(textureGuid);
+    UpdateUntilResolved(textureGuid);
+    EXPECT_EQ(m_resourceManager.GetState(textureGuid), ResourceState::Ready);
+    
+    // Trigger Hot Reload (Simulates user clicking "Apply" in Editor)
+    m_resourceManager.HotReload(textureGuid);
+    
+    // Verify it transitioned to LoadingAsync and handle is safe
+    EXPECT_EQ(m_resourceManager.GetState(textureGuid), ResourceState::LoadingAsync);
+    EXPECT_FALSE(handle.IsReady()); 
+    EXPECT_NE(handle.Get(), nullptr); // Should safely return Fallback proxy without crashing!
+    
+    // Wait for worker thread to finish re-reading the asset
+    UpdateUntilResolved(textureGuid);
+    
+    // Verify it returned to Ready state
+    EXPECT_EQ(m_resourceManager.GetState(textureGuid), ResourceState::Ready);
+    EXPECT_TRUE(handle.IsReady());
+}
+

@@ -44,7 +44,7 @@ namespace Droplet
         bool succeeded = true;
         
         GUID guid;
-        IResource* resource;
+        IResource* resource = nullptr;
         ResourceLoadFlag loadFlags;
     };
 
@@ -130,20 +130,7 @@ namespace Droplet
             
             if (loadAsync)
             {
-                ThreadPool::GetInstance().PushTask([this, p_guid, metaEntry]()
-                {
-                    // --- Async Worker Thread ---
-                    std::filesystem::path absAssetPath = m_rootDirectory / metaEntry.relAssetPath;
-                    std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, metaEntry.loadSettings);
-                    
-                    AsyncLoadResult res;
-                    res.succeeded = (loadedResource != nullptr);
-                    res.guid = p_guid;
-                    res.resource = loadedResource.release();
-                    res.loadFlags = metaEntry.loadFlags;
-                    
-                    m_asyncLoadResults.Push(res);
-                });
+                PushWorkerLoadTask<T>(p_guid, metaEntry);
             }
             
             return handle;
@@ -154,6 +141,20 @@ namespace Droplet
         /// @return A vector of pointers to the registered metadata entries.
         [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type=ResourceType::None) const;
 
+        /// @brief Retrieves the schema descriptor for the load settings of a specific resource.
+        /// @param p_type The resource type to get the schema for.
+        /// @return A list of descriptors detailing the valid fields, types and values.
+        [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type) const;
+
+        /// @brief Updated the meta entry for a specific resource and optionally triggers a hot-reload of that resource.
+        /// @note This function will reject updates if the resource is currently being loaded or uploaded.
+        /// @param p_guid The globally unique identifier of the resource.
+        /// @param p_updatedEntry The modified metadata entry.
+        /// @param hotReload If true, the resource is hot-reloaded from disk using the new meta entry settings.
+        /// @return True if the entry was successfully updated and written to disk. False if resource was loading,
+        /// uploading, or if GUID does not relate to any registered resource.
+        [[nodiscard]] bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = true);
+        
         /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         void IncrementRef(GUID p_guid);
@@ -172,7 +173,7 @@ namespace Droplet
         /// @return The state that the resource is currently in.
         ResourceState GetState(GUID p_guid);
 
-        /// @brief Registers a resource type and initializes its fallback instance.
+        /// @brief Registers a resource type, initializes its fallback instance and maps its load function.
         /// @note This function must be called during engine startup for every resource type the engine supports.
         /// @tparam T The resource class to register. Must inherit from IResource.
         template<typename T>
@@ -180,7 +181,13 @@ namespace Droplet
         {
             static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource.");
             
-            m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback();
+            m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback(); // Create fallback resource
+            
+            ResourceType type = ResourceTraits<T>::GetType();
+            m_loadDispatchers[type] = [this](GUID p_guid, MetaEntry p_metaEntry)
+            {
+                PushWorkerLoadTask<T>(p_guid, p_metaEntry);
+            };
         }
 
         /// @brief Gets the raw resource stored in the internal cache specified by a GUID. If the guid does not reference
@@ -209,6 +216,10 @@ namespace Droplet
             
             return nullptr; // Worst case scenario return nullptr
         }
+
+        /// @brief Forces a live resource to reload its data from disk.
+        /// @param p_guid The globally unique identifier for the resource.
+        void HotReload(GUID p_guid);
     
     private:
         /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
@@ -218,12 +229,35 @@ namespace Droplet
         /// @return The updated list of resources that should be listed for the asset.
         std::vector<MetaEntry> CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath, 
             const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
+
+        /// @brief Pushes a load task to the worker thread pool.
+        /// @tparam T The resource to load.
+        /// @param p_guid The guid of the resource.
+        /// @param p_metaEntry The meta entry of the resource.
+        template<typename T>
+        void PushWorkerLoadTask(GUID p_guid, MetaEntry p_metaEntry)
+        {
+            ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
+            {
+                std::filesystem::path absAssetPath = m_rootDirectory / p_metaEntry.relAssetPath;
+                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.loadSettings);
+                                
+                AsyncLoadResult res;
+                res.succeeded = (loadedResource != nullptr);
+                res.guid = p_guid;
+                res.resource = loadedResource.release();
+                res.loadFlags = p_metaEntry.loadFlags;
+                                
+                m_asyncLoadResults.Push(res);
+            });
+        }
         
         bool m_isInitialized = false;
         std::filesystem::path m_rootDirectory; // Absolute path to the root directory
         ResourceRegistry m_registry;
         std::unordered_map<GUID, LiveResource> m_liveResources;
         std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
+        std::unordered_map<ResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;

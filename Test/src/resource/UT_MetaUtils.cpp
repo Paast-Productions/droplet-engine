@@ -64,20 +64,20 @@ TEST_F(MetaUtilsTest, GenerateDefaultMetaEntry)
     // Texture defaults
     MetaEntry texEntry = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Texture2D, "MyTex", "path.png");
     EXPECT_NE(texEntry.guid, C_INVALID_GUID);
-    EXPECT_EQ(texEntry.loadFlags, ResourceLoadFlag::LoadGPU);
-    EXPECT_TRUE(texEntry.loadSettings.contains("generate_mipmaps"));
+    EXPECT_EQ(texEntry.loadFlags, ResourceLoadFlag::LoadBoth);
+    EXPECT_TRUE(texEntry.loadSettings.contains(MetaLoadSettings::C_GENERATE_MIPMAPS.key));
 
     // Mesh defaults
     MetaEntry meshEntry = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Mesh, "MyMesh", "path.fbx");
     EXPECT_EQ(meshEntry.loadFlags, ResourceLoadFlag::LoadBoth);
-    EXPECT_TRUE(meshEntry.loadSettings.contains("generate_normals"));
+    EXPECT_TRUE(meshEntry.loadSettings.contains(MetaLoadSettings::C_GENERATE_NORMALS.key));
 
     // Explicit Overrides
-    nlohmann::json explicitSettings = { {"generate_mipmaps", false}, {"custom_field", 42} };
+    nlohmann::json explicitSettings = { {MetaLoadSettings::C_GENERATE_MIPMAPS.key, false}, {"custom_field", 42} };
     MetaEntry overrideEntry = MetaUtils::GenerateDefaultMetaEntry(
         ResourceType::Texture2D, "MyTex", "path.png", explicitSettings);
     
-    EXPECT_EQ(overrideEntry.loadSettings["generate_mipmaps"], false); // Overwritten
+    EXPECT_EQ(overrideEntry.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key], false); // Overwritten
     EXPECT_EQ(overrideEntry.loadSettings["custom_field"], 42);        // Appended
 }
 
@@ -113,7 +113,7 @@ TEST_F(MetaUtilsTest, WriteAndReadRoundTrip)
     EXPECT_EQ(entriesRead[0].dependencies[0], 1010101);
     
     // Check JSON parse
-    EXPECT_EQ(entriesRead[0].loadSettings["generate_mipmaps"], entry1.loadSettings["generate_mipmaps"]);
+    EXPECT_EQ(entriesRead[0].loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key], entry1.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key]);
 }
 
 TEST_F(MetaUtilsTest, ReadNonExistentFile)

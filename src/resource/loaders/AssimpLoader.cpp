@@ -96,9 +96,9 @@ namespace Droplet::AssimpLoader
 	{
 	    thread_local Assimp::Importer s_importer;
         
-        bool generateNormals = p_loadSettings.value("generate_normals", MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS);
-        bool joinVertices    = p_loadSettings.value("join_identical_vertices", MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES);
-        bool triangulate     = p_loadSettings.value("triangulate", MetaUtils::C_MESH_DEFAULT_TRIANGULATE);
+        bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
+        bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
+        bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
         
         unsigned int flags = aiProcess_SortByPType;
         if (generateNormals) flags |= aiProcess_ForceGenNormals;
@@ -144,9 +144,9 @@ namespace Droplet::AssimpLoader
 	{
         thread_local Assimp::Importer s_importer;
         
-        bool generateNormals = p_loadSettings.value("generate_normals", MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS);
-        bool joinVertices    = p_loadSettings.value("join_identical_vertices", MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES);
-        bool triangulate     = p_loadSettings.value("triangulate", MetaUtils::C_MESH_DEFAULT_TRIANGULATE);
+        bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
+        bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
+        bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
         
         unsigned int flags = aiProcess_SortByPType;
         if (generateNormals) flags |= aiProcess_ForceGenNormals;
@@ -208,10 +208,10 @@ namespace Droplet::AssimpLoader
 	{
         thread_local Assimp::Importer s_importer;
         
-		std::string animName =  p_loadSettings.value("target", "missing_name");
-        bool generateNormals =  MetaUtils::C_MESH_DEFAULT_GENERATE_NORMALS;
-        bool joinVertices =     MetaUtils::C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES;
-        bool triangulate =      MetaUtils::C_MESH_DEFAULT_TRIANGULATE;
+		std::string animName =  p_loadSettings.value(MetaLoadSettings::C_TARGET_ANIMATION.key, MetaLoadSettings::C_TARGET_ANIMATION.defaultValue);
+        bool generateNormals =  MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
+        bool joinVertices =     MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
+        bool triangulate =      MetaLoadSettings::C_TRIANGULATE.defaultValue;
         
         unsigned int flags = aiProcess_SortByPType | aiProcess_PopulateArmatureData;
         if (generateNormals)    flags |= aiProcess_ForceGenNormals;

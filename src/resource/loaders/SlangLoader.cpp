@@ -9,7 +9,7 @@ namespace Droplet::SlangLoader
 {
     std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
     {
-        ShaderResource::ShaderType type = p_loadSettings.value("shader_type", MetaUtils::C_SHADER_DEFAULT_TYPE);
+        ShaderResource::ShaderType type = p_loadSettings.value(MetaLoadSettings::C_SHADER_TYPE.key, MetaLoadSettings::C_SHADER_TYPE.defaultValue);
         
         try
         {
