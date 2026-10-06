@@ -42,5 +42,5 @@ void Droplet::Scene::ScriptBehaviour::DeactivateScript()
 
 void Droplet::Scene::ScriptBehaviour::RenderInternalUI()
 {
-	
+	ScriptSystem::Get().Call(this, "RenderUI");
 }

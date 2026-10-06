@@ -5,7 +5,7 @@ end
 function OnUpdate(dt)
 	local flaot = Input:GetCursorX()
 
-	if Input:KeyPressed(Key.Space) then
+	if Input:KeyPressed(Key.ArrowUp) then
 		print("Space is pressed")
 	end
 

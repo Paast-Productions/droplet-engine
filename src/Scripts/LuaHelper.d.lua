@@ -188,6 +188,10 @@ Mat4 = {}
 ---@field F10 Key
 ---@field F11 Key
 ---@field F12 Key
+---@field ArrowUp Key
+---@field ArrowRight Key
+---@field ArrowLeft Key
+---@field ArrowDown Key
 Key = {}
 
 ---@class Mouse

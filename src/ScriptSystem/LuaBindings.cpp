@@ -364,6 +364,10 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
             {"Backspace", Key::KeyBackspace},
             {"Tab", Key::KeyTab},
             {"Space", Key::KeySpace},
+            {"LCTRL", Key::KeyLCTRL},
+            {"RCTRL", Key::KeyRCTRL},
+            {"SHIFT", Key::KeyShift},
+
             {"F1", Key::KeyF1},
             {"F2", Key::KeyF2},
             {"F3", Key::KeyF3},
@@ -375,7 +379,13 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
             {"F9", Key::KeyF9},
             {"F10", Key::KeyF10},
             {"F11", Key::KeyF11},
-            {"F12", Key::KeyF12}
+            {"F12", Key::KeyF12},
+
+            {"ArrowUp", Key::KeyArrowUP},
+            {"ArrowRight", Key::KeyArrowRight},
+            {"ArrowLeft", Key::KeyArrowLeft},
+            {"ArrowDown", Key::KeyArrowDown}
+
         }
     );
 
@@ -469,7 +479,12 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
         { "F9", "Key" },
         { "F10", "Key" },
         { "F11", "Key" },
-        { "F12", "Key" }
+        { "F12", "Key" },
+
+        { "ArrowUp", "Key" },
+        { "ArrowRight", "Key" },
+        { "ArrowLeft", "Key" },
+        { "ArrowDown", "Key" }
     };
 
     LuaBindings::m_luaClassDefinitions.push_back(keyDef);
