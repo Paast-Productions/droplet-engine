@@ -42,5 +42,6 @@ project "Editor"
 	{
         "Engine",
         "ImGui",
-        AddQuotation("SDL3")
+        AddQuotation("SDL3"),
+        "lua-5.4.7"
     }

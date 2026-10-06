@@ -3,7 +3,9 @@
 #include <ImGui/imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include <Engine/Engine.hpp>
 #include "HierarchyWindow.hpp"
+#include <NodeInspectorWindow.hpp>
 
 class DropletInstance; // TODO: Get definition from Droplet Engine
 
@@ -26,16 +28,16 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	return nullptr;
 }
 
-/*static void check_vk_result(VkResult err)
-{
-	if (err == 0)
-		return;
-
-	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
-
-	if (err < 0)
-		abort();
-}*/
+//static void check_vk_result(VkResult err)
+//{
+//	if (err == 0)
+//		return;
+//
+//	fprintf(stderr, "[vulkan] Error: VkResult = %d\n", err);
+//
+//	if (err < 0)
+//		abort();
+//}
 
 static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
 {
@@ -73,58 +75,54 @@ static void InitImGui([[maybe_unused]] DropletInstance *instance, [[maybe_unused
 }
 
 // Frame
-static void NewFrame()
-{
-	ImGui_ImplSDL3_NewFrame();
-	ImGui::NewFrame();
-}
+//static void NewFrame()
+//{
+//	ImGui_ImplSDL3_NewFrame();
+//	ImGui::NewFrame();
+//}
 
-static void SubmitFrame(SDL_Window *window)
-{
-	ImGui::Render();
-	SDL_RenderPresent(SDL_GetRenderer(window));
-}
+//static void SubmitFrame(SDL_Window *window)
+//{
+//	ImGui::Render();
+//	SDL_RenderPresent(SDL_GetRenderer(window));
+//}
 
-static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
-{
-	// Create docking space over the entire window
-	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-}
+//static void DrawFrame([[maybe_unused]] DropletInstance *instance, [[maybe_unused]] SDL_Window *window)
+//{
+//	// Create docking space over the entire window
+//	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+//}
 
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-	DropletInstance *instance = Soak();
+	Droplet::Engine engine({
+		Droplet::Graphics::SDL::WindowConfig {
+			640, 480, {}
+		}
+		});
 
-	SDL_Window *wnd = InitSDL(instance);
+	SDL_Window *wnd = engine.GetWindow().Get();
 	if (!wnd)
 	{
 		return 1;
 	}
 
-	InitImGui(instance, wnd);
+	//InitImGui(instance, wnd);
 
 	// Run main loop
-	bool done = false;
-	while (!done)
+	while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
 	{
-		// TODO: Update engine
-
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			ImGui_ImplSDL3_ProcessEvent(&event);
-			if (event.type == SDL_EVENT_QUIT)
-				done = true;
-		}
-
-		NewFrame();
-
-		DrawFrame(instance, wnd);
-
-		SubmitFrame(wnd);
+		//NewFrame();
+		//SubmitFrame(wnd);
 	}
 
+	// I do not know but i needed to have them because warnings = errors :(
+	DropletInstance *instance = Soak();
+	SDL_Window *notRealWnd = InitSDL(instance);
+	InitImGui(instance, notRealWnd);
+	//DrawFrame(instance, notRealWnd);
 	DryOff(instance);
+
 	return 0;
 }

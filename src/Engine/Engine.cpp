@@ -47,7 +47,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 
 	// Rendering
-	m_renderer.drawFrame();
+	//m_renderer.drawFrame();
 	
 	// Other system that need updating go here.
 	
