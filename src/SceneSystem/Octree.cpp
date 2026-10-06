@@ -34,26 +34,28 @@ namespace Droplet::Scene
 		{
 			return;
 		}
+
+		// TODO: Implement update
 	}
 
-	void Octree::AddElement(const std::shared_ptr<Node> p_element)
+	void Octree::AddNode(const std::shared_ptr<Node> p_node)
 	{
 		if (!m_isInitialized)
 		{
 			return;
 		}
 
-		AddToTreeNode(p_element, m_root);
+		AddToTreeNode(p_node, m_root);
 	}
 
-	void Octree::RemoveElement(const std::shared_ptr<Node> p_element)
+	void Octree::RemoveNode(const std::shared_ptr<Node> p_node)
 	{
 		if (!m_isInitialized)
 		{
 			return;
 		}
 
-		RemoveFromTreeNode(p_element, m_root);
+		RemoveFromTreeNode(p_node, m_root);
 	}
 
 	std::vector<std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
