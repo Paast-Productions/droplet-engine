@@ -110,8 +110,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     // ==================================================
     // Activate the scene
     // ==================================================
-    SDL_CreateWindow("Droplet", 1280, 720, SDL_WINDOW_VULKAN);
-
+    [[maybe_unused]] SDL_Window *window = SDL_CreateWindow(
+        "Droplet",
+        1280,
+        720,
+        SDL_WINDOW_VULKAN); 
     sceneManager.ActivateScene("Game");
 
     //ScriptBehaviour scriptBehaviour("testScript.lua");
@@ -124,9 +127,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 
     player->RenderUI();
 
+
     while (true)
     {
         Droplet::GameInput::Get().Update();
+
+		SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+			Droplet::GameInput::Get().ProcessEvent(event);
+        }
 
         ScriptSystem::Get().Update(time.GetDeltaTime());
     }
