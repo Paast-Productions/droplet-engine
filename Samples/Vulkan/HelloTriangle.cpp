@@ -1,5 +1,7 @@
 ﻿#include <Graphics/VK/Renderer.hpp>
+#include <Graphics/SDL/Event.hpp>
 #include <GameInput.hpp>
+
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 {
@@ -12,34 +14,30 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 	};
 	
 	Droplet::Graphics::Renderer rnd { windowConfig };
-
-	/*if (rnd.Initialize() == 1)
-	{
-		return 1;
-	}*/
+	Droplet::Graphics::SDL::Event event {};	
 
 	bool done = false;
 	while (!done)
 	{
 		Droplet::GameInput::Get().Update();
-		while (SDL_PollEvent(&rnd.Event))
+		while (SDL_PollEvent(event.Get()))
 		{
-			Droplet::GameInput::Get().ProcessEvent(rnd.Event);
+			Droplet::GameInput::Get().ProcessEvent(*event.Get());
 
-			if (rnd.Event.type == SDL_EVENT_QUIT)
+			if (event.Get()->type == SDL_EVENT_QUIT)
 
 			{
 				done = true;
 			}
 
-			if (rnd.Event.type == SDL_EVENT_WINDOW_RESIZED || rnd.Event.type == SDL_EVENT_WINDOW_MINIMIZED)
+			if (event.Get()->type == SDL_EVENT_WINDOW_RESIZED || event.Get()->type == SDL_EVENT_WINDOW_MINIMIZED)
 			{
 				rnd.ResizeWindow();
 			}
 
-			if (rnd.Event.type == SDL_EVENT_KEY_DOWN) 
+			if (event.Get()->type == SDL_EVENT_KEY_DOWN) 
 			{
-				if (rnd.Event.key.key == SDLK_ESCAPE) 
+				if (event.Get()->key.key == SDLK_ESCAPE) 
 				{
 					done = true;
 				}

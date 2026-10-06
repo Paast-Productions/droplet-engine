@@ -2,6 +2,7 @@
 
 #include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
+#include <Graphics/SDL/Event.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <Time.hpp>
 
@@ -39,5 +40,6 @@ namespace Droplet
 	private:
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
+		Graphics::SDL::Event m_event {};
 	};
 }

@@ -58,7 +58,7 @@ namespace Droplet::Graphics
 	{
 	public:
 		Renderer() = delete;
-
+		
 		/// @brief Renderer Constructor
 		/// @param p_windowConfig Requested SDL Window Configuration
 		Renderer(SDL::WindowConfig p_windowConfig);
@@ -82,12 +82,6 @@ namespace Droplet::Graphics
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
 
-		/// @brief Public function to apply mouse movements on the camera
-		/// @param p_xOffset position on the screen along the x-axis
-		/// @param p_yOffset position on the screen along the y-axis
-		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
-
-		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
 		
 	private:
@@ -150,8 +144,6 @@ namespace Droplet::Graphics
 			vk::ImageAspectFlags    p_image_aspect_flags);
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
-
-		void UpdateCamera(float p_deltaTime);
 
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;

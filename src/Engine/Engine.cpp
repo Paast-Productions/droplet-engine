@@ -2,9 +2,8 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
-{
-}
+Engine::Engine(EngineConfig p_config) : 
+	m_renderer(p_config.WindowConfig) {}
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
@@ -12,21 +11,21 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	Time::Get().Update();
 
 	// Window
-	while (SDL_PollEvent(&m_renderer.Event))
+	while (SDL_PollEvent(m_event.Get()))
 	{
-		if (m_renderer.Event.type == SDL_EVENT_QUIT)
+		if (m_event.Get()->type == SDL_EVENT_QUIT)
 		{
 			return DROPLET_RETURNTYPE::EXIT;
 		}
 
-		if (m_renderer.Event.type == SDL_EVENT_WINDOW_RESIZED || m_renderer.Event.type == SDL_EVENT_WINDOW_MINIMIZED)
+		if (m_event.Get()->type == SDL_EVENT_WINDOW_RESIZED || m_event.Get()->type == SDL_EVENT_WINDOW_MINIMIZED)
 		{
 			m_renderer.ResizeWindow();
 		}
 
-		if (m_renderer.Event.type == SDL_EVENT_KEY_DOWN) 
+		if (m_event.Get()->type == SDL_EVENT_KEY_DOWN) 
 		{
-			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
+			if (m_event.Get()->key.key == SDLK_ESCAPE) 
 			{
 				return DROPLET_RETURNTYPE::EXIT;
 			}
