@@ -71,8 +71,8 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
         "tracy",
-	"VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),

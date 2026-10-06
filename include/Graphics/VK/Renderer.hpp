@@ -181,6 +181,8 @@ namespace Droplet::Graphics
 		VK::IndexBuffer	m_indexBuffer { nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
+		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
+
 		//Needs one buffer per frame in flight to avoid read write issues
 		
 		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };

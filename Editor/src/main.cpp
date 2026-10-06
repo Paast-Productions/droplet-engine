@@ -17,9 +17,7 @@ Droplet::Graphics::SDL::WindowConfig config =
 	.Height = 720,
 	.Flags = 0
 };
-
-Droplet::Graphics::Renderer g_rend(config);
-
+ 
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
@@ -46,9 +44,9 @@ static void InitImGui([[maybe_unused]] SDL_Window *window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForVulkan(window);
 
-	ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
+	//ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
 
-	ImGui_ImplVulkan_Init(&init_info);
+	//ImGui_ImplVulkan_Init(&init_info);
 
 
 	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
@@ -82,7 +80,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	DropletInstance *instance = Soak();
 
-	SDL_Window *wnd = g_rend.GetWindow();
+	rend.Initialize();
+
+	SDL_Window *wnd = rend.GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -98,7 +98,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
 	InitImGui(wnd);
-	FrameMark;
 
 	// Run main loop
 	bool done = false;

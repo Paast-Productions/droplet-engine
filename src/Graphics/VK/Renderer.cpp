@@ -90,8 +90,36 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	CreateDescriptorSets();
 
 	CreateSyncObjects();
-	// TODO: </REFACTOR>
 
+
+	std::array<vk::DescriptorPoolSize, 2> poolSizes
+	{
+		{
+			{ 
+				.type = vk::DescriptorType::eSampledImage,
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
+			},
+			{ 
+				.type = vk::DescriptorType::eSampler, 
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
+			},
+		}
+	};
+
+	vk::DescriptorPoolCreateInfo poolInfo
+	{
+		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+		.maxSets = 0,
+		.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
+		.pPoolSizes = poolSizes.data()
+	};
+
+	for (vk::DescriptorPoolSize &poolSize : poolSizes)
+	{
+		poolInfo.maxSets += poolSize.descriptorCount;
+	}
+
+	m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
 }
 
 //Idle the device to allow for cleanup of swapchain and destroy window
@@ -607,7 +635,7 @@ ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 	init_info.QueueFamily = m_context.GetQueueIndex();
 	init_info.Queue = *m_context.GetQueue();
 	init_info.PipelineCache = nullptr;
-	//init_info.DescriptorPool = *m_imGuiDescriptorPool;
+	init_info.DescriptorPool = *m_imGuiDescriptorPool;
 	init_info.MinImageCount = 2;
 	init_info.ImageCount = 2;
 	init_info.Allocator = nullptr;
