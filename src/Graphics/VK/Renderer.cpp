@@ -450,13 +450,6 @@ void Renderer::DrawFrame()
 	
 	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
-	ImGuiIO &io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-	}
-
 	const vk::PresentInfoKHR presentInfoKHR
 	{
 		.waitSemaphoreCount = 1,
