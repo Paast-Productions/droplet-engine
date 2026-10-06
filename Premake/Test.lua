@@ -12,8 +12,11 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
+
+    local vkPath = os.getenv("VULKAN_SDK")
+    
     if _TARGET_OS == "windows" then
-        local vkPath = os.getenv("VULKAN_SDK")
+
 
         includedirs
         {
@@ -52,7 +55,6 @@ project "Test"
         "Engine", 
         "gtest",
         "tracy",
-        "lua-5.4.7"
         "ImGui",
         AddQuotation("lua-5.4.7"),
         AddQuotation("SDL3"),
