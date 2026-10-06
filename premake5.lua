@@ -62,6 +62,7 @@ if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/Gli"
     include "Premake/External/Windows/Jolt"
     include "Premake/External/Windows/Sol2"
+    include "Premake/External/Windows/bvh"
 end
 
 if _TARGET_OS == 'linux' then
@@ -70,4 +71,5 @@ if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/Gli"
     include "Premake/External/Linux/Jolt"
     include "Premake/External/Linux/Sol2"
+    include "Premake/External/Windows/bvh"
 end
