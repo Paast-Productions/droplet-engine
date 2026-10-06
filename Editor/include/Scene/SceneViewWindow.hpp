@@ -4,13 +4,14 @@
 #include <EditorWindow.hpp>
 #include <EditorCamera.hpp>
 #include <InteractionState.hpp>
+#include <EditorContext.hpp>
 
 namespace Droplet::Editor::Scene
 {
 	class SceneViewWindow : public EditorWindow
 	{
 	public:
-		SceneViewWindow(std::shared_ptr<InteractionState> p_interactionState) : m_interactionState(p_interactionState), m_editorCamera(p_interactionState) {}
+		SceneViewWindow(EditorContext *p_editorContext) :  m_editorContext(p_editorContext){}
 		~SceneViewWindow() = default;
 
 	protected:
@@ -19,7 +20,9 @@ namespace Droplet::Editor::Scene
 		void RenderImpl() override;
 
 	private:
-		EditorCamera m_editorCamera;
-		std::shared_ptr<InteractionState> m_interactionState;
+
+		std::unique_ptr<EditorContext> m_editorContext;
+		//EditorCamera m_editorCamera;
+		//std::shared_ptr<InteractionState> m_interactionState;
 	};
 }

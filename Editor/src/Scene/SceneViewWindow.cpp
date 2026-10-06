@@ -9,7 +9,7 @@ void SceneViewWindow::RenderImpl()
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 
-	float camAspect = m_editorCamera.GetAspect();
+	float camAspect = m_editorContext->GetEditorCamera().GetAspect();
 	float contentAspect = contentRegion.x / contentRegion.y;
 
 	ImVec2 camSize{};
@@ -57,7 +57,7 @@ void SceneViewWindow::RenderImpl()
 		};
 
 		// TODO: Send data to camera update (mousePosNormalizedToCamView, isMouseHovering)
-		m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
+		m_editorContext->GetEditorCamera().Update(isMouseHovering, mousePosNormalizedToCamView);
 	}
 
 	// TODO: Request the engine renderer to render the camera view to a texture

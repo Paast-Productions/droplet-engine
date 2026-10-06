@@ -5,20 +5,22 @@
 #include <cstdio>
 #include <Graphics/VK/Renderer.hpp>
 
+#include <Graphics/VK/TestData.hpp>
+
 #include <tracy/public/tracy/Tracy.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
 //#include <tracy/public/tracy/TracyLua.hpp>
 
 class DropletInstance; // TODO: Get definition from Droplet Engine
 
-Droplet::Graphics::SDL::WindowConfig config =
-{
-	.Width = 1280,
-	.Height = 720,
-	.Flags = 0
-};
+//Droplet::Graphics::SDL::WindowConfig config =
+//{
+//	.Width = 1280,
+//	.Height = 720,
+//	.Flags = 0
+//};
 
-Droplet::Graphics::Renderer g_rend(config);
+//Droplet::Graphics::Renderer g_rend(config);
 
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
@@ -36,22 +38,34 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	// TODO: Close Droplet Engine
 }
 
-static void InitImGui([[maybe_unused]] SDL_Window *window)
+//static void InitImGui([[maybe_unused]] SDL_Window *window)
+//{
+//	ZoneScoped;
+//
+//	// TODO
+//	
+//
+//	// Setup Platform/Renderer backends
+//	ImGui_ImplSDL3_InitForVulkan(window);
+//
+//	ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
+//
+//	ImGui_ImplVulkan_Init(&init_info);
+//
+//
+//	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
+//}
+
+static void InitImGui(SDL_Window *p_window,
+	Droplet::Graphics::Renderer &p_rend)
 {
-	ZoneScoped;
+	ImGui_ImplSDL3_InitForVulkan(p_window);
 
-	// TODO
-	
+	ImGui_ImplVulkan_InitInfo initInfo = p_rend.GetImGuiInitInfo();
+	// temporary initilization so that i can go through assertions
+	initInfo.DescriptorPoolSize = 1000;
 
-	// Setup Platform/Renderer backends
-	ImGui_ImplSDL3_InitForVulkan(window);
-
-	ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
-
-	ImGui_ImplVulkan_Init(&init_info);
-
-
-	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
+	ImGui_ImplVulkan_Init(&initInfo);
 }
 
 // Frame
@@ -75,6 +89,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
 
+	Droplet::Graphics::SDL::WindowConfig config =
+	{
+		.Width = 1280,
+		.Height = 720,
+		.Flags = 0
+	};
+	
+	Droplet::Graphics::Renderer rend(config);
+
 	ZoneScopedN("Editor");
 	bool show_demo_window = true;
 	bool show_another_window = true;
@@ -82,11 +105,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	DropletInstance *instance = Soak();
 
-	SDL_Window *wnd = g_rend.GetWindow();
+
+	SDL_Window *wnd = rend.GetWindow();
 	if (!wnd)
 	{
 		return 1;
 	}
+	//InitImGui(wnd, rend);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -97,7 +122,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	InitImGui(wnd);
+	InitImGui(wnd, rend);
 	FrameMark;
 
 	// Run main loop
@@ -165,16 +190,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 
 		ImGui::Render();
-		g_rend.DrawFrame();
+		rend.DrawFrame();
 
-		g_rend.WaitIdle();
+		rend.WaitIdle();
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 
 		FrameMark;
 	}
 
-	g_rend.WaitIdle();
+	rend.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 

@@ -1,12 +1,23 @@
+#pragma once
 #include "Scene/EditorCamera.hpp"
 #include "InteractionState.hpp"
 #include "../../include/SceneSystem/Scene.hpp"
+namespace Droplet::Editor
+{
+	class EditorContext {
+	public:
+		EditorContext();
 
-class EditorContext {
+		Scene::EditorCamera &GetEditorCamera();
+		InteractionState &GetInteractionState();
 
-private:
+		std::shared_ptr<Droplet::Scene::Scene> GetScene();
+		void SetScene(std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
-	EditorCamera m_editorCamera;
-	std::shared_ptr<InteractionState> m_interactionState;
-	std::shared_ptr<Scene> m_scene;
-};
+	private:
+
+		Scene::EditorCamera m_editorCamera;
+		InteractionState m_interactionState;
+		std::shared_ptr<Droplet::Scene::Scene> m_scene;
+	};
+}

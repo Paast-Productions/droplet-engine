@@ -3,14 +3,16 @@
 #include <memory>
 #include <ImGui/imgui.h>
 #include <InteractionState.hpp>
+#include <Graphics/VK/Camera.hpp>
+//#include "../../include/Graphics/VK/Camera.hpp"
 
 namespace Droplet::Editor::Scene
 {
 	/// @brief Represents a camera used in the editor for viewing and navigating the scene.
-	class EditorCamera
+	class EditorCamera : public Droplet::Graphics::Camera
 	{
 	public:
-		EditorCamera(std::shared_ptr<InteractionState> p_interactionState) : m_interactionState(p_interactionState) {}
+		EditorCamera(InteractionState &p_interactionState) : m_interactionState(p_interactionState) {}
 		~EditorCamera() = default;
 
 		/// @brief Updates the camera's state based on user input and other factors.
@@ -25,9 +27,10 @@ namespace Droplet::Editor::Scene
 		[[nodiscard]] float GetAspect() const { return m_aspect; }
 
 	private:
+
 		// TODO: position, rotation, etc.
 
-		std::shared_ptr<InteractionState> m_interactionState;
+		InteractionState &m_interactionState;
 
 		float m_fov = 45.0f;		// horizontal field of view in degrees
 		float m_aspect = 1.0f;		// width / height
