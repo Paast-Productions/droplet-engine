@@ -153,7 +153,7 @@ namespace Droplet
         /// @param hotReload If true, the resource is hot-reloaded from disk using the new meta entry settings.
         /// @return True if the entry was successfully updated and written to disk. False if resource was loading,
         /// uploading, or if GUID does not relate to any registered resource.
-        [[nodiscard]] bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = false);
+        [[nodiscard]] bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = true);
         
         /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
