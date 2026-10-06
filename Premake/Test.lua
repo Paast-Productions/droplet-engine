@@ -70,6 +70,8 @@ project "Test"
         "Engine",
         "gtest",
         "tracy",
+        "ImGui",
+        AddQuotation("SDL3"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd"),
         AddQuotation("Slangd"),

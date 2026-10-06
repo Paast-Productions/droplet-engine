@@ -5,7 +5,7 @@
 using namespace Droplet;
 using namespace Droplet::Script;
 
-ScriptInstance::ScriptInstance(Scene::Node *p_owner, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
+ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStateHandler &p_stateHandler, sol::load_result &p_script, const std::string &p_scriptPath) :
 	m_owner(p_owner),
 	m_stateHandler(p_stateHandler),
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
@@ -29,6 +29,7 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, LuaStateHandler &p_stateHan
 		return;
 	}
 
+	m_environment["Input"] = &p_input;
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
 }
@@ -91,6 +92,23 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 	m_onUpdate = m_environment["OnUpdate"];
 
 	return true;
+}
+
+void ScriptInstance::RenderInternalUI() 
+{
+	sol::protected_function renderUI = m_environment["RenderUI"];
+
+	if (!renderUI.valid())
+	{
+		return;
+	}
+
+	sol::protected_function_result result = renderUI();
+
+	if (!result.valid())
+	{
+		sol::error error = result;
+	}
 }
 
 std::string ScriptInstance::GetScriptPath()

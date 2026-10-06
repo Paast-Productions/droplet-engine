@@ -6,12 +6,6 @@ project "Engine-HelloEngine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
-
-	defines{ 
-		"TRACY_ENABLE", 
-		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
-	}
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
@@ -37,15 +31,14 @@ project "Engine-HelloEngine"
     dependson {
         "Engine",
         "ImGui",
-        "tracy",
         "Sol2"
     }
 
     links {
         "Engine",
         "ImGui",
-	    "tracy",
-	    "VulkanMemoryAllocator",
+	"tracy",
+	"VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),

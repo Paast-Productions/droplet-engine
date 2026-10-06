@@ -54,6 +54,8 @@ include "Premake/Samples/Scene/Scene"
 include "Premake/Samples/Transform/Transform"
 include "Premake/Samples/Scripting/ScriptingMain"
 
+group ""
+
 -- [[ EXTERNAL ]] --
 
 group "External"

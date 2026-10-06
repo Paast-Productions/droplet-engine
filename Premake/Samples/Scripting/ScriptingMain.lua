@@ -6,10 +6,20 @@ project "Scripting-Main"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+    local vkPath = os.getenv("VULKAN_SDK")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
+    
     files {
         rootPath .. "/Samples/Scripting/ScriptingMain.cpp"
+    }
+
+    libdirs {
+        targetBuildPath .. "/Library",
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/bin",
+        vkPath .. "/Lib"
     }
 
     if _TARGET_OS == "windows" then
@@ -23,13 +33,6 @@ project "Scripting-Main"
             targetBuildPath .. "/External/include"
         }
 
-		libdirs {
-			targetBuildPath .. "/Library",
-			targetBuildPath .. "/External/lib",
-			targetBuildPath .. "/External/bin",
-			vkPath .. "/Lib"
-		}
-
     else
 
         includedirs
@@ -38,17 +41,11 @@ project "Scripting-Main"
             targetBuildPath .. "/External/include"
         }
 
-		libdirs {
-			targetBuildPath .. "/Library",
-			targetBuildPath .. "/External/lib",
-			targetBuildPath .. "/External/bin"
-		}
-
     end
 
     dependson {
         "Engine",
-        --"ImGui",
+        "ImGui",
         "Sol2",
         "tracy"
     }
