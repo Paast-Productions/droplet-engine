@@ -3,6 +3,8 @@
 #include <chrono>
 #include <string>
 #include <queue>
+#include <thread>
+#include <condition_variable>
 
 namespace Droplet::Debug
 {
@@ -16,7 +18,7 @@ namespace Droplet::Debug
 	};
 
 
-	/// @class logger
+	/// @class Logger
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
 	///
 	/// Provides thread-safe logging functionality to capture timestamped

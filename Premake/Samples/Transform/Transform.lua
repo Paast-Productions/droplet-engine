@@ -12,29 +12,47 @@ project "Transform"
         rootPath .. "/Samples/Transform/TransformMain.cpp",
         rootPath .. "/src/Transform.cpp"
     }
-        
-    local vkPath = os.getenv("VULKAN_SDK")
+
+    if _TARGET_OS == "windows" then
+
+        local vkPath = os.getenv("VULKAN_SDK")
     
-    libdirs {
-        targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
-    }
+        libdirs {
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
 
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+        includedirs {
+            rootPath .. "/include",
+            vkPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        libdirs {
+            targetBuildPath .. "/Engine"
+        }
+
+
+        includedirs {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd")

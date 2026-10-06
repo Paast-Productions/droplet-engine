@@ -3,11 +3,15 @@
 #include "Scene.hpp"
 #include <algorithm>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
 void SceneManager::LoadScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     if (m_scenes.contains(p_name))
     {
         throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
@@ -25,9 +29,11 @@ void SceneManager::LoadScene(const std::string &p_name)
     m_scenes[p_name] = scene;
 }
 
-
 void SceneManager::UnloadScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto it = m_scenes.find(p_name);
 
     if (it == m_scenes.end())
@@ -47,6 +53,9 @@ void SceneManager::UnloadScene(const std::string &p_name)
 
 void SceneManager::ActivateScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto scene = GetScene(p_name);
 
     if (!scene)
@@ -68,8 +77,12 @@ void SceneManager::ActivateScene(const std::string &p_name)
 
     m_activeScenes.push_back(scene);
 }
+
 void SceneManager::DeactivateScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto scene = GetScene(p_name);
 
     if (!scene)
@@ -128,6 +141,8 @@ const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
 
 void SceneManager::Update(float p_deltaTime)
 {
+    ZoneScoped;
+
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
@@ -146,6 +161,8 @@ void SceneManager::Update(float p_deltaTime)
 
 void SceneManager::Render()
 {
+    ZoneScoped;
+
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
