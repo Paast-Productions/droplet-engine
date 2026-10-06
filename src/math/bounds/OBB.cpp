@@ -1,10 +1,14 @@
 #include "math/bounds/OBB.hpp"
 #include <glm/gtx/pca.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 using namespace Droplet::Math;
 
-// HACK: No idea if this function works. Tests must be written to verify it.
+OBB::OBB(const glm::vec3 &p_center, const glm::vec3 &p_extents, const glm::quat &p_quat) :
+	center(p_center), extents(p_extents), orientation(glm::mat3_cast(p_quat)) { }
 
+
+// HACK: No idea if this function works. Tests must be written to verify it.
 OBB OBB::FromPoints(const std::vector<glm::vec3> &p_points)
 {
 	OBB result{};

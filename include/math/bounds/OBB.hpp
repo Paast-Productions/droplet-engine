@@ -20,6 +20,12 @@ namespace Droplet::Math
 		OBB(const glm::vec3 &p_center, const glm::vec3 &p_extents, const glm::mat3 &p_orientation) : 
 			center(p_center), extents(p_extents), orientation(p_orientation) {}
 
+		/// @brief Constructs an OBB with the specified center, extents, and orientation represented as a quaternion.
+		/// @param p_center The center of the OBB.
+		/// @param p_extents The half-sizes of the OBB along each axis.
+		/// @param p_quat The orientation of the OBB represented as a quaternion.
+		OBB(const glm::vec3 &p_center, const glm::vec3 &p_extents, const glm::quat &p_quat);
+
 		/// @brief Returns the center of the OBB.
 		/// @return The center of the OBB as a glm::vec3.
 		[[nodiscard]] inline glm::vec3 GetCenter() const

@@ -30,10 +30,10 @@ Droplet::Math::Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fw
 	glm::vec3 farBottomRight = farCenter - (p_up * (farHeight / 2.0f)) + (right * (farWidth / 2.0f));
 
 	// Create the planes using the corners
-	planes[0] = Plane(nearTopRight, nearTopLeft, nearBottomLeft); // Left
-	planes[1] = Plane(nearBottomRight, nearTopRight, farTopRight); // Right
-	planes[2] = Plane(nearTopLeft, nearTopRight, farTopRight); // Top
-	planes[3] = Plane(nearBottomLeft, nearBottomRight, farBottomRight); // Bottom
-	planes[4] = Plane(nearTopLeft, nearBottomLeft, nearBottomRight); // Near
-	planes[5] = Plane(farTopRight, farBottomRight, farBottomLeft); // Far
+	planes[0] = Plane(nearTopLeft, farTopLeft, farBottomLeft);			// Left
+	planes[1] = Plane(farTopRight, nearTopRight, nearBottomRight);		// Right
+	planes[2] = Plane(farTopRight, farTopLeft, nearTopLeft);			// Top
+	planes[3] = Plane(farBottomLeft, farBottomRight, nearBottomRight);	// Bottom
+	planes[4] = Plane(nearTopRight, nearTopLeft, nearBottomLeft);		// Near
+	planes[5] = Plane(farTopLeft, farTopRight, farBottomRight);			// Far
 }

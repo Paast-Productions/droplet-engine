@@ -56,5 +56,13 @@ namespace Droplet::Math
 		{
 			return normal * distance;
 		}
+
+		/// @brief Determines if a given point is beneath the plane, i.e., on the side opposite to the normal vector.
+		/// @param p_point The point to check.
+		/// @return True if the point is beneath the plane, false otherwise.
+		[[nodiscard]] inline bool IsBeneath(glm::vec3 p_point) const
+		{
+			return glm::dot(normal, p_point) < distance;
+		}
 	};
 }
