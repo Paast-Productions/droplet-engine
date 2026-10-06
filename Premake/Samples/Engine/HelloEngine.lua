@@ -4,7 +4,7 @@ project "Engine-HelloEngine"
     location(projectPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
-    debugdir(rootPath .. "/Samples/Engine/")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
     
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
@@ -31,12 +31,15 @@ project "Engine-HelloEngine"
     dependson {
         "Engine",
         "ImGui",
-        "Sol2"
+        "Sol2",
+        "tracy"
     }
 
     links {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
+        "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
