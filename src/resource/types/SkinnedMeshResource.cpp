@@ -58,13 +58,14 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     {
         int index = fallback->AddBone("root", -1, glm::mat4(1.0f));
         index; // I love nodiscard + treat warnings as errors
-        
-        fallback->GenerateBoneBounds();
     }
     catch (...)
     {
         // TODO: Log error (this should never be possible though)
     }
+
+	// Generate bone bounds for the fallback mesh
+    fallback->GenerateBoneBounds();
     
     return fallback;
 }
