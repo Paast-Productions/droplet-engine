@@ -191,8 +191,24 @@ namespace Droplet
             return false;
         }
         
+        // Sanitize entry
+        MetaEntry originalEntry;
+        try
+        {
+            originalEntry = m_registry.GetResourceMetaData(p_guid);
+        }
+        catch (...)
+        {
+            // TODO: Log warning
+            return false;
+        }
+        MetaEntry sanitizedEntry = p_updatedEntry;
+        sanitizedEntry.guid = originalEntry.guid;
+        sanitizedEntry.type = originalEntry.type;
+        sanitizedEntry.relAssetPath = originalEntry.relAssetPath;
+        
         // Fetch meta list from asset
-        std::string relAssetPathStr = p_updatedEntry.relAssetPath;
+        std::string relAssetPathStr = sanitizedEntry.relAssetPath;
         std::vector<MetaEntry> assetMetaData;
         if (!m_registry.GetCachedMetaDataForAsset(relAssetPathStr, assetMetaData))
         {
@@ -205,11 +221,11 @@ namespace Droplet
         {
             if (entry.guid == p_guid)
             {
-                entry = p_updatedEntry;
+                entry = sanitizedEntry;
                 break;
             }
         }
-        m_registry.RegisterMetaEntry(relAssetPathStr, p_updatedEntry);
+        m_registry.RegisterMetaEntry(relAssetPathStr, sanitizedEntry);
         
         // Push an overwrite task to a worker thread
         std::filesystem::path absMetaPath = m_rootDirectory / (relAssetPathStr + ".meta");
