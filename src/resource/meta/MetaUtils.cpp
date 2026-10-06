@@ -1,4 +1,5 @@
 #include "resource/meta/MetaUtils.hpp"
+#include "resource/meta/MetaData.hpp"
 #include "resource/types/ShaderResource.hpp"
 
 #include <fstream>
@@ -7,9 +8,9 @@
 
 using json = nlohmann::json;
 
-namespace Droplet
+namespace Droplet::MetaUtils
 {
-    bool MetaUtils::Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
+    bool Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
@@ -49,7 +50,7 @@ namespace Droplet
         return true;
     }
 
-    bool MetaUtils::Write(const std::filesystem::path &p_metaFilePath, const std::vector<MetaEntry> &p_metaData)
+    bool Write(const std::filesystem::path &p_metaFilePath, const std::vector<MetaEntry> &p_metaData)
     {
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
@@ -81,7 +82,7 @@ namespace Droplet
         return true;
     }
 
-    ShaderResource::ShaderType MetaUtils::EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
+    ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
     {
         std::string shaderFileName = p_shaderPath.filename().generic_string();
         StringUtils::ToLowerInPlace(shaderFileName);
@@ -119,10 +120,10 @@ namespace Droplet
             return ShaderResource::ShaderType::Task;
         }
 
-        return ShaderResource::ShaderType::Vertex; // Default to vertex
+        return MetaLoadSettings::C_SHADER_TYPE.defaultValue;
     }
 
-    MetaEntry MetaUtils::GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_relAssetPath, const json &p_explicitLoadSettings)
+    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_relAssetPath, const json &p_explicitLoadSettings)
     {
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
@@ -135,23 +136,23 @@ namespace Droplet
         {
         case ResourceType::Texture2D:
         case ResourceType::Texture3D:
-            entry.loadFlags = ResourceLoadFlag::LoadGPU;
-            entry.loadSettings["generate_mipmaps"] = C_TEXTURE_DEFAULT_GENERATE_MIPMAPS;
+            entry.loadFlags = ResourceLoadFlag::LoadBoth;
+            entry.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key] = MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue;
             break;
         case ResourceType::Mesh:
         case ResourceType::SkinnedMesh:
             entry.loadFlags = ResourceLoadFlag::LoadBoth;
-            entry.loadSettings["generate_normals"] = C_MESH_DEFAULT_GENERATE_NORMALS;
-            entry.loadSettings["join_identical_vertices"] = C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES;
-            entry.loadSettings["triangulate"] = C_MESH_DEFAULT_TRIANGULATE;
+            entry.loadSettings[MetaLoadSettings::C_GENERATE_NORMALS.key] = MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
+            entry.loadSettings[MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key] = MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
+            entry.loadSettings[MetaLoadSettings::C_TRIANGULATE.key] = MetaLoadSettings::C_TRIANGULATE.defaultValue;
             break;
         case ResourceType::Animation:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
-            entry.loadSettings["target"] = p_name;
+            entry.loadSettings[MetaLoadSettings::C_TARGET_ANIMATION.key] = p_name;
             break;
         case ResourceType::Shader:
-            entry.loadFlags = ResourceLoadFlag::LoadGPU;
-            entry.loadSettings["shader_type"] = EvaluateShaderTypeFromPath(p_relAssetPath);
+            entry.loadFlags = ResourceLoadFlag::LoadBoth;
+            entry.loadSettings[MetaLoadSettings::C_SHADER_TYPE.key] = EvaluateShaderTypeFromPath(p_relAssetPath);
             break;
         case ResourceType::Material:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
@@ -162,5 +163,58 @@ namespace Droplet
         
         entry.loadSettings.update(p_explicitLoadSettings);
         return entry;
+    }
+
+    std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type)
+    {
+        switch (p_type)
+        {
+        case ResourceType::Texture2D:
+        case ResourceType::Texture3D:
+            return {
+                {
+                    MetaLoadSettings::C_GENERATE_MIPMAPS.key, 
+                    MetaLoadSettings::C_GENERATE_MIPMAPS.displayName,
+                    MetaLoadSettings::Type::Bool
+                }
+            };
+        case ResourceType::Mesh:
+        case ResourceType::SkinnedMesh:
+            return {
+                {
+                    MetaLoadSettings::C_GENERATE_NORMALS.key, 
+                    MetaLoadSettings::C_GENERATE_NORMALS.displayName,
+                    MetaLoadSettings::Type::Bool
+                },
+                {
+                    MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, 
+                    MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.displayName,
+                    MetaLoadSettings::Type::Bool
+                },
+                {
+                    MetaLoadSettings::C_TRIANGULATE.key, 
+                    MetaLoadSettings::C_TRIANGULATE.displayName,
+                    MetaLoadSettings::Type::Bool
+                }
+            };
+        case ResourceType::Animation:
+            return {};
+        case ResourceType::Shader:
+            return {
+                {
+                    MetaLoadSettings::C_SHADER_TYPE.key,
+                    MetaLoadSettings::C_SHADER_TYPE.displayName,
+                    MetaLoadSettings::Type::Enum,
+                    0.0f,
+                    0.0f,
+                    {"Vertex", "Fragment", "Geometry", "Compute", "TesselationControl", "TesselationEvaluation", "Mesh", "Task"}
+                }
+            };
+        case ResourceType::Material:
+            return {};
+
+        default: 
+            return {};
+        }
     }
 }
