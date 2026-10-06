@@ -6,25 +6,40 @@ project "Test"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
-
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"
     }
 
-    includedirs
-    {
-        "../include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
+
+    local vkPath = os.getenv("VULKAN_SDK")
     
+    if _TARGET_OS == "windows" then
+
+
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
     libdirs
     {
         targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
+        targetBuildPath .. "/External/lib64",
+        vkPath .. "/Lib"
     }
 
     dependson 
@@ -40,5 +55,9 @@ project "Test"
         "Engine", 
         "gtest",
         "tracy",
-        "lua-5.4.7"
+        "ImGui",
+        AddQuotation("lua-5.4.7"),
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

@@ -3,6 +3,8 @@
 #include <chrono>
 #include <string>
 #include <queue>
+#include <thread>
+#include <condition_variable>
 
 namespace Droplet::Debug
 {

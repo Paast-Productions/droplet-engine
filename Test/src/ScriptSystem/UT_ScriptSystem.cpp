@@ -32,7 +32,7 @@ TEST(ScriptSystem, CreateComponentScript)
 TEST(ScriptSystem, ActivateComponentScript)
 {
 	ScriptSystem system;
-	system.SetScriptPath("../src/TestScripts");
+	system.SetScriptPath("../src/TestScripts"); 
 	ScriptComponent component("");
 	
 	system.CreateComponentScript(&component, "testScript3.lua");

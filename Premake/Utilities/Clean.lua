@@ -4,7 +4,8 @@ local description =
 Options:
 -A|-all - Clean both project and build files
 -b|-build - Clean the entire build
--E|-Engine|-engine - Clean Engine project
+-d|-doxygen - Clean generated doxygen files
+-E|-engine - Clean Engine project
 -e|-editor - Clean Editor project
 -g|-generated - Clean Generated files
 -h|-help - Shows clean options
@@ -17,21 +18,34 @@ newaction {
     execute = function()
 
         local index = 1;
-        while (_ARGS[index] ~= nil) do
-            local arg = _ARGS[index]
+        local arg = _ARGS[index]
+        if (arg == nil) then
+            print("Cleaning All")
 
+            os.execute("{RMDIR} ./Generated")
+            os.execute("{RMDIR} ./Build")
+            os.execute("{RMDIR} ./docs/html")
+        end
+        
+        while (arg ~= nil) do
             if (arg == nil or arg == "-A" or arg == "-all") then
                 print("Cleaning All")
 
                 os.execute("{RMDIR} ./Generated")
                 os.execute("{RMDIR} ./Build")
+                os.execute("{RMDIR} ./docs/html")
 
-            elseif (arg == "-b" or arg == "--build") then
+            elseif (arg == "-b" or arg == "-build") then
                 print("Cleaning Build")
                 
                 os.execute("{RMDIR} ./Build")
+                
+            elseif (arg == "-d" or arg == "-doxygen") then
+                print("Cleaning Doxygen")
+                
+                os.execute("{RMDIR} ./docs/html")
 
-            elseif (arg == "-E" or arg == "-Engine" or arg == "-engine") then
+            elseif (arg == "-E" or arg == "-engine") then
                 print("Cleaning Engine")
                 
                 os.execute("{RMDIR} ./Build/Obj/Engine/")
@@ -85,10 +99,11 @@ newaction {
                 os.remove("./Generated/Test.vcxproj.filters")
 
             else
-                print([[Invalid option entered. "Premake5 clean -h" to show all clean options]])
+                print("Invalid option entered. Premake5 clean -h to show all clean options")
             end
 
             index = index + 1
+            arg = _ARGS[index]
         end
     end
 }

@@ -9,8 +9,19 @@ namespace Droplet::Graphics::VK
 	class CommandBuffer
 	{
 	public:
+		CommandBuffer() = delete;
+		
+		/// @brief Initialize a CommandBuffer instance.
+		/// @param p_device The device which owns the command pool.
+		/// @param p_pool The command pool to allocate the buffer from.
+		/// @param p_level The command buffer level.
+		CommandBuffer(
+			const vk::raii::Device &p_device,
+			const vk::raii::CommandPool &p_pool,
+			vk::CommandBufferLevel p_level);
+		
 		/// @brief Get the Vulkan RAII CommandBuffer associated with the instance. 
-		[[nodiscard]] vk::raii::CommandBuffer &Get();
+		[[nodiscard]] const vk::raii::CommandBuffer &Get() const;
 		
 		/// @brief Set the command buffer to start recording commands.
 		/// @param p_flags Specify the usage behavior of the command buffer.
@@ -31,19 +42,7 @@ namespace Droplet::Graphics::VK
 		void PipelineBarrier(vk::DependencyInfo p_dependencyInfo);
 		
 	private:
-		friend class CommandPool;
-		
-		CommandBuffer() = delete;
-
-		/// @brief Initialize a CommandBuffer instance.
-		/// @param p_device The device which owns the command pool.
-		/// @param p_pool The command pool to allocate the buffer from.
-		/// @param p_level The command buffer level.
-		CommandBuffer(
-			const vk::raii::Device &p_device,
-			const vk::raii::CommandPool &p_pool,
-			const vk::CommandBufferLevel p_level);
-		
 		vk::raii::CommandBuffer m_commandBuffer = nullptr;
+		
 	};
 }
