@@ -64,39 +64,6 @@ namespace Droplet
             {
                 m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
             }
-
-            // Mouse events
-            if (std::abs(event.motion.x) >= C_EPSILON)
-            {
-                m_mouseX = event.motion.x;
-            }
-            if (std::abs(event.motion.y) >= C_EPSILON)
-            {
-                m_mouseY = event.motion.y;
-            }
-
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-            {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
-                }
-            }
-            else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-            {
-                if (event.button.button == SDL_BUTTON_LEFT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
-                }
-                if (event.button.button == SDL_BUTTON_RIGHT)
-                {
-                    m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
-                }
-            }
         }
     }
 
