@@ -75,7 +75,7 @@ TEST_F(SceneSerializerTest, DeserializeScene)
     EXPECT_EQ(readResult["name"], "testScene");
     EXPECT_NE(readResult["roots"], nullptr);
 
-    EXPECT_NO_THROW(serializer.DeserializeScene(readResult, sceneManager));
+    EXPECT_NO_THROW(serializer.DeserializeScene(readResult, testScene));
     
 }
 
@@ -93,7 +93,7 @@ TEST_F(SceneSerializerTest, SerializeNode)
 
     testNode->AddComponent<PlayerComponent>();
 
-
+    
     nlohmann::json json = serializer.SerializeScene(testScene);
     Droplet::Core::JsonIO::Write("testNodeJson", json);
 
@@ -134,7 +134,7 @@ TEST_F(SceneSerializerTest, DeserializeNode)
 
     const nlohmann::json readResult = Droplet::Core::JsonIO::Read("testNodeJson");
     SceneManager testManager;
-    serializer.DeserializeScene(readResult, testManager);
+    testManager.LoadFromFile("testNodeJson");
     
     auto sceneOne = sceneManager.GetScene("testScene");
     auto sceneTwo = testManager.GetScene("testScene");

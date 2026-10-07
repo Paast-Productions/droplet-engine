@@ -2,6 +2,7 @@
 #include "SceneFactory.hpp"
 #include "SceneSerializer.hpp"
 
+#include <Core/IoManager.hpp>
 #include "Scene.hpp"
 #include <algorithm>
 #include <stdexcept>
@@ -180,4 +181,42 @@ void SceneManager::Render()
 
         ++it;
     }
+}
+
+void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeScene(p_scene);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
+}
+
+void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+    if (!json.contains("name"))
+    {
+        throw std::runtime_error("Invalid json was sent to LoadFromFile");
+    }
+
+    if (m_scenes.contains(json["name"]))
+    {
+        throw std::runtime_error("Cannot load Scene " + json["name"] );
+    }
+
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+    }
+
+    serializer.DeserializeScene(json, scene);
+    scene->Load();
+
+    m_scenes[json["name"]] = scene;
+
 }
