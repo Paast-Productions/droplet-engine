@@ -9,7 +9,7 @@ namespace Droplet
         auto fallback = std::make_unique<AnimationResource>();
         
         fallback->SetName("Fallback_Animation");
-        fallback->SetIsLooping(false);
+        fallback->SetLooping(false);
         
         AnimKeyframe dummyFrame;
         dummyFrame.time = 0.0f;
@@ -28,7 +28,7 @@ namespace Droplet
         m_name = p_name;
     }
 
-    void AnimationResource::SetIsLooping(bool p_isLooping)
+    void AnimationResource::SetLooping(bool p_isLooping)
     {
         m_isLooping = p_isLooping;
     }
