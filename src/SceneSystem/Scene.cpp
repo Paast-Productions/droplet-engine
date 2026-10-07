@@ -25,6 +25,8 @@ void Scene::Update(float p_deltaTime)
     {
         root->Update(p_deltaTime);
     }
+
+    m_octree.Update();
 }
 
 
