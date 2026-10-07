@@ -7,6 +7,7 @@
 
 namespace Droplet::Editor::Scene
 {
+	/// @brief Represents the scene view window in the editor, which displays the camera view and handles editor camera interactions.
 	class SceneViewWindow : public EditorWindow
 	{
 	public:
@@ -14,6 +15,9 @@ namespace Droplet::Editor::Scene
 		~SceneViewWindow() = default;
 
 	protected:
+
+		/// @brief Initializes the scene view window and sets its name.
+		void InitImpl() override { SetName("Scene View"); }
 
 		/// @brief Renders the editor camera view and handles user interactions within the scene view window.
 		void RenderImpl() override;
