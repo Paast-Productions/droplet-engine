@@ -35,10 +35,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	//Inputs
 	Droplet::GameInput::Get().Update();
 
-	// ImGui
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL3_NewFrame();
-	ImGui::NewFrame();
+	
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))

@@ -4,11 +4,18 @@
 #include <SceneSystem/SceneManager.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
+//#include <Engine/Engine.hpp>
 #include <memory>
 
 
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
+
+Droplet::Editor::HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
+{
+	m_instance = p_instance;
+	m_interactionState = p_interactionState;
+}
 
 void HierarchyWindow::InitImpl()
 {

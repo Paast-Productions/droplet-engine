@@ -8,28 +8,12 @@
 #include <NodeInspectorWindow.hpp>
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
-
+#include <Resource/ResourceBrowser.hpp>
+#include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
 //#include <tracy/public/tracy/TracyLua.hpp>
-
-class DropletInstance; // TODO: Get definition from Droplet Engine
-
-// Initialization
-[[nodiscard]] static DropletInstance *Soak()
-{
-	ZoneScoped;
-
-	// TODO: Init Droplet Engine
-	return nullptr;
-}
-
-static void DryOff([[maybe_unused]] DropletInstance *instance)
-{
-	ZoneScoped;
-
-	// TODO: Close Droplet Engine
-}
+using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
@@ -38,13 +22,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	ZoneScopedN("Editor");
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	Droplet::Engine engine({
+	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
 			640, 480, {}
 		}
-	});
+	));
 
-	SDL_Window *wnd = engine.GetWindow();
+	SDL_Window *wnd = engine->GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -52,16 +36,43 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	FrameMark;
 
+	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
+
+	HierarchyWindow hierarchyWindow(engine, interactionState);
+	NodeInspectorWindow nodeInspectorWindow;
+	Resource::ResourceBrowser resourceBrowser;
+	Scene::SceneViewWindow sceneViewWindow(interactionState);
+
+	hierarchyWindow.Init();
+	nodeInspectorWindow.Init();
+	resourceBrowser.Init();
+	sceneViewWindow.Init();
+
 	// Run main loop
-	while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
+	bool run = true;
+	while (run)
 	{
 		ZoneScopedN("Main Loop");
+
+		// ImGui
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
+
+
+		hierarchyWindow.Render();
+		nodeInspectorWindow.Render();
+		resourceBrowser.Render();
+		sceneViewWindow.Render();
+
+		run = engine->Update() == Droplet::DROPLET_RETURNTYPE::OK;
+
+
+		//engine->Endframe
 		FrameMark;
 	}
 
 	// I do not know but i needed to have them because warnings = errors :(
-	DropletInstance *instance = Soak();
-	DryOff(instance);
 
 	return 0;
 }

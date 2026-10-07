@@ -2,13 +2,11 @@
 
 #include "EditorWindow.hpp"
 #include "InteractionState.hpp"
-
+#include <Engine/Engine.hpp>
 #include <memory>
 
 namespace Droplet
 {
-    class DropletInstance;
-
     namespace Scene
     {
         class Node;
@@ -27,7 +25,7 @@ namespace Droplet
             /// @brief Constructs a hierarchy window.
             /// @param p_instance The instance of the engine used to access scene data.
             /// @param p_interactionState The shared interaction state used to track selections.
-            explicit HierarchyWindow(std::shared_ptr<DropletInstance> p_instance, std::shared_ptr<InteractionState> p_interactionState);
+            explicit HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState);
 
         protected:
             /// @brief Initializes the hierarchy window.
@@ -47,16 +45,16 @@ namespace Droplet
             /// an ImGui tree entry for each node.
             /// 
             /// @param p_node The node to draw.
-            void DrawNode(const std::shared_ptr<Scene::Node> &p_node);
+            void DrawNode(const std::shared_ptr<Droplet::Scene::Node> &p_node);
 
             /// @brief Engine instance used to access engine systems.
-            std::shared_ptr<DropletInstance> m_instance;
+            std::shared_ptr<Engine> m_instance;
 
             /// @brief Shared editor interaction state used to track node selection.
             std::shared_ptr<InteractionState> m_interactionState;
 
             /// @brief Temporary scene manager used for testing the hierarchy window.
-            std::shared_ptr<Scene::SceneManager> m_testSceneManager;
+            std::shared_ptr<Droplet::Scene::SceneManager> m_testSceneManager;
         };
     }
 }
