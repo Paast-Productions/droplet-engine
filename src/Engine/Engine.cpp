@@ -32,6 +32,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Time
 	Time::Get().Update();
 
+	//Inputs
+	Droplet::GameInput::Get().Update();
+
 	// ImGui
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL3_NewFrame();
