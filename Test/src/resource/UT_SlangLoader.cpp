@@ -1,4 +1,4 @@
-#include "resource/loaders/SlangLoader.hpp"
+#include "resource/io/SlangFormat.hpp"
 #include "resource/types/ShaderResource.hpp"
 
 #include <gtest/gtest.h>
@@ -39,7 +39,7 @@ protected:
 
 TEST_F(SlangLoaderTest, ListAssetResources)
 {
-    auto resources = SlangLoader::ListAssetResources(m_validShaderPath);
+    auto resources = IO::SlangFormat::ListAssetResources(m_validShaderPath);
     
     ASSERT_EQ(resources.size(), 1);
     
@@ -49,7 +49,7 @@ TEST_F(SlangLoaderTest, ListAssetResources)
 
 TEST_F(SlangLoaderTest, CompileValidShader)
 {
-    std::unique_ptr<ShaderResource> shader = SlangLoader::CompileAndLoad(m_validShaderPath, m_defaultLoadSettings);
+    std::unique_ptr<ShaderResource> shader = IO::SlangFormat::CompileAndLoad(m_validShaderPath, m_defaultLoadSettings);
 
     ASSERT_NE(shader, nullptr);
     EXPECT_NE(shader->GetByteCode().get(), nullptr);
@@ -60,15 +60,15 @@ TEST_F(SlangLoaderTest, CompileValidShader)
 
 TEST_F(SlangLoaderTest, CompileNonExistentFile)
 {
-    EXPECT_THROW(SlangLoader::CompileAndLoad(m_missingPath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_missingPath, m_defaultLoadSettings), std::runtime_error);
 }
 
 TEST_F(SlangLoaderTest, CompileInvalidSyntax)
 {
-    EXPECT_THROW(SlangLoader::CompileAndLoad(m_invalidSyntaxPath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_invalidSyntaxPath, m_defaultLoadSettings), std::runtime_error);
 }
 
 TEST_F(SlangLoaderTest, CompileEmptyFile)
 {
-    EXPECT_THROW(SlangLoader::CompileAndLoad(m_emptyShaderPath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_emptyShaderPath, m_defaultLoadSettings), std::runtime_error);
 }

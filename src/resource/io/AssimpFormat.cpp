@@ -1,4 +1,4 @@
-#include "resource/loaders/AssimpLoader.hpp"
+#include "resource/io/AssimpFormat.hpp"
 
 #include "resource/IResource.hpp"
 #include "resource/meta/MetaUtils.hpp"
@@ -15,7 +15,7 @@
 
 using json = nlohmann::json;
 
-namespace Droplet::AssimpLoader
+namespace Droplet::IO::AssimpFormat
 {
     static constexpr double C_EPSILON = 0.00001;
     

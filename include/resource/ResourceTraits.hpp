@@ -1,8 +1,8 @@
 #pragma once
 
-#include "resource/loaders/AssimpLoader.hpp"
-#include "resource/loaders/GliLoader.hpp"
-#include "resource/loaders/SlangLoader.hpp"
+#include "resource/io/AssimpFormat.hpp"
+#include "resource/io/GliFormat.hpp"
+#include "resource/io/SlangFormat.hpp"
 
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/types/Texture3DResource.hpp"
@@ -42,7 +42,7 @@ namespace Droplet
         {
             try
             {
-                return GliLoader::LoadTexture2D(p_assetPath, p_loadSettings);
+                return IO::GliFormat::LoadTexture2D(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {
@@ -99,7 +99,7 @@ namespace Droplet
         {
             try
             {
-                return AssimpLoader::LoadMesh(p_assetPath, p_loadSettings);
+                return IO::AssimpFormat::LoadMesh(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {
@@ -129,7 +129,7 @@ namespace Droplet
         {
             try
             {
-                return AssimpLoader::LoadSkinnedMesh(p_assetPath, p_loadSettings);
+                return IO::AssimpFormat::LoadSkinnedMesh(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {
@@ -159,7 +159,7 @@ namespace Droplet
         {
             try
             {
-                return AssimpLoader::LoadAnimation(p_assetPath, p_loadSettings);
+                return IO::AssimpFormat::LoadAnimation(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {
@@ -191,7 +191,7 @@ namespace Droplet
         {
             try
             {
-                return SlangLoader::CompileAndLoad(p_assetPath, p_loadSettings);
+                return IO::SlangFormat::CompileAndLoad(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {

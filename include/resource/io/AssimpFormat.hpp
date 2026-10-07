@@ -10,7 +10,7 @@
 #include <string>
 #include <utility>
 
-namespace Droplet::AssimpLoader
+namespace Droplet::IO::AssimpFormat
 {
 	/// @brief Loads a mesh from an asset file.
 	/// @param p_assetPath Path to the asset file storing the mesh.

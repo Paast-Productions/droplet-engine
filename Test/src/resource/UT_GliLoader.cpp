@@ -1,4 +1,4 @@
-#include "resource/loaders/GliLoader.hpp"
+#include "resource/io/GliFormat.hpp"
 
 #include <gtest/gtest.h>
 #include <json/json.hpp>
@@ -37,7 +37,7 @@ protected:
 
 TEST_F(GliLoaderTest, ListAssetResources)
 {
-	auto resources = GliLoader::ListAssetResources(m_validKtxPath);
+	auto resources = IO::GliFormat::ListAssetResources(m_validKtxPath);
     
     ASSERT_EQ(resources.size(), 1);
     EXPECT_EQ(resources[0].first, ResourceType::Texture2D);
@@ -45,7 +45,7 @@ TEST_F(GliLoaderTest, ListAssetResources)
 
 TEST_F(GliLoaderTest, Load2DValidKtx)
 {
-	std::unique_ptr<Texture2DResource> texture2d = GliLoader::LoadTexture2D(m_validKtxPath, m_defaultLoadSettings);
+	std::unique_ptr<Texture2DResource> texture2d = IO::GliFormat::LoadTexture2D(m_validKtxPath, m_defaultLoadSettings);
 
 	ASSERT_NE(texture2d, nullptr);
 	EXPECT_EQ(texture2d->GetWidth(), 1);
@@ -55,7 +55,7 @@ TEST_F(GliLoaderTest, Load2DValidKtx)
 
 TEST_F(GliLoaderTest, Load2DValidKtxPng)
 {
-    std::unique_ptr<Texture2DResource> texture2d = GliLoader::LoadTexture2D(m_validPngPath, m_defaultLoadSettings);
+    std::unique_ptr<Texture2DResource> texture2d = IO::GliFormat::LoadTexture2D(m_validPngPath, m_defaultLoadSettings);
     
     ASSERT_NE(texture2d, nullptr);
     EXPECT_EQ(texture2d->GetWidth(), 1);
@@ -65,16 +65,16 @@ TEST_F(GliLoaderTest, Load2DValidKtxPng)
 
 TEST_F(GliLoaderTest, Load2DEmptyKtx)
 {
-    EXPECT_THROW(GliLoader::LoadTexture2D(m_emptyKtxPath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_emptyKtxPath, m_defaultLoadSettings), std::runtime_error);
 }
 
 TEST_F(GliLoaderTest, Load2DNonTextureFile)
 {
     
-    EXPECT_THROW(GliLoader::LoadTexture2D(m_nonTexturePath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_nonTexturePath, m_defaultLoadSettings), std::runtime_error);
 }
 
 TEST_F(GliLoaderTest, Load2DInvalidPath)
 {
-    EXPECT_THROW(GliLoader::LoadTexture2D(m_invalidPath, m_defaultLoadSettings), std::runtime_error);
+    EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_invalidPath, m_defaultLoadSettings), std::runtime_error);
 }
