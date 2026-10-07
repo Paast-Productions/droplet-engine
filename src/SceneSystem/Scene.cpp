@@ -151,21 +151,6 @@ const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const
     return m_roots;
 }
 
-void Node::SetScene(std::shared_ptr<Scene> p_scene)
-{
-    m_scene = p_scene;
-
-    for (const auto &child : m_children)
-    {
-        child->SetScene(p_scene);
-    }
-}
-
-std::shared_ptr<Scene> Node::GetScene() const
-{
-    return m_scene.lock();
-}
-
 const std::string &Scene::GetName() const
 {
     return m_name;

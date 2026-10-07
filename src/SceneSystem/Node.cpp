@@ -235,10 +235,16 @@ const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
     return m_children;
 }
 
-const std::string& Node::GetName() const
+std::shared_ptr<Scene> Node::GetScene() const
+{
+    return m_scene.lock();
+}
+
+const std::string &Node::GetName() const
 {
     return m_name;
 }
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
 {
     return m_components;
@@ -279,21 +285,6 @@ void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
     }
 }
 
-const std::string& Node::GetName() const
-{
-    return m_name;
-}
-
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
-{
-    return m_children;
-}
-
-std::shared_ptr<Node> Node::GetParent() const
-{
-    return m_parent.lock();
-}
-
 std::shared_ptr<NodeBounds> Node::GetBounds() const
 {
     if (m_boundsOverride)
@@ -322,4 +313,14 @@ bool Node::IsBoundsEnabled() const
 void Node::SetBoundsEnabled(bool p_enabled)
 {
     m_boundsEnabled = p_enabled;
+}
+
+void Node::SetScene(std::shared_ptr<Scene> p_scene)
+{
+    m_scene = p_scene;
+
+    for (const auto &child : m_children)
+    {
+        child->SetScene(p_scene);
+    }
 }
