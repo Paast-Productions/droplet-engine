@@ -24,8 +24,6 @@ project "Scripting-Main"
 
     if _TARGET_OS == "windows" then
 
-        local vkPath = os.getenv("VULKAN_SDK")
-
         includedirs
         {
             rootPath .. "/include",
@@ -55,10 +53,12 @@ project "Scripting-Main"
         "ImGui",
         "tracy",
         "lua-5.4.7",
+        "VulkanMemoryAllocator",
         "winmm",
         "gdi32",
         "shell32",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
+        AddQuotation("vulkan-1"),
         AddQuotation("Slangd")
     }

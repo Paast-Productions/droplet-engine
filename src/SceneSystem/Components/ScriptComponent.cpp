@@ -48,6 +48,7 @@ void Droplet::Scene::ScriptComponent::RenderUIImpl()
 {
     ScriptSystem::Get().Call(this, "RenderUI");
 }
+
 nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
