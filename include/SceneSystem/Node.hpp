@@ -33,7 +33,7 @@ namespace Droplet::Scene
         explicit Node(std::shared_ptr<Scene> p_scene, const std::string &p_name);
 
         /// @brief Virtual destructor.
-        virtual ~Node() = default;
+        ~Node() = default;
 
         /// @brief Starts the Node, its Components, and its children.
         ///
@@ -44,7 +44,7 @@ namespace Droplet::Scene
         /// added to an already started Node are started immediately.
         ///
         /// @note The Node's Start() function can be overridden by derived Nodes.
-        virtual void Start();
+        void Start();
 
         /// @brief Updates the Node, its Components, and its children.
         ///
@@ -52,16 +52,16 @@ namespace Droplet::Scene
         /// and child Nodes.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update(float p_deltaTime);
+        void Update(float p_deltaTime);
 
         /// @brief Renders the Node.
         ///
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved.
-        virtual void Render();
+        void Render();
 
 		/// @brief Renders the Node's UI as well as all attached Components.
-        virtual void RenderUI();
+        void RenderUI();
 
         /// @brief Sets whether the Node is active.
         ///
