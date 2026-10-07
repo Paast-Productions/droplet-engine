@@ -12,6 +12,7 @@
 #include "ImGui/imgui.h"
 
 #include "Time.hpp"
+#include "SceneSystem/SceneSerializer.hpp"
 
 using namespace Droplet::Scene;
 

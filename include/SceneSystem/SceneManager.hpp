@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <json/json.hpp>
 
 namespace Droplet::Scene
 {
@@ -98,6 +99,15 @@ namespace Droplet::Scene
         /// @note This function is currently a placeholder and does not
         /// perform any rendering.
         void Render();
+
+        /// @brief Seralizes and writes a scene to a file
+        /// @param p_scene The scene that is to serialize
+        /// @param p_filePath The json file to write to
+        void SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string& p_filePath);
+
+        /// @brief Loads a scene from a file
+        /// @param p_filePath The name of the file the scene is serialized in
+        void LoadFromFile(const std::string& p_filePath);
 
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
