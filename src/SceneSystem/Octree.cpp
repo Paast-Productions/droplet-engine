@@ -39,7 +39,14 @@ namespace Droplet::Scene
 			return;
 		}
 
-		UpdateTreeNode(m_root);
+		std::vector<std::shared_ptr<Node>> dirtyNodes;
+		CollectDirtyNodes(m_root, dirtyNodes);
+
+		for (const std::shared_ptr<Node> &dirty : dirtyNodes)
+		{
+			RemoveNode(dirty);
+			AddNode(dirty);
+		}
 	}
 
 	void Octree::AddNode(const std::shared_ptr<Node> p_node)
@@ -70,27 +77,20 @@ namespace Droplet::Scene
 		return nodes;
 	}
 
-	void Octree::UpdateTreeNode(std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::CollectDirtyNodes(std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
 	{
 		if (p_treeNode == nullptr)
 		{
 			return;
 		}
 
-		if (p_treeNode->node == nullptr) // TreeNode is octant
+		for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			CollectDirtyNodes(child, p_dirtyNodes);
+
+			if (child->node->GetTransform().IsDirty())
 			{
-				UpdateTreeNode(child);
-			}
-		}
-		else // TreeNode is Node
-		{
-			if (p_treeNode->node->GetTransform().IsDirty())
-			{
-				std::shared_ptr<Node> temp = p_treeNode->node;
-				RemoveNode(p_treeNode->node);
-				AddNode(temp);
+				p_dirtyNodes.push_back(child->node);
 			}
 		}
 	}
