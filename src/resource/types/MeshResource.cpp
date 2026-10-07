@@ -48,7 +48,7 @@ std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
 
     try
     {
-        BvhLoader::GenerateMeshBVH(*fallback);
+        fallback->GenerateBVH();
     }
     catch (...)
     {
@@ -82,4 +82,37 @@ bool Droplet::MeshResource::FindVertexAttribute(const std::string &p_attribute, 
     }
 
 	return true;
+}
+
+void Droplet::MeshResource::GenerateBVH()
+{
+    std::size_t posDataOffset = 0;
+    std::size_t posDataSize = 0;
+
+    if (!FindVertexAttribute("POSITION", posDataOffset, posDataSize))
+    {
+        throw std::runtime_error("MeshResource vertex layout does not contain POSITION attribute.");
+    }
+
+    std::vector<glm::vec3> tris;
+    tris.reserve(m_indexData.size());
+
+    // Iterate through the index data and extract the position data for each vertex
+    for (size_t i = 0; i < m_indexData.size(); ++i)
+    {
+        std::uint32_t index = m_indexData[i];
+        std::size_t vertexOffset = index * m_vertexByteSize + posDataOffset;
+
+        if (vertexOffset + sizeof(glm::vec3) > m_vertexData.size()) // TODO: Is this necessary?
+        {
+            throw std::runtime_error("Index out of bounds when accessing vertex data.");
+        }
+
+        glm::vec3 position;
+        std::memcpy(&position, &m_vertexData[vertexOffset], sizeof(glm::vec3));
+
+        tris.push_back(position);
+    }
+
+    m_bvh = Math::MeshBVH(tris);
 }

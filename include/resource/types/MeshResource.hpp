@@ -1,6 +1,5 @@
 #pragma once
 #include <resource/IResource.hpp>
-#include <resource/loaders/BvhLoader.hpp>
 #include <math/bounds/MeshBVH.hpp>
 
 #include <string>
@@ -33,6 +32,11 @@ namespace Droplet
 			m_vertexByteSize = p_vertexByteSize;
 			m_vertexLayout = p_vertexLayout;
 		}
+
+		/// @brief Generates a bounding volume hierarchy (BVH) for the mesh resource.
+		/// @note This function assumes that the mesh resource has already been loaded and contains valid vertex and index data.
+		/// @throw std::runtime_error If the mesh resource does not contain valid vertex or index data, or if the BVH generation fails.
+		void GenerateBVH();
 
 		/// @brief Gets the mesh data for the resource.
 		/// @return A vector of bytes representing the vertex data for the mesh.
