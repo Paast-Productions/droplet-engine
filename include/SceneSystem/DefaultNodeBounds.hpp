@@ -30,7 +30,7 @@ namespace Droplet::Scene
 	    /// @return An IntersectType value indicating whether the volumes intersect, or if this fully contains the other.
         [[nodiscard]] Droplet::Math::IntersectType Intersect(const Droplet::Math::AABB &p_aabb) const override
         {
-            return Droplet::Math::Intersects(m_aabb, p_aabb);
+            return Droplet::Math::Intersects(p_aabb, m_aabb);
         }
 
         /// @brief Determines whether the default node bounds intersects with an OBB.
