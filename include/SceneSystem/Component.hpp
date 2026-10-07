@@ -1,7 +1,7 @@
 #pragma once
+
 #include <json/json.hpp>
 #include <memory>
-#include <json/json.hpp>
 #include <string_view>
 
 namespace Droplet::Scene
@@ -62,10 +62,7 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
 		void Deserialize(nlohmann::json p_compJson);
 
-
-
     protected:
-
 		/// @brief Internal rendering function for the component's UI.
         /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.

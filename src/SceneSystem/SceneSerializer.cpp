@@ -8,8 +8,6 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
     nlohmann::json json;
 
     json["version"] = 1; // Should we even have version?, shouldn't be implemented like this tho
-
-
     json["name"] = p_scene->GetName();
     json["roots"] = nlohmann::json::array();
 
@@ -23,10 +21,6 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
 
 void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_ptr<Scene> p_scene)
 {
-    //p_sceneManager.LoadScene(p_json["name"]);
-
-    //auto scene = p_sceneManager.GetScene(p_json["name"]);
-
     if (!p_scene)
     {
         std::cerr << "Failed to load Game scene\n";
@@ -46,18 +40,14 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
             DeserializeNode(childJson, root, p_scene);
         }
     }
- 
 }
-
 
 nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 {
     nlohmann::json json;
-
     
     json["name"] = p_node.GetName();
     json["transform"] = SerializeTransform(p_node.GetTransform());
-
     json["components"] = nlohmann::json::array();
     
     for (const auto& component : p_node.GetAllComponents())
@@ -71,8 +61,6 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     {
         json["children"].push_back(SerializeNode(*child));
     }
-
-  
 
     return json;
 }
@@ -106,7 +94,6 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
     }
 
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
-    
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 
@@ -148,14 +135,13 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
     }
     else if (type == "PlayerComponent")
     {
-        //Create the component and either do the deserialization here or you can call the components deserialize function.
+        //TODO: Create the component and either do the deserialization here or you can call the components deserialize function.
     }
     else
     {
 
     }
 }
-
 
 nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)
 {
@@ -196,5 +182,4 @@ void SceneSerializer::DeserializeTransform(const nlohmann::json& p_json, Transfo
     p_transform.SetPosition(position);
     p_transform.SetRotation(rotation);
     p_transform.SetScale(scale);
-
 }
