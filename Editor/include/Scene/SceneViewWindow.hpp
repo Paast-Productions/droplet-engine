@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <Ray.hpp>
+#include <glm/glm.hpp>
 #include <EditorWindow.hpp>
 #include <EditorCamera.hpp>
 #include <InteractionState.hpp>

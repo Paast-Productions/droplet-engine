@@ -2,7 +2,8 @@
 
 Droplet::Editor::EditorContext::EditorContext()
 	: m_interactionState(),
-	  m_editorCamera(m_interactionState){}
+	  m_editorCamera(m_interactionState),
+	  m_editorCameraController(m_editorCamera){}
 
 void Droplet::Editor::EditorContext::SetScene(std::shared_ptr<Droplet::Scene::Scene> p_scene)
 {
@@ -12,6 +13,11 @@ void Droplet::Editor::EditorContext::SetScene(std::shared_ptr<Droplet::Scene::Sc
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
 {
 	return m_editorCamera;
+}
+
+Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::GetEditorCameraController()
+{
+	return m_editorCameraController;
 }
 std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetScene()
 {

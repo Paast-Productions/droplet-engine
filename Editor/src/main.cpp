@@ -8,6 +8,10 @@
 #include <Graphics/VK/TestData.hpp>
 
 #include <tracy/public/tracy/Tracy.hpp>
+
+#include <GameInput.hpp>
+#include <EditorContext.hpp>
+#include <Scene/SceneViewWindow.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
 //#include <tracy/public/tracy/TracyLua.hpp>
 
@@ -125,6 +129,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	InitImGui(wnd, rend);
 	FrameMark;
 
+	Droplet::Editor::EditorContext editorContext;
+	Droplet::Editor::Scene::SceneViewWindow sceneView(&editorContext);
+
+	sceneView.Init();
+
 	// Run main loop
 	bool done = false;
 	while (!done)
@@ -132,16 +141,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ZoneScopedN("Main Loop");
 
 		// TODO: Update engine
-
+		Droplet::GameInput::Get().Update();
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
+			Droplet::GameInput::Get().ProcessEvent(event);
+
 			ImGui_ImplSDL3_ProcessEvent(&event);
 			if (event.type == SDL_EVENT_QUIT)
 				done = true;
 		}
 
 		NewFrame();
+
+		ImGui::SetNextWindowPos(ImVec2(1400.0f, 100.0f), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
+
+		sceneView.Render();
 
 		if (show_demo_window)
 		{
@@ -191,6 +207,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		ImGui::Render();
 		rend.DrawFrame();
+
+		// Det vi vill åt:
+		// rend.DrawFrame(
+		// context.getscene(),
+		// context.getcamera,
+		// rendertarget
+		// );
 
 		rend.WaitIdle();
 		ImGui::UpdatePlatformWindows();

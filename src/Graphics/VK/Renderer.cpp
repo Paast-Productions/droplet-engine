@@ -601,7 +601,7 @@ ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 {
 	//TODO: CREATE PIPELINE CACHE
 	ImGui_ImplVulkan_InitInfo init_info = {};
-	init_info.Instance = *m_context.GetInstance();
+	init_info.Instance = *m_context.GetInstance(); 
 	init_info.PhysicalDevice = *m_context.GetPhysicalDevice();
 	init_info.Device = *m_context.GetDevice();
 	init_info.QueueFamily = m_context.GetQueueIndex();
