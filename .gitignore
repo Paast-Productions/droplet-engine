@@ -34,8 +34,6 @@
 # |         SAMPLES          |
 # ////////////////////////////
 
-# UwUlkan
-
 !/Samples
 !/Samples/**
 src/Graphics/VK/Shaders/slang.spv

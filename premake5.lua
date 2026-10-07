@@ -11,7 +11,7 @@ workspace "DropletEngine"
     warnings "Extra"
     externalanglebrackets "On"
     externalwarnings "Off"
-    fatalwarnings { "All" }
+    --fatalwarnings { "All" }
     multiprocessorcompile "On"
     configurations { "debug", "release" }
 
@@ -64,6 +64,7 @@ group "External"
 include "Premake/External/ImGui"
 include "Premake/External/json"
 include "Premake/External/tracy"
+include "Premake/External/Stb"
 include "Premake/External/VulkanMemoryAllocator"
 
 if _TARGET_OS == 'windows' then
@@ -73,6 +74,7 @@ if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/Gli"
     include "Premake/External/Windows/Jolt"
     include "Premake/External/Windows/Sol2"
+    include "Premake/External/Windows/bvh"
 end
 
 if _TARGET_OS == 'linux' then
@@ -81,6 +83,7 @@ if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/Gli"
     include "Premake/External/Linux/Jolt"
     include "Premake/External/Linux/Sol2"
+    include "Premake/External/Windows/bvh"
 end
 
 group ""

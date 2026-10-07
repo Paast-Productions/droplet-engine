@@ -1,0 +1,34 @@
+#include "resource/io/SlangFormat.hpp"
+
+#include "graphics/vk/ShaderCompiler.hpp"
+#include "resource/meta/MetaUtils.hpp"
+
+using json = nlohmann::json;
+
+namespace Droplet::IO::SlangFormat
+{
+    std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
+    {
+        ShaderResource::ShaderType type = p_loadSettings.value(MetaLoadSettings::C_SHADER_TYPE.key, MetaLoadSettings::C_SHADER_TYPE.defaultValue);
+        
+        try
+        {
+            thread_local Graphics::ShaderCompiler s_compiler;
+            return std::make_unique<ShaderResource>(type, s_compiler.CompileShader(p_shaderPath));
+        }
+        catch (const std::exception&)
+        {
+            throw std::runtime_error("Failed to compile shader.");
+        }
+    }
+
+    std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
+        const std::filesystem::path &p_shaderPath)
+    {
+        std::vector<std::pair<ResourceType, std::string>> resources{};
+        
+        std::string resourceName = p_shaderPath.stem().string();
+        resources.emplace_back(ResourceType::Shader, resourceName);
+        return resources;
+    }
+}

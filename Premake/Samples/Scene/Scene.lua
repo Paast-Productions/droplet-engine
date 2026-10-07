@@ -6,6 +6,12 @@ project "SceneSystem"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
     local vkPath = os.getenv("VULKAN_SDK")
 
@@ -46,8 +52,9 @@ project "SceneSystem"
     dependson {
         "Engine",
         "ImGui",
+        "tracy",
         "Sol2",
-        "tracy"
+		    "bvh"
     }
 
     links {
