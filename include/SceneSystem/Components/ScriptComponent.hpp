@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string>
+
 #include <SceneSystem/Component.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <string>
 
 using namespace Droplet::Script;
 
@@ -99,7 +100,6 @@ namespace Droplet::Scene
         std::string m_scriptPath;
     };
 
-
     /// @brief Calls a Lua function on the script associated with the component.
     ///
     /// The call is forwarded to the global ScriptSystem, which locates the
@@ -120,5 +120,4 @@ namespace Droplet::Scene
             p_functionName,
             std::forward<Args>(p_args)...);
     }
-
 }

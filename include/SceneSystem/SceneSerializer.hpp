@@ -1,8 +1,8 @@
 #pragma once
 
 #include <json/json.hpp>
-#include <SceneSystem/Scene.hpp>
 
+#include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
 #include "Components/ScriptComponent.hpp"
 #include "Components/MeshComponent.hpp"
@@ -46,7 +46,6 @@ namespace Droplet::Scene
 		/// @param p_scene The scene the node belongs to
 		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
-
 		/// @brief Desereliazes Components,
 		/// It needs to check the components type to be able to either deserialize them here or call their own deserializations
 		/// @param p_json The component saved as a json
@@ -62,9 +61,5 @@ namespace Droplet::Scene
 		/// @param p_json The transform saved as a json
 		/// @param p_transform the transform that has it's values changed
 		void DeserializeTransform(const nlohmann::json& p_json, Droplet::Scene::Transform& p_transform);
-
-	private:
-
-
 	};
 };

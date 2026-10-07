@@ -146,8 +146,6 @@ namespace Droplet::Scene
         /// @return A constant reference to the Node's name.
         [[nodiscard]] const std::string &GetName() const;
 
-
-
         // --------------------------------------------------
         // Components
         // --------------------------------------------------
@@ -215,11 +213,11 @@ namespace Droplet::Scene
             return components;
         }
 
-
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
         [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const;
+
         /// @brief Removes a specific Component from the Node.
         ///
         /// Removes the specified Component from the Node's list of Components.
@@ -231,7 +229,6 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const std::shared_ptr<Component> &p_component);
-
 
     private:
         std::string m_name;
