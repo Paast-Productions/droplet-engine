@@ -1,5 +1,4 @@
 ﻿project "json"
-    kind "Utility"
     location(projectsPath)
 
     warnings "Off"
@@ -9,8 +8,22 @@
     
     local jsonPath = targetBuildPath .. "/External/include/%{prj.name}"
 
-    prebuildcommands
-    {
-        "{MKDIR} " .. AddQuotation(jsonPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
-    }
+    filter "system:windows"
+        kind "Utility"
+
+        prebuildcommands
+        {
+            "{MKDIR} " .. AddQuotation(jsonPath),
+            "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
+        }
+
+    filter "system:linux"
+        kind "Makefile"
+
+        buildcommands
+        {
+            "{MKDIR} " .. AddQuotation(jsonPath),
+            "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
+        }
+
+    filter ""

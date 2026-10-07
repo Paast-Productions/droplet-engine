@@ -1,8 +1,9 @@
 require "Premake/Utilities/Clean"
 require "Premake/Utilities/Helper"
+require "Premake/Utilities/Doxygen"
 
 workspace "DropletEngine"
-
+    
     location "Generated"
     cppdialect "C++23"
     multiprocessorcompile "On"
@@ -11,6 +12,7 @@ workspace "DropletEngine"
     externalanglebrackets "On"
     externalwarnings "Off"
     fatalwarnings { "All" }
+    multiprocessorcompile "On"
     configurations { "debug", "release" }
 
     architecture "x86_64"
@@ -25,6 +27,7 @@ workspace "DropletEngine"
         runtime "Release"
         defines { "NDEBUG" }
         optimize "On"
+    filter {}
 
     -- Paths
 
@@ -44,16 +47,23 @@ include "Premake/Test"
 
 -- [[ SAMPLES ]] --
 
+group "Samples"
+
 include "Premake/Samples/Vulkan/HelloTriangle"
 include "Premake/Samples/Engine/HelloEngine"
 include "Premake/Samples/Scene/Scene"
 include "Premake/Samples/Transform/Transform"
 include "Premake/Samples/Scripting/ScriptingMain"
 
+group ""
+
 -- [[ EXTERNAL ]] --
+
+group "External"
 
 include "Premake/External/ImGui"
 include "Premake/External/json"
+include "Premake/External/tracy"
 include "Premake/External/VulkanMemoryAllocator"
 
 if _TARGET_OS == 'windows' then
@@ -72,3 +82,5 @@ if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/Jolt"
     include "Premake/External/Linux/Sol2"
 end
+
+group ""

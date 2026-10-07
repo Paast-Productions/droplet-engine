@@ -49,7 +49,7 @@ void CopyBuffer(
 /// @param p_oldLayout Specified layout to translate from
 /// @param p_newLayout Specified layout to translate to
 void TransitionImageLayout(
-	Droplet::Graphics::VK::CommandBuffer &p_commandBuffer,
+	const vk::raii::CommandBuffer &p_commandBuffer,
 	const vk::raii::Image &p_image,
 	vk::ImageLayout p_oldLayout,
 	vk::ImageLayout p_newLayout);

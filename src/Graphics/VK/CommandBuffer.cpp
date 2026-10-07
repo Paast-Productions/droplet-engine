@@ -1,6 +1,6 @@
 #include "CommandBuffer.hpp"
 
-vk::raii::CommandBuffer& Droplet::Graphics::VK::CommandBuffer::Get()
+const vk::raii::CommandBuffer& Droplet::Graphics::VK::CommandBuffer::Get() const
 {
 	return m_commandBuffer;
 }
@@ -23,15 +23,29 @@ void Droplet::Graphics::VK::CommandBuffer::CopyBuffer(vk::Buffer p_src, vk::Buff
 }
 
 Droplet::Graphics::VK::CommandBuffer::CommandBuffer(const vk::raii::Device &p_device,
-                                                    const vk::raii::CommandPool &p_pool, const vk::CommandBufferLevel p_level)
+                                                    const vk::raii::CommandPool &p_pool, 
+                                                    const vk::CommandBufferLevel p_level)
 {
 	assert(p_pool != nullptr);
 	
-	vk::CommandBufferAllocateInfo allocInfo { .commandPool = p_pool,  .level =  p_level, .commandBufferCount = 1};
+	vk::CommandBufferAllocateInfo allocInfo
+	{
+		.commandPool = p_pool,
+		.level = p_level, 
+		.commandBufferCount = 1
+	};
+	
 	m_commandBuffer = std::move(vk::raii::CommandBuffers(p_device, allocInfo).front());
 }
 
 void Droplet::Graphics::VK::CommandBuffer::PipelineBarrier(vk::DependencyInfo p_dependencyInfo)
 {
+	vk::CommandBufferBeginInfo beginInfo 
+	{
+		.sType = vk::StructureType::eCommandBufferBeginInfo,
+		.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit,
+	};
+	m_commandBuffer.begin(beginInfo);
 	m_commandBuffer.pipelineBarrier2(p_dependencyInfo);
+	m_commandBuffer.end();
 }
