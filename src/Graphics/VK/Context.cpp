@@ -90,13 +90,30 @@ void Context::CreateLogicalDevice()
 	// query for Vulkan 1.3 features
 	vk::StructureChain<vk::PhysicalDeviceFeatures2,
 		vk::PhysicalDeviceVulkan11Features,
+		vk::PhysicalDeviceVulkan12Features,
 		vk::PhysicalDeviceVulkan13Features,
 		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
 		featureChain = {
-			{},									   // vk::PhysicalDeviceFeatures2
-			{.shaderDrawParameters = true},        // vk::PhysicalDeviceVulkan11Features
-			{.synchronization2 = true, .dynamicRendering = true}, // vk::PhysicalDeviceVulkan13Features   //Fixes sync2 warnings
-			{.extendedDynamicState = true},        // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+			{},	// vk::PhysicalDeviceFeatures2
+			{	// vk::PhysicalDeviceVulkan11Features
+				.shaderDrawParameters = true
+			},							
+			{	// vk::PhysicalDeviceVulkan12Features
+					// Descriptor Indexing
+				.descriptorIndexing = true,
+				.descriptorBindingUniformBufferUpdateAfterBind = true,
+				.descriptorBindingSampledImageUpdateAfterBind = true,
+				.descriptorBindingUpdateUnusedWhilePending = true,
+				.descriptorBindingPartiallyBound = true,
+				.descriptorBindingVariableDescriptorCount = true
+			},	
+			{	// vk::PhysicalDeviceVulkan13Features
+				.synchronization2 = true, // Fixes sync2 warnings
+				.dynamicRendering = true
+			},	
+			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+				.extendedDynamicState = true
+			}							
 	};
 
 	// create a Device

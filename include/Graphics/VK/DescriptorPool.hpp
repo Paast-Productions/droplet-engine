@@ -13,14 +13,16 @@ namespace Droplet::Graphics::VK
 	public:
 		/// @brief Deleted default constructor
 		DescriptorPool() = delete;
+		
+		DescriptorPool(nullptr_t p_nullptr) : 
+			m_descriptorPool(p_nullptr) {}
 
 		/// @brief Default deconstructor
 		~DescriptorPool() = default;
 
 		/// @brief Constructor for the Descriptor Pool Class
 		/// @param p_device RAII pointer to the Vulkan device
-		/// @param p_maxFramesInFlight highest count of frames in flight to be used in runtime
-		DescriptorPool(const vk::raii::Device &p_device, std::uint32_t p_maxFramesInFlight);
+		DescriptorPool(const vk::raii::Device &p_device);
 		
 		/// @brief Getter function for Vulkan Descriptor Pool
 		/// @returns Vulkan Descriptor Pool

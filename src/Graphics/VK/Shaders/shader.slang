@@ -20,7 +20,7 @@ struct UniformBuffer
     float4x4 view;
     float4x4 proj;
 };
-ConstantBuffer<UniformBuffer> ubo;
+layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> ubo;
 
 [shader("vertex")]
 VSOutput vertMain(VSInput input) {
@@ -32,7 +32,7 @@ VSOutput vertMain(VSInput input) {
     return output;
 }
 
-Sampler2D texture;
+layout(set = 1, binding = 0) Sampler2D texture;
 
 [shader("fragment")]
 float4 fragMain(VSOutput vertIn) : SV_TARGET {

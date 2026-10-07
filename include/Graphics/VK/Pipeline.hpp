@@ -46,7 +46,7 @@ namespace Droplet::Graphics::VK
 		
 		vk::PipelineLayoutCreateInfo PipelineLayoutInfo
 		{
-			.setLayoutCount = 1,
+			.setLayoutCount = 2,
 			.pushConstantRangeCount = 0
 		};	
 		
