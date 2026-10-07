@@ -12,6 +12,6 @@ project "Assimp"
     buildcommands
     {
         "{MKDIR} %{prj.objdir}",
-        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir}",
+        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DLIBRARY_SUFFIX='-mt'",
         "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
     }

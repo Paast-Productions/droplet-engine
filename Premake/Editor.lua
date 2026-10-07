@@ -81,6 +81,6 @@ project "Editor"
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("assimp-mtd"),
 		AddQuotation("lua-5.4.7")
     }
