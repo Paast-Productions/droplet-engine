@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <SceneSystem/Octree.hpp>
 
 namespace Droplet::Scene
 {
@@ -147,6 +147,8 @@ namespace Droplet::Scene
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
+
+        Octree m_octree;
 
         bool m_loaded = false;
         bool m_active = false;

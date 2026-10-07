@@ -40,6 +40,7 @@ void Scene::Load()
     }
 
     // TODO: Implement scene loading
+    m_octree.Initialize(glm::vec3(0.0f), glm::vec3(100.0f));
 
     m_loaded = true;
 }
@@ -83,6 +84,7 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
     auto node = std::make_shared<Node>(shared_from_this(), p_name);
 
     m_roots.push_back(node);
+    m_octree.AddNode(node);
 
     if (m_active)
     {
