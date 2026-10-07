@@ -41,7 +41,7 @@ namespace Droplet
 
 		/// @brief Sets whether the animation should loop.
 		/// @param p_isLooping True if the animation should loop, false otherwise.
-		void SetIsLooping(bool p_isLooping);
+		void SetLooping(bool p_isLooping);
 
 		/// @brief Sets the keyframes for the animation resource.
 		/// @param p_keyframes The keyframes for the animation resource.
