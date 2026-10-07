@@ -18,7 +18,7 @@ constexpr std::size_t   STACK_SIZE = 64;										// Stack size for BVH traversa
 // Type aliases
 using Node = bvh::v2::Node<float, 3>;
 
-MeshBVH::MeshBVH(std::vector<glm::vec3> p_triangleList)
+MeshBVH::MeshBVH(const std::vector<glm::vec3> &p_triangleList)
 {
 	if (p_triangleList.empty())
 	{
