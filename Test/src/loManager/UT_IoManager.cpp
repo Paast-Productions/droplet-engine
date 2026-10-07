@@ -4,16 +4,16 @@
 #include <fstream>
 #include <string>
 
-#include "Core/IOManager.hpp"
+#include "Core/IoManager.hpp"
 
 namespace fs = std::filesystem;
 
 namespace Droplet::Core
 {
-    class IOManagerTest : public ::testing::Test
+    class IoManagerTest : public ::testing::Test
     {
     protected:
-        const fs::path testFile = "IOManagerTest.json";
+        const fs::path testFile = "IoManagerTest.json";
 
         void SetUp() override
         {
@@ -55,7 +55,7 @@ namespace Droplet::Core
     // Load
     // =========================================================
 
-    TEST_F(IOManagerTest, LoadReadsValidJson)
+    TEST_F(IoManagerTest, LoadReadsValidJson)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -73,7 +73,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, LoadReadsNestedJson)
+    TEST_F(IoManagerTest, LoadReadsNestedJson)
     {
         CreateTestFile(R"({
             "player": {
@@ -104,7 +104,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, LoadReturnsEmptyObject)
+    TEST_F(IoManagerTest, LoadReturnsEmptyObject)
     {
         CreateTestFile("{}");
 
@@ -117,7 +117,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, LoadThrowsWhenFileDoesNotExist)
+    TEST_F(IoManagerTest, LoadThrowsWhenFileDoesNotExist)
     {
         const std::string path = "FileThatDoesNotExist.json";
 
@@ -128,7 +128,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, LoadThrowsWhenJsonIsInvalid)
+    TEST_F(IoManagerTest, LoadThrowsWhenJsonIsInvalid)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -146,7 +146,7 @@ namespace Droplet::Core
     // Save
     // =========================================================
 
-    TEST_F(IOManagerTest, SaveCreatesFile)
+    TEST_F(IoManagerTest, SaveCreatesFile)
     {
         const nlohmann::json data = {
             {"name", "Player"},
@@ -164,7 +164,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, SaveWritesCorrectJson)
+    TEST_F(IoManagerTest, SaveWritesCorrectJson)
     {
         const nlohmann::json data = {
             {"name", "Player"},
@@ -185,7 +185,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, SaveWritesNestedJson)
+    TEST_F(IoManagerTest, SaveWritesNestedJson)
     {
         const nlohmann::json data = {
             {
@@ -214,7 +214,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, SaveOverwritesExistingFile)
+    TEST_F(IoManagerTest, SaveOverwritesExistingFile)
     {
         CreateTestFile(R"({
             "oldData": true
@@ -238,7 +238,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, SaveReturnsTrueOnSuccess)
+    TEST_F(IoManagerTest, SaveReturnsTrueOnSuccess)
     {
         const nlohmann::json data = {
             {"value", 42}
@@ -257,7 +257,7 @@ namespace Droplet::Core
     // DataAction - Insert
     // =========================================================
 
-    TEST_F(IOManagerTest, DataActionInsertAddsNewValues)
+    TEST_F(IoManagerTest, DataActionInsertAddsNewValues)
     {
         CreateTestFile(R"({
             "name": "Player"
@@ -282,7 +282,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionInsertOverwritesExistingValue)
+    TEST_F(IoManagerTest, DataActionInsertOverwritesExistingValue)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -306,7 +306,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionInsertMultipleValues)
+    TEST_F(IoManagerTest, DataActionInsertMultipleValues)
     {
         CreateTestFile("{}");
 
@@ -336,7 +336,7 @@ namespace Droplet::Core
     // DataAction - Delete
     // =========================================================
 
-    TEST_F(IOManagerTest, DataActionDeleteRemovesValue)
+    TEST_F(IoManagerTest, DataActionDeleteRemovesValue)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -362,7 +362,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionDeleteMultipleValues)
+    TEST_F(IoManagerTest, DataActionDeleteMultipleValues)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -392,7 +392,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionDeleteNonExistingValueDoesNotThrow)
+    TEST_F(IoManagerTest, DataActionDeleteNonExistingValueDoesNotThrow)
     {
         CreateTestFile(R"({
             "name": "Player"
@@ -420,7 +420,7 @@ namespace Droplet::Core
     // DataAction - Error handling
     // =========================================================
 
-    TEST_F(IOManagerTest, DataActionThrowsWhenFileDoesNotExist)
+    TEST_F(IoManagerTest, DataActionThrowsWhenFileDoesNotExist)
     {
         const nlohmann::json data = {
             {"name", "Player"}
@@ -437,7 +437,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionThrowsWhenJsonIsInvalid)
+    TEST_F(IoManagerTest, DataActionThrowsWhenJsonIsInvalid)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -458,7 +458,7 @@ namespace Droplet::Core
     // DataAction - File content
     // =========================================================
 
-    TEST_F(IOManagerTest, DataActionKeepsExistingValuesWhenInserting)
+    TEST_F(IoManagerTest, DataActionKeepsExistingValuesWhenInserting)
     {
         CreateTestFile(R"({
             "name": "Player",
@@ -483,7 +483,7 @@ namespace Droplet::Core
     }
 
 
-    TEST_F(IOManagerTest, DataActionKeepsFileValidAfterInsert)
+    TEST_F(IoManagerTest, DataActionKeepsFileValidAfterInsert)
     {
         CreateTestFile("{}");
 
@@ -510,7 +510,7 @@ namespace Droplet::Core
         EXPECT_TRUE(result.is_object());
     }
 
-    TEST_F(IOManagerTest, DeleteFiles)
+    TEST_F(IoManagerTest, DeleteFiles)
     {
         CreateTestFile(R"({
             "name": "Player"
