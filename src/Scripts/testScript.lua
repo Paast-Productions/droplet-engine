@@ -1,3 +1,7 @@
+enabled = true
+speed = 5.0
+clickCount = 0
+
 function OnStart()
 	print("Axel smells ew today")
 end
@@ -19,19 +23,21 @@ function OnUpdate(dt)
 end
 
 function RenderUI()
-    assert(type(ImGui) == "table", "ImGui table is missing")
-    assert(type(ImGui.Text) == "function", "ImGui.Text is missing")
-    assert(type(ImGui.Button) == "function", "ImGui.Button is missing")
-    assert(type(ImGui.Separator) == "function", "ImGui.Separator is missing")
-    assert(type(ImGui.Spacing) == "function", "ImGui.Spacing is missing")
-	assert(type(ImGui.DragFloat) == "function")
-	assert(type(ImGui.DragInt) == "function")
-	assert(type(ImGui.SliderFloat) == "function")
-	assert(type(ImGui.SliderInt) == "function")
-	assert(type(ImGui.InputText) == "function")
-	assert(type(ImGui.CollapsingHeader) == "function")
-	assert(type(ImGui.Combo) == "function")
+    ImGui.Text("This text comes from Lua")
+    ImGui.Separator()
 
-    print("RenderUI call and ImGui bindings are working!")
+    local changed
+
+    changed, enabled =
+        ImGui.Checkbox("Enabled", enabled)
+
+    changed, speed =
+        ImGui.DragFloat("Speed", speed, 0.1, 0.0, 20.0)
+
+    if ImGui.Button("Lua button") then
+        clickCount = clickCount + 1
+        print("Button clicked:", clickCount)
+    end
+
+    ImGui.Text("Click count: " .. tostring(clickCount))
 end
-

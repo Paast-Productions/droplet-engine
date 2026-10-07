@@ -9,7 +9,12 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 #include "GameInput.hpp"
-#include "ImGui/imgui.h"
+
+#include <Graphics/VK/Renderer.hpp>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_sdl3.h>
+#include <ImGui/imgui_impl_vulkan.h>
+#include <SDL3/SDL.h>
 
 #include "Time.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
@@ -37,13 +42,48 @@ public:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
-    Droplet::Time &time = time.Get();
+    Droplet::Time& time = Droplet::Time::Get();
+
+    // ==================================================
+    // Renderer and ImGui
+    // ==================================================
+
+    Droplet::Graphics::SDL::WindowConfig windowConfig =
+    {
+        .Width = 1280,
+        .Height = 720,
+        .Flags = 0
+    };
+
+    Droplet::Graphics::Renderer renderer(windowConfig);
+
+    SDL_Window* window = renderer.GetWindow();
+
+    if (window == nullptr)
+    {
+        std::cerr << "Failed to create renderer window\n";
+        return 1;
+    }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
+    ImGui_ImplSDL3_InitForVulkan(window);
+
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    renderer.GetImGuiInitInfo(initInfo);
+    ImGui_ImplVulkan_Init(&initInfo);
+
+    // ==================================================
+    // Scene
+    // ==================================================
+
     SceneManager sceneManager;
-
-    // ==================================================
-    // Create and load a scene
-    // ==================================================
-
     sceneManager.LoadScene("Game");
 
     auto scene = sceneManager.GetScene("Game");
@@ -54,35 +94,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         return 1;
     }
 
-    // ==================================================
-    // Create the root node
-    // ==================================================
-
     auto root = scene->AddNode("Root");
 
-    // ==================================================
-    // Build the scene hierarchy
-    // ==================================================
+    auto player = root->AddChild(
+        scene->AddNode("Player"));
 
-    auto player =
-        root->AddChild(
-            scene->AddNode("Player"));
+    auto camera = player->AddChild(
+        scene->AddNode("Camera"));
 
-    auto camera =
-        player->AddChild(
-            scene->AddNode("Camera"));
+    auto weapon = player->AddChild(
+        scene->AddNode("Weapon"));
 
-    auto weapon =
-        player->AddChild(
-            scene->AddNode("Weapon"));
-
-    auto enemy =
-        root->AddChild(
-            scene->AddNode("Enemy"));
-
-    // ==================================================
-    // Configure transforms
-    // ==================================================
+    auto enemy = root->AddChild(
+        scene->AddNode("Enemy"));
 
     player->GetTransform().SetPosition(
         glm::vec3(10.0f, 0.0f, 0.0f));
@@ -97,7 +121,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
         glm::vec3(-5.0f, 0.0f, 10.0f));
 
     // ==================================================
-    // Add Components
+    // Components and scripting
     // ==================================================
 
     player->AddComponent<PlayerComponent>();
@@ -108,43 +132,91 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
     enemy->AddComponent<MeshComponent>(
         "Meshes/Enemy.obj");
 
-    // ==================================================
-    // Activate the scene
-    // ==================================================
-    [[maybe_unused]] SDL_Window *window = SDL_CreateWindow(
-        "Droplet",
-        1280,
-        720,
-        SDL_WINDOW_VULKAN); 
+    auto& scriptSystem = Droplet::Script::ScriptSystem::Get();
+
+    scriptSystem.SetScriptPath("../../../src/Scripts");
+
+    player->AddComponent<ScriptComponent>(
+        "testScript.lua");
+
+    /*
+     * Activating the scene calls Node::Start().
+     *
+     * Node::Start()
+     * -> ScriptComponent::Start()
+     * -> CreateComponentScript()
+     * -> ActivateComponentScript()
+     */
     sceneManager.ActivateScene("Game");
 
-    //ScriptBehaviour scriptBehaviour("testScript.lua");
+    /*
+     * Calls Lua OnStart() on all activated script instances.
+     */
+    scriptSystem.Start();
 
-    ScriptSystem::Get().SetScriptPath("../../../src/Scripts");
-    player->AddComponent<ScriptComponent>("testScript.lua");
-    
-    ScriptSystem::Get().Start();
+    // ==================================================
+    // Main loop
+    // ==================================================
 
+    bool running = true;
 
-    player->RenderUI();
-
-
-    while (true)
+    while (running)
     {
         Droplet::GameInput::Get().Update();
 
-		SDL_Event event;
+        SDL_Event event;
+
         while (SDL_PollEvent(&event))
         {
-			Droplet::GameInput::Get().ProcessEvent(event);
+            ImGui_ImplSDL3_ProcessEvent(&event);
+            Droplet::GameInput::Get().ProcessEvent(event);
+
+            if (event.type == SDL_EVENT_QUIT)
+            {
+                running = false;
+            }
         }
 
-        if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeySpace))
-        {
-            std::print("Space key pressed\n");
-        }
-        //ScriptSystem::Get().Update(time.GetDeltaTime());
+        scriptSystem.Update(time.GetDeltaTime());
+
+        // Begin an ImGui frame.
+        ImGui_ImplVulkan_NewFrame();
+        ImGui_ImplSDL3_NewFrame();
+        ImGui::NewFrame();
+
+        // The C++ side owns the window.
+        ImGui::Begin("Lua ImGui Binding Test");
+
+        /*
+         * Node::RenderUI()
+         * -> Component::RenderUI()
+         * -> ScriptComponent::RenderInternalUI()
+         * -> Call("RenderUI")
+         * -> Lua RenderUI()
+         */
+        player->RenderUI();
+
+        ImGui::End();
+
+        /*
+         * DrawFrame() calls:
+         *
+         * ImGui::EndFrame()
+         * ImGui::Render()
+         * ImGui_ImplVulkan_RenderDrawData(...)
+         */
+        renderer.DrawFrame();
     }
 
+    // ==================================================
+    // Shutdown
+    // ==================================================
+
+    renderer.WaitIdle();
+
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplSDL3_Shutdown();
+    ImGui::DestroyContext();
+
     return 0;
-}  
+}
