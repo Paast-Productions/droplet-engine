@@ -104,12 +104,11 @@ namespace Droplet
     template <typename T>
     T *ResourceHandle<T>::Get() const
     {
-        if (IsValid())
+        if (!m_resourceManager)
         {
-            return m_resourceManager->GetResource<T>(m_guid);
+            return nullptr;
         }
-            
-        return nullptr;
+        return m_resourceManager->GetResource<T>(m_guid);
     }
 
     template <typename T>

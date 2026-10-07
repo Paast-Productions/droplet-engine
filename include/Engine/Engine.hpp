@@ -1,9 +1,13 @@
 #pragma once
 
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_vulkan.h>
+#include <ImGui/imgui_impl_sdl3.h>
 #include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <GameInput.hpp>
 #include <Time.hpp>
 
 namespace Droplet
@@ -27,6 +31,7 @@ namespace Droplet
 	{
 	public:
 		Engine(EngineConfig p_config);
+		~Engine();
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
@@ -52,5 +57,8 @@ namespace Droplet
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief 
+		ImGui_ImplVulkan_InitInfo m_initInfo;
 	};
 }

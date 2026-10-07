@@ -16,7 +16,7 @@ namespace Droplet
         ThreadSafeQueue(const ThreadSafeQueue&) = delete;
         ThreadSafeQueue operator=(const ThreadSafeQueue&) = delete;
 
-        /// @brief Pushes an into the queue.
+        /// @brief Pushes an item into the queue.
         /// @param p_item The item to be pushed.
         void Push(T p_item)
         {
@@ -36,11 +36,13 @@ namespace Droplet
                 return false;
             }
             
-            p_item = m_queue.front();
+            p_item = std::move(m_queue.front());
             m_queue.pop();
             return true;
         }
         
+        
+        /// @brief Checks if the queue is empty.
         /// @return True if the queue is empty, otherwise false.
         [[nodiscard]] bool IsEmpty() const
         {

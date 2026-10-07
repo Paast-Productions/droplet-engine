@@ -70,6 +70,10 @@ namespace Droplet::Graphics::VK
 		/// @returns The depth buffers Vulkan Image View
 		[[nodiscard]] const vk::raii::ImageView &GetView() const;
 
+		/// @brief Depthformat getter
+		/// @return format of the depth buffer
+		[[nodiscard]] const vk::Format GetFormat() const;
+
 	private:
 
 		/// @brief Finds what memory formats are supported by the hardware
@@ -85,6 +89,7 @@ namespace Droplet::Graphics::VK
 
 		Image m_image { nullptr };
 		ImageView m_imageView { nullptr };
+		vk::Format m_format;
 	};
 
 	inline const vma::raii::Image &DepthBuffer::GetImage() const
@@ -95,5 +100,10 @@ namespace Droplet::Graphics::VK
 	inline const vk::raii::ImageView &DepthBuffer::GetView() const
 	{
 		return m_imageView.Get();
+	}
+
+	inline const vk::Format DepthBuffer::GetFormat() const
+	{
+		return m_format;
 	}
 }

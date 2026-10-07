@@ -5,23 +5,13 @@
 
 #include <filesystem>
 
+namespace Droplet::MetaKeys
+{
+    
+}
+
 namespace Droplet::MetaUtils
 {
-    // --- Default Load Settings ---
-    
-    // Meshes
-    static constexpr bool C_MESH_DEFAULT_GENERATE_NORMALS = true;
-    static constexpr bool C_MESH_DEFAULT_JOIN_IDENTICAL_VERTICES = true;
-    static constexpr bool C_MESH_DEFAULT_TRIANGULATE = true;
-    
-    // Textures
-    static constexpr bool C_TEXTURE_DEFAULT_GENERATE_MIPMAPS = false;
-    
-    // Shaders
-    static constexpr ShaderResource::ShaderType C_SHADER_DEFAULT_TYPE = ShaderResource::ShaderType::Vertex;
-    
-    // ---
-    
     /// @brief Reads and parses a .meta file.
     /// @param p_metaFilePath The path to the .meta file on the disk.
     /// @param p_metaData The metadata struct to be populated.
@@ -46,4 +36,9 @@ namespace Droplet::MetaUtils
     /// @return A generated meta entry.
     [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath, 
         const nlohmann::json &p_explicitLoadSettings = nlohmann::json::object());
+
+    /// @brief Constructs the schema describing which load settings are valid for a given resource type.
+    /// @param p_type The resource type.
+    /// @return The schema.
+    [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type);
 }

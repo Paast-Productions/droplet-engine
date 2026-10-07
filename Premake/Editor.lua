@@ -8,7 +8,11 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-    defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
+    defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
 
     if _TARGET_OS == "windows" then
 
@@ -65,17 +69,18 @@ project "Editor"
         "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
     }
-	
 
     links 
     {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
         "tracy",
-	    "VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        "lua-5.4.7"
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+		AddQuotation("lua-5.4.7")
     }

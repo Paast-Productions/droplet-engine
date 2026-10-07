@@ -47,7 +47,7 @@ namespace Droplet
     
     	bool m_running = true;
     
-    	uint32_t m_nrOfThreads = 0;
+    	std::uint32_t m_nrOfThreads = 0;
     };
 }
 

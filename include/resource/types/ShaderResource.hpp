@@ -1,9 +1,9 @@
 #pragma once
-#include <slang/slang-com-ptr.h>
-
 #include "resource/IResource.hpp"
 
+#include <slang/slang-com-ptr.h>
 #include <slang/slang.h>
+#include <memory>
 
 namespace Droplet
 {
@@ -24,6 +24,10 @@ namespace Droplet
         };
 	    
         ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_byteCode);
+
+        /// @brief Creates a fallback instance of a shader resource (nullptr bytecode).
+        /// @return The shader.
+        static std::unique_ptr<ShaderResource> CreateFallback();
         
         /// @return The type of shader this shader resource represents.
         [[nodiscard]] ShaderType GetType() const;

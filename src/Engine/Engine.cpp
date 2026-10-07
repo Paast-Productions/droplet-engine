@@ -1,9 +1,30 @@
 #include <Engine.hpp>
+#include <stdexcept>
 
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 {
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
+	m_initInfo = {};
+	m_renderer.GetImGuiInitInfo(m_initInfo);
+	ImGui_ImplVulkan_Init(&m_initInfo);
+}
+
+Droplet::Engine::~Engine()
+{
+	m_renderer.WaitIdle();
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -11,9 +32,15 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Time
 	Time::Get().Update();
 
+	// ImGui
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL3_NewFrame();
+	ImGui::NewFrame();
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+		ImGui_ImplSDL3_ProcessEvent(&m_renderer.Event);
 		if (m_renderer.Event.type == SDL_EVENT_QUIT)
 		{
 			return DROPLET_RETURNTYPE::EXIT;
@@ -31,6 +58,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 				return DROPLET_RETURNTYPE::EXIT;
 			}
 		}
+		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
 	// Scenesystem
@@ -41,6 +69,13 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Rendering
 	m_renderer.DrawFrame();
+
+	// ImGui
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 	
 	// Other system that need updating go here.
 	

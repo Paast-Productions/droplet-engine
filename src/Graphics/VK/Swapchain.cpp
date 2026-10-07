@@ -8,7 +8,7 @@ vk::SurfaceFormatKHR Swapchain::ChooseSwapSurfaceFormat(const std::vector<vk::Su
 {
 	const auto formatIt = std::ranges::find_if(
 		p_availableFormats,
-		[](const auto &format) { return format.format == vk::Format::eB8G8R8A8Srgb && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear; });
+		[](const auto &format) { return format.format == vk::Format::eR8G8B8A8Unorm && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear; });
 	return formatIt != p_availableFormats.end() ? *formatIt : p_availableFormats[0];
 }
 

@@ -1,8 +1,9 @@
 #pragma once
 
+#include <string>
+
 #include <SceneSystem/Component.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <string>
 
 using namespace Droplet::Script;
 
@@ -88,13 +89,16 @@ namespace Droplet::Scene
 		/// Overloaded to provide a default UI for the ScriptComponent that
 		/// displays the script path. Derived components can override this
 		/// function to implement their own UI rendering logic.
-		void RenderInternalUI() override;
+		void RenderUIImpl() override;
+
+        nlohmann::json SerializeImpl() override;
+        void DeserializeImpl(nlohmann::json p_compJson) override;
+
 
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
     };
-
 
     /// @brief Calls a Lua function on the script associated with the component.
     ///
@@ -116,5 +120,4 @@ namespace Droplet::Scene
             p_functionName,
             std::forward<Args>(p_args)...);
     }
-
 }
