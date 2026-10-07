@@ -44,20 +44,24 @@ void ScriptComponent::DeactivateScript()
     ScriptSystem::Get().DeactivateComponentScript(this);
 }
 
-void Droplet::Scene::ScriptComponent::RenderUIImpl()
+void ScriptComponent::RenderUIImpl()
 {
     ScriptSystem::Get().Call(this, "RenderUI");
 }
-nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
+
+nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
 
     json["type"] = "ScriptComponent";
     json["filepath"] = GetScriptPath();
 
+    // TODO
+
     return json;
 }
 
-void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+void ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
 {
+    // TODO
 }

@@ -84,6 +84,7 @@ namespace Droplet::Scene
             Args&&... p_args);
 
     protected:
+
 		/// @brief Internal rendering function for the component's UI.
 		///
 		/// Overloaded to provide a default UI for the ScriptComponent that

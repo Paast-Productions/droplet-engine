@@ -62,6 +62,19 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
 		void Deserialize(nlohmann::json p_compJson);
 
+		/// @brief Checks if the component and all of its ancestors are active.
+		/// @return true if the component and all of its ancestors are active, otherwise false.
+		/// @throws std::runtime_error if the component has no owner.
+        [[nodiscard]] bool IsActive() const;
+
+		/// @brief Check if the component itself is avtive.
+		/// @return A shared pointer to the owning Node, or nullptr if the
+        [[nodiscard]] bool IsActiveSelf() const { return m_active; }
+
+		/// @brief Sets whether the component itself is active.
+		/// @param p_active true to activate the component, false to deactivate it.
+        void SetActiveSelf(bool p_active);
+
     protected:
 		/// @brief Internal rendering function for the component's UI.
         /// 
@@ -83,6 +96,10 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_active = true;
+
+        std::weak_ptr<Node> m_owner{};
+
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when
@@ -90,7 +107,5 @@ namespace Droplet::Scene
         ///
         /// @param p_owner Node that will own the component.
         void SetOwner(std::shared_ptr<Node> p_owner);
-
-        std::weak_ptr<Node> m_owner;
     };
 }
