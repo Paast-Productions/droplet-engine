@@ -151,15 +151,33 @@ namespace Droplet::Scene
 			return;
 		}
 
-		if (p_treeNode->node != nullptr)
+		if (p_treeNode->node == p_node) // The TreeNode contains the target Node
 		{
 			p_treeNode->node = nullptr;
 		}
-		else
+		else if (!p_treeNode->children.empty()) // The TreeNode is an octant
 		{
-			for (std::unique_ptr<TreeNode> &t : p_treeNode->children)
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				RemoveFromTreeNode(p_node, t);
+				RemoveFromTreeNode(p_node, child);
+			}
+
+			// Check if all children are empty for merging child octants
+			bool canMerge = true;
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				// A child is not empty, don't merge child octants
+				if (child->node != nullptr || !child->children.empty())
+				{
+					canMerge = false;
+					break;
+				}
+			}
+
+			// Merge child octants by destroying the children
+			if (canMerge)
+			{
+				p_treeNode->children.clear();
 			}
 		}
 	}
