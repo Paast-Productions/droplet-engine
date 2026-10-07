@@ -67,7 +67,22 @@ MeshBVH::MeshBVH(std::vector<glm::vec3> p_triangleList)
 	});
 }
 
-RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) const
+AABB MeshBVH::GetBounds() const
+{
+	if (!m_bvh)
+	{
+		throw std::runtime_error("BVH is not initialized.");
+	}
+
+	v2::BBox bBox = m_bvh->get_root().get_bbox();
+
+	return AABB::FromMinMax(
+		{ bBox.min[0], bBox.min[1], bBox.min[2] }, 
+		{ bBox.max[0], bBox.max[1], bBox.max[2] }
+	);
+}
+
+RayHit MeshBVH::Raycast(const Ray &p_ray, float p_maxDist) const
 {
 	if (!m_bvh)
 	{
@@ -79,15 +94,10 @@ RayHit MeshBVH::Raycast(const Ray &p_ray, float p_minDist, float p_maxDist) cons
 		p_maxDist = std::numeric_limits<float>::max();
 	}
 
-	if (p_minDist >= p_maxDist)
-	{
-		throw std::invalid_argument("Minimum distance must be less than maximum distance.");
-	}
-
 	v2::Ray<float, 3> ray{};
 	ray.org = { p_ray.pos.x, p_ray.pos.y, p_ray.pos.z };
 	ray.dir = { p_ray.dir.x, p_ray.dir.y, p_ray.dir.z };
-	ray.tmin = p_minDist;
+	ray.tmin = 0.0f;
 	ray.tmax = p_maxDist;
 
 	std::size_t primID = INVALID_ID;

@@ -4,7 +4,6 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <stdexcept>
-#undef GLM_ENABLE_EXPERIMENTAL
 
 #include <SceneSystem/Node.hpp>
 
