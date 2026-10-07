@@ -121,17 +121,29 @@ namespace Droplet::Scene
 			else // Subdivides the octant
 			{
 				std::vector<AABB> octants;
+				std::vector<std::shared_ptr<Node>> nodes;
 				SubdivideOctant(p_treeNode->octant, octants);
 
 				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
-					std::shared_ptr<Node> node = p_treeNode->children[i]->node;
+					nodes.push_back(p_treeNode->children[i]->node);
 
 					p_treeNode->children[i] = std::make_unique<TreeNode>();
 					p_treeNode->children[i]->octant = octants[i];
 					p_treeNode->children[i]->node = nullptr;
+				}
 
-					AddToTreeNode(node, p_treeNode->children[i]);
+				// All children of p_treeNode are now spatial octants
+				// For each Node, check if it intersects with each octant before adding it to the tree
+				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+				{
+					for (const std::shared_ptr<Node> &node : nodes)
+					{
+						if (node->GetBounds()->Intersect(child->octant) != IntersectType::None)
+						{
+							AddToTreeNode(node, child);
+						}
+					}
 				}
 			}
 		}
