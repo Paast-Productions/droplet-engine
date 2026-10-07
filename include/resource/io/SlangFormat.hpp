@@ -6,11 +6,11 @@
 #include <filesystem>
 #include <json/json.hpp>
 
-namespace Droplet::SlangLoader
+namespace Droplet::IO::SlangFormat
 {
     /// @brief Compiles a shader file (.slang) into a shader blob and loads it into RAM.
-    /// @param p_type The shader type (should be taken from the meta entry).
     /// @param p_shaderPath The path to the shader file.
+    /// @param p_loadSettings The shader specific import settings.
     /// @return A shader resource.
     /// @throw std::runtime_error If the shader compilation failed.
     [[nodiscard]] std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const nlohmann::json &p_loadSettings);

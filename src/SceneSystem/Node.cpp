@@ -262,6 +262,10 @@ const std::string& Node::GetName() const
 {
     return m_name;
 }
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
+{
+    return m_components;
+}
 
 void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
 {

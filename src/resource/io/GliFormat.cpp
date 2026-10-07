@@ -1,4 +1,4 @@
-#include "resource/loaders/GliLoader.hpp"
+#include "resource/io/GliFormat.hpp"
 
 #include "MetaUtils.hpp"
 
@@ -17,7 +17,7 @@
 
 namespace fs = std::filesystem;
 
-namespace Droplet::GliLoader
+namespace Droplet::IO::GliFormat
 {
     /// @brief Converts a gli::format to our custom ResourceTexture::TextureFormat.
     /// @param p_format The GLI format.

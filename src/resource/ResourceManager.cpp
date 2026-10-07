@@ -153,15 +153,15 @@ namespace Droplet
             
             if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
             {
-                res.foundResources = AssimpLoader::ListAssetResources(absAssetPath);
+                res.foundResources = IO::AssimpFormat::ListAssetResources(absAssetPath);
             }
             else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
             {
-                res.foundResources = GliLoader::ListAssetResources(absAssetPath);
+                res.foundResources = IO::GliFormat::ListAssetResources(absAssetPath);
             }
             else if (ext == ".slang")
             {
-                res.foundResources = SlangLoader::ListAssetResources(absAssetPath);
+                res.foundResources = IO::SlangFormat::ListAssetResources(absAssetPath);
             }
             
             m_asyncRegisterResults.Push(res);

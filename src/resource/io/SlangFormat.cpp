@@ -1,11 +1,11 @@
-#include "resource/loaders/SlangLoader.hpp"
+#include "resource/io/SlangFormat.hpp"
 
 #include "graphics/vk/ShaderCompiler.hpp"
 #include "resource/meta/MetaUtils.hpp"
 
 using json = nlohmann::json;
 
-namespace Droplet::SlangLoader
+namespace Droplet::IO::SlangFormat
 {
     std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
     {
