@@ -204,3 +204,17 @@ void Scene::SetActive(bool p_active)
         }
     }
 }
+
+std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &ray, Math::RayHit *hit) const
+{
+    // TODO: Interact with Octree
+
+	return nullptr;
+}
+
+std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &ray) const
+{
+    // TODO: Interact with Octree
+
+    return { };
+}

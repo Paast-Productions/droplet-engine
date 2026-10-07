@@ -1,16 +1,17 @@
 #pragma once
 
+#include <math/bounds/Intersection.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
-
 
 namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency
     class Node;
 
-    /// @brief Represents a Scene containing one or more Node hierarchies.
+	/// @brief Represents a Scene containing a Node hierarchy.
     ///
     /// A Scene owns any number of root Nodes that serve as the starting
     /// points of the Scene's Node hierarchies. Scenes can be loaded,
@@ -143,6 +144,17 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if attempting to activate a Scene
         /// that has not been loaded.
         void SetActive(bool p_active);
+
+		/// @brief Finds the first Node in the Scene that intersects with the given Ray.
+		/// @param ray The Ray to test for intersection with Nodes in the Scene.
+		/// @param hit Optional pointer to a RayHit structure to receive intersection details if a Node is found.
+        /// @return A shared pointer to the first Node that intersects with the Ray, or nullptr if no intersection is found.
+        std::shared_ptr<Node> FindNodeByRay(const Math::Ray &ray, Math::RayHit *hit = nullptr) const;
+
+		/// @brief Finds all Nodes in the Scene that intersect with the given Ray.
+		/// @param ray The Ray to test for intersection with Nodes in the Scene.
+        /// @return A vector of shared pointers to all Nodes that intersect with the Ray.
+        std::vector<std::shared_ptr<Node>> FindNodesByRay(const Math::Ray &ray) const;
 
     private:
         std::string m_name;
