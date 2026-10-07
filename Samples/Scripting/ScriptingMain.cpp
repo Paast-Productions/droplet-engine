@@ -138,7 +138,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 			Droplet::GameInput::Get().ProcessEvent(event);
         }
 
-        ScriptSystem::Get().Update(time.GetDeltaTime());
+        if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeySpace))
+        {
+            std::print("Space key pressed\n");
+        }
+        //ScriptSystem::Get().Update(time.GetDeltaTime());
     }
 
     return 0;
