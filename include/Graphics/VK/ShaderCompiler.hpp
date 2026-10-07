@@ -3,8 +3,13 @@
 #include <filesystem>
 #include <vector>
 
+#ifdef _WIN32
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
+#elifdef __linux__
+#include <shader-slang/slang.h>
+#include <shader-slang/slang-com-ptr.h>
+#endif
 
 namespace Droplet::Graphics
 {	
@@ -40,6 +45,5 @@ namespace Droplet::Graphics
 	
 	private:
 		Slang::ComPtr<slang::IGlobalSession> m_globalSession {};
-		Slang::ComPtr<slang::ISession> m_session {};
 	};
 }

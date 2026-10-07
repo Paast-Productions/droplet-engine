@@ -1,13 +1,20 @@
 #include "SceneManager.hpp"
 #include "SceneFactory.hpp"
+#include "SceneSerializer.hpp"
+
+#include <Core/IoManager.hpp>
 #include "Scene.hpp"
 #include <algorithm>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
 void SceneManager::LoadScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     if (m_scenes.contains(p_name))
     {
         throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
@@ -25,9 +32,11 @@ void SceneManager::LoadScene(const std::string &p_name)
     m_scenes[p_name] = scene;
 }
 
-
 void SceneManager::UnloadScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto it = m_scenes.find(p_name);
 
     if (it == m_scenes.end())
@@ -47,6 +56,9 @@ void SceneManager::UnloadScene(const std::string &p_name)
 
 void SceneManager::ActivateScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto scene = GetScene(p_name);
 
     if (!scene)
@@ -68,8 +80,12 @@ void SceneManager::ActivateScene(const std::string &p_name)
 
     m_activeScenes.push_back(scene);
 }
+
 void SceneManager::DeactivateScene(const std::string &p_name)
 {
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
     auto scene = GetScene(p_name);
 
     if (!scene)
@@ -128,6 +144,8 @@ const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
 
 void SceneManager::Update(float p_deltaTime)
 {
+    ZoneScoped;
+
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
@@ -142,10 +160,13 @@ void SceneManager::Update(float p_deltaTime)
 
         ++it;
     }
+        
 }
 
 void SceneManager::Render()
 {
+    ZoneScoped;
+
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
@@ -160,4 +181,42 @@ void SceneManager::Render()
 
         ++it;
     }
+}
+
+void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeScene(p_scene);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
+}
+
+void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+    if (!json.contains("name"))
+    {
+        throw std::runtime_error("Invalid json was sent to LoadFromFile");
+    }
+
+    if (m_scenes.contains(json["name"]))
+    {
+        throw std::runtime_error("Cannot load Scene " + json["name"] );
+    }
+
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+    }
+
+    serializer.DeserializeScene(json, scene);
+    scene->Load();
+
+    m_scenes[json["name"]] = scene;
+
 }

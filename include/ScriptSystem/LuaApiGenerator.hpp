@@ -44,6 +44,9 @@ namespace Droplet::Script
 
 		/// @brief Functions exposed by the class.
 		std::vector<LuaFunctionDefinition> functions;
+
+		/// @brief Properties exposed by the class.
+		std::vector<LuaParameterDefinition> properties;
 	};
 
 	/// @brief Describes a global Lua function.

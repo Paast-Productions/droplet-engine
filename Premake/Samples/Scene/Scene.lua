@@ -6,31 +6,66 @@ project "SceneSystem"
     targetdir(targetBuildPath .. "/%{prj.name}")
     debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
     
+    local vkPath = os.getenv("VULKAN_SDK")
+
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Scene/SceneMain.cpp"
     }
 
     libdirs {
-        targetBuildPath .. "/Library"
+        targetBuildPath .. "/Library",
+        targetBuildPath .. "/External/lib",
+        targetBuildPath .. "/External/bin",
+        vkPath .. "/Lib"
     }
     
-    
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
 
-    includedirs {
-        rootPath .. "/include",
-        vkPath .. "/include",
-        targetBuildPath .. "/External/include"
-    }
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            rootPath .. "/include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/include",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
 
     dependson {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy",
+        "Sol2",
+		    "bvh"
     }
 
     links {
         "Engine",
-        "ImGui"
+        "ImGui",
+        "tracy",
+        "lua-5.4.7",
+        "winmm",
+        "gdi32",
+        "shell32",
+        AddQuotation("SDL3"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd")
     }

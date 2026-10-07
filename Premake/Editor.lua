@@ -7,40 +7,80 @@ project "Editor"
     objdir(objBuildPath .. "/%{prj.name}")
 
     local vkPath = os.getenv("VULKAN_SDK")
-	
-    includedirs 
-	{
-        "../include",
-        "../include/**",
-        "../Editor/include",
-        "../Editor/include/**",
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include/"
-    }
+
+    defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
+
+    if _TARGET_OS == "windows" then
+
+        buildoptions {"/Zi"}
+        
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            "../Editor/include",
+            "../Editor/include/**",
+            targetBuildPath .. "/External/include/"
+        }
+
+        libdirs
+        {
+            targetBuildPath .. "/External/lib",
+            targetBuildPath .. "/External/lib64",
+            targetBuildPath .. "/Engine"
+        }
+
+    end
 
     dependson 
-	{
+    {
         "Engine",
         "ImGui",
-        "json"
+        "json",
+        "tracy"
     }
 
     files 
-	{
+    {
+        "../Editor/include/**.hpp",
         "../Editor/src/**.cpp"
-    }
-	
-    libdirs 
-	{
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64",
-        targetBuildPath .. "/Engine",
-        vkPath .. "/Lib"
     }
 
     links 
-	{
+    {
         "Engine",
         "ImGui",
-        AddQuotation("SDL3")
+        "VulkanMemoryAllocator",
+        "tracy",
+        AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
+        AddQuotation("Shaderc"),
+        AddQuotation("Slangd"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+		AddQuotation("lua-5.4.7")
     }

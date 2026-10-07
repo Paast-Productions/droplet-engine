@@ -1,16 +1,20 @@
 #include <gtest/gtest.h>
+#include <SceneSystem/Scene.hpp>
 #include <ScriptSystem/ScriptInstance.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
-#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Node.hpp>
+#include "GameInput.hpp"
  
  using namespace Droplet::Script;
  using namespace Droplet::Scene;
 
-TEST(ScriptInstance, getScriptPath)
-{
-	//Lua state initialization
+ TEST(ScriptInstance, getScriptPath)
+ {
+	// Lua state initialization
 	LuaStateHandler stateHandler;
-	ScriptComponent testComp("");
+
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		function OnStart()
@@ -22,17 +26,25 @@ TEST(ScriptInstance, getScriptPath)
 
 	ASSERT_TRUE(script.valid());
 
-	ScriptInstance instance(&testComp, stateHandler, script, "TestScript.lua");
+	ScriptInstance instance(
+		&testNode,
+		Droplet::GameInput::Get(),
+		stateHandler,
+		script,
+		"TestScript.lua"
+	);
 
 	EXPECT_EQ(instance.GetScriptPath(), "TestScript.lua");
-}
+ }
 
 TEST(ScriptInstance, OnStart)
 {
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -52,7 +64,8 @@ TEST(ScriptInstance, OnStart)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler, 
 		script, 
 		"TestScript.lua"
@@ -69,7 +82,9 @@ TEST(ScriptInstance, OnStartUndefined)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -85,7 +100,8 @@ TEST(ScriptInstance, OnStartUndefined)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -102,7 +118,8 @@ TEST(ScriptInstance, onUpdate)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -123,7 +140,8 @@ TEST(ScriptInstance, onUpdate)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -144,7 +162,8 @@ TEST(ScriptInstance, OnUpdateUndefined)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -161,7 +180,8 @@ TEST(ScriptInstance, OnUpdateUndefined)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -182,7 +202,8 @@ TEST(ScriptInstance, Call)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -206,7 +227,8 @@ TEST(ScriptInstance, Call)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -224,7 +246,8 @@ TEST(ScriptInstance, CallUndefinedFunction)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		function OnStart()
@@ -237,7 +260,8 @@ TEST(ScriptInstance, CallUndefinedFunction)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -253,7 +277,8 @@ TEST(ScriptInstance, callTooManyArguments)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -276,7 +301,8 @@ TEST(ScriptInstance, callTooManyArguments)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -294,7 +320,8 @@ TEST(ScriptInstance, callTooFewArguments)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		local test = 0
@@ -317,7 +344,8 @@ TEST(ScriptInstance, callTooFewArguments)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+		Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"
@@ -335,7 +363,8 @@ TEST(ScriptInstance, callError)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	LuaBindings::RegisterBindings(stateHandler.GetState());
-	ScriptComponent testComp("");
+	auto scene = std::make_shared<Scene>("Scene1");
+	Node testNode(scene, "TestNode");
 
 	auto script = stateHandler.GetState().load(R"(
 		function OnStart()
@@ -352,7 +381,8 @@ TEST(ScriptInstance, callError)
 	ASSERT_TRUE(script.valid());
 
 	ScriptInstance instance(
-		&testComp,
+		&testNode,
+				Droplet::GameInput::Get(),
 		stateHandler,
 		script,
 		"TestScript.lua"

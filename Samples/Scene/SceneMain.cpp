@@ -1,14 +1,14 @@
 #include <iostream>
 #include <memory>
 
-#include "ScriptSystem/ScriptSystem.hpp"
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
-
+#include "SceneSystem/SceneSerializer.hpp"
+#include "Core/IoManager.hpp"
 using namespace Droplet::Scene;
 
 // --------------------------------------------------
@@ -18,6 +18,8 @@ using namespace Droplet::Scene;
 class PlayerComponent : public Component
 {
 public:
+    std::string_view GetTypeName() override { return "PlayerComponent"; }
+
     void Start() override
     {
         std::cout << "PlayerComponent started\n";
@@ -29,6 +31,13 @@ public:
             << "PlayerComponent updating: "
             << p_deltaTime
             << " seconds\n";
+    }
+
+    nlohmann::json SerializeImpl() override
+    {
+        nlohmann::json json;
+        json["type"] = "PlayerComponent";
+        return json;
     }
 };
 
@@ -88,6 +97,8 @@ int main()
     player->GetTransform().SetPosition(
         glm::vec3(10.0f, 0.0f, 0.0f));
 
+    player->GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+
     camera->GetTransform().SetPosition(
         glm::vec3(0.0f, 2.0f, -5.0f));
 
@@ -131,16 +142,18 @@ int main()
         sceneManager.Update(deltaTime);
     }
 
+    //==================================================
+    // Serialize
+    //==================================================
+
+    SceneSerializer seri;
+    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
+    Droplet::Core::JsonIO::Write("testJson.json", json);
+
     // ==================================================
     // Deactivate / unload
     // ==================================================
-    ScriptSystem scriptsystem;
 
-    player->AddComponent<ScriptComponent>("testScript.lua");
-
-    sceneManager.DeactivateScene("Game");
-
-    sceneManager.UnloadScene("Game");
 
     return 0;
 }

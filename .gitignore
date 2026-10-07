@@ -4,6 +4,8 @@
 !.gitignore
 !LICENSE
 !README.md
+!.github/
+!.github/**
 
 # Source
 !/include
@@ -32,7 +34,6 @@
 # |         SAMPLES          |
 # ////////////////////////////
 
-# UwUlkan
-
 !/Samples
 !/Samples/**
+src/Graphics/VK/Shaders/slang.spv

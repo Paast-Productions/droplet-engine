@@ -12,7 +12,7 @@ TEST(ScriptManager, SetScriptDirectory)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 
-	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/Scripts"));
 }
 
 TEST(ScriptManager, CreateScript)
@@ -22,11 +22,11 @@ TEST(ScriptManager, CreateScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 	Scene::ScriptComponent testComp("testScript.lua");
-	EXPECT_NO_THROW(manager.CreateScript(&testComp, "testScript.lua"));
-	EXPECT_NO_THROW(manager.CreateScript(&testComp, "testScript2.lua"));
-	EXPECT_THROW(manager.CreateScript(&testComp, "nonExisting.lua"), std::runtime_error);
+	EXPECT_NO_THROW(manager.CreateComponentScript(&testComp, "testScript.lua"));
+	EXPECT_NO_THROW(manager.CreateComponentScript(&testComp, "testScript2.lua"));
+	EXPECT_THROW(manager.CreateComponentScript(&testComp, "nonExisting.lua"), std::runtime_error);
 }
 
 TEST(ScriptManager, DetachAllInstancesToScript)
@@ -38,13 +38,13 @@ TEST(ScriptManager, DetachAllInstancesToScript)
 	Scene::ScriptComponent firstComp("testScript.lua");
 	Scene::ScriptComponent secondComp("testScript.lua");
 
-	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/Scripts"));
 
-	manager.CreateScript(&firstComp, "testScript.lua");
-	manager.CreateScript(&secondComp, "testScript.lua");
+	manager.CreateComponentScript(&firstComp, "testScript.lua");
+	manager.CreateComponentScript(&secondComp, "testScript.lua");
 
-	manager.ActivateScript(&firstComp);
-	manager.ActivateScript(&secondComp);
+	manager.ActivateComponentScript(&firstComp);
+	manager.ActivateComponentScript(&secondComp);
 
 	manager.DetachAllInstancesToScript("testScript.lua");
 
@@ -63,7 +63,7 @@ TEST(ScriptManager, LoadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	EXPECT_NO_THROW(manager.LoadScript("testScript.lua"));
 	EXPECT_NO_THROW(manager.LoadScript("testScript3.lua"));
@@ -77,7 +77,7 @@ TEST(ScriptManager, UnloadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -95,7 +95,7 @@ TEST(ScriptManager, IsLoaded)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -115,7 +115,7 @@ TEST(ScriptManager, ReloadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -133,7 +133,7 @@ TEST(ScriptManager, GetLoadedScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -157,10 +157,10 @@ TEST(ScriptManager, ActivateScript)
 	ScriptManager manager(stateHandler);
 	Droplet::Scene::ScriptComponent testComp("");
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
-	manager.CreateScript(&testComp, "testScript3.lua");
-	manager.ActivateScript(&testComp);
+	manager.CreateComponentScript(&testComp, "testScript3.lua");
+	manager.ActivateComponentScript(&testComp);
 
 	manager.Update(1);
 	int timesTwo = manager.Call(&testComp, "TimesTwo", 1);
@@ -175,15 +175,15 @@ TEST(ScriptManager, DeactivateScript)
 	ScriptManager manager(stateHandler);
 	Droplet::Scene::ScriptComponent testComp("");
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
-	manager.CreateScript(&testComp, "testScript3.lua");
-	manager.ActivateScript(&testComp);
+	manager.CreateComponentScript(&testComp, "testScript3.lua");
+	manager.ActivateComponentScript(&testComp);
 
 	int timesTwo = manager.Call(&testComp, "TimesTwo", 1);
 	EXPECT_EQ(timesTwo, 2);
 
-	manager.DeactivateScript(&testComp);
+	manager.DeactivateComponentScript(&testComp);
 
 	auto result = manager.Call(&testComp, "TimesTwo", 1);
 	EXPECT_FALSE(result.valid());
