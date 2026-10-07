@@ -21,7 +21,7 @@ void Component::RenderUI()
 
     // TODO: Set active, delete
 
-    RenderInternalUI();
+    RenderUIImpl();
 }
 
 std::shared_ptr<Node> Component::GetOwner() const
@@ -43,4 +43,25 @@ bool Component::IsActive() const
 void Component::SetActiveSelf(bool p_active)
 {
 	m_active = p_active;
+}
+
+nlohmann::json Component::Serialize()
+{
+	nlohmann::json compJson;
+
+    // TODO: Insert component type name.
+	// This is how we know what type of component to create when deserializing.
+    // Must be an exact match to the type name used in the ComponentRegistry.
+    compJson["type"] = ""; 
+
+	compJson["data"] = SerializeImpl();
+
+    return SerializeImpl();
+}
+
+void Component::Deserialize(nlohmann::json p_compJson)
+{
+	nlohmann::json dataJson = p_compJson["data"];
+
+	DeserializeImpl(dataJson);
 }

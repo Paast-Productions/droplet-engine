@@ -16,7 +16,7 @@ Window::Window(WindowConfig p_windowConfig)
         throw SDLException("Failed (SDL_Vulkan_LoadLibrary)");
     }
     
-    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow("Hello", p_windowConfig.Width, p_windowConfig.Height, p_windowConfig.Flags | SDL_WINDOW_VULKAN));
+    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow("Editor", p_windowConfig.Width, p_windowConfig.Height, p_windowConfig.Flags));
     
     if (not m_sdlWindowHandle)
     {
@@ -31,7 +31,7 @@ Window::~Window()
     SDL_Quit();
 }
 
-SDL_Window *Window::Get()
+SDL_Window *Window::Get() const
 {
     return m_sdlWindowHandle.get();
 }

@@ -8,6 +8,7 @@ using namespace Droplet::Script;
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
     : m_scriptPath((p_scriptPath))
 {
+
 }
 
 void ScriptComponent::Start()
@@ -15,16 +16,12 @@ void ScriptComponent::Start()
     //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
     auto &scriptSystem = ScriptSystem::Get();
 
-    scriptSystem.CreateScript(this, m_scriptPath);
-    scriptSystem.ActivateScript(this);
-
+    scriptSystem.CreateComponentScript(this, m_scriptPath);
+    scriptSystem.ActivateComponentScript(this);
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-	ScriptSystem::Get().Update(1.0);
-
-    //TODO: Lua script update will be implemented later.
 }
 
 void ScriptComponent::RenderInternalUI()
@@ -40,15 +37,33 @@ const std::string &ScriptComponent::GetScriptPath() const
 
 void ScriptComponent::DetachScript()
 {
-    ScriptSystem::Get().DetachScript(this);
+    ScriptSystem::Get().DetachComponentScript(this);
 }
 
 void ScriptComponent::ActivateScript()
 {
-    ScriptSystem::Get().ActivateScript(this);
+    ScriptSystem::Get().ActivateComponentScript(this);
 }
 
 void ScriptComponent::DeactivateScript()
 {
-    ScriptSystem::Get().DeactivateScript(this);
+    ScriptSystem::Get().DeactivateComponentScript(this);
+}
+
+void Droplet::Scene::ScriptComponent::RenderUIImpl()
+{
+    ScriptSystem::Get().Call(this, "RenderUI");
+}
+nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
+{
+    nlohmann::json json;
+
+    json["type"] = "ScriptComponent";
+    json["filepath"] = GetScriptPath();
+
+    return json;
+}
+
+void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+{
 }

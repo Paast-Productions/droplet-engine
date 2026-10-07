@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "dependencies": [],
+            "guid": 500,
+            "loadFlags": 1,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "name": "Test_BlackPixel",
+            "type": 1
+        }
+    ]
+}

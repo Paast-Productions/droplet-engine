@@ -2,43 +2,78 @@ project "Test"
 
     location(projectsPath)
 
+    removefatalwarnings { "All" }
+
     kind "ConsoleApp"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    local vkPath = os.getenv("VULKAN_SDK")
+	defines{ 
+        "GLM_ENABLE_EXPERIMENTAL",
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
+	}
 
-    files 
+    files
     {
         "../Test/src/**.hpp",
         "../Test/src/**.cpp"
     }
 
-    local vkPath = os.getenv("VULKAN_SDK")
+    if _TARGET_OS == "windows" then
+        local vkPath = os.getenv("VULKAN_SDK")
 
-    includedirs
-    {
-        "../include", 
-        vkPath .. "/Include",
-        targetBuildPath .. "/External/include"
-    }
+        includedirs
+        {
+            "../include",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include"
+        }
     
-    libdirs
-    {
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
-    }
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			vkPath .. "/Lib"
+		}
+
+    else
+
+        includedirs
+        {
+            "../include",
+            targetBuildPath .. "/External/include"
+        }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			"Lib"
+		}
+
+    end
 
     dependson 
     {
         "GoogleTest",
         "Engine",
-        "Sol2"
+        "Assimp",
+        "json",
+        "bvh",
+        "stb",
+        "Sol2",
+        "tracy"
     }
 
     links
     {
-        "Engine", 
+        "Engine",
         "gtest",
-        AddQuotation("lua-5.4.7")
+        "tracy",
+        "ImGui",
+        AddQuotation("SDL3"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd"),
+		AddQuotation("lua-5.4.7")
     }

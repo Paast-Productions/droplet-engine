@@ -5,7 +5,7 @@ project "ImGui"
 
     warnings "Off"
 
-    targetdir(targetBuildPath .. "/External/lib/")
+    targetdir(targetBuildPath .. "/External/lib")
     objdir(objBuildPath .. "/%{prj.name}")
 
     files
@@ -15,25 +15,38 @@ project "ImGui"
         rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.cpp"
     }
     
-    local vkPath = os.getenv('VULKAN_SDK')
+    if _TARGET_OS == "windows" then
+
+        local vkPath = os.getenv('VULKAN_SDK')
     
-    includedirs
-    {
-        vkPath .. "/Include/",
-        rootPath .. "/External/ImGui/",
-        rootPath .. "/External/ImGui/backends/",
-        targetBuildPath .. "/External/include/"
-    }
+        includedirs
+        {
+            vkPath .. "/Include/",
+            rootPath .. "/External/ImGui/",
+            rootPath .. "/External/ImGui/backends/",
+            targetBuildPath .. "/External/include/"
+        }
+
+    else
+
+        includedirs
+        {
+            rootPath .. "/External/ImGui/",
+            rootPath .. "/External/ImGui/backends/",
+            targetBuildPath .. "/External/include/"
+        }
+
+    end
 
     local imGuiPath = targetBuildPath .. "/External/include/%{prj.name}"
 
     prebuildcommands {
         "{MKDIR} " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imgui.h") .. " " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imgui_internal.h") .. " " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/imconfig.h") .. " " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.h") .. " " .. AddQuotation(imGuiPath),
-        "{COPY} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.h") .. " " .. AddQuotation(imGuiPath)
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/imgui.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/imgui_internal.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/imconfig.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.h") .. " " .. AddQuotation(imGuiPath)
     }
 
     buildcommands {

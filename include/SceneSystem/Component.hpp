@@ -1,6 +1,8 @@
 #pragma once
 
+#include <json/json.hpp>
 #include <memory>
+#include <string_view>
 
 namespace Droplet::Scene
 {
@@ -23,6 +25,13 @@ namespace Droplet::Scene
         /// @brief Virtual destructor.
         virtual ~Component() = default;
 
+		/// @brief Gets the type name of the component. 
+        /// 
+        /// This function must be overridden by derived classes to return the correct type name, 
+        /// as it is used for serialization and identification of component types.
+        /// @return The type name of the component.
+        virtual std::string_view GetTypeName() = 0;
+
         /// @brief Called when the owning Node starts.
         ///
         /// Called when the owning Node starts participating in an active Scene.
@@ -37,14 +46,21 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
 
-		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUI() function.
+		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
 
         /// @brief Gets the Node that owns this component.
-        ///
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
-        std::shared_ptr<Node> GetOwner() const;
+        [[nodiscard]] std::shared_ptr<Node> GetOwner() const;
+
+		/// @brief Serializes the component to a JSON object.
+		/// @return A JSON object representing the component's state.
+		[[nodiscard]] nlohmann::json Serialize();
+
+		/// @brief Deserializes the component from a JSON object.
+		/// @param p_compJson A JSON object containing the component's state.
+		void Deserialize(nlohmann::json p_compJson);
 
 		/// @brief Checks if the component and all of its ancestors are active.
 		/// @return true if the component and all of its ancestors are active, otherwise false.
@@ -60,10 +76,22 @@ namespace Droplet::Scene
         void SetActiveSelf(bool p_active);
 
     protected:
-
 		/// @brief Internal rendering function for the component's UI.
+        /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.
-        virtual void RenderInternalUI() {}
+        virtual void RenderUIImpl() {}
+
+		/// @brief Internal serialization function for the component's state.
+        /// 
+		/// Overloaded by derived components to implement their own serialization logic.
+		/// @return A JSON object representing the component's state.
+        [[nodiscard]] virtual nlohmann::json SerializeImpl() { return {}; }
+
+		/// @brief Internal deserialization function for the component's state.
+        /// 
+		/// Overloaded by derived components to implement their own deserialization logic.
+		/// @param p_compJson A JSON object containing the component's state.
+        virtual void DeserializeImpl([[maybe_unused]] nlohmann::json p_compJson) { }
 
     private:
         friend class Node;

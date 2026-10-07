@@ -7,52 +7,64 @@ using namespace Droplet::Graphics;
 
 ShaderCompiler::ShaderCompiler()
 {
-    slang::createGlobalSession(m_globalSession.writeRef());
+    SlangResult res = slang::createGlobalSession(m_globalSession.writeRef());
+    if (SLANG_FAILED(res))
+    {
+        throw std::runtime_error("Failed to initialize Slang Global Session.");
+    }
 }
 
 Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path)
 {
-    [[unlikely]] if (not m_session)
+    Slang::ComPtr<slang::ISession> localSession{};
+    
+    slang::TargetDesc targetDesc
     {
-        slang::TargetDesc targetDesc
-        {
-            .format = SLANG_SPIRV,
-            .profile = m_globalSession->findProfile("spirv_1_6")
-        };
-        
-        std::array<slang::CompilerOptionEntry, 1> options
+        .format = SLANG_SPIRV,
+        .profile = m_globalSession->findProfile("spirv_1_6")
+    };
+    
+    std::array<slang::CompilerOptionEntry, 1> options
+    {
         {
             {
-                {
-                    slang::CompilerOptionName::EmitSpirvDirectly,
-                    {slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr}
-                }
+                slang::CompilerOptionName::EmitSpirvDirectly,
+                {slang::CompilerOptionValueKind::Int, 1, 0, nullptr, nullptr}
             }
-        };
-        
-        slang::SessionDesc sessionDesc 
-        {  
-            .targets = &targetDesc,
-            .targetCount = 1,
-            .defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
-            .compilerOptionEntries = options.data(),
-            .compilerOptionEntryCount = static_cast<std::uint32_t>(options.size()) 
-        };
-        
-        m_globalSession->createSession(sessionDesc, m_session.writeRef());
-    }
+        }
+    };
+    
+    // Tell slang which directory to search in
+    std::string searchDirectory = p_path.parent_path().generic_string();
+    const char* searchPaths[] = { searchDirectory.c_str() };
+    
+    slang::SessionDesc sessionDesc 
+    {  
+        .targets = &targetDesc,
+        .targetCount = 1,
+        .defaultMatrixLayoutMode = SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
+        .searchPaths = searchPaths,
+        .searchPathCount = 1,
+        .compilerOptionEntries = options.data(),
+        .compilerOptionEntryCount = static_cast<std::uint32_t>(options.size()) 
+    };
+    
+    m_globalSession->createSession(sessionDesc, localSession.writeRef());
     
     Slang::ComPtr<slang::IModule> module {};
     
-    // TODO: FIX FILEPATH TO SLANG SHADER
-    
     {
         Slang::ComPtr<slang::IBlob> errorBlob {};
-        module = m_session->loadModule(p_path.filename().string().c_str(), errorBlob.writeRef());
+        std::string moduleName = p_path.stem().string();
+        module = localSession->loadModule(moduleName.c_str(), errorBlob.writeRef());
         
         if (!module)
         {
-            std::print("Shaderc Log:\n{0}", errorBlob->getBufferPointer());
+            // TODO: Use logger for this
+            if (errorBlob)
+            {
+                std::print("Shaderc Log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            }
             
             throw std::runtime_error("Failed to create slang module");
         }
@@ -69,7 +81,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         Slang::ComPtr<slang::IBlob> errorBlob {};
         SlangResult result
         {
-            m_session->createCompositeComponentType
+            localSession->createCompositeComponentType
             (
                 moduleComponent.data(),
                 moduleComponent.size(),
@@ -80,7 +92,11 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            // TODO: Use logger for this
+            if (errorBlob)
+            {
+                std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            }
             throw std::runtime_error("Failed to compose shader program");
         }
     }
@@ -100,7 +116,11 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            // TODO: Use logger for this
+            if (errorBlob)
+            {
+                std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            }
             throw std::runtime_error("Failed to link shader program");
         }
     }
@@ -121,7 +141,11 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            // TODO: Use logger for this
+            if (errorBlob)
+            {
+                std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
+            }
             throw std::runtime_error("Failed to compile shader to SPIR-V");
         }
     }

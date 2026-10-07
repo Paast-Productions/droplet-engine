@@ -1,11 +1,11 @@
 #pragma once
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#include <vector>
-
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
-#include <glm/glm.hpp>
+#include <vector>
 
 namespace Droplet::Graphics::VK
 {
@@ -15,43 +15,57 @@ namespace Droplet::Graphics::VK
 	public:
 		/// @brief Deleted constructor
 		IndexBuffer() = delete;
-
+		
+		IndexBuffer(nullptr_t p_nullptr)
+		{
+			m_indexBuffer = { p_nullptr };
+		}
+		
+		/// @brief Index Buffer constructor
+		/// @param p_allocator VMA RAII Allocator
+		/// @param p_indices Vector containing index data
+		IndexBuffer(const vma::raii::Allocator &p_allocator,
+			const std::vector<std::uint16_t> &p_indices);
+		
+		IndexBuffer(const IndexBuffer &) = delete;
+		IndexBuffer &operator=(const IndexBuffer &) = delete;
+		
+		IndexBuffer(IndexBuffer &&p_other) noexcept
+		{
+			m_indexBuffer = std::move(p_other.m_indexBuffer);
+		}
+		
+		IndexBuffer &operator=(IndexBuffer &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+			
+			m_indexBuffer = std::move(p_other.m_indexBuffer);
+			
+			return *this;
+		}
+		
 		/// @brief Default destructor
 		~IndexBuffer() = default;
-
-		/// @brief Index Buffer constructor
-		/// @param p_device RAII pointer to the Vulkan Device
-		/// @param p_physDevice RAII pointer to the device hardware
-		/// @param p_commandPool RAII pointer to the Command Pool
-		/// @param p_queue RAII pointer to the Vulkan Queue
-		/// @param p_indices Vector containing index data
-		IndexBuffer(vk::raii::Device const &p_device,
-			vk::raii::PhysicalDevice const &p_physDevice,
-			vk::raii::CommandPool const &p_commandPool,
-			vk::raii::Queue const &p_queue,
-			const std::vector<uint16_t> &p_indices);
-
+		
+		bool operator==(const IndexBuffer &p_other) const
+		{
+			return m_indexBuffer == p_other.m_indexBuffer;
+		}
+		
 		/// @brief Getter-function for the index buffer
 		/// @returns Vulkan Buffer Pointer
-		[[nodiscard]] const vk::raii::Buffer *GetIndexBuffer() const;
-		
-		/// @brief Getter-function for the device memory
-		/// @returns Vulkan Device Memory Pointer
-		[[nodiscard]] const vk::raii::DeviceMemory *GetDeviceMemory() const;
+		[[nodiscard]] const vk::raii::Buffer &Get() const;
 		
 	private:
-		vk::raii::Buffer		m_indexBuffer { nullptr };
-		vk::raii::DeviceMemory	m_bufferMemory { nullptr };
+		vma::raii::Buffer m_indexBuffer { nullptr };
 		
 	};
 
-	inline const vk::raii::Buffer *IndexBuffer::GetIndexBuffer() const
+	inline const vk::raii::Buffer &IndexBuffer::Get() const
 	{
-		return &m_indexBuffer;
-	}
-
-	inline const vk::raii::DeviceMemory *IndexBuffer::GetDeviceMemory() const
-	{
-		return &m_bufferMemory;
+		return m_indexBuffer;
 	}
 }
