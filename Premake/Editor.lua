@@ -74,13 +74,13 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "VulkanMemoryAllocator",
         "tracy",
-	    "VulkanMemoryAllocator",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-vc145-mtd"),
-		AddQuotation("lua-5.4.7")
+		    AddQuotation("lua-5.4.7")
     }

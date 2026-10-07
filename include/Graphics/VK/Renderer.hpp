@@ -36,6 +36,7 @@
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
 
+#define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
 
 namespace Droplet{class Engine;}
@@ -57,12 +58,14 @@ namespace Droplet::Graphics
 	class Renderer
 	{
 	public:
+		/// @brief Deleted Constructor
 		Renderer() = delete;
 
 		/// @brief Renderer Constructor
 		/// @param p_windowConfig Requested SDL Window Configuration
 		Renderer(SDL::WindowConfig p_windowConfig);
-		
+
+		/// @brief Destructor
 		~Renderer();
 		
 		/// @brief Renders a singular frame
@@ -75,9 +78,9 @@ namespace Droplet::Graphics
 		/// @returns An SDL Window
 		[[nodiscard]] SDL_Window *GetWindow();
 
-		/// @brief Fills and returns initInfo for ImGui
-		/// @returns ImGui init info
-		ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
+	/// @brief Fills and returns initInfo for ImGui
+	/// @return ImGui init info
+	void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
 
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
@@ -151,8 +154,6 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		void UpdateCamera(float p_deltaTime);
-
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
@@ -181,11 +182,20 @@ namespace Droplet::Graphics
 		VK::IndexBuffer	m_indexBuffer { nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
+		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
+
+		VkFormat m_imGuiColorFormat;
+
 		//Needs one buffer per frame in flight to avoid read write issues
 		
 		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
 		
+		//Index for rendered frames
 		std::uint32_t							 m_frameIndex = 0;
+
+		//Latest received swapchain result
+		vk::Result m_result;
+		std::uint32_t m_imageIndex;
 
 		bool								 m_framebufferResized = false;
 		

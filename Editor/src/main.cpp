@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <Graphics/VK/Renderer.hpp>
+#include <GameInput.hpp>
+
 
 #include <tracy/public/tracy/Tracy.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
@@ -17,9 +19,7 @@ Droplet::Graphics::SDL::WindowConfig config =
 	.Height = 720,
 	.Flags = 0
 };
-
-Droplet::Graphics::Renderer g_rend(config);
-
+ 
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
@@ -36,7 +36,7 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	// TODO: Close Droplet Engine
 }
 
-static void InitImGui([[maybe_unused]] SDL_Window *window)
+[[maybe_unused]] static void InitImGui([[maybe_unused]] SDL_Window *window)
 {
 	ZoneScoped;
 
@@ -46,9 +46,9 @@ static void InitImGui([[maybe_unused]] SDL_Window *window)
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForVulkan(window);
 
-	ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
+	//ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
 
-	ImGui_ImplVulkan_Init(&init_info);
+	//ImGui_ImplVulkan_Init(&init_info);
 
 
 	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
@@ -82,7 +82,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	DropletInstance *instance = Soak();
 
-	SDL_Window *wnd = g_rend.GetWindow();
+	Droplet::Graphics::Renderer rend(config);
+
+	SDL_Window *wnd = rend.GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -92,13 +94,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+    
+	ImGui_ImplSDL3_InitForVulkan(wnd);
 
-	InitImGui(wnd);
-	FrameMark;
+	ImGui_ImplVulkan_InitInfo init_info = {};
+	rend.GetImGuiInitInfo(init_info);
+	ImGui_ImplVulkan_Init(&init_info);
+
+	//InitImGui(wnd);
 
 	// Run main loop
 	bool done = false;
@@ -108,15 +115,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		// TODO: Update engine
 
+		Droplet::GameInput::Get().Update();
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL3_ProcessEvent(&event);
 			if (event.type == SDL_EVENT_QUIT)
+			{
 				done = true;
+			}
+
+			Droplet::GameInput::Get().ProcessEvent(event);
 		}
 
-		NewFrame();
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
 
 		if (show_demo_window)
 		{
@@ -160,21 +175,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			}
 			ImGui::End();
 		}
+		
+		rend.DrawFrame();
 
-		SubmitFrame(wnd);
-
-
-		ImGui::Render();
-		g_rend.DrawFrame();
-
-		g_rend.WaitIdle();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-
-		FrameMark;
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
 	}
 
-	g_rend.WaitIdle();
+	rend.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 
