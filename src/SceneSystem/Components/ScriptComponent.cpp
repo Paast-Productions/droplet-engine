@@ -24,12 +24,6 @@ void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
 }
 
-void ScriptComponent::RenderInternalUI()
-{
-	// TODO: Handle case where script does not have a RenderUI function.
-	Call("RenderUI");
-}
-
 const std::string &ScriptComponent::GetScriptPath() const
 {
     return m_scriptPath;
@@ -50,20 +44,24 @@ void ScriptComponent::DeactivateScript()
     ScriptSystem::Get().DeactivateComponentScript(this);
 }
 
-void Droplet::Scene::ScriptComponent::RenderUIImpl()
+void ScriptComponent::RenderUIImpl()
 {
     ScriptSystem::Get().Call(this, "RenderUI");
 }
-nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
+
+nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
 
     json["type"] = "ScriptComponent";
     json["filepath"] = GetScriptPath();
 
+    // TODO
+
     return json;
 }
 
-void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+void ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
 {
+    // TODO
 }
