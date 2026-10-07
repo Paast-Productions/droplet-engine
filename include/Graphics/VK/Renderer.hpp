@@ -35,6 +35,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 
 #include <ImGui/imgui_impl_vulkan.h>
 
@@ -87,6 +88,8 @@ namespace Droplet::Graphics
 		/// @param p_yOffset position on the screen along the y-axis
 		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
 
+		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
+
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
 		
@@ -114,6 +117,7 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
+		void					RecoredRenderTargetCommandBuffer(RenderTarget &p_renderTarget);
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();

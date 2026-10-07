@@ -4,6 +4,11 @@
 
 using namespace Droplet::Editor::Scene;
 
+void SceneViewWindow::InitImpl()
+{
+	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(1280, 720);
+}
+
 void SceneViewWindow::RenderImpl()
 {
 	ImGui::Text("SCENE VIEW TEST");

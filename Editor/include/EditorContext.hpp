@@ -3,11 +3,14 @@
 #include "../../include/SceneSystem/Scene.hpp"
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
+#include <Graphics/VK/Renderer.hpp>
 namespace Droplet::Editor
 {
 	class EditorContext {
 	public:
-		EditorContext();
+		EditorContext(Droplet::Graphics::Renderer &p_renderer);
+
+		Droplet::Graphics::Renderer &GetRenderer();
 
 		Scene::EditorCamera &GetEditorCamera();
 		Scene::EditorCameraController &GetEditorCameraController();
@@ -17,6 +20,8 @@ namespace Droplet::Editor
 		void SetScene(std::shared_ptr<Droplet::Scene::Scene> p_scene);
 
 	private:
+
+		Droplet::Graphics::Renderer &m_renderer;
 
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
