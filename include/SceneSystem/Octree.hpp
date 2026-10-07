@@ -3,9 +3,9 @@
 #include <glm\fwd.hpp>
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include <math/bounds/AABB.hpp>
-
-#include "Node.hpp"
+#include "SceneSystem/Node.hpp"
 
 namespace Droplet::Scene
 {
@@ -42,44 +42,47 @@ namespace Droplet::Scene
 	private:
 		struct TreeNode;
 
+		/// @brief Helper function for updating Nodes in the octree
+		/// @param p_treeNode The TreeNode element to recurse, checking if needs to be updated
+		void UpdateTreeNode(std::unique_ptr<TreeNode> &p_treeNode);
+
 		/// @brief Helper function for adding elements to the octree
-		/// @param p_element The element to be added to the octree
+		/// @param p_node The Node to be added to the octree
 		/// @param p_treeNode The TreeNode where the Node element should be set
-		void AddToTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_treeNode);
+		void AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Helper function for removing elements from the octree
-		/// @param p_element The element to be removed
+		/// @param p_node The Node to be removed
 		/// @param p_treeNode The TreeNode where to check for the Node element
-		void RemoveFromTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_treeNode);
+		void RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode);
 
-		/// @brief Slices a bounding volume into eights
-		/// @param p_boundingBox The box to be sliced
-		void SliceVolumeBoxes(const Droplet::Math::AABB &p_parentVolume, Droplet::Math::AABB *p_childVolumes);
+		/// @brief Subdivides a octant into eights
+		/// @param p_parentOctant The octant to be subdivided
+		/// @param[out] p_childOctants The subdivided octants
+		void SubdivideOctant(const Droplet::Math::AABB &p_parentOctant, std::vector<Droplet::Math::AABB> &p_childOctants);
 
 		/// @brief Helper function for getting Node instances intersecting with frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Droplet::Math::Frustum &p_frustum, 
-			const TreeNode *p_treeNode);
+			const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Helper function for checking frustum culling
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum 
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const TreeNode *p_treeNode);
+		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_CHILDREN = 8;
 		static constexpr std::uint8_t C_MAX_DEPTH = 4;
 
 		struct TreeNode
 		{
-			bool isLeafNode = true;
-			Droplet::Math::AABB volume;
+			Droplet::Math::AABB octant;
 			std::uint8_t level = 0;
 
-			std::shared_ptr<Node> element;
-			std::uint8_t totalChildren = 0;
-			std::unique_ptr<TreeNode> children[C_MAX_CHILDREN] = { nullptr };
+			std::shared_ptr<Node> node;
+			std::vector<std::unique_ptr<TreeNode>> children;
 		};
 
 		bool m_isInitialized = false;
