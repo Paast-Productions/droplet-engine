@@ -53,8 +53,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	{
 		const VK::UniformBufferObject ubo
 		{
-			.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-			.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.model = glm::rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+			.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
 		};
 
@@ -69,7 +69,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		78400,
 		G_CATDIM,
 		G_CATDIM,
-		vk::Format::eR8G8B8A8Srgb,
+		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
@@ -79,7 +79,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_textureView = {
 		m_context.GetDevice(),
 		m_image.Get(),
-		vk::Format::eR8G8B8A8Srgb,
+		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageAspectFlagBits::eColor
 	};
 	
@@ -371,7 +371,7 @@ void Renderer::DrawFrame()
 	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
 	s_lastFrameTime = currentTime;
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-			//       while renderFinishedSemaphores is indexed by imageIndex
+	//while renderFinishedSemaphores is indexed by imageIndex
 	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
 	if (fenceResult != vk::Result::eSuccess)
 	{
@@ -411,8 +411,20 @@ void Renderer::DrawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 	// old code
-
+	float rotation;
 	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	
+	ImGui::Begin("Camera");
+	ImGui::Text("%f", m_camera.GetPosition().x);
+	ImGui::Text("%f", m_camera.GetPosition().y);
+	ImGui::Text("%f", m_camera.GetPosition().z);
+	ImGui::Text("%f", m_camera.GetForward().x);
+	ImGui::Text("%f", m_camera.GetForward().y);
+	ImGui::Text("%f", m_camera.GetForward().z);
+	ImGui::Text("%f", deltaTime);
+
+	ImGui::SliderFloat("Roration", &rotation, 0, 360);
+	ImGui::End();
 
 	const auto extent = m_swapchain.GetExtent();
 
@@ -422,7 +434,7 @@ void Renderer::DrawFrame()
 
 	VK::UniformBufferObject ubo
 	{
-		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.model = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.view = m_camera.GetViewMatrix(),
 		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
@@ -431,6 +443,9 @@ void Renderer::DrawFrame()
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
+
+	ImGui::EndFrame();
+	ImGui::Render();
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
 	RecordCommandBuffer(m_imageIndex);

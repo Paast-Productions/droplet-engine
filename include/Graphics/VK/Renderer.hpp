@@ -154,8 +154,6 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		void UpdateCamera(float p_deltaTime);
-
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };

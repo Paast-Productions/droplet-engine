@@ -4,6 +4,8 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <Graphics/VK/Renderer.hpp>
+#include <GameInput.hpp>
+
 
 #include <tracy/public/tracy/Tracy.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
@@ -34,7 +36,7 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 	// TODO: Close Droplet Engine
 }
 
-static void InitImGui([[maybe_unused]] SDL_Window *window)
+[[maybe_unused]] static void InitImGui([[maybe_unused]] SDL_Window *window)
 {
 	ZoneScoped;
 
@@ -80,7 +82,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	DropletInstance *instance = Soak();
 
-	rend.Initialize();
+	Droplet::Graphics::Renderer rend(config);
 
 	SDL_Window *wnd = rend.GetWindow();
 	if (!wnd)
@@ -113,12 +115,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		// TODO: Update engine
 
+		Droplet::GameInput::Get().Update();
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
 			ImGui_ImplSDL3_ProcessEvent(&event);
 			if (event.type == SDL_EVENT_QUIT)
+			{
 				done = true;
+			}
+
+			Droplet::GameInput::Get().ProcessEvent(event);
 		}
 
 		ImGui_ImplVulkan_NewFrame();
@@ -167,12 +175,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			}
 			ImGui::End();
 		}
-
-		
-
-		ImGui::EndFrame();
-
-		ImGui::Render();
 		
 		rend.DrawFrame();
 
@@ -183,7 +185,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		}
 	}
 
-	g_rend.WaitIdle();
+	rend.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
 
