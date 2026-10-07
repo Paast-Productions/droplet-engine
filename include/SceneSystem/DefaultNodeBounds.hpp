@@ -60,7 +60,7 @@ namespace Droplet::Scene
         /// @brief Performs a raycast against the default node bounds and returns information about the hit.
         /// @param p_ray The ray to cast.
 	    /// @return A RayHit struct containing information about the hit, including the hit point, normal, distance, and whether a hit occurred.
-        Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray) const override
+        [[nodiscard]] Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray) const override
         {
             return Droplet::Math::Raycast(p_ray, m_aabb);
         }
