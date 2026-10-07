@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <array>
 #include <math/bounds/AABB.hpp>
 #include "SceneSystem/Node.hpp"
 
@@ -45,7 +46,7 @@ namespace Droplet::Scene
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
 		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
-		void CollectDirtyNodes(std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes);
+		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes);
 
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_node The Node to be added to the octree
@@ -82,8 +83,9 @@ namespace Droplet::Scene
 			Droplet::Math::AABB octant;
 			std::uint8_t level = 0;
 
-			std::shared_ptr<Node> node;
-			std::vector<std::unique_ptr<TreeNode>> children;
+			std::vector<std::shared_ptr<Node>> nodes;
+			std::array<std::unique_ptr<TreeNode>, 8> children;
+			bool isSubdivided = false;
 		};
 
 		bool m_isInitialized = false;
