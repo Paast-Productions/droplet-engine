@@ -1,6 +1,8 @@
 #include "Octree.hpp"
 
 #include <glm\fwd.hpp>
+#include <algorithm>
+#include <array>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -39,6 +41,8 @@ namespace Droplet::Scene
 			return;
 		}
 
+		// Collect dirty nodes into a temporary list first to avoid mutating 
+		// the octree during traversal (prevents iterator invalidation crashes)
 		std::vector<std::shared_ptr<Node>> dirtyNodes;
 		CollectDirtyNodes(m_root, dirtyNodes);
 
@@ -77,82 +81,88 @@ namespace Droplet::Scene
 		return nodes;
 	}
 
-	void Octree::CollectDirtyNodes(std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
+	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
 	{
 		if (p_treeNode == nullptr)
 		{
 			return;
 		}
 
-		for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+		// Check stored Nodes in the current TreeNode
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
 		{
-			CollectDirtyNodes(child, p_dirtyNodes);
-
-			if (child->node->GetTransform().IsDirty())
+			if (node != nullptr && node->GetTransform().IsDirty())
 			{
-				p_dirtyNodes.push_back(child->node);
+				p_dirtyNodes.push_back(node);
+			}
+		}
+
+		// Recurse into children if subdivided
+		if (p_treeNode->isSubdivided)
+		{
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child != nullptr)
+				{
+					CollectDirtyNodes(child, p_dirtyNodes);
+				}
 			}
 		}
 	}
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		if (p_treeNode->level > C_MAX_DEPTH)
+		// Early outs
+		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
+			p_node->GetBounds()->Intersect(p_treeNode->octant) == IntersectType::None)
 		{
-			// Log info/warning: Node could not be added to octree due to max depth has been reached.
 			return;
 		}
 
-		// Check if element bounding box intersects with TreeNode volume.
-		if (p_node->GetBounds()->Intersect(p_treeNode->octant) == IntersectType::None)
+		// If already subdivided, pass directly to matching child octants
+		if (p_treeNode->isSubdivided)
 		{
-			// Log info/warning: Node could not be added to octree due to Node being outside the octree.
-			return;
-		}
-
-		if (p_treeNode->node == nullptr) // Adds the node to the tree
-		{
-			if (p_treeNode->children.size() < C_MAX_CHILDREN)
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				p_treeNode->children.emplace_back(std::make_unique<TreeNode>());
-				p_treeNode->children.back()->level = p_treeNode->level + 1;
-				p_treeNode->children.back()->node = p_node;
-			}
-			else // Subdivides the octant
-			{
-				std::vector<AABB> octants;
-				std::vector<std::shared_ptr<Node>> nodes;
-				SubdivideOctant(p_treeNode->octant, octants);
-
-				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
+				if (child != nullptr && p_node->GetBounds()->Intersect(child->octant) != IntersectType::None)
 				{
-					nodes.push_back(p_treeNode->children[i]->node);
-
-					p_treeNode->children[i] = std::make_unique<TreeNode>();
-					p_treeNode->children[i]->octant = octants[i];
-					p_treeNode->children[i]->node = nullptr;
+					AddToTreeNode(p_node, child);
 				}
+			}
+			return;
+		}
 
-				// All children of p_treeNode are now spatial octants
-				// For each Node, check if it intersects with each octant before adding it to the tree
+		// Otherwise, store the node in this leaf
+		p_treeNode->nodes.push_back(p_node);
+
+		// Subdivide if capacity is exceeded and max depth is not reached
+		if (p_treeNode->nodes.size() > C_MAX_CHILDREN && p_treeNode->level < C_MAX_DEPTH)
+		{
+			std::vector<AABB> octants;
+			SubdivideOctant(p_treeNode->octant, octants);
+
+			for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
+			{
+				p_treeNode->children[i] = std::make_unique<TreeNode>();
+				p_treeNode->children[i]->octant = octants[i];
+				p_treeNode->children[i]->level = p_treeNode->level + 1;
+			}
+
+			p_treeNode->isSubdivided = true;
+
+			// Push existing Nodes down into matching child octants
+			for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+			{
 				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
-					for (const std::shared_ptr<Node> &node : nodes)
+					if (node->GetBounds()->Intersect(child->octant) != IntersectType::None)
 					{
-						if (node->GetBounds()->Intersect(child->octant) != IntersectType::None)
-						{
-							AddToTreeNode(node, child);
-						}
+						AddToTreeNode(node, child);
 					}
 				}
 			}
-		}
 
-		// Current TreeNode is a parent octant
-		// Add the Node to child octants of the current TreeNode
-		for (std::unique_ptr<TreeNode> &c : p_treeNode->children)
-		{
-			AddToTreeNode(p_node, c);
+			p_treeNode->nodes.clear(); // Clear local storage after redistributing down
 		}
 	}
 
@@ -163,41 +173,54 @@ namespace Droplet::Scene
 			return;
 		}
 
-		if (p_treeNode->node == p_node) // The TreeNode contains the target Node
+		// Remove target Node from local storage if present
+		std::vector<std::shared_ptr<Node>>::iterator it = std::remove(p_treeNode->nodes.begin(), p_treeNode->nodes.end(), p_node);
+		if (it != p_treeNode->nodes.end())
 		{
-			p_treeNode->node = nullptr;
+			p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
 		}
-		else if (!p_treeNode->children.empty()) // The TreeNode is an octant
+
+		// Recurse down if subdivided
+		if (p_treeNode->isSubdivided)
 		{
 			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				RemoveFromTreeNode(p_node, child);
-			}
-
-			// Check if all children are empty for merging child octants
-			bool canMerge = true;
-			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
-			{
-				// A child is not empty, don't merge child octants
-				if (child->node != nullptr || !child->children.empty())
+				if (child != nullptr)
 				{
-					canMerge = false;
-					break;
+					RemoveFromTreeNode(p_node, child);
 				}
 			}
 
-			// Merge child octants by destroying the children
+			// Bottom-Up Merging: Check if all child octants are empty
+			bool canMerge = true;
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child != nullptr)
+				{
+					if (child->isSubdivided || !child->nodes.empty())
+					{
+						canMerge = false;
+						break;
+					}
+				}
+			}
+
+			// Reset children pointers and mark as un-subdivided
 			if (canMerge)
 			{
-				p_treeNode->children.clear();
+				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+				{
+					child.reset();
+				}
+				p_treeNode->isSubdivided = false;
 			}
 		}
 	}
 
 	void Octree::SubdivideOctant(const AABB &p_parentOctant, std::vector<AABB> &p_childOctants)
 	{
-		glm::vec3 c = p_parentOctant.center; // Center of the parent volume
-		glm::vec3 h = p_parentOctant.extents / glm::vec3(2.0f); // Half of the parent volume extents
+		glm::vec3 c = p_parentOctant.center;
+		glm::vec3 h = p_parentOctant.extents / glm::vec3(2.0f);
 
 		p_childOctants.emplace_back(AABB(glm::vec3(c.x + h.x, c.y + h.y, c.z + h.z), h)); // +x +y +z
 		p_childOctants.emplace_back(AABB(glm::vec3(c.x - h.x, c.y + h.y, c.z + h.z), h)); // -x +y +z
@@ -212,16 +235,27 @@ namespace Droplet::Scene
 	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
 		const std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
 		switch (Intersects(p_frustum, p_treeNode->octant))
 		{
 		case IntersectType::None:
 			return;
 		case IntersectType::Intersects:
-			if (p_treeNode->node != nullptr) // TreeNode is a Node element
+			// Check individual nodes stored in this leaf
+			for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
 			{
-				p_nodes.push_back(p_treeNode->node);
+				if (node != nullptr && node->GetBounds()->Intersect(p_frustum) != IntersectType::None)
+				{
+					p_nodes.push_back(node);
+				}
 			}
-			else // TreeNode is a volume box
+
+			// Recurse into child octants
+			if (p_treeNode->isSubdivided)
 			{
 				for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
@@ -233,25 +267,24 @@ namespace Droplet::Scene
 			}
 			break;
 		case IntersectType::Contains:
-			if (p_treeNode->node != nullptr) // TreeNode is a Node element
-			{
-				p_nodes.push_back(p_treeNode->node);
-			}
-			else // TreeNode is a volume box
-			{
-				AddAllNodeElements(p_nodes, p_treeNode);
-			}
+			AddAllNodeElements(p_nodes, p_treeNode);
 			break;
 		}
 	}
 
 	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		if (p_treeNode->node != nullptr) // TreeNode is a Node element
+		if (p_treeNode == nullptr)
 		{
-			p_nodes.push_back(p_treeNode->node);
+			return;
 		}
-		else // TreeNode is a volume box
+
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			p_nodes.push_back(node);
+		}
+
+		if (p_treeNode->isSubdivided)
 		{
 			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
