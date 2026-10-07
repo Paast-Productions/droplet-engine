@@ -1,10 +1,14 @@
 #include "Octree.hpp"
 
-#include <Node.hpp>
 #include <glm\fwd.hpp>
 #include <cstdint>
 #include <memory>
+#include <vector>
 #include <math/bounds/Intersection.hpp>
+#include <math/bounds/AABB.hpp>
+#include <math/bounds/Frustum.hpp>
+#include <SceneSystem/Node.hpp>
+#include <SceneSystem/DefaultNodeBounds.hpp>
 
 using namespace Droplet::Math;
 
@@ -23,7 +27,7 @@ namespace Droplet::Scene
 		}
 
 		m_root = std::make_unique<TreeNode>();
-		m_root->volume = Droplet::Math::AABB(p_center, p_extents);
+		m_root->octant = AABB(p_center, p_extents);
 
 		m_isInitialized = true;
 	}
@@ -35,7 +39,7 @@ namespace Droplet::Scene
 			return;
 		}
 
-		// TODO: Implement update
+		UpdateTreeNode(m_root);
 	}
 
 	void Octree::AddNode(const std::shared_ptr<Node> p_node)
@@ -61,126 +65,147 @@ namespace Droplet::Scene
 	std::vector<std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
 	{
 		std::vector<std::shared_ptr<Node>> nodes;
-		CheckIntersection(nodes, p_frustum, m_root.get());
+		CheckIntersection(nodes, p_frustum, m_root);
 
 		return nodes;
 	}
 
-	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node)
+	void Octree::UpdateTreeNode(std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		if (p_node->level > C_MAX_DEPTH)
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		if (p_treeNode->node == nullptr) // TreeNode is octant
+		{
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				UpdateTreeNode(child);
+			}
+		}
+		else // TreeNode is Node
+		{
+			if (p_treeNode->node->GetTransform().IsDirty())
+			{
+				std::shared_ptr<Node> temp = p_treeNode->node;
+				RemoveNode(p_treeNode->node);
+				AddNode(temp);
+			}
+		}
+	}
+
+	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_treeNode->level > C_MAX_DEPTH)
 		{
 			// Log info/warning: Node could not be added to octree due to max depth has been reached.
 			return;
 		}
 
 		// Check if element bounding box intersects with TreeNode volume.
-		if (p_element->GetBounds()->Intersect(p_node->volume) == IntersectType::None)
+		if (p_node->GetBounds()->Intersect(p_treeNode->octant) == IntersectType::None)
 		{
 			// Log info/warning: Node could not be added to octree due to Node being outside the octree.
 			return;
 		}
 
-		if (p_node->isLeafNode)
+		if (p_treeNode->node == nullptr) // Adds the node to the tree
 		{
-			if (p_node->totalChildren < C_MAX_CHILDREN)
+			if (p_treeNode->children.size() < C_MAX_CHILDREN)
 			{
+				p_treeNode->children.emplace_back(std::make_unique<TreeNode>());
+				p_treeNode->children.back()->level = p_treeNode->level + 1;
+				p_treeNode->children.back()->node = p_node;
+			}
+			else // Subdivides the octant
+			{
+				std::vector<AABB> octants;
+				SubdivideOctant(p_treeNode->octant, octants);
+
 				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
 				{
-					if (p_node->children[i] == nullptr)
-					{
-						p_node->children[i] = std::make_unique<TreeNode>();
-						p_node->children[i]->level++;
-						p_node->children[i]->element = p_element;
-						p_node->totalChildren++;
-						return;
-					}
+					std::shared_ptr<Node> node = p_treeNode->children[i]->node;
+
+					p_treeNode->children[i] = std::make_unique<TreeNode>();
+					p_treeNode->children[i]->octant = octants[i];
+					p_treeNode->children[i]->node = nullptr;
+
+					AddToTreeNode(node, p_treeNode->children[i]);
 				}
 			}
-			else
+		}
+
+		// Current TreeNode is a parent octant
+		// Add the Node to child octants of the current TreeNode
+		for (std::unique_ptr<TreeNode> &c : p_treeNode->children)
+		{
+			AddToTreeNode(p_node, c);
+		}
+	}
+
+	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_node == nullptr || p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		if (p_treeNode->node != nullptr)
+		{
+			p_treeNode->node = nullptr;
+		}
+		else
+		{
+			for (std::unique_ptr<TreeNode> &t : p_treeNode->children)
 			{
-				AABB volumes[C_MAX_CHILDREN];
-				SliceVolumeBoxes(p_node->volume, volumes);
-
-				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
-				{
-					std::shared_ptr<Node> node = p_node->children[i]->element;
-
-					p_node->children[i] = std::make_unique<TreeNode>();
-					p_node->children[i]->isLeafNode = false;
-					p_node->children[i]->volume = volumes[i];
-					p_node->children[i]->totalChildren = C_MAX_CHILDREN;
-					p_node->children[i]->element = nullptr;
-
-					AddToTreeNode(node, p_node->children[i]);
-				}
+				RemoveFromTreeNode(p_node, t);
 			}
 		}
 	}
 
-	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_element, std::unique_ptr<TreeNode> &p_node)
+	void Octree::SubdivideOctant(const AABB &p_parentOctant, std::vector<AABB> &p_childOctants)
 	{
-		for (std::unique_ptr<TreeNode> &c : p_node->children)
-		{
-			if (c == nullptr)
-			{
-				continue;
-			}
+		glm::vec3 c = p_parentOctant.center; // Center of the parent volume
+		glm::vec3 h = p_parentOctant.extents / glm::vec3(2.0f); // Half of the parent volume extents
 
-			if (c->isLeafNode && c->element == p_element)
-			{
-				c = nullptr;
-				p_node->totalChildren--;
-			}
-			else
-			{
-				RemoveFromTreeNode(p_element, c);
-			}
-		}
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x + h.x, c.y + h.y, c.z + h.z), h)); // +x +y +z
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x - h.x, c.y + h.y, c.z + h.z), h)); // -x +y +z
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x + h.x, c.y - h.y, c.z + h.z), h)); // +x -y +z 
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z + h.z), h)); // -x -y +z 
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x + h.x, c.y + h.y, c.z - h.z), h)); // +x +y -z 
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x - h.x, c.y + h.y, c.z - h.z), h)); // -x +y -z 
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x + h.x, c.y - h.y, c.z - h.z), h)); // +x -y -z 
+		p_childOctants.emplace_back(AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h)); // -x -y -z 
 	}
 
-	void Octree::SliceVolumeBoxes(const Droplet::Math::AABB &p_parentVolume, Droplet::Math::AABB *p_childVolumes)
+	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
+		const std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		glm::vec3 c = p_parentVolume.center; // Center of the parent volume
-		glm::vec3 h = p_parentVolume.extents.x / glm::vec3(2.0f); // Half of the parent volume extents
-
-		p_childVolumes[0] = AABB(glm::vec3(c.x + h.x, c.y + h.y, c.z + h.z), h); // +x +y +z
-		p_childVolumes[1] = AABB(glm::vec3(c.x - h.x, c.y + h.y, c.z + h.z), h); // -x +y +z
-		p_childVolumes[2] = AABB(glm::vec3(c.x + h.x, c.y - h.y, c.z + h.z), h); // +x -y +z 
-		p_childVolumes[3] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z + h.z), h); // -x -y +z 
-		p_childVolumes[4] = AABB(glm::vec3(c.x + h.x, c.y + h.y, c.z - h.z), h); // +x +y -z 
-		p_childVolumes[5] = AABB(glm::vec3(c.x - h.x, c.y + h.y, c.z - h.z), h); // -x +y -z 
-		p_childVolumes[6] = AABB(glm::vec3(c.x + h.x, c.y - h.y, c.z - h.z), h); // +x -y -z 
-		p_childVolumes[7] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h); // -x -y -z 
-	}
-
-	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Droplet::Math::Frustum &p_frustum,
-		const TreeNode *p_treeNode)
-	{
-		switch (Intersects(p_frustum, p_treeNode->volume))
+		switch (Intersects(p_frustum, p_treeNode->octant))
 		{
 		case IntersectType::None:
 			return;
 		case IntersectType::Intersects:
-			if (p_treeNode->isLeafNode) // TreeNode is a Node element
+			if (p_treeNode->node != nullptr) // TreeNode is a Node element
 			{
-				p_nodes.push_back(p_treeNode->element);
+				p_nodes.push_back(p_treeNode->node);
 			}
 			else // TreeNode is a volume box
 			{
-				for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
+				for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
-					if (p_treeNode->children[i] != nullptr)
+					if (child != nullptr)
 					{
-						CheckIntersection(p_nodes, p_frustum, p_treeNode->children[i].get());
+						CheckIntersection(p_nodes, p_frustum, child);
 					}
 				}
 			}
 			break;
 		case IntersectType::Contains:
-			if (p_treeNode->isLeafNode) // TreeNode is a Node element
+			if (p_treeNode->node != nullptr) // TreeNode is a Node element
 			{
-				p_nodes.push_back(p_treeNode->element);
+				p_nodes.push_back(p_treeNode->node);
 			}
 			else // TreeNode is a volume box
 			{
@@ -190,11 +215,11 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const TreeNode *p_treeNode)
+	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		if (p_treeNode->isLeafNode) // TreeNode is a Node element
+		if (p_treeNode->node != nullptr) // TreeNode is a Node element
 		{
-			p_nodes.push_back(p_treeNode->element);
+			p_nodes.push_back(p_treeNode->node);
 		}
 		else // TreeNode is a volume box
 		{
@@ -202,7 +227,7 @@ namespace Droplet::Scene
 			{
 				if (child != nullptr)
 				{
-					AddAllNodeElements(p_nodes, child.get());
+					AddAllNodeElements(p_nodes, child);
 				}
 			}
 		}
