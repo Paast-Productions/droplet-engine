@@ -38,6 +38,7 @@
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
+#undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
 namespace Droplet{class Engine;}
 
@@ -116,9 +117,6 @@ namespace Droplet::Graphics
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();
-		
-		/// @brief Creates the descriptorsets
-		void					CreateDescriptorSets();
 
 		/// @brief Creates sync objects for preventing race conditions etc
 		void					CreateSyncObjects();

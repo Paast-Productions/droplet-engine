@@ -4,6 +4,7 @@ project "Editor"
     location(projectsPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
     local vkPath = os.getenv("VULKAN_SDK")
