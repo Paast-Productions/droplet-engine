@@ -11,6 +11,7 @@
 #include <math/bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/DefaultNodeBounds.hpp>
+#include <Debug/Logger.hpp>
 
 using namespace Droplet::Math;
 
@@ -90,7 +91,7 @@ namespace Droplet::Scene
 		// Check stored Nodes in the current TreeNode
 		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
 		{
-			if (node != nullptr && node->GetTransform().IsDirty())
+			if (node != nullptr && node->GetTransform().HasBeenChanged())
 			{
 				p_dirtyNodes.push_back(node);
 			}
@@ -111,10 +112,14 @@ namespace Droplet::Scene
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		using namespace Droplet::Debug;
+		Logger &logger = Logger::GetInstance();
+
 		// Early outs
 		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
-			p_node->GetBounds()->Intersect(p_treeNode->octant) == IntersectType::None)
+			p_node->GetBounds()->Intersect(p_treeNode->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::None)
 		{
+			logger.Log(Logger::LogType::Info, "Node was not added to Octree");
 			return;
 		}
 
@@ -123,7 +128,12 @@ namespace Droplet::Scene
 		{
 			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				if (child != nullptr && p_node->GetBounds()->Intersect(child->octant) != IntersectType::None)
+				if (child == nullptr)
+				{
+					continue;
+				}
+
+				if (p_node->GetBounds()->Intersect(child->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 				{
 					AddToTreeNode(p_node, child);
 				}
@@ -154,9 +164,10 @@ namespace Droplet::Scene
 			{
 				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
-					if (node->GetBounds()->Intersect(child->octant) != IntersectType::None)
+					if (node->GetBounds()->Intersect(child->octant, node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 					{
 						AddToTreeNode(node, child);
+						logger.Log(Logger::LogType::Info, "Node was added");
 					}
 				}
 			}
@@ -247,7 +258,12 @@ namespace Droplet::Scene
 			// Check individual nodes stored in this leaf
 			for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
 			{
-				if (node != nullptr && node->GetBounds()->Intersect(p_frustum) != IntersectType::None)
+				if (node == nullptr)
+				{
+					continue;
+				}
+
+				if (node->GetBounds()->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 				{
 					p_nodes.push_back(node);
 				}
