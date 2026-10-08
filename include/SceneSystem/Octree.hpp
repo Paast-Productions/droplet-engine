@@ -38,7 +38,8 @@ namespace Droplet::Scene
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
-		std::vector<std::shared_ptr<Node>> GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum);
+		/// @param[out] p_outNodes The vector with Nodes to be rendered
+		void GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes);
 
 	private:
 		struct TreeNode;
