@@ -185,6 +185,8 @@ void SceneManager::Render()
 
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)
 {
+    ZoneScoped;
+
     SceneSerializer serializer;
     nlohmann::json json;
 
@@ -194,6 +196,8 @@ void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scen
 
 void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
 {
+    ZoneScoped;
+
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
 

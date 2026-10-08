@@ -1,4 +1,5 @@
 #include "Time.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
@@ -10,6 +11,8 @@ namespace Droplet
 
 	void Time::Update()
 	{
+		ZoneScoped;
+
 		std::chrono::high_resolution_clock::time_point now = GetCurrentTime();
 
 		m_deltaTime = std::chrono::duration<float>(now - m_lastTime).count();
