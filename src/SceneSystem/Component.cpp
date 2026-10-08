@@ -8,7 +8,6 @@ using namespace Droplet::Scene;
 Droplet::Scene::Component::Component()
 {
 	ZoneScoped;
-	ZoneText(GetTypeName().data(), GetTypeName().size());
 
 }
 
