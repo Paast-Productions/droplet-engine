@@ -33,6 +33,7 @@ RenderTarget::RenderTarget(
 
 }
 
+
 VK::Image &RenderTarget::GetColorImage()
 {
 	return m_colorImage;

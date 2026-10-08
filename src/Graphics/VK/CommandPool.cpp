@@ -81,7 +81,7 @@ std::size_t Droplet::Graphics::VK::CommandPool::Allocate(const vk::raii::Device 
 	return ids;
 }*/
 
-const vk::raii::CommandBuffer &CommandPool::GetBufferAt(const std::size_t p_id)
+vk::raii::CommandBuffer &CommandPool::GetBufferAt(const std::size_t p_id)
 {
 	assert(p_id < m_commandBuffers.size());
 	return m_commandBuffers.at(p_id);

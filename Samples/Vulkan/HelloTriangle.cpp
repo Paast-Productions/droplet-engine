@@ -46,7 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				
 			}
 		}
-		rnd.DrawFrame();
+		//rnd.DrawFrame();
 	}
     
     return 0;

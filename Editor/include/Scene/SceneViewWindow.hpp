@@ -17,6 +17,7 @@ namespace Droplet::Editor::Scene
 		SceneViewWindow(EditorContext *p_editorContext) :  m_editorContext(p_editorContext){}
 		~SceneViewWindow() = default;
 
+		Droplet::Graphics::RenderTarget &GetRenderTarget();
 	protected:
 
 		void InitImpl() override;
@@ -24,9 +25,10 @@ namespace Droplet::Editor::Scene
 		/// @brief Renders the editor camera view and handles user interactions within the scene view window.
 		void RenderImpl() override;
 
+
 	private:
 
-		std::unique_ptr<EditorContext> m_editorContext;
+		EditorContext *m_editorContext = nullptr;
 
 		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
 		//EditorCamera m_editorCamera;

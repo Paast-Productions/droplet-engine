@@ -28,3 +28,7 @@ Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractio
 {
 	return m_interactionState;
 }
+Droplet::Graphics::Renderer &Droplet::Editor::EditorContext::GetRenderer()
+{
+	return m_renderer;
+}

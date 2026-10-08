@@ -129,7 +129,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	InitImGui(wnd, rend);
 	FrameMark;
 
-	Droplet::Editor::EditorContext editorContext;
+	Droplet::Editor::EditorContext editorContext(rend);
 	Droplet::Editor::Scene::SceneViewWindow sceneView(&editorContext);
 
 	sceneView.Init();
@@ -206,7 +206,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 
 		ImGui::Render();
-		rend.DrawFrame();
+		rend.DrawFrame(
+			editorContext.GetEditorCamera(),
+			sceneView.GetRenderTarget());
 
 		// Det vi vill åt:
 		// rend.DrawFrame(

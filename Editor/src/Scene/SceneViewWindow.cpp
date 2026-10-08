@@ -150,3 +150,8 @@ void SceneViewWindow::RenderImpl()
 	ImGui::SetCursorPos({ camViewRectMin.x - cursorScreenPos.x, camViewRectMin.y - cursorScreenPos.y });
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 1), ImVec2(1, 0));
 }
+
+Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
+{
+	return *m_renderTarget;
+}

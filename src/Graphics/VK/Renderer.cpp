@@ -153,7 +153,8 @@ std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uin
 		m_allocator.Get(),
 		m_context.GetDevice(),
 		m_context.GetPhysicalDevice(),
-		vk::Extent2D(p_width, p_height)
+		p_width,
+		p_height
 	);
 }
 
@@ -322,11 +323,11 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.end();
 }
 
-void Renderer::RecoredRenderTargetCommandBuffer(RenderTarget &p_renderTarget)
+void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget)
 {
-	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
 
-	commandBuffer.begin({});
+	//commandBuffer.begin({});
 
 	TransitionImageLayout(
 		p_renderTarget.GetColorImage().Get(),
@@ -392,8 +393,11 @@ void Renderer::RecoredRenderTargetCommandBuffer(RenderTarget &p_renderTarget)
 
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
-	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
-	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
+	// old people code swapped from swapchain to rendertarget
+	//commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
+	//commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
 	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
@@ -404,15 +408,28 @@ void Renderer::RecoredRenderTargetCommandBuffer(RenderTarget &p_renderTarget)
 	TransitionImageLayout(
 		p_renderTarget.GetColorImage().Get(),
 		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::ePresentSrcKHR,
+		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
-		{},
+		vk::AccessFlagBits2::eShaderSampledRead,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits2::eBottomOfPipe,
+		vk::PipelineStageFlagBits2::eFragmentShader,
 		vk::ImageAspectFlagBits::eColor
 	);
 
-	commandBuffer.end();
+	//commandBuffer.end();
+}
+
+void Renderer::RecordImGuiCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer,
+	uint32_t p_imageIndex)
+{
+	//p_commandBuffer.beginRendering(m_renderingInfo);
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *p_commandBuffer);
+
+	uint32_t temp = p_imageIndex;
+
+	p_commandBuffer.endRendering();
 }
 
 //Need to create fences and semaphores for each frame in flight
@@ -434,7 +451,7 @@ void Renderer::CreateSyncObjects()
 }
 
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
-void Renderer::DrawFrame()
+void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 {
 	// Create temporary deltaTime that Update's will use
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
@@ -482,9 +499,15 @@ void Renderer::DrawFrame()
 	}
 	// old code
 
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	//m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 
-	const auto extent = m_swapchain.GetExtent();
+	/*const auto extent = m_swapchain.GetExtent();
+
+	float aspectRatio =
+		static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);*/
+
+	const auto extent = p_renderTarget.GetExtent();
 
 	float aspectRatio =
 		static_cast<float>(extent.width) /
@@ -493,8 +516,8 @@ void Renderer::DrawFrame()
 	VK::UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+		.view = p_camera.GetViewMatrix(),
+		.proj = p_camera.GetProjectionMatrix(aspectRatio)
 	};
 	
 	m_uniformBuffers.at(m_frameIndex).UpdateBuffer(ubo);
@@ -503,8 +526,22 @@ void Renderer::DrawFrame()
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	RecordCommandBuffer(imageIndex);
 
+	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+
+	commandBuffer.begin({});
+	//RecordCommandBuffer(imageIndex);
+	RecordRenderTargetCommandBuffer(
+		commandBuffer,
+		p_renderTarget
+	);
+
+	RecordImGuiCommandBuffer(
+		commandBuffer,
+		imageIndex
+	);
+
+	commandBuffer.end();
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	
 	const vk::SubmitInfo   submitInfo
@@ -554,6 +591,21 @@ void Renderer::DrawFrame()
 		assert(result == vk::Result::eSuccess);
 	}
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Renderer::RenderToTarget(RenderTarget &p_renderTarget, const Camera &p_camera)
+{
+	const vk::Extent2D extent = p_renderTarget.GetExtent();
+
+	const float aspectRatio = static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	VK::UniformBufferObject ubo
+	{
+		.model = glm::mat4(1.0f),
+		.view = p_camera.GetViewMatrix(),
+		.proj = p_camera.GetProjectionMatrix(aspectRatio)
+	};
 }
 
 //Descriptors and samplers
@@ -718,6 +770,8 @@ ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 	init_info.PipelineInfoMain.Subpass = 0;
 	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	init_info.CheckVkResultFn = CheckVkResult;
+
+	init_info.UseDynamicRendering = VK_TRUE;
 	return init_info;
 }
 
