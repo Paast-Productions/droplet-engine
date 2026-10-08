@@ -27,6 +27,11 @@ void Scene::Update(float p_deltaTime)
     }
 
     m_octree.Update();
+
+    for (const auto &root : m_roots)
+    {
+        root->GetTransform().ResetFrame();
+    }
 }
 
 

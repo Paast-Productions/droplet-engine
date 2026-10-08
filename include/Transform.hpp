@@ -56,6 +56,9 @@ namespace Droplet::Scene
 		/// @return True if the transform is dirty, false otherwise.
 		[[nodiscard]] bool IsDirty() const;
 
+		/// TODO: Edvin
+		[[nodiscard]] bool HasBeenChanged() const;
+
 		/// @brief Get the up direction of the transform in the specified space.
 		/// @param p_space The space in which to get the up direction. Defaults to local space.
 		/// @return The up direction of the transform in the specified space.
@@ -100,6 +103,9 @@ namespace Droplet::Scene
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
 
+		/// TODO: Edvin
+		void ResetFrame(); // Runs at the end of scene update
+
 		// ================================ Utility ================================
 
 		/// @brief Update the world & local matrices of the transform based on its position, rotation, scale and the parent's world matrix.
@@ -139,8 +145,9 @@ namespace Droplet::Scene
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
 	private:
-		Node			*m_owner{ nullptr }; // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
-		bool			m_isDirty{ true };
+		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
+		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.
+		bool			m_wasChanged{ true }; // Tracks whether the transform was ever changed during the frame.
 
 		glm::vec3		m_position{ 0.f, 0.f, 0.f };
 		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };
