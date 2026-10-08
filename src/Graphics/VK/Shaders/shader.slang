@@ -32,7 +32,7 @@ VSOutput vertMain(VSInput input) {
     return output;
 }
 
-layout(set = 1, binding = 0) Sampler2D texture;
+layout(set = 0, binding = 1) Sampler2D texture;
 
 [shader("fragment")]
 float4 fragMain(VSOutput vertIn) : SV_TARGET {

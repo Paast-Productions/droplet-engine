@@ -41,8 +41,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
-	m_uniformBufferDescriptorSet		{ m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer },
-	m_combinedImageSamplerDescriptorSet	{ m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler },
+	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
 	m_depthBuffer						{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
 	m_indexBuffer						{ m_allocator.Get(), G_INDICES },
 	m_vertexBuffer						{ m_allocator.Get(), G_VERTICES }
@@ -86,10 +85,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_uniformBufferDescriptorSet.AddBufferDescriptor(m_uniformBuffer.Get());
-	m_uniformBufferDescriptorSet.WriteDescriptors(m_context.GetDevice());
-	m_combinedImageSamplerDescriptorSet.AddSamplerDescriptor(m_textureSampler, m_textureView.Get());
-	m_combinedImageSamplerDescriptorSet.WriteDescriptors(m_context.GetDevice());
+	m_globalDescriptorSet.AddBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.AddSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
 	// TODO: </REFACTOR>
@@ -133,8 +130,7 @@ void Renderer::CreateGraphicsPipeline()
 		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
 	};
 	
-	const vk::DescriptorSetLayout *descriptorSetLayouts [2] { &*m_uniformBufferDescriptorSet.GetLayout(), &*m_combinedImageSamplerDescriptorSet.GetLayout() };
-	pipelineConfig.PipelineLayoutInfo.pSetLayouts = *descriptorSetLayouts;
+	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_globalDescriptorSet.GetLayout();
 	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
@@ -297,7 +293,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
 	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
-	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSetsOld[m_frameIndex], nullptr);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR

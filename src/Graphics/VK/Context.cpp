@@ -105,7 +105,6 @@ void Context::CreateLogicalDevice()
 				.descriptorBindingSampledImageUpdateAfterBind = true,
 				.descriptorBindingUpdateUnusedWhilePending = true,
 				.descriptorBindingPartiallyBound = true,
-				.descriptorBindingVariableDescriptorCount = true
 			},	
 			{	// vk::PhysicalDeviceVulkan13Features
 				.synchronization2 = true, // Fixes sync2 warnings

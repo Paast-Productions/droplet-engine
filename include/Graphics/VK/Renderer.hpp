@@ -159,9 +159,7 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
 		VK::DescriptorPool						m_descriptorPool { nullptr };
-		VK::DescriptorSet						m_uniformBufferDescriptorSet { nullptr };
-		VK::DescriptorSet						m_combinedImageSamplerDescriptorSet { nullptr };
-		std::vector<vk::raii::DescriptorSet>	m_descriptorSetsOld;
+		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
 		vk::raii::Sampler						m_textureSampler = nullptr;
 
 		VK::Image		m_image			{ nullptr };
