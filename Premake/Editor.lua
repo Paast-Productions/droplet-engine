@@ -11,7 +11,8 @@ project "Editor"
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+		"IMGUI_DEFINE_MATH_OPERATORS"
 	}
 
     if _TARGET_OS == "windows" then

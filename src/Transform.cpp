@@ -4,10 +4,15 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <stdexcept>
-
-#include <SceneSystem/Node.hpp>
+#include <cmath>
 
 using namespace Droplet::Scene;
+
+static float Sign(float x)
+{
+	float sign = static_cast<float>((x > 0.0f) - (x < 0.0f));
+	return (sign == 0.0f) ? 1.0f : sign;
+}
 
 Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
@@ -293,6 +298,12 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 
 void Transform::SetScale(const glm::vec3 &p_scale)
 {
+	// Sanitize scale values to avoid zero
+	constexpr float MIN_SCALE = 0.0001f;
+	m_scale.x = Sign(p_scale.x) * ((std::abs(p_scale.x) < MIN_SCALE) ? MIN_SCALE : p_scale.x);
+	m_scale.y = Sign(p_scale.y) * ((std::abs(p_scale.y) < MIN_SCALE) ? MIN_SCALE : p_scale.y);
+	m_scale.z = Sign(p_scale.z) * ((std::abs(p_scale.z) < MIN_SCALE) ? MIN_SCALE : p_scale.z);
+
 	m_scale = p_scale;
 	MakeDirty();
 }
