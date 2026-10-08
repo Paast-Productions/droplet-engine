@@ -4,9 +4,11 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig), m_updateFlags(p_config.UpdateFlags)
+Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
+
+	EngineFlagsOwner::SetUpdateFlags(p_config.UpdateFlags);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
