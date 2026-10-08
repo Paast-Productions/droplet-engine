@@ -73,12 +73,11 @@ namespace Droplet::Scene
 		RemoveFromTreeNode(p_node, m_root);
 	}
 
-	std::vector<std::shared_ptr<Node>> Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum)
+	void Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
 	{
-		std::vector<std::shared_ptr<Node>> nodes;
-		CheckIntersection(nodes, p_frustum, m_root);
+		CheckIntersection(p_outNodes, p_frustum, m_root);
+	}
 
-		return nodes;
 	}
 
 	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
