@@ -304,7 +304,6 @@ void Transform::SetScale(const glm::vec3 &p_scale)
 	m_scale.y = Sign(p_scale.y) * ((std::abs(p_scale.y) < MIN_SCALE) ? MIN_SCALE : p_scale.y);
 	m_scale.z = Sign(p_scale.z) * ((std::abs(p_scale.z) < MIN_SCALE) ? MIN_SCALE : p_scale.z);
 
-	m_scale = p_scale;
 	MakeDirty();
 }
 
