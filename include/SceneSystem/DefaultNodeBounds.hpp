@@ -65,6 +65,11 @@ namespace Droplet::Scene
             return Droplet::Math::Raycast(p_ray, m_aabb);
         }
 
+        [[nodiscard]] Droplet::Math::AABB GetAABB() const
+        {
+            return m_aabb;
+        }
+
     private:
         Droplet::Math::AABB m_aabb;
     };
