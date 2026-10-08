@@ -16,12 +16,12 @@ namespace Droplet::Scene
     public:
         virtual ~NodeBounds() = default;
 
-        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Plane &p_plane) const = 0;
-        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::AABB &p_aabb) const = 0;
-        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::OBB &p_obb) const = 0;
-        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Sphere &p_sphere) const = 0;
-        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Frustum &p_frustum) const = 0;
+        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Plane &p_plane, const glm::mat4x4 &p_worldMat) const = 0;
+        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::AABB &p_aabb, const glm::mat4x4 &p_worldMat) const = 0;
+        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::OBB &p_obb, const glm::mat4x4 &p_worldMat) const = 0;
+        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Sphere &p_sphere, const glm::mat4x4 &p_worldMat) const = 0;
+        virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Frustum &p_frustum, const glm::mat4x4 &p_worldMat) const = 0;
 
-        virtual Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray) const = 0;
+        virtual Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray, const glm::mat4x4 &p_worldMat) const = 0;
     };
 }
