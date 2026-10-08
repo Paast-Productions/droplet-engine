@@ -9,7 +9,96 @@
 #include "SceneSystem/Components/ScriptComponent.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
 #include "Core/IoManager.hpp"
+#include "GameInput.hpp"
+#include <SDL3/SDL_init.h>
+
 using namespace Droplet::Scene;
+
+static void OctreeTest()
+{
+    if (!SDL_Init(SDL_INIT_VIDEO))
+    {
+        std::printf("Failed (SDL_INIT)");
+        return;
+    }
+
+    SDL_Window *window = SDL_CreateWindow(
+        "Octree Test",
+        1280,
+        720,
+        SDL_WINDOW_RESIZABLE
+    );
+
+    if (!window)
+    {
+        std::printf("Failed to create window: %s\n", SDL_GetError());
+        return;
+    }
+
+    SceneManager sm;
+    sm.LoadScene("Game");
+
+    std::shared_ptr<Scene> s = sm.GetScene("Game");
+    if (!s)
+    {
+        std::cerr << "Failed to load Game scene\n";
+        return;
+    }
+
+    sm.ActivateScene("Game");
+
+    std::shared_ptr<Node> player = s->AddNode("Player");
+
+    std::vector<std::shared_ptr<Node>> rocks;
+    std::uint32_t nRocks = 0;
+    for (nRocks = 0; nRocks < 7; nRocks++)
+    {
+        rocks.emplace_back(s->AddNode("Rock" + std::to_string(nRocks)));
+    }
+
+    Droplet::GameInput &gi = Droplet::GameInput::Get();
+    while (true)
+    {
+        gi.Update();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            gi.ProcessEvent(event);
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyEscape))
+        {
+            break;
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyW))
+        {
+            player->GetTransform().SetPosition(glm::vec3(50.0f), Transform::Space::World);
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyP))
+        {
+            continue;
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyQ))
+        {
+            rocks.emplace_back(s->AddNode("Rock" + std::to_string(nRocks++)));
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyT))
+        {
+            s->PrintOctree();
+        }
+        if (gi.KeyPressed(Droplet::Key::KeyY))
+        {
+            s->PrintOctreeTree();
+        }
+
+        sm.Update(1.0f / 60.0f);
+    }
+}
 
 // --------------------------------------------------
 // Example Component
@@ -48,6 +137,8 @@ public:
 
 int main()
 {
+    OctreeTest();
+
     SceneManager sceneManager;
 
     // ==================================================
