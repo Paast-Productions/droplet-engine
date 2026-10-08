@@ -3,6 +3,7 @@
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <iostream>
 
 using namespace Droplet::Scene;
 
@@ -197,4 +198,14 @@ void Scene::SetActive(bool p_active)
             root->Start();
         }
     }
+}
+
+void Droplet::Scene::Scene::PrintOctree()
+{
+    std::cout << m_octree.ToGraphviz();
+}
+
+void Droplet::Scene::Scene::PrintOctreeTree()
+{
+    std::cout << m_octree.ToGraphvizTree();
 }

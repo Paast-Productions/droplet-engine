@@ -144,6 +144,12 @@ namespace Droplet::Scene
         /// that has not been loaded.
         void SetActive(bool p_active);
 
+        /// @brief Prints graphviz code for visualizing the octree top-down
+        void PrintOctree();
+
+        /// @brief Prints graphviz code for visualizing the octree as a tree
+        void PrintOctreeTree();
+
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
