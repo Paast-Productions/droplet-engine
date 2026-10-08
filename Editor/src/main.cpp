@@ -25,7 +25,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
-			640, 480, {}
+			1280, 720, {}
 		}
 	));
 
