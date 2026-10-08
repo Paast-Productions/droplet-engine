@@ -4,10 +4,13 @@ using namespace Droplet::Editor::Scene;
 
 void SceneViewWindow::RenderImpl()
 {
+	ImDrawList *drawList = ImGui::GetWindowDrawList();
+
 	// Calculate the camera view rect, so that inputs relative to the camera view rect can be collected and used during the camera update.
 
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
 
 	float camAspect = m_editorCamera.GetAspect();
 	float contentAspect = contentRegion.x / contentRegion.y;
@@ -64,8 +67,31 @@ void SceneViewWindow::RenderImpl()
 
 	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 	ImTextureRef camViewTexture = nullptr; // TODO: Replace with the actual texture reference of the rendered camera view.
+	// Funnily enough, rendering this nullptr renders ImGui's symbol atlas texture, which is a nice placeholder for now.
 	
+	ImVec2 camViewPos = { 
+		camViewRectMin.x - windowPos.x, 
+		camViewRectMin.y - windowPos.y 
+	};
+
+	// Color entire window background with a dark gray color
+	drawList->AddRectFilled(
+		cursorScreenPos - ImVec2(8, 8), 
+		cursorScreenPos + contentRegion + ImVec2(8, 8), 
+		IM_COL32(8, 8, 8, 255)
+	);
+
 	// Render the camera view texture to the scene view window
-	ImGui::SetCursorPos({ camViewRectMin.x - cursorScreenPos.x, camViewRectMin.y - cursorScreenPos.y });
+	ImGui::SetCursorPos(camViewPos);
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 1), ImVec2(1, 0));
+
+	// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
+	drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
+
+	// Capture mouse interaction
+	ImGui::SetCursorPos(camViewPos);
+	if (ImGui::InvisibleButton("CameraView", camSize))
+	{
+		// TODO: Take focus
+	}
 }
