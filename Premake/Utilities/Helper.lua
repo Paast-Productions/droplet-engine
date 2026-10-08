@@ -10,6 +10,8 @@ function UseDefaultPCH()
     
     includedirs { rootPath .. "/include/PCH" }
     files { srcPath .. "/PCH/PCH.cpp" }
+    
+    defines { "GLM_FORCE_DEPTH_ZERO_TO_ONE" }
 end
 
 function UseGraphicsPCH()
@@ -21,6 +23,14 @@ function UseGraphicsPCH()
     includedirs { rootPath .. "/include/PCH" }
     files {
         srcPath .. "/PCH/GraphicsPCH.cpp"
+    }
+    
+    defines {
+        "GLM_FORCE_DEPTH_ZERO_TO_ONE",
+        "GLM_ENABLE_EXPERIMENTAL",
+        "VULKAN_HPP_NO_STRUCT_CONSTRUCTORS",
+        "VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS",
+        "IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING"
     }
 end
 
