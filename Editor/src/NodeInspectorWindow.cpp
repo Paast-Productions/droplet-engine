@@ -1,4 +1,5 @@
 #include "NodeInspectorWindow.hpp"
+#include <SceneSystem/Component.hpp>
 #include <algorithm>
 #include <TransformUI.hpp>
 
@@ -103,14 +104,19 @@ void NodeInspectorWindow::RenderImpl()
 	}
 
 	// Vector of components
-	std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
 
-	for (int i = 0; i < components.size(); i++) // To be continuied by me :)
+	for (const auto &component : components)
 	{
-		//components[i]->RenderUIImpl();
+		if (!component)
+		{
+			continue;
+		}
+		component->RenderUI();
 	}
 
 	//List of components (Do i need a component list with imgui functions for this?)
+	//en add+ knapp ska läggas till som visar alla potentiella components, så endast då behövs en lista
 }
 
 void NodeInspectorWindow::RenderToolbar()
