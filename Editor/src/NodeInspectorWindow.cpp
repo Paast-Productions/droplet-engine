@@ -27,12 +27,11 @@ void NodeInspectorWindow::RenderImpl()
 {
 	ImGui::Begin("Node Inspector");
 
-	//static char nodeName[] = "Hello world!";
-	//ImGui::InputText("Node Name", nodeName.data(), IM_COUNTOF(nodeName.data()));
+	static std::string stringNodeName = "Not a real node :P";
+	ImGui::InputText("Node Name", &stringNodeName);
 
-	float f;
-	ImGui::Text("Hi im Node Inspector!");
-	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+	static bool active = true;
+	ImGui::Checkbox("Active", &active);
 
 	ImGui::End();
 
