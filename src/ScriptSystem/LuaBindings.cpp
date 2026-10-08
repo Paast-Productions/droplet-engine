@@ -761,5 +761,32 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
         }
     );
 
+    imgui.set_function("Text",
+		[](const std::string &p_text)
+		{
+			ImGui::TextUnformatted(p_text.c_str());
+	    }
+    );
+
+    imgui.set_function("Separator",
+        []()
+        {
+			ImGui::Separator();
+        }
+    );
+
+    imgui.set_function("Spacing",
+        []()
+        {
+            ImGui::Spacing();
+        }
+    );
+
+    imgui.set_function("Button",
+        [](const std::string &p_label)
+        {
+            return ImGui::Button(p_label.c_str());
+        }
+    );
 }
 

@@ -3,15 +3,16 @@ project "Engine"
 
     location(projectsPath)
 
-    defines
-    {
+    defines{
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL",
         "ROOT_PATH=" .. AddQuotation(rootPath)
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
 
     if _TARGET_OS == "windows" then
 
@@ -46,14 +47,19 @@ project "Engine"
         "Sol2",
         "json",
         "tracy",
-        "VulkanMemoryAllocator"
-        --"Jolt"
+        "VulkanMemoryAllocator",
+        "Jolt",
+        "Assimp",
+        "Stb",
+        "Gli",
+        "bvh"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
     files {
         "../include/**.hpp",
-        "../src/**.cpp"
+        "../include/**.inl",
+        "../src/**.cpp",
     }
 
     --pchheader "%{prj.location}/EnginePCH.hpp"

@@ -2,9 +2,16 @@ project "Test"
 
     location(projectsPath)
 
+    removefatalwarnings { "All" }
+
     kind "ConsoleApp"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+        "GLM_ENABLE_EXPERIMENTAL",
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
+	}
 
     files
     {
@@ -12,11 +19,8 @@ project "Test"
         "../Test/src/**.cpp"
     }
 
-
-    local vkPath = os.getenv("VULKAN_SDK")
-    
     if _TARGET_OS == "windows" then
-
+        local vkPath = os.getenv("VULKAN_SDK")
 
         includedirs
         {
@@ -24,6 +28,13 @@ project "Test"
             vkPath .. "/Include",
             targetBuildPath .. "/External/include"
         }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			vkPath .. "/Lib"
+		}
 
     else
 
@@ -32,32 +43,37 @@ project "Test"
             "../include",
             targetBuildPath .. "/External/include"
         }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			"Lib"
+		}
 
     end
-
-    libdirs
-    {
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64",
-        vkPath .. "/Lib"
-    }
 
     dependson 
     {
         "GoogleTest",
         "Engine",
+        "Assimp",
+        "json",
+        "bvh",
+        "stb",
         "Sol2",
         "tracy"
     }
 
     links
     {
-        "Engine", 
+        "Engine",
         "gtest",
         "tracy",
         "ImGui",
-        AddQuotation("lua-5.4.7"),
         AddQuotation("SDL3"),
-        AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("Slangd"),
+		AddQuotation("lua-5.4.7")
     }

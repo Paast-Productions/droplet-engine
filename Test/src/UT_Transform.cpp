@@ -3,7 +3,6 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <cmath>
-#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Scene;

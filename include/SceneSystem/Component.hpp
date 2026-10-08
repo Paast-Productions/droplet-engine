@@ -1,5 +1,6 @@
 #pragma once
 
+#include <json/json.hpp>
 #include <memory>
 #include <string_view>
 
@@ -45,20 +46,39 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
 
-		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUI() function.
+		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
 
         /// @brief Gets the Node that owns this component.
-        ///
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
-        std::shared_ptr<Node> GetOwner() const;
+        [[nodiscard]] std::shared_ptr<Node> GetOwner() const;
+
+		/// @brief Serializes the component to a JSON object.
+		/// @return A JSON object representing the component's state.
+		[[nodiscard]] nlohmann::json Serialize();
+
+		/// @brief Deserializes the component from a JSON object.
+		/// @param p_compJson A JSON object containing the component's state.
+		void Deserialize(nlohmann::json p_compJson);
 
     protected:
-
 		/// @brief Internal rendering function for the component's UI.
+        /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.
-        virtual void RenderInternalUI() {}
+        virtual void RenderUIImpl() {}
+
+		/// @brief Internal serialization function for the component's state.
+        /// 
+		/// Overloaded by derived components to implement their own serialization logic.
+		/// @return A JSON object representing the component's state.
+        [[nodiscard]] virtual nlohmann::json SerializeImpl() { return {}; }
+
+		/// @brief Internal deserialization function for the component's state.
+        /// 
+		/// Overloaded by derived components to implement their own deserialization logic.
+		/// @param p_compJson A JSON object containing the component's state.
+        virtual void DeserializeImpl([[maybe_unused]] nlohmann::json p_compJson) { }
 
     private:
         friend class Node;
