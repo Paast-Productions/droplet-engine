@@ -1,11 +1,12 @@
 #include "NodeInspectorWindow.hpp"
+#include <algorithm>
+#include <TransformUI.hpp>
 
 using namespace Droplet::Editor;
 
 Droplet::Editor::NodeInspectorWindow::NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState)
 {
 	m_interactionState = p_interactionState;
-	//m_currentNode = m_interactionState.get()->GetSelectedNodes()[0];
 }
 
 void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
@@ -16,6 +17,7 @@ void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p
 void NodeInspectorWindow::InitImpl()
 {
 	// Initialization for the node inspector window
+	SetName("Node Inspector");
 }
 
 void NodeInspectorWindow::CloseImpl()
@@ -25,19 +27,89 @@ void NodeInspectorWindow::CloseImpl()
 
 void NodeInspectorWindow::RenderImpl()
 {
-	ImGui::Begin("Node Inspector");
+	const auto &selectedNodes = m_interactionState->GetSelectedNodes();
 
-	static std::string stringNodeName = "Not a real node :P";
-	ImGui::InputText("Node Name", &stringNodeName);
+	// No selected node
+	if (selectedNodes.empty())
+	{
+		ImGui::Text("Select a node");
+		return;
+	}
 
-	static bool active = true;
-	ImGui::Checkbox("Active", &active);
+	m_currentNode = selectedNodes.back();
 
-	ImGui::End();
+	// Name
+	std::string stringNodeName = m_currentNode->GetName();
+	if (ImGui::InputText("Node Name", &stringNodeName))
+	{
+		m_currentNode->SetName(stringNodeName);
+	}
 
-	//Name (which should be able to change)
-	//Active checkbox
-	//Transform
+	// Active
+	bool active = m_currentNode->IsActiveSelf();
+	if (ImGui::Checkbox("Active", &active))
+	{
+		m_currentNode->SetActive(active);
+	}
+
+	// Transform
+	if (ImGui::CollapsingHeader("Transform"))
+	{
+		Droplet::Scene::Transform &transform = m_currentNode->GetTransform();
+		float drag_speed = 0.001f;
+
+		glm::vec3 pos = transform.GetPosition();
+		if (ImGui::DragFloat3("Position", &pos.x, drag_speed))
+		{
+			transform.SetPosition(pos);
+		}
+
+		glm::vec3 rot = transform.GetEuler();
+		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed))
+		{
+			transform.SetEuler(rot);
+		}
+
+		glm::vec3 scl = transform.GetScale();
+		glm::vec3 oldScl = transform.GetScale();
+		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed))
+		{
+			if (m_lockScale)
+			{
+				if (scl.x != oldScl.x)
+				{
+					float deltaScale = scl.x - oldScl.x;
+					scl.y += deltaScale * (oldScl.y / oldScl.x);
+					scl.z += deltaScale * (oldScl.z / oldScl.x);
+				}
+				else if (scl.y != oldScl.y)
+				{
+					float deltaScale = scl.y - oldScl.y;
+					scl.x += deltaScale * (oldScl.x / oldScl.y);
+					scl.z += deltaScale * (oldScl.z / oldScl.y);
+				}
+				else if (scl.z != oldScl.z)
+				{
+					float deltaScale = scl.z - oldScl.z;
+					scl.x += deltaScale * (oldScl.x / oldScl.z);
+					scl.y += deltaScale * (oldScl.y / oldScl.z);
+				}
+			}
+			transform.SetScale(scl);
+		}
+
+		// Lock scale
+		ImGui::Checkbox("Lock Scale", &m_lockScale);
+	}
+
+	// Vector of components
+	std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
+
+	for (int i = 0; i < components.size(); i++) // To be continuied by me :)
+	{
+		//components[i]->RenderUIImpl();
+	}
+
 	//List of components (Do i need a component list with imgui functions for this?)
 }
 

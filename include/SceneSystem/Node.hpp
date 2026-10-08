@@ -146,6 +146,9 @@ namespace Droplet::Scene
         /// @return A constant reference to the Node's name.
         [[nodiscard]] const std::string &GetName() const;
 
+        /// @brief Sets the Node's name.
+        void SetName(const std::string &p_name);
+
         // --------------------------------------------------
         // Components
         // --------------------------------------------------

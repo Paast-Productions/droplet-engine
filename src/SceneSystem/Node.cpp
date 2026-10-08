@@ -262,6 +262,12 @@ const std::string& Node::GetName() const
 {
     return m_name;
 }
+
+void Droplet::Scene::Node::SetName(const std::string &p_name)
+{
+    m_name = p_name;
+}
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
 {
     return m_components;

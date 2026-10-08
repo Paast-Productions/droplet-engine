@@ -32,10 +32,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Time
 	Time::Get().Update();
 
-	//Inputs
+	// Inputs
 	Droplet::GameInput::Get().Update();
-
-	
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))

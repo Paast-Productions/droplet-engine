@@ -28,5 +28,8 @@ namespace Droplet::Editor
 
 		/// @brief The node that is currently displayed.
 		std::shared_ptr<Droplet::Scene::Node> m_currentNode;
+
+		/// @brief A variable to remember if the scale should be locked
+		bool m_lockScale = true;
 	};
 }
