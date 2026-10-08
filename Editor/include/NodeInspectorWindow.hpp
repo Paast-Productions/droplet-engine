@@ -1,6 +1,7 @@
 #pragma once
 #include <EditorWindow.hpp>
 #include <SceneSystem/Node.hpp>
+#include "InteractionState.hpp"
 
 namespace Droplet::Editor
 {
@@ -10,10 +11,10 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow() = default;
+		NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState);
 		~NodeInspectorWindow() = default;
 
-		void SetCurrentNode(Droplet::Scene::Node *p_nodeToInspect);
+		void SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect);
 
 	protected:
 		void InitImpl() override;
@@ -22,6 +23,10 @@ namespace Droplet::Editor
 		void RenderToolbar() override;
 
 	private:
-		Droplet::Scene::Node *m_currentNode;
+		/// @brief Shared editor interaction state used to track node selection.
+		std::shared_ptr<InteractionState> m_interactionState;
+
+		/// @brief The node that is currently displayed.
+		std::shared_ptr<Droplet::Scene::Node> m_currentNode;
 	};
 }

@@ -39,7 +39,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow;
+	NodeInspectorWindow nodeInspectorWindow(interactionState);
 	Resource::ResourceBrowser resourceBrowser;
 	Scene::SceneViewWindow sceneViewWindow(interactionState);
 
