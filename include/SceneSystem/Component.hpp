@@ -25,6 +25,13 @@ namespace Droplet::Scene
         /// @brief Virtual destructor.
         virtual ~Component() = default;
 
+        Component(const Component &) = delete;			    // Copy constructor
+        Component(Component &&) = delete;					// Move constructor
+        Component &operator=(const Component &) = delete;	// Copy assignment operator
+        Component &operator=(Component &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Component should be explicit and manual
+
 		/// @brief Gets the type name of the component. 
         /// 
         /// This function must be overridden by derived classes to return the correct type name, 

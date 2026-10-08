@@ -18,8 +18,9 @@ using namespace Droplet::Editor;
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
-	ZoneScopedN("Editor");
+
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
@@ -34,7 +35,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		return 1;
 	}
 
-	FrameMark;
+	// Setup SDL polling listener
+	engine->AddEventListener([](SDL_Event &event) {
+		ImGui_ImplSDL3_ProcessEvent(&event);
+	});
 
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
@@ -48,11 +52,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
 
+	FrameMark;
+
 	// Run main loop
 	bool run = true;
 	while (run)
 	{
-		ZoneScopedN("Main Loop");
+		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
 		// ImGui
 		ImGui_ImplVulkan_NewFrame();
