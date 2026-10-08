@@ -40,7 +40,11 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
-		ImGui_ImplSDL3_ProcessEvent(&m_renderer.Event);
+		for (int i = 0; i < m_eventListeners.size(); i++)
+		{
+			m_eventListeners[i](m_renderer.Event);
+		}
+
 		if (m_renderer.Event.type == SDL_EVENT_QUIT)
 		{
 			return DROPLET_RETURNTYPE::EXIT;
@@ -96,4 +100,9 @@ Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+void Droplet::Engine::AddEventListener(EventListener p_listener)
+{
+	m_eventListeners.push_back(p_listener);
 }

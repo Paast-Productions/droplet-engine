@@ -9,6 +9,7 @@
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
+#include <functional>
 
 namespace Droplet
 {
@@ -30,6 +31,8 @@ namespace Droplet
 	class Engine
 	{
 	public:
+		using EventListener = std::function<void(SDL_Event &)>;
+
 		Engine(EngineConfig p_config);
 		~Engine();
 		
@@ -50,6 +53,10 @@ namespace Droplet
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
+
+		/// @brief Adds an event listener that will be called when an SDL event is polled.
+		/// @param p_listener The event listener to add.
+		void AddEventListener(EventListener p_listener);
 		
 	private:
 		/// @brief The renderer instance, should only be one.
@@ -60,5 +67,8 @@ namespace Droplet
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;
+
+		/// @brief A list of event listeners that will be called when an SDL event is polled.
+		std::vector<EventListener> m_eventListeners;
 	};
 }
