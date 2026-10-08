@@ -32,8 +32,15 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node.
         explicit Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name);
 
-        /// @brief Virtual destructor.
         ~Node() = default;
+
+		Node() = delete;                        // Default constructor
+        Node(const Node &) = delete;			// Copy constructor
+        Node(Node &&) = delete;					// Move constructor
+        Node &operator=(const Node &) = delete;	// Copy assignment operator
+        Node &operator=(Node &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Node should be explicit and manual
 
         /// @brief Starts the Node, its Components, and its children.
         ///
