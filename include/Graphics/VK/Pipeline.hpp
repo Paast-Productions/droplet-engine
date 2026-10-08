@@ -108,24 +108,14 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Getter-function for a vulkan pipeline
 		/// @returns Vulkan Pipeline 
-		[[nodiscard]] const vk::raii::Pipeline &Get();
+		[[nodiscard]] const vk::raii::Pipeline &Get() { return m_pipeline; }
 		
 		/// @brief Getter-function for a Vulkan Pipeline Layout
 		/// @returns Vulkan Pipeline Layout
-		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout();
+		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout() { return m_pipelineLayout; }
 
 	private:
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
 		vk::raii::Pipeline m_pipeline { nullptr };
 	};
-
-	inline const vk::raii::Pipeline &Pipeline::Get()
-	{
-		return m_pipeline;
-	}
-
-	inline const vk::raii::PipelineLayout &Pipeline::GetLayout()
-	{
-		return m_pipelineLayout;
-	}
 }

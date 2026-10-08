@@ -35,31 +35,33 @@ constexpr bool enableValidationLayers = true;
 using namespace Droplet::Graphics;
 
 Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window		{ p_windowConfig },
-	m_context		{ m_window.Get(), m_vkContext },
-	m_allocator		{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_commandPool	{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
-	m_swapchain		{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
-	m_depthBuffer	{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer	{ m_allocator.Get(), G_INDICES },
-	m_vertexBuffer	{ m_allocator.Get(), G_VERTICES }
+	m_window							{ p_windowConfig },
+	m_context							{ m_window.Get(), m_vkContext },
+	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
+	m_descriptorPool					{ m_context.GetDevice() },
+	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
+	m_depthBuffer						{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
+	m_indexBuffer						{ m_allocator.Get(), G_INDICES },
+	m_vertexBuffer						{ m_allocator.Get(), G_VERTICES }
 {
 	// TODO: <REFACTOR>
-	CreateDescriptorSetLayout();
 	
 	CreateGraphicsPipeline();
 
-	for (auto &uniformBuffer : m_uniformBuffers)
+	const VK::UniformBufferObject ubo
 	{
-		const VK::UniformBufferObject ubo
-		{
-			.model = glm::rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-			.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-			.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
-		};
+		.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
+	};
+	
+	m_uniformBuffer = { 
+		m_allocator.Get(),
+		ubo
+	};
 
-		uniformBuffer = { m_allocator.Get(), ubo };
-	}
 	
 	m_image = {
 		m_allocator.Get(),
@@ -75,7 +77,6 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		vk::MemoryPropertyFlagBits::eDeviceLocal
 	};
 
-	//Format is changed from the usual eR8G8B8A8Srbg/unorm
 	m_textureView = {
 		m_context.GetDevice(),
 		m_image.Get(),
@@ -85,10 +86,9 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	CreateDescriptorPool();
-
-	CreateDescriptorSets();
-
+	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
+	
 	CreateSyncObjects();
 
 
@@ -158,7 +158,8 @@ void Renderer::CreateGraphicsPipeline()
 	{
 		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
 	};
-	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_descriptorSetLayout;
+	
+	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_globalDescriptorSet.GetLayout();
 	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
@@ -321,7 +322,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
 	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
-	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
@@ -439,7 +440,7 @@ void Renderer::DrawFrame()
 		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
 	
-	m_uniformBuffers.at(m_frameIndex).UpdateBuffer(ubo);
+	m_uniformBuffer.UpdateBuffer(ubo);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -523,91 +524,31 @@ void Renderer::CreateTextureSampler()
 	m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
 }
 
-//Descriptor pool is increased in size for the sampler
-//If the descriptor pool is inadequate it might still pass the validation layers and fail on some machines but not others
-void Renderer::CreateDescriptorPool()
+/*void Renderer::CreateDescriptorSets()
 {
-	std::array<vk::DescriptorPoolSize, 2> poolSize
-	{ 
-		{
-			{
-				.type = vk::DescriptorType::eUniformBuffer,
-				.descriptorCount = MAX_FRAMES_IN_FLIGHT
-			},
-			{
-				.type = vk::DescriptorType::eCombinedImageSampler,
-				.descriptorCount = MAX_FRAMES_IN_FLIGHT
-			}
-		} 
-	};
 	
-	vk::DescriptorPoolCreateInfo          poolInfo
-	{ 
-		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = MAX_FRAMES_IN_FLIGHT,
-		.poolSizeCount = static_cast<uint32_t>(poolSize.size()),
-		.pPoolSizes = poolSize.data() 
-	};
+	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSets.Get());
 	
-	m_descriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
-}
-
-//Sets layout of buffer
-//Multiple bindings can be created at once, here we added the sampler
-void Renderer::CreateDescriptorSetLayout() 
-{
-	std::array<vk::DescriptorSetLayoutBinding, 2> bindings
-	{
-		{
-			{
-				.binding = 0,
-				.descriptorType = vk::DescriptorType::eUniformBuffer,
-				.descriptorCount = 1, 
-				.stageFlags = vk::ShaderStageFlagBits::eVertex
-			},
-			
-			//Specify where the sampler is to be used with the ShaderStageFlag
-			 {
-			 	.binding = 1,
-			 	.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			 	.descriptorCount = 1,
-			 	.stageFlags = vk::ShaderStageFlagBits::eFragment
-			 }
-		} 
-	};
-	
-	vk::DescriptorSetLayoutCreateInfo layoutInfo
-	{
-		.bindingCount = static_cast<uint32_t>(bindings.size()), 
-		.pBindings = bindings.data()
-	};
-	
-	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_context.GetDevice(), layoutInfo);
-}
-
-void Renderer::CreateDescriptorSets()
-{
-	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
 	vk::DescriptorSetAllocateInfo        allocInfo
 	{
-		.descriptorPool = m_descriptorPool,
+		.descriptorPool = m_descriptorPool.Get(),
 		.descriptorSetCount = static_cast<uint32_t>(layouts.size()),
 		.pSetLayouts = layouts.data() 
 	};
 
-	m_descriptorSets.clear();
-	m_descriptorSets = m_context.GetDevice().allocateDescriptorSets(allocInfo);
+	m_descriptorSetsOld.clear();
+	m_descriptorSetsOld = m_context.GetDevice().allocateDescriptorSets(allocInfo);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
 		vk::DescriptorBufferInfo bufferInfo
 		{
-			.buffer = m_uniformBuffers[i].Get(), 
+			.buffer = m_uniformBuffer[i].Get(), 
 			.offset = 0,
 			.range = sizeof(VK::UniformBufferObject)
 		};
 		
-		vk::DescriptorImageInfo  imageInfo
+		vk::DescriptorImageInfo imageInfo
 		{
 			.sampler = m_textureSampler, 
 			.imageView = m_textureView.Get(),
@@ -617,7 +558,7 @@ void Renderer::CreateDescriptorSets()
 		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{ 
 		{
 			{
-				.dstSet = m_descriptorSets[i],
+				.dstSet = m_descriptorSetsOld[i],
 				.dstBinding = 0,
 				.dstArrayElement = 0,
 				.descriptorCount = 1,
@@ -626,7 +567,7 @@ void Renderer::CreateDescriptorSets()
 			},
 																
 			{
-				.dstSet = m_descriptorSets[i],
+				.dstSet = m_descriptorSetsOld[i],
 				.dstBinding = 1,
 				.dstArrayElement = 0,
 				.descriptorCount = 1,
@@ -636,7 +577,7 @@ void Renderer::CreateDescriptorSets()
 		};
 		m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
 	}
-}
+}*/
 
 static void CheckVkResult(VkResult p_err)
 {
