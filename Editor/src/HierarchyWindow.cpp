@@ -50,6 +50,32 @@ void HierarchyWindow::RenderImpl()
         DrawNode(root);
     }
 
+    // Create an invisible item covering the remaining content area.
+    const ImVec2 contentSize = ImGui::GetContentRegionAvail();
+    
+    if (contentSize.x > 0.0f && contentSize.y > 0.0f)
+    {
+        ImGui::Dummy(contentSize);
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload("SCENE_NODE"))
+            {
+                Node *draggedNode =
+                    *static_cast<Node **>(payload->Data);
+
+                auto oldParent = draggedNode->shared_from_this()->GetParent();
+                if (oldParent)
+                {
+                    oldParent->RemoveChild(draggedNode->shared_from_this());
+                }
+            }
+
+            ImGui::EndDragDropTarget();
+        }
+    }
+
     if (m_nodeToReparent && m_newParent)
     {
         auto oldParent = m_nodeToReparent->GetParent();
@@ -70,6 +96,18 @@ void HierarchyWindow::RenderImpl()
 
         m_nodeToAddChildTo->AddChild(newNode);
         m_nodeToAddChildTo.reset();
+    }
+
+    if (m_nodeToRemove)
+    {
+        auto oldParent = m_nodeToRemove->GetParent();
+
+        if (oldParent)
+        {
+            oldParent->RemoveChild(m_nodeToRemove);
+        }
+		m_selectedScene->RemoveRoot(m_nodeToRemove);
+		m_nodeToRemove.reset();
     }
 } 
 
@@ -121,6 +159,11 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
             if (ImGui::MenuItem("Add Child"))
             {
                 m_nodeToAddChildTo = p_node;
+            }
+
+            if (ImGui::MenuItem("Remove Node"))
+            {
+                m_nodeToRemove = p_node;
             }
 
             ImGui::EndPopup();

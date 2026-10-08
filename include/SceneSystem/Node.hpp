@@ -230,6 +230,11 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const std::shared_ptr<Component> &p_component);
 
+		/// @brief Checks if this Node is a descendant of the specified Node.
+        ///
+		/// @param p_node Node to check against.
+        /// 
+		/// @return true if this Node is a descendant of p_node, otherwise false.
 		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
 
     private:
