@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <string>
 #include <math/bounds/Intersection.hpp>
 #include <math/bounds/AABB.hpp>
 #include <math/bounds/Frustum.hpp>
@@ -79,6 +80,25 @@ namespace Droplet::Scene
 		CheckIntersection(p_outNodes, p_frustum, m_root);
 	}
 
+	std::string Octree::ToGraphviz()
+	{
+		std::string toReturn = "digraph D{\n";
+
+		size_t counter = 0;
+		GenerateGraphvizLinks(toReturn, m_root, counter);
+
+		return toReturn + "}\n";
+	}
+
+	std::string Octree::ToGraphvizTree()
+	{
+		std::string toReturn = "digraph D{\n";
+
+		size_t counter = 0;
+		toReturn += std::to_string(counter) + "[label = \"Root\"]\n";
+		GenerateGraphvizLinksTree(toReturn, m_root, counter);
+
+		return toReturn + "}\n";
 	}
 
 	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
@@ -309,5 +329,84 @@ namespace Droplet::Scene
 				}
 			}
 		}
+	}
+
+	void Octree::GenerateGraphvizLinks(std::string &p_data, std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		std::string octantName = "Octant" + std::to_string(p_nodeCounter++);
+		p_data += BoundingBoxToGraphviz(p_treeNode->octant, octantName, "", "black");
+
+		if (!p_treeNode->nodes.empty())
+		{
+			for (std::shared_ptr<Node> &node : p_treeNode->nodes)
+			{
+				std::string nodeName = "Node" + std::to_string(p_nodeCounter++);
+				p_data += BoundingBoxToGraphviz(
+					AABB::Transform(static_cast<DefaultNodeBounds *>(node->GetBounds().get())->GetAABB(), 
+						node->GetTransform().GetMatrix(Transform::Space::World)),
+					nodeName, node->GetName(), "blue");
+			}
+		}
+
+		if (p_treeNode->children[0] != nullptr || p_treeNode->nodes.empty())
+		{
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				GenerateGraphvizLinks(p_data, child, p_nodeCounter);
+			}
+		}
+	}
+
+	std::size_t Octree::GenerateGraphvizLinksTree(std::string &p_data, std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter)
+	{
+		std::size_t myID = p_nodeCounter + 1;
+
+		if (p_treeNode == nullptr)
+		{
+			return myID;
+		}
+
+		for (std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			p_data += std::to_string(myID) + "[label = \"" + node->GetName() + "\"]\n";
+			p_data += std::to_string(p_nodeCounter) + " -> " + std::to_string(myID) + "\n";
+			myID++;
+		}
+		p_nodeCounter += p_treeNode->nodes.size();
+
+		if (p_treeNode->children[0] != nullptr)
+		{
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				std::string childID = std::to_string(GenerateGraphvizLinksTree(p_data, child, ++p_nodeCounter));
+				p_data += std::to_string(myID) + " -> " + childID + '\n';
+			}
+		}
+
+		return myID;
+	}
+
+	std::string Octree::BoundingBoxToGraphviz(const Droplet::Math::AABB &p_aabb, const std::string &p_nodeName, 
+		const std::string &p_label, const std::string &p_color)
+	{
+		float scale = 1.0f / 10.0f;
+		float width = p_aabb.extents.x * 2 * scale;
+		float height = p_aabb.extents.z * 2 * scale;
+		float centerX = p_aabb.center.x * scale;
+		float centerY = p_aabb.center.z * scale;
+
+		// Points per inch. Graphviz uses inches for node width and height attributes, 
+		// but points (72 points per inch) for layout pos coordinates.
+		const std::uint32_t ppi = 72; 
+		std::string toReturn = p_nodeName + " [label=\"" + p_label + "\", color=\"" + p_color + "\", fixedsize=true, shape=box, width="
+			+ std::to_string(width) + ", height=" + std::to_string(height) +
+			", pos=\"" + std::to_string(centerX * ppi) + ',' + std::to_string(centerY * ppi) + "!\"]\n";
+
+		return toReturn;
 	}
 }
