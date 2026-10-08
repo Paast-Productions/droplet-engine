@@ -2,16 +2,17 @@
 
 namespace Droplet
 {
-	/// @brief UpdateFlags are used to control the execution of the frame loop.
+	/// @brief UpdateFlags are used to control the execution steps of the frame loop.
 	/// @details Certain functionality may be skipped or modified in case the default frame loop logic is not desired.
-	/// For example, node + behaviour logic and automatic rendering should be disabled in the Editor.
+	/// 
+	/// For example, node + behaviour + script logic and automatic rendering should be disabled in the Editor.
 	enum class UpdateFlags : std::uint32_t
 	{
-		None = 0,		// No flags set
-		SkipNodeLogic = 1 << 0,	// Skip node logic
+		None = 0,						// No flags set
+		SkipNodeLogic = 1 << 0,			// Skip node logic
 		SkipBehaviourLogic = 1 << 1,	// Skip behaviour logic
-		SkipScriptLogic = 1 << 2,	// Skip script logic
-		SkipAutoRender = 1 << 3,	// Skip implicitly rendering cameras in active scenes. Cameras must be submitted to the renderer manually.
+		SkipScriptLogic = 1 << 2,		// Skip script logic
+		SkipAutoRender = 1 << 3,		// Skip implicitly rendering cameras in active scenes. Cameras must be submitted to the renderer manually.
 		// Add more flags as needed
 
 		EditorFlags = SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic | SkipAutoRender,
@@ -66,6 +67,8 @@ namespace Droplet
 	private:
 		UpdateFlags m_updateFlags{ UpdateFlags::DefaultFlags };
 
+		/// @brief Gets the singleton instance of EngineFlagsOwner.
+		/// @return The singleton instance of EngineFlagsOwner.
 		[[nodiscard]] static EngineFlagsOwner &GetInstance()
 		{
 			static EngineFlagsOwner instance;

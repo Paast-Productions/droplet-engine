@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
 

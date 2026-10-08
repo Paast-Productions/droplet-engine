@@ -3,6 +3,7 @@
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
 
@@ -24,9 +25,12 @@ void Scene::Update(float p_deltaTime)
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
     {
-        root->Update(p_deltaTime);
+        for (const auto &root : m_roots)
+        {
+            root->Update(p_deltaTime);
+        }
     }
 }
 
@@ -72,9 +76,12 @@ void Scene::Render()
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {
-        root->Render();
+        for (const auto &root : m_roots)
+        {
+            root->Render();
+        }
     }
 }
 

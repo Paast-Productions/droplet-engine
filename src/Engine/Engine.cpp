@@ -4,11 +4,9 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
-
-	EngineFlagsOwner::SetUpdateFlags(p_config.UpdateFlags);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -81,11 +79,19 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
+	// TODO: Call behaviour pre-update
+
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
-	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
+	{
+		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+	}
+
+	// TODO: Call behaviour post-update
 
 	// Rendering
 	m_renderer.DrawFrame();
