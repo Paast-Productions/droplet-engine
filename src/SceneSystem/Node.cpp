@@ -292,3 +292,20 @@ void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
 
     m_components.erase(it);
 }
+
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
+{
+    auto parent = m_parent.lock();
+
+    while (parent)
+    {
+        if (parent == p_node)
+        {
+            return true;
+        }
+
+        parent = parent->GetParent();
+    }
+
+    return false;
+}

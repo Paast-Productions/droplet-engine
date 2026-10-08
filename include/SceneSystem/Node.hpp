@@ -32,8 +32,15 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node.
         explicit Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name);
 
-        /// @brief Virtual destructor.
         ~Node() = default;
+
+		Node() = delete;                        // Default constructor
+        Node(const Node &) = delete;			// Copy constructor
+        Node(Node &&) = delete;					// Move constructor
+        Node &operator=(const Node &) = delete;	// Copy assignment operator
+        Node &operator=(Node &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Node should be explicit and manual
 
         /// @brief Starts the Node, its Components, and its children.
         ///
@@ -232,6 +239,13 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const std::shared_ptr<Component> &p_component);
+
+		/// @brief Checks if this Node is a descendant of the specified Node.
+        ///
+		/// @param p_node Node to check against.
+        /// 
+		/// @return true if this Node is a descendant of p_node, otherwise false.
+		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
 
     private:
         std::string m_name;
