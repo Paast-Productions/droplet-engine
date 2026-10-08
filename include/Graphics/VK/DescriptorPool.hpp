@@ -7,34 +7,29 @@
 
 namespace Droplet::Graphics::VK
 {
+	/// @class DescriptorPool
 	/// @brief Descriptor pool class that manages descriptor sets and their layouts for Vulkan resource binding
 	class DescriptorPool
 	{
 	public:
-		/// @brief Deleted default constructor
 		DescriptorPool() = delete;
 		
+		/// @brief DescriptorPool Nullptr Constructor
 		DescriptorPool(nullptr_t p_nullptr) : 
 			m_descriptorPool(p_nullptr) {}
-
-		/// @brief Default deconstructor
-		~DescriptorPool() = default;
 
 		/// @brief Constructor for the Descriptor Pool Class
 		/// @param p_device RAII pointer to the Vulkan device
 		DescriptorPool(const vk::raii::Device &p_device);
 		
+		~DescriptorPool() = default;
+		
 		/// @brief Getter function for Vulkan Descriptor Pool
 		/// @returns Vulkan Descriptor Pool
-		[[nodiscard]] const vk::raii::DescriptorPool &Get() const;
+		[[nodiscard]] const vk::raii::DescriptorPool &Get() const { return m_descriptorPool; }
 
 	private:
 		vk::raii::DescriptorPool m_descriptorPool = nullptr;
 
 	};
-
-	inline vk::raii::DescriptorPool const &DescriptorPool::Get() const
-	{
-		return m_descriptorPool;
-	}
 }

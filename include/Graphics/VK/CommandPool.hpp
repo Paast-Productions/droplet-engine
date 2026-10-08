@@ -6,7 +6,6 @@
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 #include <vector>
-#include <functional>
 
 namespace Droplet::Graphics::VK
 {

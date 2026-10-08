@@ -85,8 +85,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_globalDescriptorSet.AddBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
-	m_globalDescriptorSet.AddSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
+	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
 	// TODO: </REFACTOR>

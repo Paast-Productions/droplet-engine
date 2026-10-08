@@ -59,16 +59,13 @@ namespace Droplet::Graphics::VK
 					m_imageView == p_other.m_imageView);
 		}
 		
-		/// @brief Clears the depth buffer data
-		void Clear();
-		
 		/// @brief Image getter
 		/// @returns The depth buffers Vulkan Image
-		[[nodiscard]] const vma::raii::Image &GetImage() const;
+		[[nodiscard]] const vma::raii::Image &GetImage() const { return m_image.Get(); }
 
 		/// @brief ImageView getter
 		/// @returns The depth buffers Vulkan Image View
-		[[nodiscard]] const vk::raii::ImageView &GetView() const;
+		[[nodiscard]] const vk::raii::ImageView &GetView() const {return m_imageView.Get(); }
 
 	private:
 
@@ -86,14 +83,4 @@ namespace Droplet::Graphics::VK
 		Image m_image { nullptr };
 		ImageView m_imageView { nullptr };
 	};
-
-	inline const vma::raii::Image &DepthBuffer::GetImage() const
-	{
-		return m_image.Get();
-	}
-
-	inline const vk::raii::ImageView &DepthBuffer::GetView() const
-	{
-		return m_imageView.Get();
-	}
 }

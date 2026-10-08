@@ -83,7 +83,7 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
     }
 }
 
-void DescriptorSet::AddBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer)
+void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer)
 {
     vk::DescriptorBufferInfo bufferInfo
     {
@@ -106,7 +106,7 @@ void DescriptorSet::AddBufferDescriptor(const vk::raii::Device &p_device, const 
     p_device.updateDescriptorSets(descriptorWrite, {});
 }
 
-void DescriptorSet::AddSamplerDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView)
+void DescriptorSet::WriteCombinedImageSamplerDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView)
 {
     vk::DescriptorImageInfo imageInfo
     {
