@@ -10,6 +10,7 @@ namespace Droplet
     namespace Scene
     {
         class Node;
+        class Scene;
         class SceneManager;
     }
 
@@ -53,8 +54,12 @@ namespace Droplet
             /// @brief Shared editor interaction state used to track node selection.
             std::shared_ptr<InteractionState> m_interactionState;
 
-            /// @brief Temporary scene manager used for testing the hierarchy window.
-            std::shared_ptr<Droplet::Scene::SceneManager> m_testSceneManager;
+			/// @brief The currently selected scene in the hierarchy window.
+            std::shared_ptr<Droplet::Scene::Scene> m_selectedScene;
+
+            std::shared_ptr<Droplet::Scene::Node> m_nodeToReparent;
+            std::shared_ptr<Droplet::Scene::Node> m_newParent;
+            std::shared_ptr<Droplet::Scene::Node> m_nodeToAddChildTo;
         };
     }
 }

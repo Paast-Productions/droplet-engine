@@ -18,46 +18,58 @@ Droplet::Editor::HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engin
 }
 
 void HierarchyWindow::InitImpl()
-{
-	// Create a test scene manager and load a test scene
-	//TODO: Remove this when the hierarchy window is integrated engine instance
-    m_testSceneManager = std::make_shared<SceneManager>();
+{   
+    SetName("Node Hierarchy");
 
-    m_testSceneManager->LoadScene("TestScene");
-    
-    const auto scene = m_testSceneManager->GetScene("TestScene");
+	m_instance->GetSceneManager().LoadScene("TestScene");
 
-    auto root = scene->AddNode("Root");    
-
-    auto player = root->AddChild(scene->AddNode("Player"));
-
-    auto camera = player->AddChild(scene->AddNode("Camera"));
-
-    auto weapon = player->AddChild(scene->AddNode("Weapon"));
-
-    auto enemy = root->AddChild(scene->AddNode("Enemy"));
+	m_selectedScene = m_instance->GetSceneManager().GetScene("TestScene"); 
 }
 
 void HierarchyWindow::RenderImpl()
 {
     if (!m_instance)
     {
-        //return;
-		//TODO: This should return when the hierarchy window is integrated with the engine instance
+        return;
     }
     
-    const auto scene = m_testSceneManager->GetScene("TestScene");
-    //const auto sceneManager = m_instance->GetSceneManager();
-	//TODO: Get the currently viewed scene from the engine instance instead of using the test scene manager
-
-    if (!scene)
+    if (!m_selectedScene)
     {
         return;
     }
 
-    for (const auto &root : scene->GetRoots())
+    if (ImGui::Button("Add Node"))
+    {
+        m_selectedScene->AddNode("New Node");
+    }
+
+    ImGui::Separator();
+
+    for (const auto &root : m_selectedScene->GetRoots())
     {
         DrawNode(root);
+    }
+
+    if (m_nodeToReparent && m_newParent)
+    {
+        auto oldParent = m_nodeToReparent->GetParent();
+
+        if (oldParent)
+        {
+            oldParent->RemoveChild(m_nodeToReparent);
+        }
+
+        m_newParent->AddChild(m_nodeToReparent);
+        m_nodeToReparent.reset();
+        m_newParent.reset();
+    }
+
+    if (m_nodeToAddChildTo)
+    {
+        auto newNode = m_selectedScene->AddNode("New Node");
+
+        m_nodeToAddChildTo->AddChild(newNode);
+        m_nodeToAddChildTo.reset();
     }
 } 
 
@@ -104,24 +116,33 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
             ImGui::EndDragDropSource();
         }
 
+        if (ImGui::BeginPopupContextItem())
+        {
+            if (ImGui::MenuItem("Add Child"))
+            {
+                m_nodeToAddChildTo = p_node;
+            }
+
+            ImGui::EndPopup();
+        }
+
         if (ImGui::BeginDragDropTarget())
         {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_NODE"))
+            if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload("SCENE_NODE"))
             {
-                Node *draggedNode = *static_cast<Node **>(payload->Data);
+                Node *draggedNode =
+                    *static_cast<Node **>(payload->Data);
 
                 auto draggedNodeShared = draggedNode->shared_from_this();
 
-                auto oldParent = draggedNodeShared->GetParent();
-
-                if (oldParent)
+                if (draggedNodeShared != p_node &&
+                    !p_node->IsDescendantOf(draggedNodeShared))
                 {
-                    oldParent->RemoveChild(draggedNodeShared);
+                    m_nodeToReparent = draggedNodeShared;
+                    m_newParent = p_node;
                 }
-
-                p_node->AddChild(draggedNodeShared);
             }
-
             ImGui::EndDragDropTarget();
         }
     }
