@@ -1,4 +1,5 @@
 #include "ScriptComponent.hpp"
+#include "ImGui/imgui.h"
 
 #include <print>
 
@@ -46,7 +47,26 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ScriptSystem::Get().Call(this, "RenderUI");
+    ImGui::TextUnformatted("Script-Component");
+    ImGui::Separator();
+
+    ImGui::Text("Script: %s", m_scriptPath.c_str());
+
+    if (ImGui::Button("Add script"))
+    {
+        // Add script
+    }
+
+    if (ImGui::Button("Reload Script"))
+    {
+        // Reload script
+    }
+
+    if (ImGui::Button("Detach Script"))
+    {
+       // Detach Script
+    }
+
 }
 
 nlohmann::json ScriptComponent::SerializeImpl()
