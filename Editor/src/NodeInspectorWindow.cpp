@@ -1,5 +1,6 @@
 #include "NodeInspectorWindow.hpp"
 #include <SceneSystem/Component.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 #include <algorithm>
 #include <TransformUI.hpp>
 
@@ -115,8 +116,28 @@ void NodeInspectorWindow::RenderImpl()
 		component->RenderUI();
 	}
 
+	ImGui::Spacing();
+
+	const float buttonWidth = ImGui::GetContentRegionAvail().x;
+
+	if (ImGui::Button("+ Add Component", ImVec2(buttonWidth, 0.0f)))
+	{
+		ImGui::OpenPopup("AddComponentPopup");
+	}
+
+	if (ImGui::BeginPopup("AddComponentPopup"))
+	{
+		if (ImGui::MenuItem("Script Component"))
+		{
+			m_currentNode->AddComponent<Scene::ScriptComponent>("testScript");
+		}
+
+		// TODO: Add for each component we have
+
+		ImGui::EndPopup();
+	}
+
 	//List of components (Do i need a component list with imgui functions for this?)
-	//en add+ knapp ska läggas till som visar alla potentiella components, så endast då behövs en lista
 }
 
 void NodeInspectorWindow::RenderToolbar()
