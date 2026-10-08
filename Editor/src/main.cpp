@@ -44,7 +44,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow;
-	Resource::ResourceBrowser resourceBrowser;
+	Resource::ResourceBrowser resourceBrowser(engine);
 	Scene::SceneViewWindow sceneViewWindow(interactionState);
 
 	hierarchyWindow.Init();

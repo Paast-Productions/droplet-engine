@@ -84,7 +84,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
-	
+
+	//m_resourceManager.Update();
+
 	return DROPLET_RETURNTYPE::OK;
 }
 
@@ -102,6 +104,11 @@ Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+ResourceManager &Droplet::Engine::GetResourceManager()
+{
+	return m_resourceManager;
 }
 
 void Droplet::Engine::AddEventListener(EventListener p_listener)

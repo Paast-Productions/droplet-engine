@@ -7,6 +7,7 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
@@ -54,6 +55,8 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
+		[[nodiscard]] ResourceManager &GetResourceManager();
+
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(EventListener p_listener);
@@ -64,6 +67,9 @@ namespace Droplet
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief The resource manager instance, should only be one.
+		ResourceManager m_resourceManager;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;
