@@ -34,11 +34,11 @@ nlohmann::json Component::Serialize()
     // TODO: Insert component type name.
 	// This is how we know what type of component to create when deserializing.
     // Must be an exact match to the type name used in the ComponentRegistry.
-    compJson["type"] = ""; 
+    compJson["type"] = GetTypeName(); 
 
 	compJson["data"] = SerializeImpl();
 
-    return SerializeImpl();
+    return compJson;
 }
 
 void Component::Deserialize(nlohmann::json p_compJson)

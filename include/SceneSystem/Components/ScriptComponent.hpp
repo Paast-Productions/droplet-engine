@@ -28,6 +28,8 @@ namespace Droplet::Scene
         /// with this component.
         explicit ScriptComponent(const std::string &p_scriptPath);
 
+        void Initialize(const std::string &p_scriptPath);
+
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
         std::string_view GetTypeName() override { return "ScriptComponent"; }

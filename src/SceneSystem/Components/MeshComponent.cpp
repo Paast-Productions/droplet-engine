@@ -12,6 +12,11 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 	//TODO: will be inplemted later when the mesh system is implemented
 }
 
+void Droplet::Scene::MeshComponent::Initilize(const std::string &p_meshPath)
+{
+    m_meshPath = p_meshPath;
+}
+
 const std::string &MeshComponent::GetMeshPath() const
 {
     return m_meshPath;
@@ -20,8 +25,6 @@ const std::string &MeshComponent::GetMeshPath() const
 nlohmann::json Droplet::Scene::MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
-
-    json["type"] = "MeshComponent";
     json["filepath"] = GetMeshPath();
 
     return json;
