@@ -143,7 +143,7 @@ void NodeInspectorWindow::RenderImpl()
 	{
 		if (ImGui::MenuItem("Script Component"))
 		{
-			m_currentNode->AddComponent<Scene::ScriptComponent>("testScript");
+			m_currentNode->AddComponent<Scene::ScriptComponent>();
 		}
 
 		// TODO: Add for each component we have

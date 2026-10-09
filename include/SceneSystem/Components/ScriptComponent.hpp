@@ -27,7 +27,7 @@ namespace Droplet::Scene
         ///
         /// @param p_scriptPath Path to the Lua script that should be associated
         /// with this component.
-        explicit ScriptComponent(const std::string &p_scriptPath);
+        explicit ScriptComponent(const std::string &p_scriptPath = "");
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
@@ -51,6 +51,8 @@ namespace Droplet::Scene
         ///
         /// @return Reference to the stored script path.
         [[nodiscard]] const std::string &GetScriptPath() const;
+
+        void AttachScript(const std::string p_scriptPath);
 
         /// @brief Detaches the script from this component.
         ///
@@ -100,6 +102,8 @@ namespace Droplet::Scene
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
+
+        bool m_started;
     };
 
     /// @brief Calls a Lua function on the script associated with the component.
