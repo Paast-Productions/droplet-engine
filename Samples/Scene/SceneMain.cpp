@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <random>
 
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
@@ -47,14 +48,17 @@ static void OctreeTest()
 
     sm.ActivateScene("Game");
 
-    std::shared_ptr<Node> player = s->AddNode("Player");
-
-    std::vector<std::shared_ptr<Node>> rocks;
-    std::uint32_t nRocks = 0;
-    for (nRocks = 0; nRocks < 7; nRocks++)
+    std::srand(std::time(0));
+    for (int i = 0; i < 1000; i++)
     {
-        rocks.emplace_back(s->AddNode("Rock" + std::to_string(nRocks)));
+        float x = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+        float y = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+        float z = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+
+        auto node = s->AddNode("Rock" + std::to_string(i));
+        node->GetTransform().SetPosition(glm::vec3(x, y, z));
     }
+    std::printf("Done spawning rocks\n");
 
     Droplet::GameInput &gi = Droplet::GameInput::Get();
     while (true)
@@ -72,19 +76,22 @@ static void OctreeTest()
             break;
         }
 
-        if (gi.KeyPressed(Droplet::Key::KeyW))
-        {
-            player->GetTransform().SetPosition(glm::vec3(50.0f), Transform::Space::World);
-        }
-
         if (gi.KeyPressed(Droplet::Key::KeyP))
         {
             continue;
         }
 
-        if (gi.KeyPressed(Droplet::Key::KeyQ))
+        if (gi.KeyPressed(Droplet::Key::KeyP))
         {
-            rocks.emplace_back(s->AddNode("Rock" + std::to_string(nRocks++)));
+            const std::vector<std::shared_ptr<Node>> roots = s->GetRoots();
+            for (int i = 0; i < 100; i++)
+            {
+                int idx = rand() % 1000;
+                float x = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                float y = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                float z = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                roots[idx]->GetTransform().SetPosition(glm::vec3(x, y, z));
+            }
         }
 
         if (gi.KeyPressed(Droplet::Key::KeyT))
