@@ -12,7 +12,6 @@
 #include <math/bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/DefaultNodeBounds.hpp>
-#include <Debug/Logger.hpp>
 
 using namespace Droplet::Math;
 
@@ -132,14 +131,10 @@ namespace Droplet::Scene
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
-		using namespace Droplet::Debug;
-		Logger &logger = Logger::GetInstance();
-
 		// Early outs
 		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
 			p_node->GetBounds()->Intersect(p_treeNode->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::None)
 		{
-			logger.Log(Logger::LogType::Info, "Node was not added to Octree");
 			return;
 		}
 
@@ -187,7 +182,6 @@ namespace Droplet::Scene
 					if (node->GetBounds()->Intersect(child->octant, node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 					{
 						AddToTreeNode(node, child);
-						logger.Log(Logger::LogType::Info, "Node was added");
 					}
 				}
 			}
