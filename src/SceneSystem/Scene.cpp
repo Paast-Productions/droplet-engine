@@ -3,6 +3,7 @@
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <iostream>
 #include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
@@ -32,6 +33,13 @@ void Scene::Update(float p_deltaTime)
             root->Update(p_deltaTime);
         }
     }
+
+    m_octree.Update();
+
+    for (const auto &root : m_roots)
+    {
+        root->GetTransform().ResetFrame();
+    }
 }
 
 
@@ -47,6 +55,7 @@ void Scene::Load()
     }
 
     // TODO: Implement scene loading
+    m_octree.Initialize(glm::vec3(0.0f), glm::vec3(100.0f));
 
     m_loaded = true;
 }
@@ -93,6 +102,7 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
     auto node = std::make_shared<Node>(shared_from_this(), p_name);
 
     m_roots.push_back(node);
+    m_octree.AddNode(node);
 
     if (m_active)
     {
@@ -157,21 +167,6 @@ const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const
     return m_roots;
 }
 
-void Node::SetScene(std::shared_ptr<Scene> p_scene)
-{
-    m_scene = p_scene;
-
-    for (const auto &child : m_children)
-    {
-        child->SetScene(p_scene);
-    }
-}
-
-std::shared_ptr<Scene> Node::GetScene() const
-{
-    return m_scene.lock();
-}
-
 const std::string &Scene::GetName() const
 {
     return m_name;
@@ -233,4 +228,14 @@ std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &p_ray)
     // TODO: Interact with Octree
 
     return { };
+}
+
+void Droplet::Scene::Scene::PrintOctree()
+{
+    std::cout << m_octree.ToGraphviz();
+}
+
+void Droplet::Scene::Scene::PrintOctreeTree()
+{
+    std::cout << m_octree.ToGraphvizTree();
 }

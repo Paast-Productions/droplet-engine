@@ -4,6 +4,8 @@
 #include <memory>
 #include <string_view>
 
+#include "NodeBounds.hpp"
+
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
@@ -68,6 +70,30 @@ namespace Droplet::Scene
 		/// @brief Deserializes the component from a JSON object.
 		/// @param p_compJson A JSON object containing the component's state.
 		void Deserialize(nlohmann::json p_compJson);
+
+        /// @brief Determines whether the component provides custom bounds.
+        ///
+        /// Components normally use the bounding box provided by their Node.
+        /// Components that provide their own bounds, such as a MeshComponent,
+        /// should override this function and return true.
+        ///
+        /// @return True if the component provides custom bounds, otherwise false.
+        virtual bool HasBoundsOverride() const
+        {
+            return false;
+        }
+
+        /// @brief Gets the custom bounds provided by the component.
+        ///
+        /// This function is used by components that provide bounds that are
+        /// more specific than the Node's default bounding box. For example,
+        /// a MeshComponent can provide bounds calculated from its mesh.
+        ///
+        /// The default implementation returns a default BoundingBox and should
+        /// only be used when HasBoundsOverride() returns false.
+        ///
+        /// @return The bounding box provided by the component.
+        [[nodiscard]] virtual std::shared_ptr<NodeBounds> GetBounds() const;
 
 		/// @brief Checks if the component and all of its ancestors are active.
 		/// @return true if the component and all of its ancestors are active, otherwise false.

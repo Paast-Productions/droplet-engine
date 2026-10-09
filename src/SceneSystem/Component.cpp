@@ -5,6 +5,13 @@
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
+
+std::shared_ptr<NodeBounds> Droplet::Scene::Component::GetBounds() const
+{
+    // TODO: Implement GetBounds()
+    return std::shared_ptr<NodeBounds>();
+}
+
 Droplet::Scene::Component::Component()
 {
 	ZoneScoped;

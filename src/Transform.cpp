@@ -141,6 +141,11 @@ bool Transform::IsDirty() const
 	return m_isDirty;
 }
 
+bool Droplet::Scene::Transform::HasBeenChanged() const
+{
+	return m_wasChanged;
+}
+
 glm::vec3 Transform::GetUp(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
@@ -371,11 +376,23 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
+	m_wasChanged = true;
 
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())
 	{
 		child->GetTransform().MakeDirty();
+	}
+}
+
+void Droplet::Scene::Transform::ResetFrame()
+{
+	m_wasChanged = false;
+
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().ResetFrame();
 	}
 }
 
