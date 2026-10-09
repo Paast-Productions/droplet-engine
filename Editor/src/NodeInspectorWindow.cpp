@@ -40,6 +40,11 @@ void NodeInspectorWindow::RenderImpl()
 
 	m_currentNode = selectedNodes.back();
 
+	// Push ID
+	uintptr_t nodeNumber = (uintptr_t)(m_currentNode.get());
+	std::string nodeString = std::to_string(nodeNumber);
+	ImGui::PushID(nodeString.c_str());
+
 	// Name
 	std::string stringNodeName = m_currentNode->GetName();
 	if (ImGui::InputText("Node Name", &stringNodeName))
@@ -146,6 +151,7 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::EndPopup();
 	}
 
+	ImGui::PopID();
 	//List of components (Do i need a component list with imgui functions for this?)
 }
 
