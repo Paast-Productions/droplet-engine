@@ -31,6 +31,7 @@ namespace Droplet::Editor::Scene
 		EditorContext *m_editorContext = nullptr;
 
 		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
+		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;
 		//EditorCamera m_editorCamera;
 		//std::shared_ptr<InteractionState> m_interactionState;
 	};

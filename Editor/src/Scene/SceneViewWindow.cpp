@@ -6,7 +6,9 @@ using namespace Droplet::Editor::Scene;
 
 void SceneViewWindow::InitImpl()
 {
-	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(1280, 720);
+	// TODO: Make rendertarget reziable and match ImGui window
+	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
+	m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
 }
 
 void SceneViewWindow::RenderImpl()
@@ -148,7 +150,7 @@ void SceneViewWindow::RenderImpl()
 	
 	// Render the camera view texture to the scene view window
 	ImGui::SetCursorPos({ camViewRectMin.x - cursorScreenPos.x, camViewRectMin.y - cursorScreenPos.y });
-	ImGui::Image(camViewTexture, camSize, ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image(ImTextureRef(m_textureDescriptor), camSize, ImVec2(0, 0), ImVec2(1, 1));
 }
 
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()

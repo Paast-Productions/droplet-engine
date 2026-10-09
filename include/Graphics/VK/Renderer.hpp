@@ -92,6 +92,8 @@ namespace Droplet::Graphics
 
 		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
 
+		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
+
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
 		
@@ -154,7 +156,8 @@ namespace Droplet::Graphics
 			vk::AccessFlags2        p_dst_access_mask,
 			vk::PipelineStageFlags2 p_src_stage_mask,
 			vk::PipelineStageFlags2 p_dst_stage_mask,
-			vk::ImageAspectFlags    p_image_aspect_flags);
+			vk::ImageAspectFlags    p_image_aspect_flags,
+			vk::raii::CommandBuffer &p_commandBuffer);
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -187,6 +190,8 @@ namespace Droplet::Graphics
 		VK::DepthBuffer	m_depthBuffer { nullptr };
 		VK::IndexBuffer	m_indexBuffer { nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
+
+		VkFormat m_imGuiColorFormat = VK_FORMAT_UNDEFINED;
 
 		//Needs one buffer per frame in flight to avoid read write issues
 		

@@ -69,7 +69,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		78400,
 		G_CATDIM,
 		G_CATDIM,
-		vk::Format::eR8G8B8A8Srgb,
+		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
 		vk::MemoryPropertyFlagBits::eDeviceLocal
@@ -79,7 +79,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_textureView = {
 		m_context.GetDevice(),
 		m_image.Get(),
-		vk::Format::eR8G8B8A8Srgb,
+		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageAspectFlagBits::eColor
 	};
 	
@@ -158,6 +158,15 @@ std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uin
 	);
 }
 
+VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
+{
+	return ImGui_ImplVulkan_AddTexture(
+		*m_textureSampler,
+		*p_renderTarget.GetColorImageView().Get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	);
+}
+
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
 {
 	vk::ShaderModuleCreateInfo createInfo
@@ -193,7 +202,8 @@ void Renderer::TransitionImageLayout(
 	vk::AccessFlags2        p_dstAccessMask,
 	vk::PipelineStageFlags2 p_srcStageMask,
 	vk::PipelineStageFlags2 p_dstStageMask,
-	vk::ImageAspectFlags    p_imageAspectFlags)
+	vk::ImageAspectFlags    p_imageAspectFlags,
+	vk::raii::CommandBuffer &p_commandBuffer)
 {
 	vk::ImageMemoryBarrier2 barrier
 	{
@@ -223,8 +233,8 @@ void Renderer::TransitionImageLayout(
 		.pImageMemoryBarriers = &barrier 
 	};
 	
-	const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-	
+	//const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	auto &commandBuffer = p_commandBuffer;
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
@@ -245,7 +255,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::AccessFlagBits2::eColorAttachmentWrite,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 	TransitionImageLayout(
@@ -256,7 +267,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-		vk::ImageAspectFlagBits::eDepth
+		vk::ImageAspectFlagBits::eDepth,
+		commandBuffer
 	);
 	
 	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
@@ -317,7 +329,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		{},
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eBottomOfPipe,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 	commandBuffer.end();
@@ -337,7 +350,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		vk::AccessFlagBits2::eColorAttachmentWrite,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 
@@ -349,7 +363,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-		vk::ImageAspectFlagBits::eDepth
+		vk::ImageAspectFlagBits::eDepth,
+		commandBuffer
 	);
 
 	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
@@ -413,23 +428,77 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		vk::AccessFlagBits2::eShaderSampledRead,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eFragmentShader,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 	//commandBuffer.end();
 }
 
+// Bind it to ImGui
 void Renderer::RecordImGuiCommandBuffer(
 	vk::raii::CommandBuffer &p_commandBuffer,
 	uint32_t p_imageIndex)
 {
-	//p_commandBuffer.beginRendering(m_renderingInfo);
+	auto &commandBuffer = p_commandBuffer;
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
 
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *p_commandBuffer);
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
 
-	uint32_t temp = p_imageIndex;
+	vk::RenderingAttachmentInfo colorAttachmentInfo
+	{
+		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
 
-	p_commandBuffer.endRendering();
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
+		{
+			.offset =
+			{
+				.x = 0,
+				.y = 0
+			},
+			.extent = m_swapchain.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo
+	};
+
+
+	commandBuffer.beginRendering(renderingInfo);	
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+
+	commandBuffer.endRendering();
+
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::AccessFlagBits2::eShaderSampledRead,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
 }
 
 //Need to create fences and semaphores for each frame in flight
@@ -528,7 +597,6 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
 
 	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-
 	commandBuffer.begin({});
 	//RecordCommandBuffer(imageIndex);
 	RecordRenderTargetCommandBuffer(
@@ -542,7 +610,8 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	);
 
 	commandBuffer.end();
-	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	//vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
 	
 	const vk::SubmitInfo   submitInfo
 	{ 
@@ -550,7 +619,7 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
 		.pWaitDstStageMask = &waitDestinationStageMask,
 		.commandBufferCount = 1,
-		.pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
+		.pCommandBuffers = &*commandBuffer,
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex] 
 	};
@@ -745,12 +814,12 @@ void Renderer::CreateDescriptorSets()
 	}
 }
 
-static void CheckVkResult(VkResult p_err)
-{
-	if (p_err == VK_SUCCESS)
-		return;
-	throw ("[vulkan] Error: VkResult = %d\n", p_err);
-}
+//static void CheckVkResult(VkResult p_err)
+//{
+//	if (p_err == VK_SUCCESS)
+//		return;
+//	throw ("[vulkan] Error: VkResult = %d\n", p_err);
+//}
 
 ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 {
@@ -766,12 +835,19 @@ ImGui_ImplVulkan_InitInfo Renderer::GetImGuiInitInfo()
 	init_info.MinImageCount = 2;
 	init_info.ImageCount = 2;
 	init_info.Allocator = nullptr;
-	init_info.PipelineInfoMain.RenderPass = nullptr;
-	init_info.PipelineInfoMain.Subpass = 0;
-	init_info.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	init_info.CheckVkResultFn = CheckVkResult;
 
 	init_info.UseDynamicRendering = VK_TRUE;
+
+	m_imGuiColorFormat = static_cast<VkFormat>(m_swapchain.GetSurfaceFormat().format);
+
+	auto &pipelineInfo = init_info.PipelineInfoMain.PipelineRenderingCreateInfo;
+
+	pipelineInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+
+	pipelineInfo.colorAttachmentCount = 1;
+
+	pipelineInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
+ 
 	return init_info;
 }
 

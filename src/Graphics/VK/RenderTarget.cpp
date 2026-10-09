@@ -13,7 +13,7 @@ RenderTarget::RenderTarget(
 		p_allocator,
 		p_width,
 		p_height,
-		vk::Format::eB8G8R8A8Unorm,
+		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageTiling::eOptimal,
 		vk::ImageUsageFlagBits::eColorAttachment |
 			vk::ImageUsageFlagBits::eSampled,

@@ -8,7 +8,7 @@ ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p
     {
         .image = p_image,
         .viewType = vk::ImageViewType::e2D,
-        .format = vk::Format::eR8G8B8A8Srgb,
+        .format = vk::Format::eR8G8B8A8Unorm,
         .subresourceRange = 
         {
             .aspectMask = vk::ImageAspectFlagBits::eColor,

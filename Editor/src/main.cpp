@@ -67,7 +67,7 @@ static void InitImGui(SDL_Window *p_window,
 
 	ImGui_ImplVulkan_InitInfo initInfo = p_rend.GetImGuiInitInfo();
 	// temporary initilization so that i can go through assertions
-	initInfo.DescriptorPoolSize = 1000;
+	initInfo.DescriptorPoolSize = 2000;
 
 	ImGui_ImplVulkan_Init(&initInfo);
 }
