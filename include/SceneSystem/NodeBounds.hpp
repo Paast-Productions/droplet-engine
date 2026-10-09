@@ -23,5 +23,7 @@ namespace Droplet::Scene
         virtual Droplet::Math::IntersectType Intersect(const Droplet::Math::Frustum &p_frustum, const glm::mat4x4 &p_worldMat) const = 0;
 
         virtual Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray, const glm::mat4x4 &p_worldMat) const = 0;
+
+        virtual Droplet::Math::AABB GetAABB() const = 0;
     };
 }

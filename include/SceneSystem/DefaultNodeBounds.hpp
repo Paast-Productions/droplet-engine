@@ -66,7 +66,7 @@ namespace Droplet::Scene
             return Droplet::Math::Raycast(p_ray, m_aabb);
         }
 
-        [[nodiscard]] Droplet::Math::AABB GetAABB() const
+        [[nodiscard]] Droplet::Math::AABB GetAABB() const override
         {
             return m_aabb;
         }

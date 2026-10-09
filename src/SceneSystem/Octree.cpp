@@ -341,7 +341,7 @@ namespace Droplet::Scene
 			{
 				std::string nodeName = "Node" + std::to_string(p_nodeCounter++);
 				p_data += BoundingBoxToGraphviz(
-					AABB::Transform(static_cast<DefaultNodeBounds *>(node->GetBounds().get())->GetAABB(), 
+					AABB::Transform(node->GetBounds()->GetAABB(), 
 						node->GetTransform().GetMatrix(Transform::Space::World)),
 					nodeName, node->GetName(), "blue");
 			}
