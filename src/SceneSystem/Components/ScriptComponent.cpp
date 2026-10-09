@@ -7,13 +7,15 @@ using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
 ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
-    : m_scriptPath((p_scriptPath))
+    : m_scriptPath(p_scriptPath), m_started(false)
 {
 
 }
 
 void ScriptComponent::Start()
 {
+    m_started = true;
+
     //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
     auto &scriptSystem = ScriptSystem::Get();
 
@@ -28,6 +30,27 @@ void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 const std::string &ScriptComponent::GetScriptPath() const
 {
     return m_scriptPath;
+}
+
+void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPath)
+{
+    if (m_scriptPath == p_scriptPath)
+    {
+        return;
+    }
+    
+    if (m_started)
+    {
+        ScriptSystem::Get().DetachComponentScript(this);
+    }
+
+    m_scriptPath = p_scriptPath;
+
+    if (m_started && m_scriptPath.empty())
+    {
+        ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
+        ScriptSystem::Get().ActivateComponentScript(this);
+    }
 }
 
 void ScriptComponent::DetachScript()
@@ -52,15 +75,27 @@ void ScriptComponent::RenderUIImpl()
 
     ImGui::Text("Script: %s", m_scriptPath.c_str());
 
-    if (ImGui::Button("Add script"))
+    if (!m_scriptPath.empty())
     {
-        // Add script
+        ImGui::Text("Script: %s", m_scriptPath.c_str());
+    }
+    else 
+    {
+        ImGui::Text("Script: None");
     }
 
-    if (ImGui::Button("Reload Script"))
+    if (ImGui::Button("Attach Script"))
     {
-        // Reload script
+        ImGui::OpenPopup("AttachScriptPopup");
     }
+
+    //if (ImGui::BeginPopup("attachScriptPopup"))
+    //{
+    //    static const std::string
+    //}
+
+
+    ImGui::SameLine();
 
     if (ImGui::Button("Detach Script"))
     {
