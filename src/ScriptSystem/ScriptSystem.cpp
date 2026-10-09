@@ -40,6 +40,11 @@ void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, con
 	ZoneScoped;
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
+	if (p_scriptFile.empty())
+	{
+		return;
+	}
+
 	m_scriptManager.CreateComponentScript(p_sciptComponent, p_scriptFile);
 }
 
@@ -47,6 +52,11 @@ void ScriptSystem::CreateBehaviourScript(Scene::Behaviour *p_scriptBehaviour, co
 {
 	ZoneScoped;
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
+
+	if (p_scriptFile.empty())
+	{
+		return;
+	}
 
 	m_scriptManager.CreateBehaviourScript(p_scriptBehaviour, p_scriptFile);
 }

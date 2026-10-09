@@ -39,7 +39,7 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
         return;
     }
     
-    if (m_started)
+    if (m_started && p_scriptPath.empty())
     {
         ScriptSystem::Get().DetachComponentScript(this);
     }
@@ -55,6 +55,11 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
 void ScriptComponent::DetachScript()
 {
+    if (m_scriptPath.empty())
+    {
+        return;
+    }
+
     ScriptSystem::Get().DetachComponentScript(this);
 }
 
@@ -73,8 +78,6 @@ void ScriptComponent::RenderUIImpl()
     ImGui::TextUnformatted("Script-Component");
     ImGui::Separator();
 
-    ImGui::Text("Script: %s", m_scriptPath.c_str());
-
     if (!m_scriptPath.empty())
     {
         ImGui::Text("Script: %s", m_scriptPath.c_str());
@@ -89,7 +92,7 @@ void ScriptComponent::RenderUIImpl()
         ImGui::OpenPopup("AttachScriptPopup");
     }
 
-    if (ImGui::BeginPopup("attachScriptPopup"))
+    if (ImGui::BeginPopup("AttachScriptPopup"))
     {
         static const std::string scripts[] =
         {
@@ -121,7 +124,7 @@ void ScriptComponent::RenderUIImpl()
 
     if (ImGui::Button("Detach Script"))
     {
-       // Detach Script
+        AttachScript("");
     }
 
     ImGui::EndDisabled();
