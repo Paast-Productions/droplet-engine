@@ -58,11 +58,13 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		switch (m_renderer.Event.type)
 		{
 		case SDL_EVENT_QUIT:
+			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
 
 		case SDL_EVENT_KEY_DOWN:
 			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
 			{
+				FrameMark;
 				return DROPLET_RETURNTYPE::EXIT;
 			}
 			break;
@@ -104,7 +106,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
-	
+
+	FrameMark;
+
 	return DROPLET_RETURNTYPE::OK;
 }
 

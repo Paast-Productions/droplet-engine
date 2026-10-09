@@ -11,8 +11,7 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
+
 using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
@@ -92,8 +91,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		}
 
 		//engine->Endframe
-
-		FrameMark;
 	}
 
 	return 0;

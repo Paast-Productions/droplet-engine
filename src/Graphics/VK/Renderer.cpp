@@ -23,6 +23,7 @@
 
 #include <Graphics/VK/BufferHelper.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
