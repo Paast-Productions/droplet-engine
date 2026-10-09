@@ -9,7 +9,7 @@ using namespace Droplet::Scene;
 class TComponent : public Component
 {
 public:
-    std::string_view GetTypeName() override { return "TComponent"; }
+    std::string_view GetTypeName() const override { return "TComponent"; }
 
     void Start() override
     {
