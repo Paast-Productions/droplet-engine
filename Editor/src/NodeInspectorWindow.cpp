@@ -113,7 +113,16 @@ void NodeInspectorWindow::RenderImpl()
 		{
 			continue;
 		}
-		component->RenderUI();
+
+		uintptr_t thisNumber = (uintptr_t)(component.get());
+		std::string thisString = std::to_string(thisNumber);
+		ImGui::PushID(thisString.c_str());
+
+		if (ImGui::CollapsingHeader(component->GetTypeName().data()))
+		{
+			component->RenderUI();
+		}
+		ImGui::PopID();
 	}
 
 	ImGui::Spacing();
