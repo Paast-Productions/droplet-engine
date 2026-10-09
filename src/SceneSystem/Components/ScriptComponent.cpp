@@ -89,19 +89,42 @@ void ScriptComponent::RenderUIImpl()
         ImGui::OpenPopup("AttachScriptPopup");
     }
 
-    //if (ImGui::BeginPopup("attachScriptPopup"))
-    //{
-    //    static const std::string
-    //}
+    if (ImGui::BeginPopup("attachScriptPopup"))
+    {
+        static const std::string scripts[] =
+        {
+            "testScript.lua",
+            "testScript2.lua"
+        };
 
+        for (const std::string& script : scripts)
+        {
+            const bool selected = m_scriptPath == script;
+
+            if (ImGui::Selectable(script.c_str(), selected))
+            {
+                AttachScript(script);
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndPopup();
+    }
 
     ImGui::SameLine();
+
+    ImGui::BeginDisabled(m_scriptPath.empty());
 
     if (ImGui::Button("Detach Script"))
     {
        // Detach Script
     }
 
+    ImGui::EndDisabled();
 }
 
 nlohmann::json ScriptComponent::SerializeImpl()
