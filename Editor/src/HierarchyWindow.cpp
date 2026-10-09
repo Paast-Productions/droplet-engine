@@ -4,6 +4,8 @@
 #include <SceneSystem/SceneManager.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSystem/Component.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 //#include <Engine/Engine.hpp>
 #include <memory>
 
