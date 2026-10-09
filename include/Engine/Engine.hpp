@@ -10,8 +10,8 @@
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
-#include <EngineFlags.hpp>
-#include <ResourceManager.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <resource/ResourceManager.hpp>
 
 namespace Droplet
 {
