@@ -47,6 +47,50 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::Separator();
 
+    // Reserve a thin strip on the left for dropping nodes as roots.
+    const float rootDropWidth = 6.0f;
+    const float rootDropHeight = ImGui::GetContentRegionAvail().y;
+
+    // Left-side root drop target.
+    ImGui::BeginGroup();
+
+    ImVec2 cursorPos = ImGui::GetCursorPos();
+
+    ImGui::SetCursorPos(cursorPos + ImVec2(0.0f, ImGui::GetScrollY()));
+
+    ImGui::Dummy(ImVec2(rootDropWidth, rootDropHeight));
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+            ImGui::AcceptDragDropPayload("SCENE_NODE"))
+        {
+            Node *draggedNode = *static_cast<Node **>(payload->Data);
+
+            if (draggedNode)
+            {
+                auto draggedNodeShared = draggedNode->shared_from_this();
+
+                // Remove from the current parent, if any.
+                auto oldParent = draggedNodeShared->GetParent();
+
+                if (oldParent)
+                {
+                    oldParent->RemoveChild(draggedNodeShared);
+                }
+            }
+        }
+
+        ImGui::EndDragDropTarget();
+    }
+
+    ImGui::EndGroup();
+
+    // Put the root nodes to the right of the drop target.
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+
     for (const auto &root : m_selectedScene->GetRoots())
     {
         DrawNode(root);
@@ -77,6 +121,8 @@ void HierarchyWindow::RenderImpl()
             ImGui::EndDragDropTarget();
         }
     }
+
+    ImGui::EndGroup();
 
     if (m_nodeToReparent && m_newParent)
     {
