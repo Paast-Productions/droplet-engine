@@ -2,22 +2,19 @@
 #include <Node.hpp>
 #include <ImGui/imgui.h>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
-
-void Component::SetOwner(std::shared_ptr<Node> p_owner)
-{
-    m_owner = p_owner;
-}
-
 Droplet::Scene::Component::Component()
 {
+	ZoneScoped;
 
 }
 
 void Component::RenderUI()
 {
-    using namespace ImGui;
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
 
     // TODO: Set active, delete
 
@@ -28,6 +25,12 @@ std::shared_ptr<Node> Component::GetOwner() const
 {
     return m_owner.lock();
 }
+
+void Component::SetOwner(std::shared_ptr<Node> p_owner)
+{
+    m_owner = p_owner;
+}
+
 
 bool Component::IsActive() const
 {
@@ -47,6 +50,9 @@ void Component::SetActiveSelf(bool p_active)
 
 nlohmann::json Component::Serialize()
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json compJson;
 
     // TODO: Insert component type name.
@@ -61,6 +67,9 @@ nlohmann::json Component::Serialize()
 
 void Component::Deserialize(nlohmann::json p_compJson)
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
