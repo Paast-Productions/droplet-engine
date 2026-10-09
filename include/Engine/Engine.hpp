@@ -39,6 +39,8 @@ namespace Droplet
 
 		Engine(EngineConfig p_config);
 		~Engine();
+
+		void Shutdown();
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.

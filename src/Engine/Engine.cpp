@@ -23,6 +23,8 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
+
+	ThreadPool::GetInstance().Initialize();
 }
 
 Droplet::Engine::~Engine()
@@ -32,6 +34,13 @@ Droplet::Engine::~Engine()
 	m_renderer.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
+
+	Shutdown();
+}
+
+void Droplet::Engine::Shutdown()
+{
+	ThreadPool::GetInstance().Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
