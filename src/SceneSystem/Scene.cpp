@@ -3,12 +3,16 @@
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
 
 Scene::Scene(const std::string &p_name)
     : m_name((p_name))
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
 }
 
 void Scene::Update(float p_deltaTime)
@@ -21,9 +25,12 @@ void Scene::Update(float p_deltaTime)
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
     {
-        root->Update(p_deltaTime);
+        for (const auto &root : m_roots)
+        {
+            root->Update(p_deltaTime);
+        }
     }
 }
 
@@ -69,9 +76,12 @@ void Scene::Render()
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {
-        root->Render();
+        for (const auto &root : m_roots)
+        {
+            root->Render();
+        }
     }
 }
 
@@ -205,15 +215,21 @@ void Scene::SetActive(bool p_active)
     }
 }
 
-std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &ray, Math::RayHit *hit) const
+std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &p_ray, Math::RayHit *p_hit) const
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     // TODO: Interact with Octree
 
 	return nullptr;
 }
 
-std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &ray) const
+std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &p_ray) const
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     // TODO: Interact with Octree
 
     return { };

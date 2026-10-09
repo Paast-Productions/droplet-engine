@@ -37,7 +37,7 @@ namespace Droplet::Scene
         /// This function must be overridden by derived classes to return the correct type name, 
         /// as it is used for serialization and identification of component types.
         /// @return The type name of the component.
-        virtual std::string_view GetTypeName() = 0;
+        virtual std::string_view GetTypeName() const = 0;
 
         /// @brief Called when the owning Node starts.
         ///

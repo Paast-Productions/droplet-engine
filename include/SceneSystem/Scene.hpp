@@ -146,15 +146,15 @@ namespace Droplet::Scene
         void SetActive(bool p_active);
 
 		/// @brief Finds the first Node in the Scene that intersects with the given Ray.
-		/// @param ray The Ray to test for intersection with Nodes in the Scene.
-		/// @param hit Optional pointer to a RayHit structure to receive intersection details if a Node is found.
+		/// @param p_ray The Ray to test for intersection with Nodes in the Scene.
+		/// @param p_hit Optional pointer to a RayHit structure to receive intersection details if a Node is found.
         /// @return A shared pointer to the first Node that intersects with the Ray, or nullptr if no intersection is found.
-        std::shared_ptr<Node> FindNodeByRay(const Math::Ray &ray, Math::RayHit *hit = nullptr) const;
+        std::shared_ptr<Node> FindNodeByRay(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr) const;
 
 		/// @brief Finds all Nodes in the Scene that intersect with the given Ray.
-		/// @param ray The Ray to test for intersection with Nodes in the Scene.
+		/// @param p_ray The Ray to test for intersection with Nodes in the Scene.
         /// @return A vector of shared pointers to all Nodes that intersect with the Ray.
-        std::vector<std::shared_ptr<Node>> FindNodesByRay(const Math::Ray &ray) const;
+        std::vector<std::shared_ptr<Node>> FindNodesByRay(const Math::Ray &p_ray) const;
 
     private:
         std::string m_name;

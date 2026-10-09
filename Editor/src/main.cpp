@@ -11,8 +11,7 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
+
 using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
@@ -25,8 +24,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
-			640, 480, {}
-		}
+			1280, 720, {}
+		},
+		Droplet::UpdateFlags::EditorFlags
 	));
 
 	SDL_Window *wnd = engine->GetWindow();
@@ -65,20 +65,33 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
-		run = engine->Update() == Droplet::DROPLET_RETURNTYPE::OK;
+		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
 
+		switch (returnType)
+		{
+		case Droplet::DROPLET_RETURNTYPE::OK:
+			break;
+
+		case Droplet::DROPLET_RETURNTYPE::EXIT:
+			run = false;
+			break;
+
+		default:
+		case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+			run = false;
+			break;
+		}
 
 		//engine->Endframe
-		FrameMark;
 	}
-
-	// I do not know but i needed to have them because warnings = errors :(
 
 	return 0;
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <string_view>
 
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
