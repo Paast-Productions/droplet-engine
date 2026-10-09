@@ -89,27 +89,27 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Vulkan Instance Getter
 		/// @return Pointer to the vulkan instance
-		[[nodiscard]] const vk::raii::Instance &GetInstance() const;
+		[[nodiscard]] const vk::raii::Instance &GetInstance() const { return m_instance; }
 
 		/// @brief Vulkan Device getter
 		/// @return Pointer to the vulkan device
-		[[nodiscard]] const vk::raii::Device &GetDevice() const;
+		[[nodiscard]] const vk::raii::Device &GetDevice() const { return m_device; }
 
 		/// @brief Physical Device getter
 		/// @return Pointer to the physical device
-		[[nodiscard]] const vk::raii::PhysicalDevice &GetPhysicalDevice() const;
+		[[nodiscard]] const vk::raii::PhysicalDevice &GetPhysicalDevice() const { return m_physicalDevice; }
 
 		/// @brief Window surface getter
 		/// @return Pointer to the Vulkan Window surface
-		[[nodiscard]] const vk::raii::SurfaceKHR &GetSurface() const;
+		[[nodiscard]] const vk::raii::SurfaceKHR &GetSurface() const { return m_surface; }
 
 		/// @brief Vulkan queue getter
 		/// @return Pointer to the vulkan queue
-		[[nodiscard]] const vk::raii::Queue &GetQueue() const;
+		[[nodiscard]] const vk::raii::Queue &GetQueue() const { return m_queue; }
 
 		/// @brief Queue index getter
 		/// @return uint32 Queue index
-		[[nodiscard]] std::uint32_t GetQueueIndex() const;
+		[[nodiscard]] std::uint32_t GetQueueIndex() const { return m_queueIndex; }
 	private:
 		/// @brief Creates the vulkan instance
 		void CreateInstance(const vk::raii::Context &p_context);
@@ -143,34 +143,4 @@ namespace Droplet::Graphics::VK
 		std::vector<const char *>			m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 		std::vector<char const *>			m_validationLayers = { "VK_LAYER_KHRONOS_validation" };
 	};
-
-	inline const vk::raii::Instance &Context::GetInstance() const
-	{
-		return m_instance;
-	}
-
-	inline const vk::raii::Device &Context::GetDevice() const
-	{
-		return m_device;
-	}
-
-	inline const vk::raii::PhysicalDevice &Context::GetPhysicalDevice() const
-	{
-		return m_physicalDevice;
-	}
-
-	inline const vk::raii::SurfaceKHR &Context::GetSurface() const
-	{
-		return m_surface;
-	}
-
-	inline const vk::raii::Queue &Context::GetQueue() const
-	{
-		return m_queue;
-	}
-
-	inline std::uint32_t Context::GetQueueIndex() const
-	{
-		return m_queueIndex;
-	}
 }

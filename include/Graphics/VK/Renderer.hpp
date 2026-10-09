@@ -22,12 +22,12 @@
 
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Pipeline.hpp>
-#include <optional>
-
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
+#include <Graphics/VK/DescriptorSet.hpp>
+#include <Graphics/VK/DescriptorPool.hpp>
 #include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
@@ -38,6 +38,7 @@
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
+#undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
 namespace Droplet{class Engine;}
 
@@ -54,6 +55,7 @@ namespace Droplet::Graphics
 			glm::mat4 proj {};
 		};
 	}
+	
 	
 	class Renderer
 	{
@@ -85,11 +87,6 @@ namespace Droplet::Graphics
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
 
-		/// @brief Public function to apply mouse movements on the camera
-		/// @param p_xOffset position on the screen along the x-axis
-		/// @param p_yOffset position on the screen along the y-axis
-		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
-
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
 		
@@ -120,15 +117,6 @@ namespace Droplet::Graphics
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();
-
-		/// @brief Creates the descriptorset layout
-		void					CreateDescriptorSetLayout();
-
-		/// @brief Creates the descriptor pool
-		void					CreateDescriptorPool();
-
-		/// @brief Creates the descriptorsets
-		void					CreateDescriptorSets();
 
 		/// @brief Creates sync objects for preventing race conditions etc
 		void					CreateSyncObjects();
@@ -171,15 +159,16 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
-		vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
-		vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
-		std::vector<vk::raii::DescriptorSet> m_descriptorSets;
-		vk::raii::Sampler					 m_textureSampler = nullptr;
+		VK::DescriptorPool						m_descriptorPool { nullptr };
+		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
+		vk::raii::Sampler						m_textureSampler = nullptr;
 
-		VK::Image		m_image { nullptr };
-		VK::ImageView	m_textureView { nullptr };
-		VK::DepthBuffer	m_depthBuffer { nullptr };
-		VK::IndexBuffer	m_indexBuffer { nullptr };
+		VK::Image		m_image			{ nullptr };
+		VK::ImageView	m_textureView	{ nullptr };
+		VK::UniformBuffer m_uniformBuffer { nullptr };
+		
+		VK::DepthBuffer	m_depthBuffer	{ nullptr };
+		VK::IndexBuffer	m_indexBuffer	{ nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
 		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
@@ -189,7 +178,6 @@ namespace Droplet::Graphics
 
 		//Needs one buffer per frame in flight to avoid read write issues
 		
-		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
 		
 		//Index for rendered frames
 		std::uint32_t							 m_frameIndex = 0;
