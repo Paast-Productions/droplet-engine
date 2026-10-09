@@ -8,7 +8,7 @@
 using namespace Droplet::Scene;
 
 Node::Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name)
-    : m_name(p_name), m_transform(this), m_scene(p_scene)
+	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());

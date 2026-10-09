@@ -9,6 +9,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <Transform.hpp>
+#include <cstdint>
+#include <atomic>
 
 namespace Droplet::Scene
 {
@@ -157,6 +159,15 @@ namespace Droplet::Scene
         void SetName(const std::string &p_name);
 
         // --------------------------------------------------
+        // ID
+        // --------------------------------------------------
+
+        [[nodiscard]] std::uint64_t GetID() const noexcept
+        {
+            return m_id;
+        }
+
+        // --------------------------------------------------
         // Components
         // --------------------------------------------------
 
@@ -249,6 +260,9 @@ namespace Droplet::Scene
 
     private:
         std::string m_name;
+        
+        inline static std::atomic<std::uint64_t> s_nextID{1};
+        const std::uint64_t m_id;
 
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;

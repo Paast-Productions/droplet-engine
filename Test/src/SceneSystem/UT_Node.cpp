@@ -451,3 +451,82 @@ TEST_F(NodeTest, PlainTestObjectInitializesCorrectly)
     EXPECT_EQ(object->updateCount, 0);
     EXPECT_FLOAT_EQ(object->lastDeltaTime, 0.0f);
 }
+
+
+// --------------------------------------------------
+// Node ID tests
+// --------------------------------------------------
+
+TEST_F(NodeTest, HasNonZeroID)
+{
+    EXPECT_NE(root->GetID(), 0);
+}
+
+TEST_F(NodeTest, DifferentNodesHaveDifferentIDs)
+{
+    auto player = scene->AddNode("Player");
+    auto enemy = scene->AddNode("Enemy");
+
+    EXPECT_NE(root->GetID(), player->GetID());
+    EXPECT_NE(root->GetID(), enemy->GetID());
+    EXPECT_NE(player->GetID(), enemy->GetID());
+}
+
+TEST_F(NodeTest, NodesWithSameNameHaveDifferentIDs)
+{
+    auto player1 = scene->AddNode("Player");
+    auto player2 = scene->AddNode("Player");
+
+    EXPECT_EQ(player1->GetName(), player2->GetName());
+    EXPECT_NE(player1->GetID(), player2->GetID());
+}
+
+TEST_F(NodeTest, IDDoesNotChangeWhenRenamed)
+{
+    const auto originalID = root->GetID();
+
+    root->SetName("RenamedRoot");
+
+    EXPECT_EQ(root->GetID(), originalID);
+    EXPECT_EQ(root->GetName(), "RenamedRoot");
+}
+
+TEST_F(NodeTest, IDDoesNotChangeWhenReparented)
+{
+    auto parent1 = scene->AddNode("Parent1");
+    auto parent2 = scene->AddNode("Parent2");
+    auto child = scene->AddNode("Child");
+
+    const auto originalID = child->GetID();
+
+    parent1->AddChild(child);
+
+    EXPECT_EQ(child->GetID(), originalID);
+
+    parent2->AddChild(child);
+
+    EXPECT_EQ(child->GetID(), originalID);
+    EXPECT_EQ(child->GetParent(), parent2);
+}
+
+TEST_F(NodeTest, IDsAreUniqueAcrossScenes)
+{
+    auto anotherScene = std::make_shared<Scene>("AnotherScene");
+
+    auto node1 = scene->AddNode("Node");
+    auto node2 = anotherScene->AddNode("Node");
+
+    EXPECT_NE(node1->GetID(), node2->GetID());
+}
+
+TEST_F(NodeTest, IDDoesNotChangeWhenRemovedFromParent)
+{
+    auto child = root->AddChild(scene->AddNode("Child"));
+
+    const auto originalID = child->GetID();
+
+    root->RemoveChild(child);
+
+    EXPECT_EQ(child->GetID(), originalID);
+    EXPECT_EQ(child->GetParent(), nullptr);
+}
