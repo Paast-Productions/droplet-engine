@@ -215,7 +215,7 @@ void Scene::SetActive(bool p_active)
     }
 }
 
-std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &ray, Math::RayHit *hit) const
+std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &p_ray, Math::RayHit *p_hit) const
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -225,7 +225,7 @@ std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &ray, Math::RayHit *h
 	return nullptr;
 }
 
-std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &ray) const
+std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &p_ray) const
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
