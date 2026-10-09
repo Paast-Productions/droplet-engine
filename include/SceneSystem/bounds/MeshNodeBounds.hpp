@@ -11,13 +11,13 @@ namespace Droplet::Scene
 	class MeshComponent;
 
 	/// @brief Represents the bounds of a MeshComponent.
-    class MeshNodeBounds : public NodeBounds
+	class MeshNodeBounds : public NodeBounds, public std::enable_shared_from_this<MeshNodeBounds>
     {
     public:
 		MeshNodeBounds() = delete;
         ~MeshNodeBounds() = default;
 
-        MeshNodeBounds(std::weak_ptr<MeshComponent> p_meshComponent) : m_meshComponent(p_meshComponent) {}
+        MeshNodeBounds(MeshComponent *const p_meshComponent) : m_meshComponent(p_meshComponent) {}
 
         /// @brief Determines whether the node bounds intersects with a plane.
         /// @param p_plane The plane to test against.
@@ -49,9 +49,11 @@ namespace Droplet::Scene
         /// @return A RayHit struct containing information about the hit, including the hit point, normal, distance, and whether a hit occurred.
         [[nodiscard]] Droplet::Math::RayHit Raycast(const Droplet::Math::Ray &p_ray, const glm::mat4x4 &p_worldMat) const override;
 
+		/// @brief Gets the axis-aligned bounding box (AABB) of the node bounds.
+		/// @return The AABB of the node bounds.
         [[nodiscard]] Droplet::Math::AABB GetAABB() const override;
 
     private:
-		std::weak_ptr<MeshComponent> m_meshComponent;
+		MeshComponent *const m_meshComponent = nullptr;
     };
 }
