@@ -2,6 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <string>
+#include <MeshResource.hpp>
 
 namespace Droplet::Scene
 {
@@ -22,8 +23,11 @@ namespace Droplet::Scene
         /// TODO: Placeholder as the correct method is not yet inplemented
         const std::string &GetMeshPath() const;
 
+		const std::weak_ptr<MeshResource> GetMeshResource() const;
+
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
+
     private:
         std::string m_meshPath;
     };

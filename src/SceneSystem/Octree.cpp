@@ -8,10 +8,8 @@
 #include <vector>
 #include <string>
 #include <math/bounds/Intersection.hpp>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/DefaultNodeBounds.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 using namespace Droplet::Math;
 

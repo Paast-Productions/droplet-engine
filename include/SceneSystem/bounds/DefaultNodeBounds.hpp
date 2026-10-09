@@ -1,5 +1,3 @@
-#pragma once
-
 #include <glm/glm.hpp>
 #include <SceneSystem/NodeBounds.hpp>
 #include <math/bounds/Intersection.hpp>
