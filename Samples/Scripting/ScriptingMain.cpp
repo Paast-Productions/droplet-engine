@@ -1,4 +1,5 @@
 ﻿#include <print>
+#include <string_view>
 
 #include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "ScriptSystem/ScriptSystem.hpp"

@@ -65,7 +65,7 @@ namespace Droplet::Editor
 	private:
 		bool m_hasToolbar = true;
 		std::string m_name = "Window";
-		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_MenuBar;
+		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_None;
 
 		/// @brief Opens the editor window. This method is called before rendering the window.
 		void OpenWindow();

@@ -22,6 +22,7 @@
 #include <GameInput.hpp>
 
 #include <Graphics/VK/BufferHelper.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -44,6 +45,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_indexBuffer	{ m_allocator.Get(), G_INDICES },
 	m_vertexBuffer	{ m_allocator.Get(), G_VERTICES }
 {
+	ZoneScoped;
+
 	// TODO: <REFACTOR>
 	CreateDescriptorSetLayout();
 	
@@ -125,6 +128,8 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 //Idle the device to allow for cleanup of swapchain and destroy window
 Renderer::~Renderer()
 {
+	ZoneScoped;
+
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
@@ -132,6 +137,8 @@ Renderer::~Renderer()
 //File reading function for loading the shader file
 static std::vector<char> readFile(const std::string &filename)
 {
+	ZoneScoped;
+
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
 	if (!file.is_open())
 	{
@@ -152,6 +159,8 @@ void Renderer::ResizeWindow()
 
 void Renderer::CreateGraphicsPipeline()
 {
+	ZoneScoped;
+
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), readFile("slang.spv"));
 	VK::PipelineConfig pipelineConfig
@@ -165,6 +174,8 @@ void Renderer::CreateGraphicsPipeline()
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
 void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
+	ZoneScoped;
+
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), p_shaderBlob);
 	VK::PipelineConfig pipelineConfig 
@@ -177,6 +188,8 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
 {
+	ZoneScoped;
+
 	vk::ShaderModuleCreateInfo createInfo
 	{
 		.codeSize = p_code.size() * sizeof(char),
@@ -195,6 +208,8 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 //Creation function for shaders
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const
 {
+	ZoneScoped;
+
 	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
 	vk::raii::ShaderModule     shaderModule{ p_device, createInfo};
 
@@ -212,6 +227,8 @@ void Renderer::TransitionImageLayout(
 	vk::PipelineStageFlags2 p_dstStageMask,
 	vk::ImageAspectFlags    p_imageAspectFlags)
 {
+	ZoneScoped;
+
 	vk::ImageMemoryBarrier2 barrier
 	{
 		.srcStageMask = p_srcStageMask,
@@ -249,6 +266,8 @@ void Renderer::TransitionImageLayout(
 //Main drawing operations are here!
 void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
+	ZoneScoped;
+
 	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 
 	commandBuffer.begin({});
@@ -346,6 +365,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 //Creation of objects for parallellization, semaphores for GPU, fences for CPU
 void Renderer::CreateSyncObjects()
 {
+	ZoneScoped;
+
 	assert(m_presentCompleteSemaphores.empty() && m_renderFinishedSemaphores.empty() && m_inFlightFences.empty());
 
 	for (size_t i = m_swapchain.GetImages().size(); i > 0; i--)
@@ -363,6 +384,8 @@ void Renderer::CreateSyncObjects()
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
 void Renderer::DrawFrame()
 {
+	ZoneScoped;
+
 	// Create temporary deltaTime that Update's will use
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
 
@@ -505,6 +528,8 @@ void Renderer::DrawFrame()
 
 void Renderer::CreateTextureSampler()
 {
+	ZoneScoped;
+
 	vk::PhysicalDeviceProperties properties = m_context.GetPhysicalDevice().getProperties();
 	vk::SamplerCreateInfo        samplerInfo
 	{
@@ -527,6 +552,8 @@ void Renderer::CreateTextureSampler()
 //If the descriptor pool is inadequate it might still pass the validation layers and fail on some machines but not others
 void Renderer::CreateDescriptorPool()
 {
+	ZoneScoped;
+
 	std::array<vk::DescriptorPoolSize, 2> poolSize
 	{ 
 		{
@@ -556,6 +583,8 @@ void Renderer::CreateDescriptorPool()
 //Multiple bindings can be created at once, here we added the sampler
 void Renderer::CreateDescriptorSetLayout() 
 {
+	ZoneScoped;
+
 	std::array<vk::DescriptorSetLayoutBinding, 2> bindings
 	{
 		{
@@ -587,6 +616,8 @@ void Renderer::CreateDescriptorSetLayout()
 
 void Renderer::CreateDescriptorSets()
 {
+	ZoneScoped;
+
 	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSetLayout);
 	vk::DescriptorSetAllocateInfo        allocInfo
 	{
@@ -647,6 +678,8 @@ static void CheckVkResult(VkResult p_err)
 
 void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 {
+	ZoneScoped;
+
 	//TODO: CREATE PIPELINE CACHE
 
 	p_initInfo.Instance = *m_context.GetInstance();
@@ -689,5 +722,7 @@ SDL_Window *Renderer::GetWindow()
 
 void Renderer::WaitIdle()
 {
+	ZoneScoped;
+
 	m_context.GetDevice().waitIdle();
 }

@@ -51,13 +51,13 @@ void Node::Start()
 
 void Node::Update(float p_deltaTime)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_active)
     {
         return;
     }
-
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
 
 	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 

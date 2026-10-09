@@ -2,6 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <string>
+#include <string_view>
 
 namespace Droplet::Scene
 {
@@ -17,7 +18,7 @@ namespace Droplet::Scene
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
-		std::string_view GetTypeName() override { return "MeshComponent"; }
+		std::string_view GetTypeName() const override { return "MeshComponent"; }
 
         /// TODO: Placeholder as the correct method is not yet inplemented
         const std::string &GetMeshPath() const;

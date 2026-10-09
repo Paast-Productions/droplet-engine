@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include <SceneSystem/Component.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
@@ -30,7 +31,7 @@ namespace Droplet::Scene
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
-        std::string_view GetTypeName() override { return "ScriptComponent"; }
+        std::string_view GetTypeName() const override { return "ScriptComponent"; }
 
         /// @brief Updates the associated Lua script.
         ///
