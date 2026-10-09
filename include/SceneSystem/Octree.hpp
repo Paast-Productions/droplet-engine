@@ -111,7 +111,7 @@ namespace Droplet::Scene
 			const std::string &p_label, const std::string &p_color);
 
 		static constexpr std::uint8_t C_MAX_CHILDREN = 8;
-		static constexpr std::uint8_t C_MAX_DEPTH = 4;
+		static constexpr std::uint8_t C_MAX_DEPTH = 8;
 
 		struct TreeNode
 		{
