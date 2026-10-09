@@ -43,7 +43,7 @@ namespace Droplet::Graphics::VK
 			Droplet::Graphics::VK::CommandPool &p_commandPool,
 			Droplet::Graphics::VK::Context &p_context,
 			const unsigned char *p_pixels,
-			const std::size_t p_size,
+			std::size_t p_size,
 			std::uint32_t p_width,
 			std::uint32_t p_height,
 			vk::Format p_format,
@@ -98,15 +98,10 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Image getter
 		/// @return pointer to the image
-		[[nodiscard]] const vma::raii::Image &Get() const;
+		[[nodiscard]] const vma::raii::Image &Get() const { return m_image; }
 
 	private:
 		vma::raii::Image m_image = nullptr;
 		
 	};
-
-	inline const vma::raii::Image &Image::Get() const
-	{
-		return m_image;
-	}
 }

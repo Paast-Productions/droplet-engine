@@ -57,15 +57,10 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Getter-function for the index buffer
 		/// @returns Vulkan Buffer Pointer
-		[[nodiscard]] const vk::raii::Buffer &Get() const;
+		[[nodiscard]] const vk::raii::Buffer &Get() const { return m_indexBuffer; }
 		
 	private:
 		vma::raii::Buffer m_indexBuffer { nullptr };
 		
 	};
-
-	inline const vk::raii::Buffer &IndexBuffer::Get() const
-	{
-		return m_indexBuffer;
-	}
 }

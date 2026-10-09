@@ -1,4 +1,4 @@
-﻿#include <Graphics/VK/Renderer.hpp>
+#include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
