@@ -4,6 +4,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
+#include <json/json.hpp>
 
 using namespace Droplet::Script;
 
@@ -22,11 +23,7 @@ namespace Droplet::Scene
     class ScriptComponent : public Component
     {
     public:
-        /// @brief Creates a ScriptComponent for a Lua script.
-        ///
-        /// @param p_scriptPath Path to the Lua script that should be associated
-        /// with this component.
-        explicit ScriptComponent(const std::string &p_scriptPath);
+        ScriptComponent() = default;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
@@ -79,9 +76,7 @@ namespace Droplet::Scene
         /// @param p_args Arguments to forward to the Lua function.
         /// @return Result of the protected Lua function call.
         template<typename... Args>
-        sol::protected_function_result Call(
-            const std::string &p_functionName,
-            Args&&... p_args);
+        sol::protected_function_result Call( const std::string &p_functionName, Args&&... p_args);
 
     protected:
 		/// @brief Internal rendering function for the component's UI.
@@ -92,12 +87,12 @@ namespace Droplet::Scene
 		void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
-        void DeserializeImpl(nlohmann::json p_compJson) override;
 
+        void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
         /// @brief Path to the Lua script associated with this component.
-        std::string m_scriptPath;
+        std::string m_scriptPath{};
     };
 
     /// @brief Calls a Lua function on the script associated with the component.
@@ -111,13 +106,12 @@ namespace Droplet::Scene
     /// @param p_args Arguments to forward to the Lua function.
     /// @return Result of the protected Lua function call.
     template<typename ...Args>
-    inline sol::protected_function_result ScriptComponent::Call(
-        const std::string &p_functionName,
-        Args&& ...p_args)
+    inline sol::protected_function_result ScriptComponent::Call(const std::string &p_functionName, Args&& ...p_args)
     {
         return ScriptSystem::Get().Call(
             this,
             p_functionName,
-            std::forward<Args>(p_args)...);
+            std::forward<Args>(p_args)...
+        );
     }
 }

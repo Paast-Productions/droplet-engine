@@ -123,7 +123,7 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
         {
             throw std::runtime_error("component is missing required field 'filepath'");
         }
-        p_node->AddComponent<ScriptComponent>(p_json["filepath"]);
+        p_node->AddComponent<ScriptComponent>();//p_json["filepath"]
     }
     else if (type == "MeshComponent")
     {
@@ -131,7 +131,7 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
         {
             throw std::runtime_error("component is missing required field 'filepath'");
         }
-        p_node->AddComponent<MeshComponent>(p_json["filepath"]);
+        p_node->AddComponent<MeshComponent>();//p_json["filepath"]
     }
     else if (type == "PlayerComponent")
     {

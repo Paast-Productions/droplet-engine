@@ -12,7 +12,8 @@ namespace Droplet::Scene
     class MeshComponent : public Component
     {
     public:
-        explicit MeshComponent(const std::string &p_meshPath);
+        MeshComponent() = default;
+
         void Update(float p_deltaTime) override;
 
         /// @brief Gets the type name of the component.

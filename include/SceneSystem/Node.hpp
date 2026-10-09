@@ -181,7 +181,7 @@ namespace Droplet::Scene
             // Ensure that T is derived from Component
             static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-            auto component = std::make_shared<T>(std::forward<Args>(p_args)...);
+            auto component = std::make_shared<T>();//std::forward<Args>(p_args)...
 
             component->SetOwner(shared_from_this());
 

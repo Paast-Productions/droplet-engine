@@ -5,12 +5,6 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
-ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
-    : m_scriptPath((p_scriptPath))
-{
-
-}
-
 void ScriptComponent::Start()
 {
     //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
@@ -48,6 +42,7 @@ void Droplet::Scene::ScriptComponent::RenderUIImpl()
 {
     ScriptSystem::Get().Call(this, "RenderUI");
 }
+
 nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
@@ -60,4 +55,5 @@ nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
 
 void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
 {
+
 }

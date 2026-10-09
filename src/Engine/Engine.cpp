@@ -1,9 +1,14 @@
 #include <Engine.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 {
+	// Register engine components
+	RegisterComponents();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -56,4 +61,11 @@ SDL_Window *Droplet::Engine::GetWindow()
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+void Engine::RegisterComponents()
+{
+	// Register engine components
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_shared<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_shared<Scene::ScriptComponent>(); });
 }

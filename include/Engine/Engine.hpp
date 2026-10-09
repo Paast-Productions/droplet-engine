@@ -47,5 +47,8 @@ namespace Droplet
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief Registers all components owned by the engine.
+		void RegisterComponents();
 	};
 }
