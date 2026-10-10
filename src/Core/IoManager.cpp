@@ -105,4 +105,27 @@ namespace Droplet::Core::JsonIO
 	{
 		std::remove(path.c_str());
 	}
+
+	void CreateFile(const std::string &path)
+	{
+		if (std::filesystem::exists(path))
+		{
+			return; // File already exists, no need to create it
+		}
+
+		// Get the parent directory of the file path
+		std::filesystem::path parentDir = std::filesystem::path(path).parent_path();
+
+		if (!std::filesystem::is_directory(parentDir) || !std::filesystem::exists(parentDir))
+		{
+			std::filesystem::create_directory(parentDir);
+		}
+
+		std::ofstream file(path);
+		if (!file.is_open())
+		{
+			throw std::runtime_error("Failed to create file: " + path);
+		}
+		file.close();
+	}
 }

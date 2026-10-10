@@ -28,6 +28,12 @@ namespace Droplet::Core::JsonIO
 			const nlohmann::json &p_data, ModifyAction p_modifyAction);
 
 		/// @brief Deletes all files in the specified directory.
+		/// @param path The path of the directory to delete files from.
 		void DeleteFile(const std::string &path);
+
+		/// @brief Creates a new file at the specified path. 
+		/// Including any necessary parent directories if they do not exist.
+		/// @param path The path where the new file should be created.
+		void CreateFile(const std::string &path);
 };
 
