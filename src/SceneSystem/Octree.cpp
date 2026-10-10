@@ -72,9 +72,31 @@ namespace Droplet::Scene
 		RemoveFromTreeNode(p_node, m_root);
 	}
 
-	void Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
+	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
 	{
 		CheckIntersection(p_outNodes, p_frustum, m_root);
+	}
+
+	std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit)
+	{
+		RayHit hit{};
+		std::weak_ptr<Node> node{};
+
+		RaycastNode(node, hit, p_ray, m_root);
+
+		if (p_hit != nullptr)
+		{
+			*p_hit = hit;
+		}
+
+		return node;
+	}
+
+	std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray)
+	{
+		std::vector<std::weak_ptr<Node>> nodes{};
+		RaycastNodes(nodes, p_ray, m_root);
+		return nodes;
 	}
 
 	std::string Octree::ToGraphviz()
@@ -296,6 +318,110 @@ namespace Droplet::Scene
 		case IntersectType::Contains:
 			AddAllNodeElements(p_nodes, p_treeNode);
 			break;
+		}
+	}
+
+	void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+		if (!octantHit.didHit)
+		{
+			return;
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			// Recurse into child octants
+
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child == nullptr)
+				{
+					continue;
+				}
+
+				RaycastNode(p_node, p_hit, p_ray, child);
+			}
+
+			return;
+		}
+		
+		p_hit.distance = std::numeric_limits<float>::max();
+
+		// Check individual nodes stored in this leaf
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			if (node == nullptr)
+			{
+				continue;
+			}
+
+			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+
+			if (!nodeHit.didHit)
+			{
+				continue;
+			}
+
+			if (nodeHit.distance < p_hit.distance)
+			{
+				p_hit = nodeHit;
+				p_node = node;
+			}
+		}
+	}
+
+	void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+		if (!octantHit.didHit)
+		{
+			return;
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			// Recurse into child octants
+
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child == nullptr)
+				{
+					continue;
+				}
+
+				RaycastNodes(p_nodes, p_ray, child);
+			}
+
+			return;
+		}
+
+		// Check individual nodes stored in this leaf
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			if (node == nullptr)
+			{
+				continue;
+			}
+
+			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+
+			if (!nodeHit.didHit)
+			{
+				continue;
+			}
+
+			p_nodes.push_back(node);
 		}
 	}
 

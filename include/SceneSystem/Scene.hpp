@@ -27,8 +27,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Scene.
         explicit Scene(const std::string &p_name);
 
-        /// @brief Virtual destructor.
-        virtual ~Scene() = default;      
+        ~Scene() = default;      
 
         /// @brief Loads the Scene.
         ///
@@ -42,7 +41,7 @@ namespace Droplet::Scene
         ///
         /// Derived Scenes can override this function to perform additional
         /// loading or initialization.
-        virtual void Load();
+        void Load();
 
         /// @brief Unloads the Scene.
         ///
@@ -55,7 +54,7 @@ namespace Droplet::Scene
         ///
         /// Derived Scenes can override this function to perform additional
         /// cleanup.
-        virtual void Unload();
+        void Unload();
 
         /// @brief Updates the Scene.
         ///
@@ -63,7 +62,7 @@ namespace Droplet::Scene
         /// loaded and active.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update(float p_deltaTime);
+        void Update(float p_deltaTime);
 
         /// @brief Renders the Scene.
         ///
@@ -73,7 +72,7 @@ namespace Droplet::Scene
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved to a separate rendering
         /// system in the future.
-        virtual void Render();
+        void Render();
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///
@@ -149,6 +148,10 @@ namespace Droplet::Scene
 
         /// @brief Prints graphviz code for visualizing the octree as a tree
         void PrintOctreeTree();
+
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+
+		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
     private:
         std::string m_name;
