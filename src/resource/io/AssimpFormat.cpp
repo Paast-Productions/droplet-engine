@@ -12,6 +12,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <json/json.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
 
@@ -94,6 +95,8 @@ namespace Droplet::IO::AssimpFormat
     
 	std::unique_ptr<MeshResource> LoadMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 	{
+		ZoneScoped;
+
 	    thread_local Assimp::Importer s_importer;
         
         bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
@@ -142,6 +145,8 @@ namespace Droplet::IO::AssimpFormat
 
 	std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 	{
+		ZoneScoped;
+
         thread_local Assimp::Importer s_importer;
         
         bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
@@ -206,6 +211,8 @@ namespace Droplet::IO::AssimpFormat
 
 	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings)
 	{
+		ZoneScoped;
+
         thread_local Assimp::Importer s_importer;
         
 		std::string animName =  p_loadSettings.value(MetaLoadSettings::C_TARGET_ANIMATION.key, MetaLoadSettings::C_TARGET_ANIMATION.defaultValue);
@@ -371,6 +378,8 @@ namespace Droplet::IO::AssimpFormat
 
 	std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath)
 	{
+		ZoneScoped;
+
         thread_local Assimp::Importer s_importer;
         
 		std::vector<std::pair<ResourceType, std::string>> resourceList{};

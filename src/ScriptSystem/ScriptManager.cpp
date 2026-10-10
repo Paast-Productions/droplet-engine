@@ -4,6 +4,7 @@
 #include <iostream>
 #include <print>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 
 using namespace Droplet;
@@ -15,6 +16,8 @@ ScriptManager::ScriptManager(LuaStateHandler &p_statehandler) : m_StateHandler(p
 
 void ScriptManager::Start()
 {
+	ZoneScoped;
+
 	for (auto &instance : m_activeScripts)
 	{
 		instance->OnStart();
@@ -23,6 +26,8 @@ void ScriptManager::Start()
 
 void ScriptManager::Update(float p_deltaTime)
 {
+	ZoneScoped;
+
 	for (auto &instance : m_activeScripts)
 	{
 		instance->OnUpdate(p_deltaTime);
@@ -33,6 +38,8 @@ void ScriptManager::CreateComponentScript(
 	Scene::Component *p_scriptComponent, 
 	const std::string &p_scriptFile)
 {
+	ZoneScoped;
+
 	if (!IsLoaded(p_scriptFile))
 	{
 		LoadScript(p_scriptFile);
@@ -76,6 +83,8 @@ void ScriptManager::CreateBehaviourScript(
 	Scene::Behaviour *p_scriptBehaviour,
 	const std::string &p_scriptFile)
 {
+	ZoneScoped;
+
 	if (p_scriptBehaviour == nullptr)
 	{
 		throw std::invalid_argument("p_scriptBehaviour is recived as nullptr");
@@ -117,6 +126,8 @@ void ScriptManager::CreateBehaviourScript(
 
 void ScriptManager::DetachComponentScript(Scene::Component *p_scriptComponent)
 {
+	ZoneScoped;
+
 	if (p_scriptComponent == nullptr)
 	{
 		return;
@@ -136,6 +147,8 @@ void ScriptManager::DetachComponentScript(Scene::Component *p_scriptComponent)
 
 void ScriptManager::DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	ZoneScoped;
+
 	if (p_scriptBehaviour == nullptr)
 	{
 		return;
@@ -153,6 +166,8 @@ void ScriptManager::DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBeh
 
 void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 {
+	ZoneScoped;
+
 	std::vector<ScriptInstance*> instanceToKill;
 
 	for (const std::unique_ptr<ScriptInstance> &instance : m_scriptInstances)
@@ -171,6 +186,8 @@ void ScriptManager::DetachAllInstancesToScript(const std::string& p_scritpfile)
 
 void ScriptManager::LoadScript(const std::string &p_scriptFile)
 {
+	ZoneScoped;
+
 	if (IsLoaded(p_scriptFile))
 	{
 		return;
@@ -216,6 +233,8 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 
 void ScriptManager::UnloadScript(const std::string& p_scriptFile)
 {
+	ZoneScoped;
+
 	if (!IsLoaded(p_scriptFile))
 	{
 		throw std::runtime_error("Trying to unload a script that is not loaded");
@@ -240,6 +259,8 @@ bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 
 void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 {
+	ZoneScoped;
+
 	auto it = m_loadedScripts.find(p_scriptFile);
 
 	if (it == m_loadedScripts.end())
@@ -282,6 +303,8 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 
 void ScriptManager::CheckForFileChanges()
 {
+	ZoneScoped;
+
 	for (auto& [scriptFile, loadedScript] : m_loadedScripts)
 	{
 		if (HasScriptFileChanged(scriptFile))
@@ -305,6 +328,8 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 
 void ScriptManager::ActivateComponentScript(Scene::Component *p_scriptComponent)
 {
+	ZoneScoped;
+
 	if (p_scriptComponent == nullptr)
 	{
 		return;
@@ -327,6 +352,8 @@ void ScriptManager::ActivateComponentScript(Scene::Component *p_scriptComponent)
 
 void Droplet::Script::ScriptManager::ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	ZoneScoped;
+
 	if (p_scriptBehaviour == nullptr)
 	{
 		return;
@@ -349,6 +376,8 @@ void Droplet::Script::ScriptManager::ActivateBehaviourScript(Droplet::Scene::Beh
 
 void ScriptManager::DeactivateComponentScript(Scene::Component *p_scriptComponent)
 {
+	ZoneScoped;
+
 	if (p_scriptComponent == nullptr)
 	{
 		return;
@@ -373,6 +402,8 @@ void ScriptManager::DeactivateComponentScript(Scene::Component *p_scriptComponen
 
 void Droplet::Script::ScriptManager::DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	ZoneScoped;
+
 	if (p_scriptBehaviour == nullptr)
 	{
 		return;
@@ -408,6 +439,8 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
+	ZoneScoped;
+
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())
@@ -425,6 +458,8 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 
 void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 {
+	ZoneScoped;
+
 	if (p_scriptInstance == nullptr)
 	{
 		throw std::invalid_argument("p_scriptInstance is nullptr");
@@ -478,6 +513,8 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 
 bool ScriptManager::HasScriptFileChanged(const std::string& p_scriptFile)
 {
+	ZoneScoped;
+
 	auto it = m_loadedScripts.find(p_scriptFile);
 	if (it == m_loadedScripts.end())
 	{

@@ -2,11 +2,14 @@
 
 #include "core/StringUtils.hpp"
 #include "resource/meta/MetaUtils.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
     void ResourceManager::Initialize(const std::filesystem::path &p_rootDirectory)
     {
+        ZoneScoped;
+
         if (m_isInitialized)
         {
             // TODO: Log warning: RM already initialized
@@ -31,6 +34,8 @@ namespace Droplet
 
     void ResourceManager::Update()
     {
+        ZoneScoped;
+
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         // A possible performance improvement for this function could be to limit the number of processed load and register
@@ -129,6 +134,8 @@ namespace Droplet
 
     void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath)
     {
+        ZoneScoped;
+
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::filesystem::path relAssetPath(p_relAssetPath);
@@ -181,6 +188,8 @@ namespace Droplet
 
     bool ResourceManager::UpdateMetaEntry(GUID p_guid, const MetaEntry &p_updatedEntry, bool hotReload)
     {
+        ZoneScoped;
+
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         // Safety check to not change meta while a worker thread could be reading from it
@@ -297,6 +306,8 @@ namespace Droplet
 
     void ResourceManager::HotReload(GUID p_guid)
     {
+        ZoneScoped;
+
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         auto it = m_liveResources.find(p_guid);
@@ -333,6 +344,8 @@ namespace Droplet
     std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,
                                                                       const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
     {
+        ZoneScoped;
+
         std::vector<MetaEntry> oldMetaData;
         m_registry.GetCachedMetaDataForAsset(p_relAssetPath.generic_string(), oldMetaData); // If it fails, old metadata remains empty
         

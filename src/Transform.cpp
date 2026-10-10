@@ -6,6 +6,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include <SceneSystem/Node.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
@@ -374,6 +375,8 @@ void Transform::MakeDirty()
 
 void Droplet::Scene::Transform::ResetFrame()
 {
+	ZoneScoped;
+
 	m_wasChanged = false;
 
 	// Recursively mark children as dirty
@@ -385,6 +388,8 @@ void Droplet::Scene::Transform::ResetFrame()
 
 void Transform::RecalculateMatrices()
 {
+	ZoneScoped;
+
 	UpdateLocalMatrix();
 
 	// If the transform has a parent, multiply the local matrix by the parent's world matrix to get the world matrix.

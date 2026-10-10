@@ -1,8 +1,11 @@
 #include "math/bounds/Frustum.hpp"
 #include <glm/glm.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 Droplet::Math::Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::vec3 &p_up, float p_fov, float p_aspect, float p_near, float p_far)
 {
+	ZoneScoped;
+
 	// Calculate the right vector from the forward and up vectors
 	glm::vec3 right = glm::normalize(glm::cross(p_fwd, p_up));
 

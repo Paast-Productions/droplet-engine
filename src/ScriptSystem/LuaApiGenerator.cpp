@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <print>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Script;
 
@@ -10,6 +11,8 @@ bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath,
     const std::vector<LuaGlobalFunctionDefinition> &p_globals, 
     const std::vector<LuaClassDefinition> &p_classes)
 {
+    ZoneScoped;
+
     std::ofstream file(p_outputPath);
 
     if (!file.is_open()) 
@@ -34,6 +37,8 @@ bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath,
 void LuaApiGenerator::GenerateGlobal(std::ofstream &p_file,
     const std::vector<LuaGlobalFunctionDefinition> p_globalFunctions)
 {
+    ZoneScoped;
+
     for (const LuaGlobalFunctionDefinition& function : p_globalFunctions)
     {
         for (const LuaParameterDefinition& parameter : function.parameters)
@@ -74,6 +79,8 @@ void LuaApiGenerator::GenerateClasses(
     std::ofstream &p_file,
     const std::vector<LuaClassDefinition> &p_classes)
 {
+    ZoneScoped;
+
     for (const LuaClassDefinition &luaClass : p_classes)
     {
         p_file << "---@class " << luaClass.name << "\n";
@@ -136,6 +143,7 @@ void LuaApiGenerator::GenerateClasses(
         }
     }
 }
+
 std::string LuaApiGenerator::GetDefaultLuaValue(const std::string &p_type)
 {
     if (p_type == "number")

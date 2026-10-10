@@ -1,10 +1,14 @@
 #include "SceneSerializer.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet;
 
 nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_scene)
 {
+    ZoneScoped;
+	ZoneText(p_scene->GetName().c_str(), p_scene->GetName().size());
+
     nlohmann::json json;
 
     json["version"] = 1; // Should we even have version?, shouldn't be implemented like this tho
@@ -21,6 +25,9 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
 
 void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_ptr<Scene> p_scene)
 {
+    ZoneScoped;
+	ZoneText(p_json["name"].get<std::string>().c_str(), p_json["name"].get<std::string>().size());
+
     if (!p_scene)
     {
         std::cerr << "Failed to load Game scene\n";
