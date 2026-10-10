@@ -11,7 +11,7 @@
 #include <algorithm>
 
 #include <Transform.hpp>
-#include <SceneSystem/NodeBounds.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
 {

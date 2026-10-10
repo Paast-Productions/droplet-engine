@@ -54,6 +54,10 @@ namespace Droplet::Math
 			return orientation;
 		}
 
+		/// @brief Computes the eight corner points of the OBB and stores them in the provided array.
+		/// @param p_corners An array of 8 glm::vec3 to store the corner points of the OBB.
+		void GetCorners(glm::vec3 p_corners[8]) const;
+
 		// Static
 
 		/// @brief Creates an OBB that encompasses a set of points.

@@ -7,6 +7,17 @@ using namespace Droplet::Math;
 OBB::OBB(const glm::vec3 &p_center, const glm::vec3 &p_extents, const glm::quat &p_quat) :
 	center(p_center), extents(p_extents), orientation(glm::mat3_cast(p_quat)) { }
 
+void OBB::GetCorners(glm::vec3 p_corners[8]) const
+{
+	p_corners[0] = center + orientation * glm::vec3(-extents.x, -extents.y, -extents.z);
+	p_corners[1] = center + orientation * glm::vec3(extents.x, -extents.y, -extents.z);
+	p_corners[2] = center + orientation * glm::vec3(extents.x, extents.y, -extents.z);
+	p_corners[3] = center + orientation * glm::vec3(-extents.x, extents.y, -extents.z);
+	p_corners[4] = center + orientation * glm::vec3(-extents.x, -extents.y, extents.z);
+	p_corners[5] = center + orientation * glm::vec3(extents.x, -extents.y, extents.z);
+	p_corners[6] = center + orientation * glm::vec3(extents.x, extents.y, extents.z);
+	p_corners[7] = center + orientation * glm::vec3(-extents.x, extents.y, extents.z);
+}
 
 // HACK: No idea if this function works. Tests must be written to verify it.
 OBB OBB::FromPoints(const std::vector<glm::vec3> &p_points)

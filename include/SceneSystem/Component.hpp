@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 
-#include "NodeBounds.hpp"
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
 {

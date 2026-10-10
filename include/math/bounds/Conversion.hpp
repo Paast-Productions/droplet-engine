@@ -10,10 +10,9 @@ namespace Droplet::Math
 {
 	// Utility functions for converting between different bounding volumes.
 
-	// TODO: 
-	//		AABB to OBB
-	//		OBB to AABB
-	//		Sphere to AABB
-	//		Frustum to AABB
-	//		Frustum to OBB
+	[[nodiscard]] OBB AABBToOBB(const AABB &p_aabb);
+	[[nodiscard]] AABB OBBToAABB(const OBB &p_obb);
+	[[nodiscard]] AABB SphereToAABB(const Sphere &p_sphere);
+	[[nodiscard]] AABB FrustumToAABB(const Frustum &p_frustum);
+	[[nodiscard]] OBB FrustumToOBB(const Frustum &p_frustum);
 }

@@ -41,7 +41,18 @@ namespace Droplet::Scene
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param[out] p_outNodes The vector with Nodes to be rendered
-		void GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes);
+		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes);
+
+		/// @brief Finds the first Node instance intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
+		std::weak_ptr<Node> GetNodeFromRaycast(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+
+		/// @brief Finds all Node instances intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @return A vector of weak pointers to all Node instances intersecting with the ray
+		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
 
 		/// @brief Generates graphviz code for visualiziong the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
@@ -74,13 +85,28 @@ namespace Droplet::Scene
 		/// @brief Subdivides a octant into eights
 		/// @param p_parentOctant The octant to be subdivided
 		/// @param[out] p_childOctants The subdivided octants
-		void SubdivideOctant(const Droplet::Math::AABB &p_parentOctant, std::vector<Droplet::Math::AABB> &p_childOctants);
+		void SubdivideOctant(const Math::AABB &p_parentOctant, std::vector<Math::AABB> &p_childOctants);
 
 		/// @brief Helper function for getting Node instances intersecting with frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Droplet::Math::Frustum &p_frustum, 
+		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
+			const std::unique_ptr<TreeNode> &p_treeNode);
+
+		/// @brief Helper function for raycasting a single Node instance
+		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray
+		/// @param[out] p_hit The RayHit struct to store hit information
+		/// @param p_ray The ray to check for intersections
+		/// @param p_treeNode The TreeNode instance to be checked for intersection
+		void RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray,
+			const std::unique_ptr<TreeNode> &p_treeNode);
+
+		/// @brief Helper function for raycasting all Node instances intersecting with a ray
+		/// @param[out] p_nodes The vector that contains all Node instances intersecting the ray
+		/// @param p_ray The ray to check for intersections
+		/// @param p_treeNode The TreeNode instance to be checked for intersection
+		void RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, 
 			const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Helper function for checking frustum culling
@@ -107,7 +133,7 @@ namespace Droplet::Scene
 		/// @param p_label The label printed in the visualization for the graphviz element
 		/// @param p_color The color of the graphviz element
 		/// @return A string of graphviz code representing the AABB
-		std::string BoundingBoxToGraphviz(const Droplet::Math::AABB &p_aabb, const std::string &p_nodeName,
+		std::string BoundingBoxToGraphviz(const Math::AABB &p_aabb, const std::string &p_nodeName,
 			const std::string &p_label, const std::string &p_color);
 
 		static constexpr std::uint8_t C_MAX_CHILDREN = 8;
@@ -115,7 +141,7 @@ namespace Droplet::Scene
 
 		struct TreeNode
 		{
-			Droplet::Math::AABB octant;
+			Math::AABB octant;
 			std::uint8_t level = 0;
 
 			std::vector<std::shared_ptr<Node>> nodes;

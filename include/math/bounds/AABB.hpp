@@ -64,14 +64,15 @@ namespace Droplet::Math
 		}
 
 		/// @brief Creates an AABB that encompasses a set of points.
-		/// @param p_points A vector of points to encompass.
+		/// @param p_points A pointer to an array of points.
+		/// @param p_count The number of points in the array.
 		/// @return An AABB that encompasses all the given points.
-		[[nodiscard]] static inline AABB FromPoints(const std::vector<glm::vec3> &p_points)
+		[[nodiscard]] static inline AABB FromPoints(const glm::vec3 *p_points, std::size_t p_count)
 		{
 			glm::vec3 min = p_points[0];
 			glm::vec3 max = p_points[0];
 
-			for (size_t i = 1; i < p_points.size(); ++i)
+			for (size_t i = 1; i < p_count; ++i)
 			{
 				const glm::vec3 &point = p_points[i];
 
@@ -80,6 +81,19 @@ namespace Droplet::Math
 			}
 
 			return FromMinMax(min, max);
+		}
+
+		/// @brief Creates an AABB that encompasses a set of points.
+		/// @param p_points A vector of points.
+		/// return An AABB that encompasses all the given points.
+		[[nodiscard]] static inline AABB FromPoints(const std::vector<glm::vec3> &p_points)
+		{
+			if (p_points.empty())
+			{
+				return AABB();
+			}
+
+			return FromPoints(p_points.data(), p_points.size());
 		}
 
 		/// @brief Transforms an AABB by a given transformation matrix.
