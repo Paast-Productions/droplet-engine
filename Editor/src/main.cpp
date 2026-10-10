@@ -11,6 +11,7 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EditorConfig.hpp>
 
 using namespace Droplet::Editor;
 
@@ -19,12 +20,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
 	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
+	glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", glm::vec2(1280, 720));
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
-			1280, 720, {}
+			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
 		},
 		Droplet::UpdateFlags::EditorFlags
 	));
@@ -36,8 +38,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	}
 
 	// Setup SDL polling listener
-	engine->AddEventListener([](SDL_Event &event) {
-		ImGui_ImplSDL3_ProcessEvent(&event);
+	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
+		ImGui_ImplSDL3_ProcessEvent(&event); 
+	});
+
+	engine->AddEventListener([](SDL_Event &event) { // Window resize callback
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			int width = event.window.data1;
+			int height = event.window.data2;
+			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+		}
 	});
 
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
