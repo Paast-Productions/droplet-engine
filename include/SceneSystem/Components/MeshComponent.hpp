@@ -1,9 +1,9 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <string>
-#include <MeshResource.hpp>
+#include <resource/types/MeshResource.hpp>
 #include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <string>
 
 namespace Droplet::Scene
 {
