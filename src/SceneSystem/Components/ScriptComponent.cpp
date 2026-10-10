@@ -7,11 +7,7 @@ using namespace Droplet::Script;
 
 void ScriptComponent::Start()
 {
-    //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
-    auto &scriptSystem = ScriptSystem::Get();
 
-    scriptSystem.CreateComponentScript(this, m_scriptPath);
-    scriptSystem.ActivateComponentScript(this);
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -21,6 +17,18 @@ void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 const std::string &ScriptComponent::GetScriptPath() const
 {
     return m_scriptPath;
+}
+
+void ScriptComponent::SetScriptPath(const std::string &p_scriptPath)
+{
+    m_scriptPath = p_scriptPath;
+
+    // HACK: Likely doesn't work
+    // TODO: Fix this to ensure scripts can be loaded after construction
+    auto &scriptSystem = ScriptSystem::Get();
+
+    scriptSystem.CreateComponentScript(this, m_scriptPath);
+    scriptSystem.ActivateComponentScript(this);
 }
 
 void ScriptComponent::DetachScript()
@@ -38,22 +46,21 @@ void ScriptComponent::DeactivateScript()
     ScriptSystem::Get().DeactivateComponentScript(this);
 }
 
-void Droplet::Scene::ScriptComponent::RenderUIImpl()
+void ScriptComponent::RenderUIImpl()
 {
     ScriptSystem::Get().Call(this, "RenderUI");
 }
 
-nlohmann::json Droplet::Scene::ScriptComponent::SerializeImpl()
+nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["type"] = "ScriptComponent";
     json["filepath"] = GetScriptPath();
 
     return json;
 }
 
-void Droplet::Scene::ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_compJson)
 {
-
+	// TODO: Implement deserialization logic for the script component.
 }

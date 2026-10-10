@@ -12,16 +12,16 @@ const std::string &MeshComponent::GetMeshPath() const
     return m_meshPath;
 }
 
-nlohmann::json Droplet::Scene::MeshComponent::SerializeImpl()
+nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["type"] = "MeshComponent";
     json["filepath"] = GetMeshPath();
 
     return json;
 }
 
-void Droplet::Scene::MeshComponent::DeserializeImpl([[maybe_unused]] nlohmann::json p_compJson)
+void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
+	// TODO: Implement deserialization logic for the mesh component.
 }

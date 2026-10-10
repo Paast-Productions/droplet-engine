@@ -2,11 +2,16 @@
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/BehaviourRegistry.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 {
+	// Register engine behaviours
+	RegisterBehaviours();
+
 	// Register engine components
 	RegisterComponents();
 }
@@ -61,6 +66,12 @@ SDL_Window *Droplet::Engine::GetWindow()
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+void Engine::RegisterBehaviours()
+{
+	// Register engine behaviours
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_shared<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()

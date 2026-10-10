@@ -48,6 +48,11 @@ namespace Droplet::Scene
         /// @return Reference to the stored script path.
         [[nodiscard]] const std::string &GetScriptPath() const;
 
+		/// @brief Sets the path of the associated Lua script.
+        ///
+		/// @param p_scriptPath Path to the Lua script to associate with this component.
+		void SetScriptPath(const std::string &p_scriptPath);
+
         /// @brief Detaches the script from this component.
         ///
         /// Removes the relationship between this component and its associated
@@ -88,7 +93,7 @@ namespace Droplet::Scene
 
         nlohmann::json SerializeImpl() override;
 
-        void DeserializeImpl(nlohmann::json p_compJson) override;
+        void DeserializeImpl(const nlohmann::json p_compJson) override;
 
     private:
         /// @brief Path to the Lua script associated with this component.

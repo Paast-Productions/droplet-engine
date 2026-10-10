@@ -23,8 +23,11 @@ namespace Droplet::Scene
         /// TODO: Placeholder as the correct method is not yet inplemented
         const std::string &GetMeshPath() const;
 
+	protected:
         nlohmann::json SerializeImpl() override;
-        void DeserializeImpl(nlohmann::json p_compJson) override;
+
+        void DeserializeImpl(const nlohmann::json p_compJson) override;
+
     private:
         std::string m_meshPath;
     };

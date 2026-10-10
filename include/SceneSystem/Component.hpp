@@ -62,7 +62,7 @@ namespace Droplet::Scene
 
 		/// @brief Deserializes the component from a JSON object.
 		/// @param p_compJson A JSON object containing the component's state.
-		void Deserialize(nlohmann::json p_compJson);
+		void Deserialize(const nlohmann::json p_compJson);
 
         /// @brief Determines whether the component provides custom bounds.
         ///
@@ -104,7 +104,7 @@ namespace Droplet::Scene
         /// 
 		/// Overloaded by derived components to implement their own deserialization logic.
 		/// @param p_compJson A JSON object containing the component's state.
-        virtual void DeserializeImpl([[maybe_unused]] nlohmann::json p_compJson) { }
+        virtual void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) { }
 
     private:
         friend class Node;
