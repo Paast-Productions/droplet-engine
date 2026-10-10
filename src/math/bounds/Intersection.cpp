@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <limits>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Math;
 
@@ -290,6 +291,8 @@ namespace
 
 RayHit Droplet::Math::Raycast(const Ray &p_ray, const Plane &p_plane)
 {
+	ZoneScoped;
+
 	float intersectionDistance;
 	bool result = glm::intersectRayPlane(p_ray.pos, p_ray.dir, p_plane.GetOrigin(), p_plane.normal, intersectionDistance);
 
@@ -310,6 +313,8 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Plane &p_plane)
 
 RayHit Droplet::Math::Raycast(const Ray &p_ray, const AABB &p_aabb)
 {
+	ZoneScoped;
+
 	RayHit hit{};
 
 	float hitT = 0.0f;
@@ -328,6 +333,8 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const AABB &p_aabb)
 
 RayHit Droplet::Math::Raycast(const Ray &p_ray, const OBB &p_obb)
 {
+	ZoneScoped;
+
 	glm::mat3 invOrientation = glm::transpose(p_obb.orientation);
 	glm::vec3 localOrigin = invOrientation * (p_ray.pos - p_obb.center);
 	glm::vec3 localDirection = invOrientation * p_ray.dir;
@@ -349,6 +356,8 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const OBB &p_obb)
 
 RayHit Droplet::Math::Raycast(const Ray &p_ray, const Sphere &p_sphere)
 {
+	ZoneScoped;
+
 	glm::vec3 intersectionPoint;
 	glm::vec3 intersectionNormal;
 	bool result = glm::intersectRaySphere(p_ray.pos, p_ray.dir, p_sphere.center, p_sphere.radius * p_sphere.radius, intersectionPoint, intersectionNormal);
@@ -364,6 +373,8 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Sphere &p_sphere)
 
 RayHit Droplet::Math::Raycast(const Ray &p_ray, const Frustum &p_frustum)
 {
+	ZoneScoped;
+
 	RayHit closestHit{};
 	closestHit.distance = std::numeric_limits<float>::max();
 
@@ -414,11 +425,15 @@ RayHit Droplet::Math::Raycast(const Ray &p_ray, const Frustum &p_frustum)
 
 bool Droplet::Math::Contains(const AABB &p_this, const glm::vec3 &p_other)
 {
+	ZoneScoped;
+
 	return IsPointInsideAABB(p_this, p_other);
 }
 
 IntersectType Droplet::Math::Intersects(const AABB &p_this, const Plane &p_other)
 {
+	ZoneScoped;
+
 	float signedDistance = SignedDistanceToPlane(p_other, p_this.center);
 	float radius = glm::dot(glm::abs(p_other.normal), p_this.extents);
 
@@ -432,6 +447,8 @@ IntersectType Droplet::Math::Intersects(const AABB &p_this, const Plane &p_other
 
 IntersectType Droplet::Math::Intersects(const AABB &p_this, const AABB &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 thisMin = p_this.GetMin();
 	glm::vec3 thisMax = p_this.GetMax();
 	glm::vec3 otherMin = p_other.GetMin();
@@ -457,6 +474,8 @@ IntersectType Droplet::Math::Intersects(const AABB &p_this, const AABB &p_other)
 
 IntersectType Droplet::Math::Intersects(const AABB &p_this, const OBB &p_other)
 {
+	ZoneScoped;
+
 	if (!IntersectsOBBs(ToOBB(p_this), p_other))
 	{
 		return IntersectType::None;
@@ -477,6 +496,8 @@ IntersectType Droplet::Math::Intersects(const AABB &p_this, const OBB &p_other)
 
 IntersectType Droplet::Math::Intersects(const AABB &p_this, const Sphere &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 closestPoint = glm::clamp(p_other.center, p_this.GetMin(), p_this.GetMax());
 	glm::vec3 delta = p_other.center - closestPoint;
 
@@ -499,6 +520,8 @@ IntersectType Droplet::Math::Intersects(const AABB &p_this, const Sphere &p_othe
 
 IntersectType Droplet::Math::Intersects(const AABB &p_this, const Frustum &p_other)
 {
+	ZoneScoped;
+
 	std::array<glm::vec3, 8> aabbCorners = GetCorners(p_this);
 
 	for (int i = 0; i < 6; ++i)
@@ -541,11 +564,15 @@ IntersectType Droplet::Math::Intersects(const AABB &p_this, const Frustum &p_oth
 
 bool Droplet::Math::Contains(const OBB &p_this, const glm::vec3 &p_other)
 {
+	ZoneScoped;
+
 	return IsPointInsideOBB(p_this, p_other);
 }
 
 IntersectType Droplet::Math::Intersects(const OBB &p_this, const Plane &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 axisX = glm::normalize(p_this.orientation[0]);
 	glm::vec3 axisY = glm::normalize(p_this.orientation[1]);
 	glm::vec3 axisZ = glm::normalize(p_this.orientation[2]);
@@ -567,6 +594,8 @@ IntersectType Droplet::Math::Intersects(const OBB &p_this, const Plane &p_other)
 
 IntersectType Droplet::Math::Intersects(const OBB &p_this, const AABB &p_other)
 {
+	ZoneScoped;
+
 	if (!IntersectsOBBs(p_this, ToOBB(p_other)))
 	{
 		return IntersectType::None;
@@ -587,6 +616,8 @@ IntersectType Droplet::Math::Intersects(const OBB &p_this, const AABB &p_other)
 
 IntersectType Droplet::Math::Intersects(const OBB &p_this, const OBB &p_other)
 {
+	ZoneScoped;
+
 	if (!IntersectsOBBs(p_this, p_other))
 	{
 		return IntersectType::None;
@@ -607,6 +638,8 @@ IntersectType Droplet::Math::Intersects(const OBB &p_this, const OBB &p_other)
 
 IntersectType Droplet::Math::Intersects(const OBB &p_this, const Sphere &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 localCenter = glm::transpose(p_this.orientation) * (p_other.center - p_this.center);
 	glm::vec3 clamped = glm::clamp(localCenter, -p_this.extents, p_this.extents);
 	glm::vec3 closestWorld = p_this.center + p_this.orientation * clamped;
@@ -629,6 +662,8 @@ IntersectType Droplet::Math::Intersects(const OBB &p_this, const Sphere &p_other
 
 IntersectType Droplet::Math::Intersects(const OBB &p_this, const Frustum &p_other)
 {
+	ZoneScoped;
+
 	for (int i = 0; i < 6; ++i)
 	{
 		const Plane &plane = p_other.GetPlane(i);
@@ -667,11 +702,15 @@ IntersectType Droplet::Math::Intersects(const OBB &p_this, const Frustum &p_othe
 
 bool Droplet::Math::Contains(const Sphere &p_this, const glm::vec3 &p_other)
 {
+	ZoneScoped;
+
 	return IsPointInsideSphere(p_this, p_other);
 }
 
 IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Plane &p_other)
 {
+	ZoneScoped;
+
 	float distance = glm::abs(SignedDistanceToPlane(p_other, p_this.center));
 
 	return (distance <= p_this.radius + EPSILON) ? IntersectType::Intersects : IntersectType::None;
@@ -679,6 +718,8 @@ IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Plane &p_oth
 
 IntersectType Droplet::Math::Intersects(const Sphere &p_this, const AABB &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 closestPoint = glm::clamp(p_this.center, p_other.GetMin(), p_other.GetMax());
 	glm::vec3 delta = p_this.center - closestPoint;
 
@@ -702,6 +743,8 @@ IntersectType Droplet::Math::Intersects(const Sphere &p_this, const AABB &p_othe
 
 IntersectType Droplet::Math::Intersects(const Sphere &p_this, const OBB &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 localCenter = glm::transpose(p_other.orientation) * (p_this.center - p_other.center);
 	glm::vec3 clamped = glm::clamp(localCenter, -p_other.extents, p_other.extents);
 	glm::vec3 closestWorld = p_other.center + p_other.orientation * clamped;
@@ -727,6 +770,8 @@ IntersectType Droplet::Math::Intersects(const Sphere &p_this, const OBB &p_other
 
 IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Sphere &p_other)
 {
+	ZoneScoped;
+
 	glm::vec3 delta = p_other.center - p_this.center;
 
 	float distSquared = glm::dot(delta, delta);
@@ -749,6 +794,8 @@ IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Sphere &p_ot
 
 IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Frustum &p_other)
 {
+	ZoneScoped;
+
 	for (int i = 0; i < 6; ++i)
 	{
 		float signedDistance = SignedDistanceToPlane(p_other.GetPlane(i), p_this.center);
@@ -780,11 +827,15 @@ IntersectType Droplet::Math::Intersects(const Sphere &p_this, const Frustum &p_o
 
 bool Droplet::Math::Contains(const Frustum &p_this, const glm::vec3 &p_other)
 {
+	ZoneScoped;
+
 	return IsPointInsideFrustum(p_this, p_other);
 }
 
 IntersectType Droplet::Math::Intersects(const Frustum &p_this, const Plane &p_other)
 {
+	ZoneScoped;
+
 	std::array<glm::vec3, 8> frustumCorners{};
 
 	if (!GetFrustumCorners(p_this, frustumCorners))
@@ -812,6 +863,8 @@ IntersectType Droplet::Math::Intersects(const Frustum &p_this, const Plane &p_ot
 
 IntersectType Droplet::Math::Intersects(const Frustum &p_this, const AABB &p_other)
 {
+	ZoneScoped;
+
 	std::array<glm::vec3, 8> aabbCorners = GetCorners(p_other);
 
 	for (int i = 0; i < 6; ++i)
@@ -847,6 +900,8 @@ IntersectType Droplet::Math::Intersects(const Frustum &p_this, const AABB &p_oth
 
 IntersectType Droplet::Math::Intersects(const Frustum &p_this, const OBB &p_other)
 {
+	ZoneScoped;
+
 	std::array<glm::vec3, 8> obbCorners = GetCorners(p_other);
 
 	for (int i = 0; i < 6; ++i)
@@ -882,6 +937,8 @@ IntersectType Droplet::Math::Intersects(const Frustum &p_this, const OBB &p_othe
 
 IntersectType Droplet::Math::Intersects(const Frustum &p_this, const Sphere &p_other)
 {
+	ZoneScoped;
+
 	for (int i = 0; i < 6; ++i)
 	{
 		float signedDistance = SignedDistanceToPlane(p_this.GetPlane(i), p_other.center);
@@ -905,6 +962,8 @@ IntersectType Droplet::Math::Intersects(const Frustum &p_this, const Sphere &p_o
 
 IntersectType Droplet::Math::Intersects(const Frustum &p_this, const Frustum &p_other)
 {
+	ZoneScoped;
+
 	std::array<glm::vec3, 8> thisCorners{};
 	std::array<glm::vec3, 8> otherCorners{};
 

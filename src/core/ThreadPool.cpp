@@ -1,5 +1,6 @@
 #include "core/ThreadPool.hpp"
 #include <iostream>
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
@@ -11,6 +12,8 @@ namespace Droplet
 
     void ThreadPool::Initialize()
     {
+        ZoneScoped;
+
         if (!m_workerThreads.empty())
         {
             return;
@@ -29,6 +32,8 @@ namespace Droplet
 
     void ThreadPool::Shutdown()
     {
+        ZoneScoped;
+
         {
             std::lock_guard<std::mutex> lock(m_taskMutex);
             m_running = false;
@@ -53,6 +58,8 @@ namespace Droplet
     
     void ThreadPool::PushTask(std::function<void()> p_task)
     {
+        ZoneScoped;
+
         {
             std::lock_guard<std::mutex> lock(m_taskMutex);
 
@@ -74,8 +81,12 @@ namespace Droplet
 
     void ThreadPool::WorkerLoop()
     {
+        ZoneScoped;
+
         while (true)
         {
+			ZoneNamed(workerLoopScope, "ThreadPool Worker Loop", true);
+
             std::function<void()> task;
             {
                 std::unique_lock<std::mutex> lock(m_taskMutex);

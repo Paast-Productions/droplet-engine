@@ -2,6 +2,7 @@
 #include "Debug/Logger.hpp"
 
 #include <fstream>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using Droplet::Debug::Logger;
 
@@ -9,6 +10,8 @@ namespace Droplet::Core::JsonIO
 {
 	nlohmann::json Read(const std::string &p_path)
 	{
+		ZoneScoped;
+
 		std::ifstream fileRead(p_path);
 		if (!fileRead.is_open())
 		{
@@ -31,6 +34,8 @@ namespace Droplet::Core::JsonIO
 
 	void Write(const std::string &p_path, const nlohmann::json &p_data)
 	{
+		ZoneScoped;
+
 		std::ofstream fileWrite(p_path);
 		if (!fileWrite.is_open())
 		{

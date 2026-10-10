@@ -1,9 +1,12 @@
 #include "resource/types/Texture2DResource.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
     std::unique_ptr<Texture2DResource> Texture2DResource::CreateFallback()
     {
+        ZoneScoped;
+
         auto fallback = std::make_unique<Texture2DResource>();
         
         fallback->SetDimensions(2, 2);

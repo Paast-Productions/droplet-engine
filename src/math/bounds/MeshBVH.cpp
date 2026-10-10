@@ -5,6 +5,7 @@
 #include <bvh/v2/executor.h>
 #include <bvh/v2/stack.h>
 #include <limits>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Math;
 using namespace bvh;
@@ -20,6 +21,8 @@ using Node = bvh::v2::Node<float, 3>;
 
 MeshBVH::MeshBVH(const std::vector<glm::vec3> &p_triangleList)
 {
+	ZoneScoped;
+
 	if (p_triangleList.empty())
 	{
 		throw std::invalid_argument("Triangle list is empty.");
@@ -84,6 +87,8 @@ AABB MeshBVH::GetBounds() const
 
 RayHit MeshBVH::Raycast(const Ray &p_ray, float p_maxDist) const
 {
+	ZoneScoped;
+
 	if (!m_bvh)
 	{
 		throw std::runtime_error("BVH is not initialized.");

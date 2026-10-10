@@ -2,12 +2,15 @@
 #include "LuaBindings.hpp"
 
 #include <print>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Script;
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
-{ 
+{
+	ZoneScoped;
+
 	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
@@ -17,11 +20,15 @@ ScriptSystem::~ScriptSystem()
 
 void ScriptSystem::Start()
 {
+	ZoneScoped;
+
 	m_scriptManager.Start();
 }
 
 void ScriptSystem::Update(float p_deltaTime)
 {
+	ZoneScoped;
+
 	m_scriptManager.Update(p_deltaTime);
 	m_scriptManager.CheckForFileChanges();
 }

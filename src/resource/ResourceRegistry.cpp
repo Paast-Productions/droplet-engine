@@ -1,11 +1,14 @@
 ﻿#include "resource/ResourceRegistry.hpp"
 
 #include "resource/meta/MetaUtils.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
     void ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
     {
+        ZoneScoped;
+
         if (!std::filesystem::is_directory(p_directory))
         {
             throw std::runtime_error("Directory does not exist.");        
@@ -39,6 +42,8 @@ namespace Droplet
 
     MetaEntry ResourceRegistry::GetResourceMetaData(GUID p_guid)
     {
+        ZoneScoped;
+
         auto it = m_guidToEntryMap.find(p_guid);
         if (it != m_guidToEntryMap.end())
         {
@@ -51,6 +56,8 @@ namespace Droplet
     bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,
                                                      std::vector<MetaEntry> &p_metaData)
     {
+        ZoneScoped;
+
         p_metaData.clear();
         auto it = m_assetToResourcesMap.find(p_assetPath);
         if (it != m_assetToResourcesMap.end())
@@ -88,6 +95,8 @@ namespace Droplet
 
     void ResourceRegistry::RegisterMetaEntry(const std::string &p_relAssetPath, const MetaEntry &p_metaEntry)
     {
+        ZoneScoped;
+
         m_guidToEntryMap[p_metaEntry.guid] = p_metaEntry;
         
         auto &guidList = m_assetToResourcesMap[p_relAssetPath];

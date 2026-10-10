@@ -1,6 +1,7 @@
 #include "ScriptInstance.hpp"
 #include "Node.hpp"
 #include <print>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Script;
@@ -11,6 +12,8 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_environment(m_stateHandler.GetState(), sol::create, m_stateHandler.GetState().globals()),
 	m_scriptPath(p_scriptPath)
 {
+	ZoneScoped;
+
 	if (m_owner) 
 	{
 		m_environment["self"] = p_owner;
@@ -36,10 +39,14 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 
 ScriptInstance::~ScriptInstance()
 {
+	ZoneScoped;
+
 }
 
 void ScriptInstance::OnStart()
 {
+	ZoneScoped;
+
 	if (m_onStart.valid())
 	{
 		sol::protected_function_result result = m_onStart();
@@ -55,6 +62,8 @@ void ScriptInstance::OnStart()
 
 void ScriptInstance::OnUpdate(float deltatime)
 {
+	ZoneScoped;
+
 	if (m_onUpdate.valid())
 	{
 		sol::protected_function_result result = m_onUpdate(deltatime);
@@ -70,6 +79,8 @@ void ScriptInstance::OnUpdate(float deltatime)
 
 bool ScriptInstance::Reload(sol::load_result &p_script)
 {
+	ZoneScoped;
+
 	if (!p_script.valid())
 	{
 		return false;
@@ -96,6 +107,8 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 
 void ScriptInstance::RenderInternalUI() 
 {
+	ZoneScoped;
+
 	sol::protected_function renderUI = m_environment["RenderUI"];
 
 	if (!renderUI.valid())
