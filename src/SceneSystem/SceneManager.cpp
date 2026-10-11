@@ -1,9 +1,10 @@
 #include "SceneManager.hpp"
 #include "SceneFactory.hpp"
 #include "SceneSerializer.hpp"
+#include "Scene.hpp"
+#include "Behaviour.hpp"
 
 #include <Core/IoManager.hpp>
-#include "Scene.hpp"
 #include <algorithm>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -146,7 +147,24 @@ void SceneManager::Update(float p_deltaTime)
 {
     ZoneScoped;
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+	// Pre-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+			ZoneNamedN(behaviourPreUpdateZone, "Behaviour Pre-Update", true);
+            ZoneTextV(behaviourPreUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PreUpdate();
+		}
+
+        ++it;
+	}
+
+	// Update all active Scenes
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
 
@@ -160,7 +178,22 @@ void SceneManager::Update(float p_deltaTime)
 
         ++it;
     }
-        
+
+    // Post-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+            ZoneNamedN(behaviourPostUpdateZone, "Behaviour Posy-Update", true);
+            ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PostUpdate();
+        }
+
+        ++it;
+    }
 }
 
 void SceneManager::Render()
@@ -219,4 +252,31 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
 
     m_scenes[json["name"]] = scene;
 
+}
+
+std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
+{
+    auto behaviour = BehaviourFactory::CreateBehaviour(p_behaviourTypeName);
+
+    behaviour->SetSceneManager(this);
+    m_behaviours.push_back(behaviour);
+
+    behaviour->Start();
+
+	return behaviour;
+}
+
+void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
+{
+    auto behaviour = p_behaviour.lock();
+    if (!behaviour)
+    {
+		return;
+    }
+
+    auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
+    if (it != m_behaviours.end())
+    {
+        m_behaviours.erase(it);
+	}
 }

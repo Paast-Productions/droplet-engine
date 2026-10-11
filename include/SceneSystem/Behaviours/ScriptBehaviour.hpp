@@ -27,20 +27,6 @@ namespace Droplet::Scene
         /// @return The type name of the behaviour.
         std::string_view GetTypeName() override { return "ScriptBehaviour"; }
 
-        /// @brief Starts the associated Lua script.
-        ///
-        /// Called when the component is started and forwards the start
-        /// operation to the scripting system.
-        void Start() override;
-
-        /// @brief Updates the associated Lua script.
-        ///
-        /// Called during the Games update cycle and forwards the update to
-        /// the scripting system.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime) override;
-
         /// @brief Gets the path of the associated Lua script.
         ///
         /// @return Reference to the stored script path.

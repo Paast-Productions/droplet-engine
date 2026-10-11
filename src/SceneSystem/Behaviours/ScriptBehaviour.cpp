@@ -3,15 +3,6 @@
 
 using namespace Droplet::Scene;
 
-void ScriptBehaviour::Start()
-{
-}
-
-void ScriptBehaviour::Update([[maybe_unused]] float p_deltaTime)
-{
-
-}
-
 const std::string &ScriptBehaviour::GetScriptPath() const
 {
 	return m_scriptPath;
