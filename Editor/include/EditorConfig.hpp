@@ -1,4 +1,5 @@
 #pragma once
+#include <json/json.hpp>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
@@ -16,6 +17,9 @@ namespace Droplet::Editor
 	{
 	public:
 
+		/// @brief Updates the editor config, saving it to disk if necessary.
+		static void Update();
+
 		/// @brief Gets the path to the editor config file.
 		/// @return The path to the editor config file.
 		static const std::string &GetConfigPath()
@@ -29,6 +33,10 @@ namespace Droplet::Editor
 		{
 			GetInstance().m_configFilePath = p_newPath;
 		}
+
+		/// @brief Clears the value associated with the given key.
+		/// @param p_key The key to clear the value for.
+		static void ClearValue(const std::string &p_key);
 
 		static void						StoreInt(const std::string &p_key,			int p_value);
 		static void						StoreLong(const std::string &p_key,			long p_value);
@@ -63,6 +71,9 @@ namespace Droplet::Editor
 		static std::vector<glm::vec4>	LoadVec4Array(const std::string &p_key,		const std::vector<glm::vec4> &p_default = {});
 
 	private:
+		EditorConfig() = default;
+		~EditorConfig();
+
 		/// @brief Gets the singleton instance of the EditorConfig class.
 		/// @return The singleton instance of the EditorConfig class.
 		static EditorConfig &GetInstance()
@@ -71,6 +82,14 @@ namespace Droplet::Editor
 			return instance;
 		}
 
-		std::string m_configFilePath = "Config/EditorConfig.json";
+		/// @brief Gets the config data as a JSON object. 
+		/// If the config file has not been loaded yet, it will be loaded from disk.
+		/// @return The config data as a JSON object.
+		static nlohmann::json &GetConfigData();
+
+		std::string		m_configFilePath = "Config/EditorConfig.json";
+		nlohmann::json	m_configData{};
+		bool			m_isConfigLoaded = false;
+		float			m_timeSinceLastSave = 0.0f;
 	};
 }

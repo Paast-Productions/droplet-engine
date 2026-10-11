@@ -71,6 +71,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	{
 		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
+		EditorConfig::Update();
+
 		// ImGui
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();

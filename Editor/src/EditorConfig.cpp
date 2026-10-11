@@ -1,7 +1,7 @@
 #include "EditorConfig.hpp"
 #include <Core/IoManager.hpp>
-#include <json/json.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <Time.hpp>
 
 using namespace Droplet::Editor;
 using namespace nlohmann;
@@ -79,6 +79,69 @@ static bool TraverseToKey(json &p_json, json *&p_out, const std::vector<std::str
 }
 
 
+EditorConfig::~EditorConfig()
+{
+	if (m_isConfigLoaded)
+	{
+		SaveConfigFile(m_configData);
+	}
+}
+
+json &EditorConfig::GetConfigData()
+{
+	if (!GetInstance().m_isConfigLoaded)
+	{
+		GetInstance().m_configData = OpenConfigFile();
+		GetInstance().m_isConfigLoaded = true;
+	}
+
+	return GetInstance().m_configData;
+}
+
+
+void EditorConfig::Update()
+{
+	ZoneScoped;
+
+	EditorConfig &instance = GetInstance();
+
+	if (!instance.m_isConfigLoaded)
+	{
+		return;
+	}
+
+	instance.m_timeSinceLastSave += Time::Get().GetDeltaTime();
+	if (instance.m_timeSinceLastSave >= 1.0f)
+	{
+		SaveConfigFile(instance.m_configData);
+		instance.m_timeSinceLastSave = 0.0f;
+	}
+}
+
+void EditorConfig::ClearValue(const std::string &p_key)
+{
+	[[unlikely]]
+	if (p_key.empty())
+	{
+		throw std::invalid_argument("Key cannot be empty.");
+	}
+
+	std::vector<std::string> splitKeys = SplitKey(p_key);
+	const std::string lastKey = splitKeys.back();
+	splitKeys.pop_back();
+
+	json &config = GetConfigData();
+
+	json *parent = nullptr;
+	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return;
+	}
+
+	parent->erase(lastKey);
+}
+
+
 void EditorConfig::StoreInt(const std::string &p_key, int p_value)
 {
 	[[unlikely]]
@@ -91,13 +154,12 @@ void EditorConfig::StoreInt(const std::string &p_key, int p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreLong(const std::string &p_key, long p_value)
@@ -112,13 +174,12 @@ void EditorConfig::StoreLong(const std::string &p_key, long p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreFloat(const std::string &p_key, float p_value)
@@ -133,13 +194,12 @@ void EditorConfig::StoreFloat(const std::string &p_key, float p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreBool(const std::string &p_key, bool p_value)
@@ -154,13 +214,12 @@ void EditorConfig::StoreBool(const std::string &p_key, bool p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreString(const std::string &p_key, const std::string &p_value)
@@ -175,13 +234,12 @@ void EditorConfig::StoreString(const std::string &p_key, const std::string &p_va
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec2(const std::string &p_key, const glm::vec2 &p_value)
@@ -196,13 +254,12 @@ void EditorConfig::StoreVec2(const std::string &p_key, const glm::vec2 &p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = { p_value.x, p_value.y };
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec3(const std::string &p_key, const glm::vec3 &p_value)
@@ -217,13 +274,12 @@ void EditorConfig::StoreVec3(const std::string &p_key, const glm::vec3 &p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = { p_value.x, p_value.y, p_value.z };
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec4(const std::string &p_key, const glm::vec4 &p_value)
@@ -238,13 +294,12 @@ void EditorConfig::StoreVec4(const std::string &p_key, const glm::vec4 &p_value)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = { p_value.x, p_value.y, p_value.z, p_value.w };
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreIntArray(const std::string &p_key, const std::vector<int> &p_value)
@@ -259,13 +314,12 @@ void EditorConfig::StoreIntArray(const std::string &p_key, const std::vector<int
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreFloatArray(const std::string &p_key, const std::vector<float> &p_value)
@@ -280,13 +334,12 @@ void EditorConfig::StoreFloatArray(const std::string &p_key, const std::vector<f
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreBoolArray(const std::string &p_key, const std::vector<bool> &p_value)
@@ -301,13 +354,12 @@ void EditorConfig::StoreBoolArray(const std::string &p_key, const std::vector<bo
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreStringArray(const std::string &p_key, const std::vector<std::string> &p_value)
@@ -322,13 +374,12 @@ void EditorConfig::StoreStringArray(const std::string &p_key, const std::vector<
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = p_value;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec2Array(const std::string &p_key, const std::vector<glm::vec2> &p_value)
@@ -343,7 +394,7 @@ void EditorConfig::StoreVec2Array(const std::string &p_key, const std::vector<gl
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json array = json::array();
 	for (const auto &val : p_value)
@@ -355,7 +406,6 @@ void EditorConfig::StoreVec2Array(const std::string &p_key, const std::vector<gl
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = array;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec3Array(const std::string &p_key, const std::vector<glm::vec3> &p_value)
@@ -370,7 +420,7 @@ void EditorConfig::StoreVec3Array(const std::string &p_key, const std::vector<gl
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json array = json::array();
 	for (const auto &val : p_value)
@@ -382,7 +432,6 @@ void EditorConfig::StoreVec3Array(const std::string &p_key, const std::vector<gl
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = array;
-	SaveConfigFile(config);
 }
 
 void EditorConfig::StoreVec4Array(const std::string &p_key, const std::vector<glm::vec4> &p_value)
@@ -397,7 +446,7 @@ void EditorConfig::StoreVec4Array(const std::string &p_key, const std::vector<gl
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json array = json::array();
 	for (const auto &val : p_value)
@@ -409,7 +458,6 @@ void EditorConfig::StoreVec4Array(const std::string &p_key, const std::vector<gl
 	TraverseToKey(config, parent, splitKeys, true);
 
 	(*parent)[lastKey] = array;
-	SaveConfigFile(config);
 }
 
 
@@ -425,7 +473,7 @@ int EditorConfig::LoadInt(const std::string &p_key, int p_default)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -448,7 +496,7 @@ long EditorConfig::LoadLong(const std::string &p_key, long p_default)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -471,7 +519,7 @@ float EditorConfig::LoadFloat(const std::string &p_key, float p_default)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -494,7 +542,7 @@ bool EditorConfig::LoadBool(const std::string &p_key, bool p_default)
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -517,7 +565,7 @@ std::string EditorConfig::LoadString(const std::string &p_key, const std::string
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -540,7 +588,7 @@ glm::vec2 EditorConfig::LoadVec2(const std::string &p_key, const glm::vec2 &p_de
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -574,7 +622,7 @@ glm::vec3 EditorConfig::LoadVec3(const std::string &p_key, const glm::vec3 &p_de
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -609,7 +657,7 @@ glm::vec4 EditorConfig::LoadVec4(const std::string &p_key, const glm::vec4 &p_de
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -645,7 +693,7 @@ std::vector<int> EditorConfig::LoadIntArray(const std::string &p_key, const std:
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -676,7 +724,7 @@ std::vector<float> EditorConfig::LoadFloatArray(const std::string &p_key, const 
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -707,7 +755,7 @@ std::vector<bool> EditorConfig::LoadBoolArray(const std::string &p_key, const st
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -738,7 +786,7 @@ std::vector<std::string> EditorConfig::LoadStringArray(const std::string &p_key,
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -769,7 +817,7 @@ std::vector<glm::vec2> EditorConfig::LoadVec2Array(const std::string &p_key, con
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -813,7 +861,7 @@ std::vector<glm::vec3> EditorConfig::LoadVec3Array(const std::string &p_key, con
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
@@ -857,7 +905,7 @@ std::vector<glm::vec4> EditorConfig::LoadVec4Array(const std::string &p_key, con
 	const std::string lastKey = splitKeys.back();
 	splitKeys.pop_back();
 
-	json config = OpenConfigFile();
+	json &config = GetConfigData();
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
