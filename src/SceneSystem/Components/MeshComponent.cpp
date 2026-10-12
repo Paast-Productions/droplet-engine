@@ -4,6 +4,11 @@
 
 using namespace Droplet::Scene;
 
+// TODO: Temp fix for bounds 
+Droplet::Scene::MeshComponent::MeshComponent() : m_bounds(this)
+{
+}
+
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 {
 	//TODO: will be inplemted later when the mesh system is implemented

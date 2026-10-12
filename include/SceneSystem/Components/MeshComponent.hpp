@@ -15,7 +15,7 @@ namespace Droplet::Scene
     class MeshComponent : public Component
     {
     public:
-        MeshComponent() = default;
+        MeshComponent();
 
         void Update(float p_deltaTime) override;
 
