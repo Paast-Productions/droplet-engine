@@ -1,4 +1,6 @@
 #include <Engine.hpp>
+#include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
@@ -7,8 +9,43 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
 {
+	ZoneScoped;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+	
+
+	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
+	m_initInfo = {};
+	m_renderer.GetImGuiInitInfo(m_initInfo);
+	ImGui_ImplVulkan_Init(&m_initInfo);
+
+	ThreadPool::GetInstance().Initialize();
+}
+
+Droplet::Engine::~Engine()
+{
+	ZoneScoped;
+
+	m_renderer.WaitIdle();
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
+
+	Shutdown();
+}
+
+void Droplet::Engine::Shutdown()
+{
+	ThreadPool::GetInstance().Shutdown();
 	// Register engine behaviours
 	RegisterBehaviours();
 
@@ -18,42 +55,77 @@ Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
+	ZoneScoped;
+
 	// Time
 	Time::Get().Update();
+
+	// Inputs
+	Droplet::GameInput::Get().Update();
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
-		if (m_renderer.Event.type == SDL_EVENT_QUIT)
+		// Call all event listeners
+		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
+			m_eventListeners[i](m_renderer.Event);
+		}
+
+		switch (m_renderer.Event.type)
+		{
+		case SDL_EVENT_QUIT:
+			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
-		}
 
-		if (m_renderer.Event.type == SDL_EVENT_WINDOW_RESIZED || m_renderer.Event.type == SDL_EVENT_WINDOW_MINIMIZED)
-		{
-			m_renderer.ResizeWindow();
-		}
-
-		if (m_renderer.Event.type == SDL_EVENT_KEY_DOWN) 
-		{
+		case SDL_EVENT_KEY_DOWN:
 			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
 			{
+				FrameMark;
 				return DROPLET_RETURNTYPE::EXIT;
 			}
+			break;
+
+		case SDL_EVENT_WINDOW_RESIZED:
+		case SDL_EVENT_WINDOW_MINIMIZED:
+			m_renderer.ResizeWindow();
+			break;
+
+		default:
+			break;
 		}
+
+		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
+
+	// TODO: Call behaviour pre-update
 
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
-	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
+	{
+		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+	}
+
+	// TODO: Call behaviour post-update
 
 	// Rendering
 	m_renderer.DrawFrame();
+
+	// ImGui
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 	
 	// Other system that need updating go here.
-	
+
+	FrameMark;
+
 	return DROPLET_RETURNTYPE::OK;
 }
 
@@ -63,11 +135,20 @@ SDL_Window *Droplet::Engine::GetWindow()
 	return m_renderer.GetWindow();
 }
 
+Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
+{
+	return m_renderer;
+}
+
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
 }
 
+void Droplet::Engine::AddEventListener(EventListener p_listener)
+{
+	m_eventListeners.push_back(p_listener);
+}
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours

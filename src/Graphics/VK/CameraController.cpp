@@ -48,6 +48,6 @@ void CameraController::UpdateCamera(Camera &p_camera, float p_deltaTime, const S
 		SDL_Window *window = p_window.Get();
 		int width, height;
 		SDL_GetWindowSize(window, &width, &height);
-		GameInput::Get().SetCursorPosition(window, static_cast<float>(width) / 2, static_cast<float>(height / 2));
+		GameInput::Get().SetCursorPosition(window, static_cast<float>(width) / 2, static_cast<float>(height) / 2);
 	}
 }

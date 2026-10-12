@@ -1,11 +1,7 @@
+#pragma once
+
 #include <glm/glm.hpp>
-#include <SceneSystem/NodeBounds.hpp>
-#include <math/bounds/Ray.hpp>
-#include <math/bounds/Plane.hpp>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/OBB.hpp>
-#include <math/bounds/Sphere.hpp>
-#include <math/bounds/Frustum.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
 #include <math/bounds/Intersection.hpp>
 
 namespace Droplet::Scene

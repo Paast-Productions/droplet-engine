@@ -4,12 +4,16 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <iostream>
+#include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
 
 Scene::Scene(const std::string &p_name)
     : m_name((p_name))
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
 }
 
 void Scene::Update(float p_deltaTime)
@@ -22,9 +26,12 @@ void Scene::Update(float p_deltaTime)
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
     {
-        root->Update(p_deltaTime);
+        for (const auto &root : m_roots)
+        {
+            root->Update(p_deltaTime);
+        }
     }
 
     m_octree.Update();
@@ -78,9 +85,12 @@ void Scene::Render()
         return;
     }
 
-    for (const auto &root : m_roots)
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {
-        root->Render();
+        for (const auto &root : m_roots)
+        {
+            root->Render();
+        }
     }
 }
 
@@ -200,12 +210,22 @@ void Scene::SetActive(bool p_active)
     }
 }
 
-void Droplet::Scene::Scene::PrintOctree()
+void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
 }
 
-void Droplet::Scene::Scene::PrintOctreeTree()
+void Scene::PrintOctreeTree()
 {
     std::cout << m_octree.ToGraphvizTree();
+}
+
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit)
+{
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit);
+}
+
+std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
+{
+    return m_octree.GetNodesFromRaycast(p_ray);
 }

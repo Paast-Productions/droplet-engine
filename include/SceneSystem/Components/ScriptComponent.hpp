@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 #include <SceneSystem/Component.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
@@ -27,7 +28,7 @@ namespace Droplet::Scene
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
-        std::string_view GetTypeName() override { return "ScriptComponent"; }
+        std::string_view GetTypeName() const override { return "ScriptComponent"; }
 
         /// @brief Updates the associated Lua script.
         ///
@@ -52,6 +53,7 @@ namespace Droplet::Scene
         ///
 		/// @param p_scriptPath Path to the Lua script to associate with this component.
 		void SetScriptPath(const std::string &p_scriptPath);
+        void AttachScript(const std::string p_scriptPath);
 
         /// @brief Detaches the script from this component.
         ///
@@ -84,6 +86,7 @@ namespace Droplet::Scene
         sol::protected_function_result Call( const std::string &p_functionName, Args&&... p_args);
 
     protected:
+
 		/// @brief Internal rendering function for the component's UI.
 		///
 		/// Overloaded to provide a default UI for the ScriptComponent that
@@ -97,7 +100,9 @@ namespace Droplet::Scene
 
     private:
         /// @brief Path to the Lua script associated with this component.
-        std::string m_scriptPath{};
+        std::string m_scriptPath;
+
+        bool m_started;
     };
 
     /// @brief Calls a Lua function on the script associated with the component.

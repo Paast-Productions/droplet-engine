@@ -1,7 +1,8 @@
 #pragma once
 #include "resource/types/TextureResource.hpp"
 
-namespace Droplet {
+namespace Droplet 
+{
     void TextureResource::SetFormat(TextureFormat p_format, int p_bytesPerPixel)
     {
         m_format = p_format; m_bytesPerPixel = p_bytesPerPixel;

@@ -2,14 +2,14 @@
 #include "Scene.hpp"
 #include "Component.hpp"
 #include <SceneSystem/DefaultNodeBounds.hpp>
-
+#include <tracy/public/tracy/Tracy.hpp>
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Droplet::Scene;
 
-Node::Node(std::shared_ptr<Scene> p_scene, const std::string &p_name)
-	: m_scene(p_scene), m_name(p_name), m_transform(this)
+Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name)
+	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
     if (!m_scene.lock())
     {
@@ -48,6 +48,9 @@ void Node::Start()
 
 void Node::Update(float p_deltaTime)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_active)
     {
         return;
@@ -245,6 +248,11 @@ const std::string &Node::GetName() const
     return m_name;
 }
 
+void Droplet::Scene::Node::SetName(const std::string &p_name)
+{
+    m_name = p_name;
+}
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
 {
     return m_components;
@@ -323,4 +331,21 @@ void Node::SetScene(std::shared_ptr<Scene> p_scene)
     {
         child->SetScene(p_scene);
     }
+}
+
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
+{
+    auto parent = m_parent.lock();
+
+    while (parent)
+    {
+        if (parent == p_node)
+        {
+            return true;
+        }
+
+        parent = parent->GetParent();
+    }
+
+    return false;
 }

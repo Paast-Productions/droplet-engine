@@ -172,6 +172,7 @@ namespace Droplet::Graphics
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
 		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
+		std::uint32_t m_imGuiPoolSize;
 
 		VkFormat m_imGuiColorFormat;
 

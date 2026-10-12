@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 
-#include "NodeBounds.hpp"
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
 {
@@ -27,12 +27,19 @@ namespace Droplet::Scene
         /// @brief Virtual destructor.
         virtual ~Component() = default;
 
+        Component(const Component &) = delete;			    // Copy constructor
+        Component(Component &&) = delete;					// Move constructor
+        Component &operator=(const Component &) = delete;	// Copy assignment operator
+        Component &operator=(Component &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Component should be explicit and manual
+
 		/// @brief Gets the type name of the component. 
         /// 
         /// This function must be overridden by derived classes to return the correct type name, 
         /// as it is used for serialization and identification of component types.
         /// @return The type name of the component.
-        virtual std::string_view GetTypeName() = 0;
+        virtual std::string_view GetTypeName() const = 0;
 
         /// @brief Called when the owning Node starts.
         ///
@@ -88,6 +95,19 @@ namespace Droplet::Scene
         /// @return The bounding box provided by the component.
         [[nodiscard]] virtual std::shared_ptr<NodeBounds> GetBounds() const;
 
+		/// @brief Checks if the component and all of its ancestors are active.
+		/// @return true if the component and all of its ancestors are active, otherwise false.
+		/// @throws std::runtime_error if the component has no owner.
+        [[nodiscard]] bool IsActive() const;
+
+		/// @brief Check if the component itself is avtive.
+		/// @return A shared pointer to the owning Node, or nullptr if the
+        [[nodiscard]] bool IsActiveSelf() const { return m_active; }
+
+		/// @brief Sets whether the component itself is active.
+		/// @param p_active true to activate the component, false to deactivate it.
+        void SetActiveSelf(bool p_active);
+
     protected:
 		/// @brief Internal rendering function for the component's UI.
         /// 
@@ -109,6 +129,10 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_active = true;
+
+        std::weak_ptr<Node> m_owner{};
+
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when
@@ -116,7 +140,5 @@ namespace Droplet::Scene
         ///
         /// @param p_owner Node that will own the component.
         void SetOwner(std::shared_ptr<Node> p_owner);
-
-        std::weak_ptr<Node> m_owner;
     };
 }

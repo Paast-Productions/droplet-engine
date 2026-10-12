@@ -12,7 +12,8 @@ project "Editor"
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+		"IMGUI_DEFINE_MATH_OPERATORS"
 	}
 
     if _TARGET_OS == "windows" then
@@ -82,6 +83,6 @@ project "Editor"
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd"),
-		    AddQuotation("lua-5.4.7")
+        AddQuotation("assimp-mtd"),
+		AddQuotation("lua-5.4.7")
     }

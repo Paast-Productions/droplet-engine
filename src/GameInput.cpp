@@ -5,6 +5,7 @@
 #include <SDL3/SDL_events.h>
 #include <cstdlib>
 #include <iostream>
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
@@ -12,6 +13,8 @@ namespace Droplet
 
     void GameInput::Update()
     {
+        ZoneScoped;
+
         m_previousKeys = m_currentKeys;
         m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
         m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
@@ -22,6 +25,8 @@ namespace Droplet
 
     void GameInput::ProcessEvent(const SDL_Event &p_event)
     {
+        ZoneScoped;
+
         // Keyboard events
         if (p_event.type == SDL_EVENT_KEY_DOWN)
         {
@@ -131,6 +136,8 @@ namespace Droplet
 
     void GameInput::SetCursorPosition(SDL_Window *&p_window, float p_x, float p_y)
     {
+        ZoneScoped;
+
         m_mouseX = p_x;
         m_mouseY = p_y;
         SDL_WarpMouseInWindow(p_window, m_mouseX, m_mouseY);
