@@ -97,6 +97,8 @@ namespace Droplet
 			return gameInput;
 		}
 
+		void Initialize(SDL_Window *p_window);
+
 		/// @brief Updates the internal mouse and key states.
 		void Update();
 
@@ -160,7 +162,7 @@ namespace Droplet
 		/// @param p_x The new cursor x position.
 		/// @param p_y The new cursor y position.
 		/// @note SDL3 only wants this to be called in the main thread.
-		void SetCursorPosition(SDL_Window *&p_window, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+		void SetCursorPosition(bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
 
 	private:
 		// Keyboard variables
@@ -175,6 +177,8 @@ namespace Droplet
 		float m_prevMouseY = 0.0f;
 		std::array<bool, 2> m_currentMouse = { false };
 		std::array<bool, 2> m_previousMouse = { false };
+
+		SDL_Window *m_window = nullptr;
 
 	};
 }

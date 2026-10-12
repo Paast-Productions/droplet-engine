@@ -96,24 +96,14 @@ void SceneViewWindow::RenderImpl()
 				// från skärm position till världs position och riktning
 				// Skapa ray
 				// 
+
+
 				const EditorCamera &camera = m_editorContext->GetEditorCamera();
-				glm::vec3 position = camera.GetPosition();//m_editorContext->GetEditorCamera().GetPosition();
-				glm::vec3 front = camera.GetForward();//m_editorContext->GetEditorCamera().GetForward();
+				glm::vec3 position = camera.GetPosition();
+				glm::vec3 front = camera.GetForward();
 
 				float x = mousePosNormalizedToCamView.x * 2.0f - 1.0f;
 				float y = 1.0f - mousePosNormalizedToCamView.y * 2.0f;
-
-				/*glm::vec4 rayClip(x, y, 1.0f, 1.0f);
-				glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix(camAspect));
-
-				glm::vec4 rayView = inverseProjection * rayClip;
-				glm::mat4 inverseView = glm::inverse(camera.GetViewMatrix());
-
-				glm::vec4 rayWorld = inverseView * rayView;
-
-				Droplet::Math::Ray ray(position, rayWorld);
-				*/
-
 				glm::vec4 nearClip(x, y, 0.0f, 1.0f);
 				glm::vec4 farClip(x, y, 1.0f, 1.0f);
 
@@ -134,11 +124,12 @@ void SceneViewWindow::RenderImpl()
 					glm::vec3(nearWorld)
 				);
 
-				//std::cout << "Screen Position: " << x << ", " << y << std::endl;
-				//std::cout << "Camera Position: " << position.x << ", " << position.y << ", " << position.z << std::endl;
-				std::cout << "Camera Front: " << front.x << ", " << front.y << ", " << front.z << std::endl;
-				//std::cout << "Ray direction: " << direction.x << ", " << direction.y << ", " << direction.z << std::endl;
+
 			}
+
+			vk::Extent2D extent = m_renderTarget->GetExtent();
+			input.SetCursorPosition(static_cast<float>(extent.width / 2), static_cast<float>(extent.height / 2));
+
 		}
 
 	}

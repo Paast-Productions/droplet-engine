@@ -38,6 +38,12 @@ void EditorCameraController::Update(float p_deltaTime, bool p_allowInput)
 	{
 		m_editorCamera.Move(-m_editorCamera.GetUp(), velocity);
 	}
+	if (input.KeyHeld(Key::KeyQ))
+	{
+		m_relativeMouse = !m_relativeMouse;
+		//SDL_SetWindowRelativeMouseMode(p_window.Get(), m_relativeMouse);
+		input.SetCursorPosition(m_relativeMouse);
+	}
 
 	if (m_relativeMouse)
 	{

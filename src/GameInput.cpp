@@ -10,6 +10,11 @@ namespace Droplet
 {
     static constexpr float C_EPSILON = 0.0001f;
 
+    void GameInput::Initialize(SDL_Window* p_window)
+    {
+        m_window = p_window;
+    }
+
     void GameInput::Update()
     {
         m_previousKeys = m_currentKeys;
@@ -129,10 +134,11 @@ namespace Droplet
         return m_mouseY - m_prevMouseY;
     }
 
-    void GameInput::SetCursorPosition(SDL_Window *&p_window, float p_x, float p_y)
+    void GameInput::SetCursorPosition([[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
     {
         m_mouseX = p_x;
         m_mouseY = p_y;
-        SDL_WarpMouseInWindow(p_window, m_mouseX, m_mouseY);
+        SDL_WarpMouseInWindow(m_window, m_mouseX, m_mouseY);
+        //SDL_SetWindowRelativeMouseMode(m_window, p_relativeMouse);
     }
 }
