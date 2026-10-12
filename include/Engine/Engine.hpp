@@ -7,7 +7,7 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
-#include <ResourceManager.hpp>
+#include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>

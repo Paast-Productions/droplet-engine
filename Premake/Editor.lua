@@ -11,7 +11,8 @@ project "Editor"
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then

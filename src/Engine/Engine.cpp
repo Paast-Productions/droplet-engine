@@ -14,12 +14,13 @@ Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	
-
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
+    
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    m_resourceManager.Initialize(assetDir);
 }
 
 Droplet::Engine::~Engine()
@@ -72,6 +73,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Scriptsystem
 	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+    
+    m_resourceManager.Update();
 
 	// Rendering
 	m_renderer.DrawFrame();

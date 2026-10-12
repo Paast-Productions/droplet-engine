@@ -1,4 +1,6 @@
-#include "ResourceBrowser.hpp"
+#include "Resource/ResourceBrowser.hpp"
+
+#include <ImGui/imgui.h>
 
 using namespace Droplet::Editor::Resource;
 
@@ -10,15 +12,13 @@ void ResourceBrowser::InitImpl()
 void ResourceBrowser::RenderImpl()
 {
 	using namespace ImGui;
+    ResourceManager &resourceManager = m_instance->GetResourceManager();
+    
+    Text("Very Nice Resource Browser");
+    Separator();
 
-	Droplet::ResourceManager *resourceManager = nullptr;
-
-	if (!resourceManager)
-	{
-		return;
-	}
-
-	std::vector<const MetaEntry *> resources = resourceManager->GetRegisteredResources();
+	std::vector<const MetaEntry *> resources = resourceManager.GetRegisteredResources();
+    Text("Registered Resources: %u", resources.size());
 
 	// Split the window into two child windows: one for the resource list and one for the resource details
 
@@ -53,6 +53,7 @@ void ResourceBrowser::RenderImpl()
 	// Details of selected resource
 	BeginChild("Resource Inspector");
 	{
+	    ImGui::Button("Hello");
 		if (selectedResourceGUID != C_INVALID_GUID)
 		{
 			// TODO: Fetch the resource details using the GUID and render them here
