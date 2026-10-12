@@ -1,6 +1,7 @@
 #include "math/bounds/OBB.hpp"
 #include <glm/gtx/pca.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Math;
 
@@ -22,6 +23,8 @@ void OBB::GetCorners(glm::vec3 p_corners[8]) const
 // HACK: No idea if this function works. Tests must be written to verify it.
 OBB OBB::FromPoints(const std::vector<glm::vec3> &p_points)
 {
+	ZoneScoped;
+
 	OBB result{};
 
 	if (p_points.empty())

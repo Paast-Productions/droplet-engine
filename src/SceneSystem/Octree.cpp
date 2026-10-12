@@ -10,6 +10,7 @@
 #include <math/bounds/Intersection.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Math;
 
@@ -22,6 +23,8 @@ namespace Droplet::Scene
 
 	void Octree::Initialize(glm::vec3 p_center, glm::vec3 p_extents)
 	{
+		ZoneScoped;
+
 		if (m_isInitialized)
 		{
 			return;
@@ -35,6 +38,8 @@ namespace Droplet::Scene
 
 	void Octree::Update()
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -54,6 +59,8 @@ namespace Droplet::Scene
 
 	void Octree::AddNode(const std::shared_ptr<Node> p_node)
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -64,6 +71,8 @@ namespace Droplet::Scene
 
 	void Octree::RemoveNode(const std::shared_ptr<Node> p_node)
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -74,6 +83,8 @@ namespace Droplet::Scene
 
 	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
 	{
+		ZoneScoped;
+
 		CheckIntersection(p_outNodes, p_frustum, m_root);
 	}
 
@@ -101,6 +112,8 @@ namespace Droplet::Scene
 
 	std::string Octree::ToGraphviz()
 	{
+		ZoneScoped;
+
 		std::string toReturn = "digraph D{\n";
 
 		size_t counter = 0;
@@ -111,6 +124,8 @@ namespace Droplet::Scene
 
 	std::string Octree::ToGraphvizTree()
 	{
+		ZoneScoped;
+
 		std::string toReturn = "digraph D{\n";
 
 		size_t counter = 0;
@@ -122,6 +137,8 @@ namespace Droplet::Scene
 
 	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;
@@ -151,6 +168,8 @@ namespace Droplet::Scene
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		// Early outs
 		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
 			p_node->GetBounds()->Intersect(p_treeNode->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::None)
@@ -212,6 +231,8 @@ namespace Droplet::Scene
 
 	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_node == nullptr || p_treeNode == nullptr)
 		{
 			return;
@@ -263,6 +284,8 @@ namespace Droplet::Scene
 
 	void Octree::SubdivideOctant(const AABB &p_parentOctant, std::vector<AABB> &p_childOctants)
 	{
+		ZoneScoped;
+
 		glm::vec3 c = p_parentOctant.center;
 		glm::vec3 h = p_parentOctant.extents / glm::vec3(2.0f);
 
@@ -279,6 +302,8 @@ namespace Droplet::Scene
 	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
 		const std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;
@@ -427,6 +452,8 @@ namespace Droplet::Scene
 
 	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;
