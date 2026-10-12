@@ -1,7 +1,10 @@
 #include "resource/types/MeshResource.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
 {
+    ZoneScoped;
+
     auto fallback = std::make_unique<MeshResource>();
     
     struct Vertex
@@ -60,6 +63,8 @@ std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
 
 bool Droplet::MeshResource::FindVertexAttribute(const std::string &p_attribute, std::size_t &p_offset, std::size_t &p_size) const
 {
+    ZoneScoped;
+
     // Ensure layout has attribute
     auto boneIndexIt = std::find_if(m_vertexLayout.begin(), m_vertexLayout.end(),
         [&](const MeshResource::VertexAttribute &attr) {
@@ -86,6 +91,8 @@ bool Droplet::MeshResource::FindVertexAttribute(const std::string &p_attribute, 
 
 void Droplet::MeshResource::GenerateBVH()
 {
+    ZoneScoped;
+
     std::size_t posDataOffset = 0;
     std::size_t posDataSize = 0;
 

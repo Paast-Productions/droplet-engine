@@ -5,6 +5,7 @@
 #include <fstream>
 
 #include "core/StringUtils.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
 
@@ -12,6 +13,8 @@ namespace Droplet::MetaUtils
 {
     bool Read(const std::filesystem::path &p_metaFilePath, std::vector<MetaEntry> &p_metaData)
     {
+        ZoneScoped;
+
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
         {
@@ -52,6 +55,8 @@ namespace Droplet::MetaUtils
 
     bool Write(const std::filesystem::path &p_metaFilePath, const std::vector<MetaEntry> &p_metaData)
     {
+        ZoneScoped;
+
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
         {

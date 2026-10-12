@@ -1,9 +1,12 @@
 #include "resource/types/SkinnedMeshResource.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
 
 std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
 {
+    ZoneScoped;
+
     auto fallback = std::make_unique<SkinnedMeshResource>();
     
     struct SkinnedVertex
@@ -70,6 +73,8 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
 
 int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
 {
+    ZoneScoped;
+
     if (m_boneMap.find(p_name) != m_boneMap.end())
     {
         throw std::runtime_error("Bone with the same name already exists: " + p_name);
@@ -143,6 +148,8 @@ const std::unordered_map<std::string, int> & SkinnedMeshResource::GetBoneMap() c
 
 void SkinnedMeshResource::GenerateBoneBounds()
 {
+    ZoneScoped;
+
     // Ensure layout has bone_indices attribute
     std::size_t boneIndexDataOffset = 0;
     std::size_t boneIndexDataSize = 0;

@@ -210,32 +210,22 @@ void Scene::SetActive(bool p_active)
     }
 }
 
-std::shared_ptr<Node> Scene::FindNodeByRay(const Math::Ray &p_ray, Math::RayHit *p_hit) const
-{
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    // TODO: Interact with Octree
-
-	return nullptr;
-}
-
-std::vector<std::shared_ptr<Node>> Scene::FindNodesByRay(const Math::Ray &p_ray) const
-{
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    // TODO: Interact with Octree
-
-    return { };
-}
-
-void Droplet::Scene::Scene::PrintOctree()
+void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
 }
 
-void Droplet::Scene::Scene::PrintOctreeTree()
+void Scene::PrintOctreeTree()
 {
     std::cout << m_octree.ToGraphvizTree();
+}
+
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit)
+{
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit);
+}
+
+std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
+{
+    return m_octree.GetNodesFromRaycast(p_ray);
 }

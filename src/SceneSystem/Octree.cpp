@@ -8,10 +8,9 @@
 #include <vector>
 #include <string>
 #include <math/bounds/Intersection.hpp>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/DefaultNodeBounds.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Math;
 
@@ -24,6 +23,8 @@ namespace Droplet::Scene
 
 	void Octree::Initialize(glm::vec3 p_center, glm::vec3 p_extents)
 	{
+		ZoneScoped;
+
 		if (m_isInitialized)
 		{
 			return;
@@ -37,6 +38,8 @@ namespace Droplet::Scene
 
 	void Octree::Update()
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -56,6 +59,8 @@ namespace Droplet::Scene
 
 	void Octree::AddNode(const std::shared_ptr<Node> p_node)
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -66,6 +71,8 @@ namespace Droplet::Scene
 
 	void Octree::RemoveNode(const std::shared_ptr<Node> p_node)
 	{
+		ZoneScoped;
+
 		if (!m_isInitialized)
 		{
 			return;
@@ -74,13 +81,39 @@ namespace Droplet::Scene
 		RemoveFromTreeNode(p_node, m_root);
 	}
 
-	void Octree::GetNodesFromCulling(const Droplet::Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
+	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
 	{
+		ZoneScoped;
+
 		CheckIntersection(p_outNodes, p_frustum, m_root);
+	}
+
+	std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit)
+	{
+		RayHit hit{};
+		std::weak_ptr<Node> node{};
+
+		RaycastNode(node, hit, p_ray, m_root);
+
+		if (p_hit != nullptr)
+		{
+			*p_hit = hit;
+		}
+
+		return node;
+	}
+
+	std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray)
+	{
+		std::vector<std::weak_ptr<Node>> nodes{};
+		RaycastNodes(nodes, p_ray, m_root);
+		return nodes;
 	}
 
 	std::string Octree::ToGraphviz()
 	{
+		ZoneScoped;
+
 		std::string toReturn = "digraph D{\n";
 
 		size_t counter = 0;
@@ -91,6 +124,8 @@ namespace Droplet::Scene
 
 	std::string Octree::ToGraphvizTree()
 	{
+		ZoneScoped;
+
 		std::string toReturn = "digraph D{\n";
 
 		size_t counter = 0;
@@ -102,6 +137,8 @@ namespace Droplet::Scene
 
 	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;
@@ -131,6 +168,8 @@ namespace Droplet::Scene
 
 	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		// Early outs
 		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
 			p_node->GetBounds()->Intersect(p_treeNode->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::None)
@@ -192,6 +231,8 @@ namespace Droplet::Scene
 
 	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_node == nullptr || p_treeNode == nullptr)
 		{
 			return;
@@ -243,6 +284,8 @@ namespace Droplet::Scene
 
 	void Octree::SubdivideOctant(const AABB &p_parentOctant, std::vector<AABB> &p_childOctants)
 	{
+		ZoneScoped;
+
 		glm::vec3 c = p_parentOctant.center;
 		glm::vec3 h = p_parentOctant.extents / glm::vec3(2.0f);
 
@@ -259,6 +302,8 @@ namespace Droplet::Scene
 	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
 		const std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;
@@ -301,8 +346,114 @@ namespace Droplet::Scene
 		}
 	}
 
+	void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+		if (!octantHit.didHit)
+		{
+			return;
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			// Recurse into child octants
+
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child == nullptr)
+				{
+					continue;
+				}
+
+				RaycastNode(p_node, p_hit, p_ray, child);
+			}
+
+			return;
+		}
+		
+		p_hit.distance = std::numeric_limits<float>::max();
+
+		// Check individual nodes stored in this leaf
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			if (node == nullptr)
+			{
+				continue;
+			}
+
+			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+
+			if (!nodeHit.didHit)
+			{
+				continue;
+			}
+
+			if (nodeHit.distance < p_hit.distance)
+			{
+				p_hit = nodeHit;
+				p_node = node;
+			}
+		}
+	}
+
+	void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+		if (!octantHit.didHit)
+		{
+			return;
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			// Recurse into child octants
+
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child == nullptr)
+				{
+					continue;
+				}
+
+				RaycastNodes(p_nodes, p_ray, child);
+			}
+
+			return;
+		}
+
+		// Check individual nodes stored in this leaf
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			if (node == nullptr)
+			{
+				continue;
+			}
+
+			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+
+			if (!nodeHit.didHit)
+			{
+				continue;
+			}
+
+			p_nodes.push_back(node);
+		}
+	}
+
 	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
+		ZoneScoped;
+
 		if (p_treeNode == nullptr)
 		{
 			return;

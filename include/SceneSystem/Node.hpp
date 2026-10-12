@@ -13,7 +13,7 @@
 #include <Transform.hpp>
 #include <cstdint>
 #include <atomic>
-#include <SceneSystem/NodeBounds.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
 {

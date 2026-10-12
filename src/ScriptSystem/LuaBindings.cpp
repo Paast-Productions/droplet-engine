@@ -12,6 +12,7 @@
 #include <tuple>
 #include <algorithm>
 #include <vector>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
 
@@ -20,6 +21,8 @@ std::vector<Script::LuaClassDefinition> Script::LuaBindings::m_luaClassDefinitio
 
 void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
+    ZoneScoped;
+
     RegisterGlobalFunctions();
     RegisterNode(p_luaState);
     RegisterTransform(p_luaState);
@@ -55,6 +58,8 @@ void Script::LuaBindings::RegisterGlobalFunctions()
  
 void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
 {
+    ZoneScoped;
+
     p_luaState.new_usertype<Scene::Node>(
         "Node",
         "GetName", &Droplet::Scene::Node::GetName,
@@ -83,6 +88,8 @@ void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 {
+    ZoneScoped;
+
     p_luaState.new_enum<Scene::Transform::Space>(
         "TransformSpace",
         {
@@ -262,6 +269,8 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 
 void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 {
+    ZoneScoped;
+
     p_luaState.new_usertype<glm::vec3>(
         "Vec3",
         sol::constructors<glm::vec3(float, float, float)>(),
@@ -317,6 +326,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 
 void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 {
+    ZoneScoped;
     
     p_luaState.new_enum<Key>(
         "Key",
@@ -525,6 +535,8 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 
 void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaState)
 {
+    ZoneScoped;
+
 	sol::table imgui = p_luaState.create_table("ImGui");
 
     imgui.set_function(
