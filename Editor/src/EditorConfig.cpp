@@ -21,16 +21,16 @@ static json OpenConfigFile()
 
 	const std::string &path = EditorConfig::GetConfigPath();
 
-	try
+	if (!std::filesystem::exists(path))
 	{
-		return Droplet::Core::JsonIO::Read(path);
-	}
-	catch ([[maybe_unused]] const std::exception &e)
-	{
-		json j = json::object(); 
+		Droplet::Core::JsonIO::CreateFile(path);
+
+		json j = json::object();
 		SaveConfigFile(j);
 		return j;
 	}
+
+	return Droplet::Core::JsonIO::Read(path);
 }
 
 static std::vector<std::string> SplitKey(const std::string &p_key)
