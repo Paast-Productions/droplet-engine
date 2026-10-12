@@ -1,5 +1,6 @@
 #pragma once
 #include "resource/types/ShaderResource.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
@@ -8,6 +9,8 @@ namespace Droplet
 
     std::unique_ptr<ShaderResource> ShaderResource::CreateFallback()
     {
+        ZoneScoped;
+
         return std::make_unique<ShaderResource>(ShaderType::Vertex, nullptr);
     }
 

@@ -1,11 +1,14 @@
 #include "resource/types/AnimationResource.hpp"
 
 #include <algorithm>
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
     std::unique_ptr<AnimationResource> AnimationResource::CreateFallback()
     {
+        ZoneScoped;
+
         auto fallback = std::make_unique<AnimationResource>();
         
         fallback->SetName("Fallback_Animation");
