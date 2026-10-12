@@ -1,5 +1,6 @@
 #include "Core/IoManager.hpp"
 #include "Debug/Logger.hpp"
+#include "Core/ThreadPool.hpp"
 
 #include <fstream>
 
@@ -43,8 +44,13 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger &log = Logger::GetInstance();
+			ThreadPool &pool = ThreadPool::GetInstance();
+			// Maybe the thread pool needs to be deleted if it is implemented in the while loop.
 			log.Log(Logger::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
+			pool.PushTask([&log]() {
+				log.ProcessQueue();
+				});
 		}
 	}
 
@@ -64,8 +70,13 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger &log = Logger::GetInstance();
+			ThreadPool &pool = ThreadPool::GetInstance();
+			// Maybe the thread pool needs to be deleted if it is implemented in the while loop.
 			log.Log(Logger::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
+			pool.PushTask([&log]() {
+				log.ProcessQueue();
+				});
 			return nlohmann::json::value_t::discarded;
 		}
 		fileRead.close();

@@ -1,223 +1,119 @@
 #include <gtest/gtest.h>
-#include <atomic>
-#include <mutex>
-#include <thread>
-#include <vector>
+#include <chrono>
 #include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <thread>
+#include <atomic>
+
 #include "Debug/Logger.hpp"
+#include "Core/ThreadPool.hpp"
+
+using Droplet::ThreadPool;
 using Droplet::Debug::Logger;
 
-TEST(ThreadTest, ThreadRuns)
+class ThreadPoolLoggerTest : public ::testing::Test
 {
-    Logger log;
-
-    log.Log(Logger::LogType::Info, "Starting ThreadRuns test");
-
-    bool executed = false;
-
-    std::thread worker([&]()
-        {
-            log.Log(Logger::LogType::Info, "Worker thread started");
-
-            executed = true;
-
-            log.Log(Logger::LogType::Info, "Worker thread finished");
-        });
-
-    worker.join();
-
-    EXPECT_TRUE(executed);
-
-    log.Log(Logger::LogType::Info, "ThreadRuns test finished");
-    log.ClearLog();
-}
-
-
-TEST(ThreadTest, ThreadChangesAtomicValue)
-{
-    Logger log;
-
-    log.Log(Logger::LogType::Info,
-        "Starting ThreadChangesAtomicValue test");
-
-    std::atomic<int> value{ 0 };
-
-    std::thread worker([&]()
-        {
-            log.Log(Logger::LogType::Info,
-                "Worker changing atomic value");
-
-            value.store(42);
-
-            log.Log(Logger::LogType::Info,
-                "Worker stored value 42");
-        });
-
-    worker.join();
-
-    EXPECT_EQ(value.load(), 42);
-
-    log.Log(Logger::LogType::Info,
-        "ThreadChangesAtomicValue test finished");
-    log.ClearLog();
-}
-
-
-TEST(ThreadTest, MultipleThreadsIncrementValue)
-{
-    Logger log;
-
-    log.Log(Logger::LogType::Info,
-        "Starting MultipleThreadsIncrementValue test");
-
-    constexpr int threadCount = 10;
-    constexpr int incrementsPerThread = 42;
-
-    std::atomic<int> counter{ 0 };
-
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < threadCount; ++i)
+protected:
+    void SetUp() override
     {
-        threads.emplace_back([&counter, &log, i]()
-            {
-                log.Log(Logger::LogType::Info,
-                    "Worker thread started");
+        ThreadPool::GetInstance().Initialize();
 
-                for (int j = 0; j < incrementsPerThread; ++j)
-                {
-                    counter.fetch_add(1);
-                }
+        Logger::GetInstance().ClearLog();
 
-                log.Log(Logger::LogType::Info,
-                    "Worker thread finished");
-            });
+        //ThreadPool::GetInstance().PushTask([]() {
+        //    Logger::GetInstance().ProcessQueue();
+        //    });
     }
 
-    for (auto &thread : threads)
+    void TearDown() override
     {
-        thread.join();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+        ThreadPool::GetInstance().Shutdown();
     }
-
-    const int expected = threadCount * incrementsPerThread;
-
-    EXPECT_EQ(counter.load(), expected);
-
-    log.Log(Logger::LogType::Info,
-        "MultipleThreadsIncrementValue test finished");
-    log.ClearLog();
-}
+};
 
 
-TEST(ThreadTest, MutexProtectsSharedData)
+TEST_F(ThreadPoolLoggerTest, SystemStartupLogging)
 {
-    Logger log;
-
-    log.Log(Logger::LogType::Info,
-        "Starting MutexProtectsSharedData test");
-
-    constexpr int threadCount = 10;
-    constexpr int incrementsPerThread = 1000;
-
-    int counter = 0;
-
-    std::mutex mutex;
-
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < threadCount; ++i)
-    {
-        threads.emplace_back([&counter, &mutex, &log]()
-            {
-                log.Log(Logger::LogType::Info,
-                    "Thread waiting for mutex");
-
-                for (int j = 0; j < incrementsPerThread; ++j)
-                {
-                    std::lock_guard<std::mutex> lock(mutex);
-
-                    ++counter;
-                }
-
-                log.Log(Logger::LogType::Info,
-                    "Thread finished");
-            });
-    }
-
-    for (auto &thread : threads)
-    {
-        thread.join();
-    }
-
-    const int expected = threadCount * incrementsPerThread;
-
-    EXPECT_EQ(counter, expected);
-
-    log.Log(Logger::LogType::Info,
-        "MutexProtectsSharedData test finished");
-    log.ClearLog();
-}
-
-
-TEST(ThreadTest, ThreadsCanRunInParallel)
-{
-    Logger log;
-
-    log.Log(Logger::LogType::Info,
-        "Starting ThreadsCanRunInParallel test");
-
-    constexpr int threadCount = 4;
-
-    std::atomic<int> completedThreads{ 0 };
-
-    std::vector<std::thread> threads;
-
-    for (int i = 0; i < threadCount; ++i)
-    {
-        threads.emplace_back([&completedThreads, &log]()
-            {
-                log.Log(Logger::LogType::Info,
-                    "Thread executing");
-
-                std::this_thread::yield();
-
-                ++completedThreads;
-
-                log.Log(Logger::LogType::Info,
-                    "Thread completed");
-            });
-    }
-
-    for (auto &thread : threads)
-    {
-        thread.join();
-    }
-
-    EXPECT_EQ(completedThreads.load(), threadCount);
-
-    log.Log(Logger::LogType::Info,
-        "ThreadsCanRunInParallel test finished");
-    log.ClearLog();
-}
-
-TEST(ThreadTest, TestingAllEnum)
-{
+    Logger &log = Logger::GetInstance();
+	ThreadPool &pool = ThreadPool::GetInstance();
     EXPECT_NO_THROW({
-            Logger log;
-            log.Log(Logger::LogType::Info, "info");
-            log.Log(Logger::LogType::Debug, "debug");
-            log.Log(Logger::LogType::Error, "error");
-            log.Log(Logger::LogType::Warning, "warning");
+        log.Log(Logger::LogType::Info, "Systemet och trådpoolen är startade!");
+        log.Log(Logger::LogType::Debug, "Testar loggning via trådpoolen");
         });
+    pool.PushTask([&log]() {
+        log.ProcessQueue();
+        });
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    EXPECT_TRUE(std::filesystem::exists("logger.json"));
 }
 
-TEST(ThreadTest, ClearLog)
+TEST_F(ThreadPoolLoggerTest, StandaloneTaskExecution)
 {
-    Logger log;
-    log.Log(Logger::LogType::Info, "See if the clearLog works");
+    Logger &log = Logger::GetInstance();
+    ThreadPool &pool = ThreadPool::GetInstance();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    std::atomic<bool> taskExecuted{ false };
+
+    pool.PushTask([&log, &taskExecuted]() {
+        log.Log(Logger::LogType::Info, "Startar fristående jobb");
+
+        taskExecuted.store(true);
+
+        log.Log(Logger::LogType::Info, "Fristående jobb slutfört");
+        });
+
+    int maxWaitMs = 500;
+    while (!taskExecuted.load() && maxWaitMs > 0)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        maxWaitMs -= 10;
+    }
+
+    EXPECT_TRUE(taskExecuted.load());
+}
+
+TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
+{
+    Logger &log = Logger::GetInstance();
+    ThreadPool &pool = ThreadPool::GetInstance();
+    constexpr int totalFrames = 50;
+    int processedFrames = 0;
+
+    for (int frameCounter = 1; frameCounter <= totalFrames; ++frameCounter)
+    {
+        processedFrames++;
+
+        log.Log(Logger::LogType::Info, "Alexander är väldigt vacker - Frame: " + std::to_string(frameCounter));
+        if (frameCounter % 10 == 0)
+        {
+            pool.PushTask([frameCounter, &log]() {
+                log.ProcessQueue();
+                });
+        }
+    }
+
+    EXPECT_EQ(processedFrames, totalFrames);
     EXPECT_TRUE(std::filesystem::exists("logger.json"));
+}
+
+TEST_F(ThreadPoolLoggerTest, ClearLogRemovesFile)
+{
+    Logger &log = Logger::GetInstance();
+    ThreadPool &pool = ThreadPool::GetInstance();
+    log.Log(Logger::LogType::Info, "Tillfälligt loggmeddelande");
+    pool.PushTask([&log]() {
+        log.ProcessQueue();
+        });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+    ASSERT_TRUE(std::filesystem::exists("logger.json"));
+
     log.ClearLog();
-    EXPECT_FALSE(std::filesystem::exists("logger.json"));    
+
+    EXPECT_FALSE(std::filesystem::exists("logger.json"));
 }
