@@ -43,7 +43,7 @@ project "ResourceManager-ResourceLoading"
     links {
         "Engine",
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("assimp-mtd"),
         AddQuotation("Slangd")
     }
 

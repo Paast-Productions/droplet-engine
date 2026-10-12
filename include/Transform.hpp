@@ -24,6 +24,14 @@ namespace Droplet::Scene
 
 		~Transform() = default;
 
+		Transform() = delete;								// Default constructor
+		Transform(const Transform &) = delete;				// Copy constructor
+		Transform(Transform &&) = delete;					// Move constructor
+		Transform &operator=(const Transform &) = delete;	// Copy assignment operator
+		Transform &operator=(Transform &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Transform should be explicit and manual
+
 		// ================================ Getters ================================
 
 		/// @brief Get the position of the transform in the specified space.
@@ -36,7 +44,7 @@ namespace Droplet::Scene
 		/// @return The rotation of the transform in the specified space.
 		[[nodiscard]] glm::quat GetRotation(Space p_space = Space::Local) const;
 
-		/// @brief Get the Euler angles of the transform in the specified space.
+		/// @brief Get the Euler angles in radians of the transform in the specified space.
 		/// @param p_space The space in which to get the Euler angles. Defaults to local space.
 		/// @return The Euler angles of the transform in the specified space.
 		[[nodiscard]] glm::vec3 GetEuler(Space p_pspace = Space::Local) const;
@@ -86,7 +94,7 @@ namespace Droplet::Scene
 		/// @param p_space The space in which to set the rotation. Defaults to local space.
 		void SetRotation(const glm::quat &p_rotation, Space p_space = Space::Local);
 
-		/// @brief Set the Euler angles of the transform in the specified space.
+		/// @brief Set the Euler angles in radians of the transform in the specified space.
 		/// @param p_eulerAngles The new Euler angles to set.
 		/// @param p_space The space in which to set the Euler angles. Defaults to local space.
 		void SetEuler(const glm::vec3 &p_eulerAngles, Space p_space = Space::Local);

@@ -1,5 +1,8 @@
 #include "Component.hpp"
 #include <Node.hpp>
+#include <ImGui/imgui.h>
+#include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
@@ -9,23 +12,20 @@ std::shared_ptr<NodeBounds> Droplet::Scene::Component::GetBounds() const
     return std::shared_ptr<NodeBounds>();
 }
 
-void Component::SetOwner(std::shared_ptr<Node> p_owner)
-{
-    m_owner = p_owner;
-}
-
 Droplet::Scene::Component::Component()
 {
+	ZoneScoped;
 
 }
 
 void Component::RenderUI()
 {
-    // TODO: implement component wrapper UI
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+    // TODO: Set active, delete
 
     RenderUIImpl();
-
-    // TODO: implement component wrapper UI
 }
 
 std::shared_ptr<Node> Component::GetOwner() const
@@ -33,8 +33,33 @@ std::shared_ptr<Node> Component::GetOwner() const
     return m_owner.lock();
 }
 
+void Component::SetOwner(std::shared_ptr<Node> p_owner)
+{
+    m_owner = p_owner;
+}
+
+
+bool Component::IsActive() const
+{
+	auto owner = m_owner.lock();
+	if (!owner)
+	{
+		throw std::runtime_error("Component has no owner.");
+	}
+
+	return m_active && owner->IsActive();
+}
+
+void Component::SetActiveSelf(bool p_active)
+{
+	m_active = p_active;
+}
+
 nlohmann::json Component::Serialize()
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json compJson;
 
     // TODO: Insert component type name.
@@ -49,6 +74,9 @@ nlohmann::json Component::Serialize()
 
 void Component::Deserialize(nlohmann::json p_compJson)
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);

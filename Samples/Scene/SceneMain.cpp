@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <random>
+#include <string_view>
 
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
@@ -114,7 +115,7 @@ static void OctreeTest()
 class PlayerComponent : public Component
 {
 public:
-    std::string_view GetTypeName() override { return "PlayerComponent"; }
+    std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
     void Start() override
     {

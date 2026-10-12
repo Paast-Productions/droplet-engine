@@ -1,5 +1,7 @@
 #pragma once
 
+#include <math/bounds/Intersection.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -10,7 +12,7 @@ namespace Droplet::Scene
     // forward declaration of Node to avoid circular dependency
     class Node;
 
-    /// @brief Represents a Scene containing one or more Node hierarchies.
+	/// @brief Represents a Scene containing a Node hierarchy.
     ///
     /// A Scene owns any number of root Nodes that serve as the starting
     /// points of the Scene's Node hierarchies. Scenes can be loaded,

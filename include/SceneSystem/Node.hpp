@@ -11,6 +11,8 @@
 #include <algorithm>
 
 #include <Transform.hpp>
+#include <cstdint>
+#include <atomic>
 #include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
@@ -33,10 +35,17 @@ namespace Droplet::Scene
         /// @brief Constructs a Node with the specified name and Scene.
 		/// @param p_scene Shared pointer to the Scene that owns this Node.
         /// @param p_name Name of the Node.
-        explicit Node(std::shared_ptr<Scene> p_scene, const std::string &p_name);
+        explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name);
 
-        /// @brief Virtual destructor.
-        virtual ~Node() = default;
+        ~Node() = default;
+
+		Node() = delete;                        // Default constructor
+        Node(const Node &) = delete;			// Copy constructor
+        Node(Node &&) = delete;					// Move constructor
+        Node &operator=(const Node &) = delete;	// Copy assignment operator
+        Node &operator=(Node &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Node should be explicit and manual
 
         /// @brief Starts the Node, its Components, and its children.
         ///
@@ -47,7 +56,7 @@ namespace Droplet::Scene
         /// added to an already started Node are started immediately.
         ///
         /// @note The Node's Start() function can be overridden by derived Nodes.
-        virtual void Start();
+        void Start();
 
         /// @brief Updates the Node, its Components, and its children.
         ///
@@ -55,16 +64,16 @@ namespace Droplet::Scene
         /// and child Nodes.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update(float p_deltaTime);
+        void Update(float p_deltaTime);
 
         /// @brief Renders the Node.
         ///
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved.
-        virtual void Render();
+        void Render();
 
 		/// @brief Renders the Node's UI as well as all attached Components.
-        virtual void RenderUI();
+        void RenderUI();
 
         /// @brief Sets whether the Node is active.
         ///
@@ -148,6 +157,18 @@ namespace Droplet::Scene
         ///
         /// @return A constant reference to the Node's name.
         [[nodiscard]] const std::string &GetName() const;
+
+        /// @brief Sets the Node's name.
+        void SetName(const std::string &p_name);
+
+        // --------------------------------------------------
+        // ID
+        // --------------------------------------------------
+
+        [[nodiscard]] std::uint64_t GetID() const noexcept
+        {
+            return m_id;
+        }
 
         // --------------------------------------------------
         // Components
@@ -263,7 +284,6 @@ namespace Droplet::Scene
         /// @return A constant reference to the effective local-space bounding box.
         [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
 
-
         /// @brief Sets the Node's default local-space bounding box.
         ///
         /// The specified bounds are used when no Component provides a bounds
@@ -285,8 +305,18 @@ namespace Droplet::Scene
         /// @param p_enabled true to enable bounds checks, false to disable them.
         void SetBoundsEnabled(bool p_enabled);
 
+		/// @brief Checks if this Node is a descendant of the specified Node.
+        ///
+		/// @param p_node Node to check against.
+        /// 
+		/// @return true if this Node is a descendant of p_node, otherwise false.
+		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+
     private:
         std::string m_name;
+        
+        inline static std::atomic<std::uint64_t> s_nextID{1};
+        const std::uint64_t m_id;
 
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;

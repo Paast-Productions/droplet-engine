@@ -73,7 +73,7 @@ project "Test"
         "ImGui",
         AddQuotation("SDL3"),
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-vc145-mtd"),
+        AddQuotation("assimp-mtd"),
         AddQuotation("Slangd"),
 		AddQuotation("lua-5.4.7")
     }

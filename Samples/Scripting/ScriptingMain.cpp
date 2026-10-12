@@ -1,4 +1,5 @@
 ﻿#include <print>
+#include <string_view>
 
 #include "SceneSystem/Behaviours/ScriptBehaviour.hpp"
 #include "ScriptSystem/ScriptSystem.hpp"
@@ -19,7 +20,7 @@ using namespace Droplet::Scene;
 class PlayerComponent : public Component
 {
 public:
-    std::string_view GetTypeName() override { return "PlayerComponent"; }
+    std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
     void Start() override
     {

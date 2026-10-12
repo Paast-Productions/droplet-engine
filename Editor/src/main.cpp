@@ -3,191 +3,108 @@
 #include <ImGui/imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include <Engine/Engine.hpp>
+#include "HierarchyWindow.hpp"
+#include <NodeInspectorWindow.hpp>
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
-
-
+#include <Resource/ResourceBrowser.hpp>
+#include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
+#include <EditorConfig.hpp>
 
-class DropletInstance; // TODO: Get definition from Droplet Engine
-
-Droplet::Graphics::SDL::WindowConfig config =
-{
-	.Width = 1280,
-	.Height = 720,
-	.Flags = 0
-};
- 
-// Initialization
-[[nodiscard]] static DropletInstance *Soak()
-{
-	ZoneScoped;
-
-	// TODO: Init Droplet Engine
-	return nullptr;
-}
-
-static void DryOff([[maybe_unused]] DropletInstance *instance)
-{
-	ZoneScoped;
-
-	// TODO: Close Droplet Engine
-}
-
-[[maybe_unused]] static void InitImGui([[maybe_unused]] SDL_Window *window)
-{
-	ZoneScoped;
-
-	// TODO
-	
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplSDL3_InitForVulkan(window);
-
-	//ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
-
-	//ImGui_ImplVulkan_Init(&init_info);
-
-
-	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
-}
-
-// Frame
-[[maybe_unused]] static void NewFrame()
-{
-	ZoneScoped;
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL3_NewFrame();
-	ImGui::NewFrame();
-}
-
-[[maybe_unused]] static void SubmitFrame(SDL_Window *window)
-{
-	ZoneScoped;
-
-	ImGui::EndFrame();
-	SDL_RenderPresent(SDL_GetRenderer(window));
-}
+using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
-	ZoneScopedN("Editor");
-	bool show_demo_window = true;
-	bool show_another_window = true;
+	glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", glm::vec2(1280, 720));
+
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	DropletInstance *instance = Soak();
+	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
+		Droplet::Graphics::SDL::WindowConfig {
+			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
+		},
+		Droplet::UpdateFlags::EditorFlags
+	));
 
-	Droplet::Graphics::Renderer rend(config);
-
-	SDL_Window *wnd = rend.GetWindow();
+	SDL_Window *wnd = engine->GetWindow();
 	if (!wnd)
 	{
 		return 1;
 	}
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
+	// Setup SDL polling listener
+	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
+		ImGui_ImplSDL3_ProcessEvent(&event); 
+	});
 
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-    
-	ImGui_ImplSDL3_InitForVulkan(wnd);
+	engine->AddEventListener([](SDL_Event &event) { // Window resize callback
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			int width = event.window.data1;
+			int height = event.window.data2;
+			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+		}
+	});
 
-	ImGui_ImplVulkan_InitInfo init_info = {};
-	rend.GetImGuiInitInfo(init_info);
-	ImGui_ImplVulkan_Init(&init_info);
+	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
-	//InitImGui(wnd);
+	HierarchyWindow hierarchyWindow(engine, interactionState);
+	NodeInspectorWindow nodeInspectorWindow(interactionState);
+	Resource::ResourceBrowser resourceBrowser;
+	Scene::SceneViewWindow sceneViewWindow(interactionState);
+
+	hierarchyWindow.Init();
+	nodeInspectorWindow.Init();
+	resourceBrowser.Init();
+	sceneViewWindow.Init();
+
+	FrameMark;
 
 	// Run main loop
-	bool done = false;
-	while (!done)
+	bool run = true;
+	while (run)
 	{
-		ZoneScopedN("Main Loop");
+		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
 
-		// TODO: Update engine
+		EditorConfig::Update();
 
-		Droplet::GameInput::Get().Update();
-
-		SDL_Event event;
-		while (SDL_PollEvent(&event))
-		{
-			ImGui_ImplSDL3_ProcessEvent(&event);
-			if (event.type == SDL_EVENT_QUIT)
-			{
-				done = true;
-			}
-
-			Droplet::GameInput::Get().ProcessEvent(event);
-		}
-
+		// ImGui
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
-		if (show_demo_window)
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+
+		hierarchyWindow.Render();
+		nodeInspectorWindow.Render();
+		resourceBrowser.Render();
+		sceneViewWindow.Render();
+
+		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
+
+		switch (returnType)
 		{
-			ImGui::ShowDemoWindow(&show_demo_window);	
+		case Droplet::DROPLET_RETURNTYPE::OK:
+			break;
+
+		case Droplet::DROPLET_RETURNTYPE::EXIT:
+			run = false;
+			break;
+
+		default:
+		case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+			run = false;
+			break;
 		}
 
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-		{
-			static float s_f = 0.0f;
-			static int s_counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &s_f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", reinterpret_cast<float *>(&clear_color)); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true when edited/activated)
-			{
-				s_counter++;	
-			}
-			
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", s_counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-			ImGui::End();
-		}
-		
-
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-			{
-				show_another_window = false;	
-			}
-			ImGui::End();
-		}
-		
-		rend.DrawFrame();
-
-		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		{
-			ImGui::UpdatePlatformWindows();
-			ImGui::RenderPlatformWindowsDefault();
-		}
+		//engine->Endframe
 	}
 
-	rend.WaitIdle();
-	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
-
-	DryOff(instance);
+	return 0;
 }
