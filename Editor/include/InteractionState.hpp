@@ -30,7 +30,7 @@ namespace Droplet::Editor
 
         /// @brief Gets all currently selected nodes.
         /// @return The currently selected nodes.
-        [[nodiscard]] std::vector<std::shared_ptr<Droplet::Scene::Node>>GetSelectedNodes() const;
+        [[nodiscard]] std::vector<std::shared_ptr<Droplet::Scene::Node>> GetSelectedNodes() const;
 
 	private:
 
