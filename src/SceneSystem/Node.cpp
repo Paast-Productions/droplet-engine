@@ -258,24 +258,31 @@ std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
     return m_components;
 }
 
-void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
+void Node::RemoveComponent(const Component *p_component)
 {
     if (!p_component)
     {
         throw std::invalid_argument("Cannot remove nullptr Component.");
     }
 
-    auto it = std::find(m_components.begin(), m_components.end(), p_component);
+    int index = 0;
+    for (index = 0; index < m_components.size(); ++index)
+    {
+        if (m_components[index].get() == p_component)
+        {
+            break;
+        }
+    }
 
-    if (it == m_components.end())
+    if (index == m_components.size())
     {
         throw std::runtime_error("Cannot remove Component: Component is not attached to Node '" + m_name + "'.");
     }
 
     // Check if the component being removed provides the current bounds override.
-    const bool isBoundsOverride = (p_component == m_boundsOverride);
+    const bool isBoundsOverride = (p_component == m_boundsOverride.get());
 
-    m_components.erase(it);
+    m_components.erase(m_components.begin() + index);
 
     // If the removed component was the bounds override, find another one.
     if (isBoundsOverride)

@@ -63,9 +63,6 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::TextUnformatted("Script-Component");
-    ImGui::Separator();
-
     if (!m_scriptPath.empty())
     {
         ImGui::Text("Script: %s", m_scriptPath.c_str());

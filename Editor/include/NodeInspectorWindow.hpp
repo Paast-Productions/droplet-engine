@@ -14,6 +14,8 @@ namespace Droplet::Editor
 		NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState);
 		~NodeInspectorWindow() = default;
 
+		/// @brief Sets the node a user sends to be the current node that will be displayed
+		/// @param p_nodeToInspect The node that user wants to display
 		void SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect);
 
 	protected:
