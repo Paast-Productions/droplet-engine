@@ -132,6 +132,11 @@ namespace Droplet
         }
     }
 
+    std::filesystem::path ResourceManager::GetRootDirectory() const
+    {
+        return m_rootDirectory;
+    }
+
     void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath, std::function<void(const std::vector<MetaEntry>&)> p_onComplete)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
