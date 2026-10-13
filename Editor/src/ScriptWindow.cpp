@@ -96,6 +96,13 @@ void Droplet::Editor::ScriptWindow::RenderTreeHelper(const ScriptTreeNode& p_nod
 				OpenScript(p_node.relativePath);
 			}
 		}
+
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("SCRIPT_PATH", path.c_str(), path.size() + 1);
+			ImGui::TextUnformatted(p_node.name.c_str());
+			ImGui::EndDragDropSource();
+		}
 	}
 	ImGui::PopID();
 }

@@ -446,6 +446,8 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
 	ZoneScoped;
 
+	const std::filesystem::path requestedPath = std::filesystem::path(p_scriptFile).lexically_normal();
+
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())
@@ -453,7 +455,9 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 			continue;
 		}
 
-		if (entry.path().filename() == p_scriptFile)
+		const std::filesystem::path relativePath = entry.path().lexically_relative(m_scriptDirectoryPath).lexically_normal();
+
+		if (relativePath == p_scriptFile)
 		{
 			return entry.path();
 		}
