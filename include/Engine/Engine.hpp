@@ -100,5 +100,10 @@ namespace Droplet
 
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
+		/// @brief Registers all behaviours owned by the engine.
+		void RegisterBehaviours();
+
+		/// @brief Registers all components owned by the engine.
+		void RegisterComponents();
 	};
 }

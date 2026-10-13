@@ -4,8 +4,8 @@
 
 using namespace Droplet::Scene;
 
-MeshComponent::MeshComponent(const std::string &p_meshPath)
-	: m_meshPath((p_meshPath)), m_bounds(this)
+// TODO: Temp fix for bounds 
+Droplet::Scene::MeshComponent::MeshComponent() : m_bounds(this)
 {
 }
 
@@ -74,13 +74,12 @@ nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    // TODO
     json["filepath"] = GetMeshPath();
 
     return json;
 }
 
-void MeshComponent::DeserializeImpl([[maybe_unused]] nlohmann::json p_compJson)
+void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
-    // TODO
+	// TODO: Implement deserialization logic for the mesh component.
 }
