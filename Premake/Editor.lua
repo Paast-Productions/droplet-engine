@@ -62,6 +62,7 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "ImGuizmo",
         "json",
         "tracy"
     }
@@ -76,6 +77,7 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "ImGuizmo",
         "VulkanMemoryAllocator",
         "tracy",
         AddQuotation("SDL3"),

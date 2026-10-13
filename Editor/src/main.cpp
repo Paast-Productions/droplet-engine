@@ -12,13 +12,14 @@
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
+#include <ImGuizmo/ImGuizmo.h>
 
 using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
-	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
+	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
 	glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", glm::vec2(1280, 720));
 
@@ -69,7 +70,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	bool run = true;
 	while (run)
 	{
-		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should always be on the first line of the containing scope
+		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
 		EditorConfig::Update();
 
@@ -77,6 +78,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
