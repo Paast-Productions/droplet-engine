@@ -2,6 +2,29 @@
 
 using namespace Droplet::Editor::Scene;
 
+void SceneViewWindow::RenderToolbar()
+{
+	if (ImGui::BeginMenu("File"))
+	{
+		if (ImGui::BeginMenu("Layout"))
+		{
+			if (ImGui::MenuItem("Load Default Layout"))
+			{
+				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+			}
+
+			if (ImGui::MenuItem("Save Default Layout"))
+			{
+				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenu();
+	}
+}
+
 void SceneViewWindow::RenderImpl()
 {
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
@@ -73,13 +96,6 @@ void SceneViewWindow::RenderImpl()
 		camViewRectMin.x - windowPos.x, 
 		camViewRectMin.y - windowPos.y 
 	};
-
-	// Color entire window background with a dark gray color
-	drawList->AddRectFilled(
-		cursorScreenPos - ImVec2(8, 8), 
-		cursorScreenPos + contentRegion + ImVec2(8, 8), 
-		IM_COL32(8, 8, 8, 255)
-	);
 
 	// Render the camera view texture to the scene view window
 	ImGui::SetCursorPos(camViewPos);

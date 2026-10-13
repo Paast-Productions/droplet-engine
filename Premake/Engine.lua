@@ -7,7 +7,7 @@ project "Engine"
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")
