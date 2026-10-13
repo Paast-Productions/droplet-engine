@@ -9,13 +9,13 @@ If don't have Doxygen installed, you'll need it do generate documentation. Click
 ### Method 1: Installer
 Follow the installer, accept license agreement and make sure all components are checked before you click next.
 
-![alt text](img/install-doxygen-installer.png)
+![alt text](Image/install-doxygen-installer.png)
 
 ### Method 2: Binaries
 
 **Buttons**
 
-![alt text](img/install-doxygen-binaries.png)
+![alt text](Image/install-doxygen-binaries.png)
 
 Unzip the binary files and put the directory in a place where you will find them. Copy the absolute path and add that location to your `PATH`. You can do this by:
 
