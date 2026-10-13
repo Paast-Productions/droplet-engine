@@ -107,8 +107,8 @@ void SceneViewWindow::RenderImpl()
 	drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
 
 	// Capture mouse interaction
-	ImGui::SetCursorPos(camViewPos);
-	if (ImGui::InvisibleButton("CameraView", camSize))
+	//ImGui::SetCursorPos(camViewPos);
+	//if (ImGui::InvisibleButton("CameraView", camSize))
 	{
 		// TODO: Take focus
 	}
@@ -118,28 +118,34 @@ void SceneViewWindow::RenderImpl()
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
 {
+	using DScene = Droplet::Scene::Scene;
+	using DNode = Droplet::Scene::Node;
+	using DTransform = Droplet::Scene::Transform;
+
 	// Setup
 	ImVec2 rectPos = p_sceneViewMin;
 	ImVec2 rectSize = p_sceneViewMax - p_sceneViewMin;
 
 	ImGuizmo::SetRect(rectPos.x, rectPos.y, rectSize.x, rectSize.y);
-
+	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 
 	glm::mat4 tempViewMat = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
 	glm::mat4 tempProjMat = glm::perspective(m_editorCamera.GetFOV(), m_editorCamera.GetAspect(), 0.1f, 100.0f);
-	std::vector<glm::mat4> tempMatrices{};
 
+	std::shared_ptr<DScene> selectedScene = GetEngine()->GetSceneManager().GetScene("TestScene");
+	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots();
+
+	// Render ImGuizmo cubes for all nodes in the scene
 	{
-		std::shared_ptr<Droplet::Scene::Scene> selectedScene = GetEngine()->GetSceneManager().GetScene("TestScene");
-		std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene->GetRoots();
+		std::vector<glm::mat4> tempMatrices{};
 
-		std::function<void(const std::shared_ptr<Droplet::Scene::Node> &)> recurseNodes = [&](const std::shared_ptr<Droplet::Scene::Node> &node) {
+		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) {
 			if (!node)
 			{
 				return;
 			}
 
-			tempMatrices.push_back(node->GetTransform().GetMatrix(Droplet::Scene::Transform::Space::World));
+			tempMatrices.push_back(node->GetTransform().GetMatrix(DTransform::Space::World));
 
 			for (const auto &child : node->GetChildren())
 			{
@@ -151,10 +157,39 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		{
 			recurseNodes(node);
 		}
+
+		if (tempMatrices.size() > 0)
+		{
+			ImGuizmo::DrawCubes(&(tempViewMat[0][0]), &(tempProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
+		}
 	}
 
-	if (tempMatrices.size() > 0)
+	// Render transform gizmo for selected node
 	{
-		ImGuizmo::DrawCubes(&(tempViewMat[0][0]), &(tempProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
+		std::vector<std::shared_ptr<DNode>> selectedNodes = m_interactionState->GetSelectedNodes();
+
+		if (selectedNodes.size() > 0)
+		{
+			//static glm::mat4 beginMatrix = glm::mat4(1.0f);
+
+			std::shared_ptr<DNode> selectedNode = selectedNodes[0];
+
+			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
+			glm::mat4 deltaMatrix = glm::mat4(1.0f);
+
+			bool result = ImGuizmo::Manipulate(
+				&(tempViewMat[0][0]), &(tempProjMat[0][0]), 
+				ImGuizmo::UNIVERSAL, ImGuizmo::LOCAL, 
+				&(nodeMatrix[0][0])//,
+				//&(deltaMatrix[0][0])
+			);
+
+			if (result)
+			{
+				//selectedNode->GetTransform().TransformByMatrix(deltaMatrix, DTransform::Space::World);
+
+				selectedNode->GetTransform().SetMatrix(nodeMatrix, DTransform::Space::World);
+			}
+		}
 	}
 }
