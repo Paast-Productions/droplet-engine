@@ -82,22 +82,17 @@ void SceneViewWindow::RenderImpl()
 
 		if (isWindowFocused && isMouseHovering)
 		{
-			//std::cout << "Mouse is hovering in focused window" << std::endl;
-			m_editorContext->GetEditorCameraController().Update(deltaTime, true);
+			ImVec2 center = {
+				(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+				(camViewRectMin.y + camViewRectMax.y) * 0.5f
+			};
+
 			GameInput &input = GameInput::Get();
+			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
+			controller.Update(deltaTime, true, center.x, center.y);
 
 			if (input.MousePressed(Mouse::LMB)) {
-				//m_editorContext->GetScene().Ray();
-				// 
-				// Hämta camerans properties såsom
-				// position
-				// front
-				// för med dessa så kan vi skapa en ray genom att klicka på skärmen och få en riktning 
-				// från skärm position till världs position och riktning
-				// Skapa ray
-				// 
-
-
+				
 				const EditorCamera &camera = m_editorContext->GetEditorCamera();
 				glm::vec3 position = camera.GetPosition();
 				glm::vec3 front = camera.GetForward();
@@ -127,8 +122,23 @@ void SceneViewWindow::RenderImpl()
 
 			}
 
-			vk::Extent2D extent = m_renderTarget->GetExtent();
-			input.SetCursorPosition(static_cast<float>(extent.width / 2), static_cast<float>(extent.height / 2));
+			if (input.KeyPressed(Key::KeyQ))
+			{
+				m_cameraLookToggled = !m_cameraLookToggled;
+
+				controller.CameraLock(m_cameraLookToggled);
+			}
+
+			//vk::Extent2D extent = m_renderTarget->GetExtent();
+			
+			if (input.MousePressed(Mouse::RMB))
+			{
+				std::cout << "CenterPosX: " << center.x << std::endl;
+				std::cout << "CenterPosY: " << center.y << std::endl;
+				std::cout << "MousePosX: " << mousePos.x << std::endl;
+				std::cout << "MousePosY: " << mousePos.y << std::endl;
+			}
+
 
 		}
 

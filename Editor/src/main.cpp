@@ -135,9 +135,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	sceneView.Init();
 
-	ImGui::SetNextWindowPos(ImVec2(1400.0f, 100.0f), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
-
 	// Run main loop
 	bool done = false;
 	while (!done)
@@ -149,6 +146,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		SDL_Event event;
 		while (SDL_PollEvent(&event))
 		{
+
+
 			Droplet::GameInput::Get().ProcessEvent(event);
 
 			ImGui_ImplSDL3_ProcessEvent(&event);
@@ -166,7 +165,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		}
 
 		NewFrame();
-
+		ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 		sceneView.Render();
 
 		if (show_demo_window)

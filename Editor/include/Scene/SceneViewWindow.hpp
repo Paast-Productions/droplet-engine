@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <EditorWindow.hpp>
 #include <EditorCamera.hpp>
+#include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
@@ -27,12 +28,11 @@ namespace Droplet::Editor::Scene
 
 
 	private:
+		bool m_cameraLookToggled = false;
 
 		EditorContext *m_editorContext = nullptr;
 
 		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
 		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;
-		//EditorCamera m_editorCamera;
-		//std::shared_ptr<InteractionState> m_interactionState;
 	};
 }

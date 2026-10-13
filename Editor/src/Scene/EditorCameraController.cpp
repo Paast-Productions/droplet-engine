@@ -4,7 +4,7 @@
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(float p_deltaTime, bool p_allowInput)
+void EditorCameraController::Update(float p_deltaTime, bool p_allowInput, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	if (!p_allowInput) 
 	{
@@ -38,20 +38,26 @@ void EditorCameraController::Update(float p_deltaTime, bool p_allowInput)
 	{
 		m_editorCamera.Move(-m_editorCamera.GetUp(), velocity);
 	}
-	if (input.KeyHeld(Key::KeyQ))
-	{
-		m_relativeMouse = !m_relativeMouse;
-		//SDL_SetWindowRelativeMouseMode(p_window.Get(), m_relativeMouse);
-		input.SetCursorPosition(m_relativeMouse);
-	}
 
-	if (m_relativeMouse)
+	if (m_lookActive)
 	{
+		float dx = input.GetDeltaMouseX();
+		float dy = input.GetDeltaMouseY();
+
+		std::cout << "Mouse delta: "
+			<< dx << ", " << dy << std::endl;
+
+
+		//m_editorCamera.Rotate(
+		//			-input.GetDeltaMouseX() * m_mouseSensitivity,
+		//			input.GetDeltaMouseY() * m_mouseSensitivity
+		//		);
+
 		m_editorCamera.Rotate(
-					input.GetDeltaMouseX(),
-					input.GetDeltaMouseY()
-				);
-				// Get window ptr and size to reset mouse to center
+			-dx * m_mouseSensitivity,
+			dy * m_mouseSensitivity
+		);
+		input.SetCursorPosition(true, p_centerX, p_centerY);
 	}
 
 	//if (input.MousePressed(Mouse::LMB))
@@ -62,4 +68,22 @@ void EditorCameraController::Update(float p_deltaTime, bool p_allowInput)
 	//	m_editorCamera.Rotate(deltaX, deltaY);
 
 	//}
+}
+
+void EditorCameraController::CameraLock(bool p_enabled)
+{
+	if (m_lookActive == p_enabled)
+		return;
+
+	m_lookActive = p_enabled;
+
+
+	ImGuiIO &io = ImGui::GetIO();
+
+	if (p_enabled)
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	else
+		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+
+	GameInput::Get().SetRelativeMouse(m_lookActive);
 }

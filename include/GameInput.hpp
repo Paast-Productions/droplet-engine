@@ -164,6 +164,8 @@ namespace Droplet
 		/// @note SDL3 only wants this to be called in the main thread.
 		void SetCursorPosition(bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
 
+		void SetRelativeMouse(bool p_active);
+
 	private:
 		// Keyboard variables
 		std::unordered_set<Key> m_currentKeys{};

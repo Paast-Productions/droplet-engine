@@ -27,5 +27,7 @@ namespace Droplet::Editor
 		Scene::EditorCameraController m_editorCameraController;
 		InteractionState m_interactionState;
 		std::shared_ptr<Droplet::Scene::Scene> m_scene;
+
+		
 	};
 }

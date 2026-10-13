@@ -8,7 +8,9 @@ namespace Droplet::Editor::Scene
 	public:
 		EditorCameraController(Droplet::Editor::Scene::EditorCamera &p_camera) : m_editorCamera(p_camera){}
 
-		void Update(float p_deltaTime, bool p_allowInput);
+		void Update(float p_deltaTime, bool p_allowInput, float p_centerX, float p_centerY);
+
+		void CameraLock(bool p_active);
 
 	private:
 		Droplet::Editor::Scene::EditorCamera &m_editorCamera;
@@ -19,6 +21,6 @@ namespace Droplet::Editor::Scene
 		float m_movementSpeed = 2.5f;
 		float m_mouseSensitivity = 0.1f;
 
-		bool m_relativeMouse = true;
+		bool m_lookActive = false;
 	};
 }

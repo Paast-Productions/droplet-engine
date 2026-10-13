@@ -134,11 +134,33 @@ namespace Droplet
         return m_mouseY - m_prevMouseY;
     }
 
-    void GameInput::SetCursorPosition([[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
+    void GameInput::SetRelativeMouse(bool p_active)
     {
-        m_mouseX = p_x;
-        m_mouseY = p_y;
-        SDL_WarpMouseInWindow(m_window, m_mouseX, m_mouseY);
-        //SDL_SetWindowRelativeMouseMode(m_window, p_relativeMouse);
+
+        //SDL_SetWindowRelativeMouseMode(m_window, p_active);
+
+        if (p_active)
+        {
+            SDL_HideCursor();
+
+        }
+        else
+        {
+            SDL_ShowCursor();
+        }
+    }
+
+    void GameInput::SetCursorPosition([[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
+
+    {        
+        int windowX, windowY;
+        SDL_GetWindowPosition(m_window, &windowX, &windowY);
+
+        float localX = p_x - static_cast<float>(windowX);
+        float localY = p_y - static_cast<float>(windowY);
+        //m_mouseX = localX;
+        //m_mouseY = localY;
+
+        SDL_WarpMouseInWindow(m_window, localX, localY);
     }
 }
