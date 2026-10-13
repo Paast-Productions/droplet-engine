@@ -2,10 +2,10 @@
 #include <mutex>
 #include <chrono>
 #include <string>
-#include <queue>
 #include <thread>
 #include <condition_variable>
 #include <source_location>
+#include <core/ThreadSafeQueue.hpp>
 
 namespace Droplet::Debug
 {
@@ -21,17 +21,14 @@ namespace Droplet::Debug
 		std::string lineNumber{};
 	};
 
-
 	/// @class Logger
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
 	///
 	/// Provides thread-safe logging functionality to capture timestamped
 	/// messages and thread IDs to a JSON file.
-
 	class Logger
 	{
 	public:
-		
 		/// @brief Defines the log severity level selected for an entry.		 
 		enum class LogType
 		{
@@ -41,19 +38,15 @@ namespace Droplet::Debug
 			Debug    /// Detailed information for debugging purposes.
 		};
 
-		Logger();
-
-		~Logger();
+		Logger() = default;
+		~Logger() = default;
 
 		/// @brief Main logging function, typically invoked via logging macros.
 		/// Serializes and appends a log entry to the target JSON file.
 		/// @param p_type Severity level of the log entry.
 		/// @param p_msg The message text to be logged.
-		void Log(LogType p_type,const std::string &p_msg, 
+		void Log(LogType p_type, const std::string &p_msg,
 			const std::source_location &p_location = std::source_location::current());
-
-		/// @brief Processes queued log entries on the background thread.
-		void ProcessQueue();
 
 		/// @brief Clears all content from the log file and closes it.
 		static void ClearLog();
@@ -66,7 +59,13 @@ namespace Droplet::Debug
 			return s_logger;
 		}
 
+		/// @brief Initiates the process of writing queued log entries to the JSON file.
+		void WriteToJsonFile();
+
 	private:
+		/// @brief Processes queued log entries on the background thread.
+		void ProcessQueue();
+
 		/// @brief Pushes a log entry onto the queue and signals the worker thread.
 		///
 		/// Thread-safely adds a new log entry to the queue and notifies the
@@ -81,11 +80,8 @@ namespace Droplet::Debug
 		/// @return True if an entry was popped successfully, false if the queue is empty.
 		bool Pop(LogEntry &p_out);
 
-	private:
 		std::mutex m_mutex{};
-		std::queue<LogEntry> m_queue{};
-		std::condition_variable m_conditionVariable{};
-		std::thread m_workerThread{};
-		std::atomic<bool> m_running{ true };
+		std::mutex m_fileMutex{};
+		Droplet::ThreadSafeQueue<LogEntry> m_queue{};
 	};
 }
