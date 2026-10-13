@@ -15,7 +15,7 @@ namespace Droplet::Scene
     class MeshComponent : public Component
     {
     public:
-        explicit MeshComponent(const std::string &p_meshPath);
+        MeshComponent();
 
         void Update(float p_deltaTime) override;
 

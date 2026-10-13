@@ -25,7 +25,7 @@ TEST(ScriptSystem, CreateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/Scripts");
-	ScriptComponent component("");
+	ScriptComponent component;
 	EXPECT_NO_THROW(system.CreateComponentScript(&component, "testScript.lua"));
 }
 
@@ -33,7 +33,7 @@ TEST(ScriptSystem, ActivateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/Scripts"); 
-	ScriptComponent component("");
+	ScriptComponent component;
 	
 	system.CreateComponentScript(&component, "testScript3.lua");
 	system.ActivateComponentScript(&component);
@@ -48,7 +48,7 @@ TEST(ScriptSystem, DeactivateComponentScript)
 {
 	ScriptSystem system;
 	system.SetScriptPath("../src/Scripts");
-	ScriptComponent component("");
+	ScriptComponent component;
 
 	system.CreateComponentScript(&component, "testScript3.lua");
 	system.ActivateComponentScript(&component);

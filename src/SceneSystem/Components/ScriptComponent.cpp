@@ -6,21 +6,9 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
-ScriptComponent::ScriptComponent(const std::string &p_scriptPath)
-    : m_scriptPath(p_scriptPath), m_started(false)
-{
-
-}
-
 void ScriptComponent::Start()
 {
-    m_started = true;
 
-    //TODO: Should probably be moved somewhere more efficient, constructior or separate lode function,
-    auto &scriptSystem = ScriptSystem::Get();
-
-    scriptSystem.CreateComponentScript(this, m_scriptPath);
-    scriptSystem.ActivateComponentScript(this);
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -134,7 +122,6 @@ nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["type"] = "ScriptComponent";
     json["filepath"] = GetScriptPath();
 
     // TODO
@@ -142,7 +129,7 @@ nlohmann::json ScriptComponent::SerializeImpl()
     return json;
 }
 
-void ScriptComponent::DeserializeImpl([[maybe_unused]] nlohmann::json  p_compJson)
+void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_compJson)
 {
-    // TODO
+	// TODO: Implement deserialization logic for the script component.
 }

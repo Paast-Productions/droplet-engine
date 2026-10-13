@@ -1,6 +1,11 @@
 #include <Engine.hpp>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/BehaviourRegistry.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 
 using namespace Droplet;
 
@@ -41,6 +46,11 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -125,11 +135,6 @@ SDL_Window *Droplet::Engine::GetWindow()
 	return m_renderer.GetWindow();
 }
 
-Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
-{
-	return m_renderer;
-}
-
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
@@ -138,4 +143,16 @@ Scene::SceneManager &Droplet::Engine::GetSceneManager()
 void Droplet::Engine::AddEventListener(EventListener p_listener)
 {
 	m_eventListeners.push_back(p_listener);
+}
+void Engine::RegisterBehaviours()
+{
+	// Register engine behaviours
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_shared<Scene::ScriptBehaviour>(); });
+}
+
+void Engine::RegisterComponents()
+{
+	// Register engine components
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_shared<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_shared<Scene::ScriptComponent>(); });
 }

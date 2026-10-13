@@ -72,12 +72,13 @@ nlohmann::json Component::Serialize()
     return SerializeImpl();
 }
 
-void Component::Deserialize(nlohmann::json p_compJson)
+void Component::Deserialize(const nlohmann::json p_compJson)
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
 	nlohmann::json dataJson = p_compJson["data"];
+    //const nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
 }
