@@ -11,6 +11,7 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <core/FileExplorer.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
 //#include <tracy/public/tracy/TracyLua.hpp>
 using namespace Droplet::Editor;
@@ -41,6 +42,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	});
 
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
+    
+    FileExplorer fileExplorer{}; // Used for opening file explorers
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow;
@@ -70,7 +73,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		nodeInspectorWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
-
+	    
+	    fileExplorer.Update(); // Process callbacks
 		run = engine->Update() == Droplet::DROPLET_RETURNTYPE::OK;
 
 
