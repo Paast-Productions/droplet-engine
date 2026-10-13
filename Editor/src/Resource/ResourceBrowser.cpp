@@ -3,6 +3,8 @@
 
 #include <ImGui/imgui.h>
 
+#include "MetaUtils.hpp"
+
 using namespace Droplet::Editor::Resource;
 
 void ResourceBrowser::InitImpl()
@@ -25,7 +27,7 @@ void ResourceBrowser::RenderImpl()
                 
                 std::filesystem::path assetRoot = m_instance->GetResourceManager().GetRootDirectory();
                 // This is where assets from outside the root dir will be copied to
-                std::filesystem::path currentBrowserDir = assetRoot;
+                std::filesystem::path destinationBrowserDir = m_currentBrowserDirectory.empty() ? assetRoot : m_currentBrowserDirectory;
                 
                 for (auto &absPath : absPaths)
                 {
@@ -35,7 +37,7 @@ void ResourceBrowser::RenderImpl()
                     if (relPathTemp.empty() || relPathTemp.string().starts_with("..") || relPathTemp.is_absolute())
                     {
                         // The file is from outside the root asset dir -> Copy it
-                        std::filesystem::path destination = currentBrowserDir / absPath.filename();
+                        std::filesystem::path destination = destinationBrowserDir / absPath.filename();
                         std::filesystem::copy_file(absPath, destination, std::filesystem::copy_options::overwrite_existing);
                         relPath = destination.lexically_relative(assetRoot);
                     }
@@ -69,7 +71,72 @@ void ResourceBrowser::RenderImpl()
     {
         std::vector<MetaEntry>& currentEntries = m_registerPopupQueue.front();
         
-        Text("Importing: %s", currentEntries.front().relAssetPath.c_str());
+        Text("Importing Asset: %s", currentEntries.front().relAssetPath.c_str());
+        Separator();
+        
+        for (size_t i = 0; i < currentEntries.size(); i++)
+        {
+            MetaEntry &entry = currentEntries[i];
+            PushID(static_cast<int>(i));
+            
+            Text("Resource GUID: %llu", entry.guid);
+            auto schema = m_instance->GetResourceManager().GetSettingsSchema(entry.type);
+            if (schema.empty())
+            {
+                TextDisabled("No settings available");
+            }
+            
+            // Name change here
+            
+            // Draw UI based on descriptor
+            for (const auto &desc : schema)
+            {
+                if (!entry.loadSettings.contains(desc.key)) continue;
+                
+                if (desc.type == MetaLoadSettings::Type::Bool)
+                {
+                    bool val = entry.loadSettings[desc.key].get<bool>();
+                    if (Checkbox(desc.key.c_str(), &val))
+                    {
+                        entry.loadSettings[desc.key] = val;
+                    }
+                }
+                else if (desc.type == MetaLoadSettings::Type::Int)
+                {
+                    int val = entry.loadSettings[desc.key].get<int>();
+                    if (InputInt(desc.key.c_str(), &val))
+                    {
+                        entry.loadSettings[desc.key] = val;
+                    }
+                }
+            }
+            
+            PopID();
+            
+            // TODO: Dependency modifications should go here
+        }
+        
+        if (Button("Cancel"))
+        {
+            m_registerPopupQueue.pop();
+            CloseCurrentPopup();
+        }
+        if (Button("Apply Changes"))
+        {
+            for (const auto &entry : currentEntries)
+            {
+                m_instance->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
+            }
+            
+            m_registerPopupQueue.pop(); // Registering has been handled
+            CloseCurrentPopup();
+        }
+        SameLine();
+        
+        if (m_registerPopupQueue.size() > 1)
+        {
+            TextDisabled("(%zu more files waiting...)", m_registerPopupQueue.size());
+        }
         
         EndPopup();
     }
