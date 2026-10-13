@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <json/json.hpp>
+#include <Node.hpp>
 
 namespace Droplet::Scene
 {
@@ -94,11 +95,10 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update(float p_deltaTime);
 
-        /// @brief Renders all active Scenes.
+        /// @brief Returns Renderdata for all active scenes
         ///
-        /// @note This function is currently a placeholder and does not
-        /// perform any rendering.
-        void Render();
+        /// @return std::vector containing Node data structs
+        std::vector<NodeData> Render();
 
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize

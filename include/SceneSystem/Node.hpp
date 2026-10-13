@@ -17,6 +17,13 @@
 
 namespace Droplet::Scene
 {
+
+    struct NodeData
+    {
+        std::uint32_t meshID;
+        std::uint32_t textureID;
+    };
+
     /// Forward declarations to avoid circular dependencies
     class Component;
     class Scene;
@@ -67,10 +74,10 @@ namespace Droplet::Scene
         void Update(float p_deltaTime);
 
         /// @brief Renders the Node.
-        ///
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved.
-        void Render();
+        /// Stores it's rendering relevant data in the supplied vector
+        /// 
+        /// @param p_data std::vector containing node data
+        void Render(std::vector<NodeData> &p_data);
 
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();

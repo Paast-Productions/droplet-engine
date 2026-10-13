@@ -66,15 +66,13 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update(float p_deltaTime);
 
-        /// @brief Renders the Scene.
+        /// @brief Stores render data of the scene in a vector
         ///
-        /// Renders all root Node hierarchies when the Scene is both
+        /// Stores all root Node hierarchies when the Scene is both
         /// loaded and active.
         /// 
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved to a separate rendering
-        /// system in the future.
-        void Render();
+        /// @param p_data std::vector containing node data
+        void Render(std::vector<NodeData> &p_data);
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///

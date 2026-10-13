@@ -69,11 +69,24 @@ void Node::Update(float p_deltaTime)
     }
 }
 
-void Node::Render()
+void Node::Render(std::vector<NodeData> &p_data)
 {
     if (!m_active)
     {
         return;
+    }
+
+    NodeData data =
+    {
+        .meshID = 0,
+        .textureID = 0
+    };
+
+    p_data.push_back(data);
+
+    for (size_t i = 0; i < m_children.size(); i++)
+    {
+        m_children[i]->Render(p_data);
     }
 
     return;

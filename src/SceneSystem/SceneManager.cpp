@@ -164,9 +164,11 @@ void SceneManager::Update(float p_deltaTime)
         
 }
 
-void SceneManager::Render()
+std::vector<NodeData> SceneManager::Render()
 {
     ZoneScoped;
+
+    std::vector<NodeData> data;
 
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
@@ -178,10 +180,12 @@ void SceneManager::Render()
             continue;
         }
 
-        scene->Render();
+        scene->Render(data);
 
         ++it;
     }
+
+    return data;
 }
 
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)

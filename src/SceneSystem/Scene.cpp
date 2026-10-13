@@ -75,7 +75,7 @@ void Scene::Unload()
     m_loaded = false;
 }
 
-void Scene::Render()
+void Scene::Render(std::vector<NodeData> &p_data)
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -89,7 +89,7 @@ void Scene::Render()
     {
         for (const auto &root : m_roots)
         {
-            root->Render();
+            root->Render(p_data);
         }
     }
 }
