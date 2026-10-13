@@ -10,12 +10,12 @@ namespace Droplet::Graphics::VK
 	class Sampler
 	{
 	public:
-		Sampler() = default;
+		Sampler() = delete;
 		~Sampler() = default;
 
 		Sampler(const Context &p_context);
 
 	private:
-		vk::raii::Sampler m_sampler = nullptr;
+		vk::raii::Sampler m_sampler { nullptr };
 	};
 }
