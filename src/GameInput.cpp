@@ -22,6 +22,8 @@ namespace Droplet
         m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
+        m_deltaMouseX = 0.0f;
+        m_deltaMouseY = 0.0f;
 
     }
 
@@ -46,6 +48,9 @@ namespace Droplet
         {
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
+
+            m_deltaMouseX += p_event.motion.xrel;
+            m_deltaMouseY += p_event.motion.yrel;
         }
 
         if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
@@ -126,12 +131,18 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
+        if (m_mouseX - m_prevMouseX != 0.0f)
+        {
+            std::cout << "It happend!" << std::endl;
+        }
         return m_mouseX - m_prevMouseX;
+        //return m_deltaMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
         return m_mouseY - m_prevMouseY;
+        //return m_deltaMouseY;
     }
 
     void GameInput::SetRelativeMouse(bool p_active)
@@ -141,7 +152,7 @@ namespace Droplet
 
         if (p_active)
         {
-            SDL_HideCursor();
+            //SDL_HideCursor();
 
         }
         else
@@ -158,9 +169,17 @@ namespace Droplet
 
         float localX = p_x - static_cast<float>(windowX);
         float localY = p_y - static_cast<float>(windowY);
-        //m_mouseX = localX;
-        //m_mouseY = localY;
+ 
 
-        SDL_WarpMouseInWindow(m_window, localX, localY);
+        //SDL_WarpMouseInWindow(m_window, localX, localY);
+
+        SDL_WarpMouseGlobal(p_x, p_y);
+
+
+        m_mouseX = localX;
+        m_mouseY = localY;
+
+        m_prevMouseX = localX;
+        m_prevMouseY = localY;
     }
 }

@@ -177,6 +177,8 @@ namespace Droplet
 		float m_mouseY = 0.0f;
 		float m_prevMouseX = 0.0f;
 		float m_prevMouseY = 0.0f;
+		float m_deltaMouseX = 0.0f;
+		float m_deltaMouseY = 0.0f;
 		std::array<bool, 2> m_currentMouse = { false };
 		std::array<bool, 2> m_previousMouse = { false };
 
