@@ -33,6 +33,7 @@ namespace Droplet::Editor
 
 		void RenderTreeHelper(const ScriptTreeNode& node);
 		void RefreshScripts();
+		void OpenScript(const std::filesystem::path& p_relativePath);
 
 	private:
 
@@ -45,5 +46,6 @@ namespace Droplet::Editor
 
 		std::string m_selectedScript;
 		std::string m_refreshError;
+		std::string m_openError;
 	};
 }

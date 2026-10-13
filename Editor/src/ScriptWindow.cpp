@@ -2,6 +2,16 @@
 
 #include "ScriptSystem/ScriptSystem.hpp"
 #include <string>
+#include <cstdint>
+
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <Windows.h>
+#include <shellapi.h>
+#pragma comment(lib, "Shell32.lib")
+#endif
 
 using namespace Droplet::Editor;
 
@@ -76,9 +86,15 @@ void Droplet::Editor::ScriptWindow::RenderTreeHelper(const ScriptTreeNode& p_nod
 	else
 	{
 		const std::string path = p_node.relativePath.generic_string();
-		if (ImGui::Selectable(p_node.name.c_str(), m_selectedScript == path))
+		const bool isSelected = m_selectedScript == path;
+
+		if (ImGui::Selectable(p_node.name.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
 		{
 			m_selectedScript = path;
+			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			{
+				OpenScript(p_node.relativePath);
+			}
 		}
 	}
 	ImGui::PopID();
@@ -172,4 +188,31 @@ void ScriptWindow::RefreshScripts()
 		}
 	};
 	sortNodes(m_scriptTree, sortNodes);
+}
+
+void Droplet::Editor::ScriptWindow::OpenScript(const std::filesystem::path& p_relativePath)
+{
+	m_openError.clear();
+
+#ifdef _WIN32
+	std::error_code errorCode;
+	const std::filesystem::path absolutePath = std::filesystem::absolute(m_scriptPath / p_relativePath, errorCode);
+
+	if (errorCode)
+	{
+		m_openError = errorCode.message();
+		return;
+	}
+
+	const HINSTANCE result = ShellExecuteW(nullptr, L"open", absolutePath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+
+	const std::intptr_t resultCode = reinterpret_cast<std::intptr_t>(result);
+	if (resultCode <= 32)
+	{
+		m_openError = "Windows could not open the file with its default application (error "
+			+ std::to_string(resultCode) + ").";
+	}
+#else
+	m_openError = "Opening scripts only works for Windows";
+#endif
 }
