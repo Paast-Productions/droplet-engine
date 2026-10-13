@@ -52,6 +52,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		}
 	});
 
+	// Setup default ImGui ini file
+	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
+	{
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
+	}
+
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);

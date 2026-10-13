@@ -26,7 +26,7 @@ namespace Droplet::Editor
 
 		/// @brief Toggles the visibility of the toolbar.
 		/// @param visible True to show the toolbar, false to hide it.
-		void ToggleToolbar(bool p_visible) { m_hasToolbar = p_visible; }
+		void ToggleToolbar(bool p_visible);
 		
 		/// @brief Checks if the editor window has a toolbar.
 		/// @return True if the editor window has a toolbar, false otherwise.

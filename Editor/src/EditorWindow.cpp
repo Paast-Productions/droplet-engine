@@ -21,12 +21,30 @@ void EditorWindow::Render()
 
 	if (m_hasToolbar)
 	{
-		RenderToolbar();
+		if (ImGui::BeginMenuBar())
+		{
+			RenderToolbar();
+			ImGui::EndMenuBar();
+		}
 	}
 
 	RenderImpl();
 
 	CloseWindow();
+}
+
+void EditorWindow::ToggleToolbar(bool p_visible)
+{
+	m_hasToolbar = p_visible;
+
+	if (p_visible)
+	{
+		m_windowFlags |= ImGuiWindowFlags_MenuBar;
+	}
+	else
+	{
+		m_windowFlags &= ~ImGuiWindowFlags_MenuBar;
+	}
 }
 
 void EditorWindow::OpenWindow()
