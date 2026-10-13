@@ -6,7 +6,7 @@
 #include <condition_variable>
 #include <source_location>
 #include <core/ThreadSafeQueue.hpp>
-//#include <queue>
+
 
 namespace Droplet::Debug
 {
@@ -49,9 +49,6 @@ namespace Droplet::Debug
 		void Log(LogType p_type, const std::string &p_msg,
 			const std::source_location &p_location = std::source_location::current());
 
-		/// @brief Processes queued log entries on the background thread.
-		void ProcessQueue();
-
 		/// @brief Clears all content from the log file and closes it.
 		static void ClearLog();
 
@@ -63,7 +60,13 @@ namespace Droplet::Debug
 			return s_logger;
 		}
 
+		/// @brief Initiates the process of writing queued log entries to the JSON file.
+		void WriteToJsonFile();
+
 	private:
+		/// @brief Processes queued log entries on the background thread.
+		void ProcessQueue();
+
 		/// @brief Pushes a log entry onto the queue and signals the worker thread.
 		///
 		/// Thread-safely adds a new log entry to the queue and notifies the
@@ -79,10 +82,7 @@ namespace Droplet::Debug
 		bool Pop(LogEntry &p_out);
 
 		std::mutex m_mutex{};
+		std::mutex m_fileMutex{};
 		Droplet::ThreadSafeQueue<LogEntry> m_queue{};
-		//std::queue<LogEntry> m_queue{};
-		std::condition_variable m_conditionVariable{};
-		std::thread m_workerThread{};
-		std::atomic<bool> m_running{ true };
 	};
 }
