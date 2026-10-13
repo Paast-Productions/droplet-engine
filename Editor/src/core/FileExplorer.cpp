@@ -1,0 +1,84 @@
+#include "core/FileExplorer.hpp"
+
+#include <SDL3/SDL.h>
+
+namespace Droplet::Editor
+{
+    void FileExplorer::OpenFileDialog(SDL_Window *p_window, bool p_allowMultiple, FileSelectedCallback p_onFileSelected)
+    {
+        OpenFileDialog(p_window, p_allowMultiple, std::filesystem::path(), std::move(p_onFileSelected));
+    }
+
+    void FileExplorer::OpenFileDialog(SDL_Window *p_window, bool p_allowMultiple, 
+                                      const std::filesystem::path &p_defaultDirectory, FileSelectedCallback p_onFileSelected)
+    {
+        
+        // Heap allocation is necessary so that it survives async process
+        auto* dialogCtx = new DialogContext{ this, std::move(p_onFileSelected) };
+        
+        SDL_DialogFileFilter fileFilters[] = {
+            { "Asset Files", "png;jpg;jpeg;ktx;dds;fbx;gltf;obj;slang"},
+            { "All Files", "*"}
+        };
+        
+        std::string defaultDirStr;
+        const char* defaultDirCStr = nullptr;
+        if (!p_defaultDirectory.empty())
+        {
+            defaultDirStr = p_defaultDirectory.generic_string();
+            defaultDirCStr = defaultDirStr.c_str();
+        }
+        
+        SDL_ShowOpenFileDialog(
+            SDL_DialogCallback, // Internal callback
+            dialogCtx,        
+            p_window,
+            fileFilters,
+            2,
+            defaultDirCStr,
+            p_allowMultiple 
+        );  
+    }
+
+    void FileExplorer::Update()
+    {
+        std::vector<std::function<void()>> callbacks;
+        
+        {
+            std::scoped_lock lock(m_dialogMutex);
+            if (m_mainThreadCallbacks.empty()) return;
+            callbacks = std::move(m_mainThreadCallbacks);
+        }
+        
+        for (const auto &cb : callbacks)
+        {
+            cb();
+        }
+    }
+
+    inline void SDLCALL FileExplorer::SDL_DialogCallback(void* userdata, const char* const* filelist, int filter)
+    {
+        auto* dialogCtx = static_cast<FileExplorer::DialogContext*>(userdata);
+        
+        std::vector<std::filesystem::path> paths;
+        if (filelist)
+        {
+            for (int i = 0; filelist[i] != nullptr; i++)
+            {
+                paths.emplace_back(filelist[i]);
+            }
+        }
+        
+        // Push task into the file explorer instance queue
+        {
+            std::scoped_lock lock(dialogCtx->instance->m_dialogMutex);
+            dialogCtx->instance->m_mainThreadCallbacks.push_back([
+                callback = std::move(dialogCtx->userCallback), pathList = std::move(paths)]()
+            {
+                callback(pathList);
+            });
+        }
+        
+        delete dialogCtx; // Callback is heap-allocated so it must be deleted here
+    }
+}
