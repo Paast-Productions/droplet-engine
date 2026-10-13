@@ -43,8 +43,10 @@ void Logger::Log(LogType p_type, const std::string &p_msg,
 
 void Logger::WriteToJsonFile()
 {
+    if (GetInstance().m_queue.IsEmpty()) return;
+
 	ThreadPool &pool = ThreadPool::GetInstance();
-	return pool.PushTask([this]()
+	pool.PushTask([this]()
 	{
 		ProcessQueue();
 	});
