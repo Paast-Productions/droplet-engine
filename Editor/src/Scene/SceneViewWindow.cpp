@@ -67,6 +67,15 @@ void SceneViewWindow::RenderImpl()
 		camViewRectMax.y = camViewRectMin.y + camSize.y;
 	}
 
+	ImVec2 camViewPos = { 
+		camViewRectMin.x - windowPos.x, 
+		camViewRectMin.y - windowPos.y 
+	};
+
+	// Begin the child window that encompasses the camera view.
+	ImGui::SetCursorPos(camViewPos);
+	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+
 	// Collect mouse and keyboard inputs for the camera update, if the mouse is within the camera view rect.
 
 	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
@@ -88,32 +97,21 @@ void SceneViewWindow::RenderImpl()
 		m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
 	}
 
-	// TODO: Request the engine renderer to render the camera view to a texture
-
 	// TODO: Wait for the renderer to finish rendering the camera view to the texture
-	ImTextureRef camViewTexture = nullptr; // TODO: Replace with the actual texture reference of the rendered camera view.
-	// Funnily enough, rendering this nullptr renders ImGui's symbol atlas texture, which is a nice placeholder for now.
-	
-	ImVec2 camViewPos = { 
-		camViewRectMin.x - windowPos.x, 
-		camViewRectMin.y - windowPos.y 
-	};
 
-	// Render the camera view texture to the scene view window
-	ImGui::SetCursorPos(camViewPos);
+	// Render the camera view texture
+	
+	// HACK:Funnily enough, rendering this nullptr renders ImGui's symbol atlas texture, which is a nice placeholder for now.
+	ImTextureRef camViewTexture = nullptr; // TODO: Replace with the actual texture reference of the rendered camera view.
+	
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 1), ImVec2(1, 0));
+
+	RenderImGuizmo(camViewRectMin, camViewRectMax);
+
+	ImGui::EndChild();
 
 	// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
 	drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
-
-	// Capture mouse interaction
-	//ImGui::SetCursorPos(camViewPos);
-	//if (ImGui::InvisibleButton("CameraView", camSize))
-	{
-		// TODO: Take focus
-	}
-
-	RenderImGuizmo(camViewRectMin, camViewRectMax);
 }
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
@@ -168,20 +166,32 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	{
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_interactionState->GetSelectedNodes();
 
+		// TODO: Make this configurable by the user
+		ImGuizmo::OPERATION currentOperation = 
+			ImGuizmo::TRANSLATE | 
+			ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z |
+			ImGuizmo::BOUNDS;
+
 		if (selectedNodes.size() > 0)
 		{
-			//static glm::mat4 beginMatrix = glm::mat4(1.0f);
-
 			std::shared_ptr<DNode> selectedNode = selectedNodes[0];
+
+			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
+			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
 
 			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
 
 			bool result = ImGuizmo::Manipulate(
-				&(tempViewMat[0][0]), &(tempProjMat[0][0]), 
-				ImGuizmo::UNIVERSAL, ImGuizmo::LOCAL, 
-				&(nodeMatrix[0][0])//,
-				//&(deltaMatrix[0][0])
+				&(tempViewMat[0][0]),	// View matrix
+				&(tempProjMat[0][0]),	// Projection matrix
+				currentOperation,		// Operation
+				ImGuizmo::LOCAL,		// Space
+				&(nodeMatrix[0][0]),	// Matrix to manipulate
+				&(deltaMatrix[0][0]),	// Output delta matrix
+				nullptr,				// Optional snap values
+				&(aabb[0].x),			// Optional bounds
+				nullptr					// Optional bounds snap values
 			);
 
 			if (result)
