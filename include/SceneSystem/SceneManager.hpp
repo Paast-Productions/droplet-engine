@@ -9,6 +9,7 @@
 namespace Droplet::Scene
 {
     class Scene;
+    class Behaviour;
 
     /// @brief Manages the Scenes used by the application.
     ///
@@ -109,8 +110,24 @@ namespace Droplet::Scene
         /// @param p_filePath The name of the file the scene is serialized in
         void LoadFromFile(const std::string& p_filePath);
 
+		/// @brief Gets the list of registered behaviours.
+		/// @return A constant reference to the list of registered behaviours.
+		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; }
+
+		/// @brief Starts a behaviour of the specified type.
+        /// @param p_behaviourTypeName The type name of the behaviour to start.
+		/// @return A shared pointer to the started Behaviour.
+		/// @throws std::runtime_error if the behaviour type is not registered or cannot be started.
+		std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
+
+        /// @brief Shuts down a behaviour.
+		/// @param p_behaviour A weak pointer to the behaviour to shut down.
+		void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour);
+
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
+
+		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
     };
 }
