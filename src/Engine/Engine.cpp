@@ -19,6 +19,8 @@ Engine::Engine(EngineConfig p_config) : m_renderer(p_config.WindowConfig)
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
     
+    ThreadPool::GetInstance().Initialize();
+    
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
     m_resourceManager.Initialize(assetDir);
 }
@@ -28,6 +30,8 @@ Droplet::Engine::~Engine()
 	m_renderer.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
+    
+    ThreadPool::GetInstance().Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -37,8 +41,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	//Inputs
 	Droplet::GameInput::Get().Update();
-
-	
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
