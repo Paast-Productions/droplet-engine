@@ -135,11 +135,6 @@ SDL_Window *Droplet::Engine::GetWindow()
 	return m_renderer.GetWindow();
 }
 
-Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
-{
-	return m_renderer;
-}
-
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
