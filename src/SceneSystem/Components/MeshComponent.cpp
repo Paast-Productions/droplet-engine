@@ -22,10 +22,6 @@ void MeshComponent::RenderUIImpl()
 	Text("Mesh Path: ");
 	SameLine();
 
-	BeginGroup();
-	Text("%s", m_meshPath.c_str());
-	EndGroup();
-
 	if (BeginDragDropTarget())
 	{
 		// Verify that the payload is a mesh resource
@@ -49,8 +45,13 @@ void MeshComponent::RenderUIImpl()
 			if (const ImGuiPayload *payload = AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
 			{
 				// TODO: Replace with resource handle
-				const char *payloadPath = static_cast<const char *>(payload->Data);
-				m_meshPath = std::string(payloadPath);
+				if (payload->DataSize == sizeof(int))
+				{
+					const int resourceID =
+						*static_cast<const int *>(payload->Data);
+
+					SetMeshID(resourceID);
+				}
 			}
 		}
 
@@ -59,22 +60,38 @@ void MeshComponent::RenderUIImpl()
 
 }
 
-const std::string &MeshComponent::GetMeshPath() const
-{
-    return m_meshPath;
-}
-
 const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() const
 {
     // TODO
     return std::weak_ptr<MeshResource>();
 }
 
+void MeshComponent::SetMeshID(int p_meshID)
+{
+	m_meshID = p_meshID;
+}
+
+int MeshComponent::GetMeshID() const
+{
+	return m_meshID;
+}
+
+void MeshComponent::SetTextureID(int p_textureID)
+{
+	m_textureID = p_textureID;
+}
+
+int MeshComponent::GetTextureID() const
+{
+	return m_textureID;
+}
+
 nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["filepath"] = GetMeshPath();
+    json["meshID"] = GetMeshID();
+    json["textureID"] = GetTextureID();
 
     return json;
 }

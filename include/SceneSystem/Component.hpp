@@ -62,7 +62,7 @@ namespace Droplet::Scene
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
         [[nodiscard]] std::shared_ptr<Node> GetOwner() const;
-
+    
 		/// @brief Serializes the component to a JSON object.
 		/// @return A JSON object representing the component's state.
 		[[nodiscard]] nlohmann::json Serialize();
@@ -107,6 +107,13 @@ namespace Droplet::Scene
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
+        
+		/// @brief Determines whether the component makes the Node renderable, components that are renderable should override this function and return true.
+		/// @return true if the component is renderable, otherwise false.
+        [[nodiscard]] virtual bool IsRenderable() const
+        {
+            return false;
+        }
 
     protected:
 		/// @brief Internal rendering function for the component's UI.

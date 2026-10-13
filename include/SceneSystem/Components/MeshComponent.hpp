@@ -3,8 +3,12 @@
 #include <SceneSystem/Component.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <resource/ResourceHandle.hpp>
+#include <resource/types/MaterialResource.hpp>
+
 #include <string>
 #include <string_view>
+
 
 namespace Droplet::Scene
 {
@@ -23,8 +27,17 @@ namespace Droplet::Scene
         /// @return The type name of the component.
 		std::string_view GetTypeName() const override { return "MeshComponent"; }
 
-        /// TODO: Placeholder as the correct method is not yet inplemented
-        const std::string &GetMeshPath() const;
+        // Mesh
+
+        //TODO: should be GUID or something idk
+        void SetMeshID(int p_meshID);
+        [[nodiscard]] int GetMeshID() const;
+
+        // Texture
+        // 
+         //TODO: should be GUID or something idk
+        void SetTextureID(int p_textureID);
+        [[nodiscard]] int GetTextureID() const;
 
 		/// @brief Gets the mesh resource associated with this component.
 		/// @return A weak pointer to the mesh resource, or an empty weak pointer if the resource is not loaded.
@@ -38,6 +51,14 @@ namespace Droplet::Scene
         /// @return The bounding box provided by the component.
         [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const override { return std::make_shared<MeshNodeBounds>(m_bounds); }
 
+
+		/// @brief Determines whether the component makes the Node renderable.
+		/// @return true if the component is renderable, otherwise false.
+        bool IsRenderable() const override
+        {
+            return true;
+        }
+
     protected:
 		void RenderUIImpl() override;
 
@@ -45,9 +66,13 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        std::string m_meshPath;
+        int m_meshID = -1;
+        int m_textureID = -1;
 
         MeshNodeBounds m_bounds;
+
+        ResourceHandle<MeshResource> m_mesh;
+        ResourceHandle<MaterialResource> m_material;
 
         // TODO: Material settings
     };
