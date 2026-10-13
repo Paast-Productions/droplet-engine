@@ -34,3 +34,6 @@
 [submodule "external/bvh"]
 	path = External/bvh
 	url = git@github.com:madmann91/bvh.git
+[submodule "External/ImGuizmo"]
+	path = External/ImGuizmo
+	url = git@github.com:CedricGuillemet/ImGuizmo.git
