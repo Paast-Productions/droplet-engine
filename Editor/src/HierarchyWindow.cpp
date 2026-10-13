@@ -13,7 +13,7 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-Droplet::Editor::HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
+HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
 {
 	m_instance = p_instance;
 	m_interactionState = p_interactionState;

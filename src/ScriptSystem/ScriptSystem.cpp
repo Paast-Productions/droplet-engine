@@ -124,6 +124,11 @@ void ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 	m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
+std::string ScriptSystem::GetScriptPath()
+{
+	return m_scriptManager.GetScriptDirectory();
+}
+
 void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)
 {
 	ZoneScoped;
