@@ -5,11 +5,13 @@
 #include <cstdio>
 #include <Engine/Engine.hpp>
 #include "HierarchyWindow.hpp"
-#include <NodeInspectorWindow.hpp>
+#include "NodeInspectorWindow.hpp"
+#include "ScriptsWindow.hpp"
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 
@@ -37,6 +39,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		return 1;
 	}
 
+	// TODO: Fix this hardcoded path, it should be relative to the executable or a config file
+	Droplet::Script::ScriptSystem::Get().SetScriptPath("../../../src/Scripts");
+
 	// Setup SDL polling listener
 	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
 		ImGui_ImplSDL3_ProcessEvent(&event); 
@@ -55,11 +60,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow(interactionState);
+	ScriptsWindow scriptsWindow(interactionState);
 	Resource::ResourceBrowser resourceBrowser;
 	Scene::SceneViewWindow sceneViewWindow(interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
+	scriptsWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
 
@@ -83,6 +90,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
+		scriptsWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 

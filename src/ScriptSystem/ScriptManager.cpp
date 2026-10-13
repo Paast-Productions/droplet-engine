@@ -437,6 +437,11 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 	m_scriptDirectoryPath = scriptDirectory;
 }
 
+std::string Droplet::Script::ScriptManager::GetScriptDirectory()
+{
+	return m_scriptDirectoryPath.string();
+}
+
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
 	ZoneScoped;
