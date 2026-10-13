@@ -310,7 +310,7 @@ namespace Droplet::Scene
 		/// @param p_node Node to check against.
         /// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
-		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+        [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
 
 		/// @brief Checks through all components to see if the Node is renderable.
         /// 

@@ -19,7 +19,7 @@ void MeshComponent::RenderUIImpl()
 	using namespace Droplet::Editor;
 	using namespace ImGui;
 
-	Text("Mesh Path: ");
+	Text("Mesh ID: ");
 	SameLine();
 
 	if (BeginDragDropTarget())
