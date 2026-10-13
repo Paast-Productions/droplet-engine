@@ -17,8 +17,11 @@ namespace Droplet::Editor
         auto* dialogCtx = new DialogContext{ this, std::move(p_onFileSelected) };
         
         SDL_DialogFileFilter fileFilters[] = {
-            { "Asset Files", "png;jpg;jpeg;ktx;dds;fbx;gltf;obj;slang"},
-            { "All Files", "*"}
+            { "All Files", "*"},
+            { "Texture Files (png, jpg, jpeg, ktx, dds)", "png;jpg;jpeg;ktx;dds"},
+            { "Model Files (fbx, gltf, obj)", "fbx;gltf;obj"},
+            { "Audio Files (.ogg)", "ogg"},
+            { "Shader Files (slang)", "slang"}
         };
         
         std::string defaultDirStr;
@@ -34,7 +37,7 @@ namespace Droplet::Editor
             dialogCtx,        
             p_window,
             fileFilters,
-            2,
+            5,
             defaultDirCStr,
             p_allowMultiple 
         );  
@@ -58,7 +61,7 @@ namespace Droplet::Editor
 
     inline void SDLCALL FileExplorer::SDL_DialogCallback(void* userdata, const char* const* filelist, int filter)
     {
-        auto* dialogCtx = static_cast<FileExplorer::DialogContext*>(userdata);
+        auto* dialogCtx = static_cast<DialogContext*>(userdata);
         
         std::vector<std::filesystem::path> paths;
         if (filelist)
