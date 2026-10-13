@@ -261,7 +261,7 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
 {
-    auto behaviour = BehaviourFactory::CreateBehaviour(p_behaviourTypeName);
+	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
 
     behaviour->SetSceneManager(this);
     m_behaviours.push_back(behaviour);
