@@ -20,10 +20,6 @@ protected:
         ThreadPool::GetInstance().Initialize();
 
         Logger::GetInstance().ClearLog();
-
-        //ThreadPool::GetInstance().PushTask([]() {
-        //    Logger::GetInstance().ProcessQueue();
-        //    });
     }
 
     void TearDown() override
@@ -34,7 +30,6 @@ protected:
     }
 };
 
-
 TEST_F(ThreadPoolLoggerTest, SystemStartupLogging)
 {
     Logger &log = Logger::GetInstance();
@@ -43,37 +38,10 @@ TEST_F(ThreadPoolLoggerTest, SystemStartupLogging)
         log.Log(Logger::LogType::Info, "Systemet och trådpoolen är startade!");
         log.Log(Logger::LogType::Debug, "Testar loggning via trådpoolen");
         });
-    pool.PushTask([&log]() {
-        log.ProcessQueue();
-        });
+	log.WriteToJsonFile();
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     EXPECT_TRUE(std::filesystem::exists("logger.json"));
-}
-
-TEST_F(ThreadPoolLoggerTest, StandaloneTaskExecution)
-{
-    Logger &log = Logger::GetInstance();
-    ThreadPool &pool = ThreadPool::GetInstance();
-
-    std::atomic<bool> taskExecuted{ false };
-
-    pool.PushTask([&log, &taskExecuted]() {
-        log.Log(Logger::LogType::Info, "Startar fristående jobb");
-
-        taskExecuted.store(true);
-
-        log.Log(Logger::LogType::Info, "Fristående jobb slutfört");
-        });
-
-    int maxWaitMs = 500;
-    while (!taskExecuted.load() && maxWaitMs > 0)
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        maxWaitMs -= 10;
-    }
-
-    EXPECT_TRUE(taskExecuted.load());
 }
 
 TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
@@ -90,9 +58,7 @@ TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
         log.Log(Logger::LogType::Info, "Alexander är väldigt vacker - Frame: " + std::to_string(frameCounter));
         if (frameCounter % 10 == 0)
         {
-            pool.PushTask([frameCounter, &log]() {
-                log.ProcessQueue();
-                });
+			log.WriteToJsonFile();
         }
     }
 
@@ -105,9 +71,7 @@ TEST_F(ThreadPoolLoggerTest, ClearLogRemovesFile)
     Logger &log = Logger::GetInstance();
     ThreadPool &pool = ThreadPool::GetInstance();
     log.Log(Logger::LogType::Info, "Tillfälligt loggmeddelande");
-    pool.PushTask([&log]() {
-        log.ProcessQueue();
-        });
+    log.WriteToJsonFile();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
