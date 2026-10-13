@@ -25,6 +25,7 @@
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
+#include <Graphics/VK/StorageBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
 #include <Graphics/VK/DescriptorSet.hpp>
 #include <Graphics/VK/DescriptorPool.hpp>
@@ -165,6 +166,7 @@ namespace Droplet::Graphics
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
+		VK::StorageBuffer m_storageBuffer { nullptr };
 		VK::UniformBuffer m_uniformBuffer { nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };

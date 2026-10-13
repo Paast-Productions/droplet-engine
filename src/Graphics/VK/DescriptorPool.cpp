@@ -9,7 +9,7 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 	{
 		{
 			{
-				.type = vk::DescriptorType::eUniformBuffer,
+				.type = vk::DescriptorType::eStorageBuffer,
 				.descriptorCount = std::numeric_limits<std::uint8_t>::max()  
 			},
 			{
