@@ -147,10 +147,8 @@ namespace Droplet::Core
         nlohmann::json result = JsonIO::Read(path);
         log.WriteToJsonFile();
 
-        // Tillfällig felsökning: ge bakgrundstråden tid.
         std::this_thread::sleep_for(
             std::chrono::milliseconds(100));
-
 
         EXPECT_TRUE(std::filesystem::exists("logger.json"));
         EXPECT_TRUE(result.is_discarded());
