@@ -108,8 +108,9 @@ void Context::CreateLogicalDevice()
 			{	// vk::PhysicalDeviceVulkan12Features
 					// Descriptor Indexing
 				.descriptorIndexing = true,
-				.descriptorBindingUniformBufferUpdateAfterBind = true,
+				//.descriptorBindingUniformBufferUpdateAfterBind = true,
 				.descriptorBindingSampledImageUpdateAfterBind = true,
+				.descriptorBindingStorageBufferUpdateAfterBind = true,
 				.descriptorBindingUpdateUnusedWhilePending = true,
 				.descriptorBindingPartiallyBound = true,
 			},	

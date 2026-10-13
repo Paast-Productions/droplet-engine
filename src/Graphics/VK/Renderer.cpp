@@ -16,14 +16,12 @@
 #include <string>
 #include <chrono>
 
-#include <SDL3/SDL_vulkan.h>
-#include <Graphics/VK/UniformBuffer.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
+
 #include <Graphics/VK/TestData.hpp>
 #include <GameInput.hpp>
 
-#include <Graphics/VK/BufferHelper.hpp>
-#include <tracy/public/tracy/Tracy.hpp>
-#include <tracy/public/tracy/TracyVulkan.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -61,7 +59,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
 	};
 	
-	m_uniformBuffer = { 
+	m_storageBuffer = { 
 		m_allocator.Get(),
 		ubo
 	};
@@ -90,7 +88,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
@@ -464,7 +462,7 @@ void Renderer::DrawFrame()
 		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
 	
-	m_uniformBuffer.UpdateBuffer(ubo);
+	m_storageBuffer.UpdateBuffer(ubo);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
