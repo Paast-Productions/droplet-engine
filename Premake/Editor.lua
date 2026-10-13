@@ -13,7 +13,8 @@ project "Editor"
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
         "GLM_ENABLE_EXPERIMENTAL",
-		"IMGUI_DEFINE_MATH_OPERATORS"
+		"IMGUI_DEFINE_MATH_OPERATORS",
+        "ROOT_PATH=" .. AddQuotation("../../..")
 	}
 
     if _TARGET_OS == "windows" then

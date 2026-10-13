@@ -9,7 +9,7 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 
@@ -22,7 +22,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	
+	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
 
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
