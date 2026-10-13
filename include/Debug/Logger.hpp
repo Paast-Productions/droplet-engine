@@ -7,7 +7,6 @@
 #include <source_location>
 #include <core/ThreadSafeQueue.hpp>
 
-
 namespace Droplet::Debug
 {
 	/// @brief With the information that the queue holds.

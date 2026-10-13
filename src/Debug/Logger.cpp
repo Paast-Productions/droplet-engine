@@ -41,11 +41,10 @@ void Logger::Log(LogType p_type, const std::string &p_msg,
     Push(logEntry);
 }
 
-void Droplet::Debug::Logger::WriteToJsonFile()
+void Logger::WriteToJsonFile()
 {
-    std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
 	ThreadPool &pool = ThreadPool::GetInstance();
-	pool.PushTask([this]()
+	return pool.PushTask([this]()
 	{
 		ProcessQueue();
 	});
@@ -59,7 +58,6 @@ void Logger::ProcessQueue()
         auto second = std::chrono::time_point_cast<std::chrono::seconds>(logEntry.timestamp);
 
         auto local_time = std::chrono::zoned_time{ std::chrono::current_zone(), second };
-		std::cerr << local_time << std::endl;
         std::string timeStr = std::format("{:%Y-%m-%d %H:%M:%S}", local_time);
         std::string threadStr = std::format("{}", logEntry.threadId);
 
