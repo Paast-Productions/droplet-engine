@@ -18,7 +18,7 @@ namespace Droplet::Scene
     ///
     /// Components are owned by the Node they are attached to. A Component
     /// maintains a weak reference to its owning Node to avoid an ownership cycle.
-    class Component
+    class Component : public std::enable_shared_from_this<Component>
     {
     public:
         /// @brief Constructs an empty Component.
