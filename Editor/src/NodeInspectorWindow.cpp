@@ -1,6 +1,7 @@
 #include "NodeInspectorWindow.hpp"
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
 #include <algorithm>
 #include <TransformUI.hpp>
 
@@ -160,6 +161,11 @@ void NodeInspectorWindow::RenderImpl()
 		if (ImGui::MenuItem("Script Component"))
 		{
 			m_currentNode->AddComponent<Scene::ScriptComponent>();
+		}
+
+		if (ImGui::MenuItem("Mesh Component"))
+		{
+			m_currentNode->AddComponent<Scene::MeshComponent>();
 		}
 
 		// TODO: Add for each component we have
