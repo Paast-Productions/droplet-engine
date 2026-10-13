@@ -222,9 +222,15 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
 
     // Create the dummy asset so the Loader actually finds valid binary data to parse
     fs::copy(originalAsset, newAssetAbs);
+    
+    bool callbackFired = false;
+    std::vector<MetaEntry> returnedEntries;
 
     // Register the new asset
-    m_resourceManager.RegisterAsset(newAssetRel);
+    m_resourceManager.RegisterAsset(newAssetRel, [&](const std::vector<MetaEntry>& entries) {
+        callbackFired = true;
+        returnedEntries = entries; // Capture the data to verify it wasn't destroyed
+    });
     
     // Wait
     auto startTime = std::chrono::steady_clock::now();
@@ -233,6 +239,11 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
         m_resourceManager.Update(); 
         std::this_thread::yield();
     }
+    
+    // Verify the callback fired successfully
+    EXPECT_TRUE(callbackFired) << "The registration callback was never fired during Update().";
+    ASSERT_FALSE(returnedEntries.empty()) << "The callback returned an empty vector.";
+    EXPECT_EQ(returnedEntries[0].relAssetPath, newAssetRel);
     
     // Check the internal registry
     auto textures = m_resourceManager.GetRegisteredResources(ResourceType::Texture2D);
@@ -250,6 +261,9 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
     ASSERT_NE(foundEntry, nullptr) << "Failed to register brand new asset";
     EXPECT_NE(foundEntry->guid, C_INVALID_GUID) << "Failed to generate a valid GUID";
     EXPECT_EQ(foundEntry->type, ResourceType::Texture2D) << "Failed to detect the correct resource type";
+    
+    // The disk write was just dispatched to a background thread. Wait for it to be written.
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     
     // Check the Hard Drive to ensure the metafile was created
     EXPECT_TRUE(fs::exists(newMetaAbs)) << "The new metafile was never written to disk";
