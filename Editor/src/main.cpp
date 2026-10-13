@@ -47,7 +47,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow;
-	Resource::ResourceBrowser resourceBrowser(engine);
+	Resource::ResourceBrowser resourceBrowser(engine, fileExplorer);
 	Scene::SceneViewWindow sceneViewWindow(interactionState);
 
 	hierarchyWindow.Init();
@@ -68,7 +68,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
-
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
 		resourceBrowser.Render();
@@ -76,7 +75,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	    
 	    fileExplorer.Update(); // Process callbacks
 		run = engine->Update() == Droplet::DROPLET_RETURNTYPE::OK;
-
 
 		//engine->Endframe
 		FrameMark;
