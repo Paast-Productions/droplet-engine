@@ -1,4 +1,6 @@
 #include "SceneViewWindow.hpp"
+#include <SceneSystem/Scene.hpp>
+#include <ImGuizmo/ImGuizmo.h>
 
 using namespace Droplet::Editor::Scene;
 
@@ -109,5 +111,50 @@ void SceneViewWindow::RenderImpl()
 	if (ImGui::InvisibleButton("CameraView", camSize))
 	{
 		// TODO: Take focus
+	}
+
+	RenderImGuizmo(camViewRectMin, camViewRectMax);
+}
+
+void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
+{
+	// Setup
+	ImVec2 rectPos = p_sceneViewMin;
+	ImVec2 rectSize = p_sceneViewMax - p_sceneViewMin;
+
+	ImGuizmo::SetRect(rectPos.x, rectPos.y, rectSize.x, rectSize.y);
+
+
+	glm::mat4 tempViewMat = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+	glm::mat4 tempProjMat = glm::perspective(m_editorCamera.GetFOV(), m_editorCamera.GetAspect(), 0.1f, 100.0f);
+	std::vector<glm::mat4> tempMatrices{};
+
+	{
+		std::shared_ptr<Droplet::Scene::Scene> selectedScene = GetEngine()->GetSceneManager().GetScene("TestScene");
+		std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene->GetRoots();
+
+		std::function<void(const std::shared_ptr<Droplet::Scene::Node> &)> recurseNodes = [&](const std::shared_ptr<Droplet::Scene::Node> &node) {
+			if (!node)
+			{
+				return;
+			}
+
+			tempMatrices.push_back(node->GetTransform().GetMatrix(Droplet::Scene::Transform::Space::World));
+
+			for (const auto &child : node->GetChildren())
+			{
+				recurseNodes(child);
+			}
+			};
+
+		for (const auto &node : nodes)
+		{
+			recurseNodes(node);
+		}
+	}
+
+	if (tempMatrices.size() > 0)
+	{
+		ImGuizmo::DrawCubes(&(tempViewMat[0][0]), &(tempProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
 	}
 }
