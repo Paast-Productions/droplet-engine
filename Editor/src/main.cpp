@@ -12,6 +12,7 @@
 #include <Scene/SceneViewWindow.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
+#include <ImGuizmo/ImGuizmo.h>
 
 using namespace Droplet::Editor;
 
@@ -77,6 +78,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
