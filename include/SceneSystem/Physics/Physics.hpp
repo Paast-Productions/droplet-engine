@@ -26,6 +26,9 @@ namespace Droplet
 		void Initialize(const std::uint32_t p_maxBodies = 1024, const std::uint32_t p_numBodyMutexes = 0, 
 			const std::uint32_t p_maxBodyPairs = 1024, const std::uint32_t p_maxContactConstraints = 1024);
 
+		/// @brief Updates the physics system
+		void Update();
+
 		/// @brief Set the gravity
 		/// @param p_gravityVector The gravity acceleration vector
 		void SetGravity(const JPH::Vec3 p_gravityVector);
