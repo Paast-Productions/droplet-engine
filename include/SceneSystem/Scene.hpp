@@ -7,6 +7,25 @@
 #include <vector>
 #include <SceneSystem/Octree.hpp>
 
+struct SceneObjectID {
+    std::uint32_t nodeID = 0;
+    std::uint32_t componentID = 0;
+};
+
+/// @brief The scene reference is used for components to be able to reference other nodes or components in the scene
+/// @tparam T 
+template<typename T>
+struct SceneReference {
+    SceneObjectID serializedID = {};
+    T *resolvedObject = nullptr;
+
+    void SetTarget(T *p_target)
+    {
+        resolvedObject = p_target;
+        serializedID = {};
+    }
+};
+
 namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency

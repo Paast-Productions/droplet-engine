@@ -1,4 +1,5 @@
 #include "SceneSerializer.hpp"
+#include "ComponentFactory.hpp"
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
@@ -54,6 +55,8 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     nlohmann::json json;
     
     json["name"] = p_node.GetName();
+    json["id"] = p_node.GetID();
+    json["active"] = p_node.IsActive();
     json["transform"] = SerializeTransform(p_node.GetTransform());
     json["components"] = nlohmann::json::array();
     
@@ -100,13 +103,25 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
         throw std::runtime_error("Node is missing required field 'name'");
     }
 
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Node is missing required field 'id'");
+    }
+
+    if (!p_json.contains("active"))
+    {
+        throw std::runtime_error("Node is missing required field 'active'");
+    }
+
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
+    node->SetActive(p_json["active"]);
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 
     for (const auto &componentJson : p_json["components"])
     {
         DeserializeComponent(componentJson, node);
+
     }
 
     for (const auto &childJson : p_json["children"])
@@ -121,33 +136,18 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
     {
         throw std::runtime_error("Component is missing required field 'type'");
     }
-
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Component is missing required field 'id'");
+    }
+    if (!p_json.contains("data"))
+    {
+        throw std::runtime_error("Component is missing required field 'data'");
+    }
     std::string type = p_json["type"];
-
-    if (type == "ScriptComponent")
-    {
-        if (!p_json.contains("filepath"))
-        {
-            throw std::runtime_error("component is missing required field 'filepath'");
-        }
-        p_node->AddComponent<ScriptComponent>();//p_json["filepath"]
-    }
-    else if (type == "MeshComponent")
-    {
-        if (!p_json.contains("filepath"))
-        {
-            throw std::runtime_error("component is missing required field 'filepath'");
-        }
-        p_node->AddComponent<MeshComponent>();//p_json["filepath"]
-    }
-    else if (type == "PlayerComponent")
-    {
-        //TODO: Create the component and either do the deserialization here or you can call the components deserialize function.
-    }
-    else
-    {
-
-    }
+    auto component = ComponentFactory::CreateComponent(type);
+    component->Deserialize(p_json);
+    p_node->AttachComponent(component, p_json["id"]);
 }
 
 nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)
@@ -182,6 +182,7 @@ void SceneSerializer::DeserializeTransform(const nlohmann::json& p_json, Transfo
 
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 
+    //TODO make sure glm reads w x y z or x y z w
     glm::quat rotation = glm::quat(p_json["rotation"][0], p_json["rotation"][1], p_json["rotation"][2], p_json["rotation"][3]);
 
     glm::vec3 scale = glm::vec3(p_json["scale"][0], p_json["scale"][1], p_json["scale"][2]);

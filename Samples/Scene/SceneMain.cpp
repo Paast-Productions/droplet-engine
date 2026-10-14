@@ -10,6 +10,7 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
 #include "Core/IoManager.hpp"
 #include "GameInput.hpp"
 #include <SDL3/SDL_init.h>
@@ -62,7 +63,7 @@ static void OctreeTest()
     std::printf("Done spawning rocks\n");
 
     Droplet::GameInput &gi = Droplet::GameInput::Get();
-    while (true)
+    while (false)
     {
         gi.Update();
 
@@ -206,18 +207,25 @@ int main()
 
     enemy->GetTransform().SetPosition(
         glm::vec3(-5.0f, 0.0f, 10.0f));
+    // ==================================================
+    // Register Component types
+    // ==================================================
+
+    ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_shared<ScriptComponent>(); });
+    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_shared<PlayerComponent>(); });
+    ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_shared<MeshComponent>(); });
 
     // ==================================================
     // Add Components
     // ==================================================
 
-    player->AddComponent<PlayerComponent>();
+    //player->AddComponent<PlayerComponent>();
 
-    player->AddComponent<MeshComponent>(
-        "Meshes/Player.obj");
+    player->AddComponent<MeshComponent>();
 
-    enemy->AddComponent<MeshComponent>(
-        "Meshes/Enemy.obj");
+    enemy->AddComponent<MeshComponent>();
+
+    player->AddComponent<ScriptComponent>();
 
     // ==================================================
     // Activate the scene
@@ -245,10 +253,9 @@ int main()
     // Serialize
     //==================================================
 
-    SceneSerializer seri;
-    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
-    Droplet::Core::JsonIO::Write("testJson.json", json);
-
+    sceneManager.SerializeToFile(scene, "sceneJson.json");
+    sceneManager.UnloadScene("Game");
+    sceneManager.LoadFromFile("sceneJson.json");
     // ==================================================
     // Deactivate / unload
     // ==================================================

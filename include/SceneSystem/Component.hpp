@@ -108,6 +108,7 @@ namespace Droplet::Scene
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
 
+        std::uint32_t GetID() const { return m_id; }
     protected:
 		/// @brief Internal rendering function for the component's UI.
         /// 
@@ -132,7 +133,7 @@ namespace Droplet::Scene
 		bool m_active = true;
 
         std::weak_ptr<Node> m_owner{};
-
+        std::uint32_t m_id = 0;
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when

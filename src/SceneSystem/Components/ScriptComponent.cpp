@@ -123,7 +123,7 @@ nlohmann::json ScriptComponent::SerializeImpl()
     nlohmann::json json;
 
     json["filepath"] = GetScriptPath();
-
+    
     // TODO
 
     return json;
