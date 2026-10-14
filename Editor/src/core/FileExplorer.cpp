@@ -12,7 +12,6 @@ namespace Droplet::Editor
     void FileExplorer::OpenFileDialog(SDL_Window *p_window, bool p_allowMultiple, 
                                       const std::filesystem::path &p_defaultDirectory, FileSelectedCallback p_onFileSelected)
     {
-        
         // Heap allocation is necessary so that it survives async process
         auto* dialogCtx = new DialogContext{ this, std::move(p_onFileSelected) };
         
@@ -28,7 +27,9 @@ namespace Droplet::Editor
         const char* defaultDirCStr = nullptr;
         if (!p_defaultDirectory.empty())
         {
-            defaultDirStr = p_defaultDirectory.generic_string();
+            std::filesystem::path nativePath = p_defaultDirectory;
+            nativePath /= "";
+            defaultDirStr = nativePath.make_preferred().string();
             defaultDirCStr = defaultDirStr.c_str();
         }
         
