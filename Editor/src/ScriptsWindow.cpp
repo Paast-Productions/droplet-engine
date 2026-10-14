@@ -26,6 +26,7 @@ ScriptsWindow::ScriptsWindow(std::shared_ptr<InteractionState> p_interactionStat
 void ScriptsWindow::InitImpl()
 {
 	SetName("Scripts");
+	ToggleToolbar(true);
 }
 
 void ScriptsWindow::CloseImpl()

@@ -14,7 +14,7 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
-//#include <ImGuizmo/ImGuizmo.h>
+#include <ImGuizmo/ImGuizmo.h>
 #include <ScriptSystem/ScriptSystem.hpp>
 
 using namespace Droplet::Editor;
@@ -41,8 +41,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		return 1;
 	}
 
-	// TODO: Fix this hardcoded path, it should be relative to the executable or a config file
-	Droplet::Script::ScriptSystem::Get().SetScriptPath("../../../src/Scripts");
+	// Set the script path for where the engine will look for scripts.
+	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
 	// Setup SDL polling listener
 	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
@@ -61,7 +61,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	// Setup default ImGui ini file
 	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
 	{
-		//ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
 
@@ -93,7 +93,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
-		//ImGuizmo::BeginFrame();
+		ImGuizmo::BeginFrame();
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
