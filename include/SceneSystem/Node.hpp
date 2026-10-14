@@ -210,11 +210,10 @@ namespace Droplet::Scene
 
             if (component->HasBoundsOverride())
             {
-                if (m_boundsOverride)
+                if (!m_boundsOverride)
                 {
-                    throw std::runtime_error("Node already has a bounds override.");
+                    m_boundsOverride = component;
                 }
-                m_boundsOverride = component;
             }
 
             if (m_started)

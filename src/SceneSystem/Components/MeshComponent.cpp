@@ -16,48 +16,52 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 
 void MeshComponent::RenderUIImpl()
 {
-	using namespace Droplet::Editor;
-	using namespace ImGui;
+    using namespace Droplet::Editor;
+    using namespace ImGui;
 
-	Text("Mesh ID: ");
-	SameLine();
+    // Mesh ID
+    int meshID = GetMeshID();
 
-	if (BeginDragDropTarget())
-	{
-		// Verify that the payload is a mesh resource
-		bool isValidResource = false;
+    if (InputInt("Mesh ID", &meshID, 0, 0))
+    {
+        SetMeshID(meshID);
+    }
 
-		{
-			const ImGuiPayload *payload = GetDragDropPayload();
+    if (BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+        {
+            if (payload->DataSize == sizeof(int))
+            {
+                SetMeshID(*static_cast<const int *>(payload->Data));
+            }
+        }
 
-			bool isResource = payload->IsDataType(PAYLOAD_RESOURCE.data());
+        EndDragDropTarget();
+    }
 
-			if (isResource)
-			{
-				// TODO: Check with ResourceManager if the resource is a mesh resource
+    // Texture ID
+    int textureID = GetTextureID();
 
-				isValidResource = true;
-			}
-		}
+    if (InputInt("Texture ID", &textureID, 0, 0))
+    {
+        SetTextureID(textureID);
+    }
 
-		if (isValidResource)
-		{
-			if (const ImGuiPayload *payload = AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-			{
-				// TODO: Replace with resource handle
-				if (payload->DataSize == sizeof(int))
-				{
-					const int resourceID =
-						*static_cast<const int *>(payload->Data);
+    if (BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+        {
+            if (payload->DataSize == sizeof(int))
+            {
+                SetTextureID(*static_cast<const int *>(payload->Data));
+            }
+        }
 
-					SetMeshID(resourceID);
-				}
-			}
-		}
-
-		EndDragDropTarget();
-	}
-
+        EndDragDropTarget();
+    }
 }
 
 const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() const
