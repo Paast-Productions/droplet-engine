@@ -407,7 +407,7 @@
         19.0,
         19.0
     ],
-    "DockingNodeHasCloseButton": true,
+    "DockingNodeHasCloseButton": false,
     "DockingSeparatorSize": 2.0,
     "DragDropTargetBorderSize": 2.0,
     "DragDropTargetPadding": 3.0,
@@ -481,8 +481,8 @@
         0.0
     ],
     "TreeLinesFlags": 262144,
-    "TreeLinesRounding": 0.0,
-    "TreeLinesSize": 1.0,
+    "TreeLinesRounding": 3.0,
+    "TreeLinesSize": 2.0,
     "WindowBorderHoverPadding": 4.0,
     "WindowBorderSize": 1.0,
     "WindowMenuButtonPosition": 0,

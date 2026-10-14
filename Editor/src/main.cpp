@@ -151,7 +151,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						ImGui::EndMenu();
 					}
 
-					if (ImGui::MenuItem("Show Style Editor"))
+					if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
 					{
 						showStyleEditor = !showStyleEditor;
 					}
