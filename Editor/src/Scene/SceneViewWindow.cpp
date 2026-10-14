@@ -7,8 +7,6 @@ using namespace Droplet::Editor::Scene;
 
 void SceneViewWindow::RenderToolbar()
 {
-	ZoneScoped;
-
 	if (ImGui::BeginMenu("File"))
 	{
 		if (ImGui::BeginMenu("Layout"))
