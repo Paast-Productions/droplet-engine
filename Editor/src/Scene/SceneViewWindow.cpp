@@ -5,29 +5,6 @@
 
 using namespace Droplet::Editor::Scene;
 
-void SceneViewWindow::RenderToolbar()
-{
-	if (ImGui::BeginMenu("File"))
-	{
-		if (ImGui::BeginMenu("Layout"))
-		{
-			if (ImGui::MenuItem("Load Default Layout"))
-			{
-				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
-			}
-
-			if (ImGui::MenuItem("Save Default Layout"))
-			{
-				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
-			}
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMenu();
-	}
-}
-
 void SceneViewWindow::RenderImpl()
 {
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
