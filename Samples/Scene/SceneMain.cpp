@@ -1,5 +1,7 @@
 #include <iostream>
 #include <memory>
+#include <random>
+#include <string_view>
 
 #include "SceneSystem/SceneManager.hpp"
 #include "SceneSystem/Scene.hpp"
@@ -7,8 +9,104 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
+#include "SceneSystem/SceneSerializer.hpp"
+#include "Core/IoManager.hpp"
+#include "GameInput.hpp"
+#include <SDL3/SDL_init.h>
 
 using namespace Droplet::Scene;
+
+static void OctreeTest()
+{
+    if (!SDL_Init(SDL_INIT_VIDEO))
+    {
+        std::printf("Failed (SDL_INIT)");
+        return;
+    }
+
+    SDL_Window *window = SDL_CreateWindow(
+        "Octree Test",
+        1280,
+        720,
+        SDL_WINDOW_RESIZABLE
+    );
+
+    if (!window)
+    {
+        std::printf("Failed to create window: %s\n", SDL_GetError());
+        return;
+    }
+
+    SceneManager sm;
+    sm.LoadScene("Game");
+
+    std::shared_ptr<Scene> s = sm.GetScene("Game");
+    if (!s)
+    {
+        std::cerr << "Failed to load Game scene\n";
+        return;
+    }
+
+    sm.ActivateScene("Game");
+
+    std::srand(std::time(0));
+    for (int i = 0; i < 1000; i++)
+    {
+        float x = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+        float y = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+        float z = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+
+        auto node = s->AddNode("Rock" + std::to_string(i));
+        node->GetTransform().SetPosition(glm::vec3(x, y, z));
+    }
+    std::printf("Done spawning rocks\n");
+
+    Droplet::GameInput &gi = Droplet::GameInput::Get();
+    while (true)
+    {
+        gi.Update();
+
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            gi.ProcessEvent(event);
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyEscape))
+        {
+            break;
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyP))
+        {
+            continue;
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyP))
+        {
+            const std::vector<std::shared_ptr<Node>> roots = s->GetRoots();
+            for (int i = 0; i < 100; i++)
+            {
+                int idx = rand() % 1000;
+                float x = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                float y = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                float z = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
+                roots[idx]->GetTransform().SetPosition(glm::vec3(x, y, z));
+            }
+        }
+
+        if (gi.KeyPressed(Droplet::Key::KeyT))
+        {
+            s->PrintOctree();
+        }
+        if (gi.KeyPressed(Droplet::Key::KeyY))
+        {
+            s->PrintOctreeTree();
+        }
+
+        sm.Update(1.0f / 60.0f);
+    }
+}
 
 // --------------------------------------------------
 // Example Component
@@ -17,7 +115,7 @@ using namespace Droplet::Scene;
 class PlayerComponent : public Component
 {
 public:
-    std::string_view GetTypeName() override { return "PlayerComponent"; }
+    std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
     void Start() override
     {
@@ -31,6 +129,13 @@ public:
             << p_deltaTime
             << " seconds\n";
     }
+
+    nlohmann::json SerializeImpl() override
+    {
+        nlohmann::json json;
+        json["type"] = "PlayerComponent";
+        return json;
+    }
 };
 
 
@@ -40,6 +145,8 @@ public:
 
 int main()
 {
+    OctreeTest();
+
     SceneManager sceneManager;
 
     // ==================================================
@@ -89,6 +196,8 @@ int main()
     player->GetTransform().SetPosition(
         glm::vec3(10.0f, 0.0f, 0.0f));
 
+    player->GetTransform().SetScale(glm::vec3(2.0f, 2.0f, 2.0f));
+
     camera->GetTransform().SetPosition(
         glm::vec3(0.0f, 2.0f, -5.0f));
 
@@ -131,6 +240,14 @@ int main()
 
         sceneManager.Update(deltaTime);
     }
+
+    //==================================================
+    // Serialize
+    //==================================================
+
+    SceneSerializer seri;
+    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
+    Droplet::Core::JsonIO::Write("testJson.json", json);
 
     // ==================================================
     // Deactivate / unload

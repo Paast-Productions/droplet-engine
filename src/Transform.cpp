@@ -1,15 +1,22 @@
 #include "Transform.hpp"
-#include <SceneSystem/Node.hpp>
 
-#define GLM_ENABLE_EXPERIMENTAL
+#include <stdexcept>
+
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <stdexcept>
-#undef GLM_ENABLE_EXPERIMENTAL
+#include <cmath>
 
 #include <SceneSystem/Node.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
+
+static float Sign(float x)
+{
+	float sign = static_cast<float>((x > 0.0f) - (x < 0.0f));
+	return (sign == 0.0f) ? 1.0f : sign;
+}
 
 Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
@@ -133,6 +140,11 @@ glm::mat4 Transform::GetMatrix(Space p_space)
 bool Transform::IsDirty() const
 {
 	return m_isDirty;
+}
+
+bool Droplet::Scene::Transform::HasBeenChanged() const
+{
+	return m_wasChanged;
 }
 
 glm::vec3 Transform::GetUp(Space p_space) const
@@ -295,7 +307,12 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 
 void Transform::SetScale(const glm::vec3 &p_scale)
 {
-	m_scale = p_scale;
+	// Sanitize scale values to avoid zero
+	constexpr float MIN_SCALE = 0.0001f;
+	m_scale.x = Sign(p_scale.x) * ((std::abs(p_scale.x) < MIN_SCALE) ? MIN_SCALE : p_scale.x);
+	m_scale.y = Sign(p_scale.y) * ((std::abs(p_scale.y) < MIN_SCALE) ? MIN_SCALE : p_scale.y);
+	m_scale.z = Sign(p_scale.z) * ((std::abs(p_scale.z) < MIN_SCALE) ? MIN_SCALE : p_scale.z);
+
 	MakeDirty();
 }
 
@@ -360,6 +377,7 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
+	m_wasChanged = true;
 
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())
@@ -368,8 +386,23 @@ void Transform::MakeDirty()
 	}
 }
 
+void Droplet::Scene::Transform::ResetFrame()
+{
+	ZoneScoped;
+
+	m_wasChanged = false;
+
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().ResetFrame();
+	}
+}
+
 void Transform::RecalculateMatrices()
 {
+	ZoneScoped;
+
 	UpdateLocalMatrix();
 
 	// If the transform has a parent, multiply the local matrix by the parent's world matrix to get the world matrix.
@@ -543,6 +576,23 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 
 	ValidateRotation();
 
+	MakeDirty();
+}
+
+void Transform::TransformByMatrix(const glm::mat4 &p_matrix, Space p_space)
+{
+	// If the requested space is world space, but the transform has no parent, treat it as local space.
+	if (p_space == Space::World)
+	{
+		if (!HasParent())
+		{
+			p_space = Space::Local;
+		}
+	}
+
+	SetMatrix(GetMatrix(p_space) * p_matrix, p_space);
+
+	ValidateRotation();
 	MakeDirty();
 }
 

@@ -21,7 +21,7 @@ namespace Droplet::Graphics::VK
 			vk::CommandBufferLevel p_level);
 		
 		/// @brief Get the Vulkan RAII CommandBuffer associated with the instance. 
-		[[nodiscard]] const vk::raii::CommandBuffer &Get() const;
+		[[nodiscard]] const vk::raii::CommandBuffer &Get() const { return m_commandBuffer; }
 		
 		/// @brief Set the command buffer to start recording commands.
 		/// @param p_flags Specify the usage behavior of the command buffer.

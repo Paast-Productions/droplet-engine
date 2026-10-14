@@ -1,32 +1,29 @@
 #include "Node.hpp"
 #include "Scene.hpp"
-#include <glm/gtc/matrix_transform.hpp>
 #include "Component.hpp"
-#include <stdexcept>
+#include <SceneSystem/DefaultNodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <stdexcept>
+#include <glm/gtc/matrix_transform.hpp>
 
 using namespace Droplet::Scene;
 
-Node::Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name)
-    : m_name(p_name), m_transform(this), m_scene(p_scene)
+Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name)
+	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     if (!m_scene.lock())
     {
         throw std::invalid_argument("Cannot create Node: Scene is null.");
     }
+
+    m_bounds = std::make_shared<DefaultNodeBounds>(glm::vec3(0.0f), glm::vec3(0.5f));
 }
 
 void Node::Start()
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     auto scene = m_scene.lock();
 
-    if (!scene || !scene->IsActive())
+	if (!scene || !scene->IsActive())
     {
         return;
     }
@@ -51,13 +48,13 @@ void Node::Start()
 
 void Node::Update(float p_deltaTime)
 {
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
     if (!m_active)
     {
         return;
     }
-
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
 
 	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
@@ -79,22 +76,14 @@ void Node::Render()
         return;
     }
 
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    // TODO
-
     return;
 }
 
 void Node::RenderUI()
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     // TODO: implement node UI rendering wrapper logic
 
-    // Recursively call RenderUI on components
+	// Recursively call RenderUI on components
     for (const auto &component : m_components)
     {
         component->RenderUI();
@@ -105,9 +94,6 @@ void Node::RenderUI()
 
 void Node::SetActive(bool p_active)
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     if (m_active == p_active)
     {
         return;
@@ -134,13 +120,13 @@ bool Node::IsActive() const
         return false;
     }
 
-    // If the Node has a parent, it is only considered active if its parent is also active.
+	// If the Node has a parent, it is only considered active if its parent is also active.
     if (auto parent = m_parent.lock())
     {
         return parent->IsActive();
     }
 
-    return true;
+	return true;
 }
 
 bool Node::IsActiveSelf() const
@@ -150,9 +136,6 @@ bool Node::IsActiveSelf() const
 
 std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     if (!p_child)
     {
         throw std::invalid_argument("Cannot add nullptr as a child Node.");
@@ -163,7 +146,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
         throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
     }
 
-    // Check for cycles in the hierarchy
+	// Check for cycles in the hierarchy
     if (auto parent = GetParent())
     {
         while (parent)
@@ -181,7 +164,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
     if (p_child->GetScene() != m_scene.lock())
     {
-        throw std::runtime_error(
+		throw std::runtime_error(
             "Cannot add Node '" + p_child->GetName() + "' as a child of '" + m_name + "': "
             "Nodes belong to different Scenes."
         );
@@ -189,12 +172,12 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
     if (auto prevParent = p_child->GetParent())
     {
-        prevParent->RemoveChild(p_child);
+		prevParent->RemoveChild(p_child);
     }
     else
     {
-        // Child was a root. Remove it from the scene's root nodes.
-        m_scene.lock()->SetRoot(p_child, false);
+		// Child was a root. Remove it from the scene's root nodes.
+		m_scene.lock()->SetRoot(p_child, false);
     }
 
     p_child->m_parent = shared_from_this();
@@ -212,9 +195,6 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
 
 void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
     if (!p_child)
     {
         throw std::invalid_argument("Cannot remove nullptr as a child Node.");
@@ -222,16 +202,16 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 
     if (p_child.get()->m_parent.lock() != shared_from_this())
     {
-        throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
-    }
+		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
+	}
 
-    if (p_child->GetScene() != m_scene.lock())
-    {
-        throw std::runtime_error(
-            "Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
-            "Nodes belong to different Scenes."
-        );
-    }
+	if (p_child->GetScene() != m_scene.lock())
+	{
+		throw std::runtime_error(
+			"Cannot remove Node '" + p_child->GetName() + "' from '" + m_name + "': "
+			"Nodes belong to different Scenes."
+		);
+	}
 
     auto it = std::find(m_children.begin(), m_children.end(), p_child);
 
@@ -244,7 +224,7 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
 
     m_children.erase(it);
 
-    // Add the removed child to the scene's root nodes
+	// Add the removed child to the scene's root nodes
     m_scene.lock()->SetRoot(p_child, true);
 }
 
@@ -258,27 +238,149 @@ const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
     return m_children;
 }
 
-const std::string& Node::GetName() const
+std::shared_ptr<Scene> Node::GetScene() const
+{
+    return m_scene.lock();
+}
+
+const std::string &Node::GetName() const
 {
     return m_name;
 }
 
-void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
+void Droplet::Scene::Node::SetName(const std::string &p_name)
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
+    m_name = p_name;
+}
 
+void Node::AddComponent(std::unique_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add nullptr Component.");
+	}
+
+    p_component->SetOwner(shared_from_this());
+
+    m_components.push_back(std::move(p_component));
+	std::shared_ptr<Component> addedComponent = m_components.back();
+
+    // Check if the component being added provides bounds override.
+    if (addedComponent->HasBoundsOverride())
+    {
+        if (m_boundsOverride)
+        {
+            throw std::runtime_error("Node already has a bounds override.");
+        }
+		m_boundsOverride = addedComponent;
+    }
+
+    if (m_started)
+    {
+        addedComponent->Start();
+	}
+}
+
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
+{
+    return m_components;
+}
+
+void Node::RemoveComponent(const Component *p_component)
+{
     if (!p_component)
     {
         throw std::invalid_argument("Cannot remove nullptr Component.");
     }
 
-    auto it = std::find(m_components.begin(), m_components.end(), p_component);
+    int index = 0;
+    for (index = 0; index < m_components.size(); ++index)
+    {
+        if (m_components[index].get() == p_component)
+        {
+            break;
+        }
+    }
 
-    if (it == m_components.end())
+    if (index == m_components.size())
     {
         throw std::runtime_error("Cannot remove Component: Component is not attached to Node '" + m_name + "'.");
     }
 
-    m_components.erase(it);
+    // Check if the component being removed provides the current bounds override.
+    const bool isBoundsOverride = (p_component == m_boundsOverride.get());
+
+    m_components.erase(m_components.begin() + index);
+
+    // If the removed component was the bounds override, find another one.
+    if (isBoundsOverride)
+    {
+        m_boundsOverride.reset();
+
+        for (const auto &component : m_components)
+        {
+            if (component->HasBoundsOverride())
+            {
+                m_boundsOverride = component;
+                break;
+            }
+        }
+    }
+}
+
+std::shared_ptr<NodeBounds> Node::GetBounds() const
+{
+    if (m_boundsOverride)
+    {
+        return m_boundsOverride->GetBounds();
+    }
+
+    return m_bounds;
+}
+
+void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
+{
+    if (!p_bounds)
+    {
+        throw std::invalid_argument("Node bounds cannot be null.");
+    }
+
+    m_bounds = std::move(p_bounds);
+}
+
+bool Node::IsBoundsEnabled() const
+{
+    return m_boundsEnabled;
+}
+
+void Node::SetBoundsEnabled(bool p_enabled)
+{
+    m_boundsEnabled = p_enabled;
+}
+
+void Node::SetScene(std::shared_ptr<Scene> p_scene)
+{
+    m_scene = p_scene;
+
+    for (const auto &child : m_children)
+    {
+        child->SetScene(p_scene);
+    }
+}
+
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
+{
+    auto parent = m_parent.lock();
+
+    while (parent)
+    {
+        if (parent == p_node)
+        {
+            return true;
+        }
+
+        parent = parent->GetParent();
+    }
+
+    return false;
 }

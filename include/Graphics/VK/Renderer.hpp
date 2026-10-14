@@ -22,12 +22,12 @@
 
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Pipeline.hpp>
-#include <optional>
-
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
+#include <Graphics/VK/DescriptorSet.hpp>
+#include <Graphics/VK/DescriptorPool.hpp>
 #include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
@@ -37,7 +37,9 @@
 #include <Graphics/VK/CameraController.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 
+#define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
+#undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
 namespace Droplet{class Engine;}
 
@@ -55,15 +57,18 @@ namespace Droplet::Graphics
 		};
 	}
 	
+	
 	class Renderer
 	{
 	public:
+		/// @brief Deleted Constructor
 		Renderer() = delete;
 
 		/// @brief Renderer Constructor
 		/// @param p_windowConfig Requested SDL Window Configuration
 		Renderer(SDL::WindowConfig p_windowConfig);
-		
+
+		/// @brief Destructor
 		~Renderer();
 		
 		/// @brief Renders a singular frame
@@ -78,9 +83,9 @@ namespace Droplet::Graphics
 		/// @returns An SDL Window
 		[[nodiscard]] SDL_Window *GetWindow();
 
-		/// @brief Fills and returns initInfo for ImGui
-		/// @returns ImGui init info
-		ImGui_ImplVulkan_InitInfo GetImGuiInitInfo();
+	/// @brief Fills and returns initInfo for ImGui
+	/// @return ImGui init info
+	void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
 
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
@@ -127,15 +132,6 @@ namespace Droplet::Graphics
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();
 
-		/// @brief Creates the descriptorset layout
-		void					CreateDescriptorSetLayout();
-
-		/// @brief Creates the descriptor pool
-		void					CreateDescriptorPool();
-
-		/// @brief Creates the descriptorsets
-		void					CreateDescriptorSets();
-
 		/// @brief Creates sync objects for preventing race conditions etc
 		void					CreateSyncObjects();
 
@@ -161,8 +157,6 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		void UpdateCamera(float p_deltaTime);
-
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
@@ -180,24 +174,32 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
-		vk::raii::DescriptorPool			 m_descriptorPool = nullptr;
-		vk::raii::DescriptorSetLayout		 m_descriptorSetLayout = nullptr;
-		std::vector<vk::raii::DescriptorSet> m_descriptorSets;
-		vk::raii::Sampler					 m_textureSampler = nullptr;
+		VK::DescriptorPool						m_descriptorPool { nullptr };
+		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
+		vk::raii::Sampler						m_textureSampler = nullptr;
 
-		VK::Image		m_image { nullptr };
-		VK::ImageView	m_textureView { nullptr };
-		VK::DepthBuffer	m_depthBuffer { nullptr };
-		VK::IndexBuffer	m_indexBuffer { nullptr };
+		VK::Image		m_image			{ nullptr };
+		VK::ImageView	m_textureView	{ nullptr };
+		VK::UniformBuffer m_uniformBuffer { nullptr };
+		
+		VK::DepthBuffer	m_depthBuffer	{ nullptr };
+		VK::IndexBuffer	m_indexBuffer	{ nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
-		VkFormat m_imGuiColorFormat = VK_FORMAT_UNDEFINED;
+		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
+		std::uint32_t m_imGuiPoolSize;
+
+		VkFormat m_imGuiColorFormat;
 
 		//Needs one buffer per frame in flight to avoid read write issues
 		
-		std::array<VK::UniformBuffer, MAX_FRAMES_IN_FLIGHT> m_uniformBuffers {nullptr, nullptr };
 		
+		//Index for rendered frames
 		std::uint32_t							 m_frameIndex = 0;
+
+		//Latest received swapchain result
+		vk::Result m_result;
+		std::uint32_t m_imageIndex;
 
 		bool								 m_framebufferResized = false;
 		

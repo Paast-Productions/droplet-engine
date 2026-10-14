@@ -1,9 +1,14 @@
 #include "SceneManager.hpp"
 #include "SceneFactory.hpp"
+#include "SceneSerializer.hpp"
 #include "Scene.hpp"
+#include "Behaviour.hpp"
+
+#include <Core/IoManager.hpp>
 #include <algorithm>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EngineFlags.hpp>
 
 using namespace Droplet::Scene;
 
@@ -143,7 +148,24 @@ void SceneManager::Update(float p_deltaTime)
 {
     ZoneScoped;
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+	// Pre-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+			ZoneNamedN(behaviourPreUpdateZone, "Behaviour Pre-Update", true);
+            ZoneTextV(behaviourPreUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PreUpdate();
+		}
+
+        ++it;
+	}
+
+	// Update all active Scenes
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
 
@@ -154,6 +176,22 @@ void SceneManager::Update(float p_deltaTime)
         }
 
         scene->Update(p_deltaTime);
+
+        ++it;
+    }
+
+    // Post-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+            ZoneNamedN(behaviourPostUpdateZone, "Behaviour Posy-Update", true);
+            ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PostUpdate();
+        }
 
         ++it;
     }
@@ -177,4 +215,73 @@ void SceneManager::Render()
 
         ++it;
     }
+}
+
+void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeScene(p_scene);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
+}
+
+void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+    if (!json.contains("name"))
+    {
+        throw std::runtime_error("Invalid json was sent to LoadFromFile");
+    }
+
+    if (m_scenes.contains(json["name"]))
+    {
+        throw std::runtime_error("Cannot load Scene " + json["name"] );
+    }
+
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+    }
+
+    serializer.DeserializeScene(json, scene);
+    scene->Load();
+
+    m_scenes[json["name"]] = scene;
+
+}
+
+std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
+{
+	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
+
+    behaviour->SetSceneManager(this);
+    m_behaviours.push_back(behaviour);
+
+    behaviour->Start();
+
+	return behaviour;
+}
+
+void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
+{
+    auto behaviour = p_behaviour.lock();
+    if (!behaviour)
+    {
+		return;
+    }
+
+    auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
+    if (it != m_behaviours.end())
+    {
+        m_behaviours.erase(it);
+	}
 }

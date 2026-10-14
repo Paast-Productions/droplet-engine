@@ -7,6 +7,12 @@ project "Transform"
     debugdir(rootPath .. "/Samples/Transform/")
     objdir(objBuildPath .. "/%{prj.name}")
     
+	defines{ 
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+        "GLM_ENABLE_EXPERIMENTAL"
+	}
+    
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Transform/TransformMain.cpp",

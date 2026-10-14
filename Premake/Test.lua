@@ -2,9 +2,17 @@ project "Test"
 
     location(projectsPath)
 
+    removefatalwarnings { "All" }
+
     kind "ConsoleApp"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
+
+	defines{ 
+        "GLM_ENABLE_EXPERIMENTAL",
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"',
+        "ROOT_PATH=" .. AddQuotation("../../..")
+	}
 
     files
     {
@@ -21,6 +29,13 @@ project "Test"
             vkPath .. "/Include",
             targetBuildPath .. "/External/include"
         }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			vkPath .. "/Lib"
+		}
 
     else
 
@@ -29,27 +44,37 @@ project "Test"
             "../include",
             targetBuildPath .. "/External/include"
         }
+    
+		libdirs
+		{
+			targetBuildPath .. "/External/lib",
+			targetBuildPath .. "/External/lib64",
+			"Lib"
+		}
 
     end
-
-    libdirs
-    {
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/lib64"
-    }
 
     dependson 
     {
         "GoogleTest",
         "Engine",
+        "Assimp",
+        "json",
+        "bvh",
+        "stb",
         "Sol2",
         "tracy"
     }
 
     links
     {
-        "Engine", 
+        "Engine",
         "gtest",
         "tracy",
-        "lua-5.4.7"
+        "ImGui",
+        AddQuotation("SDL3"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
+        AddQuotation("Slangd"),
+		AddQuotation("lua-5.4.7")
     }

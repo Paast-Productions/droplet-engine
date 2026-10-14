@@ -12,7 +12,7 @@ TEST(ScriptManager, SetScriptDirectory)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 
-	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/Scripts"));
 }
 
 TEST(ScriptManager, CreateScript)
@@ -22,8 +22,8 @@ TEST(ScriptManager, CreateScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
-	Scene::ScriptComponent testComp("testScript.lua");
+	manager.SetScriptDirectory("../src/Scripts");
+	Scene::ScriptComponent testComp;
 	EXPECT_NO_THROW(manager.CreateComponentScript(&testComp, "testScript.lua"));
 	EXPECT_NO_THROW(manager.CreateComponentScript(&testComp, "testScript2.lua"));
 	EXPECT_THROW(manager.CreateComponentScript(&testComp, "nonExisting.lua"), std::runtime_error);
@@ -35,10 +35,10 @@ TEST(ScriptManager, DetachAllInstancesToScript)
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
 
-	Scene::ScriptComponent firstComp("testScript.lua");
-	Scene::ScriptComponent secondComp("testScript.lua");
+	Scene::ScriptComponent firstComp;
+	Scene::ScriptComponent secondComp;
 
-	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/TestScripts"));
+	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/Scripts"));
 
 	manager.CreateComponentScript(&firstComp, "testScript.lua");
 	manager.CreateComponentScript(&secondComp, "testScript.lua");
@@ -63,7 +63,7 @@ TEST(ScriptManager, LoadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	EXPECT_NO_THROW(manager.LoadScript("testScript.lua"));
 	EXPECT_NO_THROW(manager.LoadScript("testScript3.lua"));
@@ -77,7 +77,7 @@ TEST(ScriptManager, UnloadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -95,7 +95,7 @@ TEST(ScriptManager, IsLoaded)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -115,7 +115,7 @@ TEST(ScriptManager, ReloadScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -133,7 +133,7 @@ TEST(ScriptManager, GetLoadedScript)
 	ScriptManager manager(stateHandler);
 	
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.LoadScript("testScript.lua");
 	manager.LoadScript("testScript3.lua");
@@ -155,9 +155,9 @@ TEST(ScriptManager, ActivateScript)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
-	Droplet::Scene::ScriptComponent testComp("");
+	Droplet::Scene::ScriptComponent testComp;
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.CreateComponentScript(&testComp, "testScript3.lua");
 	manager.ActivateComponentScript(&testComp);
@@ -173,9 +173,9 @@ TEST(ScriptManager, DeactivateScript)
 	//Lua state initialization
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
-	Droplet::Scene::ScriptComponent testComp("");
+	Droplet::Scene::ScriptComponent testComp;
 
-	manager.SetScriptDirectory("../src/TestScripts");
+	manager.SetScriptDirectory("../src/Scripts");
 
 	manager.CreateComponentScript(&testComp, "testScript3.lua");
 	manager.ActivateComponentScript(&testComp);

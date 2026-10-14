@@ -1,10 +1,5 @@
 #include "CommandBuffer.hpp"
 
-const vk::raii::CommandBuffer& Droplet::Graphics::VK::CommandBuffer::Get() const
-{
-	return m_commandBuffer;
-}
-
 void Droplet::Graphics::VK::CommandBuffer::Begin(vk::CommandBufferUsageFlagBits p_flags)
 {
 	vk::CommandBufferBeginInfo beginInfo { .flags = p_flags};

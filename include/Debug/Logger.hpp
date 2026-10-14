@@ -5,6 +5,7 @@
 #include <queue>
 #include <thread>
 #include <condition_variable>
+#include <source_location>
 
 namespace Droplet::Debug
 {
@@ -15,6 +16,9 @@ namespace Droplet::Debug
 		std::string msg{};
 		std::string status{};
 		std::thread::id threadId{};
+		std::string function{};
+		std::string path{};
+		std::string lineNumber{};
 	};
 
 
@@ -45,7 +49,8 @@ namespace Droplet::Debug
 		/// Serializes and appends a log entry to the target JSON file.
 		/// @param p_type Severity level of the log entry.
 		/// @param p_msg The message text to be logged.
-		void Log(LogType p_type,const std::string &p_msg);
+		void Log(LogType p_type,const std::string &p_msg, 
+			const std::source_location &p_location = std::source_location::current());
 
 		/// @brief Processes queued log entries on the background thread.
 		void ProcessQueue();

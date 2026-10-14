@@ -1,11 +1,14 @@
 ﻿#include "Graphics/SDL/Window.hpp"
 
 #include <SDL3/SDL_vulkan.h>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Graphics::SDL;
 
 Window::Window(WindowConfig p_windowConfig) 
 {
+    ZoneScoped;
+
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         throw SDLException("Failed (SDL_INIT)");
@@ -16,7 +19,7 @@ Window::Window(WindowConfig p_windowConfig)
         throw SDLException("Failed (SDL_Vulkan_LoadLibrary)");
     }
     
-    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow("Hello", p_windowConfig.Width, p_windowConfig.Height, p_windowConfig.Flags | SDL_WINDOW_VULKAN));
+    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow("Editor", p_windowConfig.Width, p_windowConfig.Height, p_windowConfig.Flags));
     
     if (not m_sdlWindowHandle)
     {
@@ -28,6 +31,8 @@ Window::Window(WindowConfig p_windowConfig)
 
 Window::~Window()
 {
+    ZoneScoped;
+
     SDL_Quit();
 }
 

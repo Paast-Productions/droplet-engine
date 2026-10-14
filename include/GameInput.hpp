@@ -72,7 +72,12 @@ namespace Droplet
 
 		KeyLCTRL = SDL_SCANCODE_LCTRL,
 		KeyRCTRL = SDL_SCANCODE_RCTRL,
-		KeyShift = SDL_SCANCODE_LSHIFT
+		KeyShift = SDL_SCANCODE_LSHIFT,
+
+		KeyArrowUP = SDL_SCANCODE_UP,
+		KeyArrowRight = SDL_SCANCODE_RIGHT,
+		KeyArrowLeft = SDL_SCANCODE_LEFT,
+		KeyArrowDown = SDL_SCANCODE_DOWN,
 	};
 
 	/// @brief Customized mouse codes using ...

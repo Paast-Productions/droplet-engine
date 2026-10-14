@@ -1,0 +1,119 @@
+#include "core/ThreadPool.hpp"
+#include <string>
+#include <iostream>
+#include <tracy/public/tracy/Tracy.hpp>
+
+namespace Droplet
+{
+    void ThreadPool::Initialize()
+    {
+        ZoneScoped;
+
+        if (!m_workerThreads.empty())
+        {
+            return;
+        }
+        
+        m_running = true;
+        
+        // Uses function max() to ensure nr of threads is never 0
+        m_nrOfThreads = std::max(1u, std::thread::hardware_concurrency() / 2);
+
+        for (uint32_t i = 0; i < m_nrOfThreads; i++)
+        {
+            m_workerThreads.emplace_back(&ThreadPool::WorkerLoop, this, i);
+        }
+    }
+
+    void ThreadPool::Shutdown()
+    {
+        ZoneScoped;
+
+        {
+            std::lock_guard<std::mutex> lock(m_taskMutex);
+            m_running = false;
+        }
+
+        m_condition.notify_all();
+
+        for (std::thread &worker : m_workerThreads)
+        {
+            if (worker.joinable())
+            {
+                worker.join();
+            }
+        }
+        
+        m_workerThreads.clear();
+        while (!m_tasks.empty())
+        {
+            m_tasks.pop();
+        }
+    }
+    
+    void ThreadPool::PushTask(std::function<void()> p_task)
+    {
+        ZoneScoped;
+
+        {
+            std::lock_guard<std::mutex> lock(m_taskMutex);
+
+            if (!m_running)
+            {
+                return;
+            }
+
+            m_tasks.push(std::move(p_task));
+        }
+
+        m_condition.notify_one();
+    }
+
+    ThreadPool::~ThreadPool()
+    {
+        Shutdown();
+    }
+
+    void ThreadPool::WorkerLoop(int threadId)
+    {
+#ifdef TRACY_FIBERS
+		std::string fiberName = std::format("ThreadPool Worker {}", threadId);
+        TracyFiberEnter(fiberName.c_str());
+#endif
+
+        while (true)
+        {
+            std::function<void()> task;
+            {
+                std::unique_lock<std::mutex> lock(m_taskMutex);
+
+                m_condition.wait(lock, [this]()
+                    { 
+                        return !m_tasks.empty() || !m_running; 
+                    });
+
+                if (!m_running)
+                {
+                    return;
+                }
+
+                task = std::move(m_tasks.front());
+                m_tasks.pop();
+            }
+
+            try 
+            {
+			    ZoneNamedN(workerLoopScope, "Worker Task", true);
+                task();
+            }
+            catch (const std::exception &)
+            {
+                // TODO: Log this
+            }
+        }
+
+#ifdef TRACY_FIBERS
+        TracyFiberLeave;
+#endif
+    }
+}

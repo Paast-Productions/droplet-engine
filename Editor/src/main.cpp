@@ -3,7 +3,15 @@
 #include <ImGui/imgui_impl_sdl3.h>
 #include <SDL3/SDL.h>
 #include <cstdio>
+#include <Engine/Engine.hpp>
+#include "HierarchyWindow.hpp"
+#include "NodeInspectorWindow.hpp"
+#include "ScriptsWindow.hpp"
 #include <Graphics/VK/Renderer.hpp>
+#include <GameInput.hpp>
+#include <Resource/ResourceBrowser.hpp>
+#include <Scene/SceneViewWindow.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
 
 #include <Graphics/VK/TestData.hpp>
 
@@ -14,97 +22,74 @@
 #include <Scene/SceneViewWindow.hpp>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
 //#include <tracy/public/tracy/TracyLua.hpp>
+#include <EditorConfig.hpp>
+#include <ImGuizmo/ImGuizmo.h>
+#include <ScriptSystem/ScriptSystem.hpp>
 
-class DropletInstance; // TODO: Get definition from Droplet Engine
-
-// Initialization
-[[nodiscard]] static DropletInstance *Soak()
-{
-	ZoneScoped;
-
-	// TODO: Init Droplet Engine
-	return nullptr;
-}
-
-static void DryOff([[maybe_unused]] DropletInstance *instance)
-{
-	ZoneScoped;
-
-	// TODO: Close Droplet Engine
-}
-
-//static void InitImGui([[maybe_unused]] SDL_Window *window)
-//{
-//	ZoneScoped;	
-//  TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
-//}
-
-static void InitImGui(SDL_Window *p_window,
-	Droplet::Graphics::Renderer &p_rend)
-{
-	ImGui_ImplSDL3_InitForVulkan(p_window);
-
-	ImGui_ImplVulkan_InitInfo initInfo = p_rend.GetImGuiInitInfo();
-	// temporary initilization so that i can go through assertions
-	initInfo.DescriptorPoolSize = 2000;
-
-	ImGui_ImplVulkan_Init(&initInfo);
-}
-
-// Frame
-[[maybe_unused]] static void NewFrame()
-{
-	ZoneScoped;
-	ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL3_NewFrame();
-	ImGui::NewFrame();
-}
-
-[[maybe_unused]] static void SubmitFrame(SDL_Window *window)
-{
-	ZoneScoped;
-
-	ImGui::EndFrame();
-	SDL_RenderPresent(SDL_GetRenderer(window));
-}
+using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
 	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-	Droplet::Graphics::SDL::WindowConfig config =
-	{
-		.Width = 1280,
-		.Height = 720,
-		.Flags = 0
-	};
-	
-	Droplet::Graphics::Renderer rend(config);
+	glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", glm::vec2(1280, 720));
 
-	ZoneScopedN("Editor");
-	bool show_demo_window = true;
-	bool show_another_window = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	DropletInstance *instance = Soak();
+	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
+		Droplet::Graphics::SDL::WindowConfig {
+			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
+		},
+		Droplet::UpdateFlags::EditorFlags
+	));
 
-
-	SDL_Window *wnd = rend.GetWindow();
+	SDL_Window *wnd = engine->GetWindow();
 	if (!wnd)
 	{
 		return 1;
 	}
 
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
+	// Set the script path for where the engine will look for scripts.
+	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+	// Setup SDL polling listener
+	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
+		ImGui_ImplSDL3_ProcessEvent(&event); 
+	});
 
-	InitImGui(wnd, rend);
+	engine->AddEventListener([](SDL_Event &event) { // Window resize callback
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			int width = event.window.data1;
+			int height = event.window.data2;
+			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+		}
+	});
+
+	// Setup default ImGui ini file
+	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
+	{
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
+	}
+
+	engine->GetSceneManager().LoadScene("TestScene"); // HACK
+
+	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
+
+	HierarchyWindow hierarchyWindow(engine, interactionState);
+	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	ScriptsWindow scriptsWindow(engine);
+	Resource::ResourceBrowser resourceBrowser(engine);
+	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
+
+	hierarchyWindow.Init();
+	nodeInspectorWindow.Init();
+	scriptsWindow.Init();
+	resourceBrowser.Init();
+	sceneViewWindow.Init();
+
 	FrameMark;
 
 	Droplet::Editor::EditorContext editorContext(rend);
@@ -116,106 +101,47 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
 	// Run main loop
-	bool done = false;
-	while (!done)
+	bool run = true;
+	while (run)
 	{
-		ZoneScopedN("Main Loop");
+		ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-		// TODO: Update engine
-		Droplet::GameInput::Get().Update();
-		SDL_Event event;
+		EditorConfig::Update();
 
-		while (SDL_PollEvent(&event))
+		// ImGui
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
+
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+
+		hierarchyWindow.Render();
+		nodeInspectorWindow.Render();
+		scriptsWindow.Render();
+		resourceBrowser.Render();
+		sceneViewWindow.Render();
+
+		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
+
+		switch (returnType)
 		{
+		case Droplet::DROPLET_RETURNTYPE::OK:
+			break;
 
+		case Droplet::DROPLET_RETURNTYPE::EXIT:
+			run = false;
+			break;
 
-			Droplet::GameInput::Get().ProcessEvent(event);
-
-			ImGui_ImplSDL3_ProcessEvent(&event);
-			if (event.type == SDL_EVENT_QUIT)
-				done = true;
-
-			if (event.type == SDL_EVENT_KEY_DOWN)
-			{
-				if (event.key.key == SDLK_ESCAPE)
-				{
-					done = true;
-				}
-
-			}
-			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-			{
-				if (ImGuiViewport *viewport = ImGui::FindViewportByPlatformHandle((void *)SDL_GetWindowFromID(event.window.windowID))) {
-					viewport->PlatformRequestMove = true;
-				}
-			}
+		default:
+		case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+			run = false;
+			break;
 		}
 
-		NewFrame();
-		
-		sceneView.Render();
-
-		if (show_demo_window)
-		{
-			ImGui::ShowDemoWindow(&show_demo_window);	
-		}
-
-		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
-		{
-			static float s_f = 0.0f;
-			static int s_counter = 0;
-
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &s_f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", reinterpret_cast<float *>(&clear_color)); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))  // Buttons return true when clicked (most widgets return true when edited/activated)
-			{
-				s_counter++;	
-			}
-			
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", s_counter);
-
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
-			ImGui::End();
-		}
-		
-
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-			{
-				show_another_window = false;	
-			}
-			ImGui::End();
-		}
-
-		SubmitFrame(wnd);
-
-
-		ImGui::Render();
-		rend.DrawFrame(
-			editorContext.GetEditorCamera(),
-			sceneView.GetRenderTarget());
-
-		rend.WaitIdle();
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-
-		FrameMark;
+		//engine->Endframe
 	}
 
-	rend.WaitIdle();
-	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
-
-	DryOff(instance);
+	return 0;
 }

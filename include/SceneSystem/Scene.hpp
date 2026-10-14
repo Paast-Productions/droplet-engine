@@ -1,16 +1,18 @@
 #pragma once
 
+#include <math/bounds/Intersection.hpp>
+
 #include <memory>
 #include <string>
 #include <vector>
-
+#include <SceneSystem/Octree.hpp>
 
 namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency
     class Node;
 
-    /// @brief Represents a Scene containing one or more Node hierarchies.
+	/// @brief Represents a Scene containing a Node hierarchy.
     ///
     /// A Scene owns any number of root Nodes that serve as the starting
     /// points of the Scene's Node hierarchies. Scenes can be loaded,
@@ -27,8 +29,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Scene.
         explicit Scene(const std::string &p_name);
 
-        /// @brief Virtual destructor.
-        virtual ~Scene() = default;      
+        ~Scene() = default;      
 
         /// @brief Loads the Scene.
         ///
@@ -42,7 +43,7 @@ namespace Droplet::Scene
         ///
         /// Derived Scenes can override this function to perform additional
         /// loading or initialization.
-        virtual void Load();
+        void Load();
 
         /// @brief Unloads the Scene.
         ///
@@ -55,7 +56,7 @@ namespace Droplet::Scene
         ///
         /// Derived Scenes can override this function to perform additional
         /// cleanup.
-        virtual void Unload();
+        void Unload();
 
         /// @brief Updates the Scene.
         ///
@@ -63,7 +64,7 @@ namespace Droplet::Scene
         /// loaded and active.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update(float p_deltaTime);
+        void Update(float p_deltaTime);
 
         /// @brief Renders the Scene.
         ///
@@ -73,7 +74,7 @@ namespace Droplet::Scene
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved to a separate rendering
         /// system in the future.
-        virtual void Render();
+        void Render();
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///
@@ -144,9 +145,28 @@ namespace Droplet::Scene
         /// that has not been loaded.
         void SetActive(bool p_active);
 
+        /// @brief Prints graphviz code for visualizing the octree top-down
+        void PrintOctree();
+
+        /// @brief Prints graphviz code for visualizing the octree as a tree
+        void PrintOctreeTree();
+
+		/// @brief Finds the first Node instance intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+
+		/// @brief Finds all Node instances intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @return A vector of weak pointers to all Node instances intersecting with the ray
+		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
+
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
+
+        Octree m_octree;
 
         bool m_loaded = false;
         bool m_active = false;

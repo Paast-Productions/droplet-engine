@@ -10,7 +10,7 @@ using namespace Droplet::Graphics::VK;
 
 DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::Extent2D &p_swapchainExtent)
 {
-	vk::Format depthFormat = FindSupportedFormat(
+	m_format = FindSupportedFormat(
 		p_physicalDevice,
 		{ 
 			vk::Format::eD32Sfloat, 
@@ -23,7 +23,7 @@ DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii
 	try
 	{
 		m_image = {p_allocator, p_swapchainExtent.width, p_swapchainExtent.height,
-			depthFormat, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment, 
+			m_format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
 			vk::MemoryPropertyFlagBits::eDeviceLocal};
 	} catch (const vk::Error &err)
 	{
@@ -34,7 +34,7 @@ DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii
 	
 	try
 	{
-		m_imageView = {p_device, m_image.Get(), depthFormat, vk::ImageAspectFlagBits::eDepth};
+		m_imageView = {p_device, m_image.Get(), m_format, vk::ImageAspectFlagBits::eDepth};
 	} catch (const vk::Error &err)
 	{
 		std::print(std::cerr, "DepthBuffer-ImageView Error: {0}", err.what());

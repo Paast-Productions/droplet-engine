@@ -14,7 +14,7 @@
         prebuildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),
-            "{COPY} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
+            "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
         }
 
     filter "system:linux"
@@ -23,7 +23,7 @@
         buildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),
-            "{COPY} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
+            "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
         }
 
     filter ""

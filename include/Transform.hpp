@@ -24,6 +24,14 @@ namespace Droplet::Scene
 
 		~Transform() = default;
 
+		Transform() = delete;								// Default constructor
+		Transform(const Transform &) = delete;				// Copy constructor
+		Transform(Transform &&) = delete;					// Move constructor
+		Transform &operator=(const Transform &) = delete;	// Copy assignment operator
+		Transform &operator=(Transform &&) = delete;		// Move assignment operator
+        // Copy & Move is disabled to ensure pointers always remain valid
+        // Copying/Moving a Transform should be explicit and manual
+
 		// ================================ Getters ================================
 
 		/// @brief Get the position of the transform in the specified space.
@@ -36,7 +44,7 @@ namespace Droplet::Scene
 		/// @return The rotation of the transform in the specified space.
 		[[nodiscard]] glm::quat GetRotation(Space p_space = Space::Local) const;
 
-		/// @brief Get the Euler angles of the transform in the specified space.
+		/// @brief Get the Euler angles in radians of the transform in the specified space.
 		/// @param p_space The space in which to get the Euler angles. Defaults to local space.
 		/// @return The Euler angles of the transform in the specified space.
 		[[nodiscard]] glm::vec3 GetEuler(Space p_pspace = Space::Local) const;
@@ -55,6 +63,9 @@ namespace Droplet::Scene
 		/// @brief Check if the transform is dirty (i.e., if it has been modified since the last update).
 		/// @return True if the transform is dirty, false otherwise.
 		[[nodiscard]] bool IsDirty() const;
+
+		/// TODO: Edvin
+		[[nodiscard]] bool HasBeenChanged() const;
 
 		/// @brief Get the up direction of the transform in the specified space.
 		/// @param p_space The space in which to get the up direction. Defaults to local space.
@@ -83,7 +94,7 @@ namespace Droplet::Scene
 		/// @param p_space The space in which to set the rotation. Defaults to local space.
 		void SetRotation(const glm::quat &p_rotation, Space p_space = Space::Local);
 
-		/// @brief Set the Euler angles of the transform in the specified space.
+		/// @brief Set the Euler angles in radians of the transform in the specified space.
 		/// @param p_eulerAngles The new Euler angles to set.
 		/// @param p_space The space in which to set the Euler angles. Defaults to local space.
 		void SetEuler(const glm::vec3 &p_eulerAngles, Space p_space = Space::Local);
@@ -99,6 +110,9 @@ namespace Droplet::Scene
 
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
+
+		/// TODO: Edvin
+		void ResetFrame(); // Runs at the end of scene update
 
 		// ================================ Utility ================================
 
@@ -138,9 +152,15 @@ namespace Droplet::Scene
 		/// @param p_space The space in which to perform the look-at operation. Defaults to local space.
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
+		/// @brief Transform the transform by a specified matrix in the specified space.
+		/// @param p_matrix The matrix by which to transform the transform.
+		/// @param p_space The space in which to perform the transform operation. Defaults to local space.
+		void TransformByMatrix(const glm::mat4 &p_matrix, Space p_space = Space::Local);
+
 	private:
-		Node			*m_owner{ nullptr }; // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
-		bool			m_isDirty{ true };
+		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
+		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.
+		bool			m_wasChanged{ true }; // Tracks whether the transform was ever changed during the frame.
 
 		glm::vec3		m_position{ 0.f, 0.f, 0.f };
 		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };

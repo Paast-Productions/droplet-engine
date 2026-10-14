@@ -1,9 +1,11 @@
 #include "MeshComponent.hpp"
+#include <ImGui/imgui.h>
+#include <Editor/DragDropFields.hpp>
 
 using namespace Droplet::Scene;
 
-MeshComponent::MeshComponent(const std::string &p_meshPath)
-    : m_meshPath((p_meshPath))
+// TODO: Temp fix for bounds 
+Droplet::Scene::MeshComponent::MeshComponent() : m_bounds(this)
 {
 }
 
@@ -12,7 +14,72 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 	//TODO: will be inplemted later when the mesh system is implemented
 }
 
+void MeshComponent::RenderUIImpl()
+{
+	using namespace Droplet::Editor;
+	using namespace ImGui;
+
+	Text("Mesh Path: ");
+	SameLine();
+
+	BeginGroup();
+	Text("%s", m_meshPath.c_str());
+	EndGroup();
+
+	if (BeginDragDropTarget())
+	{
+		// Verify that the payload is a mesh resource
+		bool isValidResource = false;
+
+		{
+			const ImGuiPayload *payload = GetDragDropPayload();
+
+			bool isResource = payload->IsDataType(PAYLOAD_RESOURCE.data());
+
+			if (isResource)
+			{
+				// TODO: Check with ResourceManager if the resource is a mesh resource
+
+				isValidResource = true;
+			}
+		}
+
+		if (isValidResource)
+		{
+			if (const ImGuiPayload *payload = AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+			{
+				// TODO: Replace with resource handle
+				const char *payloadPath = static_cast<const char *>(payload->Data);
+				m_meshPath = std::string(payloadPath);
+			}
+		}
+
+		EndDragDropTarget();
+	}
+
+}
+
 const std::string &MeshComponent::GetMeshPath() const
 {
     return m_meshPath;
+}
+
+const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() const
+{
+    // TODO
+    return std::weak_ptr<MeshResource>();
+}
+
+nlohmann::json MeshComponent::SerializeImpl()
+{
+    nlohmann::json json;
+
+    json["filepath"] = GetMeshPath();
+
+    return json;
+}
+
+void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
+{
+	// TODO: Implement deserialization logic for the mesh component.
 }

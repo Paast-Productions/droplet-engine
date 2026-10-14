@@ -24,10 +24,17 @@ Context::Context(SDL_Window *p_window, const vk::raii::Context& p_context)
 /// @param p_severity Severity flags of the error
 /// @param p_type Type flag of the error
 /// @param p_pCallbackData pointer to callback data 
-/// @param void pointer 
+/// @param p_void void pointer 
 /// @return false, to keep running
-static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT p_severity, vk::DebugUtilsMessageTypeFlagsEXT p_type, const vk::DebugUtilsMessengerCallbackDataEXT *p_pCallbackData, void *)
+static VKAPI_ATTR vk::Bool32 VKAPI_CALL DebugCallback(vk::DebugUtilsMessageSeverityFlagBitsEXT p_severity, vk::DebugUtilsMessageTypeFlagsEXT p_type, const vk::DebugUtilsMessengerCallbackDataEXT *p_pCallbackData, [[maybe_unused]] void *p_void)
 {
+	//Hide imgui window resizing warning
+	if (p_pCallbackData->messageIdNumber == 208537678 ||
+		strstr(p_pCallbackData->pMessage, "has not been acquired from VkSwapchainKHR"))
+	{
+		return vk::False; // Suppress it
+	}
+
 	if (p_severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eError || p_severity & vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning)
 	{
 		std::cerr << "validation layer: type " << to_string(p_type) << " msg: " << p_pCallbackData->pMessage << std::endl;
@@ -90,13 +97,29 @@ void Context::CreateLogicalDevice()
 	// query for Vulkan 1.3 features
 	vk::StructureChain<vk::PhysicalDeviceFeatures2,
 		vk::PhysicalDeviceVulkan11Features,
+		vk::PhysicalDeviceVulkan12Features,
 		vk::PhysicalDeviceVulkan13Features,
 		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
 		featureChain = {
-			{},									   // vk::PhysicalDeviceFeatures2
-			{.shaderDrawParameters = true},        // vk::PhysicalDeviceVulkan11Features
-			{.synchronization2 = true, .dynamicRendering = true}, // vk::PhysicalDeviceVulkan13Features   //Fixes sync2 warnings
-			{.extendedDynamicState = true},        // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+			{},	// vk::PhysicalDeviceFeatures2
+			{	// vk::PhysicalDeviceVulkan11Features
+				.shaderDrawParameters = true
+			},							
+			{	// vk::PhysicalDeviceVulkan12Features
+					// Descriptor Indexing
+				.descriptorIndexing = true,
+				.descriptorBindingUniformBufferUpdateAfterBind = true,
+				.descriptorBindingSampledImageUpdateAfterBind = true,
+				.descriptorBindingUpdateUnusedWhilePending = true,
+				.descriptorBindingPartiallyBound = true,
+			},	
+			{	// vk::PhysicalDeviceVulkan13Features
+				.synchronization2 = true, // Fixes sync2 warnings
+				.dynamicRendering = true
+			},	
+			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+				.extendedDynamicState = true
+			}							
 	};
 
 	// create a Device
@@ -169,11 +192,13 @@ std::vector<const char *> getRequiredInstanceExtensions()
 //Creating a surface for rendering onto
 void Context::CreateSurface(SDL_Window *p_window)
 {
+
 	VkSurfaceKHR _surface;
 	if (!SDL_Vulkan_CreateSurface(p_window, *m_instance, nullptr, &_surface))
 	{
 		throw std::runtime_error("failed to create window surface!");
 	}
+
 	m_surface = vk::raii::SurfaceKHR(m_instance, _surface);
 }
 

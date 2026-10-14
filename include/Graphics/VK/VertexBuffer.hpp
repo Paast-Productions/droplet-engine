@@ -85,16 +85,9 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief VertexBuffer Getter
 		/// @return RAII pointer to the vertex buffer
-		[[nodiscard]] const vma::raii::Buffer &Get();
+		[[nodiscard]] const vma::raii::Buffer &Get() { return m_vertexBuffer; }
 		
 	private:
 		vma::raii::Buffer m_vertexBuffer { nullptr };
 	};
-
-	/// @brief Getter for Vertex buffer reference
-	/// @return Vertex buffer pointer
-	inline const vma::raii::Buffer &VertexBuffer::Get()
-	{
-		return m_vertexBuffer;
-	}
 }
