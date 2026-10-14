@@ -85,8 +85,6 @@ namespace Droplet
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
-		ResourceManager m_resourceManager;
-
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
 

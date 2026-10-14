@@ -109,9 +109,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		sceneViewWindow.Render();
 	    
 	    fileExplorer.Update(); // Process callbacks
-		run = engine->Update() == Droplet::DROPLET_RETURNTYPE::OK;
-
-		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
+	    Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
 
 		switch (returnType)
 		{
