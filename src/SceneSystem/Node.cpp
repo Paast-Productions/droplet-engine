@@ -253,6 +253,34 @@ void Droplet::Scene::Node::SetName(const std::string &p_name)
     m_name = p_name;
 }
 
+void Node::AddComponent(std::unique_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add nullptr Component.");
+	}
+
+    p_component->SetOwner(shared_from_this());
+
+    m_components.push_back(std::move(p_component));
+	std::shared_ptr<Component> addedComponent = m_components.back();
+
+    // Check if the component being added provides bounds override.
+    if (addedComponent->HasBoundsOverride())
+    {
+        if (m_boundsOverride)
+        {
+            throw std::runtime_error("Node already has a bounds override.");
+        }
+		m_boundsOverride = addedComponent;
+    }
+
+    if (m_started)
+    {
+        addedComponent->Start();
+	}
+}
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
 {
     return m_components;

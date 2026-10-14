@@ -4,6 +4,7 @@
 #include <EditorWindow.hpp>
 #include <EditorCamera.hpp>
 #include <InteractionState.hpp>
+#include <Engine.hpp>
 
 namespace Droplet::Editor::Scene
 {
@@ -11,7 +12,8 @@ namespace Droplet::Editor::Scene
 	class SceneViewWindow : public EditorWindow
 	{
 	public:
-		SceneViewWindow(std::shared_ptr<InteractionState> p_interactionState) : m_interactionState(p_interactionState), m_editorCamera(p_interactionState) {}
+		SceneViewWindow(std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) :
+			EditorWindow(p_engine), m_interactionState(p_interactionState), m_editorCamera(p_interactionState) {}
 		~SceneViewWindow() = default;
 
 	protected:
@@ -27,5 +29,7 @@ namespace Droplet::Editor::Scene
 	private:
 		EditorCamera m_editorCamera;
 		std::shared_ptr<InteractionState> m_interactionState;
+
+		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
 	};
 }

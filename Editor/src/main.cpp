@@ -5,14 +5,17 @@
 #include <cstdio>
 #include <Engine/Engine.hpp>
 #include "HierarchyWindow.hpp"
-#include <NodeInspectorWindow.hpp>
+#include "NodeInspectorWindow.hpp"
+#include "ScriptsWindow.hpp"
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
+#include <ScriptSystem/ScriptSystem.hpp>
 
 using namespace Droplet::Editor;
 
@@ -38,6 +41,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		return 1;
 	}
 
+	// Set the script path for where the engine will look for scripts.
+	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
+
 	// Setup SDL polling listener
 	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
 		ImGui_ImplSDL3_ProcessEvent(&event); 
@@ -59,15 +65,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
 
+	engine->GetSceneManager().LoadScene("TestScene"); // HACK
+
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow(interactionState);
-	Resource::ResourceBrowser resourceBrowser;
-	Scene::SceneViewWindow sceneViewWindow(interactionState);
+	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	ScriptsWindow scriptsWindow(engine);
+	Resource::ResourceBrowser resourceBrowser(engine);
+	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
+	scriptsWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
 
@@ -92,6 +102,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
+		scriptsWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 

@@ -174,6 +174,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
+		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
+		/// @param p_component Unique pointer to the Component to add.
+        void AddComponent(std::unique_ptr<Component> &p_component);
+
         /// @brief Adds a Component to the Node.
         ///
         /// Constructs the Component using the provided arguments, assigns this Node
