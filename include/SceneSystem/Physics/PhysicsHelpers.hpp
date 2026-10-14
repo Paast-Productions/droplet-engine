@@ -2,6 +2,7 @@
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <glm/glm.hpp>
 
 namespace Droplet
 {
@@ -18,6 +19,26 @@ namespace Droplet
 		static constexpr JPH::BroadPhaseLayer MOVING(1);
 		static constexpr JPH::uint NUM_LAYERS(2);
 	};
+
+	static JPH::Vec3 GLMtoJPH(glm::vec3 p_vector)
+	{
+		return JPH::Vec3(p_vector.x, p_vector.y, p_vector.z);
+	}
+
+	static glm::vec3 JPHtoGLM(JPH::Vec3 p_vector)
+	{
+		return glm::vec3(p_vector.GetX(), p_vector.GetY(), p_vector.GetZ());
+	}
+
+	static JPH::Quat GLMtoJPH(glm::quat p_quat)
+	{
+		return JPH::Quat(p_quat.x, p_quat.y, p_quat.z, p_quat.w);
+	}
+
+	static glm::quat JPHtoGLM(JPH::Quat p_quat)
+	{
+		return glm::quat(p_quat.GetX(), p_quat.GetY(), p_quat.GetZ(), p_quat.GetW());
+	}
 
 	// BroadPhaseLayerInterface implementation
 	// This defines a mapping between object and broadphase layers.
