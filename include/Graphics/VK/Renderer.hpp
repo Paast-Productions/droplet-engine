@@ -36,6 +36,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
+#include <SceneAdapter.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -114,7 +115,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
-		void					RecordCommandBuffer(uint32_t p_imageIndex);
+		void					RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK::RenderData p_renderData);
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();

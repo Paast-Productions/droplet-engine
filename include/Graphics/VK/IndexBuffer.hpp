@@ -34,6 +34,7 @@ namespace Droplet::Graphics::VK
 		
 		IndexBuffer(IndexBuffer &&p_other) noexcept
 		{
+			m_indexCount = p_other.m_indexCount;
 			m_indexBuffer = std::move(p_other.m_indexBuffer);
 		}
 		
@@ -43,7 +44,7 @@ namespace Droplet::Graphics::VK
 			{
 				return *this;
 			}
-			
+			m_indexCount = p_other.m_indexCount;
 			m_indexBuffer = std::move(p_other.m_indexBuffer);
 			
 			return *this;
@@ -54,15 +55,17 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const IndexBuffer &p_other) const
 		{
-			return m_indexBuffer == p_other.m_indexBuffer;
+			return m_indexBuffer == p_other.m_indexBuffer && m_indexCount == p_other.m_indexCount;
 		}
 		
 		/// @brief Getter-function for the index buffer
 		/// @returns Vulkan Buffer Pointer
 		[[nodiscard]] const vk::raii::Buffer &Get() const { return m_indexBuffer; }
+
+		[[nodiscard]] std::uint32_t GetIndexCount() { return m_indexCount; }
 		
 	private:
 		vma::raii::Buffer m_indexBuffer { nullptr };
-		
+		std::uint32_t m_indexCount = 0;
 	};
 }

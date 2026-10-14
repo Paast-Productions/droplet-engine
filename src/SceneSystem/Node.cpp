@@ -76,10 +76,13 @@ void Node::Render(std::vector<NodeData> &p_data)
         return;
     }
 
+   
     NodeData data =
     {
         .meshID = 0,
-        .textureID = 0
+        .textureID = 0,
+
+        .world = GetTransform().GetMatrix(Droplet::Scene::Transform::Space::World)
     };
 
     p_data.push_back(data);

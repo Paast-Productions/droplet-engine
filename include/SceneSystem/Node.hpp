@@ -22,6 +22,8 @@ namespace Droplet::Scene
     {
         std::uint32_t meshID;
         std::uint32_t textureID;
+
+        glm::mat4 world;
     };
 
     /// Forward declarations to avoid circular dependencies

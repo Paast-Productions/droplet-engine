@@ -3,10 +3,11 @@
 
 using namespace Droplet::Graphics::VK;
 
-SceneAdapter::SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator) :
-	m_context(p_context),
-	m_commandPool(p_commandPool),
-	m_allocator(p_allocator)
+SceneAdapter::SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet) :
+	m_context{ p_context },
+	m_commandPool{p_commandPool},
+	m_allocator{p_allocator},
+	m_descriptorSet{p_descriptorSet}
 {
 	m_vertexMap.emplace(0, VertexBuffer(m_allocator.Get(), G_VERTICES));
 	m_indexMap.emplace(0, IndexBuffer(m_allocator.Get(), G_INDICES));
@@ -37,11 +38,16 @@ SceneAdapter::SceneAdapter(const Context &p_context, const CommandPool &p_comman
 			vk::ImageAspectFlagBits::eColor
 		)
 	);
+
+	m_descriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_samplerMap[0].Get(), m_viewMap[0].Get());
 }
 
 void SceneAdapter::UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_nodeData)
 {
 	//Iterate through and update what meshes and textures are loaded
+
+	m_renderData.meshData.clear();
+	m_renderData.pushConstants.clear();
 
 	std::vector<MeshData> mData;
 	std::vector<PushConstants> pData;
@@ -50,11 +56,22 @@ void SceneAdapter::UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_node
 		MeshData m;
 		m.indexBuffer = m_indexMap[p_nodeData[i].meshID].Get();
 		m.vertexBuffer = m_vertexMap[p_nodeData[i].meshID].Get();
+		m.indexCount = m_indexMap[p_nodeData[i].meshID].GetIndexCount();
 
 		mData.push_back(m);
+
+		m_bufferMap.emplace(i, StorageBuffer(m_allocator.Get(), p_nodeData[i].world));
+		m_descriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_bufferMap[i].Get());
+
+		PushConstants p;
+		p.unibuf = i;
+		p.sampler = 0;
+
+		pData.push_back(p);
 	}
 
 	m_renderData.meshData = mData;
+	m_renderData.pushConstants = pData;
 }
 
 const RenderData SceneAdapter::GetRenderData()

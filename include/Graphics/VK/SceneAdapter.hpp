@@ -11,6 +11,9 @@
 #include <Graphics/VK/Image.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Graphics/VK/Allocator.hpp>
+#include <Graphics/VK/DescriptorSet.hpp>
+#include <Graphics/VK/StorageBuffer.hpp>
+#include <glm/glm.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -18,6 +21,7 @@ namespace Droplet::Graphics::VK
 	{
 		vk::Buffer vertexBuffer;
 		vk::Buffer indexBuffer;
+		std::uint32_t indexCount;
 	};
 
 	struct MeshBuffer
@@ -48,7 +52,6 @@ namespace Droplet::Graphics::VK
 			std::swap(vertices, p_other.vertices);
 			std::swap(indices, p_other.indices);
 		}
-
 	};
 
 	struct SampleTexture
@@ -70,13 +73,13 @@ namespace Droplet::Graphics::VK
 		std::vector<PushConstants> pushConstants;
 	};
 
-	class SceneAdapter
+	static class SceneAdapter
 	{
 	public:
 		SceneAdapter() = delete;
 		~SceneAdapter() = default;
 
-		SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator);
+		SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
 
 		void UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_nodeData);
 
@@ -90,12 +93,13 @@ namespace Droplet::Graphics::VK
 		std::unordered_map<std::uint32_t, Sampler> m_samplerMap;
 		std::unordered_map<std::uint32_t, ImageView> m_viewMap;
 
+		std::unordered_map<std::uint32_t, StorageBuffer> m_bufferMap;
 
 		RenderData m_renderData;
 
 		const Allocator &m_allocator;
 		const CommandPool &m_commandPool;
-
+		DescriptorSet &m_descriptorSet;
 		const Context &m_context;
 	};
 }

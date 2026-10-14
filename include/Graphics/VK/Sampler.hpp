@@ -46,6 +46,8 @@ namespace Droplet::Graphics::VK
 			return m_sampler == p_other.m_sampler;
 		}
 
+		[[nodiscard]] const vk::raii::Sampler &Get() { return m_sampler; }
+
 	private:
 		vk::raii::Sampler m_sampler { nullptr };
 	};

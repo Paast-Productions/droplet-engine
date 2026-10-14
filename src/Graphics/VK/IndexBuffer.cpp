@@ -6,6 +6,8 @@ IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator, const std::vec
 {
 	vk::DeviceSize bufferSize = sizeof(p_indices[0]) * p_indices.size();
 	
+	m_indexCount = p_indices.size();
+
 	const vk::BufferCreateInfo bufferCreateInfo 
 	{
 		.size = bufferSize,

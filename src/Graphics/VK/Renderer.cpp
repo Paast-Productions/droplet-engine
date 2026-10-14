@@ -23,6 +23,7 @@
 #include <GameInput.hpp>
 
 
+
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
 
@@ -63,7 +64,6 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		m_allocator.Get(),
 		ubo
 	};
-
 	
 	m_image = {
 		m_allocator.Get(),
@@ -264,7 +264,7 @@ void Renderer::TransitionImageLayout(
 
 
 //Main drawing operations are here!
-void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
+void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK::RenderData p_renderData)
 {
 	ZoneScoped;
 
@@ -333,15 +333,31 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		.pColorAttachments = &colorAttachmentInfo,
 		.pDepthAttachment = &depthAttachmentInfo 
 	};
+
+	vk::PushConstantsInfo pcInfo
+	{
+		.sType = vk::StructureType::ePushConstantsInfo,
+		.pNext = VK_NULL_HANDLE,
+		.layout = m_graphicsPipeline.GetLayout(),
+		.stageFlags = vk::ShaderStageFlagBits::eVertex,
+		.offset = 0,
+		.size = sizeof(Droplet::Graphics::VK::PushConstants),
+		.pValues = p_renderData.pushConstants.data()
+	};
 	
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
-	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
+	commandBuffer.pushConstants2(pcInfo);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
-	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	for (size_t i = 0; i < p_renderData.meshData.size(); i++)
+	{
+		commandBuffer.bindVertexBuffers(0, p_renderData.meshData[i].vertexBuffer, {0});
+		commandBuffer.bindIndexBuffer(p_renderData.meshData[i].indexBuffer, 0, vk::IndexType::eUint16);
+
+		commandBuffer.drawIndexed(p_renderData.meshData[i].indexCount, 1, 0, 0, 0);
+	}
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 	commandBuffer.endRendering();
@@ -471,7 +487,7 @@ void Renderer::DrawFrame()
 	ImGui::Render();
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	RecordCommandBuffer(m_imageIndex);
+	RecordCommandBuffer(m_imageIndex, p_renderData);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	
