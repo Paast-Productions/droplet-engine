@@ -65,13 +65,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
 
+	engine->GetSceneManager().LoadScene("TestScene"); // HACK
+
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow(interactionState);
+	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
 	ScriptsWindow scriptsWindow(interactionState);
-	Resource::ResourceBrowser resourceBrowser;
-	Scene::SceneViewWindow sceneViewWindow(interactionState);
+	Resource::ResourceBrowser resourceBrowser(engine);
+	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();

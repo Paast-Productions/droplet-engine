@@ -30,6 +30,12 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	ImGui_ImplVulkan_Init(&m_initInfo);
 
 	ThreadPool::GetInstance().Initialize();
+
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 Droplet::Engine::~Engine()
@@ -46,11 +52,6 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
-	// Register engine behaviours
-	RegisterBehaviours();
-
-	// Register engine components
-	RegisterComponents();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -147,12 +148,12 @@ void Droplet::Engine::AddEventListener(EventListener p_listener)
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
-	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_shared<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
 {
 	// Register engine components
-	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_shared<Scene::MeshComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_shared<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 }

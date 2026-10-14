@@ -13,17 +13,13 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
-{
-	m_instance = p_instance;
-	m_interactionState = p_interactionState;
-}
+HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState) :
+	EditorWindow(p_instance), m_instance(p_instance), m_interactionState(p_interactionState)
+{ }
 
 void HierarchyWindow::InitImpl()
 {   
     SetName("Node Hierarchy");
-
-	m_instance->GetSceneManager().LoadScene("TestScene");
 
 	m_selectedScene = m_instance->GetSceneManager().GetScene("TestScene"); 
 }
