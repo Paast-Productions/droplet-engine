@@ -20,7 +20,7 @@ namespace Droplet::Editor::Resource
 	{
 	public:
 	    ResourceBrowser(std::shared_ptr<Engine> p_engine, FileExplorer &p_fileExplorer) 
-	        : EditorWindow(p_engine), m_instance(p_engine), m_fileExplorer(p_fileExplorer)  {}
+	        : EditorWindow(p_engine), m_engine(p_engine), m_fileExplorer(p_fileExplorer)  {}
 	     
 	protected:
 
@@ -55,6 +55,6 @@ namespace Droplet::Editor::Resource
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue;
 	    
 		/// @brief Engine instance used to access engine systems.
-		std::shared_ptr<Engine> m_instance;
+		std::shared_ptr<Engine> m_engine;
 	};
 }

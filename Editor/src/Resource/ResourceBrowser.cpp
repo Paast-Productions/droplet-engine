@@ -10,7 +10,7 @@ using namespace Droplet::Editor::Resource;
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
-    BuildBrowserTree(m_instance->GetResourceManager().GetRegisteredResources());
+    BuildBrowserTree(m_engine->GetResourceManager().GetRegisteredResources());
 }
 
 void ResourceBrowser::RenderImpl()
@@ -23,12 +23,12 @@ void ResourceBrowser::RenderImpl()
     
     if (Button("Register Resource"))
     {
-        m_fileExplorer.OpenFileDialog(m_instance->GetWindow(), true, m_instance->GetResourceManager().GetRootDirectory(),
+        m_fileExplorer.OpenFileDialog(m_engine->GetWindow(), true, m_engine->GetResourceManager().GetRootDirectory(),
             [this](const std::vector<std::filesystem::path>& absPaths)
             {
                 if (absPaths.empty()) return;
                 
-                std::filesystem::path assetRoot = m_instance->GetResourceManager().GetRootDirectory();
+                std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
                 // This is where assets from outside the root dir will be copied to
                 std::filesystem::path destinationBrowserDir = m_currentBrowserPath.empty() ? assetRoot : m_currentBrowserPath;
                 
@@ -49,7 +49,7 @@ void ResourceBrowser::RenderImpl()
                         relPath = relPathTemp;
                     }
                     
-                    m_instance->GetResourceManager().RegisterAsset(relPath,
+                    m_engine->GetResourceManager().RegisterAsset(relPath,
                         [this](const std::vector<MetaEntry>& entries)
                         {
                             m_registerPopupQueue.push(entries);
@@ -60,7 +60,7 @@ void ResourceBrowser::RenderImpl()
         );
     }
     SameLine();
-    TextDisabled(m_instance->GetResourceManager().GetRootDirectory().string().c_str());
+    TextDisabled(m_engine->GetResourceManager().GetRootDirectory().string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
@@ -98,7 +98,7 @@ void ResourceBrowser::RenderImpl()
         {
             for (const auto &entry : currentEntries)
             {
-                m_instance->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
+                m_engine->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
                 updatedRegistry = true;
             }
             
@@ -122,7 +122,7 @@ void ResourceBrowser::RenderImpl()
 	ImVec2 cursorStartPos = GetCursorPos();
 	ImVec2 listSize = ImVec2(windowSize.x * 0.5f, 0);
     
-    std::vector<const MetaEntry *> resources = m_instance->GetResourceManager().GetRegisteredResources();
+    std::vector<const MetaEntry *> resources = m_engine->GetResourceManager().GetRegisteredResources();
     if (updatedRegistry)
     {
         BuildBrowserTree(resources);
@@ -219,7 +219,7 @@ void ResourceBrowser::RenderImpl()
 			        if (DrawResourceSettings(modifiedEntry))
 			        {
 			            // TODO: This has to keep retrying until it returns true somehow
-			            m_instance->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, modifiedEntry, true);
+			            m_engine->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, modifiedEntry, true);
 			        }
 			    }
 			}
@@ -337,7 +337,7 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
     
     
     // Draw UI based on descriptor
-    auto schema = m_instance->GetResourceManager().GetSettingsSchema(p_entry.type);
+    auto schema = m_engine->GetResourceManager().GetSettingsSchema(p_entry.type);
     for (const auto &desc : schema)
     {
         if (!p_entry.loadSettings.contains(desc.key)) continue;
