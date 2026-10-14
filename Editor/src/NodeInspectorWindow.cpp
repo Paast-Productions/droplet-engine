@@ -1,6 +1,7 @@
 #include "NodeInspectorWindow.hpp"
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
 #include <algorithm>
 #include <TransformUI.hpp>
 
@@ -109,6 +110,9 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::Checkbox("Lock Scale", &m_lockScale);
 	}
 
+	// Button width
+	const float buttonWidth = ImGui::GetContentRegionAvail().x;
+
 	// Vector of components
 	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
 
@@ -123,16 +127,29 @@ void NodeInspectorWindow::RenderImpl()
 		std::string thisString = std::to_string(thisNumber);
 		ImGui::PushID(thisString.c_str());
 
-		if (ImGui::CollapsingHeader(component->GetTypeName().data()))
+		// The actual header
+		bool isOpen = ImGui::CollapsingHeader(component->GetTypeName().data());
+
+		// The right click on header
+		if (ImGui::BeginPopupContextItem("popup"))
+		{
+			if (ImGui::MenuItem("Remove Component"))
+			{
+				m_currentNode->RemoveComponent(component.get());
+			}
+			ImGui::EndPopup();
+		}
+
+		// Rendering the component UI if header is open
+		if (isOpen)
 		{
 			component->RenderUI();
 		}
+
 		ImGui::PopID();
 	}
 
 	ImGui::Spacing();
-
-	const float buttonWidth = ImGui::GetContentRegionAvail().x;
 
 	if (ImGui::Button("+ Add Component", ImVec2(buttonWidth, 0.0f)))
 	{
@@ -144,6 +161,11 @@ void NodeInspectorWindow::RenderImpl()
 		if (ImGui::MenuItem("Script Component"))
 		{
 			m_currentNode->AddComponent<Scene::ScriptComponent>();
+		}
+
+		if (ImGui::MenuItem("Mesh Component"))
+		{
+			m_currentNode->AddComponent<Scene::MeshComponent>();
 		}
 
 		// TODO: Add for each component we have

@@ -51,14 +51,6 @@ namespace Droplet
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow();
 
-		/// @brief 
-		/// HACK HACK HACK 
-		/// DO NOT USE THIS FUNCTION, IT WILL BE REMOVED VERY SOON.
-		/// IT ONLY EXISTS TO MAKE SURE TEMPORARY IMGUI CODE IN MAIN CAN RUN. 
-		/// HACK HACK HACK
-		/// @return Renderer
-		[[nodiscard]] Graphics::Renderer &TEMP_GetRenderer();
-
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();

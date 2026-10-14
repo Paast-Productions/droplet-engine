@@ -17,7 +17,9 @@ namespace Droplet::Editor::Scene
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
-		void InitImpl() override { SetName("Scene View"); }
+		void InitImpl() override { SetName("Scene View"); ToggleToolbar(true); }
+
+		void RenderToolbar() override;
 
 		/// @brief Renders the editor camera view and handles user interactions within the scene view window.
 		void RenderImpl() override;

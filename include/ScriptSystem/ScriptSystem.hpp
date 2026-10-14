@@ -106,7 +106,7 @@ namespace Droplet::Script
 		void SetScriptPath(const std::string &p_directoryPath);
 
 		/// @brief Get path for where the scripts is
-		/// @return Path for where the scripts is
+		/// return String path for scripts		
 		std::string GetScriptPath();
 
 		/// @brief Calls a Lua function on a script component.

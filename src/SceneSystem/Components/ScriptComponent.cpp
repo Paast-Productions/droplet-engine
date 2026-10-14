@@ -8,7 +8,6 @@ using namespace Droplet::Script;
 
 void ScriptComponent::Start()
 {
-
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -34,11 +33,13 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
     m_scriptPath = p_scriptPath;
 
-    if (m_started && m_scriptPath.empty())
+    if (m_scriptPath.empty())
     {
-        ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
-        ScriptSystem::Get().ActivateComponentScript(this);
+        return;
     }
+
+    ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
+    ScriptSystem::Get().ActivateComponentScript(this);
 }
 
 void ScriptComponent::DetachScript()
@@ -63,17 +64,25 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::TextUnformatted("Script-Component");
-    ImGui::Separator();
+    ImGui::TextUnformatted("Script attachment");
 
-    if (!m_scriptPath.empty())
+    ImGui::Button("Drop Lua script here", ImVec2(180.0f, 0.0f));
+
+    if (ImGui::BeginDragDropTarget())
     {
-        ImGui::Text("Script: %s", m_scriptPath.c_str());
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char* droppedPath = static_cast<const char*>(payload->Data);
+                AttachScript(droppedPath);
+            }
+        }
+
+        ImGui::EndDragDropTarget();
     }
-    else 
-    {
-        ImGui::Text("Script: None");
-    }
+
+    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str());
 
     if (ImGui::Button("Attach Script"))
     {

@@ -270,7 +270,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
-        void RemoveComponent(const std::shared_ptr<Component> &p_component);
+        void RemoveComponent(const Component *p_component);
 
         // --------------------------------------------------
         // Bounds

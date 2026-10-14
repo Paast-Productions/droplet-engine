@@ -174,7 +174,7 @@ namespace Droplet::Script
 		void SetScriptDirectory(const std::string &p_directoryPath);
 
 		/// @brief Gets the directory Path
-		/// @return This is the path for your working directory to the scripts
+		/// @return String of the directory Path
 		std::string GetScriptDirectory();
 
 	private:
