@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Jolt/Jolt.h>
+
 #include <SceneSystem/Physics/PhysicsHelpers.hpp>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Core/JobSystemThreadPool.h>
