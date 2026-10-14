@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <Resource/Types/MeshResource.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
+#include <Transform.hpp>
 
 namespace Droplet
 {
@@ -13,7 +14,8 @@ namespace Droplet
 	public:
 		/// @brief Constructs the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
-		PhysicsComponent(Physics &p_physics) : m_physics(p_physics) {}
+		/// @param p_transform The transform of the Node this component is added to
+		PhysicsComponent(Physics &p_physics, Scene::Transform &p_transform) : m_physics(p_physics), m_transform(p_transform) {}
 		~PhysicsComponent() = default;
 
 		/// @brief Set a box collider
@@ -44,6 +46,7 @@ namespace Droplet
 
 		bool m_hasShape = false;
 		Physics &m_physics;
+		Scene::Transform &m_transform;
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};
