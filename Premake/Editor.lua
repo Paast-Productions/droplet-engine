@@ -67,7 +67,8 @@ project "Editor"
         "ImGui",
         "ImGuizmo",
         "json",
-        "tracy"
+        "tracy",
+        "IconFontCppHeaders"
     }
 
     files 
@@ -83,6 +84,7 @@ project "Editor"
         "ImGuizmo",
         "VulkanMemoryAllocator",
         "tracy",
+        "IconFontCppHeaders",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
