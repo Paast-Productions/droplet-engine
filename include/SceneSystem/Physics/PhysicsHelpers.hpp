@@ -3,6 +3,8 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <Jolt/Math/Quat.h>
 
 namespace Droplet
 {
