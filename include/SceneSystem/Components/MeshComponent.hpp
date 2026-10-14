@@ -67,8 +67,8 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        std::uint64_t m_meshGUID = -1;
-        std::uint64_t m_textureGUID = -1;
+        std::uint64_t m_meshGUID = 0;
+        std::uint64_t m_textureGUID = 0;
 
         MeshNodeBounds m_bounds;
 
