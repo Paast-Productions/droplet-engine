@@ -13,8 +13,10 @@ namespace Droplet::Graphics::VK
 	class IndexBuffer
 	{
 	public:
-		/// @brief Deleted constructor
-		IndexBuffer() = delete;
+		IndexBuffer()
+		{
+			m_indexBuffer = nullptr;
+		}
 		
 		IndexBuffer(nullptr_t p_nullptr)
 		{

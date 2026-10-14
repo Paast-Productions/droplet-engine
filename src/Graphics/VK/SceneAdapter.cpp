@@ -1,31 +1,63 @@
 #include <Graphics/VK/SceneAdapter.hpp>
+#include <Graphics/VK/TestData.hpp> 
 
 using namespace Droplet::Graphics::VK;
 
-SceneAdapter::SceneAdapter(const Context &p_context) :
-	m_context(p_context)
+SceneAdapter::SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator) :
+	m_context(p_context),
+	m_commandPool(p_commandPool),
+	m_allocator(p_allocator)
 {
+	m_vertexMap.emplace(0, VertexBuffer(m_allocator.Get(), G_VERTICES));
+	m_indexMap.emplace(0, IndexBuffer(m_allocator.Get(), G_INDICES));
+	
+	m_samplerMap.emplace(0, Sampler(m_context));
+
+	m_imageMap.emplace(0, 
+		Image(
+			m_allocator.Get(),
+			m_commandPool,
+			m_context,
+			G_CATDESPAIR,
+			78400,
+			G_CATDIM,
+			G_CATDIM,
+			vk::Format::eR8G8B8A8Unorm,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			vk::MemoryPropertyFlagBits::eDeviceLocal
+		)
+	);
+
+	m_viewMap.emplace(0,
+		ImageView(
+			m_context.GetDevice(),
+			m_imageMap[0].Get(),
+			vk::Format::eR8G8B8A8Unorm,
+			vk::ImageAspectFlagBits::eColor
+		)
+	);
 }
 
 void SceneAdapter::UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_nodeData)
 {
-	for (auto &it : m_meshMap)
-	{
+	//Iterate through and update what meshes and textures are loaded
 
+	std::vector<MeshData> mData;
+	std::vector<PushConstants> pData;
+	for (size_t i = 0; i < p_nodeData.size(); i++)
+	{
+		MeshData m;
+		m.indexBuffer = m_indexMap[p_nodeData[i].meshID].Get();
+		m.vertexBuffer = m_vertexMap[p_nodeData[i].meshID].Get();
+
+		mData.push_back(m);
 	}
 
-	for (auto  &it : m_textureMap)
-	{
-
-	}
+	m_renderData.meshData = mData;
 }
 
 const RenderData SceneAdapter::GetRenderData()
 {
-	RenderData data
-	{
-
-	};
-
-	return data;
+	return m_renderData;
 }
