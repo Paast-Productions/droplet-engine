@@ -2,6 +2,7 @@
 #include <ImGui/imgui.h>
 #include <Editor/DragDropFields.hpp>
 #include <resource/ResourceManager.hpp>
+#include <Engine/EngineProvider.hpp>
 
 using namespace Droplet::Scene;
 
@@ -20,12 +21,14 @@ void MeshComponent::RenderUIImpl()
     using namespace Droplet::Editor;
     using namespace ImGui;
 
+	Droplet::Engine &engine = Droplet::EngineProvider::Get();
+
     // Mesh GUID
     std::uint64_t meshGUID = GetMeshGUID();
 
     if (InputScalar("Mesh GUID", ImGuiDataType_U64, &meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetMeshGUID(meshGUID, m_resourceManager);
+        SetMeshGUID(meshGUID, engine.GetResourceManager());
     }
 
     if (BeginDragDropTarget())
