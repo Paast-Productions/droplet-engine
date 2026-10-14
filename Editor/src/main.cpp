@@ -61,7 +61,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	// Setup default ImGui ini file
 	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
 	{
-		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
 

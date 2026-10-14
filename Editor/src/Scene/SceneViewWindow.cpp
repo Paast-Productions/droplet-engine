@@ -13,12 +13,12 @@ void SceneViewWindow::RenderToolbar()
 		{
 			if (ImGui::MenuItem("Load Default Layout"))
 			{
-				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 			}
 
 			if (ImGui::MenuItem("Save Default Layout"))
 			{
-				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
+				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 			}
 
 			ImGui::EndMenu();
