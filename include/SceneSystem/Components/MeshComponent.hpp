@@ -46,11 +46,11 @@ namespace Droplet::Scene
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
-        bool HasBoundsOverride() const override { return true; }
+        //bool HasBoundsOverride() const override { return true; }
 
         /// @brief Gets the custom bounds provided by the component.
         /// @return The bounding box provided by the component.
-        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const override { return std::make_shared<MeshNodeBounds>(m_bounds); }
+        //[[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const override { return std::make_shared<MeshNodeBounds>(m_bounds); }
 
 
 		/// @brief Determines whether the component makes the Node renderable.
