@@ -1,7 +1,7 @@
 #include "MeshComponent.hpp"
 #include <ImGui/imgui.h>
 #include <Editor/DragDropFields.hpp>
-
+#include <resource/ResourceManager.hpp>
 
 using namespace Droplet::Scene;
 
@@ -25,7 +25,7 @@ void MeshComponent::RenderUIImpl()
 
     if (InputScalar("Mesh GUID", ImGuiDataType_U64, &meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetMeshGUID(meshGUID);
+        SetMeshGUID(meshGUID, m_resourceManager);
     }
 
     if (BeginDragDropTarget())
@@ -65,25 +65,23 @@ void MeshComponent::RenderUIImpl()
     }
 }
 
-const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() const
+void MeshComponent::SetMeshGUID(
+    Droplet::GUID p_guid,
+    Droplet::ResourceManager &p_resourceManager)
 {
-    // TODO
-    return std::weak_ptr<MeshResource>();
+    m_mesh = p_resourceManager.LoadResource<Droplet::MeshResource>(p_guid);
 }
 
-void MeshComponent::SetMeshGUID(std::uint64_t p_meshGUID)
+void MeshComponent::SetTextureGUID(
+    Droplet::GUID p_guid,
+    Droplet::ResourceManager &p_resourceManager)
 {
-	m_meshGUID = p_meshGUID;
+    m_texture = p_resourceManager.LoadResource<Droplet::TextureResource>(p_guid);
 }
 
 std::uint64_t MeshComponent::GetMeshGUID() const
 {
 	return m_meshGUID;
-}
-
-void MeshComponent::SetTextureGUID(std::uint64_t p_textureGUID)
-{
-	m_textureGUID = p_textureGUID;
 }
 
 std::uint64_t MeshComponent::GetTextureGUID() const

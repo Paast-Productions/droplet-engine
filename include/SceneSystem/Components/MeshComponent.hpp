@@ -1,15 +1,20 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <resource/types/MeshResource.hpp>
 #include <SceneSystem/bounds/MeshNodeBounds.hpp>
 #include <resource/ResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
+#include <resource/types/MeshResource.hpp>
+#include <resource/types/TextureResource.hpp>
 
 #include <string>
 #include <string_view>
 #include <cstdint>
 
+namespace Droplet
+{
+	class ResourceManager; // Forward declaration
+}
 
 namespace Droplet::Scene
 {
@@ -31,18 +36,23 @@ namespace Droplet::Scene
         // Mesh
 
         //TODO: should be GUID or something idk
-        void SetMeshGUID(std::uint64_t p_meshGUID);
-        [[nodiscard]] std::uint64_t GetMeshGUID() const;
+        void SetMeshGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+        [[nodiscard]] Droplet::GUID GetMeshGUID() const
+        {
+            return m_mesh.GetGUID();
+        }
 
         // Texture
         // 
          //TODO: should be GUID or something idk
-        void SetTextureGUID(std::uint64_t p_textureGUID);
-        [[nodiscard]] std::uint64_t GetTextureGUID() const;
+        void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+        [[nodiscard]] Droplet::GUID GetTextureGUID() const
+        {
+            return m_texture.GetGUID();
+        }
 
-		/// @brief Gets the mesh resource associated with this component.
-		/// @return A weak pointer to the mesh resource, or an empty weak pointer if the resource is not loaded.
-		const std::weak_ptr<MeshResource> GetMeshResource() const;
+        [[nodiscard]] const ResourceHandle<MeshResource> &GetMesh() const;
+        [[nodiscard]] const ResourceHandle<TextureResource> &GetTexture() const;
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
@@ -69,6 +79,9 @@ namespace Droplet::Scene
     private:
         std::uint64_t m_meshGUID = 0;
         std::uint64_t m_textureGUID = 0;
+
+        ResourceHandle<MeshResource> m_mesh;
+        ResourceHandle<TextureResource> m_texture;
 
         MeshNodeBounds m_bounds;
 
