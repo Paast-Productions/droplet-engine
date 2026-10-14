@@ -36,6 +36,10 @@ namespace Droplet
 		/// @param p_gravityVector The gravity acceleration vector
 		void SetGravity(const glm::vec3 p_gravityVector);
 
+		/// @brief Getter for the body interface
+		/// @return Pointer to the body interface
+		JPH::BodyInterface *GetBodyInterface();
+
 	private:
 		std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator;
 		JPH::JobSystemThreadPool m_jobSystem;
