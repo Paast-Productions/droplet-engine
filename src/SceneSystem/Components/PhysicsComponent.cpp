@@ -6,6 +6,8 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt\Physics\Body\BodyCreationSettings.h>
 
+using namespace Droplet::Scene;
+
 void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
 	if (!m_hasShape)
@@ -90,7 +92,8 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 	}
 
 	m_shape = result.Get();
-	JPH::BodyCreationSettings bodySettings(m_shape, JPH::RVec3(0, 0, 0), JPH::Quat::sIdentity(), JPH::EMotionType::Static, Layers::NON_MOVING);
+	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(m_transform.GetPosition(Transform::Space::World)), 
+		GLMtoJPH(m_transform.GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
 
 	JPH::Body *body = m_physics.GetBodyInterface()->CreateBody(bodySettings);
 	m_bodyID = body->GetID();
