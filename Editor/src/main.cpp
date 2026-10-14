@@ -166,6 +166,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				}
 
 			}
+			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+			{
+				if (ImGuiViewport *viewport = ImGui::FindViewportByPlatformHandle((void *)SDL_GetWindowFromID(event.window.windowID))) {
+					viewport->PlatformRequestMove = true;
+				}
+			}
 		}
 
 		NewFrame();

@@ -4,7 +4,7 @@
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(float p_deltaTime, bool p_allowInput, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
+void EditorCameraController::Update(float p_deltaTime, bool p_allowInput, SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	if (!p_allowInput) 
 	{
@@ -44,10 +44,6 @@ void EditorCameraController::Update(float p_deltaTime, bool p_allowInput, [[mayb
 		float dx = input.GetDeltaMouseX();
 		float dy = input.GetDeltaMouseY();
 
-		std::cout << "Mouse delta: "
-			<< dx << ", " << dy << std::endl;
-
-
 		//m_editorCamera.Rotate(
 		//			-input.GetDeltaMouseX() * m_mouseSensitivity,
 		//			input.GetDeltaMouseY() * m_mouseSensitivity
@@ -57,7 +53,7 @@ void EditorCameraController::Update(float p_deltaTime, bool p_allowInput, [[mayb
 			-dx * m_mouseSensitivity,
 			dy * m_mouseSensitivity
 		);
-		input.SetCursorPosition(true, p_centerX, p_centerY);
+		input.SetCursorPosition(p_window, true, p_centerX, p_centerY);
 	}
 
 	//if (input.MousePressed(Mouse::LMB))

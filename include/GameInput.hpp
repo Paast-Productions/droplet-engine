@@ -162,7 +162,7 @@ namespace Droplet
 		/// @param p_x The new cursor x position.
 		/// @param p_y The new cursor y position.
 		/// @note SDL3 only wants this to be called in the main thread.
-		void SetCursorPosition(bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
 
 		void SetRelativeMouse(bool p_active);
 

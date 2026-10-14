@@ -87,9 +87,35 @@ void SceneViewWindow::RenderImpl()
 				(camViewRectMin.y + camViewRectMax.y) * 0.5f
 			};
 
+			ImGuiViewport *viewport = ImGui::GetWindowViewport();
+
+			SDL_Window *sceneWindow = nullptr;
+
+			if (viewport)
+			{
+
+				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+
+				sceneWindow = SDL_GetWindowFromID(windowID);
+			}
+				
+			std::cout
+				<< "Viewport: " << viewport
+				<< " | SceneWindow: " << sceneWindow
+				<< std::endl;
+
+			/*SDL_Window *sceneWindow = viewport
+				? static_cast<SDL_Window *>(viewport->PlatformHandle)
+				: nullptr;
+
+			std::cout << "Viewport ID: "
+				<< (viewport ? viewport->ID : 0)
+				<< " | SDL Window: " << sceneWindow
+				<< std::endl;*/
+
 			GameInput &input = GameInput::Get();
 			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
-			controller.Update(deltaTime, true, center.x, center.y);
+			controller.Update(deltaTime, true, sceneWindow, center.x, center.y);
 
 			if (input.MousePressed(Mouse::LMB)) {
 				

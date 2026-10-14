@@ -51,6 +51,16 @@ namespace Droplet
 
             m_deltaMouseX += p_event.motion.xrel;
             m_deltaMouseY += p_event.motion.yrel;
+
+           // SDL_Window *eventWindow = SDL_GetWindowFromID(p_event.motion.windowID);
+            std::cout
+                << "Mouse Window ID: " << p_event.motion.windowID
+                << " | Main Window ID: " << SDL_GetWindowID(m_window)
+                << " | XRel: " << p_event.motion.xrel
+                << " | YRel: " << p_event.motion.yrel
+                << std::endl;
+            
+
         }
 
         if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
@@ -161,18 +171,16 @@ namespace Droplet
         }
     }
 
-    void GameInput::SetCursorPosition([[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
+    void GameInput::SetCursorPosition(SDL_Window* &p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
 
     {        
         int windowX, windowY;
-        SDL_GetWindowPosition(m_window, &windowX, &windowY);
+        SDL_GetWindowPosition(p_window, &windowX, &windowY);
 
         float localX = p_x - static_cast<float>(windowX);
         float localY = p_y - static_cast<float>(windowY);
  
-
-        //SDL_WarpMouseInWindow(m_window, localX, localY);
-
+        //SDL_WarpMouseInWindow(p_window, localX, localY);
         SDL_WarpMouseGlobal(p_x, p_y);
 
 

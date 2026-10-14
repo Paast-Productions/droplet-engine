@@ -8,7 +8,7 @@ namespace Droplet::Editor::Scene
 	public:
 		EditorCameraController(Droplet::Editor::Scene::EditorCamera &p_camera) : m_editorCamera(p_camera){}
 
-		void Update(float p_deltaTime, bool p_allowInput, float p_centerX, float p_centerY);
+		void Update(float p_deltaTime, bool p_allowInput, SDL_Window* p_window, float p_centerX, float p_centerY);
 
 		void CameraLock(bool p_active);
 
