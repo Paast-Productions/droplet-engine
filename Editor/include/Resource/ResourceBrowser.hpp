@@ -8,6 +8,7 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
+		ResourceBrowser(std::shared_ptr<Droplet::Engine> p_engine) : EditorWindow(p_engine) {}
 
 	protected:
 

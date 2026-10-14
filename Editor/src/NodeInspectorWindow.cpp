@@ -7,10 +7,10 @@
 
 using namespace Droplet::Editor;
 
-Droplet::Editor::NodeInspectorWindow::NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState)
-{
-	m_interactionState = p_interactionState;
-}
+Droplet::Editor::NodeInspectorWindow::NodeInspectorWindow(
+	std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) 
+	: EditorWindow(p_engine), m_interactionState(p_interactionState)
+{ }
 
 void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
