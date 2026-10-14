@@ -141,6 +141,12 @@ Scene::SceneManager &Droplet::Engine::GetSceneManager()
 	return m_sceneManager;
 }
 
+ResourceManager &Droplet::Engine::GetResourceManager()
+{
+	// TODO: insert return statement here
+	return m_resourceManager;
+}
+
 void Droplet::Engine::AddEventListener(EventListener p_listener)
 {
 	m_eventListeners.push_back(p_listener);

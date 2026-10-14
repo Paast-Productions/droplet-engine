@@ -12,7 +12,7 @@ namespace Droplet
 
 		/// @brief Gets the engine instance.
 		/// @return The engine instance.
-		[[nodiscard]] static Engine &Get();
+		[[nodiscard]] static Engine &Get()
 		{
 			return *s_engine;
 		}

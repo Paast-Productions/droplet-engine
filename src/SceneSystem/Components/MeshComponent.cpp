@@ -3,6 +3,7 @@
 #include <Editor/DragDropFields.hpp>
 #include <resource/ResourceManager.hpp>
 #include <Engine/EngineProvider.hpp>
+#include <Engine/Engine.hpp>
 
 using namespace Droplet::Scene;
 
@@ -24,11 +25,11 @@ void MeshComponent::RenderUIImpl()
 	Droplet::Engine &engine = Droplet::EngineProvider::Get();
 
     // Mesh GUID
-    std::uint64_t meshGUID = GetMeshGUID();
 
-    if (InputScalar("Mesh GUID", ImGuiDataType_U64, &meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
+
+    if (InputScalar("Mesh GUID", ImGuiDataType_U64, &m_meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetMeshGUID(meshGUID, engine.GetResourceManager());
+        SetMeshGUID(m_meshGUID, engine.GetResourceManager());
     }
 
     if (BeginDragDropTarget())
@@ -38,7 +39,7 @@ void MeshComponent::RenderUIImpl()
         {
             if (payload->DataSize == sizeof(std::uint64_t))
             {
-                SetMeshGUID(*static_cast<const std::uint64_t *>(payload->Data));
+                SetMeshGUID(*static_cast<const std::uint64_t *>(payload->Data), engine.GetResourceManager());
             }
         }
 
@@ -46,11 +47,10 @@ void MeshComponent::RenderUIImpl()
     }
 
     // Texture GUID
-    std::uint64_t textureGUID = GetTextureGUID();
 
-    if (InputScalar("Texture GUID", ImGuiDataType_U64, &textureGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
+    if (InputScalar("Texture GUID", ImGuiDataType_U64, &m_textureGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetTextureGUID(textureGUID);
+        SetTextureGUID(m_textureGUID, engine.GetResourceManager());
     }
 
     if (BeginDragDropTarget())
@@ -60,7 +60,7 @@ void MeshComponent::RenderUIImpl()
         {
             if (payload->DataSize == sizeof(std::uint64_t))
             {
-                SetTextureGUID(*static_cast<const std::uint64_t *>(payload->Data));
+                SetTextureGUID(*static_cast<const std::uint64_t *>(payload->Data), engine.GetResourceManager());
             }
         }
 
@@ -80,16 +80,6 @@ void MeshComponent::SetTextureGUID(
     Droplet::ResourceManager &p_resourceManager)
 {
     m_texture = p_resourceManager.LoadResource<Droplet::TextureResource>(p_guid);
-}
-
-std::uint64_t MeshComponent::GetMeshGUID() const
-{
-	return m_meshGUID;
-}
-
-std::uint64_t MeshComponent::GetTextureGUID() const
-{
-	return m_textureGUID;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()

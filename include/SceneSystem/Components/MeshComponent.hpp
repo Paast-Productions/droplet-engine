@@ -85,9 +85,6 @@ namespace Droplet::Scene
 
         MeshNodeBounds m_bounds;
 
-        ResourceHandle<MeshResource> m_mesh;
-        ResourceHandle<MaterialResource> m_material;
-
         // TODO: Material settings
     };
 }
