@@ -5,6 +5,7 @@
 #include <EditorCamera.hpp>
 #include <InteractionState.hpp>
 #include <Engine.hpp>
+#include <ImGuizmo/ImGuizmo.h>
 
 namespace Droplet::Editor::Scene
 {
@@ -29,6 +30,9 @@ namespace Droplet::Editor::Scene
 	private:
 		EditorCamera m_editorCamera;
 		std::shared_ptr<InteractionState> m_interactionState;
+
+		// ImGuizmo
+		ImGuizmo::MODE m_manipulateSpace = ImGuizmo::LOCAL;
 
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
 	};

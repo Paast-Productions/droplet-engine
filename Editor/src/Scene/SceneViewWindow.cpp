@@ -1,6 +1,5 @@
 #include "SceneViewWindow.hpp"
 #include <SceneSystem/Scene.hpp>
-#include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Editor::Scene;
@@ -19,6 +18,26 @@ void SceneViewWindow::RenderToolbar()
 			if (ImGui::MenuItem("Save Default Layout"))
 			{
 				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("ImGuizmo"))
+	{
+		if (ImGui::BeginMenu("Manipulate"))
+		{
+			if (ImGui::MenuItem("World"))
+			{
+				m_manipulateSpace = ImGuizmo::WORLD;
+			}
+
+			if (ImGui::MenuItem("Local"))
+			{
+				m_manipulateSpace = ImGuizmo::LOCAL;
 			}
 
 			ImGui::EndMenu();
@@ -170,8 +189,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_interactionState->GetSelectedNodes();
 
 		// TODO: Make this configurable by the user
-		ImGuizmo::OPERATION currentOperation = 
-			ImGuizmo::TRANSLATE | 
+		ImGuizmo::OPERATION currentOperation =
+			ImGuizmo::TRANSLATE |
 			ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z |
 			ImGuizmo::BOUNDS;
 
@@ -189,7 +208,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				&(tempViewMat[0][0]),	// View matrix
 				&(tempProjMat[0][0]),	// Projection matrix
 				currentOperation,		// Operation
-				ImGuizmo::LOCAL,		// Space
+				m_manipulateSpace,		// Space
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
 				&(deltaMatrix[0][0]),	// Output delta matrix
 				nullptr,				// Optional snap values
