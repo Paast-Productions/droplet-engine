@@ -1,6 +1,8 @@
 #include "SceneViewWindow.hpp"
 #include <SceneSystem/Scene.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <ImGuizmo/ImGuizmo.h>
+#include <EditorConfig.hpp>
 
 using namespace Droplet::Editor::Scene;
 
@@ -32,12 +34,12 @@ void SceneViewWindow::RenderToolbar()
 		{
 			if (ImGui::MenuItem("World"))
 			{
-				m_manipulateSpace = ImGuizmo::WORLD;
+				EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
 			}
 
 			if (ImGui::MenuItem("Local"))
 			{
-				m_manipulateSpace = ImGuizmo::LOCAL;
+				EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
 			}
 
 			ImGui::EndMenu();
@@ -204,11 +206,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
 
+			ImGuizmo::MODE manipulateSpace = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
+
 			bool result = ImGuizmo::Manipulate(
 				&(tempViewMat[0][0]),	// View matrix
 				&(tempProjMat[0][0]),	// Projection matrix
 				currentOperation,		// Operation
-				m_manipulateSpace,		// Space
+				manipulateSpace,		// Space
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
 				&(deltaMatrix[0][0]),	// Output delta matrix
 				nullptr,				// Optional snap values
