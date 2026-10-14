@@ -5,7 +5,7 @@
 #include <resource/ResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
-#include <resource/types/TextureResource.hpp>
+#include <resource/types/Texture2DResource.hpp>
 
 #include <string>
 #include <string_view>
@@ -48,11 +48,11 @@ namespace Droplet::Scene
         void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
         [[nodiscard]] Droplet::GUID GetTextureGUID() const
         {
-            return m_texture.GetGUID();
+            return m_2dTexture.GetGUID();
         }
 
-        [[nodiscard]] const ResourceHandle<MeshResource> &GetMesh() const;
-        [[nodiscard]] const ResourceHandle<TextureResource> &GetTexture() const;
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &GetMeshResource() const;
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &Get2dTextureResource() const;
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
@@ -81,7 +81,7 @@ namespace Droplet::Scene
         std::uint64_t m_textureGUID = 0;
 
         ResourceHandle<MeshResource> m_mesh;
-        ResourceHandle<TextureResource> m_texture;
+        ResourceHandle<Texture2DResource> m_2dTexture;
 
         MeshNodeBounds m_bounds;
 

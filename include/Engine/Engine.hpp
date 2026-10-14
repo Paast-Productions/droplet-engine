@@ -56,6 +56,8 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
+		[[nodiscard]] ResourceManager &GetResourceManager();
+
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(EventListener p_listener);

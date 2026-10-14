@@ -17,19 +17,27 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 	//TODO: will be inplemted later when the mesh system is implemented
 }
 
+
 void MeshComponent::RenderUIImpl()
 {
     using namespace Droplet::Editor;
     using namespace ImGui;
 
-	Droplet::Engine &engine = Droplet::EngineProvider::Get();
+    auto &engine = Droplet::EngineProvider::Get();
+    auto &resourceManager = engine.GetResourceManager();
 
-    // Mesh GUID
+    // Mesh resource
+    Droplet::GUID meshGUID = m_mesh.GetGUID();
 
-
-    if (InputScalar("Mesh GUID", ImGuiDataType_U64, &m_meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
+    if (InputScalar(
+        "Mesh GUID",
+        ImGuiDataType_U64,
+        &meshGUID,
+        nullptr,
+        nullptr,
+        "%llu"))
     {
-        SetMeshGUID(m_meshGUID, engine.GetResourceManager());
+        SetMeshGUID(meshGUID, resourceManager);
     }
 
     if (BeginDragDropTarget())
@@ -37,20 +45,30 @@ void MeshComponent::RenderUIImpl()
         if (const ImGuiPayload *payload =
             AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
         {
-            if (payload->DataSize == sizeof(std::uint64_t))
+            if (payload->DataSize == sizeof(Droplet::GUID))
             {
-                SetMeshGUID(*static_cast<const std::uint64_t *>(payload->Data), engine.GetResourceManager());
+                const auto guid =
+                    *static_cast<const Droplet::GUID *>(payload->Data);
+
+                SetMeshGUID(guid, resourceManager);
             }
         }
 
         EndDragDropTarget();
     }
 
-    // Texture GUID
+    // Texture resource
+    Droplet::GUID textureGUID = m_2dTexture.GetGUID();
 
-    if (InputScalar("Texture GUID", ImGuiDataType_U64, &m_textureGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
+    if (InputScalar(
+        "Texture GUID",
+        ImGuiDataType_U64,
+        &textureGUID,
+        nullptr,
+        nullptr,
+        "%llu"))
     {
-        SetTextureGUID(m_textureGUID, engine.GetResourceManager());
+        SetTextureGUID(textureGUID, resourceManager);
     }
 
     if (BeginDragDropTarget())
@@ -58,15 +76,19 @@ void MeshComponent::RenderUIImpl()
         if (const ImGuiPayload *payload =
             AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
         {
-            if (payload->DataSize == sizeof(std::uint64_t))
+            if (payload->DataSize == sizeof(Droplet::GUID))
             {
-                SetTextureGUID(*static_cast<const std::uint64_t *>(payload->Data), engine.GetResourceManager());
+                const auto guid =
+                    *static_cast<const Droplet::GUID *>(payload->Data);
+
+                SetTextureGUID(guid, resourceManager);
             }
         }
 
         EndDragDropTarget();
     }
 }
+
 
 void MeshComponent::SetMeshGUID(
     Droplet::GUID p_guid,
@@ -79,7 +101,19 @@ void MeshComponent::SetTextureGUID(
     Droplet::GUID p_guid,
     Droplet::ResourceManager &p_resourceManager)
 {
-    m_texture = p_resourceManager.LoadResource<Droplet::TextureResource>(p_guid);
+    m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
+}
+
+const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
+{
+    // TODO: insert return statement here
+    return m_mesh;
+}
+
+const Droplet::ResourceHandle<Droplet::Texture2DResource> &Droplet::Scene::MeshComponent::Get2dTextureResource() const
+{
+    // TODO: insert return statement here
+    return m_2dTexture;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
