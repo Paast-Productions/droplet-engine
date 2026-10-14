@@ -12,7 +12,8 @@ project "ImGui"
     {
         rootPath .. "/External/ImGui/imgui*.cpp",
         rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.cpp",
-        rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.cpp"
+        rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.cpp",
+        rootPath .. "/External/ImGui/misc/cpp/imgui_stdlib.cpp"
     }
     
     if _TARGET_OS == "windows" then
@@ -46,7 +47,8 @@ project "ImGui"
         "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/imgui_internal.h") .. " " .. AddQuotation(imGuiPath),
         "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/imconfig.h") .. " " .. AddQuotation(imGuiPath),
         "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_vulkan.h") .. " " .. AddQuotation(imGuiPath),
-        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.h") .. " " .. AddQuotation(imGuiPath)
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/backends/imgui_impl_sdl3.h") .. " " .. AddQuotation(imGuiPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/ImGui/misc/cpp/imgui_stdlib.h") .. " " .. AddQuotation(imGuiPath)
     }
 
     buildcommands {

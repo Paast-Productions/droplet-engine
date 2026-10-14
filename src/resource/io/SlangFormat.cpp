@@ -2,6 +2,7 @@
 
 #include "graphics/vk/ShaderCompiler.hpp"
 #include "resource/meta/MetaUtils.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
 
@@ -9,6 +10,8 @@ namespace Droplet::IO::SlangFormat
 {
     std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
     {
+        ZoneScoped;
+
         ShaderResource::ShaderType type = p_loadSettings.value(MetaLoadSettings::C_SHADER_TYPE.key, MetaLoadSettings::C_SHADER_TYPE.defaultValue);
         
         try
@@ -25,6 +28,8 @@ namespace Droplet::IO::SlangFormat
     std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
         const std::filesystem::path &p_shaderPath)
     {
+        ZoneScoped;
+
         std::vector<std::pair<ResourceType, std::string>> resources{};
         
         std::string resourceName = p_shaderPath.stem().string();

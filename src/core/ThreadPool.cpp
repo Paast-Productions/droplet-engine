@@ -1,16 +1,14 @@
 #include "core/ThreadPool.hpp"
+#include <string>
 #include <iostream>
+#include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
 {
-    ThreadPool &ThreadPool::GetInstance()
-    {
-        static ThreadPool instance;
-        return instance;
-    }
-
     void ThreadPool::Initialize()
     {
+        ZoneScoped;
+
         if (!m_workerThreads.empty())
         {
             return;
@@ -23,12 +21,14 @@ namespace Droplet
 
         for (uint32_t i = 0; i < m_nrOfThreads; i++)
         {
-            m_workerThreads.emplace_back(&ThreadPool::WorkerLoop, this);
+            m_workerThreads.emplace_back(&ThreadPool::WorkerLoop, this, i);
         }
     }
 
     void ThreadPool::Shutdown()
     {
+        ZoneScoped;
+
         {
             std::lock_guard<std::mutex> lock(m_taskMutex);
             m_running = false;
@@ -53,6 +53,8 @@ namespace Droplet
     
     void ThreadPool::PushTask(std::function<void()> p_task)
     {
+        ZoneScoped;
+
         {
             std::lock_guard<std::mutex> lock(m_taskMutex);
 
@@ -72,8 +74,13 @@ namespace Droplet
         Shutdown();
     }
 
-    void ThreadPool::WorkerLoop()
+    void ThreadPool::WorkerLoop(int threadId)
     {
+#ifdef TRACY_FIBERS
+		std::string fiberName = std::format("ThreadPool Worker {}", threadId);
+        TracyFiberEnter(fiberName.c_str());
+#endif
+
         while (true)
         {
             std::function<void()> task;
@@ -92,10 +99,11 @@ namespace Droplet
 
                 task = std::move(m_tasks.front());
                 m_tasks.pop();
-
             }
+
             try 
             {
+			    ZoneNamedN(workerLoopScope, "Worker Task", true);
                 task();
             }
             catch (const std::exception &)
@@ -103,5 +111,9 @@ namespace Droplet
                 // TODO: Log this
             }
         }
+
+#ifdef TRACY_FIBERS
+        TracyFiberLeave;
+#endif
     }
 }

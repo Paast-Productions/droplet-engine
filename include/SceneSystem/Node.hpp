@@ -1,14 +1,19 @@
 #pragma once
 
+#include <stdexcept>
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <utility>
 #include <string>
 #include <vector>
 #include <memory>
 #include <algorithm>
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/quaternion.hpp>
+
 #include <Transform.hpp>
+#include <cstdint>
+#include <atomic>
+#include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
 {
@@ -30,7 +35,7 @@ namespace Droplet::Scene
         /// @brief Constructs a Node with the specified name and Scene.
 		/// @param p_scene Shared pointer to the Scene that owns this Node.
         /// @param p_name Name of the Node.
-        explicit Node(const std::shared_ptr<Scene>& p_scene, const std::string &p_name);
+        explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name);
 
         ~Node() = default;
 
@@ -153,14 +158,36 @@ namespace Droplet::Scene
         /// @return A constant reference to the Node's name.
         [[nodiscard]] const std::string &GetName() const;
 
+        /// @brief Sets the Node's name.
+        void SetName(const std::string &p_name);
+
+        // --------------------------------------------------
+        // ID
+        // --------------------------------------------------
+
+        [[nodiscard]] std::uint64_t GetID() const noexcept
+        {
+            return m_id;
+        }
+
         // --------------------------------------------------
         // Components
         // --------------------------------------------------
 
+		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
+		/// @param p_component Unique pointer to the Component to add.
+        void AddComponent(std::unique_ptr<Component> &p_component);
+
         /// @brief Adds a Component to the Node.
         ///
-        /// Constructs the Component using the provided arguments, assigns
-        /// this Node as its owner, stores it, and calls its Initialize() method.
+        /// Constructs the Component using the provided arguments, assigns this Node
+        /// as its owner, and stores it.
+        ///
+        /// If the Component provides a bounds override, it is registered as the
+        /// Node's bounds provider. A Node can only have one Component providing
+        /// a bounds override.
+        ///
+        /// If the Node has already been started, the Component is started immediately.
         ///
         /// Multiple Components of the same type can be attached to a Node.
         ///
@@ -170,17 +197,29 @@ namespace Droplet::Scene
         /// @param p_args Arguments forwarded to the Component constructor.
         ///
         /// @return A shared pointer to the newly created Component.
+        ///
+        /// @throws std::runtime_error if the Component provides a bounds override
+        /// and another bounds override is already registered with this Node.
         template<typename T, typename... Args>
         std::shared_ptr<T> AddComponent(Args&&... p_args)
         {
             // Ensure that T is derived from Component
             static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-            auto component = std::make_shared<T>(std::forward<Args>(p_args)...);
+            auto component = std::make_shared<T>();//std::forward<Args>(p_args)...
 
             component->SetOwner(shared_from_this());
 
             m_components.push_back(component);
+
+            if (component->HasBoundsOverride())
+            {
+                if (m_boundsOverride)
+                {
+                    throw std::runtime_error("Node already has a bounds override.");
+                }
+                m_boundsOverride = component;
+            }
 
             if (m_started)
             {
@@ -235,7 +274,40 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
-        void RemoveComponent(const std::shared_ptr<Component> &p_component);
+        void RemoveComponent(const Component *p_component);
+
+        // --------------------------------------------------
+        // Bounds
+        // --------------------------------------------------
+
+        /// @brief Gets the Node's effective local-space bounding box.
+        ///
+        /// Returns the bounds provided by a Component if a bounds override is
+        /// registered. Otherwise, returns the Node's default bounding box.
+        ///
+        /// @return A constant reference to the effective local-space bounding box.
+        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
+
+        /// @brief Sets the Node's default local-space bounding box.
+        ///
+        /// The specified bounds are used when no Component provides a bounds
+        /// override.
+        ///
+        /// @param p_bounds Local-space bounding box to use as the Node's default.
+        void SetBounds(std::shared_ptr<NodeBounds> p_bounds);
+
+        /// @brief Checks whether bounds checks are enabled for the Node.
+        ///
+        /// @return true if the Node should participate in bounds checks, otherwise false.
+        [[nodiscard]] bool IsBoundsEnabled() const;
+
+        /// @brief Enables or disables bounds checks for the Node.
+        ///
+        /// When disabled, the Node is ignored by systems that use Node bounds for
+        /// collision or raycast checks.
+        ///
+        /// @param p_enabled true to enable bounds checks, false to disable them.
+        void SetBoundsEnabled(bool p_enabled);
 
 		/// @brief Checks if this Node is a descendant of the specified Node.
         ///
@@ -246,6 +318,9 @@ namespace Droplet::Scene
 
     private:
         std::string m_name;
+        
+        inline static std::atomic<std::uint64_t> s_nextID{1};
+        const std::uint64_t m_id;
 
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
@@ -282,5 +357,20 @@ namespace Droplet::Scene
         // Components
 
         std::vector<std::shared_ptr<Component>> m_components{};
+
+        // Bounds
+
+        /// @brief Default local-space bounding box for this Node.
+        ///
+        /// Used when no Component provides a bounds override.
+        std::shared_ptr<NodeBounds> m_bounds{};
+
+        /// @brief Indicates whether this Node participates in bounds checks.
+        bool m_boundsEnabled = true;
+
+        /// @brief Component currently providing the Node's bounds override.
+        ///
+        /// Only one Component can provide a bounds override at a time.
+        std::shared_ptr<Component> m_boundsOverride{};
     };
 }

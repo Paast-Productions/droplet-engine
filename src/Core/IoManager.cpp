@@ -2,6 +2,7 @@
 #include "Debug/Logger.hpp"
 
 #include <fstream>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using Droplet::Debug::Logger;
 
@@ -9,6 +10,8 @@ namespace Droplet::Core::JsonIO
 {
 	nlohmann::json Read(const std::string &p_path)
 	{
+		ZoneScoped;
+
 		std::ifstream fileRead(p_path);
 		if (!fileRead.is_open())
 		{
@@ -31,6 +34,8 @@ namespace Droplet::Core::JsonIO
 
 	void Write(const std::string &p_path, const nlohmann::json &p_data)
 	{
+		ZoneScoped;
+
 		std::ofstream fileWrite(p_path);
 		if (!fileWrite.is_open())
 		{
@@ -104,5 +109,28 @@ namespace Droplet::Core::JsonIO
 	void DeleteFile(const std::string &path)
 	{
 		std::remove(path.c_str());
+	}
+
+	void CreateFile(const std::string &path)
+	{
+		if (std::filesystem::exists(path))
+		{
+			return; // File already exists, no need to create it
+		}
+
+		// Get the parent directory of the file path
+		std::filesystem::path parentDir = std::filesystem::path(path).parent_path();
+
+		if (!std::filesystem::is_directory(parentDir) || !std::filesystem::exists(parentDir))
+		{
+			std::filesystem::create_directory(parentDir);
+		}
+
+		std::ofstream file(path);
+		if (!file.is_open())
+		{
+			throw std::runtime_error("Failed to create file: " + path);
+		}
+		file.close();
 	}
 }

@@ -19,8 +19,8 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-		ResourceBrowser(std::shared_ptr<Engine> p_instance, FileExplorer &p_fileExplorer) 
-	        : m_instance(p_instance), m_fileExplorer(p_fileExplorer) {}
+	    ResourceBrowser(std::shared_ptr<Engine> p_engine, FileExplorer &p_fileExplorer) 
+	        : EditorWindow(p_engine), m_instance(p_engine), m_fileExplorer(p_fileExplorer)  {}
 	     
 	protected:
 

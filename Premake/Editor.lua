@@ -4,6 +4,7 @@ project "Editor"
     location(projectsPath)
 
     targetdir(targetBuildPath .. "/%{prj.name}")
+    debugdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
     local vkPath = os.getenv("VULKAN_SDK")
@@ -11,7 +12,10 @@ project "Editor"
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
+		"TRACY_FIBERS",
+		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
+		"IMGUI_DEFINE_MATH_OPERATORS",
         "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
@@ -61,6 +65,7 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "ImGuizmo",
         "json",
         "tracy"
     }
@@ -75,6 +80,7 @@ project "Editor"
     {
         "Engine",
         "ImGui",
+        "ImGuizmo",
         "VulkanMemoryAllocator",
         "tracy",
         AddQuotation("SDL3"),

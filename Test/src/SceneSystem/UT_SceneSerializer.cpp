@@ -20,7 +20,7 @@ protected:
 class PlayerComponent : public Component
 {
 public:
-    std::string_view GetTypeName() override { return "PlayerComponent"; }
+    std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
     void Start() override
     {
@@ -155,8 +155,8 @@ TEST_F(SceneSerializerTest, DeserializeNode)
 
     // Transform
 
-    auto transformOne = nodeOne->GetTransform();
-    auto transformTwo = nodeTwo->GetTransform();
+    auto &transformOne = nodeOne->GetTransform();
+    auto &transformTwo = nodeTwo->GetTransform();
 
 
     EXPECT_EQ(transformOne.GetPosition(), transformTwo.GetPosition());

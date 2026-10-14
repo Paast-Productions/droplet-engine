@@ -13,6 +13,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <Stb/stb_image.h>
+#include <tracy/public/tracy/Tracy.hpp>
 #undef STB_IMAGE_IMPLEMENTATION
 
 namespace fs = std::filesystem;
@@ -54,6 +55,8 @@ namespace Droplet::IO::GliFormat
     /// @throws std::runtime_error If the texture cannot be found or loaded.
     [[nodiscard]] static gli::texture ConvertPNGToKTX(const fs::path &p_inputPath, const fs::path &p_outputPath)
     {
+        ZoneScoped;
+
         int width = 0;
         int height = 0;
         int channels = 0;
@@ -81,70 +84,74 @@ namespace Droplet::IO::GliFormat
     }
     
 	std::unique_ptr<Texture2DResource> LoadTexture2D(const fs::path &p_assetPath, const nlohmann::json &p_loadSettings)
-	    {
-            bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
-            generateMipMaps;
-            // TODO: Use load setting
-            // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
-            // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
+	{
+        ZoneScoped;
 
-		    if (!fs::exists(p_assetPath))
-		    {
-			    throw std::runtime_error("File was not found");
-		    }
+        bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
+        generateMipMaps;
+        // TODO: Use load setting
+        // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
+        // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
+
+		if (!fs::exists(p_assetPath))
+		{
+			throw std::runtime_error("File was not found");
+		}
         
-            // Protect against empty files as gli crashes when it attempts to load one
-            if (fs::file_size(p_assetPath) == 0)
-            {
-                throw std::runtime_error("File is empty.");
-            }
+        // Protect against empty files as gli crashes when it attempts to load one
+        if (fs::file_size(p_assetPath) == 0)
+        {
+            throw std::runtime_error("File is empty.");
+        }
 
-		    std::string extension = p_assetPath.extension().string();
+		std::string extension = p_assetPath.extension().string();
 
-            gli::texture texture;
-            gli::texture2d texture2d;
-		    if (extension == ".ktx" || extension == ".dds")
+        gli::texture texture;
+        gli::texture2d texture2d;
+		if (extension == ".ktx" || extension == ".dds")
+		{
+			texture = gli::load(p_assetPath.string());
+		    if (texture.empty())
 		    {
-			    texture = gli::load(p_assetPath.string());
-		        if (texture.empty())
-		        {
-		            throw std::runtime_error("Texture is empty.");
-		        }
+		        throw std::runtime_error("Texture is empty.");
 		    }
-		    else
+		}
+		else
+		{
+			fs::path outputPath = p_assetPath;
+			outputPath.replace_extension(".ktx");
+			texture = ConvertPNGToKTX(p_assetPath, outputPath);
+		    // NOTE: Doing this during runtime could be problematic as two threads could potentially try to read/write
+		    // to the same file at the same time. We should change this!
+		    if (texture.empty())
 		    {
-			    fs::path outputPath = p_assetPath;
-			    outputPath.replace_extension(".ktx");
-			    texture = ConvertPNGToKTX(p_assetPath, outputPath);
-		        // NOTE: Doing this during runtime could be problematic as two threads could potentially try to read/write
-		        // to the same file at the same time. We should change this!
-		        if (texture.empty())
-		        {
-		            throw std::runtime_error("Texture is empty.");
-		        }
+		        throw std::runtime_error("Texture is empty.");
 		    }
-            texture2d = gli::texture2d(texture);
-            if (texture2d.empty())
-            {
-                throw std::runtime_error("Texture is empty.");
-            }
+		}
+        texture2d = gli::texture2d(texture);
+        if (texture2d.empty())
+        {
+            throw std::runtime_error("Texture is empty.");
+        }
 
-		    // Translate the gli texture to our custom format
-		    TextureResource::TextureFormat format = ConvertTextureFormat(texture2d.format());
-		    auto resource = std::make_unique<Texture2DResource>();
-		    resource->SetDimensions(texture2d.extent().x, texture2d.extent().y);
+		// Translate the gli texture to our custom format
+		TextureResource::TextureFormat format = ConvertTextureFormat(texture2d.format());
+		auto resource = std::make_unique<Texture2DResource>();
+		resource->SetDimensions(texture2d.extent().x, texture2d.extent().y);
         
-		    resource->SetMipLevels(static_cast<int>(texture2d.levels())); // Temporary until we use loadsetting for mipmap
+		resource->SetMipLevels(static_cast<int>(texture2d.levels())); // Temporary until we use loadsetting for mipmap
         
-		    resource->SetPixelData(texture2d.data(), texture2d.size());
-		    resource->SetFormat(format, static_cast<int>(texture2d.size()));
+		resource->SetPixelData(texture2d.data(), texture2d.size());
+		resource->SetFormat(format, static_cast<int>(texture2d.size()));
 
-		    return resource;
-	    }
+		return resource;
+	}
     
     std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
-    const std::filesystem::path &p_assetPath)
+        const std::filesystem::path &p_assetPath)
     {
+        ZoneScoped;
+
         std::vector<std::pair<ResourceType, std::string>> resources{};
         
         std::string resourceName = p_assetPath.stem().string();

@@ -98,26 +98,16 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Buffer Getter
 		/// @returns RAII pointer to the VMA uniform buffer
-		[[nodiscard]] const vma::raii::Buffer &Get() const;
+		[[nodiscard]] const vma::raii::Buffer &Get() const { return m_buffer; }
 		
 		/// @brief Max Buffer Size Getter
 		/// @returns Max size of the VMA buffer
-		[[nodiscard]] std::size_t MaxSize() const;
+		[[nodiscard]] std::size_t MaxSize() const { return m_bufferMaxSize; }
 		
 	private:
 		vma::raii::Buffer m_buffer { nullptr };
 		std::size_t m_bufferMaxSize { 0 };
 		
 	};
-
-	inline const vma::raii::Buffer &UniformBuffer::Get() const
-	{
-		return m_buffer;
-	}
-	
-	inline std::size_t UniformBuffer::MaxSize() const
-	{
-		return m_bufferMaxSize;
-	}
 }
 

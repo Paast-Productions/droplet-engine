@@ -14,7 +14,6 @@ namespace Droplet::Math
 	class MeshBVH
 	{
 	public:
-		/// @brief Default constructor for MeshBVH.
 		MeshBVH() = default;
 
 		/// @brief Constructs a MeshBVH from a list of triangles.

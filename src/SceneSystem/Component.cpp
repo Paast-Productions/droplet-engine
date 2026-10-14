@@ -2,32 +2,57 @@
 #include <Node.hpp>
 #include <ImGui/imgui.h>
 #include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
 
-void Component::SetOwner(std::shared_ptr<Node> p_owner)
+std::shared_ptr<NodeBounds> Droplet::Scene::Component::GetBounds() const
 {
-    m_owner = p_owner;
+    // TODO: Implement GetBounds()
+    return std::shared_ptr<NodeBounds>();
 }
 
 Droplet::Scene::Component::Component()
 {
+	ZoneScoped;
 
 }
 
 void Component::RenderUI()
 {
-    using namespace ImGui;
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
 
     // TODO: Set active, delete
 
-    RenderUIImpl();
+	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
+	if (ImGui::BeginChild("ComponentUI", ImVec2(0,0), childFlags))
+	{
+		if (ImGui::Button("Remove Component"))
+		{
+			m_owner.lock()->RemoveComponent(this);
+		}
+
+		ImGui::Dummy(ImVec2(0, 8.0f));
+
+		ImGui::Separator();
+
+		RenderUIImpl();
+	}
+
+	ImGui::EndChild();
 }
 
 std::shared_ptr<Node> Component::GetOwner() const
 {
     return m_owner.lock();
 }
+
+void Component::SetOwner(std::shared_ptr<Node> p_owner)
+{
+    m_owner = p_owner;
+}
+
 
 bool Component::IsActive() const
 {
@@ -47,6 +72,9 @@ void Component::SetActiveSelf(bool p_active)
 
 nlohmann::json Component::Serialize()
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json compJson;
 
     // TODO: Insert component type name.
@@ -59,9 +87,13 @@ nlohmann::json Component::Serialize()
     return SerializeImpl();
 }
 
-void Component::Deserialize(nlohmann::json p_compJson)
+void Component::Deserialize(const nlohmann::json p_compJson)
 {
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
 	nlohmann::json dataJson = p_compJson["data"];
+    //const nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
 }

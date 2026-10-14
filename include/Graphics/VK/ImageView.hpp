@@ -70,15 +70,10 @@ namespace Droplet::Graphics::VK
         
         /// @brief Getter-function for a Vulkan Image View
         /// @returns Vulkan Image View
-        [[nodiscard]] const vk::raii::ImageView &Get() const;
+        [[nodiscard]] const vk::raii::ImageView &Get() const { return m_imageView; }
         
     private:
         vk::raii::ImageView m_imageView { nullptr };
     
     };
-
-    inline const vk::raii::ImageView &ImageView::Get() const
-    {
-        return m_imageView;
-    }
 }
