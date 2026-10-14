@@ -17,15 +17,6 @@
 
 class DropletInstance; // TODO: Get definition from Droplet Engine
 
-//Droplet::Graphics::SDL::WindowConfig config =
-//{
-//	.Width = 1280,
-//	.Height = 720,
-//	.Flags = 0
-//};
-
-//Droplet::Graphics::Renderer g_rend(config);
-
 // Initialization
 [[nodiscard]] static DropletInstance *Soak()
 {
@@ -44,20 +35,8 @@ static void DryOff([[maybe_unused]] DropletInstance *instance)
 
 //static void InitImGui([[maybe_unused]] SDL_Window *window)
 //{
-//	ZoneScoped;
-//
-//	// TODO
-//	
-//
-//	// Setup Platform/Renderer backends
-//	ImGui_ImplSDL3_InitForVulkan(window);
-//
-//	ImGui_ImplVulkan_InitInfo init_info = g_rend.GetImGuiInitInfo();
-//
-//	ImGui_ImplVulkan_Init(&init_info);
-//
-//
-//	// TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
+//	ZoneScoped;	
+//  TODO: Hook into engine's SDL_PollEvent() loop to call ImGui_ImplSDL3_ProcessEvent() for each event
 //}
 
 static void InitImGui(SDL_Window *p_window,
@@ -115,8 +94,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	{
 		return 1;
 	}
-	//InitImGui(wnd, rend);
-	Droplet::GameInput::Get().Initialize(wnd);
 
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -228,13 +205,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		rend.DrawFrame(
 			editorContext.GetEditorCamera(),
 			sceneView.GetRenderTarget());
-
-		// Det vi vill åt:
-		// rend.DrawFrame(
-		// context.getscene(),
-		// context.getcamera,
-		// rendertarget
-		// );
 
 		rend.WaitIdle();
 		ImGui::UpdatePlatformWindows();

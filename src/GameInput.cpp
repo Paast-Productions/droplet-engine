@@ -10,11 +10,6 @@ namespace Droplet
 {
     static constexpr float C_EPSILON = 0.0001f;
 
-    void GameInput::Initialize(SDL_Window* p_window)
-    {
-        m_window = p_window;
-    }
-
     void GameInput::Update()
     {
         m_previousKeys = m_currentKeys;
@@ -22,8 +17,6 @@ namespace Droplet
         m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
-        m_deltaMouseX = 0.0f;
-        m_deltaMouseY = 0.0f;
 
     }
 
@@ -48,18 +41,6 @@ namespace Droplet
         {
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
-
-            m_deltaMouseX += p_event.motion.xrel;
-            m_deltaMouseY += p_event.motion.yrel;
-
-           // SDL_Window *eventWindow = SDL_GetWindowFromID(p_event.motion.windowID);
-            std::cout
-                << "Mouse Window ID: " << p_event.motion.windowID
-                << " | Main Window ID: " << SDL_GetWindowID(m_window)
-                << " | XRel: " << p_event.motion.xrel
-                << " | YRel: " << p_event.motion.yrel
-                << std::endl;
-            
 
         }
 
@@ -141,28 +122,19 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
-        if (m_mouseX - m_prevMouseX != 0.0f)
-        {
-            std::cout << "It happend!" << std::endl;
-        }
         return m_mouseX - m_prevMouseX;
-        //return m_deltaMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
         return m_mouseY - m_prevMouseY;
-        //return m_deltaMouseY;
     }
 
-    void GameInput::SetRelativeMouse(bool p_active)
+    void GameInput::HideCursor(bool p_active)
     {
-
-        //SDL_SetWindowRelativeMouseMode(m_window, p_active);
-
         if (p_active)
         {
-            //SDL_HideCursor();
+            SDL_HideCursor();
 
         }
         else
@@ -172,22 +144,18 @@ namespace Droplet
     }
 
     void GameInput::SetCursorPosition(SDL_Window* &p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
-
     {        
+        // calculate mousepos in SDL window
         int windowX, windowY;
         SDL_GetWindowPosition(p_window, &windowX, &windowY);
-
         float localX = p_x - static_cast<float>(windowX);
         float localY = p_y - static_cast<float>(windowY);
  
-        //SDL_WarpMouseInWindow(p_window, localX, localY);
+        // Set mousepos in global space (faster than local)
         SDL_WarpMouseGlobal(p_x, p_y);
 
-
+        // reset the mouse to center position in SDL window
         m_mouseX = localX;
         m_mouseY = localY;
-
-        m_prevMouseX = localX;
-        m_prevMouseY = localY;
     }
 }
