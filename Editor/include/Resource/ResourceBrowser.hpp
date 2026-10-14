@@ -19,8 +19,7 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-	    ResourceBrowser(std::shared_ptr<Engine> p_engine, FileExplorer &p_fileExplorer) 
-	        : EditorWindow(p_engine), m_engine(p_engine), m_fileExplorer(p_fileExplorer)  {}
+	    ResourceBrowser(std::shared_ptr<Engine> p_engine) : EditorWindow(p_engine), m_engine(p_engine)  {}
 	     
 	protected:
 
@@ -51,7 +50,6 @@ namespace Droplet::Editor::Resource
 	    BrowserNode m_rootBrowserNode;
 		GUID m_selectedResourceGuid = C_INVALID_GUID; /// The GUID of the currently selected resource in the resource browser.
 	    
-	    FileExplorer &m_fileExplorer;
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue;
 	    
 		/// @brief Engine instance used to access engine systems.

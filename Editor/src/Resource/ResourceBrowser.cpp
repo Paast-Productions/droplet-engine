@@ -1,9 +1,9 @@
 #include "Resource/ResourceBrowser.hpp"
 #include "core/FileExplorer.hpp"
+#include "MetaUtils.hpp"
 
 #include <ImGui/imgui.h>
-
-#include "MetaUtils.hpp"
+#include <IconFontCppHeaders/IconsLucide.h>
 
 using namespace Droplet::Editor::Resource;
 
@@ -23,41 +23,37 @@ void ResourceBrowser::RenderImpl()
     
     if (Button("Register Resource"))
     {
-        m_fileExplorer.OpenFileDialog(m_engine->GetWindow(), true, m_engine->GetResourceManager().GetRootDirectory(),
-            [this](const std::vector<std::filesystem::path>& absPaths)
+        auto absPaths = FileExplorer::OpenFileDialog(true, m_engine->GetResourceManager().GetRootDirectory());
+        if (!absPaths.empty())
+        {
+            std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
+            std::filesystem::path destinationBrowserDir = m_currentBrowserPath.empty() ? assetRoot : m_currentBrowserPath;
+            
+            for (auto &absPath : absPaths)
             {
-                if (absPaths.empty()) return;
+                std::filesystem::path relPath;
+                std::filesystem::path relPathTemp = absPath.lexically_relative(assetRoot); // Generate relative path
                 
-                std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
-                // This is where assets from outside the root dir will be copied to
-                std::filesystem::path destinationBrowserDir = m_currentBrowserPath.empty() ? assetRoot : m_currentBrowserPath;
-                
-                for (auto &absPath : absPaths)
+                if (relPathTemp.empty() || relPathTemp.string().starts_with("..") || relPathTemp.is_absolute())
                 {
-                    std::filesystem::path relPath;
-                    std::filesystem::path relPathTemp = absPath.lexically_relative(assetRoot); // Generate relative path
-                    
-                    if (relPathTemp.empty() || relPathTemp.string().starts_with("..") || relPathTemp.is_absolute())
-                    {
-                        // The file is from outside the root asset dir -> Copy it
-                        std::filesystem::path destination = destinationBrowserDir / absPath.filename();
-                        std::filesystem::copy_file(absPath, destination, std::filesystem::copy_options::overwrite_existing);
-                        relPath = destination.lexically_relative(assetRoot);
-                    }
-                    else
-                    {
-                        relPath = relPathTemp;
-                    }
-                    
-                    m_engine->GetResourceManager().RegisterAsset(relPath,
-                        [this](const std::vector<MetaEntry>& entries)
-                        {
-                            m_registerPopupQueue.push(entries);
-                        }
-                    );
+                    // The file is from outside the root asset dir -> Copy it
+                    std::filesystem::path destination = destinationBrowserDir / absPath.filename();
+                    std::filesystem::copy_file(absPath, destination, std::filesystem::copy_options::overwrite_existing);
+                    relPath = destination.lexically_relative(assetRoot);
                 }
+                else
+                {
+                    relPath = relPathTemp;
+                }
+                
+                m_engine->GetResourceManager().RegisterAsset(relPath,
+                    [this](const std::vector<MetaEntry>& entries)
+                    {
+                        m_registerPopupQueue.push(entries);
+                    }
+                );
             }
-        );
+        }
     }
     SameLine();
     TextDisabled(m_engine->GetResourceManager().GetRootDirectory().string().c_str());
@@ -153,7 +149,7 @@ void ResourceBrowser::RenderImpl()
 	    // Draw go back item
 	    if (!m_currentBrowserPath.empty())
 	    {
-	        if (Selectable("[..] (Parent Directory)", false, ImGuiSelectableFlags_AllowDoubleClick))
+	        if (Selectable(ICON_LC_CORNER_LEFT_UP ".. (Parent Directory)", false, ImGuiSelectableFlags_AllowDoubleClick))
 	        {
 	            if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
 	            {
@@ -168,7 +164,7 @@ void ResourceBrowser::RenderImpl()
 	    {
 	        if (childNode.isDirectory)
 	        {
-	            std::string label = "📁 " + childName;
+	            std::string label = ICON_LC_FOLDER " " + childName;
 	            if (Selectable(label.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick))
 	            {
 	                if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
@@ -185,13 +181,13 @@ void ResourceBrowser::RenderImpl()
 	        if (!childNode.isDirectory)
 	        {
 	            // Multi resource file
-	            std::string fileLabel = "= " + childName;
+	            std::string fileLabel = ICON_LC_FILE " " + childName;
 	            if (TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow))
 	            {
 	                for (const MetaEntry *entry : childNode.resources)
 	                {
 	                    bool isSelected = (m_selectedResourceGuid == entry->guid);
-	                    std::string resLabel = "- " + entry->name + " [" + ResourceTypeToString(entry->type) + "]";
+	                    std::string resLabel = ICON_LC_PACKAGE " " + entry->name + " [" + ResourceTypeToString(entry->type) + "]";
 	                    if (Selectable(resLabel.c_str(), isSelected))
 	                    {
 	                        m_selectedResourceGuid = isSelected ? C_INVALID_GUID : entry->guid;
