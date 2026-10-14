@@ -7,7 +7,7 @@
 
 using namespace Droplet::Editor;
 
-Droplet::Editor::NodeInspectorWindow::NodeInspectorWindow(
+NodeInspectorWindow::NodeInspectorWindow(
 	std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) 
 	: EditorWindow(p_engine), m_interactionState(p_interactionState)
 { }
