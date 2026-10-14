@@ -42,7 +42,10 @@ namespace Droplet::Graphics::VK
 	class VertexBuffer
 	{
 	public:
-		VertexBuffer() = delete;
+		VertexBuffer()
+		{
+			m_vertexBuffer = nullptr;
+		}
 		
 		/// @brief
 		VertexBuffer(nullptr_t p_nullptr)

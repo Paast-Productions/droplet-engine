@@ -1,4 +1,5 @@
 #pragma once
+
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <vulkan/vulkan.h>
@@ -6,8 +7,10 @@
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Sampler.hpp>
 #include <SceneSystem/Scene.hpp>
-#include <ImageView.hpp>
+#include <Graphics/VK/ImageView.hpp>
+#include <Graphics/VK/Image.hpp>
 #include <SceneSystem/Node.hpp>
+#include <Graphics/VK/Allocator.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -19,13 +22,39 @@ namespace Droplet::Graphics::VK
 
 	struct MeshBuffer
 	{
-		VertexBuffer vertices;
-		IndexBuffer indices;
+		VertexBuffer vertices{ nullptr };
+		IndexBuffer indices{ nullptr };
+
+		MeshBuffer &operator=(MeshBuffer &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+
+			std::swap(vertices, p_other.vertices);
+			std::swap(indices, p_other.indices);
+
+			return *this;
+		}
+
+		bool operator==(MeshBuffer &p_other) noexcept
+		{
+			return indices == p_other.indices && vertices == p_other.vertices;
+		}
+
+		MeshBuffer(MeshBuffer &&p_other) noexcept
+		{
+			std::swap(vertices, p_other.vertices);
+			std::swap(indices, p_other.indices);
+		}
+
 	};
 
 	struct SampleTexture
 	{
 		Sampler sampler;
+		Image image;
 		ImageView textureView;
 	};
 
@@ -47,15 +76,25 @@ namespace Droplet::Graphics::VK
 		SceneAdapter() = delete;
 		~SceneAdapter() = default;
 
-		SceneAdapter(const Context &p_context);
+		SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator);
 
 		void UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_nodeData);
 
 		const RenderData GetRenderData();
 	private:
 
-		std::unordered_map<std::uint32_t, MeshBuffer> m_meshMap;
-		std::unordered_map<std::uint32_t, SampleTexture> m_textureMap;
+		std::unordered_map<std::uint32_t, VertexBuffer> m_vertexMap;
+		std::unordered_map<std::uint32_t, IndexBuffer> m_indexMap;
+
+		std::unordered_map<std::uint32_t, Image> m_imageMap;
+		std::unordered_map<std::uint32_t, Sampler> m_samplerMap;
+		std::unordered_map<std::uint32_t, ImageView> m_viewMap;
+
+
+		RenderData m_renderData;
+
+		const Allocator &m_allocator;
+		const CommandPool &m_commandPool;
 
 		const Context &m_context;
 	};

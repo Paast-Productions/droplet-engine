@@ -10,10 +10,41 @@ namespace Droplet::Graphics::VK
 	class Sampler
 	{
 	public:
-		Sampler() = delete;
+		Sampler()
+		{
+			m_sampler = nullptr;
+		}
+
 		~Sampler() = default;
 
+		Sampler(nullptr_t p_nullptr)
+		{
+			m_sampler = { p_nullptr };
+		}
+
 		Sampler(const Context &p_context);
+
+		Sampler(Sampler &&p_other) noexcept
+		{
+			m_sampler = std::move(p_other.m_sampler);
+		}
+
+		Sampler &operator=(Sampler &&p_other) noexcept
+		{
+			if (*this == p_other)
+			{
+				return *this;
+			}
+
+			m_sampler = std::move(p_other.m_sampler);
+
+			return *this;
+		}
+
+		bool operator==(const Sampler &p_other) const
+		{
+			return m_sampler == p_other.m_sampler;
+		}
 
 	private:
 		vk::raii::Sampler m_sampler { nullptr };
