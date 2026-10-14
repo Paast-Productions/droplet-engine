@@ -42,6 +42,9 @@ namespace Droplet
 		/// @brief Updates the physics system
 		void FixedUpdate(const float p_fixedDeltaTime);
 
+		/// @brief Updates the physics system
+		void Update();
+
 		/// @brief Set the gravity
 		/// @param p_gravityVector The gravity acceleration vector
 		void SetGravity(const JPH::Vec3 p_gravityVector);
