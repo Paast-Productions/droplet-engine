@@ -101,6 +101,14 @@ end
 function Transform:Rotate(rotation)
 end
 
+---@param amount Vec3
+function Transform:MoveRelative(amount)
+end
+
+---@param euler Vec3
+function Transform:RotateEulerRelative(euler)
+end
+
 ---@param euler Vec3
 function Transform:RotateEuler(euler)
 end

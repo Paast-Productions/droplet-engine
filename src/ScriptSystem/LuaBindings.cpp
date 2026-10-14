@@ -119,6 +119,8 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         "Move", &Scene::Transform::Move,
         "Rotate", &Scene::Transform::Rotate,
         "RotateEuler", &Scene::Transform::RotateEuler,
+        "MoveRelative", &Scene::Transform::MoveRelative,
+        "RotateEulerRelative", &Scene::Transform::RotateEulerRelative,
         "AddScale", &Scene::Transform::AddScale,
         "RotateAxis", &Scene::Transform::RotateAxis,
         "LookAt", &Scene::Transform::LookAt
@@ -231,6 +233,20 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
             "void",
             {
                 { "rotation", "Quat" }
+            }
+        },
+        {
+            "MoveRelative",
+            "void",
+            {
+                { "amount", "Vec3" }
+            }
+        },
+        {
+            "RotateEulerRelative",
+            "void",
+            {
+                { "euler", "Vec3" }
             }
         },
         {
