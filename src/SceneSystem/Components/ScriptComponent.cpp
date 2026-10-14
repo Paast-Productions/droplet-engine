@@ -8,10 +8,12 @@ using namespace Droplet::Script;
 
 void ScriptComponent::Start()
 {
+
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
+
 }
 
 const std::string &ScriptComponent::GetScriptPath() const

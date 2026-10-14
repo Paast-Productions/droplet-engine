@@ -64,6 +64,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
+
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
@@ -139,6 +141,22 @@ SDL_Window *Droplet::Engine::GetWindow()
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+Scene::ScriptBehaviour& Droplet::Engine::AddScriptBehaviour(const std::string& p_scriptPath)
+{
+	auto behaviour = std::make_unique<Scene::ScriptBehaviour>();
+	behaviour->AttachScript(p_scriptPath);
+
+	Scene::ScriptBehaviour &result = *behaviour;
+	m_scriptBehaviours.push_back(std::move(behaviour));
+
+	return result;
+}
+
+const std::vector<std::unique_ptr<Scene::ScriptBehaviour>>& Droplet::Engine::GetScriptBehaviours() const
+{
+	return m_scriptBehaviours;
 }
 
 void Droplet::Engine::AddEventListener(EventListener p_listener)
