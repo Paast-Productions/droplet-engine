@@ -7,6 +7,7 @@
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "ScriptsWindow.hpp"
+#include "BehaviourInspector.hpp"
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
@@ -15,7 +16,6 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
-#include <ScriptSystem/ScriptSystem.hpp>
 
 using namespace Droplet::Editor;
 
@@ -71,12 +71,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	BehaviourInspector behaviourInspector(engine);
 	ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
 	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
+	behaviourInspector.Init();
 	scriptsWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
@@ -99,10 +101,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
-		scriptsWindow.Render();
+		behaviourInspector.Render();
+		scriptsWindow.Render(); 
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 

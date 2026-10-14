@@ -25,6 +25,7 @@ ScriptsWindow::ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine)
 void ScriptsWindow::InitImpl()
 {
 	SetName("Scripts");
+	ToggleToolbar(true);
 }
 
 void ScriptsWindow::CloseImpl()
