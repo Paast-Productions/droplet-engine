@@ -15,18 +15,16 @@
 
 using namespace Droplet::Editor;
 
-ScriptsWindow::ScriptsWindow(std::shared_ptr<InteractionState> p_interactionState)
+ScriptsWindow::ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine)
+    : EditorWindow(p_engine)
 {
-	m_interactionState = p_interactionState;
 	m_scriptPath = Droplet::Script::ScriptSystem::Get().GetScriptPath();
-
 	RefreshScripts();
 }
 
 void ScriptsWindow::InitImpl()
 {
 	SetName("Scripts");
-	ToggleToolbar(true);
 }
 
 void ScriptsWindow::CloseImpl()

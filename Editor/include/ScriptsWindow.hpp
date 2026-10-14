@@ -16,7 +16,7 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructs the scripts window.
 		/// @param p_interactionState Shared editor interaction state.
-		ScriptsWindow(std::shared_ptr<InteractionState> p_interactionState);
+		ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine);
 		/// @brief Destroys the scripts window.
 		~ScriptsWindow() = default;
 
@@ -68,11 +68,6 @@ namespace Droplet::Editor
 		/// @brief Opens the selected script.
 		/// @param p_relativePath Path to the script relative to the script root.
 		void OpenScript(const std::filesystem::path &p_relativePath);
-
-		/// @brief Shared editor interaction state.
-		/// Provides access to shared editor state, including information
-		/// about the current selection and other editor interactions.
-		std::shared_ptr<InteractionState> m_interactionState;
 
 		/// @brief Root directory containing the scripts.
 		std::filesystem::path m_scriptPath;
