@@ -2,6 +2,7 @@
 #include <ImGui/imgui.h>
 #include <Editor/DragDropFields.hpp>
 
+
 using namespace Droplet::Scene;
 
 // TODO: Temp fix for bounds 
@@ -19,12 +20,12 @@ void MeshComponent::RenderUIImpl()
     using namespace Droplet::Editor;
     using namespace ImGui;
 
-    // Mesh ID
-    int meshID = GetMeshID();
+    // Mesh GUID
+    std::uint64_t meshGUID = GetMeshGUID();
 
-    if (InputInt("Mesh ID", &meshID, 0, 0))
+    if (InputScalar("Mesh GUID", ImGuiDataType_U64, &meshGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetMeshID(meshID);
+        SetMeshGUID(meshGUID);
     }
 
     if (BeginDragDropTarget())
@@ -32,21 +33,21 @@ void MeshComponent::RenderUIImpl()
         if (const ImGuiPayload *payload =
             AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
         {
-            if (payload->DataSize == sizeof(int))
+            if (payload->DataSize == sizeof(std::uint64_t))
             {
-                SetMeshID(*static_cast<const int *>(payload->Data));
+                SetMeshGUID(*static_cast<const std::uint64_t *>(payload->Data));
             }
         }
 
         EndDragDropTarget();
     }
 
-    // Texture ID
-    int textureID = GetTextureID();
+    // Texture GUID
+    std::uint64_t textureGUID = GetTextureGUID();
 
-    if (InputInt("Texture ID", &textureID, 0, 0))
+    if (InputScalar("Texture GUID", ImGuiDataType_U64, &textureGUID, nullptr, nullptr, "%llu", ImGuiInputTextFlags_CharsHexadecimal))
     {
-        SetTextureID(textureID);
+        SetTextureGUID(textureGUID);
     }
 
     if (BeginDragDropTarget())
@@ -54,9 +55,9 @@ void MeshComponent::RenderUIImpl()
         if (const ImGuiPayload *payload =
             AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
         {
-            if (payload->DataSize == sizeof(int))
+            if (payload->DataSize == sizeof(std::uint64_t))
             {
-                SetTextureID(*static_cast<const int *>(payload->Data));
+                SetTextureGUID(*static_cast<const std::uint64_t *>(payload->Data));
             }
         }
 
@@ -70,32 +71,32 @@ const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() cons
     return std::weak_ptr<MeshResource>();
 }
 
-void MeshComponent::SetMeshID(int p_meshID)
+void MeshComponent::SetMeshGUID(std::uint64_t p_meshGUID)
 {
-	m_meshID = p_meshID;
+	m_meshGUID = p_meshGUID;
 }
 
-int MeshComponent::GetMeshID() const
+std::uint64_t MeshComponent::GetMeshGUID() const
 {
-	return m_meshID;
+	return m_meshGUID;
 }
 
-void MeshComponent::SetTextureID(int p_textureID)
+void MeshComponent::SetTextureGUID(std::uint64_t p_textureGUID)
 {
-	m_textureID = p_textureID;
+	m_textureGUID = p_textureGUID;
 }
 
-int MeshComponent::GetTextureID() const
+std::uint64_t MeshComponent::GetTextureGUID() const
 {
-	return m_textureID;
+	return m_textureGUID;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["meshID"] = GetMeshID();
-    json["textureID"] = GetTextureID();
+    json["meshGUID"] = GetMeshGUID();
+    json["textureGUID"] = GetTextureGUID();
 
     return json;
 }

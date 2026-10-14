@@ -8,6 +8,7 @@
 
 #include <string>
 #include <string_view>
+#include <cstdint>
 
 
 namespace Droplet::Scene
@@ -30,14 +31,14 @@ namespace Droplet::Scene
         // Mesh
 
         //TODO: should be GUID or something idk
-        void SetMeshID(int p_meshID);
-        [[nodiscard]] int GetMeshID() const;
+        void SetMeshGUID(std::uint64_t p_meshGUID);
+        [[nodiscard]] std::uint64_t GetMeshGUID() const;
 
         // Texture
         // 
          //TODO: should be GUID or something idk
-        void SetTextureID(int p_textureID);
-        [[nodiscard]] int GetTextureID() const;
+        void SetTextureGUID(std::uint64_t p_textureGUID);
+        [[nodiscard]] std::uint64_t GetTextureGUID() const;
 
 		/// @brief Gets the mesh resource associated with this component.
 		/// @return A weak pointer to the mesh resource, or an empty weak pointer if the resource is not loaded.
@@ -66,8 +67,8 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        int m_meshID = -1;
-        int m_textureID = -1;
+        std::uint64_t m_meshGUID = -1;
+        std::uint64_t m_textureGUID = -1;
 
         MeshNodeBounds m_bounds;
 
