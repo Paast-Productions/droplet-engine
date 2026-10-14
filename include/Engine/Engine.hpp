@@ -3,8 +3,8 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_vulkan.h>
 #include <ImGui/imgui_impl_sdl3.h>
-#include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
+#include <Graphics/VK/Renderer.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
@@ -86,6 +86,9 @@ namespace Droplet
 		};
 
 		UpdateFlagsSetter m_updateFlagsSetter;
+
+		/// @brief The window instance should only be one.
+		Graphics::SDL::Window m_window;
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;

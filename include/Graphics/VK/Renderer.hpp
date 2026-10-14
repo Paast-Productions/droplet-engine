@@ -65,8 +65,8 @@ namespace Droplet::Graphics
 		Renderer() = delete;
 
 		/// @brief Renderer Constructor
-		/// @param p_windowConfig Requested SDL Window Configuration
-		Renderer(SDL::WindowConfig p_windowConfig);
+		/// @param p_window Requested SDL Window Configuration
+		Renderer(SDL::Window &p_window);
 
 		/// @brief Destructor
 		~Renderer();
@@ -143,7 +143,7 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		SDL::Window m_window;
+		const SDL::Window *m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
 		VK::Allocator m_allocator { nullptr };

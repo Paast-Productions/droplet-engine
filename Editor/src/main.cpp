@@ -26,7 +26,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
-			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
+			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {SDL_WINDOW_VULKAN}
 		},
 		Droplet::UpdateFlags::EditorFlags
 	));

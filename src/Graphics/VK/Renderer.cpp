@@ -34,11 +34,11 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window							{ p_windowConfig },
-	m_context							{ m_window.Get(), m_vkContext },
+Renderer::Renderer(SDL::Window &p_window) :
+	m_window							{ &p_window },
+	m_context							{ m_window->Get(), m_vkContext},
 	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
@@ -410,13 +410,13 @@ void Renderer::DrawFrame()
 	// here and does not need to be caught by an exception.
 	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -435,7 +435,7 @@ void Renderer::DrawFrame()
 	}
 	// old code
 	float rotation;
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	m_cameraController.UpdateCamera(m_camera, deltaTime, *m_window);
 	
 	ImGui::Begin("Camera");
 	ImGui::Text("%f", m_camera.GetPosition().x);
@@ -503,12 +503,12 @@ void Renderer::DrawFrame()
 	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -652,7 +652,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 
 SDL_Window *Renderer::GetWindow()
 {
-	return m_window.Get();
+	return m_window->Get();
 }
 
 void Renderer::WaitIdle()
