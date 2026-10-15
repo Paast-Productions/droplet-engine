@@ -29,8 +29,20 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     
     ThreadPool::GetInstance().Initialize();
     
+    // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
     m_resourceManager.Initialize(assetDir);
+    // Register scanners
+    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ListAssetResources);
+    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ListAssetResources);
+    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ListAssetResources);
+    // Register resources
+    m_resourceManager.RegisterResourceType<Texture2DResource>();
+    m_resourceManager.RegisterResourceType<MeshResource>();
+    m_resourceManager.RegisterResourceType<SkinnedMeshResource>();
+    m_resourceManager.RegisterResourceType<AnimationResource>();
+    m_resourceManager.RegisterResourceType<ShaderResource>();
+    // ------
 
 	// Register engine behaviours
 	RegisterBehaviours();
