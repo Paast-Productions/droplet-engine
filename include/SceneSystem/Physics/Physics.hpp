@@ -37,7 +37,7 @@ namespace Droplet
 		void Initialize(const Initializer p_initializer);
 
 		/// @brief Updates the physics system
-		void Update();
+		void FixedUpdate(const float p_fixedDeltaTime);
 
 		/// @brief Set the gravity
 		/// @param p_gravityVector The gravity acceleration vector
