@@ -127,7 +127,7 @@ TEST_F(AssimpFormatTest, LoadNonExistingAnimation)
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"", "DoesNotExist.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "EmptyMesh.fbx";
-	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings), std::runtime_error);
+	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, "", metaEntry.loadSettings), std::runtime_error);
 }
 
 TEST_F(AssimpFormatTest, LoadAnimationWithNoMeshData)
@@ -135,7 +135,7 @@ TEST_F(AssimpFormatTest, LoadAnimationWithNoMeshData)
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFishWithNoMesh.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFishWithNoMesh.fbx";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }
 
 TEST_F(AssimpFormatTest, LoadAnimationWithNoAnimData)
@@ -143,7 +143,7 @@ TEST_F(AssimpFormatTest, LoadAnimationWithNoAnimData)
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFishWithNoAnim.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFishWithNoAnim.fbx";
-	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings), std::runtime_error);
+	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings), std::runtime_error);
 }
 
 TEST_F(AssimpFormatTest, LoadAnimationFbx)
@@ -151,7 +151,7 @@ TEST_F(AssimpFormatTest, LoadAnimationFbx)
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFish.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.fbx";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }
 
 TEST_F(AssimpFormatTest, LoadAnimationGlb)
@@ -159,5 +159,5 @@ TEST_F(AssimpFormatTest, LoadAnimationGlb)
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"ArmatureAction", "CorruptedWoodFish.glb");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.glb";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }

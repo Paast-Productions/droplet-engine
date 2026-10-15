@@ -20,7 +20,7 @@ protected:
     void SetUp() override
     {
         ThreadPool::GetInstance().Initialize();
-
+        
         m_testAssetDir = fs::path(TEST_ASSET_DIR);
         m_resourceManager.Initialize(m_testAssetDir);
         
