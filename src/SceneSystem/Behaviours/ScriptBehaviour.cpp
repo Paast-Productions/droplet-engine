@@ -31,20 +31,7 @@ void ScriptBehaviour::DeactivateScript()
 
 void ScriptBehaviour::RenderUIImpl()
 {
-    ImGui::Button("Drop Lua behaviour here", ImVec2(100.0f, 0.0f));
 
-    if (ImGui::BeginDragDropTarget())
-    {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
-        {
-            if (payload->Data != nullptr && payload->DataSize > 0)
-            {
-                const char* droppedPath = static_cast<const char*>(payload->Data);
-            }
-        }
-    }
-
-    ImGui::EndDragDropTarget();
 }
 
 void ScriptBehaviour::AttachScript(const std::string p_scriptPath)

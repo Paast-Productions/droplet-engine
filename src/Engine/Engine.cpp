@@ -154,6 +154,19 @@ Scene::ScriptBehaviour& Droplet::Engine::AddScriptBehaviour(const std::string& p
 	return result;
 }
 
+void Droplet::Engine::RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour)
+{
+	p_scriptBehaviour.DetachScript();
+	
+	auto it = std::remove_if(m_scriptBehaviours.begin(), m_scriptBehaviours.end(),
+		[&p_scriptBehaviour](const auto &behaviour)
+		{
+			return behaviour.get() == &p_scriptBehaviour;
+		});
+
+	m_scriptBehaviours.erase(it, m_scriptBehaviours.end());
+}
+
 const std::vector<std::unique_ptr<Scene::ScriptBehaviour>>& Droplet::Engine::GetScriptBehaviours() const
 {
 	return m_scriptBehaviours;

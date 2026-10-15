@@ -56,8 +56,16 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
+		/// @brief Adds a script behaviour to the engine.
+		/// @return A reference to the added script behaviour.
 		Scene::ScriptBehaviour &AddScriptBehaviour(const std::string& p_scriptPath);
 
+		/// @brief Remove script behaviour to engine
+		/// @param p_scriptBehaviour that should be removed
+		void RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour);
+
+		/// @brief Get all script behaviours in engine
+		/// @return vector of all scripts
 		[[nodiscard]] const std::vector<std::unique_ptr<Scene::ScriptBehaviour>> &GetScriptBehaviours() const;
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.

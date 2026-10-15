@@ -20,3 +20,7 @@ function OnUpdate(dt)
 	--print(Input:KeyPressed(Key.Space))
 end             
 
+function RenderUI()
+	print("Axel is eww")
+end
+

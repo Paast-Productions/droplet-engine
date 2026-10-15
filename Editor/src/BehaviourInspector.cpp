@@ -18,7 +18,9 @@ void BehaviourInspector::CloseImpl()
 
 void BehaviourInspector::RenderImpl()
 {
-    ImGui::Button("Drop Lua behaviour here", ImVec2(180.0f, 0.0f));
+    const ImVec2 dropAreaSize(ImGui::GetContentRegionAvail().x, 50.0f);
+
+    ImGui::Button("Drop Lua behaviour here", dropAreaSize);
 
     if (ImGui::BeginDragDropTarget())
     {
@@ -39,7 +41,35 @@ void BehaviourInspector::RenderImpl()
 
     for (const auto &behaviour : GetEngine()->GetScriptBehaviours())
     {
-        ImGui::TextUnformatted(behaviour->GetScriptPath().c_str());
+        const std::string scriptName = behaviour->GetScriptPath();
+
+        ImGui::PushID(behaviour.get());
+
+        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
+
+        ImGui::Button(scriptName.c_str(), 
+            ImVec2(ImGui::GetContentRegionAvail().x, 30.0f)
+        );
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+			ImGui::OpenPopup("Behaviour Options");
+        }
+
+		ImGui::PopStyleColor(3);
+
+        if (ImGui::BeginPopup("Behaviour Options"))
+        {
+            if (ImGui::MenuItem("Detach Behaviour"))
+            {
+                GetEngine()->RemoveScriptBehaviour(*behaviour);
+            }
+            ImGui::EndPopup();
+        }
+
+        ImGui::PopID();
     }
 }
 
