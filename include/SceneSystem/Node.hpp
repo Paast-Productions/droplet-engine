@@ -214,7 +214,7 @@ namespace Droplet::Scene
 
             if (component->HasBoundsOverride())
             {
-                if (m_boundsOverride)
+                if (m_boundsOverride.expired())
                 {
                     m_boundsOverride = component;
                 }

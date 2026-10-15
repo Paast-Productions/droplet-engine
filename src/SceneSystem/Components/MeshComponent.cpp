@@ -89,6 +89,7 @@ void MeshComponent::SetTextureGUID(
     Droplet::ResourceManager &p_resourceManager)
 {
     m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
+}
 
 const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
 {
@@ -119,8 +120,8 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 		m_meshGUID = p_compJson["meshGUID"].get<Droplet::GUID>();
 	}
 
-	if (p_compJson.contains("materialGUID"))
+	if (p_compJson.contains("textureGUID"))
 	{
-		m_materialGUID = p_compJson["materialGUID"].get<Droplet::GUID>();
+		m_textureGUID = p_compJson["textureGUID"].get<Droplet::GUID>();
 	}
 }
