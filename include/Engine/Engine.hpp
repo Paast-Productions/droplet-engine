@@ -10,6 +10,7 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
@@ -58,6 +59,20 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 
+		[[nodiscard]] ResourceManager &GetResourceManager();
+		
+		/// @brief Adds a script behaviour to the engine.
+		/// @return A reference to the added script behaviour.
+		Scene::ScriptBehaviour &AddScriptBehaviour(const std::string& p_scriptPath);
+
+		/// @brief Remove script behaviour to engine
+		/// @param p_scriptBehaviour that should be removed
+		void RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour);
+
+		/// @brief Get all script behaviours in engine
+		/// @return vector of all scripts
+		[[nodiscard]] const std::vector<std::unique_ptr<Scene::ScriptBehaviour>> &GetScriptBehaviours() const;
+
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(const EventListener& p_listener) { m_eventListeners.push_back(p_listener); }
@@ -90,6 +105,8 @@ namespace Droplet
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		std::vector<std::unique_ptr<Scene::ScriptBehaviour>> m_scriptBehaviours;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo {};

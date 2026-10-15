@@ -29,8 +29,22 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     
     ThreadPool::GetInstance().Initialize();
     
+    // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
-    ResourceManager::GetInstance().Initialize(assetDir);
+	// HACK: DON'T DO THIS
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+	resManInstance.Initialize(assetDir);
+    // Register scanners
+    resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    // Register resources
+    resManInstance.RegisterResourceType<Texture2DResource>();
+    resManInstance.RegisterResourceType<MeshResource>();
+    resManInstance.RegisterResourceType<SkinnedMeshResource>();
+	resManInstance.RegisterResourceType<AnimationResource>();
+    resManInstance.RegisterResourceType<ShaderResource>();
+    // ------
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -64,6 +78,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Inputs
 	Droplet::GameInput::Get().Update();
+
+
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
@@ -137,6 +153,40 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
+}
+
+ResourceManager &Engine::GetResourceManager()
+{
+    return ResourceManager::GetInstance();
+}
+
+Scene::ScriptBehaviour& Droplet::Engine::AddScriptBehaviour(const std::string& p_scriptPath)
+{
+	auto behaviour = std::make_unique<Scene::ScriptBehaviour>();
+	behaviour->AttachScript(p_scriptPath);
+
+	Scene::ScriptBehaviour &result = *behaviour;
+	m_scriptBehaviours.push_back(std::move(behaviour));
+
+	return result;
+}
+
+void Droplet::Engine::RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour)
+{
+	p_scriptBehaviour.DetachScript();
+	
+	auto it = std::remove_if(m_scriptBehaviours.begin(), m_scriptBehaviours.end(),
+		[&p_scriptBehaviour](const auto &behaviour)
+		{
+			return behaviour.get() == &p_scriptBehaviour;
+		});
+
+	m_scriptBehaviours.erase(it, m_scriptBehaviours.end());
+}
+
+const std::vector<std::unique_ptr<Scene::ScriptBehaviour>>& Droplet::Engine::GetScriptBehaviours() const
+{
+	return m_scriptBehaviours;
 }
 
 void Engine::RegisterBehaviours()

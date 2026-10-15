@@ -61,7 +61,7 @@ void NodeInspectorWindow::RenderImpl()
 	}
 
 	// Transform
-	if (ImGui::CollapsingHeader("Transform"))
+	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		Droplet::Scene::Transform &transform = m_currentNode->GetTransform();
 		float drag_speed = 0.001f;
@@ -128,7 +128,7 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::PushID(thisString.c_str());
 
 		// The actual header
-		bool isOpen = ImGui::CollapsingHeader(component->GetTypeName().data());
+		bool isOpen = ImGui::CollapsingHeader(component->GetTypeName().data(), ImGuiTreeNodeFlags_DefaultOpen);
 
 		// The right click on header
 		if (ImGui::BeginPopupContextItem("popup"))

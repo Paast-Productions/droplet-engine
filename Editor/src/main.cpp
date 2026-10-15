@@ -1,21 +1,15 @@
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_vulkan.h>
-#include <ImGui/imgui_impl_sdl3.h>
-#include <SDL3/SDL.h>
-#include <cstdio>
 #include <Engine/Engine.hpp>
+#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "ScriptsWindow.hpp"
-#include <Graphics/VK/Renderer.hpp>
-#include <GameInput.hpp>
+#include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
+#include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
-#include <ScriptSystem/ScriptSystem.hpp>
 #include <ImGui/UIStyle.hpp>
-#include <tracy/public/tracy/Tracy.hpp>
 #include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 //#include <tracy/public/tracy/TracyVulkan.hpp>
@@ -35,8 +29,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
 			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
-		},
-		Droplet::UpdateFlags::EditorFlags
+		}
+		//Droplet::UpdateFlags::EditorFlags
 	));
 
 	SDL_Window *wnd = engine->GetWindow();
@@ -68,38 +62,41 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
-	{
-		std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-		UIStyle::LoadStyle(currStyle);
-	}
-
-	// Setup ImGui font
-    ImGuiIO io = ImGui::GetIO();
-    // float baseFontSize = 16.0f;
-    // float iconFontSize = baseFontSize * 2.0f / 3.0f;
+    {
+	    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+	    UIStyle::LoadStyle(currStyle);
+    }
     
+    // --- Font Setup ---
+    float baseFontSize = 13.0f; // This should match the size of our default font
+    
+    ImGuiIO io = ImGui::GetIO();
     ImFontConfig baseConfig;
+    baseConfig.SizePixels = baseFontSize;
     io.Fonts->AddFontDefault(&baseConfig);
     
-    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
     ImFontConfig iconsConfig;
     iconsConfig.MergeMode = true;
     iconsConfig.PixelSnapH = true;
-    // iconsConfig.GlyphMinAdvanceX = iconFontSize;
-    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseConfig.SizePixels, &iconsConfig, iconsRanges);
+    iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
+    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
+    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
+    // ------
     
 	engine->GetSceneManager().LoadScene("TestScene"); // HACK
 
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
     
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-    NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
-    ScriptsWindow scriptsWindow(engine);
+	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	BehaviourInspector behaviourInspector(engine);
+	ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
     Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
+	behaviourInspector.Init();
 	scriptsWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
@@ -247,7 +244,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
-		scriptsWindow.Render();
+		behaviourInspector.Render();
+		scriptsWindow.Render(); 
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
