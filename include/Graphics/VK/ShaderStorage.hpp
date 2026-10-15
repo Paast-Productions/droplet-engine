@@ -4,7 +4,7 @@
 
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Pipeline.hpp>
-#include <Graphics/VK/DescriptorSet.hpp>
+#include <Graphics/VK/Allocator.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/ResourceManager.hpp>
 
@@ -40,23 +40,25 @@ namespace Droplet::Graphics::VK
     class ShaderStorage
     {
     public:
-        [[nodiscard]] static ShaderStorage &GetInstance()
-        {
-            static ShaderStorage instance {};
-            return instance;
-        }
+        ShaderStorage() = delete;
+        
+        ShaderStorage(VK::Context &p_context);
         
         ShaderStorage(const ShaderStorage &p_other) = delete;
         ShaderStorage &operator=(const ShaderStorage &p_other) = delete;
         ShaderStorage(ShaderStorage &&p_other) noexcept = delete;
         ShaderStorage &operator=(ShaderStorage &&p_other) noexcept = delete;
         
+        ~ShaderStorage() = default;
+        
+        [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
+        
         [[nodiscard]] const Pipeline &GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
         
     private:
-        ShaderStorage() = default;
-        ~ShaderStorage() = default;
+        const VK::Context &m_context;
         
+        VK::Allocator m_allocator { nullptr };
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
     };
 }

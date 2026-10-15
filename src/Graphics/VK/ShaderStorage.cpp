@@ -7,6 +7,10 @@
 
 using namespace Droplet::Graphics::VK;
 
+ShaderStorage::ShaderStorage(VK::Context &p_context) :
+    m_context(p_context),
+    m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()) {}
+
 const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     // TRY FINDING ALREADY CREATED PIPELINE

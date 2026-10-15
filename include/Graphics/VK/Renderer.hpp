@@ -77,7 +77,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
-		void Draw(RenderData p_renderData);
+		void Draw(std::vector<RenderData> p_renderData);
 		
 		/// @brief Resizes the window
 		void	ResizeWindow();
@@ -102,7 +102,7 @@ namespace Droplet::Graphics
 		/// @param p_imageIndex which image to render to
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
 		
-		void RecordCommandBuffer(RenderData p_renderData, std::uint32_t p_imageIndex);
+		void RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();
@@ -134,7 +134,7 @@ namespace Droplet::Graphics
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::Allocator m_allocator { nullptr };
+		VK::ShaderStorage m_shaderStorage;
 
 		SDL_Event m_event {};
 

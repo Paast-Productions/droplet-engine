@@ -69,14 +69,28 @@ void Node::Update(float p_deltaTime)
     }
 }
 
-void Node::Render()
+void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const
 {
     if (!m_active)
     {
         return;
     }
-
-    return;
+    
+    Graphics::RenderData renderData
+    {
+        .vsData 
+        {
+            .GUID = 0,
+            .pushConstants = { 0 }
+        }   
+    };
+    
+    p_renderData.push_back(renderData);
+    
+    for (const std::shared_ptr<Node>& child : m_children)
+    {
+        child->GetRenderData(p_renderData);
+    }
 }
 
 void Node::RenderUI()

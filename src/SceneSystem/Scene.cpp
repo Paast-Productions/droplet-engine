@@ -75,23 +75,23 @@ void Scene::Unload()
     m_loaded = false;
 }
 
-void Scene::Render()
+void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
-    if (!m_loaded || !m_active)
+    /*if (!m_loaded || !m_active)
     {
         return;
-    }
+    }*/
 
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
+    /*if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
+    {*/
+    for (const auto &root : m_roots)
     {
-        for (const auto &root : m_roots)
-        {
-            root->Render();
-        }
+        root->GetRenderData(p_renderData);
     }
+    //}
 }
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)

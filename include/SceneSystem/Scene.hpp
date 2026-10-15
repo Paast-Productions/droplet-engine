@@ -1,11 +1,14 @@
 #pragma once
 
-#include <math/bounds/Intersection.hpp>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <math/bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
+#include <Graphics/RenderData.hpp>
+
+
 
 namespace Droplet::Scene
 {
@@ -74,7 +77,7 @@ namespace Droplet::Scene
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved to a separate rendering
         /// system in the future.
-        void Render();
+    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const;
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///

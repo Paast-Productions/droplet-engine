@@ -6,6 +6,8 @@
 #include <vector>
 #include <json/json.hpp>
 
+#include <Graphics/RenderData.hpp>
+
 namespace Droplet::Scene
 {
     class Scene;
@@ -99,7 +101,7 @@ namespace Droplet::Scene
         ///
         /// @note This function is currently a placeholder and does not
         /// perform any rendering.
-        void Render();
+        [[nodiscard]] std::vector<Droplet::Graphics::RenderData> GetRenderData();
 
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize

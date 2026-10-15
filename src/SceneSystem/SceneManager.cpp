@@ -197,24 +197,30 @@ void SceneManager::Update(float p_deltaTime)
     }
 }
 
-void SceneManager::Render()
+std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
+    
+    std::vector<Droplet::Graphics::RenderData> renderData {};
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    for (auto it = m_scenes.begin(); it != m_scenes.end();)
     {
-        auto scene = it->lock();
+        /*auto scene = it->lock();
 
         if (!scene)
         {
             it = m_activeScenes.erase(it);
             continue;
-        }
-
-        scene->Render();
+        }*/
+        
+        // scene->Render();
+        
+        it->second->GetRenderData(renderData);
 
         ++it;
     }
+    
+    return renderData;
 }
 
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)

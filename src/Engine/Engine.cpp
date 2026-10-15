@@ -22,8 +22,6 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(ROOT_PATH "/Assets");
-
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
@@ -32,7 +30,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     ThreadPool::GetInstance().Initialize();
     
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
-    m_resourceManager.Initialize(assetDir);
+    ResourceManager::GetInstance().Initialize(assetDir);
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -114,6 +112,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
+	
+	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
 	// Scriptsystem
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
@@ -122,8 +122,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 
 	// Rendering
-	m_renderer.Draw(TODO);
-
+	m_renderer.Draw(renderDataVec);
+	
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -132,39 +132,13 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
-    m_resourceManager.Update();
+    ResourceManager::GetInstance().Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
-<<<<<<< HEAD
-=======
-SDL_Window *Engine::GetWindow()
-{
-	// TODO: insert return statement here
-	return m_renderer.GetWindow();
-}
-
-Scene::SceneManager &Engine::GetSceneManager()
-{
-	return m_sceneManager;
-}
-
-ResourceManager &Engine::GetResourceManager()
-{
-    return m_resourceManager;
-}
-
-void Engine::AddEventListener(EventListener p_listener)
-{
-	ZoneScoped;
-
-	m_eventListeners.push_back(p_listener);
-}
-
->>>>>>> feature/editor/main
 void Engine::RegisterBehaviours()
 {
 	ZoneScoped;

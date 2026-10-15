@@ -39,14 +39,14 @@ using namespace Droplet::Graphics;
 Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
 	m_window							{ p_windowConfig },
 	m_context							{ m_window.Get(), m_vkContext },
-	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_shaderStorage						{ m_context },
 	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
-	m_depthBuffer						{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer						{ m_allocator.Get(), G_INDICES },
-	m_vertexBuffer						{ m_allocator.Get(), G_VERTICES }
+	m_depthBuffer						{ m_shaderStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
+	m_indexBuffer						{ m_shaderStorage.GetAllocator(), G_INDICES },
+	m_vertexBuffer						{ m_shaderStorage.GetAllocator(), G_VERTICES }
 {
 	ZoneScoped;
 
@@ -60,13 +60,13 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	};
 	
 	m_uniformBuffer = { 
-		m_allocator.Get(),
+		m_shaderStorage.GetAllocator(),
 		ubo
 	};
 
 	
 	m_image = {
-		m_allocator.Get(),
+		m_shaderStorage.GetAllocator(),
 		m_commandPool,
 		m_context,
 		G_CATDESPAIR,
@@ -284,9 +284,9 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.end();
 }
 
-void Renderer::RecordCommandBuffer(RenderData p_renderData, std::uint32_t p_imageIndex)
+void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex)
 {
-	const vk::raii::CommandBuffer& cmdBuffer = m_commandPool.GetBufferAt(p_imageIndex);
+	const vk::raii::CommandBuffer& cmdBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 	
 	cmdBuffer.begin({});
 
@@ -351,24 +351,31 @@ void Renderer::RecordCommandBuffer(RenderData p_renderData, std::uint32_t p_imag
 		.pDepthAttachment = &depthAttachmentInfo 
 	};
 	
-	VK::ShaderStorage& shaderStorage = VK::ShaderStorage::GetInstance();
-	
-	const VK::Pipeline& pipeline = shaderStorage.GetPipeline(p_renderData, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
 	
 	cmdBuffer.beginRendering(renderingInfo);
-	cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
 	cmdBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
 	cmdBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-	cmdBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
-	cmdBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
-	
 	// TODO: <REFACTOR>
 	// Global Descriptor Set should be bound once and only once
-	cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	// TODO: </REFACTOR>
 	
-	cmdBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
-
+	for (const RenderData &data : p_renderData)
+	{
+		try
+		{
+			const VK::Pipeline& pipeline = m_shaderStorage.GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
+			cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
+			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+		}
+		catch ([[maybe_unused]] const std::exception &err)
+		{
+			continue;
+		}
+		cmdBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
+		cmdBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
+		cmdBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	}
+	
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *cmdBuffer);
 	cmdBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -445,7 +452,7 @@ void Renderer::DrawFrame()
 		m_swapchain.Cleanup(m_context.GetDevice());
 		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
 		m_depthBuffer = {
-			m_allocator.Get(),
+			m_shaderStorage.GetAllocator(),
 			m_context.GetDevice(),
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
@@ -526,7 +533,7 @@ void Renderer::DrawFrame()
 		m_swapchain.Cleanup(m_context.GetDevice());
 		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
 		m_depthBuffer = {
-			m_allocator.Get(),
+			m_shaderStorage.GetAllocator(),
 			m_context.GetDevice(),
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
@@ -540,7 +547,7 @@ void Renderer::DrawFrame()
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-void Renderer::Draw(RenderData p_renderData)
+void Renderer::Draw(std::vector<RenderData> p_renderData)
 {
 	// Create temporary deltaTime that Update's will use
 	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
@@ -560,6 +567,7 @@ void Renderer::Draw(RenderData p_renderData)
 	
 	vk::ResultValue<std::uint32_t> swapchainResVal = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_frameIndex], nullptr);
 	m_imageIndex = swapchainResVal.value;
+	m_result = swapchainResVal.result;
 	
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
@@ -573,7 +581,7 @@ void Renderer::Draw(RenderData p_renderData)
 		m_swapchain.Cleanup(m_context.GetDevice());
 		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
 		m_depthBuffer = {
-			m_allocator.Get(),
+			m_shaderStorage.GetAllocator(),
 			m_context.GetDevice(),
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
@@ -614,15 +622,7 @@ void Renderer::Draw(RenderData p_renderData)
 	ImGui::Render();
 	
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	try
-	{
-		RecordCommandBuffer(p_renderData, m_imageIndex);
-	}
-	catch (const std::exception &err)
-	{
-		std::print("[RecordCommandBuffer] Error: {}", err.what());
-		return;
-	}
+	RecordCommandBuffer(p_renderData, m_imageIndex);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	
@@ -661,7 +661,7 @@ void Renderer::Draw(RenderData p_renderData)
 		m_swapchain.Cleanup(m_context.GetDevice());
 		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
 		m_depthBuffer = {
-			m_allocator.Get(),
+			m_shaderStorage.GetAllocator(),
 			m_context.GetDevice(),
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
