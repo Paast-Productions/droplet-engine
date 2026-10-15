@@ -1,4 +1,4 @@
-#include "Engine.hpp"
+#include <Engine.hpp>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
@@ -6,10 +6,11 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <algorithm>
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(Droplet::ResourceManager::Get()), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 
@@ -22,15 +23,14 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
+	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
+
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
-    
-    ThreadPool::GetInstance().Initialize();
-    
-    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
-    m_resourceManager.Initialize(assetDir);
+
+	ThreadPool::GetInstance().Initialize();
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -42,6 +42,14 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 Droplet::Engine::~Engine()
 {
 	ZoneScoped;
+
+	for (const auto &behaviour : m_behaviours)
+	{
+		if (auto *scriptBehaviour = dynamic_cast<Scene::ScriptBehaviour *>(behaviour.get()))
+		{
+			scriptBehaviour->AttachScript("");
+		}
+	}
 
 	m_renderer.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
@@ -65,21 +73,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
-
-
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
-#ifdef TRACY_ENABLE
-		ZoneNamedN(eventZone, "Event", true);
-
-		constexpr int eventStrMaxLen = 256;
-		char eventStrBuf[eventStrMaxLen]{};
-		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
-
-		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
-#endif
-
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -112,13 +108,30 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
+	for (const auto &behaviour : m_behaviours)
+	{
+		if (behaviour && behaviour->IsActive())
+		{
+			behaviour->PreUpdate();
+		}
+	}
+
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
+
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
 	{
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+	}
+
+	for (const auto &behaviour : m_behaviours)
+	{
+		if (behaviour && behaviour->IsActive())
+		{
+			behaviour->PostUpdate();
+		}
 	}
 
 	// Rendering
@@ -132,77 +145,90 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
-    m_resourceManager.Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Engine::GetWindow()
+SDL_Window *Droplet::Engine::GetWindow()
 {
 	// TODO: insert return statement here
 	return m_renderer.GetWindow();
 }
 
-Scene::SceneManager &Engine::GetSceneManager()
+Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
 }
 
-ResourceManager &Engine::GetResourceManager()
+ResourceManager &Droplet::Engine::GetResourceManager()
 {
-    return m_resourceManager;
+	return m_resourceManager;
 }
 
-Scene::ScriptBehaviour& Droplet::Engine::AddScriptBehaviour(const std::string& p_scriptPath)
+Scene::Behaviour &Droplet::Engine::AddBehaviour(const std::string &p_typeName)
 {
-	auto behaviour = std::make_unique<Scene::ScriptBehaviour>();
-	behaviour->AttachScript(p_scriptPath);
+	const auto &registry = Scene::BehaviourRegistry::GetRegistry();
+	const auto factory = registry.find(p_typeName);
+	if (factory == registry.end())
+	{
+		throw std::invalid_argument("Unknown behaviour type: " + p_typeName);
+	}
 
-	Scene::ScriptBehaviour &result = *behaviour;
-	m_scriptBehaviours.push_back(std::move(behaviour));
+	std::unique_ptr<Scene::Behaviour> behaviour = factory->second();
+	if (!behaviour)
+	{
+		throw std::runtime_error("Behaviour factory returned nullptr for: " + p_typeName);
+	}
 
+	behaviour->SetSceneManager(&m_sceneManager);
+	behaviour->Start();
+	Scene::Behaviour &result = *behaviour;
+	m_behaviours.push_back(std::move(behaviour));
 	return result;
 }
 
-void Droplet::Engine::RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour)
+void Droplet::Engine::RemoveBehaviour(Scene::Behaviour &p_behaviour)
 {
-	p_scriptBehaviour.DetachScript();
-	
-	auto it = std::remove_if(m_scriptBehaviours.begin(), m_scriptBehaviours.end(),
-		[&p_scriptBehaviour](const auto &behaviour)
+	const auto it = std::find_if(m_behaviours.begin(), m_behaviours.end(),
+		[&p_behaviour](const std::unique_ptr<Scene::Behaviour> &candidate)
 		{
-			return behaviour.get() == &p_scriptBehaviour;
+			return candidate.get() == &p_behaviour;
 		});
 
-	m_scriptBehaviours.erase(it, m_scriptBehaviours.end());
+	if (it == m_behaviours.end())
+	{
+		return;
+	}
+
+	// A script behaviour owns a ScriptSystem association keyed by its address.
+	// Detach it before destroying the object so the system cannot retain a stale pointer.
+	if (auto *scriptBehaviour = dynamic_cast<Scene::ScriptBehaviour *>(it->get()))
+	{
+		scriptBehaviour->AttachScript("");
+	}
+
+	m_behaviours.erase(it);
 }
 
-const std::vector<std::unique_ptr<Scene::ScriptBehaviour>>& Droplet::Engine::GetScriptBehaviours() const
+const std::vector<std::unique_ptr<Droplet::Scene::Behaviour>> &Droplet::Engine::GetBehaviours() const
 {
-	return m_scriptBehaviours;
+	return m_behaviours;
 }
 
 void Droplet::Engine::AddEventListener(EventListener p_listener)
 {
-	ZoneScoped;
-
 	m_eventListeners.push_back(p_listener);
 }
-
 void Engine::RegisterBehaviours()
 {
-	ZoneScoped;
-
 	// Register engine behaviours
 	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
 {
-	ZoneScoped;
-
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });

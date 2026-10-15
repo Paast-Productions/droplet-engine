@@ -22,7 +22,7 @@ namespace Droplet::Scene
     {
     public:
 		Behaviour() = default;
-        ~Behaviour() = default;
+        virtual ~Behaviour() = default;
 
         /// @brief Gets the type name of the behaviour. 
         /// 
@@ -46,6 +46,12 @@ namespace Droplet::Scene
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void PostUpdate() {}
+
+        /// @brief Renders this behaviour's editor UI.
+        ///
+        /// The inspector calls this public wrapper; derived behaviours provide
+        /// their controls by overriding RenderUIImpl().
+        void RenderUI() { RenderUIImpl(); }
 
         /// @brief Sets the SceneManager used by the Behaviour.
         ///
