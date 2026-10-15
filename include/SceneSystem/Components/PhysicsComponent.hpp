@@ -59,6 +59,12 @@ namespace Droplet
 		/// @throw std::runtime_error Mesh collider could not be created
 		void CreateCollider(JPH::ShapeSettings &p_shapeSettings);
 
+		/// @brief Sends transform changes from the game engine to Jolt
+		void PushTransformToPhysics();
+
+		/// @brief Applies the simulated Jolt transform to the Node Transform
+		void PullTransformFromPhysics();
+
 		bool m_hasShape = false;
 		Physics &m_physics;
 		Scene::Transform &m_transform;

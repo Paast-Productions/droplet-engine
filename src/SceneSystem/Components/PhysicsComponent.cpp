@@ -112,3 +112,38 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 
 	m_hasShape = true;
 }
+
+void Droplet::PhysicsComponent::PushTransformToPhysics()
+{
+	if (!m_hasShape)
+	{
+		return;
+	}
+
+	// TODO: Do this check outside this function
+	//if (m_transform.HasBeenChanged())
+	//{
+	//	PushTransformToPhysics();
+	//}
+
+	const JPH::Vec3 pos = GLMtoJPH(m_transform.GetPosition(Transform::Space::World));
+	const JPH::Quat rot = GLMtoJPH(m_transform.GetRotation(Transform::Space::World));
+
+	m_physics.GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+}
+
+void Droplet::PhysicsComponent::PullTransformFromPhysics()
+{
+	if (!m_hasShape)
+	{
+		return;
+	}
+
+	const JPH::RMat44 joltTransform = m_physics.GetBodyInterface()->GetWorldTransform(m_bodyID);
+
+	const glm::vec3 pos = JPHtoGLM(joltTransform.GetTranslation());
+	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
+
+	m_transform.SetPosition(pos);
+	m_transform.SetRotation(rot);
+}
