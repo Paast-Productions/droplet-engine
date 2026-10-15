@@ -5,6 +5,87 @@
 #include <Engine/Engine.hpp>
 #include <string>
 
+// imgui helper function
+
+namespace
+{
+    // Returns true if outGUID was changed this frame.
+    bool ResourceSlot(const char *p_label,
+        Droplet::GUID p_current,
+        Droplet::GUID &p_pickBuffer,
+        Droplet::GUID &p_outGUID)
+    {
+        using namespace ImGui;
+        bool changed = false;
+
+        PushID(p_label);
+        TableNextRow();
+        TableNextColumn();
+        AlignTextToFramePadding();
+        TextUnformatted(p_label);
+        TableNextColumn();
+
+        const float clearW = GetFrameHeight();
+        const float gap = GetStyle().ItemSpacing.x;
+
+        const std::string text = p_current != 0
+            ? "GUID: " + std::to_string(p_current)
+            : "None (drop resource here)";
+
+        if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
+        {
+            p_pickBuffer = p_current;
+            OpenPopup("pick");
+        }
+
+        // Drag & drop
+        if (BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *pl =
+                AcceptDragDropPayload(Droplet::Editor::PAYLOAD_RESOURCE.data()))
+            {
+                if (pl->DataSize == sizeof(Droplet::GUID))
+                {
+                    p_outGUID = *static_cast<const Droplet::GUID *>(pl->Data);
+                    changed = true;
+                }
+            }
+            EndDragDropTarget();
+        }
+
+        if (p_current != 0 && IsItemHovered())
+            SetTooltip("GUID: %llu", static_cast<unsigned long long>(p_current));
+
+        // Clear button
+        SameLine();
+        BeginDisabled(p_current == 0);
+        if (Button("X", ImVec2(clearW, clearW)))
+        {
+            p_outGUID = 0;
+            changed = true;
+        }
+        EndDisabled();
+
+        // Manual GUID popup
+        if (BeginPopup("pick"))
+        {
+            InputScalar("GUID", ImGuiDataType_U64, &p_pickBuffer);
+            if (Button("Assign"))
+            {
+                p_outGUID = p_pickBuffer;
+                changed = true;
+                CloseCurrentPopup();
+            }
+            SameLine();
+            if (Button("Cancel")) CloseCurrentPopup();
+            EndPopup();
+        }
+
+        PopID();
+        return changed;
+    }
+}
+
 using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
@@ -14,67 +95,31 @@ MeshComponent::MeshComponent() : m_bounds(this)
 
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-	//TODO: will be inplemted later when the mesh system is implemented
+    //TODO: will be inplemted later when the mesh system is implemented
 }
 
 void MeshComponent::RenderUIImpl()
 {
-    using namespace Droplet::Editor;
     using namespace ImGui;
-
     auto &resourceManager = Droplet::ResourceManager::Get();
 
-    // Mesh drop target
-    const Droplet::GUID meshGUID = m_mesh.GetGUID();
-    const std::string meshLabel =
-        meshGUID != 0
-        ? "Mesh: " + std::to_string(meshGUID)
-        : "Drop Mesh Here";
-
-    Button(meshLabel.c_str(), ImVec2(-1.0f, 40.0f));
-
-    if (BeginDragDropTarget())
+    PushID(this);
+    if (BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
     {
-        if (const ImGuiPayload *payload =
-            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-        {
-            if (payload->DataSize == sizeof(Droplet::GUID))
-            {
-                const auto guid =
-                    *static_cast<const Droplet::GUID *>(payload->Data);
+        TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+        TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-                SetMeshGUID(guid, resourceManager);
-            }
-        }
+        Droplet::GUID newGUID = C_INVALID_GUID;
 
-        EndDragDropTarget();
+        if (ResourceSlot("Mesh", m_mesh.GetGUID(), m_meshPickGUID, newGUID))
+            SetMeshGUID(newGUID, resourceManager);
+
+        if (ResourceSlot("Texture", m_2dTexture.GetGUID(), m_texturePickGUID, newGUID))
+            SetTextureGUID(newGUID, resourceManager);
+
+        EndTable();
     }
-
-    // Texture drop target
-    const Droplet::GUID textureGUID = m_2dTexture.GetGUID();
-    const std::string textureLabel =
-        textureGUID != 0
-        ? "Texture: " + std::to_string(textureGUID)
-        : "Drop Texture Here";
-
-    Button(textureLabel.c_str(), ImVec2(-1.0f, 40.0f));
-
-    if (BeginDragDropTarget())
-    {
-        if (const ImGuiPayload *payload =
-            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-        {
-            if (payload->DataSize == sizeof(Droplet::GUID))
-            {
-                const auto guid =
-                    *static_cast<const Droplet::GUID *>(payload->Data);
-
-                SetTextureGUID(guid, resourceManager);
-            }
-        }
-
-        EndDragDropTarget();
-    }
+    PopID();
 }
 
 void MeshComponent::SetMeshGUID(
