@@ -50,15 +50,20 @@ project "Scripting-Main"
         "tracy"
     }
 
-    links {
+    links 
+    {
         "Engine",
         "ImGui",
+        "ImGuizmo",
+        "VulkanMemoryAllocator",
         "tracy",
-        "lua-5.4.7",
-        "winmm",
-        "gdi32",
-        "shell32",
+        "IconFontCppHeaders",
+        "PortableFileDialogs",
         AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
+		AddQuotation("lua-5.4.7")
     }
