@@ -1,4 +1,4 @@
-#include <Engine.hpp>
+#include "Engine.hpp"
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
@@ -9,7 +9,7 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(Droplet::ResourceManager::Get()), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 
@@ -28,8 +28,17 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
+    
+    ThreadPool::GetInstance().Initialize();
+    
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    m_resourceManager.Initialize(assetDir);
 
-	ThreadPool::GetInstance().Initialize();
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 Droplet::Engine::~Engine()
@@ -46,11 +55,6 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
-	// Register engine behaviours
-	RegisterBehaviours();
-
-	// Register engine components
-	RegisterComponents();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
@@ -66,6 +70,16 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+#ifdef TRACY_ENABLE
+		ZoneNamedN(eventZone, "Event", true);
+
+		constexpr int eventStrMaxLen = 256;
+		char eventStrBuf[eventStrMaxLen]{};
+		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+
+		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
+
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -98,19 +112,14 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	// TODO: Call behaviour pre-update
-
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
-
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
 	{
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 	}
-
-	// TODO: Call behaviour post-update
 
 	// Rendering
 	m_renderer.Draw(TODO);
@@ -123,21 +132,52 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
+    m_resourceManager.Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
+<<<<<<< HEAD
+=======
+SDL_Window *Engine::GetWindow()
+{
+	// TODO: insert return statement here
+	return m_renderer.GetWindow();
+}
+
+Scene::SceneManager &Engine::GetSceneManager()
+{
+	return m_sceneManager;
+}
+
+ResourceManager &Engine::GetResourceManager()
+{
+    return m_resourceManager;
+}
+
+void Engine::AddEventListener(EventListener p_listener)
+{
+	ZoneScoped;
+
+	m_eventListeners.push_back(p_listener);
+}
+
+>>>>>>> feature/editor/main
 void Engine::RegisterBehaviours()
 {
+	ZoneScoped;
+
 	// Register engine behaviours
-	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_shared<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
 {
+	ZoneScoped;
+
 	// Register engine components
-	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_shared<Scene::MeshComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_shared<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 }

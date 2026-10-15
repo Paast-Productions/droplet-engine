@@ -579,6 +579,23 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 	MakeDirty();
 }
 
+void Transform::TransformByMatrix(const glm::mat4 &p_matrix, Space p_space)
+{
+	// If the requested space is world space, but the transform has no parent, treat it as local space.
+	if (p_space == Space::World)
+	{
+		if (!HasParent())
+		{
+			p_space = Space::Local;
+		}
+	}
+
+	SetMatrix(GetMatrix(p_space) * p_matrix, p_space);
+
+	ValidateRotation();
+	MakeDirty();
+}
+
 void Transform::ValidateRotation()
 {
 	m_rotation = glm::normalize(m_rotation);

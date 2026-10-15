@@ -10,6 +10,7 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <Engine/EngineFlags.hpp>
@@ -53,17 +54,11 @@ namespace Droplet
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow() { return m_renderer.GetWindow(); }
 
-		/// @brief 
-		/// HACK HACK HACK 
-		/// DO NOT USE THIS FUNCTION, IT WILL BE REMOVED VERY SOON.
-		/// IT ONLY EXISTS TO MAKE SURE TEMPORARY IMGUI CODE IN MAIN CAN RUN. 
-		/// HACK HACK HACK
-		/// @return Renderer
-		[[nodiscard]] Graphics::Renderer &TEMP_GetRenderer() { return m_renderer; }
-
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
+
+		[[nodiscard]] ResourceManager &GetResourceManager();
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -97,6 +92,9 @@ namespace Droplet
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief The resource manager instance, should only be one.
+		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo {};

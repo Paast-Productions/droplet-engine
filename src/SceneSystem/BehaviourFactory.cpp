@@ -4,7 +4,7 @@
 
 using namespace Droplet::Scene;
 
-std::shared_ptr<Behaviour> BehaviourFactory::CreateBehaviour(const std::string &name)
+std::unique_ptr<Behaviour> BehaviourFactory::CreateBehaviour(const std::string &name)
 {
 	auto &registry = BehaviourRegistry::GetRegistry();
 

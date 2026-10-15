@@ -1,7 +1,7 @@
 #include "ScriptSystem.hpp"
 #include "LuaBindings.hpp"
 
-#include <print>
+#include <Engine/EngineFlags.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
@@ -32,7 +32,12 @@ void ScriptSystem::Update(float p_deltaTime)
 	ZoneScoped;
 
 	m_scriptManager.Update(p_deltaTime);
-	m_scriptManager.CheckForFileChanges();
+
+	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		m_scriptManager.CheckForFileChanges();
+	}
 }
 
 void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
@@ -122,6 +127,11 @@ void ScriptSystem::DetachBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
 void ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
 	m_scriptManager.SetScriptDirectory(p_directoryPath);
+}
+
+std::string ScriptSystem::GetScriptPath()
+{
+	return m_scriptManager.GetScriptDirectory();
 }
 
 void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)

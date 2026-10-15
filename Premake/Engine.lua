@@ -6,8 +6,10 @@ project "Engine"
     defines{
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
+		"TRACY_FIBERS",
+		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")

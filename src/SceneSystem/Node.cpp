@@ -253,29 +253,63 @@ void Droplet::Scene::Node::SetName(const std::string &p_name)
     m_name = p_name;
 }
 
+void Node::AddComponent(std::unique_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add nullptr Component.");
+	}
+
+    p_component->SetOwner(shared_from_this());
+
+    m_components.push_back(std::move(p_component));
+	std::shared_ptr<Component> addedComponent = m_components.back();
+
+    // Check if the component being added provides bounds override.
+    if (addedComponent->HasBoundsOverride())
+    {
+        if (m_boundsOverride.expired())
+        {
+		    m_boundsOverride = addedComponent;
+        }
+    }
+
+    if (m_started)
+    {
+        addedComponent->Start();
+	}
+}
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
 {
     return m_components;
 }
 
-void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
+void Node::RemoveComponent(const Component *p_component)
 {
     if (!p_component)
     {
         throw std::invalid_argument("Cannot remove nullptr Component.");
     }
 
-    auto it = std::find(m_components.begin(), m_components.end(), p_component);
+    int index = 0;
+    for (index = 0; index < m_components.size(); ++index)
+    {
+        if (m_components[index].get() == p_component)
+        {
+            break;
+        }
+    }
 
-    if (it == m_components.end())
+    if (index == m_components.size())
     {
         throw std::runtime_error("Cannot remove Component: Component is not attached to Node '" + m_name + "'.");
     }
 
     // Check if the component being removed provides the current bounds override.
-    const bool isBoundsOverride = (p_component == m_boundsOverride);
+    const bool isBoundsOverride = (p_component == m_boundsOverride.lock().get());
 
-    m_components.erase(it);
+    m_components.erase(m_components.begin() + index);
 
     // If the removed component was the bounds override, find another one.
     if (isBoundsOverride)
@@ -293,14 +327,22 @@ void Node::RemoveComponent(const std::shared_ptr<Component> &p_component)
     }
 }
 
-std::shared_ptr<NodeBounds> Node::GetBounds() const
+const NodeBounds *Node::GetBounds() const
 {
-    if (m_boundsOverride)
+    if (!m_boundsOverride.expired())
     {
-        return m_boundsOverride->GetBounds();
+		Component *overrideComponent = m_boundsOverride.lock().get();
+
+		assert(overrideComponent != nullptr && "Bounds override component is null.");
+
+		const NodeBounds *boundsOverride = overrideComponent->GetBounds();
+
+		assert(boundsOverride != nullptr && "Bounds override is null.");
+
+        return boundsOverride;
     }
 
-    return m_bounds;
+	return m_bounds.get();
 }
 
 void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
@@ -347,5 +389,17 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
         parent = parent->GetParent();
     }
 
+    return false;
+}
+
+bool Node::IsRenderable() const
+{
+    for (const auto &component : m_components)
+    {
+        if (component && component->IsRenderable())
+        {
+            return true;
+        }
+    }
     return false;
 }
