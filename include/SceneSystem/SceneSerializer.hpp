@@ -11,6 +11,8 @@
 namespace Droplet::Scene
 {
 
+	class SerializationContext;
+
 	/// @brief Serializes a scene
 	///
 	/// Scene Serializer is supposed to take in a scene and serialize it into a single json
@@ -33,7 +35,7 @@ namespace Droplet::Scene
 		/// @param p_sceneManager The scenemanager that is supposed to load the scene
 		void DeserializeScene(const nlohmann::json& p_json,std::shared_ptr<Scene> p_scene);
 
-	private:
+	
 
 		/// @brief Serializes a node
 		/// @param p_node The node you want to serialize
@@ -44,13 +46,14 @@ namespace Droplet::Scene
 		/// @param p_json the saved node saved as a json
 		/// @param p_parentNode The parentnode that is the owner of this node
 		/// @param p_scene The scene the node belongs to
-		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
-
+		//void DeserializeNode(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
+		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext &p_context);
+	private:
 		/// @brief Desereliazes Components,
 		/// It needs to check the components type to be able to either deserialize them here or call their own deserializations
 		/// @param p_json The component saved as a json
 		/// @param p_node the node this component is attached to
-		void DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node);
+		void DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, SerializationContext& p_context);
 
 		/// @brief Serializes a transform, saves it as position rotation and scale
 		/// @param p_transform The transform that is being serialized

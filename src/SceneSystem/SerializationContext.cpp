@@ -1,4 +1,6 @@
 #include "SceneSystem/SerializationContext.hpp"
+#include "SceneSystem/Node.hpp"
+#include "SceneSystem/Component.hpp"
 
 using namespace Droplet::Scene;
 

@@ -137,9 +137,64 @@ public:
         json["type"] = "PlayerComponent";
         return json;
     }
+
+    void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
+    {
+
+    }
+
 };
+// --------------------------------------------------
+// Another Example Component
+// --------------------------------------------------
+class EnemyComponent :public Component
+{
+public:
+    std::string_view GetTypeName() const override { return "EnemyComponent"; }
+    void Start() override
+    {
+        std::cout << "EnemyComponent started\n";
+    }
+    void Update(float p_deltaTime) override
+    {
+        std::cout
+            << "EnemyComponent updating: "
+            << p_deltaTime
+            << " seconds\n";
+    }
 
+    nlohmann::json SerializeImpl() override
+    {
+        nlohmann::json json;
+        json["Sound"] = "Raaah";
+        json["referenceNodeID"] = GetTarget()->GetOwner()->GetID();
+        json["referenceComponentID"] = GetTarget()->GetID();
+        
+        
+        return json;
+    }
 
+    void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
+    {
+
+    }
+
+    void SetTarget(Component *p_target)
+    {
+        m_target.SetTarget(p_target);
+    }
+    Component *GetTarget()
+    {
+        return m_target.resolvedObject;
+    }
+
+    SceneObjectID GetTargetID()
+    {
+        return m_target.serializedID;
+    }
+private:
+    SceneReference<Component> m_target;
+};
 // --------------------------------------------------
 // Main
 // --------------------------------------------------
@@ -214,16 +269,21 @@ int main()
     ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_shared<ScriptComponent>(); });
     ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_shared<PlayerComponent>(); });
     ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_shared<MeshComponent>(); });
+    ComponentRegistry::RegisterComponent("EnemyComponent", []() { return std::make_shared<EnemyComponent>(); });
 
     // ==================================================
     // Add Components
     // ==================================================
 
-    //player->AddComponent<PlayerComponent>();
+
+    auto playerComp = player->AddComponent<PlayerComponent>();
+    auto enemyComp = enemy->AddComponent<EnemyComponent>();
+
+    enemyComp->SetTarget(playerComp.get());
 
     player->AddComponent<MeshComponent>();
-
-    enemy->AddComponent<MeshComponent>();
+    
+    
 
     player->AddComponent<ScriptComponent>();
 

@@ -315,7 +315,7 @@ namespace Droplet::Scene
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
 
-        std::uint32_t m_nextComponentID = 1;
+        std::uint64_t m_nextComponentID = 1;
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 

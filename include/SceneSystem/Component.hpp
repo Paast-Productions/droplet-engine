@@ -4,6 +4,7 @@
 #include <memory>
 #include <string_view>
 
+//#include <SceneSystem/SerializationContext.hpp> 
 #include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Scene
@@ -104,6 +105,8 @@ namespace Droplet::Scene
 		/// @return A shared pointer to the owning Node, or nullptr if the
         [[nodiscard]] bool IsActiveSelf() const { return m_active; }
 
+        //virtual void ResolveReferences(SerializationContext &p_context);
+
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
@@ -133,7 +136,7 @@ namespace Droplet::Scene
 		bool m_active = true;
 
         std::weak_ptr<Node> m_owner{};
-        std::uint32_t m_id = 0;
+        std::uint64_t m_id = 0;
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when

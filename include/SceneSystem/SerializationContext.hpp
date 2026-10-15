@@ -3,13 +3,13 @@
 #include <json/json.hpp>
 
 #include <SceneSystem/Scene.hpp>
-#include <SceneSystem/Node.hpp>
-#include "Components/ScriptComponent.hpp"
-#include "Components/MeshComponent.hpp"
+
 #include "Debug/Logger.hpp"
 
 namespace Droplet::Scene
 {
+	class Node;
+	class Component;
 
 	class SerializationContext
 	{

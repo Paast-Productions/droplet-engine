@@ -7,9 +7,10 @@
 #include <vector>
 #include <SceneSystem/Octree.hpp>
 
+/// @brief Scene Object ID, used to locate a component attached to a node
 struct SceneObjectID {
-    std::uint32_t nodeID = 0;
-    std::uint32_t componentID = 0;
+    std::uint64_t nodeID = 0;
+    std::uint64_t componentID = 0;
 };
 
 /// @brief The scene reference is used for components to be able to reference other nodes or components in the scene
@@ -23,7 +24,7 @@ struct SceneReference {
     {
         resolvedObject = p_target;
         serializedID = {};
-    }
+    } 
 };
 
 namespace Droplet::Scene
