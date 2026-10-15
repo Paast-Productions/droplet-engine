@@ -466,7 +466,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
 	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
-	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_descriptorSets[m_frameIndex], nullptr);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -817,12 +817,12 @@ void Renderer::CreateTextureSampler()
 	}
 }*/
 
-//static void CheckVkResult(VkResult p_err)
-//{
-//	if (p_err == VK_SUCCESS)
-//		return;
-//	throw ("[vulkan] Error: VkResult = %d\n", p_err);
-//}
+static void CheckVkResult(VkResult p_err)
+{
+	if (p_err == VK_SUCCESS)
+		return;
+	throw ("[vulkan] Error: VkResult = %d\n", p_err);
+}
 
 void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 {

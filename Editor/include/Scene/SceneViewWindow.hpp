@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 #include <vector>
 #include <memory>
 #include <Ray.hpp>
@@ -27,7 +27,7 @@ namespace Droplet::Editor::Scene
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
-		void InitImpl() override { SetName("Scene View"); ToggleToolbar(true); }
+		void InitImpl() override;
 
 		void RenderToolbar() override;
 

@@ -76,13 +76,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	engine->GetSceneManager().LoadScene("TestScene"); // HACK
 
+
+	Droplet::Editor::EditorContext editorContext(engine->GetRenderer());
+
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
 
 	HierarchyWindow hierarchyWindow(engine, interactionState);
 	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
 	ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
-	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
+	Scene::SceneViewWindow sceneViewWindow(engine, &editorContext);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
@@ -92,10 +95,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	FrameMark;
 
-	Droplet::Editor::EditorContext editorContext(rend);
-	Droplet::Editor::Scene::SceneViewWindow sceneView(&editorContext);
+	//Droplet::Editor::Scene::SceneViewWindow sceneView(&editorContext);
 
-	sceneView.Init();
+	//sceneView.Init();
 
 	ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
@@ -123,7 +125,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
-		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
+		Droplet::DROPLET_RETURNTYPE returnType = engine->Update(editorContext.GetEditorCamera(), sceneViewWindow.GetRenderTarget());
 
 		switch (returnType)
 		{

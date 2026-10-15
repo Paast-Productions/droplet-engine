@@ -12,7 +12,7 @@ namespace Droplet::Editor::Scene
 	class EditorCamera : public Droplet::Graphics::Camera
 	{
 	public:
-		EditorCamera(InteractionState &p_interactionState) : m_interactionState(p_interactionState) {}
+		EditorCamera() = default;
 		~EditorCamera() = default;
 
 		/// @brief Updates the camera's state based on user input and other factors.
@@ -29,9 +29,6 @@ namespace Droplet::Editor::Scene
 	private:
 
 		// TODO: position, rotation, etc.
-
-		InteractionState &m_interactionState;
-
 		float m_fov = 45.0f;		// horizontal field of view in degrees
 		float m_aspect = 1.0f;		// width / height
 	};

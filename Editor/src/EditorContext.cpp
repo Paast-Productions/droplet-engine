@@ -3,7 +3,6 @@
 Droplet::Editor::EditorContext::EditorContext(Droplet::Graphics::Renderer &p_renderer)
 	: m_renderer(p_renderer),
 	  m_interactionState(),
-	  m_editorCamera(m_interactionState),
 	  m_editorCameraController(m_editorCamera){}
 
 void Droplet::Editor::EditorContext::SetScene(std::shared_ptr<Droplet::Scene::Scene> p_scene)
