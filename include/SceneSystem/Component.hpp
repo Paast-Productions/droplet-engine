@@ -115,6 +115,14 @@ namespace Droplet::Scene
         /// @return std::uint64_t m_id
         std::uint32_t GetID() const { return m_id; }
 
+
+        /// @brief Finds the correct node for the component with it's serializedID
+        /// 
+        /// This functions is used by components when they are deserialized,
+        /// after all nodes and components are created we lookup what id they had so the newly 
+        /// created node/component can be set as a target and more easily referenced
+        /// 
+        /// @param p_context The context that holds the mapping of newly deserialized nodes and components
         virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
 
     protected:
