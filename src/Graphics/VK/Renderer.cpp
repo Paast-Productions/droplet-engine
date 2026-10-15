@@ -22,7 +22,7 @@
 #include <Graphics/VK/TestData.hpp>
 #include <GameInput.hpp>
 
-
+#include <Graphics/VK/SceneAdapter.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -88,11 +88,11 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
 
+	VK::SceneAdapter::GetInstance().Initialize(m_context, m_commandPool, m_allocator, m_globalDescriptorSet);
 
 	std::array<vk::DescriptorPoolSize, 2> poolSizes
 	{
@@ -264,7 +264,7 @@ void Renderer::TransitionImageLayout(
 
 
 //Main drawing operations are here!
-void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK::RenderData p_renderData)
+void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
 	ZoneScoped;
 
@@ -316,7 +316,6 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK:
 		.clearValue = clearDepth 
 	};
 
-
 	vk::RenderingInfo renderingInfo 
 	{
 		.renderArea = 
@@ -334,6 +333,27 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK:
 		.pDepthAttachment = &depthAttachmentInfo 
 	};
 
+	const auto extent = m_swapchain.GetExtent();
+
+	float aspectRatio =
+		static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	VK::UniformBufferObject ubo
+	{
+		.view = m_camera.GetViewMatrix(),
+		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+	};
+
+	m_storageBuffer.UpdateBuffer(ubo);
+
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get(), 0);
+
+	VK::SceneAdapter &adapter = VK::SceneAdapter::GetInstance();
+
+	adapter.UpdateMaps(m_context, m_allocator, m_globalDescriptorSet);
+	VK::RenderData renderData = adapter.GetRenderData();
+
 	vk::PushConstantsInfo pcInfo
 	{
 		.sType = vk::StructureType::ePushConstantsInfo,
@@ -342,7 +362,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK:
 		.stageFlags = vk::ShaderStageFlagBits::eVertex,
 		.offset = 0,
 		.size = sizeof(Droplet::Graphics::VK::PushConstants),
-		.pValues = p_renderData.pushConstants.data()
+		.pValues = renderData.pushConstants.data()
 	};
 	
 	commandBuffer.beginRendering(renderingInfo);
@@ -351,12 +371,12 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex, Droplet::Graphics::VK:
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
 	commandBuffer.pushConstants2(pcInfo);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
-	for (size_t i = 0; i < p_renderData.meshData.size(); i++)
+	for (size_t i = 0; i < renderData.meshData.size(); i++)
 	{
-		commandBuffer.bindVertexBuffers(0, p_renderData.meshData[i].vertexBuffer, {0});
-		commandBuffer.bindIndexBuffer(p_renderData.meshData[i].indexBuffer, 0, vk::IndexType::eUint16);
+		commandBuffer.bindVertexBuffers(0, renderData.meshData[i].vertexBuffer, {0});
+		commandBuffer.bindIndexBuffer(renderData.meshData[i].indexBuffer, 0, vk::IndexType::eUint16);
 
-		commandBuffer.drawIndexed(p_renderData.meshData[i].indexCount, 1, 0, 0, 0);
+		commandBuffer.drawIndexed(renderData.meshData[i].indexCount, 1, 0, 0, 0);
 	}
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
@@ -465,21 +485,6 @@ void Renderer::DrawFrame()
 	ImGui::SliderFloat("Roration", &rotation, 0, 360);
 	ImGui::End();
 
-	const auto extent = m_swapchain.GetExtent();
-
-	float aspectRatio =
-		static_cast<float>(extent.width) /
-		static_cast<float>(extent.height);
-
-	VK::UniformBufferObject ubo
-	{
-		.model = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
-	};
-	
-	m_storageBuffer.UpdateBuffer(ubo);
-
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
@@ -487,7 +492,7 @@ void Renderer::DrawFrame()
 	ImGui::Render();
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	RecordCommandBuffer(m_imageIndex, p_renderData);
+	RecordCommandBuffer(m_imageIndex);
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	
