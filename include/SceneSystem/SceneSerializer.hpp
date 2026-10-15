@@ -53,7 +53,7 @@ namespace Droplet::Scene
 		/// It needs to check the components type to be able to either deserialize them here or call their own deserializations
 		/// @param p_json The component saved as a json
 		/// @param p_node the node this component is attached to
-		void DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, SerializationContext& p_context);
+		void DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, std::uint64_t p_serializedNodeID, SerializationContext& p_context);
 
 		/// @brief Serializes a transform, saves it as position rotation and scale
 		/// @param p_transform The transform that is being serialized

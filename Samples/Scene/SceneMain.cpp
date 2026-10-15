@@ -10,6 +10,7 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/SerializationContext.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
 #include "Core/IoManager.hpp"
 #include "GameInput.hpp"
@@ -166,9 +167,9 @@ public:
     nlohmann::json SerializeImpl() override
     {
         nlohmann::json json;
-        json["Sound"] = "Raaah";
-        json["referenceNodeID"] = GetTarget()->GetOwner()->GetID();
-        json["referenceComponentID"] = GetTarget()->GetID();
+        
+        json["reference"]["nodeid"] = GetTarget()->GetOwner()->GetID();
+        json["reference"]["componentid"] = GetTarget()->GetID();
         
         
         return json;
@@ -176,7 +177,33 @@ public:
 
     void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
     {
+        SceneObjectID targetID;
+        if (!p_compJson.contains("reference"))
+        {
+            throw std::runtime_error("Component missing field 'reference'");
+        }
+        nlohmann::json refJson = p_compJson["reference"];
 
+        if (!refJson.contains("nodeid"))
+        {
+            throw std::runtime_error("Reference missing field 'nodeid'");
+        }
+        if (!refJson.contains("componentid"))
+        {
+            throw std::runtime_error("Reference missing field 'componentid'");
+        }
+
+        targetID.nodeID = refJson["nodeid"];
+        targetID.componentID = refJson["componentid"];
+
+        m_target.SetSerializedID(targetID);
+        
+    }
+
+    void ResolveReferences(SerializationContext &p_context) override
+    {
+        auto comp = p_context.FindComponent(m_target.serializedID.nodeID, m_target.serializedID.componentID);
+        SetTarget(comp);
     }
 
     void SetTarget(Component *p_target)
@@ -275,7 +302,7 @@ int main()
     // Add Components
     // ==================================================
 
-
+    player->AddComponent<ScriptComponent>();
     auto playerComp = player->AddComponent<PlayerComponent>();
     auto enemyComp = enemy->AddComponent<EnemyComponent>();
 
@@ -316,6 +343,9 @@ int main()
     sceneManager.SerializeToFile(scene, "sceneJson.json");
     sceneManager.UnloadScene("Game");
     sceneManager.LoadFromFile("sceneJson.json");
+    auto loadedScene = sceneManager.GetScene("Game");
+    sceneManager.SerializeToFile(loadedScene, "sceneJson2.json");
+
     // ==================================================
     // Deactivate / unload
     // ==================================================

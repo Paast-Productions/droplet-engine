@@ -3,7 +3,7 @@
 #include <ImGui/imgui.h>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
-
+#include <SerializationContext.hpp>
 using namespace Droplet::Scene;
 
 std::shared_ptr<NodeBounds> Droplet::Scene::Component::GetBounds() const
@@ -84,4 +84,9 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
+}
+
+void Droplet::Scene::Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
+{
+
 }

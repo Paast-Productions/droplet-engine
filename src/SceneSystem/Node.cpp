@@ -245,7 +245,7 @@ void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> p_componen
 }
 
 
-void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> p_component, std::uint32_t p_componentID)
+void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID)
 {
     ZoneScoped;
 

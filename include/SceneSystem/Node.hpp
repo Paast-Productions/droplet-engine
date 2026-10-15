@@ -218,7 +218,7 @@ namespace Droplet::Scene
         ///       
         /// @param p_component The comoponent to be attached
         void AttachComponent(std::shared_ptr<Component> p_component); 
-        void AttachComponent(std::shared_ptr<Component> p_component, std::uint32_t p_componentID);
+        void AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///

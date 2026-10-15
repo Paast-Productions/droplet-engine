@@ -25,6 +25,12 @@ struct SceneReference {
         resolvedObject = p_target;
         serializedID = {};
     } 
+
+    void SetSerializedID(SceneObjectID p_id)
+    {
+        serializedID = p_id;
+        resolvedObject = nullptr;
+    }
 };
 
 namespace Droplet::Scene

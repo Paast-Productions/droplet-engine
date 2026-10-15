@@ -5,7 +5,7 @@
 using namespace Droplet::Scene;
 
 
-void SerializationContext::RegisterNode(std::uint32_t p_nodeID, Node *p_node)
+void SerializationContext::RegisterNode(std::uint64_t p_nodeID, Node *p_node)
 {
 	if (p_nodeID == 0 || p_node == nullptr)
 	{
@@ -20,7 +20,7 @@ void SerializationContext::RegisterNode(std::uint32_t p_nodeID, Node *p_node)
 	}
 }
 
-void Droplet::Scene::SerializationContext::RegisterCopmonent(std::uint32_t p_nodeID, std::uint32_t p_componentID, Component *p_component)
+void Droplet::Scene::SerializationContext::RegisterCopmonent(std::uint64_t p_nodeID, std::uint64_t p_componentID, Component *p_component)
 {
 	if (p_nodeID == 0 || p_componentID == 0 || p_component == nullptr)
 	{
@@ -32,9 +32,10 @@ void Droplet::Scene::SerializationContext::RegisterCopmonent(std::uint32_t p_nod
 	{
 		throw std::runtime_error("Duplicate Component ID on node");
 	}
+	m_registeredComponents.push_back(p_component);
 }
 
-Node *Droplet::Scene::SerializationContext::FindNode(std::uint32_t p_nodeID)
+Node *Droplet::Scene::SerializationContext::FindNode(std::uint64_t p_nodeID)
 {
 	const auto it = m_nodes.find(p_nodeID);
 
@@ -45,7 +46,7 @@ Node *Droplet::Scene::SerializationContext::FindNode(std::uint32_t p_nodeID)
 	return it->second;
 }
 
-Component *Droplet::Scene::SerializationContext::FindComponent(std::uint32_t p_nodeID, std::uint32_t p_componentID)
+Component *Droplet::Scene::SerializationContext::FindComponent(std::uint64_t p_nodeID, std::uint64_t p_componentID)
 {
 	const auto nodeIt = m_components.find(p_nodeID);
 
@@ -61,4 +62,12 @@ Component *Droplet::Scene::SerializationContext::FindComponent(std::uint32_t p_n
 	}
 
 	return componentIt->second;
+}
+
+void Droplet::Scene::SerializationContext::ResolveAllReferences()
+{
+	for (Component *component : m_registeredComponents)
+	{
+		component->ResolveReferences(*this);
+	}
 }

@@ -10,7 +10,7 @@
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
-
+    class SerializationContext;
     /// @brief Base class for components that can be attached to a Node.
     ///
     /// Components provide reusable functionality that can be added to Nodes
@@ -111,7 +111,12 @@ namespace Droplet::Scene
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
 
+        /// @brief Retrieves the components ID
+        /// @return std::uint64_t m_id
         std::uint32_t GetID() const { return m_id; }
+
+        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
+
     protected:
 		/// @brief Internal rendering function for the component's UI.
         /// 
