@@ -1,6 +1,7 @@
 #include "Resource/ResourceBrowser.hpp"
 #include "core/FileExplorer.hpp"
-#include "MetaUtils.hpp"
+#include "resource/meta/MetaUtils.hpp"
+#include "Editor/DragDropFields.hpp"
 
 #include <ImGui/imgui.h>
 #include <IconFontCppHeaders/IconsLucide.h>
@@ -23,46 +24,46 @@ void ResourceBrowser::RenderImpl()
     
     if (Button("Register Resource"))
     {
-        auto absPaths = FileExplorer::OpenFileDialog(true, m_engine->GetResourceManager().GetRootDirectory());
-        if (!absPaths.empty())
-        {
-            std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
-            std::filesystem::path destinationBrowserDir = m_currentBrowserPath.empty() ? assetRoot : m_currentBrowserPath;
-            
-            for (auto &absPath : absPaths)
-            {
-                std::filesystem::path relPath;
-                std::filesystem::path relPathTemp = absPath.lexically_relative(assetRoot); // Generate relative path
-                
-                if (relPathTemp.empty() || relPathTemp.string().starts_with("..") || relPathTemp.is_absolute())
-                {
-                    // The file is from outside the root asset dir -> Copy it
-                    std::filesystem::path destination = destinationBrowserDir / absPath.filename();
-                    std::filesystem::copy_file(absPath, destination, std::filesystem::copy_options::overwrite_existing);
-                    relPath = destination.lexically_relative(assetRoot);
-                }
-                else
-                {
-                    relPath = relPathTemp;
-                }
-                
-                m_engine->GetResourceManager().RegisterAsset(relPath,
-                    [this](const std::vector<MetaEntry>& entries)
-                    {
-                        m_registerPopupQueue.push(entries);
-                    }
-                );
-            }
-        }
+        RegisterAsset();
     }
     SameLine();
-    TextDisabled(m_engine->GetResourceManager().GetRootDirectory().string().c_str());
+    TextDisabled(std::filesystem::absolute(m_engine->GetResourceManager().GetRootDirectory()).string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
-    if (!m_registerPopupQueue.empty())
+    if (m_showUnsupportedPopup)
+    {
+        OpenPopup("Unsupported Assets");
+        m_showUnsupportedPopup = false;
+    }
+    
+    bool isUnsupportedPopupOpen = true;
+    if (BeginPopupModal("Unsupported Assets", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        Text("The following files are not supported:");
+        Spacing();
+        TextDisabled("%s", m_unsupportedFilesList.c_str());
+        Spacing();
+        Spacing();
+        
+        float buttonWidth = 100.0f;
+        SetCursorPosX(GetWindowWidth() - buttonWidth - GetStyle().WindowPadding.x);
+        if (Button("Ok", ImVec2(buttonWidth, 0)))
+        {
+            CloseCurrentPopup();
+        }
+    
+        EndPopup();
+    }
+    else
+    {
+        isUnsupportedPopupOpen = false;
+    }
+    
+    if (!m_registerPopupQueue.empty() && !isUnsupportedPopupOpen && !IsPopupOpen("Resource Settings"))
     {
         OpenPopup("Resource Settings");
+        m_selectedResourceGuid = C_INVALID_GUID;
     }
     
     if (BeginPopupModal("Resource Settings", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
@@ -104,7 +105,7 @@ void ResourceBrowser::RenderImpl()
         
         if (m_registerPopupQueue.size() > 1)
         {
-            TextDisabled("(%zu more files waiting...)", m_registerPopupQueue.size());
+            TextDisabled("(%zu more files waiting...)", m_registerPopupQueue.size() - 1);
         }
         
         EndPopup();
@@ -149,7 +150,7 @@ void ResourceBrowser::RenderImpl()
 	    // Draw go back item
 	    if (!m_currentBrowserPath.empty())
 	    {
-	        if (Selectable(ICON_LC_CORNER_LEFT_UP ".. (Parent Directory)", false, ImGuiSelectableFlags_AllowDoubleClick))
+	        if (Selectable(ICON_LC_CORNER_LEFT_UP "..", false, ImGuiSelectableFlags_AllowDoubleClick))
 	        {
 	            if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
 	            {
@@ -175,22 +176,68 @@ void ResourceBrowser::RenderImpl()
 	        }
 	    }
 	    
-	    // Draw files
+	    // Draw files and their resources
 	    for (auto &[childName, childNode] : currentNode->children)
 	    {
 	        if (!childNode.isDirectory)
 	        {
-	            // Multi resource file
+	            // --- Asset ---
 	            std::string fileLabel = ICON_LC_FILE " " + childName;
-	            if (TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow))
+	            bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow);
+	            
+	            // Asset drag source
+	            if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+	            {
+	                // Create list of resource payloads for this asset
+	                std::vector<ResourcePayload> payloads;
+	                payloads.reserve(childNode.resources.size());
+	                    
+	                for (const MetaEntry *entry : childNode.resources)
+	                {
+	                    ResourcePayload payload;
+	                    payload.guid = entry->guid;
+	                    payload.type = entry->type;
+	                    snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
+	                    payloads.push_back(payload);
+	                }
+	                    
+	                SetDragDropPayload(PAYLOAD_ASSET.data(), payloads.data(), payloads.size() * sizeof(ResourcePayload));
+	                TextDisabled("Asset: %s (%zu resources)", childName.c_str(), payloads.size());
+	                EndDragDropSource();
+	            }
+	            
+	            // Resources it contains
+	            if (isNodeOpen)
 	            {
 	                for (const MetaEntry *entry : childNode.resources)
 	                {
+	                    // --- Resource ---
 	                    bool isSelected = (m_selectedResourceGuid == entry->guid);
-	                    std::string resLabel = ICON_LC_PACKAGE " " + entry->name + " [" + ResourceTypeToString(entry->type) + "]";
+	                    std::string resLabel = ICON_LC_PACKAGE " " + entry->displayName + " [" + ResourceTypeToString(entry->type) + "]";
 	                    if (Selectable(resLabel.c_str(), isSelected))
 	                    {
-	                        m_selectedResourceGuid = isSelected ? C_INVALID_GUID : entry->guid;
+	                        if (isSelected)
+	                        {
+	                            m_selectedResourceGuid = C_INVALID_GUID;
+	                        }
+	                        else
+	                        {
+	                            m_selectedResourceGuid = entry->guid;
+	                            m_inspectedEntry = *entry;
+	                        }
+	                    }
+	                    
+	                    // Resource drag source
+	                    if (BeginDragDropSource())
+	                    {
+	                        ResourcePayload payload;
+	                        payload.guid = entry->guid;
+	                        payload.type = entry->type;
+	                        snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
+	                        
+	                        SetDragDropPayload(PAYLOAD_RESOURCE.data(), &payload, sizeof(ResourcePayload));
+	                        TextDisabled("Resource: %s", entry->displayName.c_str());
+	                        EndDragDropSource();
 	                    }
 	                }
 	                TreePop();
@@ -207,18 +254,32 @@ void ResourceBrowser::RenderImpl()
 	{
 		if (m_selectedResourceGuid != C_INVALID_GUID)
 		{
-			for (const MetaEntry *entry : resources)
-			{
-			    if (entry->guid == m_selectedResourceGuid)
-			    {
-			        MetaEntry modifiedEntry = *entry;
-			        if (DrawResourceSettings(modifiedEntry))
-			        {
-			            // TODO: This has to keep retrying until it returns true somehow
-			            m_engine->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, modifiedEntry, true);
-			        }
-			    }
-			}
+		    for (const MetaEntry *entry : resources)
+		    {
+		        if (entry->guid == m_selectedResourceGuid)
+		        {
+		            DrawResourceSettings(m_inspectedEntry);
+		            
+		            bool isDirty = (m_inspectedEntry != *entry);
+		            if (isDirty)
+		            {
+		                Spacing();
+		                Separator();
+		                Spacing();
+		        
+		                if (Button("Revert", ImVec2(100, 0)))
+		                {
+                            m_inspectedEntry = *entry; // Reset to the original
+		                }
+		                SameLine();
+		                if (Button("Apply", ImVec2(100, 0)))
+		                {
+		                    m_engine->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true);
+		                }
+		            }
+		            break;
+		        }
+		    }
 		}
 	}
 	EndChild();
@@ -261,70 +322,16 @@ void ResourceBrowser::BuildBrowserTree(const std::vector<const MetaEntry *> &p_r
     }
 }
 
-void ResourceBrowser::DrawBrowserNode(BrowserNode &p_node)
+void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 {
     using namespace ImGui;
-    
-    if (p_node.isDirectory)
-    {
-        // Draw directory
-        if (TreeNodeEx(p_node.name.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow))
-        {
-            for (auto &[childName, childNode] : p_node.children)
-            {
-                DrawBrowserNode(childNode);
-            }
-            
-            TreePop();
-        }
-    }
-    else
-    {
-        // Draw asset file
-        if (p_node.resources.size() == 1)
-        {
-            // Singe resource asset
-            const MetaEntry *entry = p_node.resources[0];
-            bool isSelected = (m_selectedResourceGuid == entry->guid);
-            std::string label = p_node.name + " [" + ResourceTypeToString(entry->type) + "]";
-            if (Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
-            {
-                m_selectedResourceGuid = isSelected ? C_INVALID_GUID : entry->guid;
-            }
-        }
-        else if (p_node.resources.size() > 1)
-        {
-            // Multi resource asset
-            if (TreeNodeEx(p_node.name.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow))
-            {
-                for (const MetaEntry *entry : p_node.resources)
-                {
-                    bool isSelected = (m_selectedResourceGuid == entry->guid);
-                    std::string label = p_node.name + " [" + ResourceTypeToString(entry->type) + "]";
-                    if (Selectable(label.c_str(), isSelected, ImGuiSelectableFlags_SpanAllColumns))
-                    {
-                        m_selectedResourceGuid = isSelected ? C_INVALID_GUID : entry->guid;
-                    }
-                }
-                
-                TreePop();
-            }
-        }
-    }
-}
-
-bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
-{
-    using namespace ImGui;
-    
-    bool settingsChanged = false;
     
     // Name change here
     char nameBuffer[256];
-    strncpy_s(nameBuffer, p_entry.name.c_str(), sizeof(nameBuffer));
+    snprintf(nameBuffer, sizeof(nameBuffer),"%s", p_entry.displayName.c_str());
     if (InputText("##ResourceName", nameBuffer, sizeof(nameBuffer)))
     {
-        p_entry.name = std::string(nameBuffer);
+        p_entry.displayName = std::string(nameBuffer);
     }
     
     Text("GUID:", p_entry.guid);
@@ -344,7 +351,6 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
             if (Checkbox(desc.key.c_str(), &val))
             {
                 p_entry.loadSettings[desc.key] = val;
-                settingsChanged = true;
             }
         }
         else if (desc.type == MetaLoadSettings::Type::Int)
@@ -353,7 +359,6 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
             if (InputInt(desc.key.c_str(), &val))
             {
                 p_entry.loadSettings[desc.key] = val;
-                settingsChanged = true;
             }
         }
         else if (desc.type == MetaLoadSettings::Type::Float)
@@ -362,18 +367,16 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
             if (InputFloat(desc.key.c_str(), &val))
             {
                 p_entry.loadSettings[desc.key] = val;
-                settingsChanged = true;
             }
         }
         else if (desc.type == MetaLoadSettings::Type::String)
         {
             std::string val = p_entry.loadSettings[desc.key].get<std::string>();
             char buffer[512]; 
-            strncpy_s(buffer, val.c_str(), sizeof(buffer));
+            snprintf(buffer, sizeof(buffer), "%s", val.c_str());
             if (InputText(desc.key.c_str(), buffer, sizeof(buffer)))
             {
                 p_entry.loadSettings[desc.key] = std::string(buffer);
-                settingsChanged = true;
             }
         }
         else if (desc.type == MetaLoadSettings::Type::Enum)
@@ -397,7 +400,6 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
                     if (Selectable(desc.enumOptions[i].c_str(), isSelected))
                     {
                         p_entry.loadSettings[desc.key] = i;
-                        settingsChanged = true;
                     }
                     
                     if (isSelected)
@@ -412,8 +414,76 @@ bool ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
     }
     
     // TODO: Dependency modifications should go here when we start using that
-    
-    return settingsChanged;
+}
+
+void ResourceBrowser::RegisterAsset()
+{
+    auto absPaths = FileExplorer::OpenFileDialog(true, m_engine->GetResourceManager().GetRootDirectory());
+    if (!absPaths.empty())
+    {
+        std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
+        std::filesystem::path normAssetRoot = std::filesystem::weakly_canonical(assetRoot);
+        
+        std::filesystem::path destinationBrowserDir = normAssetRoot;
+        if (!m_currentBrowserPath.empty())
+        {
+            destinationBrowserDir /= m_currentBrowserPath;
+        }
+        
+        m_unsupportedFilesList.clear(); // Clear previous
+            
+        for (auto &absPath : absPaths)
+        {
+            if (!m_engine->GetResourceManager().IsAssetSupported(absPath))
+            {
+                m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
+                continue;
+            }
+            
+            std::filesystem::path relPath;
+            
+            // Normalize to be case-insensitive
+            std::filesystem::path normAbsPath = std::filesystem::weakly_canonical(absPath);
+            
+            // Check if it's already in the directory
+            std::filesystem::path relPathTemp = normAbsPath.lexically_relative(normAssetRoot); // Generate relative path
+            if (relPathTemp.empty() || relPathTemp.string().starts_with("..") || relPathTemp.is_absolute())
+            {
+                // The file is from outside the root asset dir -> Copy it
+                std::filesystem::path destination = destinationBrowserDir / normAbsPath.filename();
+                std::filesystem::create_directories(destination.parent_path()); // Create in case it's been deleted
+                
+                std::error_code ec;
+                std::filesystem::copy_file(normAbsPath, destination, std::filesystem::copy_options::overwrite_existing, ec);
+                if (ec)
+                {
+                    // TODO: Log error
+                    continue;
+                }
+                
+                relPath = destination.lexically_relative(normAssetRoot);
+            }
+            else
+            {
+                relPath = relPathTemp;
+            }
+            
+            m_engine->GetResourceManager().RegisterAsset(relPath,
+                [this](bool p_succeeded, const std::vector<MetaEntry>& entries)
+                {
+                    if (p_succeeded && !entries.empty())
+                    {
+                        m_registerPopupQueue.push(entries);
+                    }
+                }
+            );
+        }
+        // Show popup if any of the files were unsupported
+        if (!m_unsupportedFilesList.empty())
+        {
+            m_showUnsupportedPopup = true;
+        }
+    }
 }
 
 std::string ResourceBrowser::ResourceTypeToString(ResourceType p_type)

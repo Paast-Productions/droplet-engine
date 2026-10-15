@@ -54,8 +54,11 @@ namespace Droplet
         std::filesystem::path relAssetPath;
         std::filesystem::path absoluteMetaPath;
         std::vector<std::pair<ResourceType, std::string>> foundResources;
-        std::function<void(const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
+        bool succeeded = false;
+        std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
     };
+    
+    using AssetScannerFunc = std::vector<std::pair<ResourceType, std::string>>(*)(const std::filesystem::path &);
 
     /// @brief Universal resource manager class.
     class ResourceManager
@@ -90,7 +93,8 @@ namespace Droplet
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
         /// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
-        void RegisterAsset(const std::filesystem::path &p_relAssetPath, std::function<void(const std::vector<MetaEntry>&)> p_onComplete = nullptr);
+        void RegisterAsset(const std::filesystem::path &p_relAssetPath, 
+            std::function<void(bool p_success, const std::vector<MetaEntry>&)> p_onComplete = nullptr);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
@@ -207,6 +211,17 @@ namespace Droplet
             };
         }
 
+        /// @brief Registers a scanner function to a list of extensions.
+        /// @param p_extensions The list of file extensions the scanner supports.
+        /// @param p_scanFunc The scanner function to be used for given file extensions.
+        void RegisterAssetScanner(const std::vector<std::string> &p_extensions, AssetScannerFunc p_scanFunc);
+
+        /// @brief Checks if the asset extension has a registered scanner. This function should be called before
+        /// attempting to register an asset.
+        /// @param p_path The path to the asset file.
+        /// @return True if the file's extension has a scanner registered, otherwise false.
+        [[nodiscard]] bool IsAssetSupported(const std::filesystem::path &p_path);
+
         /// @brief Gets the raw resource stored in the internal cache specified by a GUID. If the guid does not reference
         /// a registered resource, a fallback resource of the requested type will be returned instead.
         /// @tparam T The resource type.
@@ -257,7 +272,7 @@ namespace Droplet
             ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
             {
                 std::filesystem::path absAssetPath = m_rootDirectory / p_metaEntry.relAssetPath;
-                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.loadSettings);
+                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.sourceName, p_metaEntry.loadSettings);
                                 
                 AsyncLoadResult res;
                 res.succeeded = (loadedResource != nullptr);
@@ -271,10 +286,13 @@ namespace Droplet
         
         bool m_isInitialized = false;
         std::filesystem::path m_rootDirectory; // Absolute path to the root directory
+        
         ResourceRegistry m_registry;
         std::unordered_map<GUID, LiveResource> m_liveResources;
+        
         std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
         std::unordered_map<ResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
+        std::unordered_map<std::string, AssetScannerFunc> m_assetScanners;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
