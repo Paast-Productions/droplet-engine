@@ -9,6 +9,7 @@
 
 namespace Droplet
 {
+	/// @brief A physics component for some shape
 	class PhysicsComponent
 	{
 	public:
@@ -37,6 +38,14 @@ namespace Droplet
 		/// @brief Set a mesh collider
 		/// @param p_mesh The mesh resource to make a collider of
 		void SetMeshCollider(const std::shared_ptr<Droplet::MeshResource> p_mesh);
+
+		/// @brief Set the motion type of a physics body
+		/// @param p_motionType The motion type to be set
+		void SetMotionType(const JPH::EMotionType p_motionType);
+
+		/// @brief Set what the physics body can collide with
+		/// @param p_objectLayer The object layer to be set
+		void SetObjectLayer(const Layers p_objectLayer);
 
 	private:
 		/// @brief Helper function for creating collider body

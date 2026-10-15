@@ -4,7 +4,7 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
-#include <Jolt\Physics\Body\BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
 
 using namespace Droplet::Scene;
 
@@ -80,6 +80,16 @@ void Droplet::PhysicsComponent::SetMeshCollider(const std::shared_ptr<Droplet::M
 
 	JPH::MeshShapeSettings meshSettings(std::move(joltVertices), std::move(triangles));
 	CreateCollider(meshSettings);
+}
+
+void Droplet::PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
+{
+	m_physics.GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
+}
+
+void Droplet::PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
+{
+	m_physics.GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
 }
 
 void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
