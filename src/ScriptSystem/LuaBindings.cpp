@@ -466,6 +466,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
             return p_vec1 + p_float;
         });
 
+    glm.set_function("V2SubF",
+        [](glm::vec2 p_vec1, float p_float) {
+            return p_vec1 - p_float;
+        });
+
     glm.set_function("V2MulF",
         [](glm::vec2 p_vec1, float p_float) {
             return p_vec1 * p_float;
@@ -479,6 +484,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     glm.set_function("V2Add",
         [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
             return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V2Sub",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return p_vec1 - p_vec2;
         });
 
     glm.set_function("V2Mul",
@@ -509,6 +519,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     glm.set_function("V2Distance",
         [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
             return glm::distance(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V2Lerp",
+        [](glm::vec2 a, glm::vec2 b, float t) {
+            return glm::mix(a, b, t);
         });
 
     glm.set_function("V2Reflect",
@@ -592,6 +607,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
             return p_vec1 + p_float;
         });
 
+    glm.set_function("V3SubF",
+        [](glm::vec3 p_vec1, float p_float) {
+            return p_vec1 - p_float;
+        });
+
     glm.set_function("V3MulF",
         [](glm::vec3 p_vec1, float p_float) {
             return p_vec1 * p_float;
@@ -605,6 +625,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     glm.set_function("V3Add",
         [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
             return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V3Sub",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return p_vec1 - p_vec2;
         });
 
     glm.set_function("V3Mul",
@@ -640,6 +665,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     glm.set_function("V3Distance",
         [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
             return glm::distance(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3Lerp",
+        [](glm::vec3 a, glm::vec3 b, float t) {
+            return glm::mix(a, b, t);
         });
 
     glm.set_function("V3Reflect",
@@ -723,6 +753,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
             return p_vec1 + p_float;
         });
 
+    glm.set_function("V4SubF",
+        [](glm::vec4 p_vec1, float p_float) {
+            return p_vec1 - p_float;
+        });
+
     glm.set_function("V4MulF",
         [](glm::vec4 p_vec1, float p_float) {
             return p_vec1 * p_float;
@@ -736,6 +771,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     glm.set_function("V4Add",
         [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
             return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V4Sub",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return p_vec1 - p_vec2;
         });
 
     glm.set_function("V4Mul",
@@ -767,6 +807,11 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
 			return glm::distance(p_vec1, p_vec2);
 		});
+
+    glm.set_function("V4Lerp",
+        [](glm::vec4 a, glm::vec4 b, float t) {
+            return glm::mix(a, b, t);
+        });
 
     glm.set_function("V4Reflect",
         [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
