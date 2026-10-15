@@ -86,7 +86,9 @@ namespace Droplet::Graphics::VK
 
 		void Initialize(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
 
-		void UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet, const std::vector<Droplet::Scene::NodeData> p_nodeData);
+		void SubmitNodeData(const std::vector<Droplet::Scene::NodeData> p_nodeData);
+
+		void UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
 
 		const RenderData GetRenderData();
 	private:
@@ -102,6 +104,6 @@ namespace Droplet::Graphics::VK
 		std::unordered_map<std::uint32_t, StorageBuffer> m_bufferMap;
 
 		RenderData m_renderData;
-
+		std::vector<Droplet::Scene::NodeData> m_nodeData;
 	};
 }

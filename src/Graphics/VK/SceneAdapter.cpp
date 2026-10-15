@@ -38,7 +38,7 @@ void SceneAdapter::Initialize(const Context &p_context, const CommandPool &p_com
 	p_descriptorSet.WriteCombinedImageSamplerDescriptor(p_context.GetDevice(), m_samplerMap[0].Get(), m_viewMap[0].Get());
 }
 
-void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet, const std::vector<Droplet::Scene::NodeData> p_nodeData)
+void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet)
 {
 	//Iterate through and update what meshes and textures are loaded
 
@@ -47,17 +47,17 @@ void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_alloc
 
 	std::vector<MeshData> mData;
 	std::vector<PushConstants> pData;
-	for (size_t i = 0; i < p_nodeData.size(); i++)
+	for (size_t i = 0; i < m_nodeData.size(); i++)
 	{
 		MeshData m;
-		m.indexBuffer = m_indexMap[p_nodeData[i].meshID].Get();
-		m.vertexBuffer = m_vertexMap[p_nodeData[i].meshID].Get();
-		m.indexCount = m_indexMap[p_nodeData[i].meshID].GetIndexCount();
+		m.indexBuffer = m_indexMap[m_nodeData[i].meshID].Get();
+		m.vertexBuffer = m_vertexMap[m_nodeData[i].meshID].Get();
+		m.indexCount = m_indexMap[m_nodeData[i].meshID].GetIndexCount();
 
 		mData.push_back(m);
 
-		m_bufferMap.emplace(i, StorageBuffer(p_allocator.Get(), p_nodeData[i].world));
-		p_descriptorSet.WriteStorageBufferDescriptor(p_context.GetDevice(), m_bufferMap[i].Get());
+		m_bufferMap.emplace(i, StorageBuffer(p_allocator.Get(), m_nodeData[i].world));
+		p_descriptorSet.WriteStorageBufferDescriptor(p_context.GetDevice(), m_bufferMap[i].Get(), i + 1);
 
 		PushConstants p;
 		p.unibuf = i;
@@ -69,6 +69,12 @@ void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_alloc
 	m_renderData.meshData = mData;
 	m_renderData.pushConstants = pData;
 }
+
+void SceneAdapter::SubmitNodeData(const std::vector<Droplet::Scene::NodeData> p_nodeData)
+{
+	m_nodeData = p_nodeData;
+}
+
 
 const RenderData SceneAdapter::GetRenderData()
 {
