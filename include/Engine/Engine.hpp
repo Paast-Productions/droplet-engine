@@ -1,17 +1,19 @@
 #pragma once
 
+#include <functional>
+
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_vulkan.h>
 #include <ImGui/imgui_impl_sdl3.h>
+
 #include <Graphics/VK/Renderer.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
-#include <functional>
 #include <Engine/EngineFlags.hpp>
-#include <resource/ResourceManager.hpp>
+#include <Resource/ResourceManager.hpp>
 
 namespace Droplet
 {
@@ -49,7 +51,7 @@ namespace Droplet
 		/// @brief the purpose of GetWindow is to let other systems use the window. 
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
-		[[nodiscard]] SDL_Window *GetWindow();
+		[[nodiscard]] SDL_Window *GetWindow() { return m_renderer.GetWindow(); }
 
 		/// @brief 
 		/// HACK HACK HACK 
@@ -57,15 +59,15 @@ namespace Droplet
 		/// IT ONLY EXISTS TO MAKE SURE TEMPORARY IMGUI CODE IN MAIN CAN RUN. 
 		/// HACK HACK HACK
 		/// @return Renderer
-		[[nodiscard]] Graphics::Renderer &TEMP_GetRenderer();
+		[[nodiscard]] Graphics::Renderer &TEMP_GetRenderer() { return m_renderer; }
 
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
-		[[nodiscard]] Scene::SceneManager &GetSceneManager();
+		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
-		void AddEventListener(EventListener p_listener);
+		void AddEventListener(const EventListener& p_listener) { m_eventListeners.push_back(p_listener); }
 		
 	private:
 
@@ -86,20 +88,22 @@ namespace Droplet
 		};
 
 		UpdateFlagsSetter m_updateFlagsSetter;
+		
+		/// @brief The resource manager instance, should only be one.
+		ResourceManager& m_resourceManager { ResourceManager::GetInstance() };
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
-
-		ResourceManager m_resourceManager;
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
 
 		/// @brief 
-		ImGui_ImplVulkan_InitInfo m_initInfo;
+		ImGui_ImplVulkan_InitInfo m_initInfo {};
 
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
+		
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 

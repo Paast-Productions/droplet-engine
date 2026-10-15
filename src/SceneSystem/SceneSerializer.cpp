@@ -76,8 +76,8 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
 {
     // TODO: add to logger
     Droplet::Debug::Logger log;
-    Droplet::Debug::Logger::LogType lgType;
-    lgType = Droplet::Debug::Logger::LogType::Error;
+    Droplet::Debug::LogType lgType;
+    lgType = Droplet::Debug::LogType::Error;
     if (!p_json.contains("name"))
     {
         log.Log(lgType, "Node is missing required field 'name'");

@@ -80,6 +80,28 @@ namespace Droplet
     }
 
     template <typename T>
+    bool ResourceHandle<T>::IsQueued() const
+    {
+        if (!IsValid())
+        {
+            return false;
+        }
+        
+        return m_resourceManager->GetState(m_guid) == ResourceState::Queued;
+    }
+
+    template <typename T>
+    bool ResourceHandle<T>::IsLoading() const
+    {
+        if (!IsValid)
+        {
+            return false;
+        }
+        
+        return m_resourceManager->GetState(m_guid) == ResourceState::LoadingAsync;
+    }
+
+    template <typename T>
     bool ResourceHandle<T>::IsReady() const
     {
         if (!IsValid())

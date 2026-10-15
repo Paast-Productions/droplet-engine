@@ -35,6 +35,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
+#include <Graphics/VK/ShaderStorage.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -71,14 +72,19 @@ namespace Droplet::Graphics
 		~Renderer();
 		
 		/// @brief Renders a singular frame
+		/// @deprecated Pre-scene rendering function 
 		void	DrawFrame();
+		
+		/// @brief Renders a singular mesh with the data that is pushed into the function
+		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
+		void Draw(RenderData p_renderData);
 		
 		/// @brief Resizes the window
 		void	ResizeWindow();
 		
 		/// @brief Getter-function for an SDL_Window pointer
 		/// @returns An SDL Window
-		[[nodiscard]] SDL_Window *GetWindow();
+		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
 
 	/// @brief Fills and returns initInfo for ImGui
 	/// @return ImGui init info
@@ -92,28 +98,11 @@ namespace Droplet::Graphics
 		
 	private:
 		
-		/// @brief Creates a graphics pipeline
-		void					CreateGraphicsPipeline();
-
-		/// @brief Creates a graphics pipeline based on a shader
-		/// @param p_shaderBlob shader to be used
-		void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
-
-		/// @brief Creates a shader module from a vector containing raw code
-		/// @param p_device Pointer to the vulkan device
-		/// @param code Vector containing raw code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
-
-		/// @brief Creates a shader module from a blob containing code
-		/// @param p_device Pointer to the vulkan device
-		/// @param p_shaderBlob Blob containing code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
-		
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
+		
+		void RecordCommandBuffer(RenderData p_renderData, std::uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();

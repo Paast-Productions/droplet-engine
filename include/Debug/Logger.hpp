@@ -21,6 +21,14 @@ namespace Droplet::Debug
 		std::string lineNumber{};
 	};
 
+	/// @brief Defines the log severity level selected for an entry.		 
+	enum class LogType
+	{
+		Error,   /// Critical error events that require attention.
+		Warning, /// Warning events indicating potential issues.
+		Info,    /// Informational messages about system operation.
+		Debug    /// Detailed information for debugging purposes.
+	};
 
 	/// @class Logger
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
@@ -32,14 +40,6 @@ namespace Droplet::Debug
 	{
 	public:
 		
-		/// @brief Defines the log severity level selected for an entry.		 
-		enum class LogType
-		{
-			Error,   /// Critical error events that require attention.
-			Warning, /// Warning events indicating potential issues.
-			Info,    /// Informational messages about system operation.
-			Debug    /// Detailed information for debugging purposes.
-		};
 
 		Logger();
 
@@ -60,7 +60,7 @@ namespace Droplet::Debug
 
 		/// @brief Retrieves the static instance of the Logger (Meyers Singleton).
 		/// @return Reference to the Logger instance.
-		static Logger &GetInstance()
+		[[nodiscard]] static Logger &GetInstance()
 		{
 			static Logger s_logger;
 			return s_logger;

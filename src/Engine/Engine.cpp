@@ -22,7 +22,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	
+	m_resourceManager.Initialize(ROOT_PATH "/Assets");
 
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
@@ -113,7 +113,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// TODO: Call behaviour post-update
 
 	// Rendering
-	m_renderer.DrawFrame();
+	m_renderer.Draw(TODO);
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -129,26 +129,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
-{
-	// TODO: insert return statement here
-	return m_renderer.GetWindow();
-}
-
-Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
-{
-	return m_renderer;
-}
-
-Scene::SceneManager &Droplet::Engine::GetSceneManager()
-{
-	return m_sceneManager;
-}
-
-void Droplet::Engine::AddEventListener(EventListener p_listener)
-{
-	m_eventListeners.push_back(p_listener);
-}
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours

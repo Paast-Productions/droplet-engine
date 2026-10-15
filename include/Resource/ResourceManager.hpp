@@ -60,8 +60,11 @@ namespace Droplet
     class ResourceManager
     {
     public:
-        ResourceManager() = default;
-        ~ResourceManager() = default;
+        [[nodiscard]] static ResourceManager &GetInstance()
+        {
+            static ResourceManager instance {};
+            return instance;
+        }
 
         /// @brief Initializes the resource manager for a specific root directory.
         /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
@@ -81,7 +84,7 @@ namespace Droplet
         /// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
         /// @return A handle to the resource. Make sure to check its validity before use.
         template<typename T>
-        ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
+        [[nodiscard]] ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
             static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource");
             assert(m_isInitialized && "ResourceManager is not initialized.");
@@ -154,7 +157,7 @@ namespace Droplet
         /// @return True if the entry was successfully updated and written to disk. False if resource was loading,
         /// uploading, or if GUID does not relate to any registered resource.
         [[nodiscard]] bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = true);
-        
+ 
         /// @brief Increments the reference count of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         void IncrementRef(GUID p_guid);
@@ -166,12 +169,12 @@ namespace Droplet
         /// @brief Retrieves the current reference count for a resource.
         /// @param p_guid The guid of the resource.
         /// @return The reference count.
-        std::uint32_t GetRef(GUID p_guid);
+        [[nodiscard]] std::uint32_t GetRef(GUID p_guid);
 
         /// @brief Queries the load state of a resource in the internal cache.
         /// @param p_guid The globally unique identifier of the resource.
         /// @return The state that the resource is currently in.
-        ResourceState GetState(GUID p_guid);
+        [[nodiscard]] ResourceState GetState(GUID p_guid);
 
         /// @brief Registers a resource type, initializes its fallback instance and maps its load function.
         /// @note This function must be called during engine startup for every resource type the engine supports.
@@ -222,6 +225,10 @@ namespace Droplet
         void HotReload(GUID p_guid);
     
     private:
+        
+        ResourceManager() = default;
+        ~ResourceManager() = default;
+        
         /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
         /// were found in the asset file.
         /// @param p_relAssetPath The path to the asset file that the resource is stored in.

@@ -27,6 +27,12 @@ namespace Droplet
         /// @return The globally unique identifier for the resource the handle is referencing.
         GUID GetGUID() const;
         
+        /// @return True if resource is queued, otherwise false.
+        bool IsQueued() const;
+        
+        /// @return True if resource is currently loading, otherwise false.
+        bool IsLoading() const; 
+        
         /// @return True if resource is ready to be used, otherwise false.
         bool IsReady() const;
         

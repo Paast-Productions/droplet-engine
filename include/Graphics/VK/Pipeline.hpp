@@ -1,4 +1,7 @@
 ﻿#pragma once
+
+#include <queue>
+
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 #define VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #include <vulkan/vulkan_raii.hpp>
@@ -58,23 +61,21 @@ namespace Droplet::Graphics::VK
 	class Pipeline
 	{
 	public:
-		Pipeline() = delete;
+		Pipeline() :
+			m_pipelineLayout { nullptr },
+			m_pipeline{ nullptr } {}
 	
 		/// @brief Pipeline Nullptr Constructor
-		Pipeline(nullptr_t p_nullptr)
-		{
-			m_pipelineLayout = { p_nullptr };
-			m_pipeline = { p_nullptr };
-		}
+		Pipeline(nullptr_t p_nullptr) :
+			m_pipelineLayout { p_nullptr },
+			m_pipeline { p_nullptr } {}
 		
-		// TODO: refactor vk::raii:ShaderModule to accept multiple ShaderModules
-
 		/// @brief Pipeline constructor
 		/// @param p_device Vulkan Device
 		/// @param p_physicalDevice Hardware Device
-		/// @param p_shaderModule Vulkan Shader Module used for Pipeline creation 
+		/// @param p_queue Queue of Vulkan Shader Modules and their shader type
 		/// @param p_pipelineConfig Pipeline Configuration Struct
-		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig);
+		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::queue<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &p_queue, const PipelineConfig &p_pipelineConfig);
 
 		~Pipeline() = default;
 
@@ -108,11 +109,11 @@ namespace Droplet::Graphics::VK
 		
 		/// @brief Getter-function for a vulkan pipeline
 		/// @returns Vulkan Pipeline 
-		[[nodiscard]] const vk::raii::Pipeline &Get() { return m_pipeline; }
+		[[nodiscard]] const vk::raii::Pipeline &Get() const { return m_pipeline; }
 		
 		/// @brief Getter-function for a Vulkan Pipeline Layout
 		/// @returns Vulkan Pipeline Layout
-		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout() { return m_pipelineLayout; }
+		[[nodiscard]] const vk::raii::PipelineLayout &GetLayout() const { return m_pipelineLayout; }
 
 	private:
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
