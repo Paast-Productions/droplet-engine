@@ -53,10 +53,23 @@ namespace Droplet
         ResourceType type = ResourceType::None; // The type of resource this entry represents
         std::string name; // The name of the resource (found in the asset file or generated based on the asset file name)
         std::string relAssetPath; // Not written to metafile
-        ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU; // Determines how the resource is stored in memory 
-        std::vector<GUID> dependencies; // Currently unused
+        ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU; // Determines how the resource is stored in memory
         
         nlohmann::json loadSettings = nlohmann::json::object(); // The resource-specific load settings to be used when loading this resource
+        
+        bool operator==(const MetaEntry &p_other)
+        {
+            return guid == p_other.guid &&
+                    type == p_other.type && 
+                    name == p_other.name && 
+                    relAssetPath == p_other.relAssetPath &&
+                    loadSettings == p_other.loadSettings;
+        }
+        
+        bool operator!=(const MetaEntry &p_other)
+        {
+            return !(*this == p_other);
+        }
     };
     
     namespace MetaLoadSettings

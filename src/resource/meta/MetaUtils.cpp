@@ -37,7 +37,6 @@ namespace Droplet::MetaUtils
                     resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
                     resourceData.name = entry.value("name", "");
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
-                    resourceData.dependencies = entry.value("dependencies", std::vector<GUID>{});
                     resourceData.loadSettings = entry.value("loadSettings", json::object());
                     
                     p_metaData.push_back(resourceData);
@@ -75,7 +74,6 @@ namespace Droplet::MetaUtils
             j["type"] = static_cast<uint8_t>(resourceData.type);
             j["name"] = resourceData.name;
             j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
-            j["dependencies"] = resourceData.dependencies;
             j["loadSettings"] = resourceData.loadSettings;
             
             resourcesArray.push_back(j);
