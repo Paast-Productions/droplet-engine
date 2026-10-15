@@ -34,25 +34,31 @@ namespace Droplet::Editor::Resource
         /// @param p_resources The registry of resources.
         void BuildBrowserTree(const std::vector<const MetaEntry*> &p_resources);
 	    
-	    void DrawBrowserNode(BrowserNode &p_node);
-	    
         /// @brief Draws the meta settings for a resource.
         /// @param p_entry The meta entry to draw settings for.
-        /// @return True if any of the settings were changed, otherwise false.
-        bool DrawResourceSettings(MetaEntry &p_entry) const;
+        void DrawResourceSettings(MetaEntry &p_entry) const;
+
+        /// @brief Opens a file explorer window and attempts to register all selected assets. Successfully registering
+        /// an asset will queue a register popup that will prompt the user to modify the settings for the resources in
+        /// that asset.
+        void RegisterAsset();
 
         /// @brief Converts a resource type enum to a string.
         /// @param p_type The resource type to convert.
         /// @return String representing the resource type.
         std::string ResourceTypeToString(ResourceType p_type);
+
 	    
-	    std::filesystem::path m_currentBrowserPath;
-	    BrowserNode m_rootBrowserNode;
-		GUID m_selectedResourceGuid = C_INVALID_GUID; /// The GUID of the currently selected resource in the resource browser.
+	    std::shared_ptr<Engine> m_engine;
 	    
-	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue;
+	    BrowserNode m_rootBrowserNode; // The root node in the resource browser hierarchy
+	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser
 	    
-		/// @brief Engine instance used to access engine systems.
-		std::shared_ptr<Engine> m_engine;
+		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
+	    MetaEntry m_inspectedEntry; // The current entry being inspected
+	    
+	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
+	    std::string m_unsupportedFilesList; // A list of unsupported assets in the latest registering attempt
+	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue; // Queued popups upon successful resource registration
 	};
 }
