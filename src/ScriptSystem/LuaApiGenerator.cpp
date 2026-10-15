@@ -127,9 +127,9 @@ void LuaApiGenerator::GenerateClasses(
 			{
 				p_file << "---@param "
 					<< luaParameter.name
-					<< (luaParameter.optional ? "?" : "")
 					<< " "
 					<< luaParameter.type
+					<< (luaParameter.optional ? "|nil" : "") // Mark optional parameters
 					<< "\n";
 			}
 
@@ -142,7 +142,7 @@ void LuaApiGenerator::GenerateClasses(
 
 			p_file << "function "
 				<< luaClass.name
-				<< ":"
+				<< (luaFunction.isStatic ? "." : ":")
 				<< luaFunction.name
 				<< "(";
 

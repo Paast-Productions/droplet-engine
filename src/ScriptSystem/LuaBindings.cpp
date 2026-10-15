@@ -92,11 +92,16 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
-	p_luaState.new_enum<Scene::Transform::Space>(
+	using namespace Droplet::Scene;
+	typedef sol::optional<Transform::Space> OptSpace;
+	constexpr Transform::Space TSLocal = Transform::Space::Local;
+	constexpr Transform::Space TSWorld = Transform::Space::World;
+
+	p_luaState.new_enum<Transform::Space>(
 		"TransformSpace",
 		{
-			{"Local", Scene::Transform::Space::Local},
-			{"World", Scene::Transform::Space::World}
+			{"Local", TSLocal},
+			{"World", TSWorld}
 		}
 	);
 
@@ -105,38 +110,38 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 
 	transformSpace.flags =
 	{
-		{ "Local", (std::size_t)Scene::Transform::Space::Local },
-		{ "World", (std::size_t)Scene::Transform::Space::World }
+		{ "Local", (std::size_t)TSLocal },
+		{ "World", (std::size_t)TSWorld }
 	};
 
 	LuaBindings::m_luaEnumDefinitions.push_back(transformSpace);
 
-	p_luaState.new_usertype<Scene::Transform>(
+	p_luaState.new_usertype<Transform>(
 		"Transform",
-		"GetPosition", &Scene::Transform::GetPosition,
-		"GetRotation", &Scene::Transform::GetRotation,
-		"GetEuler", &Scene::Transform::GetEuler,
-		"GetScale", &Scene::Transform::GetScale,
-		"GetMatrix", &Scene::Transform::GetMatrix,
-		"IsDirty", &Scene::Transform::IsDirty,
-		"GetUp", &Scene::Transform::GetUp,
-		"GetRight", &Scene::Transform::GetRight,
-		"GetForward", &Scene::Transform::GetForward,
-		"SetPosition", &Scene::Transform::SetPosition,
-		"SetRotation", &Scene::Transform::SetRotation,
-		"SetEuler", &Scene::Transform::SetEuler,
-		"SetScale", &Scene::Transform::SetScale,
-		"SetMatrix", &Scene::Transform::SetMatrix,
-		"MakeDirty", &Scene::Transform::MakeDirty,
-		"RecalculateMatrices", &Scene::Transform::RecalculateMatrices,
-		"Move", &Scene::Transform::Move,
-		"Rotate", &Scene::Transform::Rotate,
-		"RotateEuler", &Scene::Transform::RotateEuler,
-		"MoveRelative", &Scene::Transform::MoveRelative,
-		"RotateEulerRelative", &Scene::Transform::RotateEulerRelative,
-		"AddScale", &Scene::Transform::AddScale,
-		"RotateAxis", &Scene::Transform::RotateAxis,
-		"LookAt", &Scene::Transform::LookAt
+		"GetPosition", [](Transform &transform, OptSpace space) { return transform.GetPosition(space.value_or(TSLocal)); },
+		"GetRotation", [](Transform &transform, OptSpace space) { return transform.GetRotation(space.value_or(TSLocal)); },
+		"GetEuler", [](Transform &transform, OptSpace space) { return transform.GetEuler(space.value_or(TSLocal)); },
+		"GetScale", &Transform::GetScale,
+		"GetMatrix", [](Transform &transform, OptSpace space) { return transform.GetMatrix(space.value_or(TSLocal)); },
+		"IsDirty", &Transform::IsDirty,
+		"GetUp", [](Transform &transform, OptSpace space) { return transform.GetUp(space.value_or(TSLocal)); },
+		"GetRight", [](Transform &transform, OptSpace space) { return transform.GetRight(space.value_or(TSLocal)); },
+		"GetForward", [](Transform &transform, OptSpace space) { return transform.GetForward(space.value_or(TSLocal)); },
+		"SetPosition", [](Transform &transform, const glm::vec3 &position, OptSpace space) { transform.SetPosition(position, space.value_or(TSLocal)); },
+		"SetRotation", [](Transform &transform, const glm::quat &rotation, OptSpace space) { transform.SetRotation(rotation, space.value_or(TSLocal)); },
+		"SetEuler", [](Transform &transform, const glm::vec3 &euler, OptSpace space) { transform.SetEuler(euler, space.value_or(TSLocal)); },
+		"SetScale", &Transform::SetScale,
+		"SetMatrix", [](Transform &transform, const glm::mat4 &matrix, OptSpace space) { transform.SetMatrix(matrix, space.value_or(TSLocal)); },
+		"MakeDirty", &Transform::MakeDirty,
+		"RecalculateMatrices", &Transform::RecalculateMatrices,
+		"Move", [](Transform &transform, const glm::vec3 &amount, OptSpace space) { transform.Move(amount, space.value_or(TSLocal)); },
+		"Rotate", [](Transform &transform, const glm::quat &rotation, OptSpace space) { transform.Rotate(rotation, space.value_or(TSLocal)); },
+		"RotateEuler", [](Transform &transform, const glm::vec3 &euler, OptSpace space) { transform.RotateEuler(euler, space.value_or(TSLocal)); },
+		"MoveRelative", &Transform::MoveRelative,
+		"RotateEulerRelative", &Transform::RotateEulerRelative,
+		"AddScale", &Transform::AddScale,
+		"RotateAxis", [](Transform &transform, float angle, const glm::vec3 &axis, OptSpace space) { transform.RotateAxis(angle, axis, space.value_or(TSLocal)); },
+		"LookAt", [](Transform &transform, const glm::vec3 &target, sol::optional<glm::vec3> up, OptSpace space) { transform.LookAt(target, up.value_or(glm::vec3(0.0f, 1.0f, 0.0f)), space.value_or(TSLocal)); }
 	);
 
 	LuaClassDefinition transform;
@@ -301,8 +306,8 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 			"RotateAxis",
 			"void",
 			{
-				{ "axis", "Vec3" },
 				{ "angle", "number" },
+				{ "axis", "Vec3" },
 				{ "space", "TransformSpace", true }
 			}
 		},
@@ -324,617 +329,641 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
-	p_luaState.new_usertype<glm::vec2>(
-		"Vec2",
-		sol::constructors<glm::vec2(float, float)>(),
-		"x", &glm::vec2::x,
-		"y", &glm::vec2::y
-	);
-
-	p_luaState.new_usertype<glm::vec3>(
-		"Vec3",
-		sol::constructors<glm::vec3(float, float, float)>(),
-		"x", &glm::vec3::x,
-		"y", &glm::vec3::y,
-		"z", &glm::vec3::z
-	);
-
-	p_luaState.new_usertype<glm::vec4>(
-		"Vec4",
-		sol::constructors<glm::vec4(float, float, float, float)>(),
-		"x", &glm::vec4::x,
-		"y", &glm::vec4::y,
-		"z", &glm::vec4::z,
-		"w", &glm::vec4::w
-	);
-
-	p_luaState.new_usertype<glm::quat>(
-		"Quat",
-		sol::constructors<glm::quat(float, float, float, float)>(),
-		"w", &glm::quat::w,
-		"x", &glm::quat::x,
-		"y", &glm::quat::y,
-		"z", &glm::quat::z
-	);
-
-	p_luaState.new_usertype<glm::mat3>(
-		"Mat3",
-		sol::constructors<glm::mat3(float)>()
-	);
-
-	p_luaState.new_usertype<glm::mat4>(
-		"Mat4",
-		sol::constructors<glm::mat4(float)>()
-	);
-
-	LuaClassDefinition vec2Def;
-	vec2Def.name = "Vec2";
-
-	vec2Def.properties =
 	{
-		{ "x", "number" },
-		{ "y", "number" }
-	};
+		p_luaState.new_usertype<glm::vec2>(
+			"Vec2",
+			sol::constructors<glm::vec2(float, float)>(),
+			"x", &glm::vec2::x,
+			"y", &glm::vec2::y
+		);
 
-	LuaBindings::m_luaClassDefinitions.push_back(vec2Def);
+		p_luaState.new_usertype<glm::vec3>(
+			"Vec3",
+			sol::constructors<glm::vec3(float, float, float)>(),
+			"x", &glm::vec3::x,
+			"y", &glm::vec3::y,
+			"z", &glm::vec3::z
+		);
 
-	LuaClassDefinition vec3Def;
-	vec3Def.name = "Vec3";
+		p_luaState.new_usertype<glm::vec4>(
+			"Vec4",
+			sol::constructors<glm::vec4(float, float, float, float)>(),
+			"x", &glm::vec4::x,
+			"y", &glm::vec4::y,
+			"z", &glm::vec4::z,
+			"w", &glm::vec4::w
+		);
 
-	vec3Def.properties =
+		p_luaState.new_usertype<glm::quat>(
+			"Quat",
+			sol::constructors<glm::quat(float, float, float, float)>(),
+			"w", &glm::quat::w,
+			"x", &glm::quat::x,
+			"y", &glm::quat::y,
+			"z", &glm::quat::z
+		);
+
+		p_luaState.new_usertype<glm::mat3>(
+			"Mat3",
+			sol::constructors<glm::mat3(float)>()
+		);
+
+		p_luaState.new_usertype<glm::mat4>(
+			"Mat4",
+			sol::constructors<glm::mat4(float)>()
+		);
+	}
+
 	{
-		{ "x", "number" },
-		{ "y", "number" },
-		{ "z", "number" }
-	};
+		LuaClassDefinition vec2Def;
+		vec2Def.name = "Vec2";
 
-	LuaBindings::m_luaClassDefinitions.push_back(vec3Def);
+		vec2Def.properties =
+		{
+			{ "x", "number" },
+			{ "y", "number" }
+		};
 
+		LuaBindings::m_luaClassDefinitions.push_back(vec2Def);
+	}
 
-	LuaClassDefinition vec4Def;
-	vec4Def.name = "Vec4";
-
-	vec4Def.properties =
 	{
-		{ "x", "number" },
-		{ "y", "number" },
-		{ "z", "number" },
-		{ "w", "number" }
-	};
+		LuaClassDefinition vec3Def;
+		vec3Def.name = "Vec3";
 
-	LuaBindings::m_luaClassDefinitions.push_back(vec4Def);
+		vec3Def.properties =
+		{
+			{ "x", "number" },
+			{ "y", "number" },
+			{ "z", "number" }
+		};
 
-	LuaClassDefinition quatDef;
-	quatDef.name = "Quat";
+		LuaBindings::m_luaClassDefinitions.push_back(vec3Def);
+	}
 
-	quatDef.properties =
+
 	{
-		{ "w", "number" },
-		{ "x", "number" },
-		{ "y", "number" },
-		{ "z", "number" }
-	};
+		LuaClassDefinition vec4Def;
+		vec4Def.name = "Vec4";
 
-	LuaBindings::m_luaClassDefinitions.push_back(quatDef);
+		vec4Def.properties =
+		{
+			{ "x", "number" },
+			{ "y", "number" },
+			{ "z", "number" },
+			{ "w", "number" }
+		};
 
-	LuaClassDefinition mat3Def;
-	mat3Def.name = "Mat3";
+		LuaBindings::m_luaClassDefinitions.push_back(vec4Def);
+	}
 
-	LuaBindings::m_luaClassDefinitions.push_back(mat3Def);
+	{
+		LuaClassDefinition quatDef;
+		quatDef.name = "Quat";
 
-	LuaClassDefinition mat4Def;
-	mat4Def.name = "Mat4";
+		quatDef.properties =
+		{
+			{ "w", "number" },
+			{ "x", "number" },
+			{ "y", "number" },
+			{ "z", "number" }
+		};
 
-	LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
+		LuaBindings::m_luaClassDefinitions.push_back(quatDef);
+	}
+
+	{
+		LuaClassDefinition mat3Def;
+		mat3Def.name = "Mat3";
+
+		LuaBindings::m_luaClassDefinitions.push_back(mat3Def);
+
+		LuaClassDefinition mat4Def;
+		mat4Def.name = "Mat4";
+
+		LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
+	}
 
 
 	sol::table glm = p_luaState.create_table("GLM");
 
 	// Vec2
-	glm.set_function("V2Abs",
-		[](glm::vec2 p_vec) {
-			return glm::abs(p_vec);
-		});
+	{
+		glm.set_function("V2Abs",
+			[](glm::vec2 p_vec) {
+				return glm::abs(p_vec);
+			});
 
-	glm.set_function("V2Sign",
-		[](glm::vec2 p_vec) {
-			return glm::sign(p_vec);
-		});
+		glm.set_function("V2Sign",
+			[](glm::vec2 p_vec) {
+				return glm::sign(p_vec);
+			});
 
-	glm.set_function("V2Floor",
-		[](glm::vec2 p_vec) {
-			return glm::floor(p_vec);
-		});
+		glm.set_function("V2Floor",
+			[](glm::vec2 p_vec) {
+				return glm::floor(p_vec);
+			});
 
-	glm.set_function("V2Trunc",
-		[](glm::vec2 p_vec) {
-			return glm::trunc(p_vec);
-		});
+		glm.set_function("V2Trunc",
+			[](glm::vec2 p_vec) {
+				return glm::trunc(p_vec);
+			});
 
-	glm.set_function("V2Round",
-		[](glm::vec2 p_vec) {
-			return glm::round(p_vec);
-		});
+		glm.set_function("V2Round",
+			[](glm::vec2 p_vec) {
+				return glm::round(p_vec);
+			});
 
-	glm.set_function("V2RoundEven",
-		[](glm::vec2 p_vec) {
-			return glm::roundEven(p_vec);
-		});
+		glm.set_function("V2RoundEven",
+			[](glm::vec2 p_vec) {
+				return glm::roundEven(p_vec);
+			});
 
-	glm.set_function("V2Ceil",
-		[](glm::vec2 p_vec) {
-			return glm::ceil(p_vec);
-		});
+		glm.set_function("V2Ceil",
+			[](glm::vec2 p_vec) {
+				return glm::ceil(p_vec);
+			});
 
-	glm.set_function("V2Fract",
-		[](glm::vec2 p_vec) {
-			return glm::fract(p_vec);
-		});
+		glm.set_function("V2Fract",
+			[](glm::vec2 p_vec) {
+				return glm::fract(p_vec);
+			});
 
-	glm.set_function("V2Mod",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::mod(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Mod",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::mod(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2ModF",
-		[](glm::vec2 p_vec1, float p_float) {
-			return glm::mod(p_vec1, p_float);
-		});
+		glm.set_function("V2ModF",
+			[](glm::vec2 p_vec1, float p_float) {
+				return glm::mod(p_vec1, p_float);
+			});
 
-	glm.set_function("V2Min",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::min(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Min",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::min(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2Max",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::max(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Max",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::max(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2Clamp",
-		[](glm::vec2 p_vec, glm::vec2 p_min, glm::vec2 p_max) {
-			return glm::clamp(p_vec, p_min, p_max);
-		});
+		glm.set_function("V2Clamp",
+			[](glm::vec2 p_vec, glm::vec2 p_min, glm::vec2 p_max) {
+				return glm::clamp(p_vec, p_min, p_max);
+			});
 
-	glm.set_function("V2AddF",
-		[](glm::vec2 p_vec1, float p_float) {
-			return p_vec1 + p_float;
-		});
+		glm.set_function("V2AddF",
+			[](glm::vec2 p_vec1, float p_float) {
+				return p_vec1 + p_float;
+			});
 
-	glm.set_function("V2SubF",
-		[](glm::vec2 p_vec1, float p_float) {
-			return p_vec1 - p_float;
-		});
+		glm.set_function("V2SubF",
+			[](glm::vec2 p_vec1, float p_float) {
+				return p_vec1 - p_float;
+			});
 
-	glm.set_function("V2MulF",
-		[](glm::vec2 p_vec1, float p_float) {
-			return p_vec1 * p_float;
-		});
+		glm.set_function("V2MulF",
+			[](glm::vec2 p_vec1, float p_float) {
+				return p_vec1 * p_float;
+			});
 
-	glm.set_function("V2DivF",
-		[](glm::vec2 p_vec1, float p_float) {
-			return p_vec1 / p_float;
-		});
+		glm.set_function("V2DivF",
+			[](glm::vec2 p_vec1, float p_float) {
+				return p_vec1 / p_float;
+			});
 
-	glm.set_function("V2Add",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return p_vec1 + p_vec2;
-		});
+		glm.set_function("V2Add",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return p_vec1 + p_vec2;
+			});
 
-	glm.set_function("V2Sub",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return p_vec1 - p_vec2;
-		});
+		glm.set_function("V2Sub",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return p_vec1 - p_vec2;
+			});
 
-	glm.set_function("V2Mul",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return p_vec1 * p_vec2;
-		});
+		glm.set_function("V2Mul",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return p_vec1 * p_vec2;
+			});
 
-	glm.set_function("V2Div",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return p_vec1 / p_vec2;
-		});
+		glm.set_function("V2Div",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return p_vec1 / p_vec2;
+			});
 
-	glm.set_function("V2Dot",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::dot(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Dot",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::dot(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2Normalize",
-		[](glm::vec2 p_vec) {
-			return glm::normalize(p_vec);
-		});
+		glm.set_function("V2Normalize",
+			[](glm::vec2 p_vec) {
+				return glm::normalize(p_vec);
+			});
 
-	glm.set_function("V2Length",
-		[](glm::vec2 p_vec) {
-			return glm::length(p_vec);
-		});
+		glm.set_function("V2Length",
+			[](glm::vec2 p_vec) {
+				return glm::length(p_vec);
+			});
 
-	glm.set_function("V2Distance",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::distance(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Distance",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::distance(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2Lerp",
-		[](glm::vec2 a, glm::vec2 b, float t) {
-			return glm::mix(a, b, t);
-		});
+		glm.set_function("V2Lerp",
+			[](glm::vec2 a, glm::vec2 b, float t) {
+				return glm::mix(a, b, t);
+			});
 
-	glm.set_function("V2Reflect",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
-			return glm::reflect(p_vec1, p_vec2);
-		});
+		glm.set_function("V2Reflect",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+				return glm::reflect(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V2Refract",
-		[](glm::vec2 p_vec1, glm::vec2 p_vec2, float p_float) {
-			return glm::refract(p_vec1, p_vec2, p_float);
-		});
+		glm.set_function("V2Refract",
+			[](glm::vec2 p_vec1, glm::vec2 p_vec2, float p_float) {
+				return glm::refract(p_vec1, p_vec2, p_float);
+			});
+	}
 
 	// Vec3
-	glm.set_function("V3Abs",
-		[](glm::vec3 p_vec) {
-			return glm::abs(p_vec);
-		});
+	{
+		glm.set_function("V3Abs",
+			[](glm::vec3 p_vec) {
+				return glm::abs(p_vec);
+			});
 
-	glm.set_function("V3Sign",
-		[](glm::vec3 p_vec) {
-			return glm::sign(p_vec);
-		});
+		glm.set_function("V3Sign",
+			[](glm::vec3 p_vec) {
+				return glm::sign(p_vec);
+			});
 
-	glm.set_function("V3Floor",
-		[](glm::vec3 p_vec) {
-			return glm::floor(p_vec);
-		});
+		glm.set_function("V3Floor",
+			[](glm::vec3 p_vec) {
+				return glm::floor(p_vec);
+			});
 
-	glm.set_function("V3Trunc",
-		[](glm::vec3 p_vec) {
-			return glm::trunc(p_vec);
-		});
+		glm.set_function("V3Trunc",
+			[](glm::vec3 p_vec) {
+				return glm::trunc(p_vec);
+			});
 
-	glm.set_function("V3Round",
-		[](glm::vec3 p_vec) {
-			return glm::round(p_vec);
-		});
+		glm.set_function("V3Round",
+			[](glm::vec3 p_vec) {
+				return glm::round(p_vec);
+			});
 
-	glm.set_function("V3RoundEven",
-		[](glm::vec3 p_vec) {
-			return glm::roundEven(p_vec);
-		});
+		glm.set_function("V3RoundEven",
+			[](glm::vec3 p_vec) {
+				return glm::roundEven(p_vec);
+			});
 
-	glm.set_function("V3Ceil",
-		[](glm::vec3 p_vec) {
-			return glm::ceil(p_vec);
-		});
+		glm.set_function("V3Ceil",
+			[](glm::vec3 p_vec) {
+				return glm::ceil(p_vec);
+			});
 
-	glm.set_function("V3Fract",
-		[](glm::vec3 p_vec) {
-			return glm::fract(p_vec);
-		});
+		glm.set_function("V3Fract",
+			[](glm::vec3 p_vec) {
+				return glm::fract(p_vec);
+			});
 
-	glm.set_function("V3Mod",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::mod(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Mod",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::mod(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3ModF",
-		[](glm::vec3 p_vec1, float p_float) {
-			return glm::mod(p_vec1, p_float);
-		});
+		glm.set_function("V3ModF",
+			[](glm::vec3 p_vec1, float p_float) {
+				return glm::mod(p_vec1, p_float);
+			});
 
-	glm.set_function("V3Min",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::min(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Min",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::min(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Max",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::max(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Max",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::max(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Clamp",
-		[](glm::vec3 p_vec, glm::vec3 p_min, glm::vec3 p_max) {
-			return glm::clamp(p_vec, p_min, p_max);
-		});
+		glm.set_function("V3Clamp",
+			[](glm::vec3 p_vec, glm::vec3 p_min, glm::vec3 p_max) {
+				return glm::clamp(p_vec, p_min, p_max);
+			});
 
-	glm.set_function("V3AddF",
-		[](glm::vec3 p_vec1, float p_float) {
-			return p_vec1 + p_float;
-		});
+		glm.set_function("V3AddF",
+			[](glm::vec3 p_vec1, float p_float) {
+				return p_vec1 + p_float;
+			});
 
-	glm.set_function("V3SubF",
-		[](glm::vec3 p_vec1, float p_float) {
-			return p_vec1 - p_float;
-		});
+		glm.set_function("V3SubF",
+			[](glm::vec3 p_vec1, float p_float) {
+				return p_vec1 - p_float;
+			});
 
-	glm.set_function("V3MulF",
-		[](glm::vec3 p_vec1, float p_float) {
-			return p_vec1 * p_float;
-		});
+		glm.set_function("V3MulF",
+			[](glm::vec3 p_vec1, float p_float) {
+				return p_vec1 * p_float;
+			});
 
-	glm.set_function("V3DivF",
-		[](glm::vec3 p_vec1, float p_float) {
-			return p_vec1 / p_float;
-		});
+		glm.set_function("V3DivF",
+			[](glm::vec3 p_vec1, float p_float) {
+				return p_vec1 / p_float;
+			});
 
-	glm.set_function("V3Add",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return p_vec1 + p_vec2;
-		});
+		glm.set_function("V3Add",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return p_vec1 + p_vec2;
+			});
 
-	glm.set_function("V3Sub",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return p_vec1 - p_vec2;
-		});
+		glm.set_function("V3Sub",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return p_vec1 - p_vec2;
+			});
 
-	glm.set_function("V3Mul",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return p_vec1 * p_vec2;
-		});
+		glm.set_function("V3Mul",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return p_vec1 * p_vec2;
+			});
 
-	glm.set_function("V3Div",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return p_vec1 / p_vec2;
-		});
+		glm.set_function("V3Div",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return p_vec1 / p_vec2;
+			});
 
-	glm.set_function("V3Dot",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::dot(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Dot",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::dot(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Cross",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::cross(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Cross",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::cross(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Normalize",
-		[](glm::vec3 p_vec) {
-			return glm::normalize(p_vec);
-		});
+		glm.set_function("V3Normalize",
+			[](glm::vec3 p_vec) {
+				return glm::normalize(p_vec);
+			});
 
-	glm.set_function("V3Length",
-		[](glm::vec3 p_vec) {
-			return glm::length(p_vec);
-		});
+		glm.set_function("V3Length",
+			[](glm::vec3 p_vec) {
+				return glm::length(p_vec);
+			});
 
-	glm.set_function("V3Distance",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::distance(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Distance",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::distance(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Lerp",
-		[](glm::vec3 a, glm::vec3 b, float t) {
-			return glm::mix(a, b, t);
-		});
+		glm.set_function("V3Lerp",
+			[](glm::vec3 a, glm::vec3 b, float t) {
+				return glm::mix(a, b, t);
+			});
 
-	glm.set_function("V3Reflect",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
-			return glm::reflect(p_vec1, p_vec2);
-		});
+		glm.set_function("V3Reflect",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+				return glm::reflect(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V3Refract",
-		[](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
-			return glm::refract(p_vec1, p_vec2, p_float);
-		});
+		glm.set_function("V3Refract",
+			[](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
+				return glm::refract(p_vec1, p_vec2, p_float);
+			});
+	}
 
 	// Vec4
-	glm.set_function("V4Abs",
-		[](glm::vec4 p_vec) {
-			return glm::abs(p_vec);
-		});
+	{
+		glm.set_function("V4Abs",
+			[](glm::vec4 p_vec) {
+				return glm::abs(p_vec);
+			});
 
-	glm.set_function("V4Sign",
-		[](glm::vec4 p_vec) {
-			return glm::sign(p_vec);
-		});
+		glm.set_function("V4Sign",
+			[](glm::vec4 p_vec) {
+				return glm::sign(p_vec);
+			});
 
-	glm.set_function("V4Floor",
-		[](glm::vec4 p_vec) {
-			return glm::floor(p_vec);
-		});
+		glm.set_function("V4Floor",
+			[](glm::vec4 p_vec) {
+				return glm::floor(p_vec);
+			});
 
-	glm.set_function("V4Trunc",
-		[](glm::vec4 p_vec) {
-			return glm::trunc(p_vec);
-		});
+		glm.set_function("V4Trunc",
+			[](glm::vec4 p_vec) {
+				return glm::trunc(p_vec);
+			});
 
-	glm.set_function("V4Round",
-		[](glm::vec4 p_vec) {
-			return glm::round(p_vec);
-		});
+		glm.set_function("V4Round",
+			[](glm::vec4 p_vec) {
+				return glm::round(p_vec);
+			});
 
-	glm.set_function("V4RoundEven",
-		[](glm::vec4 p_vec) {
-			return glm::roundEven(p_vec);
-		});
+		glm.set_function("V4RoundEven",
+			[](glm::vec4 p_vec) {
+				return glm::roundEven(p_vec);
+			});
 
-	glm.set_function("V4Ceil",
-		[](glm::vec4 p_vec) {
-			return glm::ceil(p_vec);
-		});
+		glm.set_function("V4Ceil",
+			[](glm::vec4 p_vec) {
+				return glm::ceil(p_vec);
+			});
 
-	glm.set_function("V4Fract",
-		[](glm::vec4 p_vec) {
-			return glm::fract(p_vec);
-		});
+		glm.set_function("V4Fract",
+			[](glm::vec4 p_vec) {
+				return glm::fract(p_vec);
+			});
 
-	glm.set_function("V4Mod",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::mod(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Mod",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::mod(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4ModF",
-		[](glm::vec4 p_vec1, float p_float) {
-			return glm::mod(p_vec1, p_float);
-		});
+		glm.set_function("V4ModF",
+			[](glm::vec4 p_vec1, float p_float) {
+				return glm::mod(p_vec1, p_float);
+			});
 
-	glm.set_function("V4Min",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::min(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Min",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::min(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4Max",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::max(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Max",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::max(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4Clamp",
-		[](glm::vec4 p_vec, glm::vec4 p_min, glm::vec4 p_max) {
-			return glm::clamp(p_vec, p_min, p_max);
-		});
+		glm.set_function("V4Clamp",
+			[](glm::vec4 p_vec, glm::vec4 p_min, glm::vec4 p_max) {
+				return glm::clamp(p_vec, p_min, p_max);
+			});
 
-	glm.set_function("V4AddF",
-		[](glm::vec4 p_vec1, float p_float) {
-			return p_vec1 + p_float;
-		});
+		glm.set_function("V4AddF",
+			[](glm::vec4 p_vec1, float p_float) {
+				return p_vec1 + p_float;
+			});
 
-	glm.set_function("V4SubF",
-		[](glm::vec4 p_vec1, float p_float) {
-			return p_vec1 - p_float;
-		});
+		glm.set_function("V4SubF",
+			[](glm::vec4 p_vec1, float p_float) {
+				return p_vec1 - p_float;
+			});
 
-	glm.set_function("V4MulF",
-		[](glm::vec4 p_vec1, float p_float) {
-			return p_vec1 * p_float;
-		});
+		glm.set_function("V4MulF",
+			[](glm::vec4 p_vec1, float p_float) {
+				return p_vec1 * p_float;
+			});
 
-	glm.set_function("V4DivF",
-		[](glm::vec4 p_vec1, float p_float) {
-			return p_vec1 / p_float;
-		});
+		glm.set_function("V4DivF",
+			[](glm::vec4 p_vec1, float p_float) {
+				return p_vec1 / p_float;
+			});
 
-	glm.set_function("V4Add",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return p_vec1 + p_vec2;
-		});
+		glm.set_function("V4Add",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return p_vec1 + p_vec2;
+			});
 
-	glm.set_function("V4Sub",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return p_vec1 - p_vec2;
-		});
+		glm.set_function("V4Sub",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return p_vec1 - p_vec2;
+			});
 
-	glm.set_function("V4Mul",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return p_vec1 * p_vec2;
-		});
+		glm.set_function("V4Mul",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return p_vec1 * p_vec2;
+			});
 
-	glm.set_function("V4Div",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return p_vec1 / p_vec2;
-		});
+		glm.set_function("V4Div",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return p_vec1 / p_vec2;
+			});
 
-	glm.set_function("V4Dot",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::dot(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Dot",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::dot(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4Normalize",
-		[](glm::vec4 p_vec) {
-			return glm::normalize(p_vec);
-		});
+		glm.set_function("V4Normalize",
+			[](glm::vec4 p_vec) {
+				return glm::normalize(p_vec);
+			});
 
-	glm.set_function("V4Length",
-		[](glm::vec4 p_vec) {
-			return glm::length(p_vec);
-		});
+		glm.set_function("V4Length",
+			[](glm::vec4 p_vec) {
+				return glm::length(p_vec);
+			});
 
-	glm.set_function("V4Distance",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::distance(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Distance",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::distance(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4Lerp",
-		[](glm::vec4 a, glm::vec4 b, float t) {
-			return glm::mix(a, b, t);
-		});
+		glm.set_function("V4Lerp",
+			[](glm::vec4 a, glm::vec4 b, float t) {
+				return glm::mix(a, b, t);
+			});
 
-	glm.set_function("V4Reflect",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
-			return glm::reflect(p_vec1, p_vec2);
-		});
+		glm.set_function("V4Reflect",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+				return glm::reflect(p_vec1, p_vec2);
+			});
 
-	glm.set_function("V4Refract",
-		[](glm::vec4 p_vec1, glm::vec4 p_vec2, float p_float) {
-			return glm::refract(p_vec1, p_vec2, p_float);
-		});
+		glm.set_function("V4Refract",
+			[](glm::vec4 p_vec1, glm::vec4 p_vec2, float p_float) {
+				return glm::refract(p_vec1, p_vec2, p_float);
+			});
+	}
 
 	// Quat
-	glm.set_function("Angle",
-		[](glm::quat p_quat) {
-			return glm::angle(p_quat);
-		});
+	{
+		glm.set_function("Angle",
+			[](glm::quat p_quat) {
+				return glm::angle(p_quat);
+			});
 
-	glm.set_function("Axis",
-		[](glm::quat p_quat) {
-			return glm::axis(p_quat);
-		});
+		glm.set_function("Axis",
+			[](glm::quat p_quat) {
+				return glm::axis(p_quat);
+			});
 
-	glm.set_function("AngleAxis",
-		[](glm::vec3 p_axis, float p_angle) {
-			return glm::angleAxis(p_angle, p_axis);
-		});
+		glm.set_function("AngleAxis",
+			[](glm::vec3 p_axis, float p_angle) {
+				return glm::angleAxis(p_angle, p_axis);
+			});
+	}
 
 	// Mat3
-	glm.set_function("M3MulF",
-		[](glm::mat3 p_mat, float p_float) {
-			return p_mat * p_float;
-		});
+	{
+		glm.set_function("M3MulF",
+			[](glm::mat3 p_mat, float p_float) {
+				return p_mat * p_float;
+			});
 
-	glm.set_function("M3Mul",
-		[](glm::mat3 p_mat1, glm::mat3 p_mat2) {
-			return p_mat1 * p_mat2;
-		});
+		glm.set_function("M3Mul",
+			[](glm::mat3 p_mat1, glm::mat3 p_mat2) {
+				return p_mat1 * p_mat2;
+			});
 
-	glm.set_function("M3MulV",
-		[](glm::mat3 p_mat, glm::vec3 p_vec) {
-			return p_mat * p_vec;
-		});
+		glm.set_function("M3MulV",
+			[](glm::mat3 p_mat, glm::vec3 p_vec) {
+				return p_mat * p_vec;
+			});
 
-	glm.set_function("M3Transpose",
-		[](glm::mat3 p_mat) {
-			return glm::transpose(p_mat);
-		});
+		glm.set_function("M3Transpose",
+			[](glm::mat3 p_mat) {
+				return glm::transpose(p_mat);
+			});
 
-	glm.set_function("M3Inverse",
-		[](glm::mat3 p_mat) {
-			return glm::inverse(p_mat);
-		});
+		glm.set_function("M3Inverse",
+			[](glm::mat3 p_mat) {
+				return glm::inverse(p_mat);
+			});
 
-	glm.set_function("M3Determinant",
-		[](glm::mat3 p_mat) {
-			return glm::determinant(p_mat);
-		});
+		glm.set_function("M3Determinant",
+			[](glm::mat3 p_mat) {
+				return glm::determinant(p_mat);
+			});
+	}
 
 	// Mat4
-	glm.set_function("M4MulF",
-		[](glm::mat4 p_mat, float p_float) {
-			return p_mat * p_float;
-		});
+	{
+		glm.set_function("M4MulF",
+			[](glm::mat4 p_mat, float p_float) {
+				return p_mat * p_float;
+			});
 
-	glm.set_function("M4Mul",
-		[](glm::mat4 p_mat1, glm::mat4 p_mat2) {
-			return p_mat1 * p_mat2;
-		});
+		glm.set_function("M4Mul",
+			[](glm::mat4 p_mat1, glm::mat4 p_mat2) {
+				return p_mat1 * p_mat2;
+			});
 
-	glm.set_function("M4MulV",
-		[](glm::mat4 p_mat, glm::vec4 p_vec) {
-			return p_mat * p_vec;
-		});
+		glm.set_function("M4MulV",
+			[](glm::mat4 p_mat, glm::vec4 p_vec) {
+				return p_mat * p_vec;
+			});
 
-	glm.set_function("M4Transpose",
-		[](glm::mat4 p_mat) {
-			return glm::transpose(p_mat);
-		});
+		glm.set_function("M4Transpose",
+			[](glm::mat4 p_mat) {
+				return glm::transpose(p_mat);
+			});
 
-	glm.set_function("M4Inverse",
-		[](glm::mat4 p_mat) {
-			return glm::inverse(p_mat);
-		});
+		glm.set_function("M4Inverse",
+			[](glm::mat4 p_mat) {
+				return glm::inverse(p_mat);
+			});
 
-	glm.set_function("M4Determinant",
-		[](glm::mat4 p_mat) {
-			return glm::determinant(p_mat);
-		});
+		glm.set_function("M4Determinant",
+			[](glm::mat4 p_mat) {
+				return glm::determinant(p_mat);
+			});
+	}
 
 
 	LuaClassDefinition glmDef;
@@ -945,6 +974,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Abs",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -952,6 +982,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Sign",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -959,6 +990,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Floor",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -966,6 +998,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Trunc",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -973,6 +1006,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Round",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -980,6 +1014,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2RoundEven",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -987,6 +1022,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Ceil",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -994,6 +1030,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Fract",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -1001,6 +1038,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Mod",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1009,6 +1047,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2ModF",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "float", "number" }
@@ -1017,6 +1056,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Min",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1025,6 +1065,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Max",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1033,6 +1074,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Clamp",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "min", "Vec2" },
@@ -1042,6 +1084,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2AddF",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "float", "number" }
@@ -1050,6 +1093,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2SubF",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "float", "number" }
@@ -1058,6 +1102,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2MulF",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "float", "number" }
@@ -1066,6 +1111,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2DivF",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" },
 				{ "float", "number" }
@@ -1074,6 +1120,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Add",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1082,6 +1129,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Sub",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1090,6 +1138,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Mul",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1098,6 +1147,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Div",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1106,6 +1156,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Dot",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1114,6 +1165,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Normalize",
 			"Vec2",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -1121,6 +1173,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Length",
 			"number",
+			true,
 			{
 				{ "vec", "Vec2" }
 			}
@@ -1128,6 +1181,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Distance",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1136,6 +1190,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Lerp",
 			"Vec2",
+			true,
 			{
 				{ "a", "Vec2" },
 				{ "b", "Vec2" },
@@ -1145,6 +1200,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Reflect",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" }
@@ -1153,6 +1209,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V2Refract",
 			"Vec2",
+			true,
 			{
 				{ "vec1", "Vec2" },
 				{ "vec2", "Vec2" },
@@ -1163,6 +1220,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Abs",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1170,6 +1228,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Sign",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1177,6 +1236,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Floor",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1184,6 +1244,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Trunc",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1191,6 +1252,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Round",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1198,6 +1260,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3RoundEven",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1205,6 +1268,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Ceil",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1212,6 +1276,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Fract",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1219,6 +1284,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Mod",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1227,6 +1293,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3ModF",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "float", "number" }
@@ -1235,6 +1302,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Min",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1243,6 +1311,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Max",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1251,6 +1320,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Clamp",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "min", "Vec3" },
@@ -1260,6 +1330,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3AddF",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "float", "number" }
@@ -1268,6 +1339,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3SubF",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "float", "number" }
@@ -1276,6 +1348,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3MulF",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "float", "number" }
@@ -1284,6 +1357,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3DivF",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" },
 				{ "float", "number" }
@@ -1292,6 +1366,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Add",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1300,6 +1375,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Sub",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1308,6 +1384,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Mul",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1316,6 +1393,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Div",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1324,6 +1402,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Dot",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1332,6 +1411,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Cross",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1340,6 +1420,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Normalize",
 			"Vec3",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1347,6 +1428,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Length",
 			"number",
+			true,
 			{
 				{ "vec", "Vec3" }
 			}
@@ -1354,6 +1436,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Distance",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1362,6 +1445,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Lerp",
 			"Vec3",
+			true,
 			{
 				{ "a", "Vec3" },
 				{ "b", "Vec3" },
@@ -1371,6 +1455,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Reflect",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" }
@@ -1379,6 +1464,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V3Refract",
 			"Vec3",
+			true,
 			{
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" },
@@ -1389,6 +1475,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Abs",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1396,6 +1483,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Sign",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1403,6 +1491,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Floor",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1410,6 +1499,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Trunc",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1417,6 +1507,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Round",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1424,6 +1515,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4RoundEven",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1431,6 +1523,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Ceil",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1438,6 +1531,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Fract",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1445,6 +1539,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Mod",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1453,6 +1548,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4ModF",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "float", "number" }
@@ -1461,6 +1557,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Min",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1469,6 +1566,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Max",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1477,6 +1575,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Clamp",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "min", "Vec4" },
@@ -1486,6 +1585,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4AddF",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "float", "number" }
@@ -1494,6 +1594,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4SubF",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "float", "number" }
@@ -1502,6 +1603,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4MulF",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "float", "number" }
@@ -1510,6 +1612,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4DivF",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" },
 				{ "float", "number" }
@@ -1518,6 +1621,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Add",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1526,6 +1630,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Sub",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1534,6 +1639,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Mul",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1542,6 +1648,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Div",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1550,6 +1657,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Dot",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1558,6 +1666,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Cross",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1566,6 +1675,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Normalize",
 			"Vec4",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1573,6 +1683,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Length",
 			"number",
+			true,
 			{
 				{ "vec", "Vec4" }
 			}
@@ -1580,6 +1691,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Distance",
 			"number",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1588,6 +1700,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Lerp",
 			"Vec4",
+			true,
 			{
 				{ "a", "Vec4" },
 				{ "b", "Vec4" },
@@ -1597,6 +1710,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Reflect",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" }
@@ -1605,6 +1719,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"V4Refract",
 			"Vec4",
+			true,
 			{
 				{ "vec1", "Vec4" },
 				{ "vec2", "Vec4" },
@@ -1615,6 +1730,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"Angle",
 			"number",
+			true,
 			{
 				{ "quat", "Quat" }
 			}
@@ -1622,6 +1738,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"Axis",
 			"Vec3",
+			true,
 			{
 				{ "quat", "Quat" }
 			}
@@ -1629,6 +1746,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"AngleAxis",
 			"Vec3",
+			true,
 			{
 				{ "axis", "Vec3" },
 				{ "angle", "number" }
@@ -1638,6 +1756,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3MulF",
 			"Mat3",
+			true,
 			{
 				{ "mat", "Mat3" },
 				{ "float", "number" }
@@ -1646,6 +1765,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3Mul",
 			"Mat3",
+			true,
 			{
 				{ "mat1", "Mat3" },
 				{ "mat2", "Mat3" }
@@ -1654,6 +1774,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3MulV",
 			"Vec3",
+			true,
 			{
 				{ "mat", "Mat3" },
 				{ "vec", "Vec3" }
@@ -1662,6 +1783,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3Transpose",
 			"Mat3",
+			true,
 			{
 				{ "mat", "Mat3" }
 			}
@@ -1669,6 +1791,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3Inverse",
 			"Mat3",
+			true,
 			{
 				{ "mat", "Mat3" }
 			}
@@ -1676,6 +1799,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M3Determinant",
 			"number",
+			true,
 			{
 				{ "mat", "Mat3" }
 			}
@@ -1684,6 +1808,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4MulF",
 			"Mat4",
+			true,
 			{
 				{ "mat", "Mat4" },
 				{ "float", "number" }
@@ -1692,6 +1817,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4Mul",
 			"Mat4",
+			true,
 			{
 				{ "mat1", "Mat4" },
 				{ "mat2", "Mat4" }
@@ -1700,6 +1826,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4MulV",
 			"Vec4",
+			true,
 			{
 				{ "mat", "Mat4" },
 				{ "vec", "Vec4" }
@@ -1708,6 +1835,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4Transpose",
 			"Mat4",
+			true,
 			{
 				{ "mat", "Mat4" }
 			}
@@ -1715,6 +1843,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4Inverse",
 			"Mat4",
+			true,
 			{
 				{ "mat", "Mat4" }
 			}
@@ -1722,6 +1851,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		{
 			"M4Determinant",
 			"number",
+			true,
 			{
 				{ "mat", "Mat4" }
 			}

@@ -40,6 +40,14 @@ namespace Droplet::Script
 
 		/// @brief Parameters accepted by the function.
 		std::vector<LuaParameterDefinition> parameters;
+
+		bool isStatic = false;
+
+		LuaFunctionDefinition(const std::string &p_name, const std::string &p_returnType, const std::vector<LuaParameterDefinition> &p_parameters)
+			: name(p_name), returnType(p_returnType), parameters(p_parameters) { }
+
+		LuaFunctionDefinition(const std::string &p_name, const std::string &p_returnType, bool p_isStatic, const std::vector<LuaParameterDefinition> &p_parameters)
+			: name(p_name), returnType(p_returnType), parameters(p_parameters), isStatic(p_isStatic) { }
 	};
 
 	/// @brief Describes an enum flag exposed through the Lua API.

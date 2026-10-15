@@ -37,34 +37,34 @@ function NewTargetPoint()
     v.y = r * math.sin(phi) * math.sin(theta)
     v.z = r * math.cos(phi)
 
-	targetPoint = GLM:V3Add(orbitPoint, v)
+	targetPoint = GLM.V3Add(orbitPoint, v)
 end
 
 function IsWithinTarget()
 	local pos = trans:GetPosition(TransformSpace.World)
-	local dist = GLM:V3Distance(pos, targetPoint)
+	local dist = GLM.V3Distance(pos, targetPoint)
 	return (dist <= targetAcceptanceRadius)
 end
 
 function UpdateVelocity(dt)
 	-- TODO: Steering behavior to move forwards and turn towards target point
 	local pos = trans:GetPosition(TransformSpace.World)
-	local dirToTarget = GLM:V3Sub(targetPoint, pos)
-	local distToTarget = GLM:V3Length(dirToTarget)
+	local dirToTarget = GLM.V3Sub(targetPoint, pos)
+	local distToTarget = GLM.V3Length(dirToTarget)
 
 	if distToTarget > 0 then
-		dirToTarget = GLM:V3MulF(dirToTarget, 1 / distToTarget)
+		dirToTarget = GLM.V3MulF(dirToTarget, 1 / distToTarget)
 	end
 
-	moveSpeed = GLM:V3Length(dirToTarget) * maxMoveSpeed
-	turnSpeed = GLM:V3Length(GLM:V3Cross(trans:GetForward(), dirToTarget)) * maxTurnSpeed
+	moveSpeed = GLM.V3Length(dirToTarget) * maxMoveSpeed
+	turnSpeed = GLM.V3Length(GLM.V3Cross(trans:GetForward(), dirToTarget)) * maxTurnSpeed
 end
 
 function ApplyVelocity(dt)
-	local toMove = GLM:V3MulF(GLM:V3MulF(trans:GetForward(), moveSpeed), dt)
+	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
 	trans:Move(toMove, TransformSpace.World)
 
-	local toRotate = GLM:V3MulF(GLM:V3MulF(trans:GetUp(), turnSpeed), dt)
+	local toRotate = GLM.V3MulF(GLM.V3MulF(trans:GetUp(), turnSpeed), dt)
 	trans:RotateEuler(toRotate, TransformSpace.World)
 end
 

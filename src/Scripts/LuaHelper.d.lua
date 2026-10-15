@@ -70,19 +70,19 @@ end
 ---@class Transform
 Transform = {}
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Vec3
 function Transform:GetPosition(space)
     return nil
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Quat
 function Transform:GetRotation(space)
     return nil
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Vec3
 function Transform:GetEuler(space)
     return nil
@@ -93,7 +93,7 @@ function Transform:GetScale()
     return nil
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Mat4
 function Transform:GetMatrix(space)
     return nil
@@ -104,36 +104,36 @@ function Transform:IsDirty()
     return false
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Vec3
 function Transform:GetUp(space)
     return nil
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Vec3
 function Transform:GetRight(space)
     return nil
 end
 
----@param space? TransformSpace
+---@param space TransformSpace|nil
 ---@return Vec3
 function Transform:GetForward(space)
     return nil
 end
 
 ---@param position Vec3
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:SetPosition(position, space)
 end
 
 ---@param rotation Quat
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:SetRotation(rotation, space)
 end
 
 ---@param euler Vec3
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:SetEuler(euler, space)
 end
 
@@ -142,7 +142,7 @@ function Transform:SetScale(scale)
 end
 
 ---@param matrix Mat4
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:SetMatrix(matrix, space)
 end
 
@@ -153,12 +153,12 @@ function Transform:RecalculateMatrices()
 end
 
 ---@param amount Vec3
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:Move(amount, space)
 end
 
 ---@param rotation Quat
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:Rotate(rotation, space)
 end
 
@@ -171,7 +171,7 @@ function Transform:RotateEulerRelative(euler)
 end
 
 ---@param euler Vec3
----@param space? TransformSpace
+---@param space TransformSpace|nil
 function Transform:RotateEuler(euler, space)
 end
 
@@ -179,15 +179,15 @@ end
 function Transform:AddScale(scale)
 end
 
----@param axis Vec3
 ---@param angle number
----@param space? TransformSpace
-function Transform:RotateAxis(axis, angle, space)
+---@param axis Vec3
+---@param space TransformSpace|nil
+function Transform:RotateAxis(angle, axis, space)
 end
 
 ---@param target Vec3
----@param up? Vec3
----@param space? TransformSpace
+---@param up Vec3|nil
+---@param space TransformSpace|nil
 function Transform:LookAt(target, up, space)
 end
 
@@ -227,77 +227,77 @@ GLM = {}
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Abs(vec)
+function GLM.V2Abs(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Sign(vec)
+function GLM.V2Sign(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Floor(vec)
+function GLM.V2Floor(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Trunc(vec)
+function GLM.V2Trunc(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Round(vec)
+function GLM.V2Round(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2RoundEven(vec)
+function GLM.V2RoundEven(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Ceil(vec)
+function GLM.V2Ceil(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Fract(vec)
+function GLM.V2Fract(vec)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Mod(vec1, vec2)
+function GLM.V2Mod(vec1, vec2)
     return nil
 end
 
 ---@param vec Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2ModF(vec, float)
+function GLM.V2ModF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Min(vec1, vec2)
+function GLM.V2Min(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Max(vec1, vec2)
+function GLM.V2Max(vec1, vec2)
     return nil
 end
 
@@ -305,89 +305,89 @@ end
 ---@param min Vec2
 ---@param max Vec2
 ---@return Vec2
-function GLM:V2Clamp(vec, min, max)
+function GLM.V2Clamp(vec, min, max)
     return nil
 end
 
 ---@param vec Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2AddF(vec, float)
+function GLM.V2AddF(vec, float)
     return nil
 end
 
 ---@param vec Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2SubF(vec, float)
+function GLM.V2SubF(vec, float)
     return nil
 end
 
 ---@param vec Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2MulF(vec, float)
+function GLM.V2MulF(vec, float)
     return nil
 end
 
 ---@param vec Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2DivF(vec, float)
+function GLM.V2DivF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Add(vec1, vec2)
+function GLM.V2Add(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Sub(vec1, vec2)
+function GLM.V2Sub(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Mul(vec1, vec2)
+function GLM.V2Mul(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Div(vec1, vec2)
+function GLM.V2Div(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return number
-function GLM:V2Dot(vec1, vec2)
+function GLM.V2Dot(vec1, vec2)
     return 0
 end
 
 ---@param vec Vec2
 ---@return Vec2
-function GLM:V2Normalize(vec)
+function GLM.V2Normalize(vec)
     return nil
 end
 
 ---@param vec Vec2
 ---@return number
-function GLM:V2Length(vec)
+function GLM.V2Length(vec)
     return 0
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return number
-function GLM:V2Distance(vec1, vec2)
+function GLM.V2Distance(vec1, vec2)
     return 0
 end
 
@@ -395,14 +395,14 @@ end
 ---@param b Vec2
 ---@param t number
 ---@return Vec2
-function GLM:V2Lerp(a, b, t)
+function GLM.V2Lerp(a, b, t)
     return nil
 end
 
 ---@param vec1 Vec2
 ---@param vec2 Vec2
 ---@return Vec2
-function GLM:V2Reflect(vec1, vec2)
+function GLM.V2Reflect(vec1, vec2)
     return nil
 end
 
@@ -410,83 +410,83 @@ end
 ---@param vec2 Vec2
 ---@param float number
 ---@return Vec2
-function GLM:V2Refract(vec1, vec2, float)
+function GLM.V2Refract(vec1, vec2, float)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Abs(vec)
+function GLM.V3Abs(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Sign(vec)
+function GLM.V3Sign(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Floor(vec)
+function GLM.V3Floor(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Trunc(vec)
+function GLM.V3Trunc(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Round(vec)
+function GLM.V3Round(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3RoundEven(vec)
+function GLM.V3RoundEven(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Ceil(vec)
+function GLM.V3Ceil(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Fract(vec)
+function GLM.V3Fract(vec)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Mod(vec1, vec2)
+function GLM.V3Mod(vec1, vec2)
     return nil
 end
 
 ---@param vec Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3ModF(vec, float)
+function GLM.V3ModF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Min(vec1, vec2)
+function GLM.V3Min(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Max(vec1, vec2)
+function GLM.V3Max(vec1, vec2)
     return nil
 end
 
@@ -494,96 +494,96 @@ end
 ---@param min Vec3
 ---@param max Vec3
 ---@return Vec3
-function GLM:V3Clamp(vec, min, max)
+function GLM.V3Clamp(vec, min, max)
     return nil
 end
 
 ---@param vec Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3AddF(vec, float)
+function GLM.V3AddF(vec, float)
     return nil
 end
 
 ---@param vec Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3SubF(vec, float)
+function GLM.V3SubF(vec, float)
     return nil
 end
 
 ---@param vec Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3MulF(vec, float)
+function GLM.V3MulF(vec, float)
     return nil
 end
 
 ---@param vec Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3DivF(vec, float)
+function GLM.V3DivF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Add(vec1, vec2)
+function GLM.V3Add(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Sub(vec1, vec2)
+function GLM.V3Sub(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Mul(vec1, vec2)
+function GLM.V3Mul(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Div(vec1, vec2)
+function GLM.V3Div(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return number
-function GLM:V3Dot(vec1, vec2)
+function GLM.V3Dot(vec1, vec2)
     return 0
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Cross(vec1, vec2)
+function GLM.V3Cross(vec1, vec2)
     return nil
 end
 
 ---@param vec Vec3
 ---@return Vec3
-function GLM:V3Normalize(vec)
+function GLM.V3Normalize(vec)
     return nil
 end
 
 ---@param vec Vec3
 ---@return number
-function GLM:V3Length(vec)
+function GLM.V3Length(vec)
     return 0
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return number
-function GLM:V3Distance(vec1, vec2)
+function GLM.V3Distance(vec1, vec2)
     return 0
 end
 
@@ -591,14 +591,14 @@ end
 ---@param b Vec3
 ---@param t number
 ---@return Vec3
-function GLM:V3Lerp(a, b, t)
+function GLM.V3Lerp(a, b, t)
     return nil
 end
 
 ---@param vec1 Vec3
 ---@param vec2 Vec3
 ---@return Vec3
-function GLM:V3Reflect(vec1, vec2)
+function GLM.V3Reflect(vec1, vec2)
     return nil
 end
 
@@ -606,83 +606,83 @@ end
 ---@param vec2 Vec3
 ---@param float number
 ---@return Vec3
-function GLM:V3Refract(vec1, vec2, float)
+function GLM.V3Refract(vec1, vec2, float)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Abs(vec)
+function GLM.V4Abs(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Sign(vec)
+function GLM.V4Sign(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Floor(vec)
+function GLM.V4Floor(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Trunc(vec)
+function GLM.V4Trunc(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Round(vec)
+function GLM.V4Round(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4RoundEven(vec)
+function GLM.V4RoundEven(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Ceil(vec)
+function GLM.V4Ceil(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Fract(vec)
+function GLM.V4Fract(vec)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Mod(vec1, vec2)
+function GLM.V4Mod(vec1, vec2)
     return nil
 end
 
 ---@param vec Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4ModF(vec, float)
+function GLM.V4ModF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Min(vec1, vec2)
+function GLM.V4Min(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Max(vec1, vec2)
+function GLM.V4Max(vec1, vec2)
     return nil
 end
 
@@ -690,96 +690,96 @@ end
 ---@param min Vec4
 ---@param max Vec4
 ---@return Vec4
-function GLM:V4Clamp(vec, min, max)
+function GLM.V4Clamp(vec, min, max)
     return nil
 end
 
 ---@param vec Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4AddF(vec, float)
+function GLM.V4AddF(vec, float)
     return nil
 end
 
 ---@param vec Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4SubF(vec, float)
+function GLM.V4SubF(vec, float)
     return nil
 end
 
 ---@param vec Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4MulF(vec, float)
+function GLM.V4MulF(vec, float)
     return nil
 end
 
 ---@param vec Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4DivF(vec, float)
+function GLM.V4DivF(vec, float)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Add(vec1, vec2)
+function GLM.V4Add(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Sub(vec1, vec2)
+function GLM.V4Sub(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Mul(vec1, vec2)
+function GLM.V4Mul(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Div(vec1, vec2)
+function GLM.V4Div(vec1, vec2)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return number
-function GLM:V4Dot(vec1, vec2)
+function GLM.V4Dot(vec1, vec2)
     return 0
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Cross(vec1, vec2)
+function GLM.V4Cross(vec1, vec2)
     return nil
 end
 
 ---@param vec Vec4
 ---@return Vec4
-function GLM:V4Normalize(vec)
+function GLM.V4Normalize(vec)
     return nil
 end
 
 ---@param vec Vec4
 ---@return number
-function GLM:V4Length(vec)
+function GLM.V4Length(vec)
     return 0
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return number
-function GLM:V4Distance(vec1, vec2)
+function GLM.V4Distance(vec1, vec2)
     return 0
 end
 
@@ -787,14 +787,14 @@ end
 ---@param b Vec4
 ---@param t number
 ---@return Vec4
-function GLM:V4Lerp(a, b, t)
+function GLM.V4Lerp(a, b, t)
     return nil
 end
 
 ---@param vec1 Vec4
 ---@param vec2 Vec4
 ---@return Vec4
-function GLM:V4Reflect(vec1, vec2)
+function GLM.V4Reflect(vec1, vec2)
     return nil
 end
 
@@ -802,104 +802,104 @@ end
 ---@param vec2 Vec4
 ---@param float number
 ---@return Vec4
-function GLM:V4Refract(vec1, vec2, float)
+function GLM.V4Refract(vec1, vec2, float)
     return nil
 end
 
 ---@param quat Quat
 ---@return number
-function GLM:Angle(quat)
+function GLM.Angle(quat)
     return 0
 end
 
 ---@param quat Quat
 ---@return Vec3
-function GLM:Axis(quat)
+function GLM.Axis(quat)
     return nil
 end
 
 ---@param axis Vec3
 ---@param angle number
 ---@return Vec3
-function GLM:AngleAxis(axis, angle)
+function GLM.AngleAxis(axis, angle)
     return nil
 end
 
 ---@param mat Mat3
 ---@param float number
 ---@return Mat3
-function GLM:M3MulF(mat, float)
+function GLM.M3MulF(mat, float)
     return nil
 end
 
 ---@param mat1 Mat3
 ---@param mat2 Mat3
 ---@return Mat3
-function GLM:M3Mul(mat1, mat2)
+function GLM.M3Mul(mat1, mat2)
     return nil
 end
 
 ---@param mat Mat3
 ---@param vec Vec3
 ---@return Vec3
-function GLM:M3MulV(mat, vec)
+function GLM.M3MulV(mat, vec)
     return nil
 end
 
 ---@param mat Mat3
 ---@return Mat3
-function GLM:M3Transpose(mat)
+function GLM.M3Transpose(mat)
     return nil
 end
 
 ---@param mat Mat3
 ---@return Mat3
-function GLM:M3Inverse(mat)
+function GLM.M3Inverse(mat)
     return nil
 end
 
 ---@param mat Mat3
 ---@return number
-function GLM:M3Determinant(mat)
+function GLM.M3Determinant(mat)
     return 0
 end
 
 ---@param mat Mat4
 ---@param float number
 ---@return Mat4
-function GLM:M4MulF(mat, float)
+function GLM.M4MulF(mat, float)
     return nil
 end
 
 ---@param mat1 Mat4
 ---@param mat2 Mat4
 ---@return Mat4
-function GLM:M4Mul(mat1, mat2)
+function GLM.M4Mul(mat1, mat2)
     return nil
 end
 
 ---@param mat Mat4
 ---@param vec Vec4
 ---@return Vec4
-function GLM:M4MulV(mat, vec)
+function GLM.M4MulV(mat, vec)
     return nil
 end
 
 ---@param mat Mat4
 ---@return Mat4
-function GLM:M4Transpose(mat)
+function GLM.M4Transpose(mat)
     return nil
 end
 
 ---@param mat Mat4
 ---@return Mat4
-function GLM:M4Inverse(mat)
+function GLM.M4Inverse(mat)
     return nil
 end
 
 ---@param mat Mat4
 ---@return number
-function GLM:M4Determinant(mat)
+function GLM.M4Determinant(mat)
     return 0
 end
 
