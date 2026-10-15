@@ -89,7 +89,7 @@ namespace Droplet
 		Scene::SceneManager m_sceneManager;
 
 		/// @brief The resource manager instance, should only be one.
-		ResourceManager m_resourceManager;
+		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;

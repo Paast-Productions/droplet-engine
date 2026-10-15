@@ -3,6 +3,7 @@
 #include <Editor/DragDropFields.hpp>
 #include <resource/ResourceManager.hpp>
 #include <Engine/Engine.hpp>
+#include <string>
 
 using namespace Droplet::Scene;
 
@@ -16,7 +17,6 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 	//TODO: will be inplemted later when the mesh system is implemented
 }
 
-
 void MeshComponent::RenderUIImpl()
 {
     using namespace Droplet::Editor;
@@ -24,19 +24,14 @@ void MeshComponent::RenderUIImpl()
 
     auto &resourceManager = Droplet::ResourceManager::Get();
 
-    // Mesh resource
-    Droplet::GUID meshGUID = m_mesh.GetGUID();
+    // Mesh drop target
+    const Droplet::GUID meshGUID = m_mesh.GetGUID();
+    const std::string meshLabel =
+        meshGUID != 0
+        ? "Mesh: " + std::to_string(meshGUID)
+        : "Drop Mesh Here";
 
-    if (InputScalar(
-        "Mesh GUID",
-        ImGuiDataType_U64,
-        &meshGUID,
-        nullptr,
-        nullptr,
-        "%llu"))
-    {
-        SetMeshGUID(meshGUID, resourceManager);
-    }
+    Button(meshLabel.c_str(), ImVec2(-1.0f, 40.0f));
 
     if (BeginDragDropTarget())
     {
@@ -55,19 +50,14 @@ void MeshComponent::RenderUIImpl()
         EndDragDropTarget();
     }
 
-    // Texture resource
-    Droplet::GUID textureGUID = m_2dTexture.GetGUID();
+    // Texture drop target
+    const Droplet::GUID textureGUID = m_2dTexture.GetGUID();
+    const std::string textureLabel =
+        textureGUID != 0
+        ? "Texture: " + std::to_string(textureGUID)
+        : "Drop Texture Here";
 
-    if (InputScalar(
-        "Texture GUID",
-        ImGuiDataType_U64,
-        &textureGUID,
-        nullptr,
-        nullptr,
-        "%llu"))
-    {
-        SetTextureGUID(textureGUID, resourceManager);
-    }
+    Button(textureLabel.c_str(), ImVec2(-1.0f, 40.0f));
 
     if (BeginDragDropTarget())
     {
@@ -86,6 +76,7 @@ void MeshComponent::RenderUIImpl()
         EndDragDropTarget();
     }
 }
+
 
 
 void MeshComponent::SetMeshGUID(

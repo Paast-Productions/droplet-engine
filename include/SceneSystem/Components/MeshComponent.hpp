@@ -72,8 +72,8 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        std::uint64_t m_meshGUID = 0;
-        std::uint64_t m_textureGUID = 0;
+        std::uint64_t m_meshGUID = C_INVALID_GUID;
+        std::uint64_t m_textureGUID = C_INVALID_GUID;
 
         ResourceHandle<MeshResource> m_mesh;
         ResourceHandle<Texture2DResource> m_2dTexture;

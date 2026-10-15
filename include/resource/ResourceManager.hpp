@@ -64,6 +64,12 @@ namespace Droplet
         ResourceManager() = default;
         ~ResourceManager() = default;
 
+        ResourceManager(const ResourceManager &) = delete;
+
+        /// @brief Copy assignment operator deleting itself
+        /// @param ResourceManager
+        ResourceManager &operator=(const ResourceManager &) = delete;
+
         [[nodiscard]] static ResourceManager &Get()
         {
             static ResourceManager resourceManager;
