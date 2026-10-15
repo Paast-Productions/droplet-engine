@@ -14,6 +14,16 @@ namespace Droplet
 	class Physics
 	{
 	public:
+
+		/// @brief A struct contaning values to initialize Physics
+		struct Initializer
+		{
+			std::uint32_t maxBodies = 1024; // Maximum number of bodies to support.
+			std::uint32_t numBodyMutexes = 0; // Number of body mutexes to use. Should be a power of 2 in the range [1, 64], use 0 to auto detect.
+			std::uint32_t maxBodyPairs = 1024; // Maximum amount of body pairs to process (anything else will fall through the world), this number should generally be much higher than the max amount of contact points as there will be lots of bodies close that are not actually touching.
+			std::uint32_t maxContactConstraints = 1024; // Maximum amount of contact constraints to process (anything else will fall through the world).
+		};
+
 		Physics() = default;
 		~Physics() = default;
 
@@ -24,6 +34,7 @@ namespace Droplet
 		/// @param p_maxContactConstraints Maximum amount of contact constraints to process (anything else will fall through the world).
 		void Initialize(const std::uint32_t p_maxBodies = 1024, const std::uint32_t p_numBodyMutexes = 0, 
 			const std::uint32_t p_maxBodyPairs = 1024, const std::uint32_t p_maxContactConstraints = 1024);
+		void Initialize(const Initializer p_initializer);
 
 		/// @brief Updates the physics system
 		void Update();
