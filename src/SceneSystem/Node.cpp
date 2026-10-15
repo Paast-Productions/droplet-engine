@@ -391,3 +391,15 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
 
     return false;
 }
+
+bool Node::IsRenderable() const
+{
+    for (const auto &component : m_components)
+    {
+        if (component && component->IsRenderable())
+        {
+            return true;
+        }
+    }
+    return false;
+}

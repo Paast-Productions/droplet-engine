@@ -1,6 +1,9 @@
 #include "MeshComponent.hpp"
 #include <ImGui/imgui.h>
 #include <Editor/DragDropFields.hpp>
+#include <resource/ResourceManager.hpp>
+#include <Engine/Engine.hpp>
+#include <string>
 
 using namespace Droplet::Scene;
 
@@ -16,113 +19,96 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 
 void MeshComponent::RenderUIImpl()
 {
-	using namespace Droplet::Editor;
-	using namespace ImGui;
+    using namespace Droplet::Editor;
+    using namespace ImGui;
 
-	Text("Mesh GUID: ");
-	SameLine();
+    auto &resourceManager = Droplet::ResourceManager::Get();
 
-	BeginGroup();
-	Text("%llu", m_meshGUID);
-	EndGroup();
+    // Mesh drop target
+    const Droplet::GUID meshGUID = m_mesh.GetGUID();
+    const std::string meshLabel =
+        meshGUID != 0
+        ? "Mesh: " + std::to_string(meshGUID)
+        : "Drop Mesh Here";
 
-	if (BeginDragDropTarget())
-	{
-		// Verify that the payload is a mesh resource
-		bool isValidResource = false;
+    Button(meshLabel.c_str(), ImVec2(-1.0f, 40.0f));
 
-		{
-			const ImGuiPayload *payload = GetDragDropPayload();
+    if (BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+        {
+            if (payload->DataSize == sizeof(Droplet::GUID))
+            {
+                const auto guid =
+                    *static_cast<const Droplet::GUID *>(payload->Data);
 
-			bool isResource = payload->IsDataType(PAYLOAD_RESOURCE.data());
+                SetMeshGUID(guid, resourceManager);
+            }
+        }
 
-			if (isResource)
-			{
-				// TODO: Check with ResourceManager if the resource is a mesh resource
+        EndDragDropTarget();
+    }
 
-				isValidResource = true;
-			}
-		}
+    // Texture drop target
+    const Droplet::GUID textureGUID = m_2dTexture.GetGUID();
+    const std::string textureLabel =
+        textureGUID != 0
+        ? "Texture: " + std::to_string(textureGUID)
+        : "Drop Texture Here";
 
-		if (isValidResource)
-		{
-			if (const ImGuiPayload *payload = AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-			{
-				m_meshGUID = *static_cast<Droplet::GUID *>(payload->Data);
-			}
-		}
+    Button(textureLabel.c_str(), ImVec2(-1.0f, 40.0f));
 
-		EndDragDropTarget();
-	}
+    if (BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload =
+            AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+        {
+            if (payload->DataSize == sizeof(Droplet::GUID))
+            {
+                const auto guid =
+                    *static_cast<const Droplet::GUID *>(payload->Data);
 
+                SetTextureGUID(guid, resourceManager);
+            }
+        }
 
-	Text("Material GUID: ");
-	SameLine();
-
-	BeginGroup();
-	Text("%llu", m_materialGUID);
-	EndGroup();
-
-	if (BeginDragDropTarget())
-	{
-		// Verify that the payload is a material resource
-		bool isValidResource = false;
-
-		{
-			const ImGuiPayload *payload = GetDragDropPayload();
-
-			bool isResource = payload->IsDataType(PAYLOAD_RESOURCE.data());
-
-			if (isResource)
-			{
-				// TODO: Check with ResourceManager if the resource is a material resource
-
-				isValidResource = true;
-			}
-		}
-
-		if (isValidResource)
-		{
-			if (const ImGuiPayload *payload = AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-			{
-				m_materialGUID = *static_cast<Droplet::GUID *>(payload->Data);
-			}
-		}
-
-		EndDragDropTarget();
-	}
+        EndDragDropTarget();
+    }
 }
 
-void MeshComponent::SetMeshGUID(GUID p_meshGUID)
+void MeshComponent::SetMeshGUID(
+    Droplet::GUID p_guid,
+    Droplet::ResourceManager &p_resourceManager)
 {
-	// TODO: Update some state probably
-	m_meshGUID = p_meshGUID;
+    m_mesh = p_resourceManager.LoadResource<Droplet::MeshResource>(p_guid);
 }
 
-void MeshComponent::SetMaterialGUID(GUID p_materialGUID)
+void MeshComponent::SetTextureGUID(
+    Droplet::GUID p_guid,
+    Droplet::ResourceManager &p_resourceManager)
 {
-	// TODO: Update some state probably
-	m_materialGUID = p_materialGUID;
+    m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
 }
 
-const std::weak_ptr<Droplet::MeshResource> MeshComponent::GetMeshResource() const
+const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
 {
-    // TODO
-    return std::weak_ptr<MeshResource>();
+    // TODO: insert return statement here
+    return m_mesh;
 }
 
-const std::weak_ptr<Droplet::MaterialResource> Droplet::Scene::MeshComponent::GetMaterialResource() const
+const Droplet::ResourceHandle<Droplet::Texture2DResource> &Droplet::Scene::MeshComponent::Get2dTextureResource() const
 {
-	// TODO
-	return std::weak_ptr<MaterialResource>();
+    // TODO: insert return statement here
+    return m_2dTexture;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
-    json["meshGUID"] = m_meshGUID;
-    json["materialGUID"] = m_materialGUID;
+    json["meshGUID"] = GetMeshGUID();
+    json["textureGUID"] = GetTextureGUID();
 
     return json;
 }
@@ -134,8 +120,8 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 		m_meshGUID = p_compJson["meshGUID"].get<Droplet::GUID>();
 	}
 
-	if (p_compJson.contains("materialGUID"))
+	if (p_compJson.contains("textureGUID"))
 	{
-		m_materialGUID = p_compJson["materialGUID"].get<Droplet::GUID>();
+		m_textureGUID = p_compJson["textureGUID"].get<Droplet::GUID>();
 	}
 }

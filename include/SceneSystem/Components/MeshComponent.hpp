@@ -1,12 +1,15 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
+#include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <resource/ResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
-#include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <resource/types/Texture2DResource.hpp>
+
 #include <string>
 #include <string_view>
-#include <ResourceManager.hpp>
+#include <cstdint>
 
 namespace Droplet::Scene
 {
@@ -25,29 +28,43 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         [[nodiscard]] std::string_view GetTypeName() const override { return "MeshComponent"; }
 
-		/// @brief Gets the GUID of the mesh resource associated with this component.
-		/// @return The GUID of the mesh resource.
-		[[nodiscard]] GUID GetMeshGUID() const { return m_meshGUID; }
+        // Mesh
 
-		/// @brief Gets the GUID of the material resource associated with this component.
-		/// @return The GUID of the material resource.
-		[[nodiscard]] GUID GetMaterialGUID() const { return m_materialGUID; }
+        /// @brief Sets the mesh resource using its GUID.
+        /// @param p_guid GUID identifying the mesh resource to load.
+        /// @param p_resourceManager Resource manager used to load the mesh resource.
+        void SetMeshGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
 
-		/// @brief Sets the GUID of the mesh resource associated with this component.
-		/// @param p_meshGUID The GUID of the mesh resource.
-		void SetMeshGUID(GUID p_meshGUID);
+        /// @brief Gets the GUID of the assigned mesh resource.
+        /// @return GUID of the assigned mesh resource, or the invalid GUID if none is assigned.
+        [[nodiscard]] Droplet::GUID GetMeshGUID() const
+        {
+            return m_mesh.GetGUID();
+        }
 
-		/// @brief Sets the GUID of the material resource associated with this component.
-		/// @param p_materialGUID The GUID of the material resource.
-		void SetMaterialGUID(GUID p_materialGUID);
+		// Texture
 
-		/// @brief Gets the mesh resource associated with this component.
-		/// @return A weak pointer to the mesh resource, or an empty weak pointer if the resource is not loaded.
-        [[nodiscard]] const std::weak_ptr<MeshResource> GetMeshResource() const;
+        /// @brief Sets the 2D texture resource using its GUID.
+        /// @param p_guid GUID identifying the texture resource to load.
+        /// @param p_resourceManager Resource manager used to load the texture resource.
+        void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
 
-		/// @brief Gets the material resource associated with this component.
-		/// @return A weak pointer to the material resource, or an empty weak pointer if the resource is not loaded.
-        [[nodiscard]] const std::weak_ptr<MaterialResource> GetMaterialResource() const;
+        /// @brief Gets the GUID of the assigned 2D texture resource.
+        /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
+        [[nodiscard]] Droplet::GUID GetTextureGUID() const
+        {
+            return m_2dTexture.GetGUID();
+        }
+
+        /// @brief Gets the resource handle for the assigned mesh.
+        /// @return Constant reference to the mesh resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &
+            GetMeshResource() const;
+
+        /// @brief Gets the resource handle for the assigned 2D texture.
+        /// @return Constant reference to the 2D texture resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &
+            Get2dTextureResource() const;
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
@@ -58,14 +75,17 @@ namespace Droplet::Scene
         [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
     protected:
-		void RenderUIImpl() override;
+        void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-		GUID m_meshGUID = C_INVALID_GUID;
-		GUID m_materialGUID = C_INVALID_GUID;
+        std::uint64_t m_meshGUID = C_INVALID_GUID;
+        std::uint64_t m_textureGUID = C_INVALID_GUID;
+
+        ResourceHandle<MeshResource> m_mesh;
+        ResourceHandle<Texture2DResource> m_2dTexture;
 
         MeshNodeBounds m_bounds;
     };
