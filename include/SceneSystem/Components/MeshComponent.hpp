@@ -30,35 +30,52 @@ namespace Droplet::Scene
 
         // Mesh
 
-        //TODO: should be GUID or something idk
+        /// @brief Sets the mesh resource using its GUID.
+        /// @param p_guid GUID identifying the mesh resource to load.
+        /// @param p_resourceManager Resource manager used to load the mesh resource.
         void SetMeshGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+
+        /// @brief Gets the GUID of the assigned mesh resource.
+        /// @return GUID of the assigned mesh resource, or the invalid GUID if none is assigned.
         [[nodiscard]] Droplet::GUID GetMeshGUID() const
         {
             return m_mesh.GetGUID();
         }
 
-        // Texture
-        // 
-         //TODO: should be GUID or something idk
+		// Texture
+
+        /// @brief Sets the 2D texture resource using its GUID.
+        /// @param p_guid GUID identifying the texture resource to load.
+        /// @param p_resourceManager Resource manager used to load the texture resource.
         void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+
+        /// @brief Gets the GUID of the assigned 2D texture resource.
+        /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
         [[nodiscard]] Droplet::GUID GetTextureGUID() const
         {
             return m_2dTexture.GetGUID();
         }
 
-        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &GetMeshResource() const;
-        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &Get2dTextureResource() const;
+        /// @brief Gets the resource handle for the assigned mesh.
+        /// @return Constant reference to the mesh resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &
+            GetMeshResource() const;
+
+        /// @brief Gets the resource handle for the assigned 2D texture.
+        /// @return Constant reference to the 2D texture resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &
+            Get2dTextureResource() const;
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
-        bool HasBoundsOverride() const override { return true; }
+        [[nodiscard]] bool HasBoundsOverride() const override { return true; }
 
         /// @brief Gets the custom bounds provided by the component.
         /// @return The bounding box provided by the component.
         [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
     protected:
-		void RenderUIImpl() override;
+        void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
