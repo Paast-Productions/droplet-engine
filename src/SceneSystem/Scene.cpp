@@ -80,18 +80,18 @@ void Scene::Render(std::vector<NodeData> &p_data)
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
-    if (!m_loaded || !m_active)
+    /*if (!m_loaded || !m_active)
     {
         return;
-    }
+    }*/
 
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
-    {
+   /* if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
+    {*/
         for (const auto &root : m_roots)
         {
             root->Render(p_data);
         }
-    }
+    /*}*/
 }
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)

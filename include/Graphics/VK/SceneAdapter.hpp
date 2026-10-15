@@ -14,6 +14,7 @@
 #include <Graphics/VK/DescriptorSet.hpp>
 #include <Graphics/VK/StorageBuffer.hpp>
 #include <glm/glm.hpp>
+#include <Graphics/VK/Allocator.hpp>
 
 namespace Droplet::Graphics::VK
 {
@@ -84,11 +85,13 @@ namespace Droplet::Graphics::VK
 
 		~SceneAdapter() = default;
 
-		void Initialize(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
+		void Initialize(const Context &p_context, Allocator &p_allocator, const CommandPool &p_commandPool, DescriptorSet &p_descriptorSet);
+
+		void Deinitialize();
 
 		void SubmitNodeData(const std::vector<Droplet::Scene::NodeData> p_nodeData);
 
-		void UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
+		void UpdateMaps(const Context &p_context, Allocator &p_allocator, DescriptorSet &p_descriptorSet);
 
 		const RenderData GetRenderData();
 	private:

@@ -52,9 +52,7 @@ namespace Droplet::Graphics
 	{
 		struct UniformBufferObject
 		{
-			glm::mat4 model {};
-			glm::mat4 view {};
-			glm::mat4 proj {};
+			glm::mat4 matrix{};
 		};
 	}
 	
@@ -144,10 +142,11 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		SDL::Window m_window;
+		SDL::Window m_window{ nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::Allocator m_allocator { nullptr };
+
+		VK::Allocator m_allocator{ nullptr };
 
 		SDL_Event m_event {};
 
@@ -167,7 +166,8 @@ namespace Droplet::Graphics
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
-		VK::StorageBuffer m_storageBuffer { nullptr };
+		VK::StorageBuffer m_viewBuffer { nullptr };
+		VK::StorageBuffer m_projBuffer { nullptr };
 		VK::UniformBuffer m_uniformBuffer { nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };

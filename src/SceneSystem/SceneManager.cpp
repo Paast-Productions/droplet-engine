@@ -170,17 +170,18 @@ std::vector<NodeData> SceneManager::Render()
 
     std::vector<NodeData> data;
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    for (auto it = m_scenes.begin(); it != m_scenes.end();)
     {
-        auto scene = it->lock();
+        /*auto scene = it->lock();
 
         if (!scene)
         {
             it = m_activeScenes.erase(it);
             continue;
-        }
+        }*/
 
-        scene->Render(data);
+
+        it->second.get()->Render(data);
 
         ++it;
     }

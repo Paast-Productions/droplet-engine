@@ -3,7 +3,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-void SceneAdapter::Initialize(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet)
+void SceneAdapter::Initialize(const Context &p_context, Allocator &p_allocator, const CommandPool &p_commandPool, DescriptorSet &p_descriptorSet)
 {
 	m_vertexMap.emplace(0, VertexBuffer(p_allocator.Get(), G_VERTICES));
 	m_indexMap.emplace(0, IndexBuffer(p_allocator.Get(), G_INDICES));
@@ -35,10 +35,22 @@ void SceneAdapter::Initialize(const Context &p_context, const CommandPool &p_com
 		)
 	);
 
-	p_descriptorSet.WriteCombinedImageSamplerDescriptor(p_context.GetDevice(), m_samplerMap[0].Get(), m_viewMap[0].Get());
+	//p_descriptorSet.WriteCombinedImageSamplerDescriptor(p_context.GetDevice(), m_samplerMap[0].Get(), m_viewMap[0].Get());
 }
 
-void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet)
+void SceneAdapter::Deinitialize()
+{
+	m_bufferMap.clear();
+	m_indexMap.clear();
+	m_nodeData.clear();
+	m_samplerMap.clear();
+	m_viewMap.clear();
+	m_imageMap.clear();
+
+	m_renderData.meshData.clear();
+}
+
+void SceneAdapter::UpdateMaps(const Context &p_context, Allocator &p_allocator, DescriptorSet &p_descriptorSet)
 {
 	//Iterate through and update what meshes and textures are loaded
 
@@ -57,7 +69,7 @@ void SceneAdapter::UpdateMaps(const Context &p_context, const Allocator &p_alloc
 		mData.push_back(m);
 
 		m_bufferMap.emplace(i, StorageBuffer(p_allocator.Get(), m_nodeData[i].world));
-		p_descriptorSet.WriteStorageBufferDescriptor(p_context.GetDevice(), m_bufferMap[i].Get(), i + 1);
+		p_descriptorSet.WriteStorageBufferDescriptor(p_context.GetDevice(), m_bufferMap[i].Get(), i + 2);
 
 		PushConstants p;
 		p.unibuf = i;

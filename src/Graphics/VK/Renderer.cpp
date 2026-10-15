@@ -38,31 +38,32 @@ using namespace Droplet::Graphics;
 Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
 	m_window							{ p_windowConfig },
 	m_context							{ m_window.Get(), m_vkContext },
-	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()},
 	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
-	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
-	m_depthBuffer						{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer						{ m_allocator.Get(), G_INDICES },
-	m_vertexBuffer						{ m_allocator.Get(), G_VERTICES }
+	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() }
 {
 	ZoneScoped;
 
-	// TODO: <REFACTOR>
-	
-	CreateGraphicsPipeline();
+	VK::SceneAdapter::GetInstance().Initialize(m_context, m_allocator, m_commandPool, m_globalDescriptorSet);
 
-	const VK::UniformBufferObject ubo
-	{
-		.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
-	};
+	// TODO: <REFACTOR>
+	m_depthBuffer = { m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() };
+	m_indexBuffer = { m_allocator.Get(), G_INDICES };
+	m_vertexBuffer = { m_allocator.Get(), G_VERTICES };
+
+	CreateGraphicsPipeline();
 	
-	m_storageBuffer = { 
+	m_viewBuffer = { 
 		m_allocator.Get(),
-		ubo
+		VK::UniformBufferObject(glm::mat4(1))
+	};
+
+	m_projBuffer =
+	{
+		m_allocator.Get(),
+		VK::UniformBufferObject(glm::mat4(1)) 
 	};
 	
 	m_image = {
@@ -91,8 +92,6 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
-
-	VK::SceneAdapter::GetInstance().Initialize(m_context, m_commandPool, m_allocator, m_globalDescriptorSet);
 
 	std::array<vk::DescriptorPoolSize, 2> poolSizes
 	{
@@ -131,6 +130,8 @@ Renderer::~Renderer()
 
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
+
+	VK::SceneAdapter::GetInstance().Deinitialize();
 }
 
 //File reading function for loading the shader file
@@ -339,40 +340,39 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		static_cast<float>(extent.width) /
 		static_cast<float>(extent.height);
 
-	VK::UniformBufferObject ubo
-	{
-		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
-	};
+	m_viewBuffer.UpdateBuffer(VK::UniformBufferObject(m_camera.GetViewMatrix()));
+	m_projBuffer.UpdateBuffer(VK::UniformBufferObject(m_camera.GetProjectionMatrix(aspectRatio)));
 
-	m_storageBuffer.UpdateBuffer(ubo);
-
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get(), 0);
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_viewBuffer.Get(), 0);
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_projBuffer.Get(), 1);
 
 	VK::SceneAdapter &adapter = VK::SceneAdapter::GetInstance();
 
 	adapter.UpdateMaps(m_context, m_allocator, m_globalDescriptorSet);
 	VK::RenderData renderData = adapter.GetRenderData();
-
-	vk::PushConstantsInfo pcInfo
-	{
-		.sType = vk::StructureType::ePushConstantsInfo,
-		.pNext = VK_NULL_HANDLE,
-		.layout = m_graphicsPipeline.GetLayout(),
-		.stageFlags = vk::ShaderStageFlagBits::eVertex,
-		.offset = 0,
-		.size = sizeof(Droplet::Graphics::VK::PushConstants),
-		.pValues = renderData.pushConstants.data()
-	};
 	
 	commandBuffer.beginRendering(renderingInfo);
+
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-	commandBuffer.pushConstants2(pcInfo);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+	
 	for (size_t i = 0; i < renderData.meshData.size(); i++)
 	{
+
+		vk::PushConstantsInfo pcInfo
+		{
+			.sType = vk::StructureType::ePushConstantsInfo,
+			.pNext = VK_NULL_HANDLE,
+			.layout = m_graphicsPipeline.GetLayout(),
+			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			.offset = 0,
+			.size = sizeof(Droplet::Graphics::VK::PushConstants),
+			.pValues = &renderData.pushConstants[i]
+		};
+		commandBuffer.pushConstants2(pcInfo);
+
 		commandBuffer.bindVertexBuffers(0, renderData.meshData[i].vertexBuffer, {0});
 		commandBuffer.bindIndexBuffer(renderData.meshData[i].indexBuffer, 0, vk::IndexType::eUint16);
 

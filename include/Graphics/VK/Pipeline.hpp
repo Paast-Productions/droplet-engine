@@ -11,6 +11,7 @@
 #include <shader-slang/slang.h>
 #endif
 
+#include <Graphics/VK/SceneAdapter.hpp>
 
 
 namespace Droplet::Graphics::VK
@@ -37,6 +38,13 @@ namespace Droplet::Graphics::VK
 		vk::CullModeFlagBits CullMode = vk::CullModeFlagBits::eBack;
 		vk::FrontFace FrontFace = vk::FrontFace::eCounterClockwise;
 		vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
+
+		vk::PushConstantRange pushConstantRange
+		{
+			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			.offset = 0,
+			.size = sizeof(PushConstants)
+		};
 		
 		std::vector<vk::DynamicState> DynamicStates
 		{
@@ -47,7 +55,8 @@ namespace Droplet::Graphics::VK
 		vk::PipelineLayoutCreateInfo PipelineLayoutInfo
 		{
 			.setLayoutCount = 1,
-			.pushConstantRangeCount = 0
+			.pushConstantRangeCount = 1,
+			.pPushConstantRanges = &pushConstantRange
 		};	
 		
 		vk::SurfaceFormatKHR SwapchainSurfaceFormat {};

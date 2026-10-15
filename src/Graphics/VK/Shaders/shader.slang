@@ -14,19 +14,26 @@ struct VSOutput
     float2 fragTexCoord;
 };
 
-struct UniformBuffer
+struct PushConstants
 {
-    float4x4 model;
-    float4x4 view;
-    float4x4 proj;
+    uint32_t worldIndex;
+    uint32_t sampler;
 };
 
-[[vk::binding(0, 0)]] StructuredBuffer<UniformBuffer> ubo;
+struct Buffer
+{
+    float4x4 matrix;
+}
+
+[[vk::push_constant]] PushConstants pc;
+
+//Indexes 0 = view, 1 = proj, world index is found with pc
+[[vk::binding(0, 0)]] StructuredBuffer<Buffer> matrices;
 
 [shader("vertex")]
 VSOutput vertMain(VSInput input) {
     VSOutput output;
-    output.pos = mul(ubo[0].proj, mul(ubo[0].view, mul(ubo[0].model, float4(input.inPosition, 1.0))));
+    output.pos = mul(matrices[1].matrix, mul(matrices[0].matrix, mul(matrices[pc.worldIndex].matrix, float4(input.inPosition, 1.0))));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);
     output.fragColor = input.inColor;
@@ -58,5 +65,5 @@ float4 fragMain(VSOutput vertIn) : SV_TARGET {
     float spec = pow(specAngle, 100);
     float3 specular = spec;
 
-    return float4(color, 0.0);
+    return float4(1.0,1.0,1.0,1.0);
 }
