@@ -168,7 +168,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         return;
     }
 
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
     if (p_node->GetChildren().empty())
     {

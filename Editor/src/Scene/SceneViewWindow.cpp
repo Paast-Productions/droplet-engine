@@ -56,6 +56,7 @@ void SceneViewWindow::RenderImpl()
 	ImGui::SetCursorPos(camViewPos);
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 
+	// Process shortcut key presses
 	if (ImGui::IsWindowFocused())
 	{
 		EditorShortcuts::ProcessSceneViewKeyShortcuts();
