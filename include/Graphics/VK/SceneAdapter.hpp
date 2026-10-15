@@ -76,15 +76,21 @@ namespace Droplet::Graphics::VK
 	static class SceneAdapter
 	{
 	public:
-		SceneAdapter() = delete;
+		static SceneAdapter &GetInstance() 
+		{
+			static SceneAdapter s;
+			return s;
+		}
+
 		~SceneAdapter() = default;
 
-		SceneAdapter(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
+		void Initialize(const Context &p_context, const CommandPool &p_commandPool, const Allocator &p_allocator, DescriptorSet &p_descriptorSet);
 
-		void UpdateMaps(const std::vector<Droplet::Scene::NodeData> p_nodeData);
+		void UpdateMaps(const Context &p_context, const Allocator &p_allocator, DescriptorSet &p_descriptorSet, const std::vector<Droplet::Scene::NodeData> p_nodeData);
 
 		const RenderData GetRenderData();
 	private:
+		SceneAdapter() {}
 
 		std::unordered_map<std::uint32_t, VertexBuffer> m_vertexMap;
 		std::unordered_map<std::uint32_t, IndexBuffer> m_indexMap;
@@ -97,9 +103,5 @@ namespace Droplet::Graphics::VK
 
 		RenderData m_renderData;
 
-		const Allocator &m_allocator;
-		const CommandPool &m_commandPool;
-		DescriptorSet &m_descriptorSet;
-		const Context &m_context;
 	};
 }
