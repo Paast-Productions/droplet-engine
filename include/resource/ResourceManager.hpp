@@ -54,6 +54,7 @@ namespace Droplet
         std::filesystem::path relAssetPath;
         std::filesystem::path absoluteMetaPath;
         std::vector<std::pair<ResourceType, std::string>> foundResources;
+        std::function<void(const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
     };
 
     /// @brief Universal resource manager class.
@@ -63,6 +64,18 @@ namespace Droplet
         ResourceManager() = default;
         ~ResourceManager() = default;
 
+        ResourceManager(const ResourceManager &) = delete;
+
+        /// @brief Copy assignment operator deleting itself
+        /// @param ResourceManager
+        ResourceManager &operator=(const ResourceManager &) = delete;
+
+        [[nodiscard]] static ResourceManager &Get()
+        {
+            static ResourceManager resourceManager;
+            return resourceManager;
+        }
+
         /// @brief Initializes the resource manager for a specific root directory.
         /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
         /// be able to load resources from.
@@ -71,9 +84,13 @@ namespace Droplet
         /// @brief Should be called every frame. Processes the internal task queues.
         void Update();
 
+        /// @brief Retrieves the root asset directory that the manager was initialized with.
+        /// @return The root asset directory.
+        std::filesystem::path GetRootDirectory() const;
+
         /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
         /// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
-        void RegisterAsset(const std::filesystem::path &p_relAssetPath);
+        void RegisterAsset(const std::filesystem::path &p_relAssetPath, std::function<void(const std::vector<MetaEntry>&)> p_onComplete = nullptr);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.

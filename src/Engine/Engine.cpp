@@ -1,4 +1,4 @@
-#include <Engine.hpp>
+#include "Engine.hpp"
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
@@ -9,7 +9,7 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(Droplet::ResourceManager::Get()), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 
@@ -22,14 +22,15 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
-
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
-
-	ThreadPool::GetInstance().Initialize();
+    
+    ThreadPool::GetInstance().Initialize();
+    
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    m_resourceManager.Initialize(assetDir);
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -129,6 +130,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
+    m_resourceManager.Update();
 
 	FrameMark;
 
@@ -144,6 +146,11 @@ SDL_Window *Engine::GetWindow()
 Scene::SceneManager &Engine::GetSceneManager()
 {
 	return m_sceneManager;
+}
+
+ResourceManager &Engine::GetResourceManager()
+{
+    return m_resourceManager;
 }
 
 void Engine::AddEventListener(EventListener p_listener)

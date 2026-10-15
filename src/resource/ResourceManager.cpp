@@ -54,6 +54,11 @@ namespace Droplet
             {
                 m_registry.RegisterMetaEntry(regRes.relAssetPath.generic_string(), entry);
             }
+            
+            if (regRes.onCompleteCallback)
+            {
+                regRes.onCompleteCallback(newMetaData);
+            }
                 
             // Push metafile write operation to worker thread
             ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.absoluteMetaPath), metaData = std::move(newMetaData)]()
@@ -132,7 +137,12 @@ namespace Droplet
         }
     }
 
-    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath)
+    std::filesystem::path ResourceManager::GetRootDirectory() const
+    {
+        return m_rootDirectory;
+    }
+
+    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath, std::function<void(const std::vector<MetaEntry>&)> p_onComplete)
     {
         ZoneScoped;
 
@@ -152,11 +162,12 @@ namespace Droplet
         std::string ext = absAssetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, ext](){
+        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, ext, p_onComplete](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
             res.relAssetPath = relAssetPath; // Relative for registry
             res.absoluteMetaPath = absMetaPath; // Absolute for meta write
+            res.onCompleteCallback = p_onComplete;
             
             if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
             {
@@ -174,7 +185,6 @@ namespace Droplet
             m_asyncRegisterResults.Push(res);
         });
     }
-
     
     std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(ResourceType p_type) const
     {
