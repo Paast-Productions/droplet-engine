@@ -229,3 +229,13 @@ std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
 {
     return m_octree.GetNodesFromRaycast(p_ray);
 }
+
+void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initializer)
+{
+    if (m_physics != nullptr)
+    {
+        return;
+    }
+
+    m_physics = std::make_unique<Physics>(p_initializer);
+}

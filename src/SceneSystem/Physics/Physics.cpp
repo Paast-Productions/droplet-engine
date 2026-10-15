@@ -14,6 +14,11 @@ void Droplet::Physics::Initialize(const std::uint32_t p_maxBodies, const std::ui
 	m_bodyInterface = &m_physicsSystem.GetBodyInterface();
 }
 
+void Droplet::Physics::Initialize(const Initializer p_initializer)
+{
+	Initialize(p_initializer.maxBodies, p_initializer.numBodyMutexes, p_initializer.maxBodyPairs, p_initializer.maxContactConstraints);
+}
+
 void Droplet::Physics::Update()
 {
 	m_physicsSystem.Update(Droplet::Time::Get().GetDeltaTime(), 1, m_tempAllocator.get(), &m_jobSystem);
