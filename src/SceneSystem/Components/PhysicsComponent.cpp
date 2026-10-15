@@ -10,7 +10,7 @@ using namespace Droplet::Scene;
 
 void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
-	if (!m_hasShape)
+	if (m_hasShape)
 	{
 		return;
 	}
@@ -21,7 +21,7 @@ void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 
 void Droplet::PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 {
-	if (!m_hasShape)
+	if (m_hasShape)
 	{
 		return;
 	}
@@ -31,7 +31,7 @@ void Droplet::PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 
 void Droplet::PhysicsComponent::SetSphereCollider(const float p_radius)
 {
-	if (!m_hasShape)
+	if (m_hasShape)
 	{
 		return;
 	}
@@ -42,7 +42,7 @@ void Droplet::PhysicsComponent::SetSphereCollider(const float p_radius)
 
 void Droplet::PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
 {
-	if (!m_hasShape)
+	if (m_hasShape)
 	{
 		return;
 	}
@@ -53,7 +53,7 @@ void Droplet::PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCyl
 
 void Droplet::PhysicsComponent::SetMeshCollider(const std::shared_ptr<Droplet::MeshResource> p_mesh)
 {
-	if (!m_hasShape || p_mesh == nullptr)
+	if (m_hasShape || p_mesh == nullptr)
 	{
 		return;
 	}
