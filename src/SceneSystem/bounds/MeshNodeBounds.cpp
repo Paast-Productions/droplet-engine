@@ -52,7 +52,16 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 
 	const std::weak_ptr<MeshResource> meshResource = m_meshComponent->GetMeshResource();
 
-	RayHit hit = meshResource.lock()->GetBVH().Raycast(localRay);
+	RayHit hit{};
+
+	if (meshResource.expired())
+	{
+		hit = Math::Raycast(localRay, GetAABB());
+	}
+	else
+	{
+		hit = meshResource.lock()->GetBVH().Raycast(localRay);
+	}
 
 	if (hit.didHit)
 	{
@@ -68,5 +77,11 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 AABB MeshNodeBounds::GetAABB() const
 {
 	const std::weak_ptr<MeshResource> meshResource = m_meshComponent->GetMeshResource();
+
+	if (meshResource.expired())
+	{
+		return AABB(glm::vec3(0.0f), glm::vec3(1.0f));
+	}
+
 	return meshResource.lock()->GetBVH().GetBounds();
 }

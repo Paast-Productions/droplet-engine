@@ -16,6 +16,8 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <ImGui/UIStyle.hpp>
 
 using namespace Droplet::Editor;
 
@@ -61,8 +63,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	// Setup default ImGui ini file
 	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
 	{
-		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
+	}
+
+	{
+		std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+		UIStyle::LoadStyle(currStyle);
 	}
 
 	engine->GetSceneManager().LoadScene("TestScene"); // HACK
@@ -85,6 +92,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	FrameMark;
 
+	bool showStyleEditor = false;
+
 	// Run main loop
 	bool run = true;
 	while (run)
@@ -100,6 +109,127 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGuizmo::BeginFrame();
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+		// Main toolbar
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("File"))
+			{
+				if (ImGui::BeginMenu("Layout"))
+				{
+					if (ImGui::MenuItem("Load Default Layout"))
+					{
+						ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
+					}
+
+					if (ImGui::MenuItem("Save Default Layout"))
+					{
+						ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
+					}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Style"))
+				{
+					if (ImGui::BeginMenu("Set Style"))
+					{
+						std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+						
+						std::vector<std::string> styles;
+						UIStyle::GetStyleNames(styles);
+
+						for (const auto &styleName : styles)
+						{
+							bool isSelected = (styleName == currStyle);
+							if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
+							{
+								if (styleName != currStyle)
+								{
+									UIStyle::LoadStyle(styleName);
+								}
+							}
+						}
+
+						ImGui::EndMenu();
+					}
+
+					if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
+					{
+						showStyleEditor = !showStyleEditor;
+					}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Edit"))
+			{
+				if (ImGui::BeginMenu("Manipulate"))
+				{
+					if (ImGui::MenuItem("World"))
+					{
+						EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
+					}
+
+					if (ImGui::MenuItem("Local"))
+					{
+						EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
+					}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMainMenuBar();
+		}
+
+		if (showStyleEditor)
+		{
+			ImGui::Begin("Style Editor", &showStyleEditor);
+
+			if (ImGui::Button("Save Style"))
+			{
+				ImGui::OpenPopup("Save Style");
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button("Reset Style"))
+			{
+				std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+				UIStyle::LoadStyle(currStyle);
+			}
+
+			if (ImGui::BeginPopup("Save Style"))
+			{
+				static char styleName[128] = "";
+				ImGui::InputText("Style Name", styleName, IM_ARRAYSIZE(styleName));
+
+				if (ImGui::Button("Confirm"))
+				{
+					UIStyle::SaveStyle(styleName);
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel"))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
+			}
+
+			ImGui::Separator();
+
+			ImGui::ShowStyleEditor(nullptr);
+			ImGui::End();
+		}
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();

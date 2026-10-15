@@ -1,28 +1,39 @@
 #include "EditorWindow.hpp"
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Editor;
 
 
 void EditorWindow::Init()
 {
+	ZoneScoped;
 
 	InitImpl();
+
+	ZoneText(m_name.c_str(), m_name.size());
 }
 
 void EditorWindow::Close()
 {
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
 
 	CloseImpl();
 }
 
 void EditorWindow::Render()
 {
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
 	OpenWindow();
 
 	if (m_hasToolbar)
 	{
 		if (ImGui::BeginMenuBar())
 		{
+			ZoneNamedN(windowToolbarZone, "Toolbar", true);
+
 			RenderToolbar();
 			ImGui::EndMenuBar();
 		}

@@ -12,6 +12,8 @@ project "Editor"
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
+		"TRACY_FIBERS",
+		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
         "ROOT_PATH=" .. AddQuotation("../../..")

@@ -93,7 +93,7 @@ namespace Droplet::Scene
         /// only be used when HasBoundsOverride() returns false.
         ///
         /// @return The bounding box provided by the component.
-        [[nodiscard]] virtual std::shared_ptr<NodeBounds> GetBounds() const;
+        [[nodiscard]] virtual const NodeBounds *GetBounds() const { return nullptr; }
 
 		/// @brief Checks if the component and all of its ancestors are active.
 		/// @return true if the component and all of its ancestors are active, otherwise false.
