@@ -9,7 +9,7 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_engineProvider(this), m_resourceManager(), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 

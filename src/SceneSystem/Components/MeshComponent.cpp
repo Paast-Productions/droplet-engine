@@ -2,7 +2,6 @@
 #include <ImGui/imgui.h>
 #include <Editor/DragDropFields.hpp>
 #include <resource/ResourceManager.hpp>
-#include <Engine/EngineProvider.hpp>
 #include <Engine/Engine.hpp>
 
 using namespace Droplet::Scene;
@@ -23,8 +22,7 @@ void MeshComponent::RenderUIImpl()
     using namespace Droplet::Editor;
     using namespace ImGui;
 
-    auto &engine = Droplet::EngineProvider::Get();
-    auto &resourceManager = engine.GetResourceManager();
+    auto &resourceManager = Droplet::ResourceManager::Get();
 
     // Mesh resource
     Droplet::GUID meshGUID = m_mesh.GetGUID();

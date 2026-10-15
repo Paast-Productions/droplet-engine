@@ -11,11 +11,6 @@
 #include <string_view>
 #include <cstdint>
 
-namespace Droplet
-{
-	class ResourceManager; // Forward declaration
-}
-
 namespace Droplet::Scene
 {
     /// @brief Component that attaches a mesh to a Node.

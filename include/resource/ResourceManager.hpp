@@ -63,6 +63,12 @@ namespace Droplet
         ResourceManager() = default;
         ~ResourceManager() = default;
 
+        [[nodiscard]] static ResourceManager &Get()
+        {
+            static ResourceManager resourceManager;
+            return resourceManager;
+        }
+
         /// @brief Initializes the resource manager for a specific root directory.
         /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
         /// be able to load resources from.

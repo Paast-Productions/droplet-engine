@@ -11,7 +11,6 @@
 #include <Time.hpp>
 #include <functional>
 #include <Engine/EngineFlags.hpp>
-#include <Engine/EngineProvider.hpp>
 #include <resource/ResourceManager.hpp>
 
 namespace Droplet
@@ -81,8 +80,6 @@ namespace Droplet
 		};
 
 		UpdateFlagsSetter m_updateFlagsSetter;
-
-		EngineProvider m_engineProvider;
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
