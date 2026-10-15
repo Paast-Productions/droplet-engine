@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SceneSystem/Component.hpp>
+
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <glm/glm.hpp>
@@ -10,7 +12,7 @@
 namespace Droplet
 {
 	/// @brief A physics component for some shape
-	class PhysicsComponent
+	class PhysicsComponent : public Component
 	{
 	public:
 		/// @brief Constructs the PhysicsComponent
@@ -18,6 +20,10 @@ namespace Droplet
 		/// @param p_transform The transform of the Node this component is added to
 		PhysicsComponent(Physics &p_physics, Scene::Transform &p_transform) : m_physics(p_physics), m_transform(p_transform) {}
 		~PhysicsComponent() = default;
+
+		/// @brief Gets the type name of the component.
+		/// @return The type name of the component.
+		std::string_view GetTypeName() const override { return "PhysicsComponent"; }
 
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
