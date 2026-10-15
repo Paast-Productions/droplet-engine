@@ -6,7 +6,6 @@
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <resource/types/Texture2DResource.hpp>
-#include <ResourceManager.hpp>
 
 #include <string>
 #include <string_view>
