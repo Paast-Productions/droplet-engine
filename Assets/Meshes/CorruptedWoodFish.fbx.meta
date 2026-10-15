@@ -1,0 +1,24 @@
+{
+    "resources": [
+        {
+            "displayName": "FishMesh.001",
+            "guid": 4310240355069521286,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "FishMesh.001",
+            "type": 4
+        },
+        {
+            "displayName": "Fish.001|FishAnimation",
+            "guid": 17335616892059053716,
+            "loadFlags": 1,
+            "loadSettings": {},
+            "sourceName": "Fish.001|FishAnimation",
+            "type": 5
+        }
+    ]
+}

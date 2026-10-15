@@ -7,6 +7,8 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
@@ -59,6 +61,20 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
+		[[nodiscard]] ResourceManager &GetResourceManager();
+		
+		/// @brief Adds a script behaviour to the engine.
+		/// @return A reference to the added script behaviour.
+		Scene::ScriptBehaviour &AddScriptBehaviour(const std::string& p_scriptPath);
+
+		/// @brief Remove script behaviour to engine
+		/// @param p_scriptBehaviour that should be removed
+		void RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour);
+
+		/// @brief Get all script behaviours in engine
+		/// @return vector of all scripts
+		[[nodiscard]] const std::vector<std::unique_ptr<Scene::ScriptBehaviour>> &GetScriptBehaviours() const;
+
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(EventListener p_listener);
@@ -86,10 +102,13 @@ namespace Droplet
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
-		ResourceManager m_resourceManager;
-
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief The resource manager instance, should only be one.
+		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
+		
+		std::vector<std::unique_ptr<Scene::ScriptBehaviour>> m_scriptBehaviours;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;

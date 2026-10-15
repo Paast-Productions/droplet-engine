@@ -16,7 +16,7 @@ project "Editor"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then
@@ -67,7 +67,9 @@ project "Editor"
         "ImGui",
         "ImGuizmo",
         "json",
-        "tracy"
+        "tracy",
+        "IconFontCppHeaders",
+        "PortableFileDialogs"
     }
 
     files 
@@ -83,6 +85,8 @@ project "Editor"
         "ImGuizmo",
         "VulkanMemoryAllocator",
         "tracy",
+        "IconFontCppHeaders",
+        "PortableFileDialogs",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),

@@ -61,7 +61,7 @@ void EditorWindow::ToggleToolbar(bool p_visible)
 void EditorWindow::OpenWindow()
 {
 	ImGui::Begin(m_name.c_str(), nullptr, m_windowFlags);
-}
+}  
 
 void EditorWindow::CloseWindow()
 {

@@ -25,7 +25,7 @@ namespace Droplet::IO::SlangFormat
         }
     }
 
-    std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
+    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(
         const std::filesystem::path &p_shaderPath)
     {
         ZoneScoped;

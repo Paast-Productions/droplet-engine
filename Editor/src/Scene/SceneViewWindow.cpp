@@ -4,6 +4,8 @@
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <EditorConfig.hpp>
+#include <EditorShortcuts.hpp>
 
 using namespace Droplet::Editor::Scene;
 
@@ -89,14 +91,20 @@ void SceneViewWindow::RenderImpl()
 		camViewRectMax.y = camViewRectMin.y + camSize.y;
 	}
 
-	ImVec2 camViewPos = {
-		camViewRectMin.x - windowPos.x,
-		camViewRectMin.y - windowPos.y
+	ImVec2 camViewPos = { 
+		camViewRectMin.x - windowPos.x, 
+		camViewRectMin.y - windowPos.y 
 	};
 
 	// Begin the child window that encompasses the camera view.
 	ImGui::SetCursorPos(camViewPos);
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+
+	// Process shortcut key presses
+	if (ImGui::IsWindowFocused())
+	{
+		EditorShortcuts::ProcessSceneViewKeyShortcuts();
+	}
 
 	// Collect mouse and keyboard inputs for the camera update, if the mouse is within the camera view rect.
 
@@ -176,6 +184,7 @@ void SceneViewWindow::RenderImpl()
 				);
 			}
 
+	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 
 			if (input.KeyPressed(Key::KeyQ))
 			{
@@ -195,6 +204,7 @@ void SceneViewWindow::RenderImpl()
 	
 	ImGui::EndChild();
 }
+
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
 {
 	ZoneScoped;
@@ -221,17 +231,17 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		std::vector<glm::mat4> tempMatrices{};
 
 		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) {
-				if (!node)
-				{
-					return;
-				}
+			if (!node)
+			{
+				return;
+			}
 
-				tempMatrices.push_back(node->GetTransform().GetMatrix(DTransform::Space::World));
+			tempMatrices.push_back(node->GetTransform().GetMatrix(DTransform::Space::World));
 
-				for (const auto &child : node->GetChildren())
-				{
-					recurseNodes(child);
-				}
+			for (const auto &child : node->GetChildren())
+			{
+				recurseNodes(child);
+			}
 			};
 
 		for (const auto &node : nodes)
@@ -250,10 +260,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 		// TODO: Make this configurable by the user
-		ImGuizmo::OPERATION currentOperation = 
-			ImGuizmo::TRANSLATE | 
-			ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z |
-			ImGuizmo::BOUNDS;
+		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation", 0);
 
 		if (selectedNodes.size() > 0)
 		{
@@ -263,22 +270,30 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
 
+			// If bounds should be active
+			float *bounds = nullptr;
+			if (EditorConfig::LoadBool("manipulateBounds", false))
+			{
+				bounds = &(aabb[0].x);
+			}
+
 			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
 
+			ImGuizmo::MODE manipulateSpace = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
 
 			bool result = ImGuizmo::Manipulate(
 				&(tempViewMat[0][0]),	// View matrix
 				&(tempProjMat[0][0]),	// Projection matrix
 				currentOperation,		// Operation
-				ImGuizmo::LOCAL,		// Space
+				manipulateSpace,		// Space
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
 				&(deltaMatrix[0][0]),	// Output delta matrix
 				nullptr,				// Optional snap values
-				&(aabb[0].x),			// Optional bounds
+				bounds,					// Optional bounds
 				nullptr					// Optional bounds snap values
 			);
-			
+
 			if (result)
 			{
 				//selectedNode->GetTransform().TransformByMatrix(deltaMatrix, DTransform::Space::World);

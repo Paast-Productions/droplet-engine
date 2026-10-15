@@ -1,4 +1,4 @@
- #pragma once
+#pragma once
 #include <vector>
 #include <memory>
 #include <Ray.hpp>
@@ -33,7 +33,6 @@ namespace Droplet::Editor::Scene
 
 		/// @brief Renders the editor camera view and handles user interactions within the scene view window.
 		void RenderImpl() override;
-
 
 	private:
 		/// @brief Variable that controls to lock the camera or not
