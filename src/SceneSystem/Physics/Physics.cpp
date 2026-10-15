@@ -19,9 +19,9 @@ void Droplet::Physics::Initialize(const Initializer p_initializer)
 	Initialize(p_initializer.maxBodies, p_initializer.numBodyMutexes, p_initializer.maxBodyPairs, p_initializer.maxContactConstraints);
 }
 
-void Droplet::Physics::Update()
+void Droplet::Physics::FixedUpdate(const float p_fixedDeltaTime)
 {
-	m_physicsSystem.Update(Droplet::Time::Get().GetDeltaTime(), 1, m_tempAllocator.get(), &m_jobSystem);
+	m_physicsSystem.Update(p_fixedDeltaTime, 1, m_tempAllocator.get(), &m_jobSystem);
 }
 
 void Droplet::Physics::SetGravity(const JPH::Vec3 p_gravityVector)
