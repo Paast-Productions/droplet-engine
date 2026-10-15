@@ -7,6 +7,7 @@
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "ScriptsWindow.hpp"
+#include "BehaviourInspector.hpp"
 #include <Graphics/VK/Renderer.hpp>
 #include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
@@ -35,8 +36,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
 		Droplet::Graphics::SDL::WindowConfig {
 			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
-		},
-		Droplet::UpdateFlags::EditorFlags
+		}
+		//Droplet::UpdateFlags::EditorFlags
 	));
 
 	SDL_Window *wnd = engine->GetWindow();
@@ -93,13 +94,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
     
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-    NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
-    ScriptsWindow scriptsWindow(engine);
+	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	BehaviourInspector behaviourInspector(engine);
+	ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
     Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
+	behaviourInspector.Init();
 	scriptsWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
@@ -247,7 +250,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
-		scriptsWindow.Render();
+		behaviourInspector.Render();
+		scriptsWindow.Render(); 
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
