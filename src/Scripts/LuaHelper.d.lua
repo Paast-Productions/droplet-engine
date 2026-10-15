@@ -126,11 +126,23 @@ end
 function Transform:LookAt(target)
 end
 
+---@class Vec2
+---@field x number
+---@field y number
+Vec2 = {}
+
 ---@class Vec3
 ---@field x number
 ---@field y number
 ---@field z number
 Vec3 = {}
+
+---@class Vec4
+---@field x number
+---@field y number
+---@field z number
+---@field w number
+Vec4 = {}
 
 ---@class Quat
 ---@field w number
@@ -138,6 +150,9 @@ Vec3 = {}
 ---@field y number
 ---@field z number
 Quat = {}
+
+---@class Mat3
+Mat3 = {}
 
 ---@class Mat4
 Mat4 = {}

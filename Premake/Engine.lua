@@ -18,7 +18,7 @@ project "Engine"
 
     if _TARGET_OS == "windows" then
 
-        buildoptions {"/Zi"}
+        buildoptions {"/Zi", "/bigobj"}
         
         -- vkPath required as windows doesn't add the vulkan sdk to lib path'
         local vkPath = os.getenv("VULKAN_SDK")

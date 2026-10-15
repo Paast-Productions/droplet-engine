@@ -6,6 +6,7 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
 #include <ImGui/imgui.h>
+#include <ImGui/imgui_stdlib.h>
 
 #include <print>
 #include <filesystem>
@@ -287,12 +288,28 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 {
     ZoneScoped;
 
+    p_luaState.new_usertype<glm::vec2>(
+        "Vec2",
+        sol::constructors<glm::vec2(float, float)>(),
+        "x", &glm::vec2::x,
+        "y", &glm::vec2::y
+    );
+
     p_luaState.new_usertype<glm::vec3>(
         "Vec3",
         sol::constructors<glm::vec3(float, float, float)>(),
         "x", &glm::vec3::x,
         "y", &glm::vec3::y,
         "z", &glm::vec3::z
+    );
+
+    p_luaState.new_usertype<glm::vec4>(
+        "Vec4",
+        sol::constructors<glm::vec4(float, float, float, float)>(),
+        "x", &glm::vec4::x,
+        "y", &glm::vec4::y,
+        "z", &glm::vec4::z,
+        "w", &glm::vec4::w
     );
 
     p_luaState.new_usertype<glm::quat>(
@@ -304,10 +321,26 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
         "z", &glm::quat::z
     );
 
+    p_luaState.new_usertype<glm::mat3>(
+        "Mat3",
+        sol::constructors<glm::mat3(float)>()
+    );
+
     p_luaState.new_usertype<glm::mat4>(
         "Mat4",
         sol::constructors<glm::mat4(float)>()
     );
+
+    LuaClassDefinition vec2Def;
+    vec2Def.name = "Vec2";
+
+    vec2Def.properties =
+    {
+        { "x", "number" },
+        { "y", "number" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(vec2Def);
 
     LuaClassDefinition vec3Def;
     vec3Def.name = "Vec3";
@@ -320,6 +353,20 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
     };
 
     LuaBindings::m_luaClassDefinitions.push_back(vec3Def);
+
+
+    LuaClassDefinition vec4Def;
+    vec4Def.name = "Vec4";
+
+    vec4Def.properties =
+    {
+        { "x", "number" },
+        { "y", "number" },
+        { "z", "number" },
+        { "w", "number" }
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(vec4Def);
 
     LuaClassDefinition quatDef;
     quatDef.name = "Quat";
@@ -334,10 +381,480 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 
     LuaBindings::m_luaClassDefinitions.push_back(quatDef);
 
+    LuaClassDefinition mat3Def;
+    mat3Def.name = "Mat3";
+
+    LuaBindings::m_luaClassDefinitions.push_back(mat3Def);
+
     LuaClassDefinition mat4Def;
     mat4Def.name = "Mat4";
 
     LuaBindings::m_luaClassDefinitions.push_back(mat4Def);
+
+
+    sol::table glm = p_luaState.create_table("GLM");
+
+
+    // Vec2
+    glm.set_function("V2Abs",
+        [](glm::vec2 p_vec) {
+			return glm::abs(p_vec);
+        });
+
+    glm.set_function("V2Sign",
+        [](glm::vec2 p_vec) {
+			return glm::sign(p_vec);
+        });
+
+    glm.set_function("V2Floor",
+        [](glm::vec2 p_vec) {
+			return glm::floor(p_vec);
+        });
+
+    glm.set_function("V2Trunc",
+        [](glm::vec2 p_vec) {
+			return glm::trunc(p_vec);
+        });
+
+    glm.set_function("V2Round",
+        [](glm::vec2 p_vec) {
+			return glm::round(p_vec);
+        });
+
+    glm.set_function("V2RoundEven",
+        [](glm::vec2 p_vec) {
+			return glm::roundEven(p_vec);
+        });
+
+    glm.set_function("V2Ceil",
+        [](glm::vec2 p_vec) {
+			return glm::ceil(p_vec);
+        });
+
+    glm.set_function("V2Fract",
+        [](glm::vec2 p_vec) {
+			return glm::fract(p_vec);
+        });
+
+    glm.set_function("V2Mod",
+		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+			return glm::mod(p_vec1, p_vec2);
+		});
+
+    glm.set_function("V2ModF",
+		[](glm::vec2 p_vec1, float p_float) {
+			return glm::mod(p_vec1, p_float);
+		});
+
+    glm.set_function("V2Min",
+		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+			return glm::min(p_vec1, p_vec2);
+		});
+
+    glm.set_function("V2Max",
+		[](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+			return glm::max(p_vec1, p_vec2);
+		});
+
+    glm.set_function("V2Clamp",
+		[](glm::vec2 p_vec, glm::vec2 p_min, glm::vec2 p_max) {
+			return glm::clamp(p_vec, p_min, p_max);
+		});
+
+    glm.set_function("V2AddF",
+        [](glm::vec2 p_vec1, float p_float) {
+            return p_vec1 + p_float;
+        });
+
+    glm.set_function("V2MulF",
+        [](glm::vec2 p_vec1, float p_float) {
+            return p_vec1 * p_float;
+        });
+
+    glm.set_function("V2DivF",
+        [](glm::vec2 p_vec1, float p_float) {
+            return p_vec1 / p_float;
+        });
+
+    glm.set_function("V2Add",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V2Mul",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return p_vec1 * p_vec2;
+        });
+
+    glm.set_function("V2Div",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return p_vec1 / p_vec2;
+        });
+
+    glm.set_function("V2Dot",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+			return glm::dot(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V2Normalize",
+        [](glm::vec2 p_vec) {
+            return glm::normalize(p_vec);
+        });
+
+    glm.set_function("V2Length",
+        [](glm::vec2 p_vec) {
+            return glm::length(p_vec);
+        });
+
+    glm.set_function("V2Distance",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return glm::distance(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V2Reflect",
+        [](glm::vec2 p_vec1, glm::vec2 p_vec2) {
+            return glm::reflect(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V2Refract",
+		[](glm::vec2 p_vec1, glm::vec2 p_vec2, float p_float) {
+			return glm::refract(p_vec1, p_vec2, p_float);
+		});
+
+	// Vec3
+    glm.set_function("V3Abs",
+        [](glm::vec3 p_vec) {
+            return glm::abs(p_vec);
+        });
+
+    glm.set_function("V3Sign",
+        [](glm::vec3 p_vec) {
+            return glm::sign(p_vec);
+        });
+
+    glm.set_function("V3Floor",
+        [](glm::vec3 p_vec) {
+            return glm::floor(p_vec);
+        });
+
+    glm.set_function("V3Trunc",
+        [](glm::vec3 p_vec) {
+            return glm::trunc(p_vec);
+        });
+
+    glm.set_function("V3Round",
+        [](glm::vec3 p_vec) {
+            return glm::round(p_vec);
+        });
+
+    glm.set_function("V3RoundEven",
+        [](glm::vec3 p_vec) {
+            return glm::roundEven(p_vec);
+        });
+
+    glm.set_function("V3Ceil",
+        [](glm::vec3 p_vec) {
+            return glm::ceil(p_vec);
+        });
+
+    glm.set_function("V3Fract",
+        [](glm::vec3 p_vec) {
+            return glm::fract(p_vec);
+        });
+
+    glm.set_function("V3Mod",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return glm::mod(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3ModF",
+        [](glm::vec3 p_vec1, float p_float) {
+            return glm::mod(p_vec1, p_float);
+        });
+
+    glm.set_function("V3Min",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return glm::min(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3Max",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return glm::max(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3Clamp",
+        [](glm::vec3 p_vec, glm::vec3 p_min, glm::vec3 p_max) {
+            return glm::clamp(p_vec, p_min, p_max);
+        });
+
+    glm.set_function("V3AddF",
+        [](glm::vec3 p_vec1, float p_float) {
+            return p_vec1 + p_float;
+        });
+
+    glm.set_function("V3MulF",
+        [](glm::vec3 p_vec1, float p_float) {
+            return p_vec1 * p_float;
+        });
+
+    glm.set_function("V3DivF",
+        [](glm::vec3 p_vec1, float p_float) {
+            return p_vec1 / p_float;
+        });
+
+    glm.set_function("V3Add",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V3Mul",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return p_vec1 * p_vec2;
+        });
+
+    glm.set_function("V3Div",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return p_vec1 / p_vec2;
+        });
+
+    glm.set_function("V3Dot",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+			return glm::dot(p_vec1, p_vec2);
+        });
+
+	glm.set_function("V3Cross",
+		[](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+			return glm::cross(p_vec1, p_vec2);
+		});
+
+    glm.set_function("V3Normalize",
+        [](glm::vec3 p_vec) {
+            return glm::normalize(p_vec);
+        });
+
+    glm.set_function("V3Length",
+        [](glm::vec3 p_vec) {
+            return glm::length(p_vec);
+        });
+
+    glm.set_function("V3Distance",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return glm::distance(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3Reflect",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2) {
+            return glm::reflect(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V3Refract",
+        [](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
+            return glm::refract(p_vec1, p_vec2, p_float);
+        });
+
+	// Vec4
+    glm.set_function("V4Abs",
+        [](glm::vec4 p_vec) {
+            return glm::abs(p_vec);
+        });
+
+    glm.set_function("V4Sign",
+        [](glm::vec4 p_vec) {
+            return glm::sign(p_vec);
+        });
+
+    glm.set_function("V4Floor",
+        [](glm::vec4 p_vec) {
+            return glm::floor(p_vec);
+        });
+
+    glm.set_function("V4Trunc",
+        [](glm::vec4 p_vec) {
+            return glm::trunc(p_vec);
+        });
+
+    glm.set_function("V4Round",
+        [](glm::vec4 p_vec) {
+            return glm::round(p_vec);
+        });
+
+    glm.set_function("V4RoundEven",
+        [](glm::vec4 p_vec) {
+            return glm::roundEven(p_vec);
+        });
+
+    glm.set_function("V4Ceil",
+        [](glm::vec4 p_vec) {
+            return glm::ceil(p_vec);
+        });
+
+    glm.set_function("V4Fract",
+        [](glm::vec4 p_vec) {
+            return glm::fract(p_vec);
+        });
+
+    glm.set_function("V4Mod",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return glm::mod(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V4ModF",
+        [](glm::vec4 p_vec1, float p_float) {
+            return glm::mod(p_vec1, p_float);
+        });
+
+    glm.set_function("V4Min",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return glm::min(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V4Max",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return glm::max(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V4Clamp",
+        [](glm::vec4 p_vec, glm::vec4 p_min, glm::vec4 p_max) {
+            return glm::clamp(p_vec, p_min, p_max);
+        });
+
+    glm.set_function("V4AddF",
+        [](glm::vec4 p_vec1, float p_float) {
+            return p_vec1 + p_float;
+        });
+
+    glm.set_function("V4MulF",
+        [](glm::vec4 p_vec1, float p_float) {
+            return p_vec1 * p_float;
+        });
+
+    glm.set_function("V4DivF",
+        [](glm::vec4 p_vec1, float p_float) {
+            return p_vec1 / p_float;
+        });
+
+    glm.set_function("V4Add",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return p_vec1 + p_vec2;
+        });
+
+    glm.set_function("V4Mul",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return p_vec1 * p_vec2;
+        });
+
+    glm.set_function("V4Div",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return p_vec1 / p_vec2;
+        });
+
+    glm.set_function("V4Dot",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return glm::dot(p_vec1, p_vec2);
+        });
+
+	glm.set_function("V4Normalize",
+		[](glm::vec4 p_vec) {
+			return glm::normalize(p_vec);
+		});
+
+	glm.set_function("V4Length",
+		[](glm::vec4 p_vec) {
+			return glm::length(p_vec);
+		});
+
+	glm.set_function("V4Distance",
+		[](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+			return glm::distance(p_vec1, p_vec2);
+		});
+
+    glm.set_function("V4Reflect",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2) {
+            return glm::reflect(p_vec1, p_vec2);
+        });
+
+    glm.set_function("V4Refract",
+        [](glm::vec4 p_vec1, glm::vec4 p_vec2, float p_float) {
+            return glm::refract(p_vec1, p_vec2, p_float);
+        });
+
+    // Quat
+    glm.set_function("Angle",
+        [](glm::quat p_quat) {
+            return glm::angle(p_quat);
+        });
+
+    glm.set_function("Axis",
+        [](glm::quat p_quat) {
+            return glm::axis(p_quat);
+        });
+
+    glm.set_function("AngleAxis",
+        [](glm::vec3 p_axis, float p_angle) {
+            return glm::angleAxis(p_angle, p_axis);
+        });
+
+	// Mat3
+	glm.set_function("M3MulF",
+		[](glm::mat3 p_mat, float p_float) {
+			return p_mat * p_float;
+		});
+
+	glm.set_function("M3Mul",
+		[](glm::mat3 p_mat1, glm::mat3 p_mat2) {
+			return p_mat1 * p_mat2;
+		});
+
+	glm.set_function("M3MulV",
+		[](glm::mat3 p_mat, glm::vec3 p_vec) {
+			return p_mat * p_vec;
+		});
+
+	glm.set_function("M3Transpose",
+		[](glm::mat3 p_mat) {
+			return glm::transpose(p_mat);
+		});
+
+	glm.set_function("M3Inverse",
+		[](glm::mat3 p_mat) {
+			return glm::inverse(p_mat);
+		});
+
+	glm.set_function("M3Determinant",
+		[](glm::mat3 p_mat) {
+			return glm::determinant(p_mat);
+		});
+
+	// Mat4
+    glm.set_function("M4MulF",
+        [](glm::mat4 p_mat, float p_float) {
+            return p_mat * p_float;
+        });
+
+    glm.set_function("M4Mul",
+        [](glm::mat4 p_mat1, glm::mat4 p_mat2) {
+            return p_mat1 * p_mat2;
+        });
+
+    glm.set_function("M4MulV",
+        [](glm::mat4 p_mat, glm::vec4 p_vec) {
+            return p_mat * p_vec;
+        });
+
+    glm.set_function("M4Transpose",
+        [](glm::mat4 p_mat) {
+            return glm::transpose(p_mat);
+        });
+
+    glm.set_function("M4Inverse",
+        [](glm::mat4 p_mat) {
+            return glm::inverse(p_mat);
+        });
+
+    glm.set_function("M4Determinant",
+        [](glm::mat4 p_mat) {
+            return glm::determinant(p_mat);
+        });
 }
 
 void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
@@ -556,11 +1073,69 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 	sol::table imgui = p_luaState.create_table("ImGui");
 
     imgui.set_function(
+        "Begin",
+		[](const std::string &p_name, 
+           sol::optional<ImGuiWindowFlags> p_flags)
+		{
+			return ImGui::Begin(p_name.c_str(), nullptr, p_flags.value_or(static_cast<ImGuiWindowFlags>(0)));
+		}
+    );
+
+    imgui.set_function(
+        "End",
+        []()
+        {
+            ImGui::End();
+        }
+    );
+
+    imgui.set_function(
+        "BeginChild",
+        [](const std::string &p_name, 
+           sol::optional<ImVec2> p_size,
+           sol::optional<ImGuiChildFlags> p_childFlags,
+           sol::optional<ImGuiWindowFlags> p_windowFlags)
+        {
+			ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
+			ImGuiChildFlags childFlags = p_childFlags.value_or(static_cast<ImGuiChildFlags>(0));
+			ImGuiWindowFlags windowFlags = p_windowFlags.value_or(static_cast<ImGuiWindowFlags>(0));
+			return ImGui::BeginChild(p_name.c_str(), size, true, childFlags | windowFlags);
+        }
+    );
+
+    imgui.set_function(
+        "EndChild",
+        []()
+        {
+            ImGui::EndChild();
+        }
+    );
+
+    imgui.set_function(
         "Text",
 		[](const std::string &p_text)
 		{
-			ImGui::TextUnformatted(p_text.c_str());
+			ImGui::Text(p_text.c_str());
 	    }
+    );
+
+    imgui.set_function("TextUnformatted",
+        [](const std::string &p_text)
+        {
+            ImGui::TextUnformatted(p_text.c_str());
+        }
+    );
+
+    imgui.set_function("InputText",
+        [](const std::string &p_label, std::string p_text)
+        {
+            bool changed = ImGui::InputText(
+                p_label.c_str(),
+                &p_text
+            );
+
+            return std::make_tuple(std::move(p_text), changed);
+        }
     );
 
     imgui.set_function(
@@ -572,6 +1147,14 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
     );
 
     imgui.set_function(
+        "SeparatorText",
+        [](const std::string &p_text)
+        {
+			ImGui::SeparatorText(p_text.c_str());
+        }
+    );
+
+    imgui.set_function(
         "Spacing",
         []()
         {
@@ -579,11 +1162,24 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
         }
     );
 
+	imgui.set_function(
+		"SameLine",
+		[](sol::optional<float> p_offset,
+           sol::optional<float> p_spacing)
+		{
+			float offset = p_offset.value_or(0.0f);
+			float spacing = p_spacing.value_or(-1.0f);
+			ImGui::SameLine(offset, spacing);
+		}
+	);
+
     imgui.set_function(
         "Button",
-        [](const std::string &p_label)
+        [](const std::string &p_label,
+           sol::optional<ImVec2> p_size)
         {
-            return ImGui::Button(p_label.c_str());
+			ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
+            return ImGui::Button(p_label.c_str(), size);
         }
     );
 
@@ -601,20 +1197,101 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 
     imgui.set_function(
         "DragFloat",
-        [](const std::string& p_label, float p_value, float p_speed, float p_min, float p_max)
+        [](const std::string &p_label, 
+           float p_value,
+           sol::optional<float> p_speed,
+           sol::optional<float> p_min,
+           sol::optional<float> p_max)
         {
             float value = p_value;
+			float speed = p_speed.value_or(1.0f);
+			float min = p_min.value_or(0.0f);
+			float max = p_max.value_or(0.0f);
 
             const bool changed = ImGui::DragFloat(
                 p_label.c_str(),
                 &value,
-                p_speed,
-                p_min,
-                p_max
+                speed,
+                min,
+                max
             );
             return std::make_tuple(changed, value);
         }
     );
+    
+    imgui.set_function(
+        "DragFloat2",
+        [](const std::string &p_label,
+            glm::vec2 p_value,
+            sol::optional<float> p_speed,
+            sol::optional<float> p_min,
+            sol::optional<float> p_max)
+        {
+            glm::vec2 value = p_value;
+            float speed = p_speed.value_or(1.0f);
+            float min = p_min.value_or(0.0f);
+            float max = p_max.value_or(0.0f);
+
+            const bool changed = ImGui::DragFloat2(
+                p_label.c_str(),
+                &value.x,
+                speed,
+                min,
+                max
+            );
+            return std::make_tuple(changed, value);
+        }
+    );
+    
+    imgui.set_function(
+        "DragFloat3",
+        [](const std::string &p_label,
+            glm::vec3 p_value,
+            sol::optional<float> p_speed,
+            sol::optional<float> p_min,
+            sol::optional<float> p_max
+            )
+        {
+            glm::vec3 value = p_value;
+            float speed = p_speed.value_or(1.0f);
+            float min = p_min.value_or(0.0f);
+            float max = p_max.value_or(0.0f);
+            
+            const bool changed = ImGui::DragFloat3(
+                p_label.c_str(),
+                &value.x,
+                speed,
+                min,
+                max
+            );
+
+            return std::make_tuple(changed, value);
+        }
+    );
+
+	imgui.set_function(
+		"DragFloat4",
+		[](const std::string &p_label, 
+            glm::vec4 p_value, 
+            sol::optional<float> p_speed, 
+            sol::optional<float> p_min, 
+            sol::optional<float> p_max)
+		{
+			glm::vec4 value = p_value;
+			float speed = p_speed.value_or(1.0f);
+			float min = p_min.value_or(0.0f);
+			float max = p_max.value_or(0.0f);
+            
+			const bool changed = ImGui::DragFloat4(
+				p_label.c_str(),
+				&value.x,
+				speed,
+				min,
+				max
+			);
+			return std::make_tuple(changed, value);
+		}
+	);
 
     imgui.set_function(
         "DragInt",
@@ -634,11 +1311,80 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
     );
 
     imgui.set_function(
+        "DragInt2",
+        [](const std::string &p_label, 
+            glm::i32vec2 p_value, 
+            sol::optional<float> p_speed,
+            sol::optional<int> p_min,
+            sol::optional<int> p_max)
+        {
+            glm::i32vec2 value = p_value;
+            float speed = p_speed.value_or(1.0f);
+            int min = p_min.value_or(0);
+            int max = p_max.value_or(0);
+
+            const bool changed = ImGui::DragInt2(
+                p_label.c_str(),
+                &value.x,
+                speed,
+                min,
+                max
+            );
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "DragInt3",
+        [](const std::string &p_label, 
+			glm::i32vec3 p_value,
+            sol::optional<float> p_speed,
+            sol::optional<int> p_min,
+            sol::optional<int> p_max)
+        {
+            glm::i32vec3 value = p_value;
+			float speed = p_speed.value_or(1.0f);
+			int min = p_min.value_or(0);
+			int max = p_max.value_or(0);
+
+            const bool changed = ImGui::DragInt3(
+                p_label.c_str(),
+                &value.x,
+                speed,
+                min,
+                max
+            );
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
+        "DragInt4",
+        [](const std::string &p_label, 
+            glm::i32vec4 p_value, 
+            sol::optional<float> p_speed,
+            sol::optional<int> p_min,
+            sol::optional<int> p_max)
+        {
+            glm::i32vec4 value = p_value;
+            float speed = p_speed.value_or(1.0f);
+            int min = p_min.value_or(0);
+            int max = p_max.value_or(0);
+
+            const bool changed = ImGui::DragInt4(
+                p_label.c_str(),
+                &value.x,
+                speed,
+                min,
+                max
+            );
+            return std::make_tuple(changed, value);
+        }
+    );
+
+    imgui.set_function(
         "SliderFloat",
-        [](const std::string& p_label,
-            float p_value,
-            float p_min,
-            float p_max)
+        [](const std::string& p_label, float p_value, float p_min, float p_max)
         {
             float value = p_value;
 
@@ -655,10 +1401,7 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 
     imgui.set_function(
         "SliderInt",
-        [](const std::string& p_label,
-            int p_value,
-            int p_min,
-            int p_max)
+        [](const std::string& p_label, int p_value, int p_min, int p_max)
         {
             int value = p_value;
 
@@ -718,22 +1461,6 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
     );
 
     imgui.set_function(
-        "DragVec3",
-        [](const std::string& p_label, glm::vec3 p_value, float p_speed)
-        {
-            glm::vec3 value = p_value;
-
-            const bool changed = ImGui::DragFloat3(
-                p_label.c_str(),
-                &value.x,
-                p_speed
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
         "CollapsingHeader",
         [](const std::string& p_label)
         {
@@ -789,32 +1516,12 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
         }
     );
 
-    imgui.set_function("Text",
-		[](const std::string &p_text)
+	imgui.set_function(
+		"Dummy",
+		[](ImVec2 p_size)
 		{
-			ImGui::TextUnformatted(p_text.c_str());
-	    }
-    );
-
-    imgui.set_function("Separator",
-        []()
-        {
-			ImGui::Separator();
-        }
-    );
-
-    imgui.set_function("Spacing",
-        []()
-        {
-            ImGui::Spacing();
-        }
-    );
-
-    imgui.set_function("Button",
-        [](const std::string &p_label)
-        {
-            return ImGui::Button(p_label.c_str());
-        }
-    );
+            ImGui::Dummy(p_size);
+		}
+	);
 }
 
