@@ -1,6 +1,7 @@
 #include "SceneViewWindow.hpp"
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
+#include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Editor::Scene;
 
@@ -116,6 +117,8 @@ void SceneViewWindow::RenderImpl()
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
 {
+	ZoneScoped;
+
 	using DScene = Droplet::Scene::Scene;
 	using DNode = Droplet::Scene::Node;
 	using DTransform = Droplet::Scene::Transform;

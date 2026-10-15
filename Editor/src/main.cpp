@@ -11,12 +11,14 @@
 #include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
-#include <ScriptSystem/ScriptSystem.hpp>
-#include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ScriptSystem/ScriptSystem.hpp>
-
+#include <tracy/public/tracy/Tracy.hpp>
+#include <core/FileExplorer.hpp>
+#include <IconFontCppHeaders/IconsLucide.h>
+//#include <tracy/public/tracy/TracyVulkan.hpp>
+//#include <tracy/public/tracy/TracyLua.hpp>
 using namespace Droplet::Editor;
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
@@ -64,16 +66,31 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
-
+    
+    // Setup ImGui font
+    ImGuiIO io = ImGui::GetIO();
+    // float baseFontSize = 16.0f;
+    // float iconFontSize = baseFontSize * 2.0f / 3.0f;
+    
+    ImFontConfig baseConfig;
+    io.Fonts->AddFontDefault(&baseConfig);
+    
+    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
+    ImFontConfig iconsConfig;
+    iconsConfig.MergeMode = true;
+    iconsConfig.PixelSnapH = true;
+    // iconsConfig.GlyphMinAdvanceX = iconFontSize;
+    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseConfig.SizePixels, &iconsConfig, iconsRanges);
+    
 	engine->GetSceneManager().LoadScene("TestScene"); // HACK
 
 	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
-
+    
 	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
-	ScriptsWindow scriptsWindow(engine);
+    NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+    ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
-	Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
+    Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
@@ -99,14 +116,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-
 		hierarchyWindow.Render();
 		nodeInspectorWindow.Render();
 		scriptsWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
-		Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
+	    Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
 
 		switch (returnType)
 		{

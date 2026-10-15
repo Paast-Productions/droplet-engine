@@ -22,14 +22,15 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
-
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
-
-	ThreadPool::GetInstance().Initialize();
+    
+    ThreadPool::GetInstance().Initialize();
+    
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    m_resourceManager.Initialize(assetDir);
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -67,6 +68,16 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+#ifdef TRACY_ENABLE
+		ZoneNamedN(eventZone, "Event", true);
+
+		constexpr int eventStrMaxLen = 256;
+		char eventStrBuf[eventStrMaxLen]{};
+		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+
+		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
+
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -99,19 +110,14 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	// TODO: Call behaviour pre-update
-
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
 	// Scriptsystem
-
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
 	{
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 	}
-
-	// TODO: Call behaviour post-update
 
 	// Rendering
 	m_renderer.DrawFrame();
@@ -124,41 +130,48 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
+    m_resourceManager.Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
+SDL_Window *Engine::GetWindow()
 {
 	// TODO: insert return statement here
 	return m_renderer.GetWindow();
 }
 
-Scene::SceneManager &Droplet::Engine::GetSceneManager()
+Scene::SceneManager &Engine::GetSceneManager()
 {
 	return m_sceneManager;
 }
 
-ResourceManager &Droplet::Engine::GetResourceManager()
+ResourceManager &Engine::GetResourceManager()
 {
-	// TODO: insert return statement here
-	return m_resourceManager;
+    return m_resourceManager;
 }
 
-void Droplet::Engine::AddEventListener(EventListener p_listener)
+void Engine::AddEventListener(EventListener p_listener)
 {
+	ZoneScoped;
+
 	m_eventListeners.push_back(p_listener);
 }
+
 void Engine::RegisterBehaviours()
 {
+	ZoneScoped;
+
 	// Register engine behaviours
 	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
 {
+	ZoneScoped;
+
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });

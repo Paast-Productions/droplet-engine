@@ -7,6 +7,7 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
@@ -84,10 +85,11 @@ namespace Droplet
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
-		ResourceManager m_resourceManager;
-
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief The resource manager instance, should only be one.
+		ResourceManager m_resourceManager;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;
