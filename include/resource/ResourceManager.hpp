@@ -67,6 +67,18 @@ namespace Droplet
         ResourceManager() = default;
         ~ResourceManager() = default;
 
+        ResourceManager(const ResourceManager &) = delete;
+
+        /// @brief Copy assignment operator deleting itself
+        /// @param ResourceManager
+        ResourceManager &operator=(const ResourceManager &) = delete;
+
+        [[nodiscard]] static ResourceManager &Get()
+        {
+            static ResourceManager resourceManager;
+            return resourceManager;
+        }
+
         /// @brief Initializes the resource manager for a specific root directory.
         /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
         /// be able to load resources from.

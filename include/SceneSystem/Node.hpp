@@ -214,11 +214,10 @@ namespace Droplet::Scene
 
             if (component->HasBoundsOverride())
             {
-                if (m_boundsOverride)
+                if (m_boundsOverride.expired())
                 {
-                    throw std::runtime_error("Node already has a bounds override.");
+                    m_boundsOverride = component;
                 }
-                m_boundsOverride = component;
             }
 
             if (m_started)
@@ -286,7 +285,7 @@ namespace Droplet::Scene
         /// registered. Otherwise, returns the Node's default bounding box.
         ///
         /// @return A constant reference to the effective local-space bounding box.
-        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
+        [[nodiscard]] const NodeBounds *GetBounds() const;
 
         /// @brief Sets the Node's default local-space bounding box.
         ///
@@ -314,7 +313,12 @@ namespace Droplet::Scene
 		/// @param p_node Node to check against.
         /// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
-		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+        [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+
+		/// @brief Checks through all components to see if the Node is renderable.
+        /// 
+        /// @return true if the Node is renderable, otherwise false.
+        [[nodiscard]] bool IsRenderable() const;
 
     private:
         std::string m_name;
@@ -371,6 +375,6 @@ namespace Droplet::Scene
         /// @brief Component currently providing the Node's bounds override.
         ///
         /// Only one Component can provide a bounds override at a time.
-        std::shared_ptr<Component> m_boundsOverride{};
+        std::weak_ptr<Component> m_boundsOverride{};
     };
 }

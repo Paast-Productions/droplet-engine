@@ -268,11 +268,10 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
     // Check if the component being added provides bounds override.
     if (addedComponent->HasBoundsOverride())
     {
-        if (m_boundsOverride)
+        if (m_boundsOverride.expired())
         {
-            throw std::runtime_error("Node already has a bounds override.");
+		    m_boundsOverride = addedComponent;
         }
-		m_boundsOverride = addedComponent;
     }
 
     if (m_started)
@@ -308,7 +307,7 @@ void Node::RemoveComponent(const Component *p_component)
     }
 
     // Check if the component being removed provides the current bounds override.
-    const bool isBoundsOverride = (p_component == m_boundsOverride.get());
+    const bool isBoundsOverride = (p_component == m_boundsOverride.lock().get());
 
     m_components.erase(m_components.begin() + index);
 
@@ -328,14 +327,22 @@ void Node::RemoveComponent(const Component *p_component)
     }
 }
 
-std::shared_ptr<NodeBounds> Node::GetBounds() const
+const NodeBounds *Node::GetBounds() const
 {
-    if (m_boundsOverride)
+    if (!m_boundsOverride.expired())
     {
-        return m_boundsOverride->GetBounds();
+		Component *overrideComponent = m_boundsOverride.lock().get();
+
+		assert(overrideComponent != nullptr && "Bounds override component is null.");
+
+		const NodeBounds *boundsOverride = overrideComponent->GetBounds();
+
+		assert(boundsOverride != nullptr && "Bounds override is null.");
+
+        return boundsOverride;
     }
 
-    return m_bounds;
+	return m_bounds.get();
 }
 
 void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
@@ -382,5 +389,17 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
         parent = parent->GetParent();
     }
 
+    return false;
+}
+
+bool Node::IsRenderable() const
+{
+    for (const auto &component : m_components)
+    {
+        if (component && component->IsRenderable())
+        {
+            return true;
+        }
+    }
     return false;
 }

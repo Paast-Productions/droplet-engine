@@ -8,10 +8,12 @@ using namespace Droplet::Script;
 
 void ScriptComponent::Start()
 {
+
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
+
 }
 
 const std::string &ScriptComponent::GetScriptPath() const
@@ -64,9 +66,7 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::TextUnformatted("Script attachment");
-
-    ImGui::Button("Drop Lua script here", ImVec2(180.0f, 0.0f));
+    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str(), ImVec2(180.0f, 0.0f));
 
     if (ImGui::BeginDragDropTarget())
     {
@@ -81,41 +81,6 @@ void ScriptComponent::RenderUIImpl()
 
         ImGui::EndDragDropTarget();
     }
-
-    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str());
-
-    if (ImGui::Button("Attach Script"))
-    {
-        ImGui::OpenPopup("AttachScriptPopup");
-    }
-
-    if (ImGui::BeginPopup("AttachScriptPopup"))
-    {
-        static const std::string scripts[] =
-        {
-            "testScript.lua",
-            "testScript2.lua"
-        };
-
-        for (const std::string& script : scripts)
-        {
-            const bool selected = m_scriptPath == script;
-
-            if (ImGui::Selectable(script.c_str(), selected))
-            {
-                AttachScript(script);
-                ImGui::CloseCurrentPopup();
-            }
-
-            if (selected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-        ImGui::EndPopup();
-    }
-
-    ImGui::SameLine();
 
     ImGui::BeginDisabled(m_scriptPath.empty());
 
