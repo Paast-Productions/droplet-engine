@@ -27,7 +27,7 @@ void ResourceBrowser::RenderImpl()
         RegisterAsset();
     }
     SameLine();
-    TextDisabled(m_engine->GetResourceManager().GetRootDirectory().string().c_str());
+    TextDisabled(std::filesystem::absolute(m_engine->GetResourceManager().GetRootDirectory()).string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
