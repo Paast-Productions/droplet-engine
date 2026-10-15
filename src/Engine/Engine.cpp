@@ -1,6 +1,7 @@
 #include <Engine.hpp>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <Graphics/VK/SceneAdapter.hpp>
 
 using namespace Droplet;
 
@@ -92,6 +93,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
+
+	Graphics::VK::SceneAdapter::GetInstance().SubmitNodeData(m_sceneManager.Render());
 
 	// Scriptsystem
 
