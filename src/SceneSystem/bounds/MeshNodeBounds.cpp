@@ -55,7 +55,16 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 	if (!meshHandle.IsReady())
 		return {};
 
-	RayHit hit = meshHandle.Get()->GetBVH().Raycast(localRay);
+	RRayHit hit{};
+
+	if (meshResource.expired())
+	{
+		hit = Math::Raycast(localRay, GetAABB());
+	}
+	else
+	{
+		hit = meshResource.lock()->GetBVH().Raycast(localRay);
+	}
 
 	if (hit.didHit)
 	{
@@ -74,6 +83,7 @@ AABB MeshNodeBounds::GetAABB() const
 
 	if (!meshHandle.IsReady())
 		return {};
+	}
 
 	return meshHandle.Get()->GetBVH().GetBounds();
 }

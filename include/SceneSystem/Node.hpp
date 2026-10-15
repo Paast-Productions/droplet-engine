@@ -214,7 +214,7 @@ namespace Droplet::Scene
 
             if (component->HasBoundsOverride())
             {
-                if (!m_boundsOverride)
+                if (m_boundsOverride)
                 {
                     m_boundsOverride = component;
                 }
@@ -285,7 +285,7 @@ namespace Droplet::Scene
         /// registered. Otherwise, returns the Node's default bounding box.
         ///
         /// @return A constant reference to the effective local-space bounding box.
-        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
+        [[nodiscard]] const NodeBounds *GetBounds() const;
 
         /// @brief Sets the Node's default local-space bounding box.
         ///
@@ -375,6 +375,6 @@ namespace Droplet::Scene
         /// @brief Component currently providing the Node's bounds override.
         ///
         /// Only one Component can provide a bounds override at a time.
-        std::shared_ptr<Component> m_boundsOverride{};
+        std::weak_ptr<Component> m_boundsOverride{};
     };
 }

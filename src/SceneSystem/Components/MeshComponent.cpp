@@ -7,9 +7,9 @@
 
 using namespace Droplet::Scene;
 
-// TODO: Temp fix for bounds 
-Droplet::Scene::MeshComponent::MeshComponent() : m_bounds(this)
+MeshComponent::MeshComponent() : m_bounds(this)
 {
+
 }
 
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -77,8 +77,6 @@ void MeshComponent::RenderUIImpl()
     }
 }
 
-
-
 void MeshComponent::SetMeshGUID(
     Droplet::GUID p_guid,
     Droplet::ResourceManager &p_resourceManager)
@@ -91,7 +89,6 @@ void MeshComponent::SetTextureGUID(
     Droplet::ResourceManager &p_resourceManager)
 {
     m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
-}
 
 const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
 {
@@ -117,5 +114,13 @@ nlohmann::json MeshComponent::SerializeImpl()
 
 void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
-	// TODO: Implement deserialization logic for the mesh component.
+	if (p_compJson.contains("meshGUID"))
+	{
+		m_meshGUID = p_compJson["meshGUID"].get<Droplet::GUID>();
+	}
+
+	if (p_compJson.contains("materialGUID"))
+	{
+		m_materialGUID = p_compJson["materialGUID"].get<Droplet::GUID>();
+	}
 }

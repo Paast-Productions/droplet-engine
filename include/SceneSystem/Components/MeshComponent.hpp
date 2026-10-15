@@ -6,6 +6,7 @@
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <resource/types/Texture2DResource.hpp>
+#include <ResourceManager.hpp>
 
 #include <string>
 #include <string_view>
@@ -26,7 +27,7 @@ namespace Droplet::Scene
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
-		std::string_view GetTypeName() const override { return "MeshComponent"; }
+        [[nodiscard]] std::string_view GetTypeName() const override { return "MeshComponent"; }
 
         // Mesh
 
@@ -51,19 +52,11 @@ namespace Droplet::Scene
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
-        //bool HasBoundsOverride() const override { return true; }
+        bool HasBoundsOverride() const override { return true; }
 
         /// @brief Gets the custom bounds provided by the component.
         /// @return The bounding box provided by the component.
-        //[[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const override { return std::make_shared<MeshNodeBounds>(m_bounds); }
-
-
-		/// @brief Determines whether the component makes the Node renderable.
-		/// @return true if the component is renderable, otherwise false.
-        bool IsRenderable() const override
-        {
-            return true;
-        }
+        [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
     protected:
 		void RenderUIImpl() override;
@@ -79,7 +72,5 @@ namespace Droplet::Scene
         ResourceHandle<Texture2DResource> m_2dTexture;
 
         MeshNodeBounds m_bounds;
-
-        // TODO: Material settings
     };
 }
