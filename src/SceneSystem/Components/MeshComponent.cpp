@@ -9,13 +9,16 @@
 
 namespace
 {
-    // Returns true if outGUID was changed this frame.
-    bool ResourceSlot(const char *p_label,
+    bool ResourceSlot(
+        const char *p_label,
         Droplet::GUID p_current,
         Droplet::GUID &p_pickBuffer,
-        Droplet::GUID &p_outGUID)
+        Droplet::GUID &p_outGUID,
+        Droplet::ResourceType p_expectedType)
     {
         using namespace ImGui;
+        using namespace Droplet::Editor;
+
         bool changed = false;
 
         PushID(p_label);
@@ -28,7 +31,7 @@ namespace
         const float clearW = GetFrameHeight();
         const float gap = GetStyle().ItemSpacing.x;
 
-        const std::string text = p_current != 0
+        const std::string text = p_current != Droplet::C_INVALID_GUID
             ? "GUID: " + std::to_string(p_current)
             : "None (drop resource here)";
 
@@ -38,46 +41,68 @@ namespace
             OpenPopup("pick");
         }
 
-        // Drag & drop
+        // Drag and drop
         if (BeginDragDropTarget())
         {
             if (const ImGuiPayload *pl =
-                AcceptDragDropPayload(Droplet::Editor::PAYLOAD_RESOURCE.data()))
+                AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
             {
-                if (pl->DataSize == sizeof(Droplet::GUID))
+                if (pl->DataSize == sizeof(ResourcePayload))
                 {
-                    p_outGUID = *static_cast<const Droplet::GUID *>(pl->Data);
-                    changed = true;
+                    const auto *resourcePayload =
+                        static_cast<const ResourcePayload *>(pl->Data);
+
+                    if (resourcePayload->type == p_expectedType)
+                    {
+                        p_outGUID = resourcePayload->guid;
+                        changed = true;
+                    }
+                    else
+                    {
+                        // Optional: report incompatible resource type.
+                    }
                 }
             }
+
             EndDragDropTarget();
         }
 
-        if (p_current != 0 && IsItemHovered())
-            SetTooltip("GUID: %llu", static_cast<unsigned long long>(p_current));
+        if (p_current != Droplet::C_INVALID_GUID && IsItemHovered())
+        {
+            SetTooltip(
+                "GUID: %llu",
+                static_cast<unsigned long long>(p_current));
+        }
 
         // Clear button
         SameLine();
-        BeginDisabled(p_current == 0);
+        BeginDisabled(p_current == Droplet::C_INVALID_GUID);
+
         if (Button("X", ImVec2(clearW, clearW)))
         {
-            p_outGUID = 0;
+            p_outGUID = Droplet::C_INVALID_GUID;
             changed = true;
         }
+
         EndDisabled();
 
         // Manual GUID popup
         if (BeginPopup("pick"))
         {
             InputScalar("GUID", ImGuiDataType_U64, &p_pickBuffer);
+
             if (Button("Assign"))
             {
                 p_outGUID = p_pickBuffer;
                 changed = true;
                 CloseCurrentPopup();
             }
+
             SameLine();
-            if (Button("Cancel")) CloseCurrentPopup();
+
+            if (Button("Cancel"))
+                CloseCurrentPopup();
+
             EndPopup();
         }
 
@@ -111,11 +136,25 @@ void MeshComponent::RenderUIImpl()
 
         Droplet::GUID newGUID = C_INVALID_GUID;
 
-        if (ResourceSlot("Mesh", m_mesh.GetGUID(), m_meshPickGUID, newGUID))
+        if(ResourceSlot(
+            "Mesh",
+            m_mesh.GetGUID(),
+            m_meshPickGUID,
+            newGUID,
+            Droplet::ResourceType::Mesh))
+        {
             SetMeshGUID(newGUID, resourceManager);
+        }
 
-        if (ResourceSlot("Texture", m_2dTexture.GetGUID(), m_texturePickGUID, newGUID))
+        if (ResourceSlot(
+            "Texture",
+            m_2dTexture.GetGUID(),
+            m_texturePickGUID,
+            newGUID,
+            Droplet::ResourceType::Texture2D))
+        {
             SetTextureGUID(newGUID, resourceManager);
+        }
 
         EndTable();
     }
