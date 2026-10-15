@@ -57,7 +57,7 @@ namespace Droplet
             
             if (regRes.onCompleteCallback)
             {
-                regRes.onCompleteCallback(newMetaData);
+                regRes.onCompleteCallback(regRes.succeeded, newMetaData);
             }
                 
             // Push metafile write operation to worker thread
@@ -142,10 +142,10 @@ namespace Droplet
         return m_rootDirectory;
     }
 
-    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath, std::function<void(const std::vector<MetaEntry>&)> p_onComplete)
+    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath, 
+        std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> p_onComplete)
     {
         ZoneScoped;
-
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::filesystem::path relAssetPath(p_relAssetPath);
@@ -162,24 +162,30 @@ namespace Droplet
         std::string ext = absAssetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, ext, p_onComplete](){
+        auto it = m_assetScanners.find(ext);
+        if (it == m_assetScanners.end())
+        {
+            // No Scanner was found
+            if (p_onComplete) p_onComplete(false, {});
+            return;
+        }
+        AssetScannerFunc scannerFunc = it->second;
+        
+        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, scannerFunc, p_onComplete](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
             res.relAssetPath = relAssetPath; // Relative for registry
             res.absoluteMetaPath = absMetaPath; // Absolute for meta write
             res.onCompleteCallback = p_onComplete;
-            
-            if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
+
+            try
             {
-                res.foundResources = IO::AssimpFormat::ListAssetResources(absAssetPath);
+                res.foundResources = scannerFunc(absAssetPath); // Scan the asset for resources
+                res.succeeded = true;
             }
-            else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
+            catch (...)
             {
-                res.foundResources = IO::GliFormat::ListAssetResources(absAssetPath);
-            }
-            else if (ext == ".slang")
-            {
-                res.foundResources = IO::SlangFormat::ListAssetResources(absAssetPath);
+                res.succeeded = false;
             }
             
             m_asyncRegisterResults.Push(res);
@@ -312,6 +318,29 @@ namespace Droplet
         }
             
         return ResourceState::Unloaded;
+    }
+
+    void ResourceManager::RegisterAssetScanner(const std::vector<std::string> &p_extensions,
+        AssetScannerFunc p_scanFunc)
+    {
+        for (const std::string &ext : p_extensions)
+        {
+            std::string lowerExt = StringUtils::ToLower(ext);
+            m_assetScanners[lowerExt] = p_scanFunc;
+        }
+    }
+
+    bool ResourceManager::IsAssetSupported(const std::filesystem::path &p_path)
+    {
+        if (!p_path.has_extension())
+        {
+            return false;
+        }
+        
+        std::string ext = p_path.extension().generic_string();
+        StringUtils::ToLowerInPlace(ext);
+        
+        return m_assetScanners.contains(ext);
     }
 
     void ResourceManager::HotReload(GUID p_guid)

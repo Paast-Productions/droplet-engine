@@ -23,6 +23,10 @@ protected:
 
         m_testAssetDir = fs::path(TEST_ASSET_DIR);
         m_resourceManager.Initialize(m_testAssetDir);
+        
+        m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ListAssetResources);
+        m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ListAssetResources);
+        m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ListAssetResources);
     }
 
     void TearDown() override
@@ -224,11 +228,13 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
     fs::copy(originalAsset, newAssetAbs);
     
     bool callbackFired = false;
+    bool scanSucceeded = false;
     std::vector<MetaEntry> returnedEntries;
-
+    
     // Register the new asset
-    m_resourceManager.RegisterAsset(newAssetRel, [&](const std::vector<MetaEntry>& entries) {
+    m_resourceManager.RegisterAsset(newAssetRel, [&](bool succeeded, const std::vector<MetaEntry>& entries) {
         callbackFired = true;
+        scanSucceeded = succeeded;
         returnedEntries = entries; // Capture the data to verify it wasn't destroyed
     });
     
@@ -242,6 +248,7 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
     
     // Verify the callback fired successfully
     EXPECT_TRUE(callbackFired) << "The registration callback was never fired during Update().";
+    EXPECT_TRUE(scanSucceeded) << "The scanner failed to process the asset or rejected the extension.";
     ASSERT_FALSE(returnedEntries.empty()) << "The callback returned an empty vector.";
     EXPECT_EQ(returnedEntries[0].relAssetPath, newAssetRel);
     
