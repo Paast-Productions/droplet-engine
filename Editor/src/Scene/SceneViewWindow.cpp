@@ -3,6 +3,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <EditorConfig.hpp>
+#include <EditorShortcuts.hpp>
 
 using namespace Droplet::Editor::Scene;
 
@@ -54,6 +55,11 @@ void SceneViewWindow::RenderImpl()
 	// Begin the child window that encompasses the camera view.
 	ImGui::SetCursorPos(camViewPos);
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+
+	if (ImGui::IsWindowFocused())
+	{
+		EditorShortcuts::ProcessSceneViewKeyShortcuts();
+	}
 
 	// Collect mouse and keyboard inputs for the camera update, if the mouse is within the camera view rect.
 
@@ -148,10 +154,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_interactionState->GetSelectedNodes();
 
 		// TODO: Make this configurable by the user
-		ImGuizmo::OPERATION currentOperation =
-			ImGuizmo::TRANSLATE |
-			ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z |
-			ImGuizmo::BOUNDS;
+		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation", 0);
 
 		if (selectedNodes.size() > 0)
 		{
@@ -159,6 +162,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
+
+			// If bounds should be active
+			float *bounds = nullptr;
+			if (EditorConfig::LoadBool("manipulateBounds", false))
+			{
+				bounds = &(aabb[0].x);
+			}
 
 			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
@@ -173,7 +183,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
 				&(deltaMatrix[0][0]),	// Output delta matrix
 				nullptr,				// Optional snap values
-				&(aabb[0].x),			// Optional bounds
+				bounds,					// Optional bounds
 				nullptr					// Optional bounds snap values
 			);
 

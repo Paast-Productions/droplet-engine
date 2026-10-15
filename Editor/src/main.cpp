@@ -1,21 +1,13 @@
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_vulkan.h>
-#include <ImGui/imgui_impl_sdl3.h>
-#include <SDL3/SDL.h>
-#include <cstdio>
 #include <Engine/Engine.hpp>
+#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "ScriptsWindow.hpp"
-#include <Graphics/VK/Renderer.hpp>
-#include <GameInput.hpp>
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
-#include <ScriptSystem/ScriptSystem.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
-#include <ScriptSystem/ScriptSystem.hpp>
 #include <ImGui/UIStyle.hpp>
 
 using namespace Droplet::Editor;

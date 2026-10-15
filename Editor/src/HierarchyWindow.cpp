@@ -6,6 +6,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <EditorShortcuts.hpp>
 //#include <Engine/Engine.hpp>
 #include <memory>
 
@@ -26,6 +27,11 @@ void HierarchyWindow::InitImpl()
 
 void HierarchyWindow::RenderImpl()
 {
+    if (ImGui::IsWindowFocused())
+    {
+        EditorShortcuts::ProcessSceneViewKeyShortcuts();
+    }
+
     if (!m_instance)
     {
         return;
