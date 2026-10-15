@@ -140,6 +140,8 @@ namespace Droplet::IO::AssimpFormat
 
 		s_importer.FreeScene();
 
+		mesh.GenerateBVH();
+
 		return std::make_unique<MeshResource>(mesh);
 	}
 
