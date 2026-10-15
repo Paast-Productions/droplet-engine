@@ -3,26 +3,51 @@
 -- Member Variables
 --
 
+local active = false
 local trans = self:GetTransform()
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
-local targetRadius = 5.0
-local targetAcceptanceRadius = 0.5
+local targetRadius = 3.0
+local targetAcceptanceRadius = 0.2
 
-local maxMoveSpeed = 5.0
+local maxMoveSpeed = 3.0
 local maxTurnSpeed = 1.0
 
-local moveSpeedRateOfChange = 0.1
-local turnSpeedRateOfChange = 0.1
+local moveSpeedRateOfChange = 0.3
+local turnSpeedRateOfChange = 0.8
 
 local moveSpeed = 0.0
-local turnSpeed = 0.0
+local turnSpeedX = 0.0 -- Turn speed around global Y axis (yaw)
+local turnSpeedY = 0.0 -- Turn speed around local X axis (pitch)
 
 
 --
 -- Member Functions
 --
+function Clamp(value, minValue, maxValue)
+    return math.max(minValue, math.min(maxValue, value))
+end
+
+function MoveTowards(current, target, maxDelta)
+    if current < target then
+        return math.min(current + maxDelta, target)
+    else
+        return math.max(current - maxDelta, target)
+    end
+end
+
+function WrapAngle(angle)
+    while angle > math.pi do
+        angle = angle - 2.0 * math.pi
+    end
+
+    while angle < -math.pi do
+        angle = angle + 2.0 * math.pi
+    end
+
+    return angle
+end
 
 function NewTargetPoint()
 	-- Random point on a sphere using spherical coordinates
@@ -48,24 +73,124 @@ end
 
 function UpdateVelocity(dt)
 	-- TODO: Steering behavior to move forwards and turn towards target point
-	local pos = trans:GetPosition(TransformSpace.World)
-	local dirToTarget = GLM.V3Sub(targetPoint, pos)
-	local distToTarget = GLM.V3Length(dirToTarget)
+	 local pos = trans:GetPosition(TransformSpace.World)
 
-	if distToTarget > 0 then
-		dirToTarget = GLM.V3MulF(dirToTarget, 1 / distToTarget)
+    -- Direction towards the target
+    local toTarget = GLM.V3Sub(targetPoint, pos)
+    local distance = GLM.V3Length(toTarget)
+
+    if distance < 0.0001 then
+        moveSpeed = MoveTowards(
+            moveSpeed, 0.0, moveSpeedRateOfChange * dt
+        )
+        turnSpeedX = MoveTowards(
+            turnSpeedX, 0.0, turnSpeedRateOfChange * dt
+        )
+        turnSpeedY = MoveTowards(
+            turnSpeedY, 0.0, turnSpeedRateOfChange * dt
+        )
+        return
+    end
+
+    toTarget = GLM.V3MulF(toTarget, 1.0 / distance)
+
+    local forward = trans:GetForward()
+
+    -- Calculate yaw error around global Y.
+    local currentYaw = math.atan(forward.x, forward.z)
+    local targetYaw = math.atan(toTarget.x, toTarget.z)
+    local yawError = WrapAngle(targetYaw - currentYaw)
+
+    -- Calculate pitch error.
+    local currentPitch = math.atan(
+        forward.y,
+        math.sqrt(forward.x * forward.x + forward.z * forward.z)
+    )
+
+    local targetPitch = math.atan(
+        toTarget.y,
+        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+    )
+
+    local pitchError = targetPitch - currentPitch
+
+    -- Convert angular errors to desired turn speeds.
+    local turnGain = 2.0
+
+    local desiredTurnX = Clamp(
+        yawError * turnGain,
+        -maxTurnSpeed,
+        maxTurnSpeed
+    )
+
+    local desiredTurnY = Clamp(
+        pitchError * turnGain,
+        -maxTurnSpeed,
+        maxTurnSpeed
+    )
+
+    -- Smoothly change turn speeds.
+    turnSpeedX = MoveTowards(
+        turnSpeedX,
+        desiredTurnX,
+        turnSpeedRateOfChange * dt
+    )
+
+    turnSpeedY = MoveTowards(
+        turnSpeedY,
+        desiredTurnY,
+        turnSpeedRateOfChange * dt
+    )
+
+    -- Move forward, slowing down when misaligned or close to target.
+    local yawAlignment = math.cos(yawError)
+    local pitchAlignment = math.cos(pitchError)
+
+    local alignment = Clamp(
+        yawAlignment * pitchAlignment,
+        0.0,
+        1.0
+    )
+
+    -- Slow down as the fish approaches the target,
+	-- but keep moving until it enters the acceptance radius.
+	local brakingDistance = math.max(targetAcceptanceRadius * 2.0, 0.5)
+
+	local distanceFactor = Clamp(
+		(distance - targetAcceptanceRadius) / brakingDistance,
+		0.0,
+		1.0
+	)
+
+	-- Maintain some forward speed while outside the target radius.
+	local minSpeedFactor = 0.2
+
+	local desiredMoveSpeed = maxMoveSpeed *
+		math.max(minSpeedFactor, distanceFactor) *
+		alignment
+
+	-- Only stop when actually within the acceptance radius.
+	if distance <= targetAcceptanceRadius then
+		desiredMoveSpeed = 0.0
 	end
 
-	moveSpeed = GLM.V3Length(dirToTarget) * maxMoveSpeed
-	turnSpeed = GLM.V3Length(GLM.V3Cross(trans:GetForward(), dirToTarget)) * maxTurnSpeed
+	moveSpeed = MoveTowards(
+		moveSpeed,
+		desiredMoveSpeed,
+		moveSpeedRateOfChange * dt
+	)
 end
 
 function ApplyVelocity(dt)
 	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
 	trans:Move(toMove, TransformSpace.World)
 
-	local toRotate = GLM.V3MulF(GLM.V3MulF(trans:GetUp(), turnSpeed), dt)
-	trans:RotateEuler(toRotate, TransformSpace.World)
+	local toRotateY = GLM.AngleAxis(trans:GetRight(), turnSpeedY * dt)
+	trans:Rotate(toRotateY)
+
+	local toRotateX = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeedX * dt)
+	trans:Rotate(toRotateX, TransformSpace.World)
+
 end
 
 
@@ -82,6 +207,10 @@ end
 
 function OnUpdate(dt)
 	
+	if not active then
+		return
+	end
+
 	if IsWithinTarget() then
 		NewTargetPoint()
 	end
@@ -93,6 +222,10 @@ function OnUpdate(dt)
 end
 
 function RenderUI()
+	_, active = ImGui.Checkbox("Active", active)
+
+	ImGui.Spacing()
+
 	_, orbitPoint = ImGui.DragFloat3("Orbit Point", orbitPoint, 0.2)
 	_, targetRadius = ImGui.DragFloat("Target Radius", targetRadius, 0.1)
 	_, targetAcceptanceRadius = ImGui.DragFloat("Target Acceptance Radius", targetAcceptanceRadius, 0.1)
@@ -102,4 +235,9 @@ function RenderUI()
 
 	_, maxTurnSpeed = ImGui.DragFloat("Turn Speed", maxTurnSpeed, 0.01)
 	_, turnSpeedRateOfChange = ImGui.DragFloat("Turn Rate of Change", turnSpeedRateOfChange, 0.01)
+
+	ImGui.Text("Current Move Speed: " .. moveSpeed)
+	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
+	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")
+	ImGui.Text("Distance to Target: " .. GLM.V3Length(GLM.V3Sub(trans:GetPosition(TransformSpace.World), targetPoint)))
 end

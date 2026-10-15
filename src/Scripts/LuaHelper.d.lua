@@ -820,7 +820,7 @@ end
 
 ---@param axis Vec3
 ---@param angle number
----@return Vec3
+---@return Quat
 function GLM.AngleAxis(axis, angle)
     return nil
 end

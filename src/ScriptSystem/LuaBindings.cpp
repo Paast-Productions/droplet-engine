@@ -1745,7 +1745,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		},
 		{
 			"AngleAxis",
-			"Vec3",
+			"Quat",
 			true,
 			{
 				{ "axis", "Vec3" },
