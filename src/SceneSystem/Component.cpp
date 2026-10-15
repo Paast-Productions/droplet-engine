@@ -88,5 +88,4 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 
 void Droplet::Scene::Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
 {
-
 }

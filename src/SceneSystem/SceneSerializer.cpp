@@ -41,7 +41,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     for (const auto &rootJson : p_json["roots"])
     {
         auto root = p_scene->AddNode(rootJson["name"]);
-        context.RegisterNode(rootJson["id"], root.get());
+        context.RegisterNode(rootJson["id"], root);
         DeserializeTransform(rootJson["transform"], root->GetTransform());
         for (const auto componentJson : rootJson["components"])
         {
@@ -116,7 +116,7 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
     
 
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
-    p_context.RegisterNode(p_json["id"], node.get());
+    p_context.RegisterNode(p_json["id"], node);
     node->SetActive(p_json["active"]);
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
@@ -151,7 +151,7 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
     auto component = ComponentFactory::CreateComponent(type);
     component->Deserialize(p_json);
     p_node->AttachComponent(component, p_json["id"]);
-    p_context.RegisterCopmonent(p_serializedNodeID, component->GetID(), component.get());
+    p_context.RegisterCopmonent(p_serializedNodeID, component->GetID(), component);
 
 }
 

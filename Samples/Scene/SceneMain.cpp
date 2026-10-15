@@ -152,6 +152,7 @@ class EnemyComponent :public Component
 {
 public:
     std::string_view GetTypeName() const override { return "EnemyComponent"; }
+
     void Start() override
     {
         std::cout << "EnemyComponent started\n";
@@ -200,19 +201,19 @@ public:
         
     }
 
-    void ResolveReferences(SerializationContext &p_context) override
+    void ResolveReferences([[maybe_unused]]SerializationContext &p_context) override
     {
         auto comp = p_context.FindComponent(m_target.serializedID.nodeID, m_target.serializedID.componentID);
         SetTarget(comp);
     }
 
-    void SetTarget(Component *p_target)
+    void SetTarget(std::shared_ptr<Component> p_target)
     {
         m_target.SetTarget(p_target);
     }
-    Component *GetTarget()
+    std::shared_ptr<Component>GetTarget() const
     {
-        return m_target.resolvedObject;
+        return m_target.GetTarget();
     }
 
     SceneObjectID GetTargetID()
@@ -306,7 +307,7 @@ int main()
     auto playerComp = player->AddComponent<PlayerComponent>();
     auto enemyComp = enemy->AddComponent<EnemyComponent>();
 
-    enemyComp->SetTarget(playerComp.get());
+    enemyComp->SetTarget(playerComp);
 
     player->AddComponent<MeshComponent>();
     

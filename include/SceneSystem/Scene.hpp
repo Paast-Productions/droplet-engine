@@ -13,23 +13,32 @@ struct SceneObjectID {
     std::uint64_t componentID = 0;
 };
 
-/// @brief The scene reference is used for components to be able to reference other nodes or components in the scene
-/// @tparam T 
+/// @brief Struct to be used by components to reference nodes and components in the scene
+/// SetTarget makes the reference that object
+/// SetSerializedID used by the serializer to save the reference
+/// GetTarget returns the target the reference is referencing
+/// @tparam T the type of reference. Either "Component" or "Node"
 template<typename T>
 struct SceneReference {
     SceneObjectID serializedID = {};
-    T *resolvedObject = nullptr;
+    std::weak_ptr<T> resolvedObject;
+    
 
-    void SetTarget(T *p_target)
+    void SetTarget(const std::shared_ptr<T>& p_target)
     {
         resolvedObject = p_target;
         serializedID = {};
     } 
+    
+    std::shared_ptr<T> GetTarget() const
+    {
+        return resolvedObject.lock();
+    }
 
     void SetSerializedID(SceneObjectID p_id)
     {
         serializedID = p_id;
-        resolvedObject = nullptr;
+        resolvedObject.reset();
     }
 };
 
