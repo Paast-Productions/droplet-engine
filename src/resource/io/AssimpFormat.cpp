@@ -376,7 +376,7 @@ namespace Droplet::IO::AssimpFormat
 		return std::make_unique<AnimationResource>(animation);
 	}
 
-	std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath)
+	std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath)
 	{
 		ZoneScoped;
 

@@ -24,9 +24,9 @@ protected:
         m_testAssetDir = fs::path(TEST_ASSET_DIR);
         m_resourceManager.Initialize(m_testAssetDir);
         
-        m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ListAssetResources);
-        m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ListAssetResources);
-        m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ListAssetResources);
+        m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+        m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+        m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
     }
 
     void TearDown() override

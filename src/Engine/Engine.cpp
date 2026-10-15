@@ -33,9 +33,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
     m_resourceManager.Initialize(assetDir);
     // Register scanners
-    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ListAssetResources);
-    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ListAssetResources);
-    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ListAssetResources);
+    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
     // Register resources
     m_resourceManager.RegisterResourceType<Texture2DResource>();
     m_resourceManager.RegisterResourceType<MeshResource>();

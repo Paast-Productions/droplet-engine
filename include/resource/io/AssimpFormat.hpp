@@ -37,6 +37,6 @@ namespace Droplet::IO::AssimpFormat
 	/// @param p_assetPath File path of the model file.
 	/// @return A vector of resource types and their names.
     /// @throw std::runtime_error If Assimp failed to read the asset file.
-	[[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath);
+	[[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath);
 }
 

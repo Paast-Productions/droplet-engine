@@ -204,7 +204,8 @@ namespace Droplet
         /// @param p_scanFunc The scanner function to be used for given file extensions.
         void RegisterAssetScanner(const std::vector<std::string> &p_extensions, AssetScannerFunc p_scanFunc);
 
-        /// @brief Checks if the asset extension has a registered scanner.
+        /// @brief Checks if the asset extension has a registered scanner. This function should be called before
+        /// attempting to register an asset.
         /// @param p_path The path to the asset file.
         /// @return True if the file's extension has a scanner registered, otherwise false.
         [[nodiscard]] bool IsAssetSupported(const std::filesystem::path &p_path);
