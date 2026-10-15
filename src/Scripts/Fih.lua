@@ -43,7 +43,7 @@ end
 function IsWithinTarget()
 	local pos = trans:GetPosition(TransformSpace.World)
 	local dist = GLM:V3Distance(pos, targetPoint)
-	return dist <= targetAcceptanceRadius
+	return (dist <= targetAcceptanceRadius)
 end
 
 function UpdateVelocity(dt)
