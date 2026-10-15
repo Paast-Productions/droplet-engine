@@ -8,11 +8,12 @@
 
 namespace Droplet
 {
-	namespace Layers
+	/// @brief Determines which other objects it can collide with
+	enum Layers : JPH::ObjectLayer
 	{
-		static constexpr JPH::ObjectLayer NON_MOVING = 0;
-		static constexpr JPH::ObjectLayer MOVING = 1;
-		static constexpr JPH::ObjectLayer NUM_LAYERS = 2;
+		NON_MOVING = 0,
+		MOVING = 1,
+		NUM_LAYERS = 2,
 	};
 
 	namespace BroadPhaseLayers
