@@ -6,6 +6,54 @@ function OnStart() end
 ---@param dt number
 function OnUpdate(dt) end
 
+---@enum TransformSpace
+TransformSpace = {
+	Local = 0,
+	World = 1
+}
+
+---@enum ImGuiWindowFlags
+ImGuiWindowFlags = {
+	None = 0,
+	NoTitleBar = 1,
+	NoResize = 2,
+	NoMove = 4,
+	NoScrollbar = 8,
+	NoScrollWithMouse = 16,
+	NoCollapse = 32,
+	AlwaysAutoResize = 64,
+	NoBackground = 128,
+	NoSavedSettings = 256,
+	NoMouseInputs = 512,
+	MenuBar = 1024,
+	HorizontalScrollbar = 2048,
+	NoFocusOnAppearing = 4096,
+	NoBringToFrontOnFocus = 8192,
+	AlwaysVerticalScrollbar = 16384,
+	AlwaysHorizontalScrollbar = 32768,
+	NoNavInputs = 65536,
+	NoNavFocus = 131072,
+	UnsavedDocument = 262144,
+	NoDocking = 524288,
+	NoNav = 196608,
+	NoDecoration = 43,
+	NoInputs = 197120
+}
+
+---@enum ImGuiChildFlags
+ImGuiChildFlags = {
+	None = 0,
+	Borders = 1,
+	AlwaysUseWindowPadding = 2,
+	ResizeX = 4,
+	ResizeY = 8,
+	AutoResizeX = 16,
+	AutoResizeY = 32,
+	AlwaysAutoResize = 64,
+	FrameStyle = 128,
+	NavFlattened = 256
+}
+
 ---@class Node
 Node = {}
 
@@ -18,12 +66,6 @@ end
 function Node:GetTransform()
     return nil
 end
-
----@enum TransformSpace
-TransformSpace = {
-    Local = 0,
-    World = 1
-}
 
 ---@class Transform
 Transform = {}
@@ -180,6 +222,177 @@ Mat3 = {}
 ---@class Mat4
 Mat4 = {}
 
+---@class GLM
+GLM = {}
+
+---@param vec Vec2
+---@param float number
+---@return Vec2
+function GLM:V2AddF(vec, float)
+    return nil
+end
+
+---@param vec Vec2
+---@param float number
+---@return Vec2
+function GLM:V2SubF(vec, float)
+    return nil
+end
+
+---@param vec Vec2
+---@param float number
+---@return Vec2
+function GLM:V2MulF(vec, float)
+    return nil
+end
+
+---@param vec Vec2
+---@param float number
+---@return Vec2
+function GLM:V2DivF(vec, float)
+    return nil
+end
+
+---@param vec1 Vec2
+---@param vec2 Vec2
+---@return Vec2
+function GLM:V2Add(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec2
+---@param vec2 Vec2
+---@return Vec2
+function GLM:V2Sub(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec2
+---@param vec2 Vec2
+---@return Vec2
+function GLM:V2Mul(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec2
+---@param vec2 Vec2
+---@return Vec2
+function GLM:V2Div(vec1, vec2)
+    return nil
+end
+
+---@param vec Vec3
+---@param float number
+---@return Vec3
+function GLM:V3AddF(vec, float)
+    return nil
+end
+
+---@param vec Vec3
+---@param float number
+---@return Vec3
+function GLM:V3SubF(vec, float)
+    return nil
+end
+
+---@param vec Vec3
+---@param float number
+---@return Vec3
+function GLM:V3MulF(vec, float)
+    return nil
+end
+
+---@param vec Vec3
+---@param float number
+---@return Vec3
+function GLM:V3DivF(vec, float)
+    return nil
+end
+
+---@param vec1 Vec3
+---@param vec2 Vec3
+---@return Vec3
+function GLM:V3Add(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec3
+---@param vec2 Vec3
+---@return Vec3
+function GLM:V3Sub(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec3
+---@param vec2 Vec3
+---@return Vec3
+function GLM:V3Mul(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec3
+---@param vec2 Vec3
+---@return Vec3
+function GLM:V3Div(vec1, vec2)
+    return nil
+end
+
+---@param vec Vec4
+---@param float number
+---@return Vec4
+function GLM:V4AddF(vec, float)
+    return nil
+end
+
+---@param vec Vec4
+---@param float number
+---@return Vec4
+function GLM:V4SubF(vec, float)
+    return nil
+end
+
+---@param vec Vec4
+---@param float number
+---@return Vec4
+function GLM:V4MulF(vec, float)
+    return nil
+end
+
+---@param vec Vec4
+---@param float number
+---@return Vec4
+function GLM:V4DivF(vec, float)
+    return nil
+end
+
+---@param vec1 Vec4
+---@param vec2 Vec4
+---@return Vec4
+function GLM:V4Add(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec4
+---@param vec2 Vec4
+---@return Vec4
+function GLM:V4Sub(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec4
+---@param vec2 Vec4
+---@return Vec4
+function GLM:V4Mul(vec1, vec2)
+    return nil
+end
+
+---@param vec1 Vec4
+---@param vec2 Vec4
+---@return Vec4
+function GLM:V4Div(vec1, vec2)
+    return nil
+end
+
 ---@class Key
 ---@field A Key
 ---@field B Key
@@ -310,282 +523,3 @@ function Input:GetDeltaMouseY()
     return 0
 end
 
----@class GLM
-GLM = {}
-
----@param vec Vec2
----@param float number
----@return Vec2
-function GLM.V2AddF(vec, float)
-    return {}
-end
-
----@param vec Vec2
----@param float number
----@return Vec2
-function GLM.V2SubF(vec, float)
-    return {}
-end
-
----@param vec Vec2
----@param float number
----@return Vec2
-function GLM.V2MulF(vec, float)
-    return {}
-end
-
----@param vec Vec2
----@param float number
----@return Vec2
-function GLM.V2DivF(vec, float)
-    return {}
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return Vec2
-function GLM.V2Add(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return Vec2
-function GLM.V2Sub(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return Vec2
-function GLM.V2Mul(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return Vec2
-function GLM.V2Div(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return number
-function GLM.V2Dot(vec1, vec2)
-    return 0.0
-end
-
----@param vec Vec2
----@return Vec2
-function GLM.V2Normalize(vec)
-    return {}
-end
-
----@param vec Vec2
----@return number
-function GLM.V2Length(vec)
-    return 0.0
-end
-
----@param vec1 Vec2
----@param vec2 Vec2
----@return number
-function GLM.V2Distance(vec1, vec2)
-    return 0.0
-end
-
----@param a Vec2
----@param b Vec2
----@param t number
----@return Vec2
-function GLM.V2Lerp(a, b, t)
-    return {}
-end
-
----@param vec Vec3
----@param float number
----@return Vec3
-function GLM.V3AddF(vec, float)
-    return {}
-end
-
----@param vec Vec3
----@param float number
----@return Vec3
-function GLM.V3SubF(vec, float)
-    return {}
-end
-
----@param vec Vec3
----@param float number
----@return Vec3
-function GLM.V3MulF(vec, float)
-    return {}
-end
-
----@param vec Vec3
----@param float number
----@return Vec3
-function GLM.V3DivF(vec, float)
-    return {}
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return Vec3
-function GLM.V3Add(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return Vec3
-function GLM.V3Sub(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return Vec3
-function GLM.V3Mul(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return Vec3
-function GLM.V3Div(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return number
-function GLM.V3Dot(vec1, vec2)
-    return 0.0
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return Vec3
-function GLM.V3Cross(vec1, vec2)
-    return {}
-end
-
----@param vec Vec3
----@return Vec3
-function GLM.V3Normalize(vec)
-    return {}
-end
-
----@param vec Vec3
----@return number
-function GLM.V3Length(vec)
-    return 0.0
-end
-
----@param vec1 Vec3
----@param vec2 Vec3
----@return number
-function GLM.V3Distance(vec1, vec2)
-    return 0.0
-end
-
----@param a Vec3
----@param b Vec3
----@param t number
----@return Vec3
-function GLM.V3Lerp(a, b, t)
-    return {}
-end
-
----@param vec Vec4
----@param float number
----@return Vec4
-function GLM.V4AddF(vec, float)
-    return {}
-end
-
----@param vec Vec4
----@param float number
----@return Vec4
-function GLM.V4SubF(vec, float)
-    return {}
-end
-
----@param vec Vec4
----@param float number
----@return Vec4
-function GLM.V4MulF(vec, float)
-    return {}
-end
-
----@param vec Vec4
----@param float number
----@return Vec4
-function GLM.V4DivF(vec, float)
-    return {}
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return Vec4
-function GLM.V4Add(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return Vec4
-function GLM.V4Sub(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return Vec4
-function GLM.V4Mul(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return Vec4
-function GLM.V4Div(vec1, vec2)
-    return {}
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return number
-function GLM.V4Dot(vec1, vec2)
-    return 0.0
-end
-
----@param vec Vec4
----@return Vec4
-function GLM.V4Normalize(vec)
-    return {}
-end
-
----@param vec Vec4
----@return number
-function GLM.V4Length(vec)
-    return 0.0
-end
-
----@param vec1 Vec4
----@param vec2 Vec4
----@return number
-function GLM.V4Distance(vec1, vec2)
-    return 0.0
-end
-
----@param a Vec4
----@param b Vec4
----@param t number
----@return Vec4
-function GLM.V4Lerp(a, b, t)
-    return {}
-end

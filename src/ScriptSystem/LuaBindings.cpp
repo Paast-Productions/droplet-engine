@@ -19,6 +19,7 @@ using namespace Droplet;
 
 std::vector<Script::LuaGlobalFunctionDefinition> Script::LuaBindings::m_luaGlobalDefinitions;
 std::vector<Script::LuaClassDefinition> Script::LuaBindings::m_luaClassDefinitions;
+std::vector<Script::LuaEnumDefinition> Script::LuaBindings::m_luaEnumDefinitions;
 
 void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
@@ -35,7 +36,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
         / ".." / ".." / ".." / "src" / "Scripts";
 
     std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
-	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions);
+	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);
 }
 
 void Script::LuaBindings::RegisterGlobalFunctions()
@@ -99,6 +100,17 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         }
     );
 
+    LuaEnumDefinition transformSpace;
+    transformSpace.name = "TransformSpace";
+
+    transformSpace.flags =
+    {
+        { "Local", (std::size_t)Scene::Transform::Space::Local },
+        { "World", (std::size_t)Scene::Transform::Space::World }
+    };
+
+    LuaBindings::m_luaEnumDefinitions.push_back(transformSpace);
+
     p_luaState.new_usertype<Scene::Transform>(
         "Transform",
         "GetPosition", &Scene::Transform::GetPosition,
@@ -135,17 +147,23 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         {
             "GetPosition",
             "Vec3",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "GetRotation",
             "Quat",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "GetEuler",
             "Vec3",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "GetScale",
@@ -155,7 +173,9 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         {
             "GetMatrix",
             "Mat4",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "IsDirty",
@@ -165,37 +185,46 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
         {
             "GetUp",
             "Vec3",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "GetRight",
             "Vec3",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "GetForward",
             "Vec3",
-            {}
+            {
+                { "space", "TransformSpace", true }
+            }
         },
         {
             "SetPosition",
             "void",
             {
-                { "position", "Vec3" }
+                { "position", "Vec3" },
+                { "space", "TransformSpace", true }
             }
         },
         {
             "SetRotation",
             "void",
             {
-                { "rotation", "Quat" }
+                { "rotation", "Quat" },
+                { "space", "TransformSpace", true }
             }
         },
         {
             "SetEuler",
             "void",
             {
-                { "euler", "Vec3" }
+                { "euler", "Vec3" },
+                { "space", "TransformSpace", true }
             }
         },
         {
@@ -209,7 +238,8 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
             "SetMatrix",
             "void",
             {
-                { "matrix", "Mat4" }
+                { "matrix", "Mat4" },
+                { "space", "TransformSpace", true }
             }
         },
         {
@@ -226,14 +256,16 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
             "Move",
             "void",
             {
-                { "amount", "Vec3" }
+                { "amount", "Vec3" },
+                { "space", "TransformSpace", true }
             }
         },
         {
             "Rotate",
             "void",
             {
-                { "rotation", "Quat" }
+                { "rotation", "Quat" },
+                { "space", "TransformSpace", true }
             }
         },
         {
@@ -254,7 +286,8 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
             "RotateEuler",
             "void",
             {
-                { "euler", "Vec3" }
+                { "euler", "Vec3" },
+                { "space", "TransformSpace", true }
             }
         },
         {
@@ -269,14 +302,17 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
             "void",
             {
                 { "axis", "Vec3" },
-                { "angle", "number" }
+                { "angle", "number" },
+                { "space", "TransformSpace", true }
             }
         },
         {
             "LookAt",
             "void",
             {
-                { "target", "Vec3" }
+                { "target", "Vec3" },
+                { "up", "Vec3", true },
+                { "space", "TransformSpace", true }
             }
         }
     };
@@ -393,7 +429,6 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 
 
     sol::table glm = p_luaState.create_table("GLM");
-
 
     // Vec2
     glm.set_function("V2Abs",
@@ -900,6 +935,214 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
         [](glm::mat4 p_mat) {
             return glm::determinant(p_mat);
         });
+
+
+    LuaClassDefinition glmDef;
+    glmDef.name = "GLM";
+
+    glmDef.functions =
+    {
+        {
+            "V2AddF",
+            "Vec2",
+            {
+                { "vec", "Vec2" },
+				{ "float", "number" }
+            }
+        },
+        {
+            "V2SubF",
+            "Vec2",
+            {
+                { "vec", "Vec2" },
+				{ "float", "number" }
+            }
+        },
+        {
+            "V2MulF",
+            "Vec2",
+            {
+                { "vec", "Vec2" },
+				{ "float", "number" }
+            }
+        },
+        {
+            "V2DivF",
+            "Vec2",
+            {
+                { "vec", "Vec2" },
+				{ "float", "number" }
+            }
+        },
+        {
+            "V2Add",
+            "Vec2",
+            {
+                { "vec1", "Vec2" },
+                { "vec2", "Vec2" }
+            }
+        },
+        {
+            "V2Sub",
+            "Vec2",
+            {
+                { "vec1", "Vec2" },
+                { "vec2", "Vec2" }
+            }
+        },
+        {
+            "V2Mul",
+            "Vec2",
+            {
+                { "vec1", "Vec2" },
+                { "vec2", "Vec2" }
+            }
+        },
+        {
+            "V2Div",
+            "Vec2",
+            {
+                { "vec1", "Vec2" },
+                { "vec2", "Vec2" }
+            }
+        },
+
+
+
+        {
+            "V3AddF",
+            "Vec3",
+            {
+                { "vec", "Vec3" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V3SubF",
+            "Vec3",
+            {
+                { "vec", "Vec3" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V3MulF",
+            "Vec3",
+            {
+                { "vec", "Vec3" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V3DivF",
+            "Vec3",
+            {
+                { "vec", "Vec3" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V3Add",
+            "Vec3",
+            {
+                { "vec1", "Vec3" },
+                { "vec2", "Vec3" }
+            }
+        },
+        {
+            "V3Sub",
+            "Vec3",
+            {
+                { "vec1", "Vec3" },
+                { "vec2", "Vec3" }
+            }
+        },
+        {
+            "V3Mul",
+            "Vec3",
+            {
+                { "vec1", "Vec3" },
+                { "vec2", "Vec3" }
+            }
+        },
+        {
+            "V3Div",
+            "Vec3",
+            {
+                { "vec1", "Vec3" },
+                { "vec2", "Vec3" }
+            }
+        },
+
+
+
+        {
+            "V4AddF",
+            "Vec4",
+            {
+                { "vec", "Vec4" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V4SubF",
+            "Vec4",
+            {
+                { "vec", "Vec4" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V4MulF",
+            "Vec4",
+            {
+                { "vec", "Vec4" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V4DivF",
+            "Vec4",
+            {
+                { "vec", "Vec4" },
+                { "float", "number" }
+            }
+        },
+        {
+            "V4Add",
+            "Vec4",
+            {
+                { "vec1", "Vec4" },
+                { "vec2", "Vec4" }
+            }
+        },
+        {
+            "V4Sub",
+            "Vec4",
+            {
+                { "vec1", "Vec4" },
+                { "vec2", "Vec4" }
+            }
+        },
+        {
+            "V4Mul",
+            "Vec4",
+            {
+                { "vec1", "Vec4" },
+                { "vec2", "Vec4" }
+            }
+        },
+        {
+            "V4Div",
+            "Vec4",
+            {
+                { "vec1", "Vec4" },
+                { "vec2", "Vec4" }
+            }
+        },
+    };
+
+    LuaBindings::m_luaClassDefinitions.push_back(glmDef);
 }
 
 void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
@@ -1115,458 +1358,565 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 {
     ZoneScoped;
 
-	sol::table imgui = p_luaState.create_table("ImGui");
-
-    imgui.set_function(
-        "Begin",
-		[](const std::string &p_name, 
-           sol::optional<ImGuiWindowFlags> p_flags)
-		{
-			return ImGui::Begin(p_name.c_str(), nullptr, p_flags.value_or(static_cast<ImGuiWindowFlags>(0)));
-		}
-    );
-
-    imgui.set_function(
-        "End",
-        []()
-        {
-            ImGui::End();
-        }
-    );
-
-    imgui.set_function(
-        "BeginChild",
-        [](const std::string &p_name, 
-           sol::optional<ImVec2> p_size,
-           sol::optional<ImGuiChildFlags> p_childFlags,
-           sol::optional<ImGuiWindowFlags> p_windowFlags)
-        {
-			ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
-			ImGuiChildFlags childFlags = p_childFlags.value_or(static_cast<ImGuiChildFlags>(0));
-			ImGuiWindowFlags windowFlags = p_windowFlags.value_or(static_cast<ImGuiWindowFlags>(0));
-			return ImGui::BeginChild(p_name.c_str(), size, true, childFlags | windowFlags);
-        }
-    );
-
-    imgui.set_function(
-        "EndChild",
-        []()
-        {
-            ImGui::EndChild();
-        }
-    );
-
-    imgui.set_function(
-        "Text",
-		[](const std::string &p_text)
-		{
-			ImGui::Text(p_text.c_str());
-	    }
-    );
-
-    imgui.set_function("TextUnformatted",
-        [](const std::string &p_text)
-        {
-            ImGui::TextUnformatted(p_text.c_str());
-        }
-    );
-
-    imgui.set_function("InputText",
-        [](const std::string &p_label, std::string p_text)
-        {
-            bool changed = ImGui::InputText(
-                p_label.c_str(),
-                &p_text
-            );
-
-            return std::make_tuple(std::move(p_text), changed);
-        }
-    );
-
-    imgui.set_function(
-        "Separator",
-        []()
-        {
-			ImGui::Separator();
-        }
-    );
-
-    imgui.set_function(
-        "SeparatorText",
-        [](const std::string &p_text)
-        {
-			ImGui::SeparatorText(p_text.c_str());
-        }
-    );
-
-    imgui.set_function(
-        "Spacing",
-        []()
-        {
-            ImGui::Spacing();
-        }
-    );
-
-	imgui.set_function(
-		"SameLine",
-		[](sol::optional<float> p_offset,
-           sol::optional<float> p_spacing)
-		{
-			float offset = p_offset.value_or(0.0f);
-			float spacing = p_spacing.value_or(-1.0f);
-			ImGui::SameLine(offset, spacing);
-		}
-	);
-
-    imgui.set_function(
-        "Button",
-        [](const std::string &p_label,
-           sol::optional<ImVec2> p_size)
-        {
-			ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
-            return ImGui::Button(p_label.c_str(), size);
-        }
-    );
-
-    imgui.set_function(
-        "Checkbox",
-        [](const std::string &p_label, bool p_value)
-        {
-            bool value = p_value;
-
-            const bool changed = ImGui::Checkbox(p_label.c_str(), &value);
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "DragFloat",
-        [](const std::string &p_label, 
-           float p_value,
-           sol::optional<float> p_speed,
-           sol::optional<float> p_min,
-           sol::optional<float> p_max)
-        {
-            float value = p_value;
-			float speed = p_speed.value_or(1.0f);
-			float min = p_min.value_or(0.0f);
-			float max = p_max.value_or(0.0f);
-
-            const bool changed = ImGui::DragFloat(
-                p_label.c_str(),
-                &value,
-                speed,
-                min,
-                max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-    
-    imgui.set_function(
-        "DragFloat2",
-        [](const std::string &p_label,
-            glm::vec2 p_value,
-            sol::optional<float> p_speed,
-            sol::optional<float> p_min,
-            sol::optional<float> p_max)
-        {
-            glm::vec2 value = p_value;
-            float speed = p_speed.value_or(1.0f);
-            float min = p_min.value_or(0.0f);
-            float max = p_max.value_or(0.0f);
-
-            const bool changed = ImGui::DragFloat2(
-                p_label.c_str(),
-                &value.x,
-                speed,
-                min,
-                max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-    
-    imgui.set_function(
-        "DragFloat3",
-        [](const std::string &p_label,
-            glm::vec3 p_value,
-            sol::optional<float> p_speed,
-            sol::optional<float> p_min,
-            sol::optional<float> p_max
-            )
-        {
-            glm::vec3 value = p_value;
-            float speed = p_speed.value_or(1.0f);
-            float min = p_min.value_or(0.0f);
-            float max = p_max.value_or(0.0f);
-            
-            const bool changed = ImGui::DragFloat3(
-                p_label.c_str(),
-                &value.x,
-                speed,
-                min,
-                max
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-	imgui.set_function(
-		"DragFloat4",
-		[](const std::string &p_label, 
-            glm::vec4 p_value, 
-            sol::optional<float> p_speed, 
-            sol::optional<float> p_min, 
-            sol::optional<float> p_max)
-		{
-			glm::vec4 value = p_value;
-			float speed = p_speed.value_or(1.0f);
-			float min = p_min.value_or(0.0f);
-			float max = p_max.value_or(0.0f);
-            
-			const bool changed = ImGui::DragFloat4(
-				p_label.c_str(),
-				&value.x,
-				speed,
-				min,
-				max
-			);
-			return std::make_tuple(changed, value);
-		}
-	);
-
-    imgui.set_function(
-        "DragInt",
-        [](const std::string& p_label, int p_value, float p_speed, int p_min, int p_max)
-        {
-            int value = p_value;
-
-            const bool changed = ImGui::DragInt(
-                p_label.c_str(),
-                &value,
-                p_speed,
-                p_min,
-                p_max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "DragInt2",
-        [](const std::string &p_label, 
-            glm::i32vec2 p_value, 
-            sol::optional<float> p_speed,
-            sol::optional<int> p_min,
-            sol::optional<int> p_max)
-        {
-            glm::i32vec2 value = p_value;
-            float speed = p_speed.value_or(1.0f);
-            int min = p_min.value_or(0);
-            int max = p_max.value_or(0);
-
-            const bool changed = ImGui::DragInt2(
-                p_label.c_str(),
-                &value.x,
-                speed,
-                min,
-                max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "DragInt3",
-        [](const std::string &p_label, 
-			glm::i32vec3 p_value,
-            sol::optional<float> p_speed,
-            sol::optional<int> p_min,
-            sol::optional<int> p_max)
-        {
-            glm::i32vec3 value = p_value;
-			float speed = p_speed.value_or(1.0f);
-			int min = p_min.value_or(0);
-			int max = p_max.value_or(0);
-
-            const bool changed = ImGui::DragInt3(
-                p_label.c_str(),
-                &value.x,
-                speed,
-                min,
-                max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "DragInt4",
-        [](const std::string &p_label, 
-            glm::i32vec4 p_value, 
-            sol::optional<float> p_speed,
-            sol::optional<int> p_min,
-            sol::optional<int> p_max)
-        {
-            glm::i32vec4 value = p_value;
-            float speed = p_speed.value_or(1.0f);
-            int min = p_min.value_or(0);
-            int max = p_max.value_or(0);
-
-            const bool changed = ImGui::DragInt4(
-                p_label.c_str(),
-                &value.x,
-                speed,
-                min,
-                max
-            );
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "SliderFloat",
-        [](const std::string& p_label, float p_value, float p_min, float p_max)
-        {
-            float value = p_value;
-
-            const bool changed = ImGui::SliderFloat(
-                p_label.c_str(),
-                &value,
-                p_min,
-                p_max
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "SliderInt",
-        [](const std::string& p_label, int p_value, int p_min, int p_max)
-        {
-            int value = p_value;
-
-            const bool changed = ImGui::SliderInt(
-                p_label.c_str(),
-                &value,
-                p_min,
-                p_max
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "InputFloat",
-        [](const std::string& p_label, float p_value)
-        {
-            float value = p_value;
-
-            const bool changed = ImGui::InputFloat(
-                p_label.c_str(),
-                &value
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "InputInt",
-        [](const std::string& p_label, int p_value)
-        {
-            int value = p_value;
-
-            const bool changed = ImGui::InputInt(
-                p_label.c_str(),
-                &value
-            );
-
-            return std::make_tuple(changed, value);
-        }
-    );
-
-    imgui.set_function(
-        "InputText",
-        [](const std::string& p_label, const std::string& p_value)
-        {
-            std::vector<char> buffer(p_value.size() + 256, '\0');
-
-            std::copy(p_value.begin(), p_value.end(), buffer.begin());
-
-            const bool changed = ImGui::InputText(p_label.c_str(), buffer.data(), buffer.size());
-
-            return std::make_tuple(changed, std::string(buffer.data()));
-        }
-    );
-
-    imgui.set_function(
-        "CollapsingHeader",
-        [](const std::string& p_label)
-        {
-            return ImGui::CollapsingHeader(p_label.c_str());
-        }
-    );
-
-    imgui.set_function(
-        "Combo",
-        [](const std::string& p_label, int p_selectedIndex, sol::table p_options)
-        {
-            const int optionCount = static_cast<int>(p_options.size());
-
-            if (optionCount == 0)
+    // Enums
+    {
+        p_luaState.new_enum<ImGuiWindowFlags>(
+            "ImGuiWindowFlags",
             {
-                return std::make_tuple(p_selectedIndex != 0, 0);
+                {"None", ImGuiWindowFlags_None },
+                {"NoTitleBar", ImGuiWindowFlags_NoTitleBar },
+                {"NoResize", ImGuiWindowFlags_NoResize },
+                {"NoMove", ImGuiWindowFlags_NoMove },
+                {"NoScrollbar", ImGuiWindowFlags_NoScrollbar },
+                {"NoScrollWithMouse", ImGuiWindowFlags_NoScrollWithMouse },
+                {"NoCollapse", ImGuiWindowFlags_NoCollapse },
+                {"AlwaysAutoResize", ImGuiWindowFlags_AlwaysAutoResize },
+                {"NoBackground", ImGuiWindowFlags_NoBackground },
+                {"NoSavedSettings", ImGuiWindowFlags_NoSavedSettings },
+                {"NoMouseInputs", ImGuiWindowFlags_NoMouseInputs },
+                {"MenuBar", ImGuiWindowFlags_MenuBar },
+                {"HorizontalScrollbar", ImGuiWindowFlags_HorizontalScrollbar },
+                {"NoFocusOnAppearing", ImGuiWindowFlags_NoFocusOnAppearing },
+                {"NoBringToFrontOnFocus", ImGuiWindowFlags_NoBringToFrontOnFocus },
+                {"AlwaysVerticalScrollbar", ImGuiWindowFlags_AlwaysVerticalScrollbar },
+                {"AlwaysHorizontalScrollbar", ImGuiWindowFlags_AlwaysHorizontalScrollbar },
+                {"NoNavInputs", ImGuiWindowFlags_NoNavInputs },
+                {"NoNavFocus", ImGuiWindowFlags_NoNavFocus },
+                {"UnsavedDocument", ImGuiWindowFlags_UnsavedDocument },
+                {"NoDocking", ImGuiWindowFlags_NoDocking },
+                {"NoNav", ImGuiWindowFlags_NoNav },
+                {"NoDecoration", ImGuiWindowFlags_NoDecoration },
+                {"NoInputs", ImGuiWindowFlags_NoInputs }
             }
+        );
 
-            int selectedIndex = std::clamp(p_selectedIndex, 1, optionCount);
+        LuaEnumDefinition imGuiWindowFlags;
+        imGuiWindowFlags.name = "ImGuiWindowFlags";
 
-            bool changed = selectedIndex != p_selectedIndex;
+        imGuiWindowFlags.flags =
+        {
+            {"None", ImGuiWindowFlags_None },
+            {"NoTitleBar", ImGuiWindowFlags_NoTitleBar },
+            {"NoResize", ImGuiWindowFlags_NoResize },
+            {"NoMove", ImGuiWindowFlags_NoMove },
+            {"NoScrollbar", ImGuiWindowFlags_NoScrollbar },
+            {"NoScrollWithMouse", ImGuiWindowFlags_NoScrollWithMouse },
+            {"NoCollapse", ImGuiWindowFlags_NoCollapse },
+            {"AlwaysAutoResize", ImGuiWindowFlags_AlwaysAutoResize },
+            {"NoBackground", ImGuiWindowFlags_NoBackground },
+            {"NoSavedSettings", ImGuiWindowFlags_NoSavedSettings },
+            {"NoMouseInputs", ImGuiWindowFlags_NoMouseInputs },
+            {"MenuBar", ImGuiWindowFlags_MenuBar },
+            {"HorizontalScrollbar", ImGuiWindowFlags_HorizontalScrollbar },
+            {"NoFocusOnAppearing", ImGuiWindowFlags_NoFocusOnAppearing },
+            {"NoBringToFrontOnFocus", ImGuiWindowFlags_NoBringToFrontOnFocus },
+            {"AlwaysVerticalScrollbar", ImGuiWindowFlags_AlwaysVerticalScrollbar },
+            {"AlwaysHorizontalScrollbar", ImGuiWindowFlags_AlwaysHorizontalScrollbar },
+            {"NoNavInputs", ImGuiWindowFlags_NoNavInputs },
+            {"NoNavFocus", ImGuiWindowFlags_NoNavFocus },
+            {"UnsavedDocument", ImGuiWindowFlags_UnsavedDocument },
+            {"NoDocking", ImGuiWindowFlags_NoDocking },
+            {"NoNav", ImGuiWindowFlags_NoNav },
+            {"NoDecoration", ImGuiWindowFlags_NoDecoration },
+            {"NoInputs", ImGuiWindowFlags_NoInputs }
+        };
 
-            const std::string preview = p_options.get<std::string>(selectedIndex);
+        LuaBindings::m_luaEnumDefinitions.push_back(imGuiWindowFlags);
 
-            if (ImGui::BeginCombo(p_label.c_str(), preview.c_str()))
+
+        p_luaState.new_enum<ImGuiChildFlags>(
+            "ImGuiChildFlags",
             {
-                for (int index = 1; index <= optionCount; ++index)
+                {"None", ImGuiChildFlags_None },
+                {"Borders", ImGuiChildFlags_Borders },
+                {"AlwaysUseWindowPadding", ImGuiChildFlags_AlwaysUseWindowPadding },
+                {"ResizeX", ImGuiChildFlags_ResizeX },
+                {"ResizeY", ImGuiChildFlags_ResizeY },
+                {"AutoResizeX", ImGuiChildFlags_AutoResizeX },
+                {"AutoResizeY", ImGuiChildFlags_AutoResizeY },
+                {"AlwaysAutoResize", ImGuiChildFlags_AlwaysAutoResize },
+                {"FrameStyle", ImGuiChildFlags_FrameStyle },
+                {"NavFlattened", ImGuiChildFlags_NavFlattened }
+            }
+        );
+
+        LuaEnumDefinition imGuiChildFlags;
+        imGuiChildFlags.name = "ImGuiChildFlags";
+
+        imGuiChildFlags.flags =
+        {
+            {"None", ImGuiChildFlags_None },
+            {"Borders", ImGuiChildFlags_Borders },
+            {"AlwaysUseWindowPadding", ImGuiChildFlags_AlwaysUseWindowPadding },
+            {"ResizeX", ImGuiChildFlags_ResizeX },
+            {"ResizeY", ImGuiChildFlags_ResizeY },
+            {"AutoResizeX", ImGuiChildFlags_AutoResizeX },
+            {"AutoResizeY", ImGuiChildFlags_AutoResizeY },
+            {"AlwaysAutoResize", ImGuiChildFlags_AlwaysAutoResize },
+            {"FrameStyle", ImGuiChildFlags_FrameStyle },
+            {"NavFlattened", ImGuiChildFlags_NavFlattened }
+        };
+
+        LuaBindings::m_luaEnumDefinitions.push_back(imGuiChildFlags);
+    }
+
+
+    // Functions
+
+    {
+        sol::table imgui = p_luaState.create_table("ImGui");
+
+        imgui.set_function(
+            "Begin",
+            [](const std::string &p_name,
+                sol::optional<ImGuiWindowFlags> p_flags)
+            {
+                return ImGui::Begin(p_name.c_str(), nullptr, p_flags.value_or(static_cast<ImGuiWindowFlags>(0)));
+            }
+        );
+
+        imgui.set_function(
+            "End",
+            []()
+            {
+                ImGui::End();
+            }
+        );
+
+        imgui.set_function(
+            "BeginChild",
+            [](const std::string &p_name,
+                sol::optional<ImVec2> p_size,
+                sol::optional<ImGuiChildFlags> p_childFlags,
+                sol::optional<ImGuiWindowFlags> p_windowFlags)
+            {
+                ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
+                ImGuiChildFlags childFlags = p_childFlags.value_or(static_cast<ImGuiChildFlags>(0));
+                ImGuiWindowFlags windowFlags = p_windowFlags.value_or(static_cast<ImGuiWindowFlags>(0));
+                return ImGui::BeginChild(p_name.c_str(), size, true, childFlags | windowFlags);
+            }
+        );
+
+        imgui.set_function(
+            "EndChild",
+            []()
+            {
+                ImGui::EndChild();
+            }
+        );
+
+        imgui.set_function(
+            "Text",
+            [](const std::string &p_text)
+            {
+                ImGui::Text(p_text.c_str());
+            }
+        );
+
+        imgui.set_function("TextUnformatted",
+            [](const std::string &p_text)
+            {
+                ImGui::TextUnformatted(p_text.c_str());
+            }
+        );
+
+        imgui.set_function("InputText",
+            [](const std::string &p_label, std::string p_text)
+            {
+                bool changed = ImGui::InputText(
+                    p_label.c_str(),
+                    &p_text
+                );
+
+                return std::make_tuple(std::move(p_text), changed);
+            }
+        );
+
+        imgui.set_function(
+            "Separator",
+            []()
+            {
+                ImGui::Separator();
+            }
+        );
+
+        imgui.set_function(
+            "SeparatorText",
+            [](const std::string &p_text)
+            {
+                ImGui::SeparatorText(p_text.c_str());
+            }
+        );
+
+        imgui.set_function(
+            "Spacing",
+            []()
+            {
+                ImGui::Spacing();
+            }
+        );
+
+        imgui.set_function(
+            "SameLine",
+            [](sol::optional<float> p_offset,
+                sol::optional<float> p_spacing)
+            {
+                float offset = p_offset.value_or(0.0f);
+                float spacing = p_spacing.value_or(-1.0f);
+                ImGui::SameLine(offset, spacing);
+            }
+        );
+
+        imgui.set_function(
+            "Button",
+            [](const std::string &p_label,
+                sol::optional<ImVec2> p_size)
+            {
+                ImVec2 size = p_size.value_or(ImVec2(0.0f, 0.0f));
+                return ImGui::Button(p_label.c_str(), size);
+            }
+        );
+
+        imgui.set_function(
+            "Checkbox",
+            [](const std::string &p_label, bool p_value)
+            {
+                bool value = p_value;
+
+                const bool changed = ImGui::Checkbox(p_label.c_str(), &value);
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragFloat",
+            [](const std::string &p_label,
+                float p_value,
+                sol::optional<float> p_speed,
+                sol::optional<float> p_min,
+                sol::optional<float> p_max)
+            {
+                float value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                float min = p_min.value_or(0.0f);
+                float max = p_max.value_or(0.0f);
+
+                const bool changed = ImGui::DragFloat(
+                    p_label.c_str(),
+                    &value,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragFloat2",
+            [](const std::string &p_label,
+                glm::vec2 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<float> p_min,
+                sol::optional<float> p_max)
+            {
+                glm::vec2 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                float min = p_min.value_or(0.0f);
+                float max = p_max.value_or(0.0f);
+
+                const bool changed = ImGui::DragFloat2(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragFloat3",
+            [](const std::string &p_label,
+                glm::vec3 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<float> p_min,
+                sol::optional<float> p_max
+                )
+            {
+                glm::vec3 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                float min = p_min.value_or(0.0f);
+                float max = p_max.value_or(0.0f);
+
+                const bool changed = ImGui::DragFloat3(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragFloat4",
+            [](const std::string &p_label,
+                glm::vec4 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<float> p_min,
+                sol::optional<float> p_max)
+            {
+                glm::vec4 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                float min = p_min.value_or(0.0f);
+                float max = p_max.value_or(0.0f);
+
+                const bool changed = ImGui::DragFloat4(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragInt",
+            [](const std::string &p_label, int p_value, float p_speed, int p_min, int p_max)
+            {
+                int value = p_value;
+
+                const bool changed = ImGui::DragInt(
+                    p_label.c_str(),
+                    &value,
+                    p_speed,
+                    p_min,
+                    p_max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragInt2",
+            [](const std::string &p_label,
+                glm::i32vec2 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<int> p_min,
+                sol::optional<int> p_max)
+            {
+                glm::i32vec2 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                int min = p_min.value_or(0);
+                int max = p_max.value_or(0);
+
+                const bool changed = ImGui::DragInt2(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragInt3",
+            [](const std::string &p_label,
+                glm::i32vec3 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<int> p_min,
+                sol::optional<int> p_max)
+            {
+                glm::i32vec3 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                int min = p_min.value_or(0);
+                int max = p_max.value_or(0);
+
+                const bool changed = ImGui::DragInt3(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "DragInt4",
+            [](const std::string &p_label,
+                glm::i32vec4 p_value,
+                sol::optional<float> p_speed,
+                sol::optional<int> p_min,
+                sol::optional<int> p_max)
+            {
+                glm::i32vec4 value = p_value;
+                float speed = p_speed.value_or(1.0f);
+                int min = p_min.value_or(0);
+                int max = p_max.value_or(0);
+
+                const bool changed = ImGui::DragInt4(
+                    p_label.c_str(),
+                    &value.x,
+                    speed,
+                    min,
+                    max
+                );
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "SliderFloat",
+            [](const std::string &p_label, float p_value, float p_min, float p_max)
+            {
+                float value = p_value;
+
+                const bool changed = ImGui::SliderFloat(
+                    p_label.c_str(),
+                    &value,
+                    p_min,
+                    p_max
+                );
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "SliderInt",
+            [](const std::string &p_label, int p_value, int p_min, int p_max)
+            {
+                int value = p_value;
+
+                const bool changed = ImGui::SliderInt(
+                    p_label.c_str(),
+                    &value,
+                    p_min,
+                    p_max
+                );
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "InputFloat",
+            [](const std::string &p_label, float p_value)
+            {
+                float value = p_value;
+
+                const bool changed = ImGui::InputFloat(
+                    p_label.c_str(),
+                    &value
+                );
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "InputInt",
+            [](const std::string &p_label, int p_value)
+            {
+                int value = p_value;
+
+                const bool changed = ImGui::InputInt(
+                    p_label.c_str(),
+                    &value
+                );
+
+                return std::make_tuple(changed, value);
+            }
+        );
+
+        imgui.set_function(
+            "InputText",
+            [](const std::string &p_label, const std::string &p_value)
+            {
+                std::vector<char> buffer(p_value.size() + 256, '\0');
+
+                std::copy(p_value.begin(), p_value.end(), buffer.begin());
+
+                const bool changed = ImGui::InputText(p_label.c_str(), buffer.data(), buffer.size());
+
+                return std::make_tuple(changed, std::string(buffer.data()));
+            }
+        );
+
+        imgui.set_function(
+            "CollapsingHeader",
+            [](const std::string &p_label)
+            {
+                return ImGui::CollapsingHeader(p_label.c_str());
+            }
+        );
+
+        imgui.set_function(
+            "Combo",
+            [](const std::string &p_label, int p_selectedIndex, sol::table p_options)
+            {
+                const int optionCount = static_cast<int>(p_options.size());
+
+                if (optionCount == 0)
                 {
-                    const std::string option = p_options.get<std::string>(index);
-
-                    const bool isSelected = index == selectedIndex;
-
-                    ImGui::PushID(index);
-
-                    if (ImGui::Selectable(option.c_str(), isSelected))
-                    {
-                        selectedIndex = index;
-                        changed = true;
-                    }
-
-                    if (isSelected)
-                    {
-                        ImGui::SetItemDefaultFocus();
-                    }
-
-                    ImGui::PopID();
+                    return std::make_tuple(p_selectedIndex != 0, 0);
                 }
 
-                ImGui::EndCombo();
+                int selectedIndex = std::clamp(p_selectedIndex, 1, optionCount);
+
+                bool changed = selectedIndex != p_selectedIndex;
+
+                const std::string preview = p_options.get<std::string>(selectedIndex);
+
+                if (ImGui::BeginCombo(p_label.c_str(), preview.c_str()))
+                {
+                    for (int index = 1; index <= optionCount; ++index)
+                    {
+                        const std::string option = p_options.get<std::string>(index);
+
+                        const bool isSelected = index == selectedIndex;
+
+                        ImGui::PushID(index);
+
+                        if (ImGui::Selectable(option.c_str(), isSelected))
+                        {
+                            selectedIndex = index;
+                            changed = true;
+                        }
+
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+
+                        ImGui::PopID();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                return std::make_tuple(changed, selectedIndex);
             }
+        );
 
-            return std::make_tuple(changed, selectedIndex);
-        }
-    );
-
-	imgui.set_function(
-		"Dummy",
-		[](ImVec2 p_size)
-		{
-            ImGui::Dummy(p_size);
-		}
-	);
+        imgui.set_function(
+            "Dummy",
+            [](ImVec2 p_size)
+            {
+                ImGui::Dummy(p_size);
+            }
+        );
+    }
 }
 

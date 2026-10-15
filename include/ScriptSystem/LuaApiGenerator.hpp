@@ -17,6 +17,14 @@ namespace Droplet::Script
 
 		/// @brief Lua type of the parameter.
 		std::string type;
+
+		bool optional = false;
+
+		LuaParameterDefinition(const std::string &p_name, const std::string &p_type)
+			: name(p_name), type(p_type) { }
+
+		LuaParameterDefinition(const std::string &p_name, const std::string &p_type, bool p_optional)
+			: name(p_name), type(p_type), optional(p_optional) { }
 	};
 
 	/// @brief Describes a member function of a Lua-exposed class.
@@ -34,6 +42,18 @@ namespace Droplet::Script
 		std::vector<LuaParameterDefinition> parameters;
 	};
 
+	/// @brief Describes an enum flag exposed through the Lua API.
+	/// Contains the name of the flag and its corresponding value 
+	/// required to generate the corresponding Lua API declaration.
+	struct LuaFlagDefinition
+	{
+		/// @brief Name of the flag.
+		std::string name;
+
+		/// @brief Value of the flag.
+		std::size_t value;
+	};
+
 	/// @brief Describes a class exposed through the Lua API.
 	/// Contains the name of the class and the functions that are available
 	/// through the generated Lua API definition.
@@ -47,6 +67,17 @@ namespace Droplet::Script
 
 		/// @brief Properties exposed by the class.
 		std::vector<LuaParameterDefinition> properties;
+	};
+
+	/// @brief Describes an enum exposed through the Lua API.
+	/// Contains the name of the enum and the flags that are available
+	/// through the generated Lua API definition.
+	struct LuaEnumDefinition
+	{
+		/// @brief Name of the enum.
+		std::string name;
+
+		std::vector<LuaFlagDefinition> flags;
 	};
 
 	/// @brief Describes a global Lua function.
@@ -82,7 +113,8 @@ namespace Droplet::Script
 		static bool Generate(
 			const std::filesystem::path &p_outputPath,
 			const std::vector<LuaGlobalFunctionDefinition> &p_globals,
-			const std::vector<LuaClassDefinition> &p_classes
+			const std::vector<LuaClassDefinition> &p_classes,
+			const std::vector<LuaEnumDefinition> &p_enums
 		);
 
 	private:
@@ -101,7 +133,8 @@ namespace Droplet::Script
 		/// @param p_classes Class definitions to generate.
 		static void GenerateClasses(
 			std::ofstream &p_file,
-			const std::vector<LuaClassDefinition> &p_classes
+			const std::vector<LuaClassDefinition> &p_classes,
+			const std::vector<LuaEnumDefinition> &p_enums
 		);
 
 		/// @brief Gets a default Lua value for a given type.

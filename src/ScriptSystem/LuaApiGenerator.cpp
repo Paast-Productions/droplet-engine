@@ -8,158 +8,184 @@
 using namespace Droplet::Script;
 
 bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath, 
-    const std::vector<LuaGlobalFunctionDefinition> &p_globals, 
-    const std::vector<LuaClassDefinition> &p_classes)
+	const std::vector<LuaGlobalFunctionDefinition> &p_globals, 
+	const std::vector<LuaClassDefinition> &p_classes,
+	const std::vector<LuaEnumDefinition> &p_enums)
 {
-    ZoneScoped;
+	ZoneScoped;
 
-    std::ofstream file(p_outputPath);
+	std::ofstream file(p_outputPath);
 
-    if (!file.is_open()) 
-    {
-        std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
+	if (!file.is_open()) 
+	{
+		std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
 		//TODO : send to logging manager
-        return false;
-    }
+		return false;
+	}
 
-    // TODO : Call self from actual node/component
-    file << "---@type Node\n";
-    file << "self = nil\n\n";
+	// TODO : Call self from actual node/component
+	file << "---@type Node\n";
+	file << "self = nil\n\n";
 
-    GenerateGlobal(file, p_globals);
-    GenerateClasses(file, p_classes);
+	GenerateGlobal(file, p_globals);
+	GenerateClasses(file, p_classes, p_enums);
 
-    file.close();
+	file.close();
 
-    return true;
+	return true;
 }
 
 void LuaApiGenerator::GenerateGlobal(std::ofstream &p_file,
-    const std::vector<LuaGlobalFunctionDefinition> p_globalFunctions)
+	const std::vector<LuaGlobalFunctionDefinition> p_globalFunctions)
 {
-    ZoneScoped;
+	ZoneScoped;
 
-    for (const LuaGlobalFunctionDefinition& function : p_globalFunctions)
-    {
-        for (const LuaParameterDefinition& parameter : function.parameters)
-        {
-            p_file << "---@param "
-                << parameter.name
-                << " "
-                << parameter.type
-                << "\n";
-        }
+	for (const LuaGlobalFunctionDefinition& function : p_globalFunctions)
+	{
+		for (const LuaParameterDefinition& parameter : function.parameters)
+		{
+			p_file << "---@param "
+				<< parameter.name
+				<< " "
+				<< parameter.type
+				<< "\n";
+		}
 
-        if (function.returnType != "void")
-        {
-            p_file << "---@return "
-                << function.returnType
-                << "\n";
-        }
+		if (function.returnType != "void")
+		{
+			p_file << "---@return "
+				<< function.returnType
+				<< "\n";
+		}
 
-        p_file << "function "
-            << function.name
-            << "(";
+		p_file << "function "
+			<< function.name
+			<< "(";
 
-        for (std::size_t i = 0; i < function.parameters.size(); ++i)
-        {
-            p_file << function.parameters[i].name;
+		for (std::size_t i = 0; i < function.parameters.size(); ++i)
+		{
+			p_file << function.parameters[i].name;
 
-            if (i + 1 < function.parameters.size())
-            {
-                p_file << ", ";
-            }
-        }
+			if (i + 1 < function.parameters.size())
+			{
+				p_file << ", ";
+			}
+		}
 
-        p_file << ") end\n\n";
-    }
+		p_file << ") end\n\n";
+	}
 }
 
 void LuaApiGenerator::GenerateClasses(
-    std::ofstream &p_file,
-    const std::vector<LuaClassDefinition> &p_classes)
+	std::ofstream &p_file,
+	const std::vector<LuaClassDefinition> &p_classes,
+	const std::vector<LuaEnumDefinition> &p_enums)
 {
-    ZoneScoped;
+	ZoneScoped;
 
-    for (const LuaClassDefinition &luaClass : p_classes)
-    {
-        p_file << "---@class " << luaClass.name << "\n";
+	for (const LuaEnumDefinition &luaEnum : p_enums)
+	{
+		p_file << "---@enum " << luaEnum.name << "\n";
+		p_file << luaEnum.name << " = {\n";
 
-        for (const LuaParameterDefinition &luaProperty : luaClass.properties)
-        {
-            p_file << "---@field "
-                << luaProperty.name
-                << " "
-                << luaProperty.type
-                << "\n";
-        }
+		int flagCount = static_cast<int>(luaEnum.flags.size());
 
-        p_file << luaClass.name << " = {}\n\n";
+		int currentFlagIndex = 0;
+		for (const LuaFlagDefinition &luaFlag : luaEnum.flags)
+		{
+			p_file << "\t"
+				<< luaFlag.name
+				<< " = "
+				<< luaFlag.value
+				<< (currentFlagIndex + 1 < flagCount ? "," : "")
+				<< "\n";
 
-        for (const LuaFunctionDefinition &luaFunction : luaClass.functions)
-        {
-            for (const LuaParameterDefinition &luaParameter : luaFunction.parameters)
-            {
-                p_file << "---@param "
-                    << luaParameter.name
-                    << " "
-                    << luaParameter.type
-                    << "\n";
-            }
+			currentFlagIndex++;
+		}
 
-            if (luaFunction.returnType != "void")
-            {
-                p_file << "---@return "
-                    << luaFunction.returnType
-                    << "\n";
-            }
+		p_file << "}\n\n";
+	}
 
-            p_file << "function "
-                << luaClass.name
-                << ":"
-                << luaFunction.name
-                << "(";
+	for (const LuaClassDefinition &luaClass : p_classes)
+	{
+		p_file << "---@class " << luaClass.name << "\n";
 
-            for (std::size_t i = 0; i < luaFunction.parameters.size(); ++i)
-            {
-                p_file << luaFunction.parameters[i].name;
+		for (const LuaParameterDefinition &luaProperty : luaClass.properties)
+		{
+			p_file << "---@field "
+				<< luaProperty.name
+				<< " "
+				<< luaProperty.type
+				<< "\n";
+		}
 
-                if (i + 1 < luaFunction.parameters.size())
-                {
-                    p_file << ", ";
-                }
-            }
+		p_file << luaClass.name << " = {}\n\n";
 
-            p_file << ")\n";
+		for (const LuaFunctionDefinition &luaFunction : luaClass.functions)
+		{
+			for (const LuaParameterDefinition &luaParameter : luaFunction.parameters)
+			{
+				p_file << "---@param "
+					<< luaParameter.name
+					<< (luaParameter.optional ? "?" : "")
+					<< " "
+					<< luaParameter.type
+					<< "\n";
+			}
 
-            if (luaFunction.returnType != "void")
-            {
-                p_file << "    return "
-                    << GetDefaultLuaValue(luaFunction.returnType)
-                    << "\n";
-            }
+			if (luaFunction.returnType != "void")
+			{
+				p_file << "---@return "
+					<< luaFunction.returnType
+					<< "\n";
+			}
 
-            p_file << "end\n\n";
-        }
-    }
+			p_file << "function "
+				<< luaClass.name
+				<< ":"
+				<< luaFunction.name
+				<< "(";
+
+			for (std::size_t i = 0; i < luaFunction.parameters.size(); ++i)
+			{
+				p_file << luaFunction.parameters[i].name;
+
+				if (i + 1 < luaFunction.parameters.size())
+				{
+					p_file << ", ";
+				}
+			}
+
+			p_file << ")\n";
+
+			if (luaFunction.returnType != "void")
+			{
+				p_file << "    return "
+					<< GetDefaultLuaValue(luaFunction.returnType)
+					<< "\n";
+			}
+
+			p_file << "end\n\n";
+		}
+	}
 }
 
 std::string LuaApiGenerator::GetDefaultLuaValue(const std::string &p_type)
 {
-    if (p_type == "number")
-    {
-        return "0";
-    }
+	if (p_type == "number")
+	{
+		return "0";
+	}
 
-    if (p_type == "boolean")
-    {
-        return "false";
-    }
+	if (p_type == "boolean")
+	{
+		return "false";
+	}
 
-    if (p_type == "string")
-    {
-        return "\"\"";
-    }
+	if (p_type == "string")
+	{
+		return "\"\"";
+	}
 
-    return "nil";
+	return "nil";
 }

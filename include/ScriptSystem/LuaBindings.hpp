@@ -63,5 +63,7 @@ namespace Droplet::Script
 		static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
 		/// @brief vector of all LuaClassDefinition for .d.lua file
 		static std::vector<LuaClassDefinition> m_luaClassDefinitions;
+		/// @brief vector of all LuaEnumDefinition for .d.lua file
+		static std::vector<LuaEnumDefinition> m_luaEnumDefinitions;
 	};
 }
