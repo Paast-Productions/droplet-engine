@@ -136,7 +136,6 @@ void SceneViewWindow::RenderImpl()
 				RenderImGuizmo(camViewRectMin, camViewRectMax);
 
 				sceneWindow = SDL_GetWindowFromID(windowID);
-				ImGui::EndChild();
 
 				// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
 				//drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
@@ -191,6 +190,10 @@ void SceneViewWindow::RenderImpl()
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
+	
+	RenderImGuizmo(camViewRectMin, camViewRectMax);
+	
+	ImGui::EndChild();
 }
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
 {
