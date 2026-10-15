@@ -67,20 +67,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
     
-    // Setup ImGui font
-    ImGuiIO io = ImGui::GetIO();
-    // float baseFontSize = 16.0f;
-    // float iconFontSize = baseFontSize * 2.0f / 3.0f;
+    // --- Font Setup ---
+    float baseFontSize = 13.0f; // This should match the size of our default font
     
+    ImGuiIO io = ImGui::GetIO();
     ImFontConfig baseConfig;
+    baseConfig.SizePixels = baseFontSize;
     io.Fonts->AddFontDefault(&baseConfig);
     
-    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
     ImFontConfig iconsConfig;
     iconsConfig.MergeMode = true;
     iconsConfig.PixelSnapH = true;
-    // iconsConfig.GlyphMinAdvanceX = iconFontSize;
-    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseConfig.SizePixels, &iconsConfig, iconsRanges);
+    iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
+    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
+    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
+    // ------
     
 	engine->GetSceneManager().LoadScene("TestScene"); // HACK
 
