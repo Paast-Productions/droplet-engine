@@ -398,7 +398,7 @@ namespace Droplet
             auto it = std::find_if(oldMetaData.begin(), oldMetaData.end(),
                 [&](const MetaEntry &existingEntry)
                 {
-                    return existingEntry.type == foundType && existingEntry.name == foundName;
+                    return existingEntry.type == foundType && existingEntry.sourceName == foundName;
                 }
             );
             

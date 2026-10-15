@@ -35,7 +35,8 @@ namespace Droplet::MetaUtils
                     MetaEntry resourceData;
                     resourceData.guid = entry.value("guid", C_INVALID_GUID);
                     resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
-                    resourceData.name = entry.value("name", "");
+                    resourceData.sourceName = entry.value("sourceName", "");
+                    resourceData.displayName = entry.value("displayName", "");
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
                     resourceData.loadSettings = entry.value("loadSettings", json::object());
                     
@@ -72,7 +73,8 @@ namespace Droplet::MetaUtils
             
             j["guid"] = resourceData.guid;
             j["type"] = static_cast<uint8_t>(resourceData.type);
-            j["name"] = resourceData.name;
+            j["sourceName"] = resourceData.sourceName;
+            j["displayName"] = resourceData.displayName;
             j["loadFlags"] = static_cast<uint8_t>(resourceData.loadFlags);
             j["loadSettings"] = resourceData.loadSettings;
             
@@ -131,7 +133,8 @@ namespace Droplet::MetaUtils
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
         entry.type = p_type;
-        entry.name = p_name;
+        entry.sourceName = p_name;
+        entry.displayName = p_name;
         entry.relAssetPath = p_relAssetPath;
         
         // Set type-specific flags
@@ -151,7 +154,6 @@ namespace Droplet::MetaUtils
             break;
         case ResourceType::Animation:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
-            entry.loadSettings[MetaLoadSettings::C_TARGET_ANIMATION.key] = p_name;
             break;
         case ResourceType::Shader:
             entry.loadFlags = ResourceLoadFlag::LoadBoth;

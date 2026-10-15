@@ -260,7 +260,7 @@ namespace Droplet
             ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
             {
                 std::filesystem::path absAssetPath = m_rootDirectory / p_metaEntry.relAssetPath;
-                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.loadSettings);
+                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.sourceName, p_metaEntry.loadSettings);
                                 
                 AsyncLoadResult res;
                 res.succeeded = (loadedResource != nullptr);

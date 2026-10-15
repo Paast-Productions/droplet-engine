@@ -209,13 +209,13 @@ namespace Droplet::IO::AssimpFormat
 		return std::make_unique<SkinnedMeshResource>(skinnedMesh);
 	}
 
-	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings)
+	std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName, 
+	    const nlohmann::json &p_loadSettings)
 	{
 		ZoneScoped;
 
         thread_local Assimp::Importer s_importer;
         
-		std::string animName =  p_loadSettings.value(MetaLoadSettings::C_TARGET_ANIMATION.key, MetaLoadSettings::C_TARGET_ANIMATION.defaultValue);
         bool generateNormals =  MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
         bool joinVertices =     MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
         bool triangulate =      MetaLoadSettings::C_TRIANGULATE.defaultValue;
@@ -243,7 +243,7 @@ namespace Droplet::IO::AssimpFormat
 		for (std::size_t i = 0; i < meshData->mNumAnimations; i++)
 		{
 			aiAnimation *anim = meshData->mAnimations[i];
-			if (animName != anim->mName.C_Str())
+			if (p_animName != anim->mName.C_Str())
 			{
 				continue;
 			}
@@ -361,11 +361,11 @@ namespace Droplet::IO::AssimpFormat
 
 		if (animKeyframes.size() == 0)
 		{
-			throw std::runtime_error(std::format("No animation with name {} was found", animName));
+			throw std::runtime_error(std::format("No animation with name {} was found", p_animName));
 		}
 
 		AnimationResource animation{};
-		animation.SetName(animName);
+		animation.SetName(p_animName);
 		animation.SetKeyframes(animKeyframes);
 
 		// Log Info: Successfully loaded p_meshFile

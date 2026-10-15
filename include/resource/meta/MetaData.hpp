@@ -51,7 +51,8 @@ namespace Droplet
     {
         GUID guid = C_INVALID_GUID; // The globally unique identifier of this resource
         ResourceType type = ResourceType::None; // The type of resource this entry represents
-        std::string name; // The name of the resource (found in the asset file or generated based on the asset file name)
+        std::string sourceName; // The name of the resource (found in the asset file or generated based on the asset file name)
+        std::string displayName; // Defaults to sourceName but can be altered afterwards 
         std::string relAssetPath; // Not written to metafile
         ResourceLoadFlag loadFlags = ResourceLoadFlag::LoadCPU; // Determines how the resource is stored in memory
         
@@ -61,7 +62,8 @@ namespace Droplet
         {
             return guid == p_other.guid &&
                     type == p_other.type && 
-                    name == p_other.name && 
+                    sourceName == p_other.sourceName && 
+                    displayName == p_other.displayName && 
                     relAssetPath == p_other.relAssetPath &&
                     loadSettings == p_other.loadSettings;
         }
@@ -93,7 +95,6 @@ namespace Droplet
         inline constexpr Setting<bool> C_TRIANGULATE = { "triangulate", "Triangulate", true };
         
         // --- Animation Settings ---
-        inline constexpr Setting<const char*> C_TARGET_ANIMATION = { "target", "Target", "" };
         
         // --- Shader Settings ---
         inline constexpr Setting<ShaderResource::ShaderType> C_SHADER_TYPE = { "shader_type", "Shader Type", ShaderResource::ShaderType::Vertex };
