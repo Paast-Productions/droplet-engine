@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <SceneSystem/Octree.hpp>
+#include <SceneSystem/Physics/Physics.hpp>
 
 namespace Droplet::Scene
 {
@@ -162,11 +163,16 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
+        /// @brief Initialize the physics engine for this scene
+        /// @param p_initializer Struct contaning values to initialize the physics engine
+        void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
+
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
 
         Octree m_octree;
+        std::unique_ptr<Physics> m_physics;
 
         bool m_loaded = false;
         bool m_active = false;
