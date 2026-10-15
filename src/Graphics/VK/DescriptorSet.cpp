@@ -106,7 +106,7 @@ void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_devic
     p_device.updateDescriptorSets(descriptorWrite, {});
 }
 
-void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer)
+void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex)
 {
     vk::DescriptorBufferInfo bufferInfo
     {
@@ -119,7 +119,7 @@ void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_devic
     {
         .dstSet = m_descriptorSet,
         .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eStorageBuffer),
-        .dstArrayElement = static_cast<std::uint32_t>(m_buffers.size()),
+        .dstArrayElement = p_dstIndex,
         .descriptorCount = 1,
         .descriptorType = vk::DescriptorType::eStorageBuffer,
         .pBufferInfo = &bufferInfo

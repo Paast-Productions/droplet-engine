@@ -71,7 +71,7 @@ namespace Droplet::Graphics::VK
         /// @param p_buffer VMA Buffer
         void WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer);
         
-        void WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer);
+        void WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex);
         
         /// @brief Writes a combined image sampler descriptor to the combined image sampler binding in the descriptor set
         /// @param p_device Vulkan Device
