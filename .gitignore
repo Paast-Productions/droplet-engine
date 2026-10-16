@@ -26,9 +26,22 @@
 !/Editor
 !/Editor/**
 
-# Test
+# Assets
+!/Assets
+!/Assets/**
+
+# Test 
 !/Test
 !/Test/**
+
+# Docs
+!/Docs
+!/Docs/Image
+
+# Assets
+!/Assets
+!/Assets/Shader
+!/Assets/Shader/**
 
 # ////////////////////////////
 # |         SAMPLES          |

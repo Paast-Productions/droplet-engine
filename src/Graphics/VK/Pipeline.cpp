@@ -19,33 +19,27 @@ vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice,
 	throw std::runtime_error("failed to find supported format!");
 }
 
-Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::ShaderModule &p_shaderModule, const PipelineConfig &p_pipelineConfig)
+Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::queue<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &p_queue, const PipelineConfig &p_pipelineConfig)
 {
-	assert(p_device != nullptr && p_shaderModule != nullptr);
-
-	vk::PipelineCacheCreateInfo cacheInfo{};
+	vk::PipelineCacheCreateInfo cacheInfo {};
 	vk::raii::PipelineCache pipelineCache(p_device, cacheInfo);
 	
-	// TODO: Make dynamic
-	vk::PipelineShaderStageCreateInfo vertShaderStageInfo
+	std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos {};
+	while (!p_queue.empty())
 	{
-		.stage = vk::ShaderStageFlagBits::eVertex, 
-		.module = p_shaderModule, 
-		.pName = "vertMain"
-	};
+		const std::pair<vk::ShaderModule, vk::ShaderStageFlagBits> &pair = p_queue.front();
+		p_queue.pop();
+		
+		vk::PipelineShaderStageCreateInfo stageInfo 
+		{
+			.stage = pair.second, 
+			.module = pair.first, 
+			.pName = "main"
+		};
+		
+		shaderStageInfos.push_back(stageInfo);
+	}
 	
-	vk::PipelineShaderStageCreateInfo fragShaderStageInfo
-	{
-		.stage = vk::ShaderStageFlagBits::eFragment, 
-		.module = p_shaderModule, 
-		.pName = "fragMain"
-	};
-	vk::PipelineShaderStageCreateInfo shaderStages[]
-	{
-		vertShaderStageInfo, 
-		fragShaderStageInfo
-	};
-
 	//--Added for basic model rendering functionality
 	auto bindingDescription = Vertex::GetBindingDescription();
 	auto attributeDescriptions = Vertex::GetAttributeDescriptions();
@@ -137,8 +131,8 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateInfoChain
 	{
 		{
-			 .stageCount = 2,
-			 .pStages = shaderStages,
+			 .stageCount = static_cast<std::uint32_t>(shaderStageInfos.size()),
+			 .pStages = shaderStageInfos.data(),
 			 .pVertexInputState = &vertexInputInfo,
 			 .pInputAssemblyState = &inputAssembly,
 			 .pViewportState = &viewportState,

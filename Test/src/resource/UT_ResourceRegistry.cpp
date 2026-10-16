@@ -14,14 +14,14 @@ TEST(ResourceRegistryTest, RegisterAndGetByGUID)
     MetaEntry texEntry;
     texEntry.guid = 100;
     texEntry.type = ResourceType::Texture2D;
-    texEntry.name = "MyTexture";
+    texEntry.sourceName = "MyTexture";
     
     registry.RegisterMetaEntry("Assets/Tex.png", texEntry);
     
     // Valid GUID should return the entry
     MetaEntry retrieved = registry.GetResourceMetaData(100);
     EXPECT_EQ(retrieved.type, ResourceType::Texture2D);
-    EXPECT_EQ(retrieved.name, "MyTexture");
+    EXPECT_EQ(retrieved.sourceName, "MyTexture");
     
     // Invalid GUID should throw
     EXPECT_THROW(registry.GetResourceMetaData(999), std::runtime_error);

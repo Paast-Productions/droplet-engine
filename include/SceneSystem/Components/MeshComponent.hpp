@@ -1,10 +1,15 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <resource/types/MeshResource.hpp>
 #include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <resource/ResourceHandle.hpp>
+#include <resource/types/MaterialResource.hpp>
+#include <resource/types/MeshResource.hpp>
+#include <resource/types/Texture2DResource.hpp>
+
 #include <string>
 #include <string_view>
+#include <cstdint>
 
 namespace Droplet::Scene
 {
@@ -15,40 +20,87 @@ namespace Droplet::Scene
     class MeshComponent : public Component
     {
     public:
-        explicit MeshComponent(const std::string &p_meshPath);
+        MeshComponent();
 
         void Update(float p_deltaTime) override;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
-		std::string_view GetTypeName() const override { return "MeshComponent"; }
+        [[nodiscard]] std::string_view GetTypeName() const override { return "MeshComponent"; }
 
-        /// TODO: Placeholder as the correct method is not yet inplemented
-        const std::string &GetMeshPath() const;
+        // Mesh
 
-		/// @brief Gets the mesh resource associated with this component.
-		/// @return A weak pointer to the mesh resource, or an empty weak pointer if the resource is not loaded.
-		const std::weak_ptr<MeshResource> GetMeshResource() const;
+        /// @brief Sets the mesh resource using its GUID.
+        /// @param p_guid GUID identifying the mesh resource to load.
+        /// @param p_resourceManager Resource manager used to load the mesh resource.
+        void SetMeshGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+
+        /// @brief Gets the GUID of the assigned mesh resource.
+        /// @return GUID of the assigned mesh resource, or the invalid GUID if none is assigned.
+        [[nodiscard]] Droplet::GUID GetMeshGUID() const
+        {
+            return m_mesh.GetGUID();
+        }
+
+        // Texture
+
+        /// @brief Sets the 2D texture resource using its GUID.
+        /// @param p_guid GUID identifying the texture resource to load.
+        /// @param p_resourceManager Resource manager used to load the texture resource.
+        void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+
+        /// @brief Gets the GUID of the assigned 2D texture resource.
+        /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
+        [[nodiscard]] Droplet::GUID GetTextureGUID() const
+        {
+            return m_2dTexture.GetGUID();
+        }
+
+        /// @brief Gets the resource handle for the assigned mesh.
+        /// @return Constant reference to the mesh resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &
+            GetMeshResource() const;
+
+        /// @brief Gets the resource handle for the assigned 2D texture.
+        /// @return Constant reference to the 2D texture resource handle.
+        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &
+            Get2dTextureResource() const;
 
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
-        bool HasBoundsOverride() const override { return true; }
+        [[nodiscard]] bool HasBoundsOverride() const override { return true; }
 
         /// @brief Gets the custom bounds provided by the component.
         /// @return The bounding box provided by the component.
-        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const override { return std::make_shared<MeshNodeBounds>(m_bounds); }
+        [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
     protected:
-		void RenderUIImpl() override;
+        void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        std::string m_meshPath;
+        // GUIDs
+
+        Droplet::GUID m_meshGUID = C_INVALID_GUID;
+        Droplet::GUID m_textureGUID = C_INVALID_GUID;
+
+        // Resource handles
+
+        ResourceHandle<MeshResource> m_mesh;
+        ResourceHandle<Texture2DResource> m_2dTexture;
+
+        // GUIDs for editor UI
+
+        /// Scratch value edited by the "Select mesh" popup's GUID input field.
+        /// Copied from the current mesh GUID when the popup opens and only applied
+        /// when the user presses Assign, so typing doesn't change the mesh mid-edit.
+        Droplet::GUID m_meshPickGUID = C_INVALID_GUID;
+
+        /// Scratch value edited by the "Select texture" popup's GUID input field.
+        Droplet::GUID m_texturePickGUID = C_INVALID_GUID;
 
         MeshNodeBounds m_bounds;
-
-        // TODO: Material settings
     };
 }

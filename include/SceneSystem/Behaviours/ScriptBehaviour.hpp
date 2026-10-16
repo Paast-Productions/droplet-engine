@@ -21,30 +21,20 @@ namespace Droplet::Scene
     class ScriptBehaviour : public Behaviour
     {
     public:
-        /// @brief Creates a ScriptBehaviour for a Lua script.
-        ///
-        /// @param p_scriptPath Path to the Lua script that should be associated
-        /// with this component.
-        explicit ScriptBehaviour(const std::string &p_scriptPath);
+        ScriptBehaviour() = default;
 
-        /// @brief Starts the associated Lua script.
-        ///
-        /// Called when the component is started and forwards the start
-        /// operation to the scripting system.
-        void Start() override;
-
-        /// @brief Updates the associated Lua script.
-        ///
-        /// Called during the Games update cycle and forwards the update to
-        /// the scripting system.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime) override;
+        /// @brief Gets the type name of the behaviour.
+        /// @return The type name of the behaviour.
+        std::string_view GetTypeName() override { return "ScriptBehaviour"; }
 
         /// @brief Gets the path of the associated Lua script.
         ///
         /// @return Reference to the stored script path.
         [[nodiscard]] const std::string &GetScriptPath() const;
+
+        void SetScriptPath(const std::string &p_scriptPath);
+
+        void AttachScript(const std::string p_scriptPath);
 
         /// @brief Detaches the script from this component.
         ///
@@ -67,9 +57,10 @@ namespace Droplet::Scene
 	protected:
 		/// @brief Internal rendering function for the component's UI.
 		/// Overloaded by derived components to implement their own UI rendering logic.
-		void RenderInternalUI() override;
+		void RenderUIImpl() override;
 
     private:
+
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
     };

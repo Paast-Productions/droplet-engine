@@ -1,15 +1,16 @@
 #include "NodeInspectorWindow.hpp"
 #include <SceneSystem/Component.hpp>
-#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/ComponentFactory.hpp>
 #include <algorithm>
 #include <TransformUI.hpp>
+#include <ComponentList.hpp>
 
 using namespace Droplet::Editor;
 
-Droplet::Editor::NodeInspectorWindow::NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState)
-{
-	m_interactionState = p_interactionState;
-}
+NodeInspectorWindow::NodeInspectorWindow(
+	std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) 
+	: EditorWindow(p_engine), m_interactionState(p_interactionState)
+{ }
 
 void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
@@ -60,7 +61,7 @@ void NodeInspectorWindow::RenderImpl()
 	}
 
 	// Transform
-	if (ImGui::CollapsingHeader("Transform"))
+	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		Droplet::Scene::Transform &transform = m_currentNode->GetTransform();
 		float drag_speed = 0.001f;
@@ -109,6 +110,9 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::Checkbox("Lock Scale", &m_lockScale);
 	}
 
+	// Button width
+	const float buttonWidth = ImGui::GetContentRegionAvail().x;
+
 	// Vector of components
 	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
 
@@ -123,32 +127,40 @@ void NodeInspectorWindow::RenderImpl()
 		std::string thisString = std::to_string(thisNumber);
 		ImGui::PushID(thisString.c_str());
 
-		if (ImGui::CollapsingHeader(component->GetTypeName().data()))
+		// The actual header
+		bool isOpen = ImGui::CollapsingHeader(component->GetTypeName().data(), ImGuiTreeNodeFlags_DefaultOpen);
+
+		// The right click on header
+		if (ImGui::BeginPopupContextItem("popup"))
+		{
+			if (ImGui::MenuItem("Remove Component"))
+			{
+				m_currentNode->RemoveComponent(component.get());
+			}
+			ImGui::EndPopup();
+		}
+
+		// Rendering the component UI if header is open
+		if (isOpen)
 		{
 			component->RenderUI();
 		}
+
 		ImGui::PopID();
 	}
 
 	ImGui::Spacing();
 
-	const float buttonWidth = ImGui::GetContentRegionAvail().x;
-
 	if (ImGui::Button("+ Add Component", ImVec2(buttonWidth, 0.0f)))
 	{
-		ImGui::OpenPopup("AddComponentPopup");
+		Scene::OpenComponentList();
 	}
 
-	if (ImGui::BeginPopup("AddComponentPopup"))
+	std::string selectedComponentName = "";
+	if (Scene::ShowComponentList(&selectedComponentName))
 	{
-		if (ImGui::MenuItem("Script Component"))
-		{
-			m_currentNode->AddComponent<Scene::ScriptComponent>();
-		}
-
-		// TODO: Add for each component we have
-
-		ImGui::EndPopup();
+		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
+		m_currentNode->AddComponent(newComp);
 	}
 
 	ImGui::PopID();

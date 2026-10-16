@@ -1,11 +1,16 @@
-#include <Engine.hpp>
+#include "Engine.hpp"
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/BehaviourRegistry.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <Graphics/VK/SceneAdapter.hpp>
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(Droplet::ResourceManager::Get()), m_renderer(p_config.WindowConfig)
 {
 	ZoneScoped;
 
@@ -18,14 +23,35 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	
-
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
+    
+    ThreadPool::GetInstance().Initialize();
+    
+    // --- Setup Resource Manager ---
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+	// HACK: DON'T DO THIS
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+	resManInstance.Initialize(assetDir);
+    // Register scanners
+    resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    // Register resources
+    resManInstance.RegisterResourceType<Texture2DResource>();
+    resManInstance.RegisterResourceType<MeshResource>();
+    resManInstance.RegisterResourceType<SkinnedMeshResource>();
+	resManInstance.RegisterResourceType<AnimationResource>();
+    resManInstance.RegisterResourceType<ShaderResource>();
+    // ------
 
-	ThreadPool::GetInstance().Initialize();
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 Droplet::Engine::~Engine()
@@ -54,9 +80,21 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
+
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+#ifdef TRACY_ENABLE
+		ZoneNamedN(eventZone, "Event", true);
+
+		constexpr int eventStrMaxLen = 256;
+		char eventStrBuf[eventStrMaxLen]{};
+		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+
+		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
+
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -89,25 +127,20 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	// TODO: Call behaviour pre-update
-
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
-
-	Graphics::VK::SceneAdapter::GetInstance().SubmitNodeData(m_sceneManager.Render());
+	
+	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
 	// Scriptsystem
-
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
 	{
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 	}
 
-	// TODO: Call behaviour post-update
-
 	// Rendering
-	m_renderer.DrawFrame();
-
+	m_renderer.Draw(renderDataVec);
+	
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
@@ -116,29 +149,60 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 	
 	// Other system that need updating go here.
+    ResourceManager::GetInstance().Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
+ResourceManager &Engine::GetResourceManager()
 {
-	// TODO: insert return statement here
-	return m_renderer.GetWindow();
+    return ResourceManager::GetInstance();
 }
 
-Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
+Scene::ScriptBehaviour& Droplet::Engine::AddScriptBehaviour(const std::string& p_scriptPath)
 {
-	return m_renderer;
+	auto behaviour = std::make_unique<Scene::ScriptBehaviour>();
+	behaviour->AttachScript(p_scriptPath);
+
+	Scene::ScriptBehaviour &result = *behaviour;
+	m_scriptBehaviours.push_back(std::move(behaviour));
+
+	return result;
 }
 
-Scene::SceneManager &Droplet::Engine::GetSceneManager()
+void Droplet::Engine::RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour)
 {
-	return m_sceneManager;
+	p_scriptBehaviour.DetachScript();
+	
+	auto it = std::remove_if(m_scriptBehaviours.begin(), m_scriptBehaviours.end(),
+		[&p_scriptBehaviour](const auto &behaviour)
+		{
+			return behaviour.get() == &p_scriptBehaviour;
+		});
+
+	m_scriptBehaviours.erase(it, m_scriptBehaviours.end());
 }
 
-void Droplet::Engine::AddEventListener(EventListener p_listener)
+const std::vector<std::unique_ptr<Scene::ScriptBehaviour>>& Droplet::Engine::GetScriptBehaviours() const
 {
-	m_eventListeners.push_back(p_listener);
+	return m_scriptBehaviours;
+}
+
+void Engine::RegisterBehaviours()
+{
+	ZoneScoped;
+
+	// Register engine behaviours
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
+}
+
+void Engine::RegisterComponents()
+{
+	ZoneScoped;
+
+	// Register engine components
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 }

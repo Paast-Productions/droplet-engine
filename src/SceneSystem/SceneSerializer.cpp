@@ -76,8 +76,8 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
 {
     // TODO: add to logger
     Droplet::Debug::Logger log;
-    Droplet::Debug::Logger::LogType lgType;
-    lgType = Droplet::Debug::Logger::LogType::Error;
+    Droplet::Debug::LogType lgType;
+    lgType = Droplet::Debug::LogType::Error;
     if (!p_json.contains("name"))
     {
         log.Log(lgType, "Node is missing required field 'name'");
@@ -130,7 +130,7 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
         {
             throw std::runtime_error("component is missing required field 'filepath'");
         }
-        p_node->AddComponent<ScriptComponent>(p_json["filepath"]);
+        p_node->AddComponent<ScriptComponent>();//p_json["filepath"]
     }
     else if (type == "MeshComponent")
     {
@@ -138,7 +138,7 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
         {
             throw std::runtime_error("component is missing required field 'filepath'");
         }
-        p_node->AddComponent<MeshComponent>(p_json["filepath"]);
+        p_node->AddComponent<MeshComponent>();//p_json["filepath"]
     }
     else if (type == "PlayerComponent")
     {
