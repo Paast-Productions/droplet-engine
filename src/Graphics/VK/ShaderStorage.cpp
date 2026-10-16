@@ -63,31 +63,35 @@ const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::ra
         vector.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     
+    ShaderModule tcsModule { nullptr };
     if (tcs.IsReady())
     {
         ShaderResource* tcsRes = tcs.Get();
-        ShaderModule tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
+        tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
         vector.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     
+    ShaderModule tesModule { nullptr };
     if (tes.IsReady())
     {
         ShaderResource* tesRes = tes.Get();
-        ShaderModule tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
+        tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
         vector.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     
+    ShaderModule gsModule { nullptr };
     if (gs.IsReady())
     {
         ShaderResource* gsRes = gs.Get();
-        ShaderModule gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
+        gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
         vector.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     
+    ShaderModule fsModule { nullptr };
     if (fs.IsReady())
     {
         ShaderResource* fsRes = fs.Get();
-        ShaderModule fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
+        fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
         vector.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
     }
     
