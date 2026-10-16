@@ -55,10 +55,11 @@ const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::ra
     
     // Vertex Shader
     
+    ShaderModule vsModule { nullptr };
     if (vs.IsReady())
     {
         ShaderResource* vsRes = vs.Get();
-        ShaderModule vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
+        vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
         vector.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     
@@ -107,7 +108,9 @@ const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::ra
         {
             .PipelineLayoutInfo 
             {
+                .setLayoutCount = static_cast<std::uint32_t>(descriptorSetLayouts.size()),
                 .pSetLayouts = descriptorSetLayouts.data()
+                
             },
             .SwapchainSurfaceFormat = p_surfaceFormat,
         }
