@@ -70,7 +70,7 @@ namespace Droplet::Script
 
 	private:
 		/// @brief ScriptComponent associated with this script instance.
-		Droplet::Scene::Node *m_owner;
+		Droplet::Scene::Node *m_owner = nullptr;
 
 		/// @brief Reference to the Lua state used by the script instance.
 		LuaStateHandler &m_stateHandler;

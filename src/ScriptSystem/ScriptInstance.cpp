@@ -47,6 +47,28 @@ void ScriptInstance::OnStart()
 {
 	ZoneScoped;
 
+	std::println(
+		"\n--- ScriptInstance::OnStart ---"
+	);
+
+	std::println("Instance: {}",
+		static_cast<const void *>(this));
+
+	std::println("Owner: {}",
+		static_cast<const void *>(m_owner));
+
+	sol::object self = m_environment["self"];
+
+	Scene::Node *environmentOwner = nullptr;
+
+	if (self.is<Scene::Node *>())
+	{
+		environmentOwner = self.as<Scene::Node *>();
+	}
+
+	std::println("Environment self: {}",
+		static_cast<const void *>(environmentOwner));
+
 	if (m_onStart.valid())
 	{
 		sol::protected_function_result result = m_onStart();
@@ -55,7 +77,6 @@ void ScriptInstance::OnStart()
 		{
 			sol::error err = result;
 			std::print("onStart error: {}\n", err.what());
-			// TODO: Send to error logger when it exists
 		}
 	}
 }
@@ -64,6 +85,29 @@ void ScriptInstance::OnUpdate(float deltatime)
 {
 	ZoneScoped;
 
+	Scene::Node *environmentOwner =
+		m_environment["self"].get<Scene::Node *>();
+
+	sol::environment callbackEnvironment =
+		sol::get_environment(m_onUpdate);
+
+	sol::object callbackSelf = callbackEnvironment["self"];
+
+	Scene::Node *callbackOwner = nullptr;
+
+	if (callbackSelf.is<Scene::Node *>())
+	{
+		callbackOwner = callbackSelf.as<Scene::Node *>();
+	}
+
+	std::println(
+		"Instance: {} | Owner: {} | Environment self: {} | Callback self: {}",
+		static_cast<const void *>(this),
+		static_cast<const void *>(m_owner),
+		static_cast<const void *>(environmentOwner),
+		static_cast<const void *>(callbackOwner)
+	);
+
 	if (m_onUpdate.valid())
 	{
 		sol::protected_function_result result = m_onUpdate(deltatime);
@@ -71,8 +115,8 @@ void ScriptInstance::OnUpdate(float deltatime)
 		if (!result.valid())
 		{
 			sol::error err = result;
-			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n", m_scriptPath, err.what());
-			// TODO: Send to error logger when it exists
+			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n",
+				m_scriptPath, err.what());
 		}
 	}
 }

@@ -199,7 +199,7 @@ end
 --
 
 function OnStart()
-	print("New Fih")
+	print("Name: ", self:GetName())
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()
@@ -209,6 +209,10 @@ function OnUpdate(dt)
 	
 	if not active then
 		return
+	end
+
+    if Input:KeyPressed(Key.Space) then
+		print("Name: ", self:GetName())
 	end
 
 	if IsWithinTarget() then

@@ -35,7 +35,7 @@ void ScriptManager::Update(float p_deltaTime)
 }
 
 void ScriptManager::CreateComponentScript(
-	Scene::Component *p_scriptComponent, 
+	Scene::Component *p_scriptComponent,
 	const std::string &p_scriptFile)
 {
 	ZoneScoped;
@@ -44,37 +44,58 @@ void ScriptManager::CreateComponentScript(
 	{
 		LoadScript(p_scriptFile);
 	}
-	std::print("load script successfully\n");
 
-	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
-	if (loadResult == nullptr)
+	LoadedScript *loadedScript = GetLoadedScriptInfo(p_scriptFile);
+	if (loadedScript == nullptr)
 	{
-		throw std::invalid_argument("loadResult is recived as nullptr");
+		throw std::invalid_argument(
+			"Loaded script information was not found.");
 	}
-	
+
 	if (p_scriptComponent == nullptr)
 	{
-		throw std::invalid_argument("p_scriptComponent is recived as nullptr");
+		throw std::invalid_argument(
+			"Script component is nullptr.");
 	}
 
-	std::unordered_map<Scene::Component*, ScriptInstance*>::iterator existing = m_componentScripts.find(p_scriptComponent);
-	ScriptInstance *oldinstance = nullptr;
+	auto existing = m_componentScripts.find(p_scriptComponent);
+	ScriptInstance *oldInstance = nullptr;
 
 	if (existing != m_componentScripts.end())
 	{
-		oldinstance = existing->second;
+		oldInstance = existing->second;
 	}
-	
+
+	// Load a fresh Lua chunk for this instance.
+	sol::load_result instanceLoadResult =
+		m_StateHandler.GetState().load_file(
+			loadedScript->scriptPath.string());
+
+	if (!instanceLoadResult.valid())
+	{
+		sol::error error = instanceLoadResult;
+		throw std::runtime_error(
+			"Failed to load script '" + p_scriptFile +
+			"': " + error.what());
+	}
+
 	GameInput &input = GameInput::Get();
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), input, m_StateHandler, *loadResult, p_scriptFile);
+	auto scriptInstance = std::make_unique<ScriptInstance>(
+		p_scriptComponent->GetOwner().get(),
+		input,
+		m_StateHandler,
+		instanceLoadResult,
+		p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
-	if (oldinstance != nullptr)
+	// Replace the previous instance, if one exists.
+	if (oldInstance != nullptr)
 	{
-		DestroyInstance(oldinstance);
+		DestroyInstance(oldInstance);
 	}
+
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_componentScripts[p_scriptComponent] = instance;
 }
@@ -324,6 +345,18 @@ sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile
 	}
 
 	return &it->second.loadResult;
+}
+
+LoadedScript *Droplet::Script::ScriptManager::GetLoadedScriptInfo(const std::string &p_scriptFile)
+{
+	auto it = m_loadedScripts.find(p_scriptFile);
+
+	if (it == m_loadedScripts.end())
+	{
+		return nullptr;
+	}
+
+	return &it->second;
 }
 
 void ScriptManager::ActivateComponentScript(Scene::Component *p_scriptComponent)
