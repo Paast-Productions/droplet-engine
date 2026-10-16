@@ -19,7 +19,7 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param EditorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(std::shared_ptr<Droplet::Engine> p_engine, EditorContext *p_editorContext) : EditorWindow(p_engine), m_editorContext(p_editorContext){}
+		SceneViewWindow(Droplet::Engine &p_engine, EditorContext *p_editorContext) : m_editorContext(p_editorContext){}
 		~SceneViewWindow() = default;
 		/// @brief Get the ScenViewWindow rendertarget
 		/// @returns custom RenderTarget class

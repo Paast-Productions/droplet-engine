@@ -8,10 +8,13 @@
 
 using namespace Droplet::Editor::Resource;
 
+ResourceBrowser::ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
+{}
+
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
-    BuildBrowserTree(m_engine->GetResourceManager().GetRegisteredResources());
+    BuildBrowserTree(m_editorContext->GetResourceManager().GetRegisteredResources());
 }
 
 void ResourceBrowser::RenderImpl()
@@ -27,7 +30,7 @@ void ResourceBrowser::RenderImpl()
         RegisterAsset();
     }
     SameLine();
-    TextDisabled(std::filesystem::absolute(m_engine->GetResourceManager().GetRootDirectory()).string().c_str());
+    TextDisabled(std::filesystem::absolute(m_editorContext->GetResourceManager().GetRootDirectory()).string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
@@ -95,7 +98,7 @@ void ResourceBrowser::RenderImpl()
         {
             for (const auto &entry : currentEntries)
             {
-                m_engine->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
+                m_editorContext->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
                 updatedRegistry = true;
             }
             
@@ -119,7 +122,7 @@ void ResourceBrowser::RenderImpl()
 	ImVec2 cursorStartPos = GetCursorPos();
 	ImVec2 listSize = ImVec2(windowSize.x * 0.5f, 0);
     
-    std::vector<const MetaEntry *> resources = m_engine->GetResourceManager().GetRegisteredResources();
+    std::vector<const MetaEntry *> resources = m_editorContext->GetResourceManager().GetRegisteredResources();
     if (updatedRegistry)
     {
         BuildBrowserTree(resources);
@@ -274,7 +277,7 @@ void ResourceBrowser::RenderImpl()
 		                SameLine();
 		                if (Button("Apply", ImVec2(100, 0)))
 		                {
-		                    m_engine->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true);
+		                    m_editorContext->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true);
 		                }
 		            }
 		            break;
@@ -340,7 +343,7 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
     
     
     // Draw UI based on descriptor
-    auto schema = m_engine->GetResourceManager().GetSettingsSchema(p_entry.type);
+    auto schema = m_editorContext->GetResourceManager().GetSettingsSchema(p_entry.type);
     for (const auto &desc : schema)
     {
         if (!p_entry.loadSettings.contains(desc.key)) continue;
@@ -418,10 +421,10 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 
 void ResourceBrowser::RegisterAsset()
 {
-    auto absPaths = FileExplorer::OpenFileDialog(true, m_engine->GetResourceManager().GetRootDirectory());
+    auto absPaths = FileExplorer::OpenFileDialog(true, m_editorContext->GetResourceManager().GetRootDirectory());
     if (!absPaths.empty())
     {
-        std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
+        std::filesystem::path assetRoot = m_editorContext->GetResourceManager().GetRootDirectory();
         std::filesystem::path normAssetRoot = std::filesystem::weakly_canonical(assetRoot);
         
         std::filesystem::path destinationBrowserDir = normAssetRoot;
@@ -434,7 +437,7 @@ void ResourceBrowser::RegisterAsset()
             
         for (auto &absPath : absPaths)
         {
-            if (!m_engine->GetResourceManager().IsAssetSupported(absPath))
+            if (!m_editorContext->GetResourceManager().IsAssetSupported(absPath))
             {
                 m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
                 continue;
@@ -468,7 +471,7 @@ void ResourceBrowser::RegisterAsset()
                 relPath = relPathTemp;
             }
             
-            m_engine->GetResourceManager().RegisterAsset(relPath,
+            m_editorContext->GetResourceManager().RegisterAsset(relPath,
                 [this](bool p_succeeded, const std::vector<MetaEntry>& entries)
                 {
                     if (p_succeeded && !entries.empty())

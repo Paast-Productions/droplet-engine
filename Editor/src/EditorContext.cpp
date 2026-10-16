@@ -1,13 +1,12 @@
 #include <EditorContext.hpp>
 
-Droplet::Editor::EditorContext::EditorContext(std::shared_ptr<Droplet::Engine> &p_engine)
-	: m_sceneManager(p_engine->GetSceneManager()),
-	  m_renderer(p_engine->GetRenderer()),
+Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
+	: m_engine(p_engine),
 	  m_interactionState(),
 	  m_editorCameraController(m_editorCamera)
 {
 	SetActiveScene("TestScene");
-	m_selectedScene = p_engine->GetSceneManager().GetScene("TestScene");
+	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
 }
 
 void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
@@ -17,9 +16,9 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 		return;
 	}
 	
-	m_sceneManager.LoadScene(p_sceneName);
+	m_engine.GetSceneManager().LoadScene(p_sceneName);
 	
-	auto newScene = m_sceneManager.GetScene(p_sceneName);
+	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
 	
 	if (!newScene)
 	{
@@ -48,5 +47,13 @@ Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractio
 }
 Droplet::Graphics::Renderer &Droplet::Editor::EditorContext::GetRenderer()
 {
-	return m_renderer;
+	return m_engine.GetRenderer();
+}
+Droplet::ResourceManager &Droplet::Editor::EditorContext::GetResourceManager()
+{
+	return m_engine.GetResourceManager();
+}
+Droplet::Engine &Droplet::Editor::EditorContext::GetEngine()
+{
+	return m_engine;
 }

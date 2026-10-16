@@ -12,7 +12,7 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow(std::shared_ptr<Droplet::Engine> p_engine, EditorContext *p_editorContext);
+		NodeInspectorWindow(EditorContext *p_editorContext);
 		~NodeInspectorWindow() = default;
 
 		/// @brief Sets the node a user sends to be the current node that will be displayed

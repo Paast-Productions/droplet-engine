@@ -7,9 +7,8 @@
 
 using namespace Droplet::Editor;
 
-NodeInspectorWindow::NodeInspectorWindow(
-	std::shared_ptr<Droplet::Engine> p_engine, EditorContext *p_editorContext) 
-	: EditorWindow(p_engine), m_editorContext(p_editorContext)
+NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext) 
+	: m_editorContext(p_editorContext)
 { }
 
 void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)

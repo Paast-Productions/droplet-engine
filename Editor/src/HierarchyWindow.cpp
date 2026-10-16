@@ -14,15 +14,14 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, EditorContext *p_editorContext) :
-	EditorWindow(p_instance), m_instance(p_instance), m_editorContext(p_editorContext)
+HierarchyWindow::HierarchyWindow(EditorContext *p_editorContext) :
+ m_editorContext(p_editorContext)
 { }
 
 void HierarchyWindow::InitImpl()
 {   
     SetName("Node Hierarchy");
-
-	//m_selectedScene = m_instance->GetSceneManager().GetScene("TestScene"); 
+    
 }
 
 void HierarchyWindow::RenderImpl()
@@ -32,12 +31,12 @@ void HierarchyWindow::RenderImpl()
     {
         EditorShortcuts::ProcessSceneViewKeyShortcuts();
     }
-
-    if (!m_instance)
-    {
-        return;
-    }
-    
+    //
+    // if (!m_instance)
+    // {
+    //     return;
+    // }
+    //
     if (!scene)
     {
         return;

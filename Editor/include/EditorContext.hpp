@@ -12,11 +12,16 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructor that holds a reference to the rendering pipeline
 		/// @param p_engine The renderer of the rendering pipeline
-		EditorContext(std::shared_ptr<Droplet::Engine> &p_engine);
+		EditorContext(Droplet::Engine &p_engine);
 
+		
+		Droplet::Engine &GetEngine();
+		
 		/// @breif Get the renderer
 		/// @returns A custom renderer class
 		Droplet::Graphics::Renderer &GetRenderer();
+		
+		Droplet::ResourceManager &GetResourceManager();
 
 		/// @breif Get the EditorCamera
 		/// @returns The Camera of the sceneView
@@ -35,9 +40,11 @@ namespace Droplet::Editor
 		void SetActiveScene(std::string p_sceneName);
 
 	private:
+		Droplet::Engine &m_engine;
 		
-		Droplet::Scene::SceneManager &m_sceneManager;
-		Droplet::Graphics::Renderer &m_renderer;
+		///
+		//Droplet::Scene::SceneManager &m_sceneManager;
+		//Droplet::Graphics::Renderer &m_renderer;
 
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;

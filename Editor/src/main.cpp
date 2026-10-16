@@ -34,14 +34,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
-		Droplet::Graphics::SDL::WindowConfig {
-			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
+	Droplet::EngineConfig config{
+		Droplet::Graphics::SDL::WindowConfig{
+			static_cast<int>(windowSize.x),
+			static_cast<int>(windowSize.y),
+			{}
 		}
-		//Droplet::UpdateFlags::EditorFlags
-	));
-
-	SDL_Window *wnd = engine->GetWindow();
+	};
+	Droplet::Engine engine(config);
+	
+	SDL_Window *wnd = engine.GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -51,11 +53,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
 	// Setup SDL polling listener
-	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
+	engine.AddEventListener([](SDL_Event &event) { // ImGui listener callback
 		ImGui_ImplSDL3_ProcessEvent(&event); 
 	});
 
-	engine->AddEventListener([](SDL_Event &event) { // Window resize callback
+	engine.AddEventListener([](SDL_Event &event) { // Window resize callback
 		if (event.type == SDL_EVENT_WINDOW_RESIZED)
 		{
 			int width = event.window.data1;
@@ -92,11 +94,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     // ------
     Droplet::Editor::EditorContext editorContext(engine);
 
-	HierarchyWindow hierarchyWindow(engine, &editorContext);
-	NodeInspectorWindow nodeInspectorWindow(engine, &editorContext);
-	BehaviourInspector behaviourInspector(engine);
-	ScriptsWindow scriptsWindow(engine);
-	Resource::ResourceBrowser resourceBrowser(engine);
+	HierarchyWindow hierarchyWindow(&editorContext);
+	NodeInspectorWindow nodeInspectorWindow(&editorContext);
+	BehaviourInspector behaviourInspector(&editorContext);
+	ScriptsWindow scriptsWindow;
+	Resource::ResourceBrowser resourceBrowser(&editorContext);
 	Scene::SceneViewWindow sceneViewWindow(engine, &editorContext);
 
 	hierarchyWindow.Init();
@@ -257,7 +259,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
-		Droplet::DROPLET_RETURNTYPE returnType = engine->Update(editorContext.GetEditorCamera(), sceneViewWindow.GetRenderTarget());
+		Droplet::DROPLET_RETURNTYPE returnType = engine.Update(editorContext.GetEditorCamera(), sceneViewWindow.GetRenderTarget());
 
 		switch (returnType)
 		{
