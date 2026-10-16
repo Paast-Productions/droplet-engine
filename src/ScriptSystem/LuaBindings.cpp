@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <vector>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyLua.hpp>
 
 using namespace Droplet;
 
@@ -31,6 +32,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterGLM(p_luaState);
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
+	RegisterTracy(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -2070,7 +2072,7 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 	LuaBindings::m_luaClassDefinitions.push_back(inputDef);
 }
 
-void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaState)
+void Script::LuaBindings::RegisterImGui(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -2636,3 +2638,60 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 	}
 }
 
+void Script::LuaBindings::RegisterTracy(sol::state_view p_luaState)
+{
+	tracy::LuaRegister(p_luaState.lua_state());
+
+	LuaClassDefinition tracyDef;
+	tracyDef.name = "tracy";
+
+	tracyDef.functions =
+	{
+		{
+			"ZoneBegin",
+			"nil",
+			true,
+			{ }
+		},
+		{
+			"ZoneBeginN",
+			"nil",
+			true,
+			{
+				{ "name", "string" }
+			}
+		},
+		{
+			"ZoneEnd",
+			"nil",
+			true,
+			{ }
+		},
+		{
+			"ZoneText",
+			"nil",
+			true,
+			{
+				{ "text", "string" }
+			}
+		},
+		{
+			"ZoneName",
+			"nil",
+			true,
+			{
+				{ "text", "string" }
+			}
+		},
+		{
+			"Message",
+			"nil",
+			true,
+			{
+				{ "text", "string" }
+			}
+		},
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(tracyDef);
+}

@@ -50,6 +50,8 @@ function WrapAngle(angle)
 end
 
 function NewTargetPoint()
+    tracy.ZoneBeginN("NewTargetPoint")
+    
 	-- Random point on a sphere using spherical coordinates
 	local theta = math.random() * 2 * math.pi
     local phi = math.acos(2 * math.random() - 1)
@@ -63,15 +65,23 @@ function NewTargetPoint()
     v.z = r * math.cos(phi)
 
 	targetPoint = GLM.V3Add(orbitPoint, v)
+
+    tracy.ZoneEnd()
 end
 
 function IsWithinTarget()
+    tracy.ZoneBeginN("IsWithinTarget")
+
 	local pos = trans:GetPosition(TransformSpace.World)
 	local dist = GLM.V3Distance(pos, targetPoint)
+    
+    tracy.ZoneEnd()
 	return (dist <= targetAcceptanceRadius)
 end
 
 function UpdateVelocity(dt)
+    tracy.ZoneBeginN("UpdateVelocity")
+
 	-- TODO: Steering behavior to move forwards and turn towards target point
 	 local pos = trans:GetPosition(TransformSpace.World)
 
@@ -89,6 +99,8 @@ function UpdateVelocity(dt)
         turnSpeedY = MoveTowards(
             turnSpeedY, 0.0, turnSpeedRateOfChange * dt
         )
+
+        tracy.ZoneEnd()
         return
     end
 
@@ -179,9 +191,13 @@ function UpdateVelocity(dt)
 		desiredMoveSpeed,
 		moveSpeedRateOfChange * dt
 	)
+    
+    tracy.ZoneEnd()
 end
 
 function ApplyVelocity(dt)
+    tracy.ZoneBeginN("ApplyVelocity")
+
 	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
 	trans:Move(toMove, TransformSpace.World)
 
@@ -191,6 +207,7 @@ function ApplyVelocity(dt)
 	local toRotateX = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeedX * dt)
 	trans:Rotate(toRotateX, TransformSpace.World)
 
+    tracy.ZoneEnd()
 end
 
 
@@ -199,15 +216,21 @@ end
 --
 
 function OnStart()
+    tracy.ZoneBeginN("Fih OnStart")
+
 	print("New Fih")
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()
+
+    tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
+    tracy.ZoneBeginN("Fih OnUpdate")
 	
 	if not active then
+        tracy.ZoneEnd()
 		return
 	end
 
@@ -219,9 +242,12 @@ function OnUpdate(dt)
 
 	ApplyVelocity(dt)
 
+    tracy.ZoneEnd()
 end
 
 function RenderUI()
+    tracy.ZoneBeginN("Fih RenderUI")
+
 	_, active = ImGui.Checkbox("Active", active)
 
 	ImGui.Spacing()
@@ -240,4 +266,6 @@ function RenderUI()
 	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
 	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")
 	ImGui.Text("Distance to Target: " .. GLM.V3Length(GLM.V3Sub(trans:GetPosition(TransformSpace.World), targetPoint)))
+
+    tracy.ZoneEnd()
 end

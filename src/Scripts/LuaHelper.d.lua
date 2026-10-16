@@ -1033,3 +1033,40 @@ function Input:GetDeltaMouseY()
     return 0
 end
 
+---@class tracy
+tracy = {}
+
+---@return nil
+function tracy.ZoneBegin()
+    return nil
+end
+
+---@param name string
+---@return nil
+function tracy.ZoneBeginN(name)
+    return nil
+end
+
+---@return nil
+function tracy.ZoneEnd()
+    return nil
+end
+
+---@param text string
+---@return nil
+function tracy.ZoneText(text)
+    return nil
+end
+
+---@param text string
+---@return nil
+function tracy.ZoneName(text)
+    return nil
+end
+
+---@param text string
+---@return nil
+function tracy.Message(text)
+    return nil
+end
+
