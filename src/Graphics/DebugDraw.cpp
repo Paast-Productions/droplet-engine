@@ -186,8 +186,6 @@ void DebugDraw::DrawBox(const OBB &p_obb, const DrawOptions &p_opt)
 
 void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 {
-	// TODO
-
 	static std::unordered_map<int, std::vector<DbgTri>> s_icosphereCache;
 
 	if (s_icosphereCache.find(p_opt.detail) == s_icosphereCache.end())
@@ -217,12 +215,27 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
-	
+	if (dbgDraw.m_fillLists.find(intOpt) == dbgDraw.m_fillLists.end())
+	{
+		dbgDraw.m_fillLists[intOpt] = std::vector<DbgTri>();
+	}
+	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+
 }
 
 void DebugDraw::DrawCircle(const glm::vec3 &p_center, float p_radius, const DrawOptions &p_opt)
 {
-	// TODO
+	// Create a line loop to approximate the circle
+	InternalDrawOptions intOpt(p_opt);
+
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	
+	if (dbgDraw.m_wireLists.find(intOpt) == dbgDraw.m_wireLists.end())
+	{
+		dbgDraw.m_wireLists[intOpt] = std::vector<DbgLine>();
+	}
+
+
 }
 
 void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
