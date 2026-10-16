@@ -148,7 +148,6 @@ namespace Droplet::Graphics
 		VK::DescriptorPool						m_descriptorPool { nullptr };
 		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
 		
-		VK::ShaderStorage m_shaderStorage;
 		VK::Swapchain m_swapchain { nullptr };
 		vk::raii::Sampler						m_textureSampler = nullptr;
 

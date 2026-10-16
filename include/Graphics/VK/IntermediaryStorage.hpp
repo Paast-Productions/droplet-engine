@@ -7,7 +7,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/ResourceManager.hpp>
-
+#include <Graphics/VK/DescriptorSet.hpp>
 #include <Graphics/VK/Image.hpp>
 #include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/Sampler.hpp>
@@ -129,8 +129,8 @@ namespace Droplet::Graphics::VK
     public:
         IntermediaryStorage() = delete;
         
-        IntermediaryStorage(VK::Context &p_context);
-        
+        IntermediaryStorage(Context &p_context, const DescriptorSet &p_descriptorSet);
+
         IntermediaryStorage(const IntermediaryStorage &p_other) = delete;
         IntermediaryStorage &operator=(const IntermediaryStorage &p_other) = delete;
         IntermediaryStorage(IntermediaryStorage &&p_other) noexcept = delete;
@@ -146,7 +146,8 @@ namespace Droplet::Graphics::VK
         
     private:
         const VK::Context &m_context;
-        
+        const DescriptorSet &m_descriptorSet;
+
         VK::Allocator m_allocator { nullptr };
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
 

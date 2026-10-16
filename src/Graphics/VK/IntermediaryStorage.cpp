@@ -7,7 +7,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-IntermediaryStorage::IntermediaryStorage(VK::Context &p_context, VK::DescriptorSet &p_descriptorSet) :
+IntermediaryStorage::IntermediaryStorage(Context &p_context, const DescriptorSet &p_descriptorSet) :
     m_context(p_context),
     m_descriptorSet(p_descriptorSet),
     m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()) {}
@@ -36,7 +36,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     }
     
     // IF FAILED, CREATE NEW
-    ResourceManager& RMInstance = ResourceManager::GetInstance();
+    ResourceManager &RMInstance = ResourceManager::GetInstance();
     ResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
     ResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
     ResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);

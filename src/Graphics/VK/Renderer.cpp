@@ -40,7 +40,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
-		m_interStorage						{ m_context },
+	m_interStorage						{ m_context, m_globalDescriptorSet },
 	m_depthBuffer						{ m_interStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
 	m_indexBuffer						{ m_interStorage.GetAllocator(), G_INDICES },
 	m_vertexBuffer						{ m_interStorage.GetAllocator(), G_VERTICES }
