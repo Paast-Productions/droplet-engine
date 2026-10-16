@@ -18,8 +18,10 @@ namespace Droplet
 		/// @brief Constructs the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
 		/// @param p_transform The transform of the Node this component is added to
-		PhysicsComponent(Physics &p_physics, Scene::Transform &p_transform) : m_physics(p_physics), m_transform(p_transform) {}
+		PhysicsComponent() = default;
 		~PhysicsComponent() = default;
+
+		void Initialize(Physics *p_physics, Scene::Transform *p_transform);
 
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
@@ -74,8 +76,8 @@ namespace Droplet
 		void PullTransformFromPhysics();
 
 		bool m_hasShape = false;
-		Physics &m_physics;
-		Scene::Transform &m_transform;
+		Physics *m_physics;
+		Scene::Transform *m_transform;
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};

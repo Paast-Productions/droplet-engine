@@ -8,6 +8,12 @@
 
 using namespace Droplet::Scene;
 
+void Droplet::PhysicsComponent::Initialize(Physics *p_physics, Scene::Transform *p_transform)
+{
+	m_physics = p_physics;
+	m_transform = p_transform;
+}
+
 void Droplet::PhysicsComponent::Update(float p_deltaTime)
 {
 	PushTransformToPhysics();
@@ -94,12 +100,12 @@ void Droplet::PhysicsComponent::SetMeshCollider(const std::shared_ptr<Droplet::M
 
 void Droplet::PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
-	m_physics.GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
+	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
 }
 
 void Droplet::PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 {
-	m_physics.GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
+	m_physics->GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
 }
 
 void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
@@ -112,13 +118,13 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 	}
 
 	m_shape = result.Get();
-	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(m_transform.GetPosition(Transform::Space::World)), 
-		GLMtoJPH(m_transform.GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
+	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(m_transform->GetPosition(Transform::Space::World)), 
+		GLMtoJPH(m_transform->GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
 
-	JPH::Body *body = m_physics.GetBodyInterface()->CreateBody(bodySettings);
+	JPH::Body *body = m_physics->GetBodyInterface()->CreateBody(bodySettings);
 	m_bodyID = body->GetID();
 
-	m_physics.GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
+	m_physics->GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
 
 	m_hasShape = true;
 }
@@ -136,10 +142,10 @@ void Droplet::PhysicsComponent::PushTransformToPhysics()
 	//	PushTransformToPhysics();
 	//}
 
-	const JPH::Vec3 pos = GLMtoJPH(m_transform.GetPosition(Transform::Space::World));
-	const JPH::Quat rot = GLMtoJPH(m_transform.GetRotation(Transform::Space::World));
+	const JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
+	const JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
 
-	m_physics.GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+	m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
 }
 
 void Droplet::PhysicsComponent::PullTransformFromPhysics()
@@ -149,11 +155,11 @@ void Droplet::PhysicsComponent::PullTransformFromPhysics()
 		return;
 	}
 
-	const JPH::RMat44 joltTransform = m_physics.GetBodyInterface()->GetWorldTransform(m_bodyID);
+	const JPH::RMat44 joltTransform = m_physics->GetBodyInterface()->GetWorldTransform(m_bodyID);
 
 	const glm::vec3 pos = JPHtoGLM(joltTransform.GetTranslation());
 	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
 
-	m_transform.SetPosition(pos);
-	m_transform.SetRotation(rot);
+	m_transform->SetPosition(pos);
+	m_transform->SetRotation(rot);
 }
