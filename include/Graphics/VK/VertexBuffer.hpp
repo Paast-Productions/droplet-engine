@@ -13,10 +13,10 @@
 namespace Droplet::Graphics::VK
 {
 	/// @brief Vertex structure with position, normal, color, and texture coordinates
+	/// The buffer currently assumes the resourcemanager will give it the same layout
 	struct Vertex
 	{
 		glm::vec3 pos;
-		glm::vec3 color;
 		glm::vec3 normal;
 		glm::vec2 texCoord;
 
@@ -32,9 +32,8 @@ namespace Droplet::Graphics::VK
 		static std::array<vk::VertexInputAttributeDescription, 4> GetAttributeDescriptions()
 		{
 			return { {{.location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, pos)},
-					 {.location = 1, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, color)},
-					 {.location = 2, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, normal)},
-					 {.location = 3, .binding = 0, .format = vk::Format::eR32G32Sfloat, .offset = offsetof(Vertex, texCoord)}} };
+					 {.location = 1, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, normal)},
+					 {.location = 2, .binding = 0, .format = vk::Format::eR32G32Sfloat, .offset = offsetof(Vertex, texCoord)}} };
 		}
 	};
 
@@ -56,8 +55,7 @@ namespace Droplet::Graphics::VK
 		/// @brief Constructor for the VertexBuffer class
 		/// @param p_allocator VMA RAII Allocator 
 		/// @param p_vertices vector containing Vertex struct data
-		VertexBuffer(const vma::raii::Allocator &p_allocator,
-			const std::vector<Vertex> &p_vertices);
+		VertexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<std::byte> &p_vertices);
 		
 		VertexBuffer(const VertexBuffer &) = delete;
 		VertexBuffer &operator=(const VertexBuffer &) = delete;

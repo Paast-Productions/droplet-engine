@@ -27,7 +27,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_allocator VMA RAII Allocator
 		/// @param p_indices Vector containing index data
 		IndexBuffer(const vma::raii::Allocator &p_allocator,
-			const std::vector<std::uint16_t> &p_indices);
+			const std::vector<std::uint32_t> &p_indices);
 		
 		IndexBuffer(const IndexBuffer &) = delete;
 		IndexBuffer &operator=(const IndexBuffer &) = delete;
