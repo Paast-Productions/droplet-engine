@@ -174,6 +174,8 @@ namespace Droplet::Scene
         /// @param p_initializer Struct contaning values to initialize the physics engine
         void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
 
+        [[nodiscard]] Physics *GetPhysics();
+
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
