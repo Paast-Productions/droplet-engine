@@ -90,16 +90,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
     io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
     // ------
-    
-	engine->GetSceneManager().LoadScene("TestScene"); // HACK
+    Droplet::Editor::EditorContext editorContext(engine);
 
-
-	Droplet::Editor::EditorContext editorContext(engine->GetRenderer());
-
-	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
-
-	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
+	HierarchyWindow hierarchyWindow(engine, &editorContext);
+	NodeInspectorWindow nodeInspectorWindow(engine, &editorContext);
 	BehaviourInspector behaviourInspector(engine);
 	ScriptsWindow scriptsWindow(engine);
 	Resource::ResourceBrowser resourceBrowser(engine);
@@ -115,10 +109,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	FrameMark;
 
 	bool showStyleEditor = false;
-
-	//Droplet::Editor::Scene::SceneViewWindow sceneView(&editorContext);
-
-	//sceneView.Init();
 
 	ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);

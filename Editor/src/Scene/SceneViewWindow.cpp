@@ -13,7 +13,7 @@ void SceneViewWindow::InitImpl()
 {
 	
 	SetName("Scene View"); 
-	ToggleToolbar(true);
+	//ToggleToolbar(true);
 	
 	// TODO: Make rendertarget reziable and match ImGui window
 	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
@@ -151,40 +151,42 @@ void SceneViewWindow::RenderImpl()
 
 			GameInput &input = GameInput::Get();
 			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
-			controller.Update(deltaTime, sceneWindow, center.x, center.y);
-
-			// create ray that is used for raycasting
-			if (input.MousePressed(Mouse::LMB)) 
+			if (m_cameraLookToggled)
 			{
-				const EditorCamera &camera = m_editorContext->GetEditorCamera();
-				glm::vec3 position = camera.GetPosition();
-				glm::vec3 front = camera.GetForward();
+				controller.Update(deltaTime, sceneWindow, center.x, center.y);
+				
+			// create ray that is used for raycasting
+				if (input.MousePressed(Mouse::LMB)) 
+				{
+					const EditorCamera &camera = m_editorContext->GetEditorCamera();
+					glm::vec3 position = camera.GetPosition();
+					glm::vec3 front = camera.GetForward();
 
-				float x = mousePosNormalizedToCamView.x * 2.0f - 1.0f;
-				float y = 1.0f - mousePosNormalizedToCamView.y * 2.0f;
-				glm::vec4 nearClip(x, y, 0.0f, 1.0f);
-				glm::vec4 farClip(x, y, 1.0f, 1.0f);
+					float x = mousePosNormalizedToCamView.x * 2.0f - 1.0f;
+					float y = 1.0f - mousePosNormalizedToCamView.y * 2.0f;
+					glm::vec4 nearClip(x, y, 0.0f, 1.0f);
+					glm::vec4 farClip(x, y, 1.0f, 1.0f);
 
-				glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix(camAspect));
+					glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix(camAspect));
 
-				glm::vec4 nearView = inverseProjection * nearClip;
-				glm::vec4 farView = inverseProjection * farClip;
+					glm::vec4 nearView = inverseProjection * nearClip;
+					glm::vec4 farView = inverseProjection * farClip;
 
-				nearView /= nearView.w;
-				farView /= farView.w;
+					nearView /= nearView.w;
+					farView /= farView.w;
 
-				glm::mat4 inverseView = glm::inverse(camera.GetViewMatrix());
-				glm::vec4 nearWorld = inverseView * nearView;
-				glm::vec4 farWorld = inverseView * farView;
+					glm::mat4 inverseView = glm::inverse(camera.GetViewMatrix());
+					glm::vec4 nearWorld = inverseView * nearView;
+					glm::vec4 farWorld = inverseView * farView;
 
-				// the ray in question
-				glm::vec3 direction = glm::normalize(
-					glm::vec3(farWorld) -
-					glm::vec3(nearWorld)
-				);
+					// the ray in question
+					glm::vec3 direction = glm::normalize(
+						glm::vec3(farWorld) -
+						glm::vec3(nearWorld)
+					);
+				}
 			}
 
-	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 
 			if (input.KeyPressed(Key::KeyQ))
 			{
@@ -193,8 +195,8 @@ void SceneViewWindow::RenderImpl()
 				controller.CameraLock(m_cameraLookToggled);
 			}
 		}
-
 	}
+	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 	ImTextureRef camViewTexture = m_textureDescriptor;
 
 	// Render the camera view texture to the scene view window

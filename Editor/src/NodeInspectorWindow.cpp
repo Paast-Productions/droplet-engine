@@ -8,8 +8,8 @@
 using namespace Droplet::Editor;
 
 NodeInspectorWindow::NodeInspectorWindow(
-	std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) 
-	: EditorWindow(p_engine), m_interactionState(p_interactionState)
+	std::shared_ptr<Droplet::Engine> p_engine, EditorContext *p_editorContext) 
+	: EditorWindow(p_engine), m_editorContext(p_editorContext)
 { }
 
 void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
@@ -30,7 +30,8 @@ void NodeInspectorWindow::CloseImpl()
 
 void NodeInspectorWindow::RenderImpl()
 {
-	const auto &selectedNodes = m_interactionState->GetSelectedNodes();
+	//const auto &selectedNodes = m_interactionState->GetSelectedNodes();
+	const auto &selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 	// No selected node
 	if (selectedNodes.empty())

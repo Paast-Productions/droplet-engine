@@ -5,6 +5,8 @@
 #include <Engine/Engine.hpp>
 #include <memory>
 
+#include "EditorContext.hpp"
+
 namespace Droplet
 {
     namespace Scene
@@ -26,7 +28,7 @@ namespace Droplet
             /// @brief Constructs a hierarchy window.
             /// @param p_instance The instance of the engine used to access scene data.
             /// @param p_interactionState The shared interaction state used to track selections.
-            explicit HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState);
+            explicit HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, EditorContext *p_editorContext);
 
         protected:
             /// @brief Initializes the hierarchy window.
@@ -53,8 +55,10 @@ namespace Droplet
             std::shared_ptr<Engine> m_instance;
 
             /// @brief Shared editor interaction state used to track node selection.
-            std::shared_ptr<InteractionState> m_interactionState;
+            //std::shared_ptr<InteractionState> m_interactionState;
 
+            EditorContext *m_editorContext;
+            
 			/// @brief The currently selected scene in the hierarchy window.
             std::shared_ptr<Droplet::Scene::Scene> m_selectedScene;
 

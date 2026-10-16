@@ -4,14 +4,15 @@
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
 #include <Graphics/VK/Renderer.hpp>
+#include <Engine/Engine.hpp>
 namespace Droplet::Editor
 {
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext {
 	public:
 		/// @brief Constructor that holds a reference to the rendering pipeline
-		/// @param p_renderer The renderer of the rendering pipeline
-		EditorContext(Droplet::Graphics::Renderer &p_renderer);
+		/// @param p_engine The renderer of the rendering pipeline
+		EditorContext(std::shared_ptr<Droplet::Engine> &p_engine);
 
 		/// @breif Get the renderer
 		/// @returns A custom renderer class
@@ -29,18 +30,19 @@ namespace Droplet::Editor
 
 		/// @brief Get the active scene
 		/// @returns A scene from scenemanager
-		std::shared_ptr<Droplet::Scene::Scene> GetScene();
+		std::shared_ptr<Droplet::Scene::Scene> GetActiveScene();
 		/// @breif Lets the context set a new active scene
-		void SetScene(std::shared_ptr<Droplet::Scene::Scene> p_scene);
+		void SetActiveScene(std::string p_sceneName);
 
 	private:
-
+		
+		Droplet::Scene::SceneManager &m_sceneManager;
 		Droplet::Graphics::Renderer &m_renderer;
 
+		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
-		InteractionState m_interactionState;
-		std::shared_ptr<Droplet::Scene::Scene> m_scene;
+		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene;
 
 	};
 }
