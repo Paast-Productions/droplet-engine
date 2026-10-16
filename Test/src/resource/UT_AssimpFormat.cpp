@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 using namespace Droplet;
 using json = nlohmann::json;
 
-class AssimpLoaderTest : public ::testing::Test
+class AssimpFormatTest : public ::testing::Test
 {
 protected:
 	fs::path m_testAssetPath;
@@ -34,7 +34,7 @@ protected:
 // Mesh tests
 // ==========
 
-TEST_F(AssimpLoaderTest, LoadNonExistingMesh)
+TEST_F(AssimpFormatTest, LoadNonExistingMesh)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Mesh,
 		"", "DoesNotExist.fbx");
@@ -42,7 +42,7 @@ TEST_F(AssimpLoaderTest, LoadNonExistingMesh)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadMeshWithNoMeshData)
+TEST_F(AssimpFormatTest, LoadMeshWithNoMeshData)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Mesh,
 		"", "CorruptedWoodFishWithNoMesh.fbx");
@@ -50,7 +50,7 @@ TEST_F(AssimpLoaderTest, LoadMeshWithNoMeshData)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadMeshFbx)
+TEST_F(AssimpFormatTest, LoadMeshFbx)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Mesh,
 		"", "CorruptedWoodFish.fbx");
@@ -58,7 +58,7 @@ TEST_F(AssimpLoaderTest, LoadMeshFbx)
 	EXPECT_TRUE(IO::AssimpFormat::LoadMesh(filePath, metaEntry.loadSettings) != nullptr);
 }
 
-TEST_F(AssimpLoaderTest, LoadMeshGlb)
+TEST_F(AssimpFormatTest, LoadMeshGlb)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Mesh,
 		"", "CorruptedWoodFish.fbx");
@@ -66,7 +66,7 @@ TEST_F(AssimpLoaderTest, LoadMeshGlb)
 	EXPECT_TRUE(IO::AssimpFormat::LoadMesh(filePath, metaEntry.loadSettings) != nullptr);
 }
 
-TEST_F(AssimpLoaderTest, LoadMeshWithMultipleMaterials)
+TEST_F(AssimpFormatTest, LoadMeshWithMultipleMaterials)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Mesh,
 		"", "CorruptedWoodFishMaterial.fbx");
@@ -78,7 +78,7 @@ TEST_F(AssimpLoaderTest, LoadMeshWithMultipleMaterials)
 // Skinned mesh tests
 // ==================
 
-TEST_F(AssimpLoaderTest, LoadNonExistingSkinnedMesh)
+TEST_F(AssimpFormatTest, LoadNonExistingSkinnedMesh)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "DoesNotExist.fbx");
@@ -86,7 +86,7 @@ TEST_F(AssimpLoaderTest, LoadNonExistingSkinnedMesh)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadSkinnedMeshWithNoMeshData)
+TEST_F(AssimpFormatTest, LoadSkinnedMeshWithNoMeshData)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "CorruptedWoodFishWithNoMesh.fbx");
@@ -94,7 +94,7 @@ TEST_F(AssimpLoaderTest, LoadSkinnedMeshWithNoMeshData)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadSkinnedMeshWithNoAnimData)
+TEST_F(AssimpFormatTest, LoadSkinnedMeshWithNoAnimData)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "CorruptedWoodFishWithNoAnim.fbx");
@@ -102,7 +102,7 @@ TEST_F(AssimpLoaderTest, LoadSkinnedMeshWithNoAnimData)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadSkinnedMeshFbx)
+TEST_F(AssimpFormatTest, LoadSkinnedMeshFbx)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "CorruptedWoodFish.fbx");
@@ -110,7 +110,7 @@ TEST_F(AssimpLoaderTest, LoadSkinnedMeshFbx)
 	EXPECT_TRUE(IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings) != nullptr);
 }
 
-TEST_F(AssimpLoaderTest, LoadSkinnedMeshGlb)
+TEST_F(AssimpFormatTest, LoadSkinnedMeshGlb)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "CorruptedWoodFish.fbx");
@@ -122,42 +122,42 @@ TEST_F(AssimpLoaderTest, LoadSkinnedMeshGlb)
 // Animation tests
 // ===============
 
-TEST_F(AssimpLoaderTest, LoadNonExistingAnimation)
+TEST_F(AssimpFormatTest, LoadNonExistingAnimation)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"", "DoesNotExist.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "EmptyMesh.fbx";
-	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings), std::runtime_error);
+	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, "", metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadAnimationWithNoMeshData)
+TEST_F(AssimpFormatTest, LoadAnimationWithNoMeshData)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFishWithNoMesh.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFishWithNoMesh.fbx";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }
 
-TEST_F(AssimpLoaderTest, LoadAnimationWithNoAnimData)
+TEST_F(AssimpFormatTest, LoadAnimationWithNoAnimData)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFishWithNoAnim.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFishWithNoAnim.fbx";
-	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings), std::runtime_error);
+	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpLoaderTest, LoadAnimationFbx)
+TEST_F(AssimpFormatTest, LoadAnimationFbx)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"Fish.001|FishAnimation", "CorruptedWoodFish.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.fbx";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }
 
-TEST_F(AssimpLoaderTest, LoadAnimationGlb)
+TEST_F(AssimpFormatTest, LoadAnimationGlb)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::Animation,
 		"ArmatureAction", "CorruptedWoodFish.glb");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.glb";
-	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.loadSettings) != nullptr);
+	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
 }

@@ -1946,27 +1946,20 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 		}
 	);
 
-	p_luaState.new_usertype<GameInput>(
-		"Input",
-		"KeyPressed", &GameInput::KeyPressed,
-		"KeyHeld", &GameInput::KeyHeld,
-		"KeyReleased", &GameInput::KeyReleased,
-		"KeyToggle", &GameInput::KeyToggle,
-		"MousePressed", &GameInput::MousePressed,
-		"MouseHeld", &GameInput::MouseHeld,
-		"MouseReleased", &GameInput::MouseReleased,
-		"GetCursorX", &GameInput::GetCursorX,
-		"GetCursorY", &GameInput::GetCursorY,
-		"GetDeltaMouseX", &GameInput::GetDeltaMouseX,
-		"GetDeltaMouseY", &GameInput::GetDeltaMouseY
-		//"SetCursorPosition",          //Add when we can get the sdl window
-		//[](GameInput& input, float x, float y)
-		//{
-		//    
-		//    //SDL_Window *window = 
-		//    //input.SetCursorPosition(window, x, y);
-		//}
-	);
+    p_luaState.new_usertype<GameInput>(
+        "Input",
+        "KeyPressed", &GameInput::KeyPressed,
+        "KeyHeld", &GameInput::KeyHeld,
+        "KeyReleased", &GameInput::KeyReleased,
+        "KeyToggle", &GameInput::KeyToggle,
+        "MousePressed", &GameInput::MousePressed,
+        "MouseHeld", &GameInput::MouseHeld,
+        "MouseReleased", &GameInput::MouseReleased,
+        "GetCursorX", &GameInput::GetCursorX,
+        "GetCursorY", &GameInput::GetCursorY,
+        "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
+        "GetDeltaMouseY", &GameInput::GetDeltaMouseY
+    );
 
 	LuaClassDefinition keyDef;
 	keyDef.name = "Key";
