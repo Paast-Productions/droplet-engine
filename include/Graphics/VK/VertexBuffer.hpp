@@ -29,7 +29,7 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Getter of the vertex layout
 		/// @return array containing vertex input descriptions
-		static std::array<vk::VertexInputAttributeDescription, 4> GetAttributeDescriptions()
+		static std::array<vk::VertexInputAttributeDescription, 3> GetAttributeDescriptions()
 		{
 			return { {{.location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, pos)},
 					 {.location = 1, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, normal)},

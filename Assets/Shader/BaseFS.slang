@@ -2,7 +2,6 @@ struct FSInput
 {
     float4 pos : SV_Position;
     float4 fragNormal;
-    float3 fragColor;
     float2 fragTexCoord;
 };
 
