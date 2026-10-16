@@ -1,6 +1,10 @@
 #include <SceneSystem/Physics/Physics.hpp>
 
 #include <Time.hpp>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Body/BodyInterface.h>
 
 Droplet::Physics::Physics(const Initializer p_initializer)
 {
