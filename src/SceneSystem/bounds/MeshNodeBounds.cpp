@@ -50,17 +50,18 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 	glm::mat4x4 invWorldMat = glm::inverse(p_worldMat);
 	Ray localRay = Ray::Transform(p_ray, invWorldMat);
 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	return Math::Raycast(localRay, GetAABB());
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
+	const auto &meshHandle = m_meshComponent->GetMeshResource();
+	RayHit hit{};
 
-	const std::weak_ptr<MeshResource> meshResource = m_meshComponent->GetMeshResource();
-
-	RayHit hit = meshResource.lock()->GetBVH().Raycast(localRay);
+	if (!meshHandle.IsReady())
+	{
+		return {};
+	}
+	else
+	{
+		
+		hit = meshHandle.Get()->GetBVH().Raycast(localRay);
+	}
 
 	if (hit.didHit)
 	{
@@ -75,15 +76,12 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 
 AABB MeshNodeBounds::GetAABB() const
 {
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	return AABB(glm::vec3(0.0f), glm::vec3(1.0f));
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
-	// HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO HACK TODO 
+	const auto &meshHandle = m_meshComponent->GetMeshResource();
 
-	const std::weak_ptr<MeshResource> meshResource = m_meshComponent->GetMeshResource();
-	
-	return meshResource.lock()->GetBVH().GetBounds();
+	if (!meshHandle.IsReady())
+	{
+		return {};
+	}
+
+	return meshHandle.Get()->GetBVH().GetBounds();
 }

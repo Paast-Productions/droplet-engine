@@ -19,7 +19,7 @@ namespace Droplet::Scene
     ///
     /// Components are owned by the Node they are attached to. A Component
     /// maintains a weak reference to its owning Node to avoid an ownership cycle.
-    class Component
+    class Component : public std::enable_shared_from_this<Component>
     {
     public:
         /// @brief Constructs an empty Component.
@@ -63,7 +63,7 @@ namespace Droplet::Scene
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
         [[nodiscard]] std::shared_ptr<Node> GetOwner() const;
-
+    
 		/// @brief Serializes the component to a JSON object.
 		/// @return A JSON object representing the component's state.
 		[[nodiscard]] nlohmann::json Serialize();
@@ -94,7 +94,7 @@ namespace Droplet::Scene
         /// only be used when HasBoundsOverride() returns false.
         ///
         /// @return The bounding box provided by the component.
-        [[nodiscard]] virtual std::shared_ptr<NodeBounds> GetBounds() const;
+        [[nodiscard]] virtual const NodeBounds *GetBounds() const { return nullptr; }
 
 		/// @brief Checks if the component and all of its ancestors are active.
 		/// @return true if the component and all of its ancestors are active, otherwise false.
@@ -110,6 +110,13 @@ namespace Droplet::Scene
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
+        
+		/// @brief Determines whether the component makes the Node renderable, components that are renderable should override this function and return true.
+		/// @return true if the component is renderable, otherwise false.
+        [[nodiscard]] virtual bool IsRenderable() const
+        {
+            return false;
+        }
 
         /// @brief Retrieves the components ID
         /// @return std::uint64_t m_id
