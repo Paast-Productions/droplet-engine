@@ -37,6 +37,13 @@ namespace Droplet
 		/// @returns The fixed delta time.
 		[[nodiscard]] float GetFixedDeltaTime() const;
 
+		/// @brief Get the fixed time accumulator and zeros it.
+		/// @return The fixed time accumulator.
+		[[nodiscard]] float GetFixedTimeAccumulator() const;
+
+		/// @brief Consumes the accumulator by the value of fixed delta time
+		void ConsumeFixedTime();
+
 		/// @brief Set the fixed delta time in seconds.
 		/// @param p_fixedDeltaTime The new fixed delta time.
 		void SetFixedDeltaTime(const float p_fixedDeltaTime);
