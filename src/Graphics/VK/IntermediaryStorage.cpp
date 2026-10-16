@@ -1,4 +1,4 @@
-#include "ShaderStorage.hpp"
+#include "IntermediaryStorage.hpp"
 
 #include <queue>
 
@@ -7,11 +7,11 @@
 
 using namespace Droplet::Graphics::VK;
 
-ShaderStorage::ShaderStorage(VK::Context &p_context) :
+IntermediaryStorage::IntermediaryStorage(VK::Context &p_context) :
     m_context(p_context),
     m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()) {}
 
-const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
+const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     // TRY FINDING ALREADY CREATED PIPELINE
     
@@ -95,4 +95,48 @@ const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::ra
     
     m_pipelineMap[key] = Pipeline { p_device, p_physicalDevice, queue,{.SwapchainSurfaceFormat = p_surfaceFormat} };
     return m_pipelineMap.at(key);
+}
+
+const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
+{
+    MeshKey key
+    {
+        .meshGUID = p_renderData.meshData.GUID
+    };
+
+    try
+    {
+        Mesh mesh
+        {
+            .vertexBuffer = m_vertexMap.at(key).Get(),
+            .indexBuffer = m_indexMap.at(key).Get(),
+            .indexCount = m_indexMap.at(key).GetIndexCount()
+        };
+        return mesh;
+    }
+    catch (const std::exception &err)
+    {
+        Debug::Logger &logger = Debug::Logger::GetInstance();
+        logger.Log(Droplet::Debug::LogType::Info, err.what());
+    }
+
+    ResourceManager &RMInstance = ResourceManager::GetInstance();
+    ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
+
+    if (!(meshRes.IsReady() || meshRes.HasFailed()))
+    {
+        throw std::runtime_error("Mesh not ready");
+    }
+
+    m_vertexMap[key] = VertexBuffer { m_allocator.Get(), meshRes.Get()->GetVertexData()};
+    m_indexMap[key] = IndexBuffer { m_allocator.Get(), meshRes.Get()->GetIndexData()};
+
+    Mesh mesh
+    {
+        .vertexBuffer = m_vertexMap.at(key).Get(),
+        .indexBuffer = m_indexMap.at(key).Get(),
+        .indexCount = m_indexMap.at(key).GetIndexCount()
+    };
+
+    return mesh;
 }
