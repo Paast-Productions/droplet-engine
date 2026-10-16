@@ -81,25 +81,11 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        // GUIDs
-
-        Droplet::GUID m_meshGUID = C_INVALID_GUID;
-        Droplet::GUID m_textureGUID = C_INVALID_GUID;
 
         // Resource handles
 
         ResourceHandle<MeshResource> m_mesh;
         ResourceHandle<Texture2DResource> m_2dTexture;
-
-        // GUIDs for editor UI
-
-        /// Scratch value edited by the "Select mesh" popup's GUID input field.
-        /// Copied from the current mesh GUID when the popup opens and only applied
-        /// when the user presses Assign, so typing doesn't change the mesh mid-edit.
-        Droplet::GUID m_meshPickGUID = C_INVALID_GUID;
-
-        /// Scratch value edited by the "Select texture" popup's GUID input field.
-        Droplet::GUID m_texturePickGUID = C_INVALID_GUID;
 
         MeshNodeBounds m_bounds;
     };
