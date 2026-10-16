@@ -2,9 +2,11 @@
 #include "GameInput.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <print>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyLua.hpp>
 
 
 using namespace Droplet;
@@ -220,7 +222,23 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 		throw std::runtime_error("p_scriptFile is empty");
 	}
 
+#ifdef TRACY_ENABLE
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+#else
+	std::string fileContents = "";
+	std::ifstream file(scriptPath);
+
+	if (file.is_open())
+	{
+		std::getline(file, fileContents, '\0');
+		file.close();
+	}
+
+	tracy::LuaRemove(fileContents.data());
+
+	sol::load_result loadResult = m_StateHandler.GetState().load(fileContents, sol::detail::default_chunk_name(), sol::load_mode::text);
+#endif
+
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
