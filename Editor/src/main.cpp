@@ -40,6 +40,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			static_cast<int>(windowSize.y),
 			{}
 		}
+		//Droplet::UpdateFlags::EditorFlags
 	};
 	Droplet::Engine engine(config);
 	
