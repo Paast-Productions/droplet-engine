@@ -5,6 +5,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <iostream>
 #include <EngineFlags.hpp>
+#include <Time.hpp>
 
 using namespace Droplet::Scene;
 
@@ -35,6 +36,25 @@ void Scene::Update(float p_deltaTime)
     }
 
     m_octree.Update();
+}
+
+void Droplet::Scene::Scene::LateUpdate(float p_deltaTime)
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->LateUpdate(p_deltaTime);
+        }
+    }
 
     for (const auto &root : m_roots)
     {
@@ -42,6 +62,30 @@ void Scene::Update(float p_deltaTime)
     }
 }
 
+void Droplet::Scene::Scene::FixedUpdate()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    float fixedDeltaTime = Droplet::Time::Get().GetFixedDeltaTime();
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->FixedUpdate(fixedDeltaTime);
+        }
+    }
+
+    if (m_physics != nullptr)
+    {
+        m_physics->FixedUpdate(fixedDeltaTime);
+    }
+}
 
 void Scene::Load()
 {
