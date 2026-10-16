@@ -24,7 +24,6 @@
 #include <GameInput.hpp>
 
 #include <Core/FileUtils.hpp>
-#include <Time.hpp>
 
 const std::vector<char const*> validationLayers = {
     "VK_LAYER_KHRONOS_validation" };
@@ -55,7 +54,7 @@ Renderer::Renderer(SDL::Window &window, const Config& cfg) :
     ZoneScoped;
 
 	// TODO: <REFACTOR>
-	
+
 	CreateGraphicsPipeline();
 
 	Debug::DebugDraw::Get().Initialize(
@@ -70,81 +69,81 @@ Renderer::Renderer(SDL::Window &window, const Config& cfg) :
 		m_depthBuffer.GetFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 
-    const VK::UniformBufferObject ubo
-    {
-        .model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-        .view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
-        .proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
-    };
+	const VK::UniformBufferObject ubo
+	{
+		.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
+	};
 
-    m_storageBuffer = {
-        m_allocator.Get(),
-        ubo
-    };
+	m_storageBuffer = {
+		m_allocator.Get(),
+		ubo
+	};
 
 
-    m_image = {
-        m_allocator.Get(),
-        m_commandPool,
-        m_context,
-        G_CATDESPAIR,
-        78400,
-        G_CATDIM,
-        G_CATDIM,
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageTiling::eOptimal,
-        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-        vk::MemoryPropertyFlagBits::eDeviceLocal
-    };
+	m_image = {
+		m_allocator.Get(),
+		m_commandPool,
+		m_context,
+		G_CATDESPAIR,
+		78400,
+		G_CATDIM,
+		G_CATDIM,
+		vk::Format::eR8G8B8A8Unorm,
+		vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+	};
 
-    m_textureView = {
-        m_context.GetDevice(),
-        m_image.Get(),
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageAspectFlagBits::eColor
-    };
+	m_textureView = {
+		m_context.GetDevice(),
+		m_image.Get(),
+		vk::Format::eR8G8B8A8Unorm,
+		vk::ImageAspectFlagBits::eColor
+	};
 
-    CreateTextureSampler();
+	CreateTextureSampler();
 
-    m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
-    m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
+	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 
-    CreateSyncObjects();
+	CreateSyncObjects();
 
-    if (m_imGuiUsing)
-    {
-        m_imGuiEnabled = true;
+	if (m_imGuiUsing)
+	{
+		m_imGuiEnabled = true;
 
-        std::array<vk::DescriptorPoolSize, 2> poolSizes
-        {
-            {
-                {
-                    .type = vk::DescriptorType::eSampledImage,
-                    .descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
-                },
-                {
-                    .type = vk::DescriptorType::eSampler,
-                    .descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
-                },
-            }
-        };
+		std::array<vk::DescriptorPoolSize, 2> poolSizes
+		{
+			{
+				{
+					.type = vk::DescriptorType::eSampledImage,
+					.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
+				},
+				{
+					.type = vk::DescriptorType::eSampler,
+					.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
+				},
+			}
+		};
 
-        vk::DescriptorPoolCreateInfo poolInfo
-        {
-            .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-            .maxSets = 0,
-            .poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
-            .pPoolSizes = poolSizes.data()
-        };
+		vk::DescriptorPoolCreateInfo poolInfo
+		{
+			.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+			.maxSets = 0,
+			.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
+			.pPoolSizes = poolSizes.data()
+		};
 
-        for (vk::DescriptorPoolSize& poolSize : poolSizes)
-        {
-            poolInfo.maxSets += poolSize.descriptorCount;
-        }
+		for (vk::DescriptorPoolSize& poolSize : poolSizes)
+		{
+			poolInfo.maxSets += poolSize.descriptorCount;
+		}
 
-        m_imGuiPoolSize = poolInfo.maxSets;
-        m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
-    }
+		m_imGuiPoolSize = poolInfo.maxSets;
+		m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
+	}
 }
 
 //Idle the device to allow for cleanup of swapchain and destroy window
@@ -157,7 +156,7 @@ Renderer::~Renderer()
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
 
-/// Called on window resize to flag for the renderer to resize the swapchain and depthbuffer
+// Called to notify the renderer of a window resizing event
 void Renderer::ResizeWindow()
 {
     m_framebufferResized = true;
@@ -167,17 +166,17 @@ void Renderer::CreateGraphicsPipeline()
 {
     ZoneScoped;
 
-    //vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-    std::vector<char> shaderBytes = Utils::ReadFileAsBytes("slang.spv");
+	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
+	std::vector<char> shaderBytes = Utils::ReadFileAsBytes("slang.spv");
 
-    vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), shaderBytes);
-    VK::PipelineConfig pipelineConfig
-    {
-        .SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
-    };
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), shaderBytes);
+	VK::PipelineConfig pipelineConfig
+	{
+		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
+	};
 
-    pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_globalDescriptorSet.GetLayout();
-    m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
+	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_globalDescriptorSet.GetLayout();
+	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
@@ -185,31 +184,31 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 {
     ZoneScoped;
 
-    //vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-    vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), p_shaderBlob);
-    VK::PipelineConfig pipelineConfig
-    {
-        .SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
-    };
+	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), p_shaderBlob);
+	VK::PipelineConfig pipelineConfig
+	{
+		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
+	};
 
-    m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
+	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device& p_device, const std::vector<char>& p_code) const
 {
     ZoneScoped;
 
-    vk::ShaderModuleCreateInfo createInfo
-    {
-        .codeSize = p_code.size() * sizeof(char),
-        .pCode = reinterpret_cast<const uint32_t*>(p_code.data())
-    };
+	vk::ShaderModuleCreateInfo createInfo
+	{
+		.codeSize = p_code.size() * sizeof(char),
+		.pCode = reinterpret_cast<const uint32_t*>(p_code.data())
+	};
 
-    vk::raii::ShaderModule     shaderModule
-    {
-        p_device,
-        createInfo
-    };
+	vk::raii::ShaderModule     shaderModule
+	{
+		p_device,
+		createInfo
+	};
 
     return shaderModule;
 }
@@ -219,8 +218,8 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shade
 {
     ZoneScoped;
 
-    vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
-    vk::raii::ShaderModule     shaderModule{ p_device, createInfo };
+	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
+	vk::raii::ShaderModule     shaderModule{ p_device, createInfo };
 
     return shaderModule;
 }
@@ -236,48 +235,48 @@ void Renderer::TransitionImageLayout(
     vk::PipelineStageFlags2 p_dstStageMask,
     vk::ImageAspectFlags    p_imageAspectFlags)
 {
-    ZoneScoped
+	ZoneScoped
 
-        vk::ImageMemoryBarrier2 barrier
-    {
-        .srcStageMask = p_srcStageMask,
-        .srcAccessMask = p_srcAccessMask,
-        .dstStageMask = p_dstStageMask,
-        .dstAccessMask = p_dstAccessMask,
-        .oldLayout = p_oldLayout,
-        .newLayout = p_newLayout,
-        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-        .image = p_image,
-        .subresourceRange =
-        {
-            .aspectMask = p_imageAspectFlags,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = 0,
-            .layerCount = 1
-        }
-    };
+		vk::ImageMemoryBarrier2 barrier
+	{
+		.srcStageMask = p_srcStageMask,
+		.srcAccessMask = p_srcAccessMask,
+		.dstStageMask = p_dstStageMask,
+		.dstAccessMask = p_dstAccessMask,
+		.oldLayout = p_oldLayout,
+		.newLayout = p_newLayout,
+		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+		.image = p_image,
+		.subresourceRange =
+		{
+			.aspectMask = p_imageAspectFlags,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		}
+	};
 
-    vk::DependencyInfo dependencyInfo
-    {
-        .dependencyFlags = {},
-        .imageMemoryBarrierCount = 1,
-        .pImageMemoryBarriers = &barrier
-    };
+	vk::DependencyInfo dependencyInfo
+	{
+		.dependencyFlags = {},
+		.imageMemoryBarrierCount = 1,
+		.pImageMemoryBarriers = &barrier
+	};
 
-    const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 
-    commandBuffer.pipelineBarrier2(dependencyInfo);
+	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
 
 //Main drawing operations are here!
 void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
-    ZoneScoped
+	ZoneScoped
 
-        auto& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+		auto& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 
     commandBuffer.begin({});
 
@@ -293,56 +292,56 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
         vk::ImageAspectFlagBits::eColor
     );
 
-    TransitionImageLayout(
-        m_depthBuffer.GetImage(),
-        vk::ImageLayout::eUndefined,
-        vk::ImageLayout::eDepthAttachmentOptimal,
-        vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-        vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-        vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-        vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-        vk::ImageAspectFlagBits::eDepth
-    );
+	TransitionImageLayout(
+		m_depthBuffer.GetImage(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::ImageAspectFlagBits::eDepth
+	);
 
-    vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
-    vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
-    vk::RenderingAttachmentInfo colorAttachmentInfo
-    {
-        .imageView = m_swapchain.GetImageViews().at(p_imageIndex),
-        .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
-        .loadOp = vk::AttachmentLoadOp::eClear,
-        .storeOp = vk::AttachmentStoreOp::eStore,
-        .clearValue = clearColor
-    };
-
-    vk::RenderingAttachmentInfo depthAttachmentInfo
-    {
-        .imageView = m_depthBuffer.GetView(),
-        .imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
-        .loadOp = vk::AttachmentLoadOp::eClear,
-        .storeOp = vk::AttachmentStoreOp::eDontCare,
-        .clearValue = clearDepth
-    };
-
-
-	vk::RenderingInfo renderingInfo 
+	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-		.renderArea = 
+		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
+
+	vk::RenderingAttachmentInfo depthAttachmentInfo
+	{
+		.imageView = m_depthBuffer.GetView(),
+		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eDontCare,
+		.clearValue = clearDepth
+	};
+
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
 		{
-			.offset = 
+			.offset =
 			{
 				.x = 0,
 				.y = 0
-			}, 
+			},
 			.extent = m_swapchain.GetExtent()
 		},
 		.layerCount = 1,
 		.colorAttachmentCount = 1,
 		.pColorAttachments = &colorAttachmentInfo,
-		.pDepthAttachment = &depthAttachmentInfo 
+		.pDepthAttachment = &depthAttachmentInfo
 	};
-	
+
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
@@ -353,23 +352,23 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
-    if (m_imGuiEnabled)
-    {
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
-    }
-    commandBuffer.endRendering();
-    // After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
+	if (m_imGuiEnabled)
+	{
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+	}
+	commandBuffer.endRendering();
+	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
-    TransitionImageLayout(
-        m_swapchain.GetImages().at(p_imageIndex),
-        vk::ImageLayout::eColorAttachmentOptimal,
-        vk::ImageLayout::ePresentSrcKHR,
-        vk::AccessFlagBits2::eColorAttachmentWrite,
-        {},
-        vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-        vk::PipelineStageFlagBits2::eBottomOfPipe,
-        vk::ImageAspectFlagBits::eColor
-    );
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		{},
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eBottomOfPipe,
+		vk::ImageAspectFlagBits::eColor
+	);
 
     commandBuffer.end();
 }
@@ -438,35 +437,35 @@ void Renderer::DrawFrame()
             m_swapchain.GetExtent()
         };
 
-        return;
-    }
-    // On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
-    // On any error code, aquireNextImage already threw an exception.
-    if (m_result != vk::Result::eSuccess && m_result != vk::Result::eSuboptimalKHR)
-    {
-        assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
-        throw std::runtime_error("failed to acquire swap chain image!");
-    }
+		return;
+	}
+	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
+	// On any error code, aquireNextImage already threw an exception.
+	if (m_result != vk::Result::eSuccess && m_result != vk::Result::eSuboptimalKHR)
+	{
+		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
+		throw std::runtime_error("failed to acquire swap chain image!");
+	}
 
-    // old code
-    m_cameraController.UpdateCamera(m_camera, deltaTime, *m_window);
-    static float rotation = 0.0f;
-    if (m_imGuiEnabled)
-    {
-        ImGui::Begin("Camera");
-        ImGui::Text("%f", m_camera.GetPosition().x);
-        ImGui::Text("%f", m_camera.GetPosition().y);
-        ImGui::Text("%f", m_camera.GetPosition().z);
-        ImGui::Text("%f", m_camera.GetForward().x);
-        ImGui::Text("%f", m_camera.GetForward().y);
-        ImGui::Text("%f", m_camera.GetForward().z);
-        ImGui::Text("%f", deltaTime);
+	// old code
+	m_cameraController.UpdateCamera(m_camera, deltaTime, *m_window);
+	static float rotation = 0.0f;
+	if (m_imGuiEnabled)
+	{
+		ImGui::Begin("Camera");
+		ImGui::Text("%f", m_camera.GetPosition().x);
+		ImGui::Text("%f", m_camera.GetPosition().y);
+		ImGui::Text("%f", m_camera.GetPosition().z);
+		ImGui::Text("%f", m_camera.GetForward().x);
+		ImGui::Text("%f", m_camera.GetForward().y);
+		ImGui::Text("%f", m_camera.GetForward().z);
+		ImGui::Text("%f", deltaTime);
 
-        ImGui::SliderFloat("Roration", &rotation, 0.f, 360.f);
-        if (rotation == 360.f)
-            rotation = 0.f;
-        ImGui::End();
-    }
+		ImGui::SliderFloat("Roration", &rotation, 0.f, 360.f);
+		if (rotation == 360.f)
+			rotation = 0.f;
+		ImGui::End();
+	}
 
     const auto extent = m_swapchain.GetExtent();
 
@@ -480,72 +479,72 @@ void Renderer::DrawFrame()
 		.view = m_camera.GetViewMatrix(),
 		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
-	
+
 	m_storageBuffer.UpdateBuffer(ubo);
 	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
     // Only reset the fence if we are submitting work
     m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
-    if (m_imGuiEnabled)
-    {
-        ImGui::EndFrame();
-        ImGui::Render();
-    }
+	if (m_imGuiEnabled)
+	{
+		ImGui::EndFrame();
+		ImGui::Render();
+	}
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
 	RecordCommandBuffer(m_imageIndex);
 	Debug::DebugDraw::Get().ClearDrawCommands();
 
-    vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
-    const vk::SubmitInfo   submitInfo
-    {
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
-        .pWaitDstStageMask = &waitDestinationStageMask,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
-    };
+	const vk::SubmitInfo   submitInfo
+	{
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
+		.pWaitDstStageMask = &waitDestinationStageMask,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
+	};
 
-    m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
+	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
-    const vk::PresentInfoKHR presentInfoKHR
-    {
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &*m_renderFinishedSemaphores[m_imageIndex],
-        .swapchainCount = 1,
-        .pSwapchains = &*m_swapchain.Get(),
-        .pImageIndices = &m_imageIndex
-    };
+	const vk::PresentInfoKHR presentInfoKHR
+	{
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &*m_renderFinishedSemaphores[m_imageIndex],
+		.swapchainCount = 1,
+		.pSwapchains = &*m_swapchain.Get(),
+		.pImageIndices = &m_imageIndex
+	};
 
-    m_result = m_context.GetQueue().presentKHR(presentInfoKHR);
-    // Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-    // here and does not need to be caught by an exception.
-    if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
-    {
-        m_framebufferResized = false;
-        while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
-        {
-            SDL_WaitEvent(&m_event);
-        }
-        m_swapchain.Cleanup(m_context.GetDevice());
-        m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
-        m_depthBuffer = {
-            m_allocator.Get(),
-            m_context.GetDevice(),
-            m_context.GetPhysicalDevice(),
-            m_swapchain.GetExtent()
-        };
-    }
-    else
-    {
-        // There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-        assert(m_result == vk::Result::eSuccess);
-    }
-    m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+	m_result = m_context.GetQueue().presentKHR(presentInfoKHR);
+	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+	// here and does not need to be caught by an exception.
+	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
+	{
+		m_framebufferResized = false;
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		{
+			SDL_WaitEvent(&m_event);
+		}
+		m_swapchain.Cleanup(m_context.GetDevice());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
+		m_depthBuffer = {
+			m_allocator.Get(),
+			m_context.GetDevice(),
+			m_context.GetPhysicalDevice(),
+			m_swapchain.GetExtent()
+		};
+	}
+	else
+	{
+		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
+		assert(m_result == vk::Result::eSuccess);
+	}
+	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 //Descriptors and samplers
@@ -554,96 +553,96 @@ void Renderer::CreateTextureSampler()
 {
     ZoneScoped;
 
-    vk::PhysicalDeviceProperties properties = m_context.GetPhysicalDevice().getProperties();
-    vk::SamplerCreateInfo        samplerInfo
-    {
-        .magFilter = vk::Filter::eLinear,
-        .minFilter = vk::Filter::eLinear,
-        .mipmapMode = vk::SamplerMipmapMode::eLinear,
-        .addressModeU = vk::SamplerAddressMode::eRepeat,
-        .addressModeV = vk::SamplerAddressMode::eRepeat,
-        .addressModeW = vk::SamplerAddressMode::eRepeat,
-        .mipLodBias = 0.0f,
-        .anisotropyEnable = vk::False,
-        .maxAnisotropy = properties.limits.maxSamplerAnisotropy,
-        .compareEnable = vk::False,
-        .compareOp = vk::CompareOp::eAlways
-    };
-    m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
+	vk::PhysicalDeviceProperties properties = m_context.GetPhysicalDevice().getProperties();
+	vk::SamplerCreateInfo        samplerInfo
+	{
+		.magFilter = vk::Filter::eLinear,
+		.minFilter = vk::Filter::eLinear,
+		.mipmapMode = vk::SamplerMipmapMode::eLinear,
+		.addressModeU = vk::SamplerAddressMode::eRepeat,
+		.addressModeV = vk::SamplerAddressMode::eRepeat,
+		.addressModeW = vk::SamplerAddressMode::eRepeat,
+		.mipLodBias = 0.0f,
+		.anisotropyEnable = vk::False,
+		.maxAnisotropy = properties.limits.maxSamplerAnisotropy,
+		.compareEnable = vk::False,
+		.compareOp = vk::CompareOp::eAlways
+	};
+	m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
 }
 
 /*void Renderer::CreateDescriptorSets()
 {
-    ZoneScoped;
+	ZoneScoped;
 
-    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSets.Get());
+	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSets.Get());
 
-    vk::DescriptorSetAllocateInfo        allocInfo
-    {
-        .descriptorPool = m_descriptorPool.Get(),
-        .descriptorSetCount = static_cast<uint32_t>(layouts.size()),
-        .pSetLayouts = layouts.data()
-    };
+	vk::DescriptorSetAllocateInfo        allocInfo
+	{
+		.descriptorPool = m_descriptorPool.Get(),
+		.descriptorSetCount = static_cast<uint32_t>(layouts.size()),
+		.pSetLayouts = layouts.data()
+	};
 
     m_descriptorSetsOld.clear();
     m_descriptorSetsOld = m_context.GetDevice().allocateDescriptorSets(allocInfo);
 
-    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-    {
-        vk::DescriptorBufferInfo bufferInfo
-        {
-            .buffer = m_uniformBuffer[i].Get(),
-            .offset = 0,
-            .range = sizeof(VK::UniformBufferObject)
-        };
+	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+	{
+		vk::DescriptorBufferInfo bufferInfo
+		{
+			.buffer = m_uniformBuffer[i].Get(),
+			.offset = 0,
+			.range = sizeof(VK::UniformBufferObject)
+		};
 
-        vk::DescriptorImageInfo imageInfo
-        {
-            .sampler = m_textureSampler,
-            .imageView = m_textureView.Get(),
-            .imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
-        };
+		vk::DescriptorImageInfo imageInfo
+		{
+			.sampler = m_textureSampler,
+			.imageView = m_textureView.Get(),
+			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
+		};
 
-        std::array<vk::WriteDescriptorSet, 2> descriptorWrites{
-        {
-            {
-                .dstSet = m_descriptorSetsOld[i],
-                .dstBinding = 0,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = vk::DescriptorType::eUniformBuffer,
-                .pBufferInfo = &bufferInfo
-            },
+		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{
+		{
+			{
+				.dstSet = m_descriptorSetsOld[i],
+				.dstBinding = 0,
+				.dstArrayElement = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eUniformBuffer,
+				.pBufferInfo = &bufferInfo
+			},
 
-            {
-                .dstSet = m_descriptorSetsOld[i],
-                .dstBinding = 1,
-                .dstArrayElement = 0,
-                .descriptorCount = 1,
-                .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-                .pImageInfo = &imageInfo}
-            }
-        };
-        m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
-    }
+			{
+				.dstSet = m_descriptorSetsOld[i],
+				.dstBinding = 1,
+				.dstArrayElement = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+				.pImageInfo = &imageInfo}
+			}
+		};
+		m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
+	}
 }*/
 
 static void CheckVkResult(VkResult p_err)
 {
-    if (p_err == VK_SUCCESS)
-        return;
+	if (p_err == VK_SUCCESS)
+		return;
 
-    throw ("[vulkan] Error: VkResult = %d\n", p_err);
+	throw ("[vulkan] Error: VkResult = %d\n", p_err);
 }
 
 void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo& p_initInfo)
 {
-    ZoneScoped
+	ZoneScoped
 
-    if (!m_imGuiUsing || !m_imGuiEnabled)
-        return;
-    
-    //TODO: CREATE PIPELINE CACHE
+	if (!m_imGuiUsing || !m_imGuiEnabled)
+		return;
+	
+	//TODO: CREATE PIPELINE CACHE
 
     p_initInfo.Instance = *m_context.GetInstance();
     p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
