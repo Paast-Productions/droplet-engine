@@ -21,6 +21,8 @@ void BehaviourInspector::CloseImpl()
 
 void BehaviourInspector::RenderImpl()
 {
+    auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+
     const float width = ImGui::GetContentRegionAvail().x;
     Droplet::Scene::Behaviour *behaviourToOpen = nullptr;
 
@@ -48,7 +50,10 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem(name.c_str()))
             {
-                behaviourToOpen = &m_editorContext->GetEngine().AddBehaviour(name);
+                if (auto behaviour = sceneManager.StartBehaviour(name).lock())
+                {
+                    behaviourToOpen = behaviour.get();
+                }
             }
 
         }
@@ -57,8 +62,11 @@ void BehaviourInspector::RenderImpl()
 
     ImGui::Separator();
 
-    Droplet::Scene::Behaviour *behaviourToRemove = nullptr;
-    for (const auto &behaviour : m_editorContext->GetEngine().GetBehaviours())
+
+    std::weak_ptr<Droplet::Scene::Behaviour> behaviourToRemove;
+    bool removeRequest = false;
+
+    for (const auto &behaviour : sceneManager.GetBehaviours())
     {
         if (!behaviour)
         {
@@ -80,8 +88,10 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem("Remove Behaviour"))
             {
-                behaviourToRemove = behaviour.get();
+                behaviourToRemove = behaviour;
+                removeRequest = true;
             }
+
             ImGui::EndPopup();
         }
 
@@ -101,9 +111,10 @@ void BehaviourInspector::RenderImpl()
 
     // Erase after iteration so the vector and current behaviour stay valid
     // until this frame's UI rendering is complete.
-    if (behaviourToRemove != nullptr)
+
+    if (removeRequest)
     {
-        m_editorContext->GetEngine().RemoveBehaviour(*behaviourToRemove);
+        sceneManager.ShutdownBehaviour(behaviourToRemove);
     }
 }
 

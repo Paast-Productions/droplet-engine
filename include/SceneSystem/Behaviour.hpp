@@ -22,7 +22,7 @@ namespace Droplet::Scene
     {
     public:
 		Behaviour() = default;
-        virtual ~Behaviour() = default;
+        ~Behaviour() = default;
 
         /// @brief Gets the type name of the behaviour. 
         /// 
@@ -51,7 +51,7 @@ namespace Droplet::Scene
         ///
         /// The inspector calls this public wrapper; derived behaviours provide
         /// their controls by overriding RenderUIImpl().
-        void RenderUI() { RenderUIImpl(); }
+        void RenderUI();
 
         /// @brief Sets the SceneManager used by the Behaviour.
         ///

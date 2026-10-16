@@ -59,7 +59,8 @@ Droplet::Engine::~Engine()
 {
 	ZoneScoped;
 
-	for (const auto &behaviour : m_behaviours)
+	// Make sure we detach our behaviours from Scene Manager before Scene Manager might destroy them
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (auto *scriptBehaviour = dynamic_cast<Scene::ScriptBehaviour *>(behaviour.get()))
 		{
@@ -92,6 +93,15 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+#ifdef TRACY_ENABLE
+		ZoneNamedN(eventZone, "Event", true);
+
+		constexpr int eventStrMaxLen = 256;
+		char eventStrBuf[eventStrMaxLen]{};
+		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+
+		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -124,7 +134,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	for (const auto &behaviour : m_behaviours)
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (behaviour && behaviour->IsActive())
 		{
@@ -142,7 +152,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 	}
 
-	for (const auto &behaviour : m_behaviours)
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (behaviour && behaviour->IsActive())
 		{
@@ -183,58 +193,10 @@ ResourceManager &Droplet::Engine::GetResourceManager()
 	return m_resourceManager;
 }
 
-Scene::Behaviour &Droplet::Engine::AddBehaviour(const std::string &p_typeName)
-{
-	const auto &registry = Scene::BehaviourRegistry::GetRegistry();
-	const auto factory = registry.find(p_typeName);
-	if (factory == registry.end())
-	{
-		throw std::invalid_argument("Unknown behaviour type: " + p_typeName);
-	}
-
-	std::unique_ptr<Scene::Behaviour> behaviour = factory->second();
-	if (!behaviour)
-	{
-		throw std::runtime_error("Behaviour factory returned nullptr for: " + p_typeName);
-	}
-
-	behaviour->SetSceneManager(&m_sceneManager);
-	behaviour->Start();
-	Scene::Behaviour &result = *behaviour;
-	m_behaviours.push_back(std::move(behaviour));
-	return result;
-}
-
-void Droplet::Engine::RemoveBehaviour(Scene::Behaviour &p_behaviour)
-{
-	const auto it = std::find_if(m_behaviours.begin(), m_behaviours.end(),
-		[&p_behaviour](const std::unique_ptr<Scene::Behaviour> &candidate)
-		{
-			return candidate.get() == &p_behaviour;
-		});
-
-	if (it == m_behaviours.end())
-	{
-		return;
-	}
-
-	// A script behaviour owns a ScriptSystem association keyed by its address.
-	// Detach it before destroying the object so the system cannot retain a stale pointer.
-	if (auto *scriptBehaviour = dynamic_cast<Scene::ScriptBehaviour *>(it->get()))
-	{
-		scriptBehaviour->AttachScript("");
-	}
-
-	m_behaviours.erase(it);
-}
-
-const std::vector<std::unique_ptr<Droplet::Scene::Behaviour>> &Droplet::Engine::GetBehaviours() const
-{
-	return m_behaviours;
-}
-
 void Droplet::Engine::AddEventListener(EventListener p_listener)
 {
+	ZoneScoped;
+
 	m_eventListeners.push_back(p_listener);
 }
 void Engine::RegisterBehaviours()

@@ -63,16 +63,6 @@ namespace Droplet
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
 		[[nodiscard]] ResourceManager &GetResourceManager();
-		
-		/// @brief Creates and stores a behaviour registered under p_typeName.
-		/// @return A reference to the newly created behaviour.
-		Scene::Behaviour &AddBehaviour(const std::string &p_typeName);
-
-		/// @brief Removes a behaviour owned by the engine.
-		void RemoveBehaviour(Scene::Behaviour &p_behaviour);
-
-		/// @brief Gets all behaviours owned by the engine.
-		[[nodiscard]] const std::vector<std::unique_ptr<Scene::Behaviour>> &GetBehaviours() const;
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -106,8 +96,6 @@ namespace Droplet
 
 		/// @brief The resource manager instance, should only be one.
 		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
-		
-		std::vector<std::unique_ptr<Scene::Behaviour>> m_behaviours;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;
