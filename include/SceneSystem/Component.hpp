@@ -55,6 +55,17 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
 
+        /// @brief Late updates the component.
+        ///
+        /// Called once per update for components attached to active Nodes.
+        ///
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+        virtual void LateUpdate([[maybe_unused]] float p_deltaTime) {}
+
+        /// @brief Updates the component in fixed time.
+        /// @param p_fixedDeltaTime Fixed delta time in seconds.
+        virtual void FixedUpdate([[maybe_unused]] float p_fixedDeltaTime) {}
+
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
 
