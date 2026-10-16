@@ -23,7 +23,7 @@ namespace Droplet
             Task,
         };
 	    
-        ShaderResource(ShaderType p_type, std::pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>> p_shaderByteCode);
+        ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_shaderByteCode);
 
         /// @brief Creates a fallback instance of a shader resource (nullptr bytecode).
         /// @return The shader.
@@ -41,6 +41,5 @@ namespace Droplet
     private:
         ShaderType m_type = ShaderType::Vertex;
         Slang::ComPtr<slang::IBlob> m_byteCode = nullptr;
-        Slang::ComPtr<slang::ISession> m_session { nullptr };
     };
 }

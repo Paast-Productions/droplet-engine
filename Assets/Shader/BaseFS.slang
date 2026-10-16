@@ -31,5 +31,5 @@ float4 main(FSInput vertIn) : SV_TARGET {
     float spec = pow(specAngle, 100);
     float3 specular = spec;
 
-    return float4(color, 0.0);
+    return float4(1.0, 1.0, 1.0, 0.0);
 }

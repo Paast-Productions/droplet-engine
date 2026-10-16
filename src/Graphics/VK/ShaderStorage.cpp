@@ -99,7 +99,7 @@ const Pipeline &ShaderStorage::GetPipeline(RenderData p_renderData, const vk::ra
     {
         {
             {
-                m_descriptorSet.GetLayout()  
+                *m_descriptorSet.GetLayout()  
             }
         }
     };

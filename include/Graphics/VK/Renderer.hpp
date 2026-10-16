@@ -32,7 +32,6 @@
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
-#include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
 #include <Graphics/VK/ShaderStorage.hpp>
