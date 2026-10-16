@@ -1,6 +1,10 @@
 #include "Graphics/DebugDraw.hpp"
 #include <array>
 #include <map>
+#define _USE_MATH_DEFINES
+#include <math.h>
+#include <glm/gtx/quaternion.hpp>
+#undef _USE_MATH_DEFINES
 
 using namespace Droplet::Math;
 using namespace Droplet::Graphics;
@@ -17,6 +21,8 @@ namespace
 		struct Triangle
 		{
 			Index vertex[3];
+
+			Triangle(Index v1, Index v2, Index v3) : vertex{ v1, v2, v3 } { }
 		};
 
 		using TriangleList = std::vector<Triangle>;
@@ -47,14 +53,16 @@ namespace
 		{
 			Lookup::key_type key(p_first, p_second);
 			if (key.first > key.second)
+			{
 				std::swap(key.first, key.second);
+			}
 
 			auto inserted = p_lookup.insert({ key, p_vertices.size() });
 			if (inserted.second)
 			{
 				const glm::vec3 &edge0 = p_vertices[p_first];
 				const glm::vec3 &edge1 = p_vertices[p_second];
-				p_vertices.emplace_back(glm::normalize(edge0 + edge1));
+				p_vertices.push_back(glm::normalize(edge0 + edge1));
 			}
 
 			return inserted.first->second;
@@ -114,15 +122,27 @@ namespace
 			outIndices[i * 3 + 2] = triangles[i].vertex[2];
 		}
 	}
+
+	static void GenerateCircle(int segments, std::vector<glm::vec3> &outVertices)
+	{
+		float invSegments = 1.0f / float(segments);
+
+		outVertices.resize(segments);
+		for (int i = 0; i < segments; ++i)
+		{
+			float angle = 2.0f * M_PI * float(i) * invSegments;
+			outVertices[i] = glm::vec3(std::cos(angle), std::sin(angle), 0.0f);
+		}
+	}
 }
 
 
 void DebugDraw::ClearDrawCommands()
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	dbgDraw.m_wireLists.clear();
-	dbgDraw.m_fillLists.clear();
-	dbgDraw.m_spriteLists.clear();
+	dbgDraw.m_wireLists = {};
+	dbgDraw.m_fillLists = {};
+	dbgDraw.m_spriteLists = {};
 }
 
 
@@ -137,11 +157,6 @@ void DebugDraw::DrawRay(const Ray &p_ray, const DrawOptions &p_opt)
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
-	auto wireList = dbgDraw.m_wireLists.find(intOpt);
-	if (wireList == dbgDraw.m_wireLists.end())
-	{
-		dbgDraw.m_wireLists[intOpt] = std::vector<DbgLine>();
-	}
 	dbgDraw.m_wireLists[intOpt].push_back(line);
 }
 
@@ -156,11 +171,6 @@ void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, const
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
-	auto wireList = dbgDraw.m_wireLists.find(intOpt);
-	if (wireList == dbgDraw.m_wireLists.end())
-	{
-		dbgDraw.m_wireLists[intOpt] = std::vector<DbgLine>();
-	}
 	dbgDraw.m_wireLists[intOpt].push_back(line);
 }
 
@@ -186,7 +196,7 @@ void DebugDraw::DrawBox(const OBB &p_obb, const DrawOptions &p_opt)
 
 void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 {
-	static std::unordered_map<int, std::vector<DbgTri>> s_icosphereCache;
+	static std::map<int, std::vector<DbgTri>> s_icosphereCache;
 
 	if (s_icosphereCache.find(p_opt.detail) == s_icosphereCache.end())
 	{
@@ -209,33 +219,79 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 		s_icosphereCache[p_opt.detail] = std::move(triangles);
 	}
 
-	const std::vector<DbgTri> &triangles = s_icosphereCache[p_opt.detail];
+	std::vector<DbgTri> triangles = s_icosphereCache[p_opt.detail];
+
+	for (auto &tri : triangles)
+	{
+		tri.v1 = p_sphere.center + tri.v1 * p_sphere.radius;
+		tri.v2 = p_sphere.center + tri.v2 * p_sphere.radius;
+		tri.v3 = p_sphere.center + tri.v3 * p_sphere.radius;
+	}
 
 	InternalDrawOptions intOpt(p_opt);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
-	if (dbgDraw.m_fillLists.find(intOpt) == dbgDraw.m_fillLists.end())
-	{
-		dbgDraw.m_fillLists[intOpt] = std::vector<DbgTri>();
-	}
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
-
 }
 
-void DebugDraw::DrawCircle(const glm::vec3 &p_center, float p_radius, const DrawOptions &p_opt)
+void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius, const DrawOptions &p_opt)
 {
-	// Create a line loop to approximate the circle
-	InternalDrawOptions intOpt(p_opt);
+	static std::map<int, std::vector<glm::vec3>> s_circleCache;
 
-	DebugDraw &dbgDraw = DebugDraw::Get();
-	
-	if (dbgDraw.m_wireLists.find(intOpt) == dbgDraw.m_wireLists.end())
+	if (s_circleCache.find(p_opt.detail) == s_circleCache.end())
 	{
-		dbgDraw.m_wireLists[intOpt] = std::vector<DbgLine>();
+		std::vector<glm::vec3> points;
+
+		::GenerateCircle(p_opt.detail, points);
+
+		s_circleCache[p_opt.detail] = std::move(points);
 	}
 
+	std::vector<glm::vec3> points = s_circleCache[p_opt.detail];
 
+	// points is a unit circle in the XY plane, we need to transform it to the desired position and orientation
+	// Create a rotation matrix that aligns the Z axis with the normal
+	glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+	glm::vec3 axis = glm::cross(zAxis, p_normal);
+	float angle = std::acos(glm::dot(zAxis, p_normal));
+	glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), angle, axis);
+
+	for (auto &p : points)
+	{
+		p = p_center + glm::vec3(rotation * glm::vec4(p * p_radius, 1.0f));
+	}
+
+	if (p_opt.wireframe)
+	{
+		std::vector<DbgLine> lines;
+		lines.reserve(points.size());
+
+		for (std::size_t i = 0; i < points.size(); ++i)
+		{
+			lines.emplace_back(points[i], points[(i + 1) % points.size()]);
+		}
+
+		DebugDraw &dbgDraw = DebugDraw::Get();
+
+		InternalDrawOptions intOpt(p_opt);
+		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
+	}
+	else
+	{
+		std::vector<DbgTri> triangles;
+		triangles.reserve(points.size());
+
+		for (std::size_t i = 0; i < points.size(); ++i)
+		{
+			triangles.emplace_back(p_center, points[i], points[(i + 1) % points.size()]);
+		}
+
+		DebugDraw &dbgDraw = DebugDraw::Get();
+
+		InternalDrawOptions intOpt(p_opt);
+		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+	}
 }
 
 void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
@@ -254,10 +310,5 @@ void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_position, const 
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
-	auto spriteList = dbgDraw.m_spriteLists.find(intOpt);
-	if (spriteList == dbgDraw.m_spriteLists.end())
-	{
-		dbgDraw.m_spriteLists[intOpt] = std::vector<DbgSprite>();
-	}
 	dbgDraw.m_spriteLists[intOpt].push_back(sprite);
 }

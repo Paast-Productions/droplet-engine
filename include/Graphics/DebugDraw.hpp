@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <map>
 #include <glm/glm.hpp>
 #include <math/bounds/Ray.hpp>
 #include <math/bounds/AABB.hpp>
@@ -22,10 +24,8 @@ namespace Droplet::Graphics::Debug
 			
 		// Optional
 		bool wireframe = false;
-
 		int detail = 6; // For circle & curve: number of segments. For sphere: subdivisions.
 	};
-
 
 	class DebugDraw
 	{
@@ -78,7 +78,7 @@ namespace Droplet::Graphics::Debug
 		);
 
 		static void DrawCircle(
-			const glm::vec3 &p_center, float p_radius,
+			const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius,
 			const DrawOptions &p_opt
 		);
 
@@ -93,8 +93,6 @@ namespace Droplet::Graphics::Debug
 		);
 
 	private:
-		friend class Droplet::Graphics::Renderer;
-
 		DebugDraw() = default;
 
 		[[nodiscard]] static DebugDraw &Get()
@@ -119,12 +117,14 @@ namespace Droplet::Graphics::Debug
 			GUID icon = 0;
 
 			InternalDrawOptions() = default;
+
 			InternalDrawOptions(const DrawOptions &p_opt)
 				: color(p_opt.color), depthTest(p_opt.depthTest) {}
+
 			InternalDrawOptions(const DrawOptions &p_opt, GUID p_icon)
 				: color(p_opt.color), depthTest(p_opt.depthTest), icon(p_icon) {}
 
-			// Comparison operator for unordered_map key
+			// Comparison operators for unordered_map key
 			bool operator==(const InternalDrawOptions &other) const
 			{
 				return icon == other.icon && color == other.color && depthTest == other.depthTest;
@@ -157,6 +157,10 @@ namespace Droplet::Graphics::Debug
 			{
 				return !(*this <= other);
 			}
+			bool operator>=(const InternalDrawOptions &other) const
+			{
+				return !(*this < other);
+			}
 		};
 
 		struct DbgLine
@@ -175,8 +179,10 @@ namespace Droplet::Graphics::Debug
 			glm::vec2 scale;
 		};
 		
-		std::unordered_map<InternalDrawOptions, std::vector<DbgLine>>	m_wireLists;
-		std::unordered_map<InternalDrawOptions, std::vector<DbgTri>>	m_fillLists;
-		std::unordered_map<InternalDrawOptions, std::vector<DbgSprite>> m_spriteLists;
+		std::map<InternalDrawOptions, std::vector<DbgLine>>		m_wireLists{};
+		std::map<InternalDrawOptions, std::vector<DbgTri>>		m_fillLists{};
+		std::map<InternalDrawOptions, std::vector<DbgSprite>>	m_spriteLists{};
+
+		friend class Droplet::Graphics::Renderer;
 	};
 }
