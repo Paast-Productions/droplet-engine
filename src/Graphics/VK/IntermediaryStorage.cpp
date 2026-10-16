@@ -99,7 +99,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         {
             {
-                m_descriptorSet.GetLayout()  
+                *m_descriptorSet.GetLayout()  
             }
         }
     };

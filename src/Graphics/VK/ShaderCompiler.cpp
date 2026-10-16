@@ -14,7 +14,7 @@ ShaderCompiler::ShaderCompiler()
     }
 }
 
-std::pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>> ShaderCompiler::CompileShader(const std::filesystem::path &p_path)
+Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path &p_path) const
 {
     
     Slang::ComPtr<slang::ISession> localSession {};
@@ -151,5 +151,5 @@ std::pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>> ShaderCom
         }
     }
     
-    return {spirvCode, localSession};
+    return spirvCode;
 }
