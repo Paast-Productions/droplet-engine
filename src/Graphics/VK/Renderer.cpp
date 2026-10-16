@@ -23,6 +23,7 @@
 #include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 
+#include <Core/FileUtils.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -35,22 +36,24 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::Window &p_window) :
-	m_window							{ &p_window },
-	m_context							{ m_window->Get(), m_vkContext},
-	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface() },
-	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
-	m_descriptorPool					{ m_context.GetDevice() },
-	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
-	m_depthBuffer						{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer						{ m_allocator.Get(), G_INDICES },
-	m_vertexBuffer						{ m_allocator.Get(), G_VERTICES }
+Renderer::Renderer(SDL::Window &window, const Config& cfg) :
+	m_window{ &window },
+	m_context{ m_window->Get(), m_vkContext },
+	m_allocator{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
+	m_swapchain{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface() },
+	m_commandPool{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
+	m_descriptorPool{ m_context.GetDevice() },
+	m_globalDescriptorSet{ m_context.GetDevice(), m_descriptorPool.Get() },
+	m_depthBuffer{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
+	m_indexBuffer{ m_allocator.Get(), G_INDICES },
+	m_vertexBuffer{ m_allocator.Get(), G_VERTICES },
+	// == IMGUI =======
+	m_imGuiUsing{ cfg.usingImGui }
 {
 	ZoneScoped;
 
 	// TODO: <REFACTOR>
-	
+
 	CreateGraphicsPipeline();
 
 	Debug::DebugDraw::Get().Initialize(
@@ -71,13 +74,13 @@ Renderer::Renderer(SDL::Window &p_window) :
 		.view = lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
 	};
-	
-	m_storageBuffer = { 
+
+	m_storageBuffer = {
 		m_allocator.Get(),
 		ubo
 	};
 
-	
+
 	m_image = {
 		m_allocator.Get(),
 		m_commandPool,
@@ -98,43 +101,48 @@ Renderer::Renderer(SDL::Window &p_window) :
 		vk::Format::eR8G8B8A8Unorm,
 		vk::ImageAspectFlagBits::eColor
 	};
-	
+
 	CreateTextureSampler();
 
 	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
-	
+
 	CreateSyncObjects();
 
-
-	std::array<vk::DescriptorPoolSize, 2> poolSizes
+	if (m_imGuiUsing)
 	{
+		m_imGuiEnabled = true;
+
+		std::array<vk::DescriptorPoolSize, 2> poolSizes
 		{
-			{ 
-				.type = vk::DescriptorType::eSampledImage,
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
-			},
-			{ 
-				.type = vk::DescriptorType::eSampler, 
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
-			},
+			{
+				{
+					.type = vk::DescriptorType::eSampledImage,
+					.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
+				},
+				{
+					.type = vk::DescriptorType::eSampler,
+					.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
+				},
+			}
+		};
+
+		vk::DescriptorPoolCreateInfo poolInfo
+		{
+			.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+			.maxSets = 0,
+			.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
+			.pPoolSizes = poolSizes.data()
+		};
+
+		for (vk::DescriptorPoolSize& poolSize : poolSizes)
+		{
+			poolInfo.maxSets += poolSize.descriptorCount;
 		}
-	};
 
-	vk::DescriptorPoolCreateInfo poolInfo
-	{
-		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 0,
-		.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
-		.pPoolSizes = poolSizes.data()
-	};
-
-	for (vk::DescriptorPoolSize &poolSize : poolSizes)
-	{
-		poolInfo.maxSets += poolSize.descriptorCount;
+		m_imGuiPoolSize = poolInfo.maxSets;
+		m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
 	}
-	m_imGuiPoolSize = poolInfo.maxSets;
-	m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
 }
 
 //Idle the device to allow for cleanup of swapchain and destroy window
@@ -147,24 +155,7 @@ Renderer::~Renderer()
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
 
-//File reading function for loading the shader file
-static std::vector<char> readFile(const std::string &filename)
-{
-	ZoneScoped;
-
-	std::ifstream file(filename, std::ios::ate | std::ios::binary);
-	if (!file.is_open())
-	{
-		throw std::runtime_error("failed to open file!");
-	}
-	std::vector<char> buffer(file.tellg());
-	file.seekg(0, std::ios::beg);
-	file.read(buffer.data(), static_cast<std::streamsize>(buffer.size()));
-	file.close();
-	return buffer;
-}
-
-//Called to notify the renderer of a window resizing event
+// Called to notify the renderer of a window resizing event
 void Renderer::ResizeWindow()
 {
 	m_framebufferResized = true;
@@ -175,29 +166,51 @@ void Renderer::CreateGraphicsPipeline()
 	ZoneScoped;
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
-	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), readFile("slang.spv"));
+	std::vector<char> shaderBytes = Utils::ReadFileAsBytes("slang.spv");
+
+	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), shaderBytes);
 	VK::PipelineConfig pipelineConfig
 	{
 		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
 	};
-	
+
 	pipelineConfig.PipelineLayoutInfo.pSetLayouts = &*m_globalDescriptorSet.GetLayout();
 	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
 //Main definition of the desired pipeline --> Dynamic state decides what values are allowed to change in runtime
-void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
+void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob>& p_shaderBlob)
 {
 	ZoneScoped;
 
 	//vk::raii::ShaderModule shaderModule = createShaderModule(readFile("compiled.spv"));
 	vk::raii::ShaderModule shaderModule = CreateShaderModule(m_context.GetDevice(), p_shaderBlob);
-	VK::PipelineConfig pipelineConfig 
+	VK::PipelineConfig pipelineConfig
 	{
 		.SwapchainSurfaceFormat = m_swapchain.GetSurfaceFormat()
 	};
-	
+
 	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
+}
+
+std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
+{
+	return std::make_unique<RenderTarget>(
+		m_allocator.Get(),
+		m_context.GetDevice(),
+		m_context.GetPhysicalDevice(),
+		p_width,
+		p_height
+	);
+}
+
+VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
+{
+	return ImGui_ImplVulkan_AddTexture(
+		*m_textureSampler,
+		*p_renderTarget.GetColorImageView().Get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	);
 }
 
 std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
@@ -229,7 +242,7 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 		.codeSize = p_code.size() * sizeof(char),
 		.pCode = reinterpret_cast<const uint32_t*>(p_code.data())
 	};
-	
+
 	vk::raii::ShaderModule     shaderModule
 	{
 		p_device,
@@ -240,12 +253,12 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 }
 
 //Creation function for shaders
-[[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const
+[[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device& p_device, const Slang::ComPtr<slang::IBlob>& p_shaderBlob) const
 {
 	ZoneScoped;
 
 	vk::ShaderModuleCreateInfo createInfo{ .codeSize = p_shaderBlob->getBufferSize(), .pCode = static_cast<const std::uint32_t*>(p_shaderBlob->getBufferPointer()) };
-	vk::raii::ShaderModule     shaderModule{ p_device, createInfo};
+	vk::raii::ShaderModule     shaderModule{ p_device, createInfo };
 
 	return shaderModule;
 }
@@ -262,9 +275,9 @@ void Renderer::TransitionImageLayout(
 	vk::ImageAspectFlags    p_imageAspectFlags,
 	vk::raii::CommandBuffer &p_commandBuffer)
 {
-	ZoneScoped;
+	ZoneScoped
 
-	vk::ImageMemoryBarrier2 barrier
+		vk::ImageMemoryBarrier2 barrier
 	{
 		.srcStageMask = p_srcStageMask,
 		.srcAccessMask = p_srcAccessMask,
@@ -275,21 +288,21 @@ void Renderer::TransitionImageLayout(
 		.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 		.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
 		.image = p_image,
-		.subresourceRange = 
+		.subresourceRange =
 		{
 			.aspectMask = p_imageAspectFlags,
 			.baseMipLevel = 0,
 			.levelCount = 1,
 			.baseArrayLayer = 0,
 			.layerCount = 1
-		} 
+		}
 	};
-	
+
 	vk::DependencyInfo dependencyInfo
 	{
 		.dependencyFlags = {},
 		.imageMemoryBarrierCount = 1,
-		.pImageMemoryBarriers = &barrier 
+		.pImageMemoryBarriers = &barrier
 	};
 	
 	//const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
@@ -301,9 +314,9 @@ void Renderer::TransitionImageLayout(
 //Main drawing operations are here!
 void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 {
-	ZoneScoped;
+	ZoneScoped
 
-	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+		auto& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 
 	commandBuffer.begin({});
 
@@ -331,17 +344,17 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::ImageAspectFlagBits::eDepth,
 		commandBuffer
 	);
-	
+
 	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
-	vk::RenderingAttachmentInfo colorAttachmentInfo 
+	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
 		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
-		.clearValue = clearColor 
+		.clearValue = clearColor
 	};
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo
@@ -350,27 +363,27 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eDontCare,
-		.clearValue = clearDepth 
+		.clearValue = clearDepth
 	};
 
 
-	vk::RenderingInfo renderingInfo 
+	vk::RenderingInfo renderingInfo
 	{
-		.renderArea = 
+		.renderArea =
 		{
-			.offset = 
+			.offset =
 			{
 				.x = 0,
 				.y = 0
-			}, 
+			},
 			.extent = m_swapchain.GetExtent()
 		},
 		.layerCount = 1,
 		.colorAttachmentCount = 1,
 		.pColorAttachments = &colorAttachmentInfo,
-		.pDepthAttachment = &depthAttachmentInfo 
+		.pDepthAttachment = &depthAttachmentInfo
 	};
-	
+
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
@@ -381,10 +394,13 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
 	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
-	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+	if (m_imGuiEnabled)
+	{
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+	}
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
-	
+
 	TransitionImageLayout(
 		m_swapchain.GetImages().at(p_imageIndex),
 		vk::ImageLayout::eColorAttachmentOptimal,
@@ -661,15 +677,18 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		.view = p_camera.GetViewMatrix(),
 		.proj = p_camera.GetProjectionMatrix()
 	};
-	
+
 	m_storageBuffer.UpdateBuffer(ubo);
 	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
 
-	ImGui::EndFrame();
-	ImGui::Render();
+	if (m_imGuiEnabled)
+	{
+		ImGui::EndFrame();
+		ImGui::Render();
+	}
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
 
@@ -694,7 +713,7 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
 	
 	const vk::SubmitInfo   submitInfo
-	{ 
+	{
 		.waitSemaphoreCount = 1,
 		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
 		.pWaitDstStageMask = &waitDestinationStageMask,
@@ -703,7 +722,7 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
 	};
-	
+
 	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
 	const vk::PresentInfoKHR presentInfoKHR
@@ -714,7 +733,7 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		.pSwapchains = &*m_swapchain.Get(),
 		.pImageIndices = &m_imageIndex
 	};
-	
+
 	m_result = m_context.GetQueue().presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
@@ -776,7 +795,7 @@ void Renderer::CreateTextureSampler()
 		.anisotropyEnable = vk::False,
 		.maxAnisotropy = properties.limits.maxSamplerAnisotropy,
 		.compareEnable = vk::False,
-		.compareOp = vk::CompareOp::eAlways 
+		.compareOp = vk::CompareOp::eAlways
 	};
 	m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
 }
@@ -784,14 +803,14 @@ void Renderer::CreateTextureSampler()
 /*void Renderer::CreateDescriptorSets()
 {
 	ZoneScoped;
-	
+
 	std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, m_descriptorSets.Get());
-	
+
 	vk::DescriptorSetAllocateInfo        allocInfo
 	{
 		.descriptorPool = m_descriptorPool.Get(),
 		.descriptorSetCount = static_cast<uint32_t>(layouts.size()),
-		.pSetLayouts = layouts.data() 
+		.pSetLayouts = layouts.data()
 	};
 
 	m_descriptorSetsOld.clear();
@@ -801,19 +820,19 @@ void Renderer::CreateTextureSampler()
 	{
 		vk::DescriptorBufferInfo bufferInfo
 		{
-			.buffer = m_uniformBuffer[i].Get(), 
+			.buffer = m_uniformBuffer[i].Get(),
 			.offset = 0,
 			.range = sizeof(VK::UniformBufferObject)
 		};
-		
+
 		vk::DescriptorImageInfo imageInfo
 		{
-			.sampler = m_textureSampler, 
+			.sampler = m_textureSampler,
 			.imageView = m_textureView.Get(),
 			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
 		};
 
-		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{ 
+		std::array<vk::WriteDescriptorSet, 2> descriptorWrites{
 		{
 			{
 				.dstSet = m_descriptorSetsOld[i],
@@ -823,7 +842,7 @@ void Renderer::CreateTextureSampler()
 				.descriptorType = vk::DescriptorType::eUniformBuffer,
 				.pBufferInfo = &bufferInfo
 			},
-																
+
 			{
 				.dstSet = m_descriptorSetsOld[i],
 				.dstBinding = 1,
@@ -831,7 +850,7 @@ void Renderer::CreateTextureSampler()
 				.descriptorCount = 1,
 				.descriptorType = vk::DescriptorType::eCombinedImageSampler,
 				.pImageInfo = &imageInfo}
-			} 
+			}
 		};
 		m_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
 	}
@@ -841,13 +860,17 @@ static void CheckVkResult(VkResult p_err)
 {
 	if (p_err == VK_SUCCESS)
 		return;
+
 	throw ("[vulkan] Error: VkResult = %d\n", p_err);
 }
 
-void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
+void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo& p_initInfo)
 {
-	ZoneScoped;
+	ZoneScoped
 
+	if (!m_imGuiUsing || !m_imGuiEnabled)
+		return;
+	
 	//TODO: CREATE PIPELINE CACHE
 
 	p_initInfo.Instance = *m_context.GetInstance();
@@ -883,7 +906,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 	p_initInfo.PipelineInfoForViewports.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 }
 
-SDL_Window *Renderer::GetWindow()
+SDL_Window* Renderer::GetWindow()
 {
 	return m_window->Get();
 }

@@ -21,20 +21,26 @@ static bool ProcessRenderWindowEvents(Graphics::Renderer& rnd);
 int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
 {
 	// Window Config
-	const Graphics::Renderer::Config renderConfig
+	Graphics::SDL::Window window
 	{
-		.windowConfig = {
+		Graphics::SDL::WindowConfig
+		{
 			.Width = 1280,
 			.Height = 720,
-			.Flags = 0,
-			.title = "Sandbox"},
-		.usingImGui = false,
+			.Flags = SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE,
+			.title = "Sandbox"
+		}
 	};
 
+	if (!window.Get())
+		return -1;
 
-	Graphics::Renderer rnd{ renderConfig };
+	constexpr Graphics::Renderer::Config renderConfig
+	{
+		.usingImGui = false
+	};
 
-
+	Graphics::Renderer rnd{ window, renderConfig };
 	// prepare shader
 
 
