@@ -1,15 +1,59 @@
 #include "SceneViewWindow.hpp"
+#include <chrono>
+#include <iostream>
 #include <SceneSystem/Scene.hpp>
-#include <tracy/public/tracy/Tracy.hpp>
 #include <ImGuizmo/ImGuizmo.h>
+#include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <EditorShortcuts.hpp>
 
 using namespace Droplet::Editor::Scene;
 
+void SceneViewWindow::InitImpl()
+{
+	
+	SetName("Scene View"); 
+	//ToggleToolbar(true);
+	
+	// TODO: Make rendertarget reziable and match ImGui window
+	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
+	m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
+}
+void SceneViewWindow::RenderToolbar()
+{
+	if (ImGui::BeginMenu("File"))
+	{
+		if (ImGui::BeginMenu("Layout"))
+		{
+			if (ImGui::MenuItem("Load Default Layout"))
+			{
+				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
+
+			}
+
+			if (ImGui::MenuItem("Save Default Layout"))
+			{
+				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenu();
+	}
+}
+
 void SceneViewWindow::RenderImpl()
 {
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+	// Temporarily time variable to create deltaTime for our update
+	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
+
+	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
+	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
+	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
+	s_lastFrameTime = currentTime;
 
 	// Calculate the camera view rect, so that inputs relative to the camera view rect can be collected and used during the camera update.
 
@@ -17,7 +61,7 @@ void SceneViewWindow::RenderImpl()
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
 
-	float camAspect = m_editorCamera.GetAspect();
+	float camAspect = m_editorContext->GetEditorCamera().GetAspect();
 	float contentAspect = contentRegion.x / contentRegion.y;
 
 	ImVec2 camSize{};
@@ -74,36 +118,99 @@ void SceneViewWindow::RenderImpl()
 
 		ImVec2 mousePos = ImGui::GetIO().MousePos; // TODO: Potential failure-point. Ensure this is in screen-space.
 
-		ImVec2 mousePosNormalizedToCamView = { 
+		ImVec2 mousePosNormalizedToCamView = {
 			(mousePos.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
 			(mousePos.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
 		};
 
 		// TODO: Send data to camera update (mousePosNormalizedToCamView, isMouseHovering)
-		m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
+		//m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
+
+		if (isWindowFocused && isMouseHovering)
+		{
+			ImVec2 center = {
+				(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+				(camViewRectMin.y + camViewRectMax.y) * 0.5f
+			};
+
+			ImGuiViewport *viewport = ImGui::GetWindowViewport();
+
+			SDL_Window *sceneWindow = nullptr;
+
+			if (viewport)
+			{
+
+				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+				RenderImGuizmo(camViewRectMin, camViewRectMax);
+
+				sceneWindow = SDL_GetWindowFromID(windowID);
+
+				// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
+				//drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
+			}
+
+			GameInput &input = GameInput::Get();
+			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
+			if (m_cameraLookToggled)
+			{
+				controller.Update(deltaTime, sceneWindow, center.x, center.y);
+				
+			// create ray that is used for raycasting
+				if (input.MousePressed(Mouse::LMB)) 
+				{
+					const EditorCamera &camera = m_editorContext->GetEditorCamera();
+					glm::vec3 position = camera.GetPosition();
+					glm::vec3 front = camera.GetForward();
+
+					float x = mousePosNormalizedToCamView.x * 2.0f - 1.0f;
+					float y = 1.0f - mousePosNormalizedToCamView.y * 2.0f;
+					glm::vec4 nearClip(x, y, 0.0f, 1.0f);
+					glm::vec4 farClip(x, y, 1.0f, 1.0f);
+
+					glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix(camAspect));
+
+					glm::vec4 nearView = inverseProjection * nearClip;
+					glm::vec4 farView = inverseProjection * farClip;
+
+					nearView /= nearView.w;
+					farView /= farView.w;
+
+					glm::mat4 inverseView = glm::inverse(camera.GetViewMatrix());
+					glm::vec4 nearWorld = inverseView * nearView;
+					glm::vec4 farWorld = inverseView * farView;
+
+					// the ray in question
+					glm::vec3 direction = glm::normalize(
+						glm::vec3(farWorld) -
+						glm::vec3(nearWorld)
+					);
+				}
+			}
+
+
+			if (input.KeyPressed(Key::KeyQ))
+			{
+				m_cameraLookToggled = !m_cameraLookToggled;
+
+				controller.CameraLock(m_cameraLookToggled);
+			}
+		}
 	}
-
 	// TODO: Wait for the renderer to finish rendering the camera view to the texture
+	ImTextureRef camViewTexture = m_textureDescriptor;
 
-	// Render the camera view texture
+	// Render the camera view texture to the scene view window
+	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 	
-	// HACK:Funnily enough, rendering this nullptr renders ImGui's symbol atlas texture, which is a nice placeholder for now.
-	ImTextureRef camViewTexture = nullptr; // TODO: Replace with the actual texture reference of the rendered camera view.
-	
-	ImGui::Image(camViewTexture, camSize, ImVec2(0, 1), ImVec2(1, 0));
-
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
-
+	
 	ImGui::EndChild();
-
-	// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
-	drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
 }
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
 {
 	ZoneScoped;
-
+		
 	using DScene = Droplet::Scene::Scene;
 	using DNode = Droplet::Scene::Node;
 	using DTransform = Droplet::Scene::Transform;
@@ -116,9 +223,9 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 
 	glm::mat4 tempViewMat = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 tempProjMat = glm::perspective(m_editorCamera.GetFOV(), m_editorCamera.GetAspect(), 0.1f, 100.0f);
+	glm::mat4 tempProjMat = glm::perspective(m_editorContext->GetEditorCamera().GetFOV(), m_editorContext->GetEditorCamera().GetAspect(), 0.1f, 100.0f);
 
-	std::shared_ptr<DScene> selectedScene = GetEngine()->GetSceneManager().GetScene("TestScene");
+	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene");
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots();
 
 	// Render ImGuizmo cubes for all nodes in the scene
@@ -152,13 +259,14 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 	// Render transform gizmo for selected node
 	{
-		std::vector<std::shared_ptr<DNode>> selectedNodes = m_interactionState->GetSelectedNodes();
+		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation", 0);
 
 		if (selectedNodes.size() > 0)
 		{
+			
 			std::shared_ptr<DNode> selectedNode = selectedNodes[0];
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
@@ -191,9 +299,12 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			if (result)
 			{
 				//selectedNode->GetTransform().TransformByMatrix(deltaMatrix, DTransform::Space::World);
-
 				selectedNode->GetTransform().SetMatrix(nodeMatrix, DTransform::Space::World);
 			}
 		}
 	}
+}
+Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
+{			
+	return *m_renderTarget;
 }

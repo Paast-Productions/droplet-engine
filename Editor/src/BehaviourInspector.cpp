@@ -3,9 +3,8 @@
 
 using namespace Droplet::Editor;
 
-BehaviourInspector::BehaviourInspector(std::shared_ptr<Droplet::Engine> p_engine) : EditorWindow(p_engine)
-{
-}
+BehaviourInspector::BehaviourInspector(EditorContext *editorContext) 
+    : m_editorContext(editorContext){}
 
 void BehaviourInspector::InitImpl()
 {
@@ -32,14 +31,14 @@ void BehaviourInspector::RenderImpl()
                 const std::string scriptPath(
                     static_cast<const char *>(payload->Data));
 
-                GetEngine()->AddScriptBehaviour(scriptPath);
+                m_editorContext->GetEngine().AddScriptBehaviour(scriptPath);
             }
         }
 
         ImGui::EndDragDropTarget();
     }
 
-    for (const auto &behaviour : GetEngine()->GetScriptBehaviours())
+    for (const auto &behaviour : m_editorContext->GetEngine().GetScriptBehaviours())
     {
         const std::string scriptName = behaviour->GetScriptPath();
 
@@ -64,7 +63,7 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem("Detach Behaviour"))
             {
-                GetEngine()->RemoveScriptBehaviour(*behaviour);
+                m_editorContext->GetEngine().RemoveScriptBehaviour(*behaviour);
             }
             ImGui::EndPopup();
         }

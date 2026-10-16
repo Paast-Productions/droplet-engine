@@ -7,6 +7,7 @@
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 
+
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_resourceManager(Droplet::ResourceManager::Get()), m_renderer(p_config.WindowConfig)
@@ -67,7 +68,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update()
+DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget)
 {
 	ZoneScoped;
 
@@ -134,7 +135,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 
 	// Rendering
-	m_renderer.DrawFrame();
+	m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -218,4 +219,9 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+}
+
+Graphics::Renderer &Engine::GetRenderer()
+{
+	return m_renderer;
 }
