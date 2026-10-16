@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "dependencies": [],
-            "guid": 571726005555125190,
+            "displayName": "GoofyTexture",
+            "guid": 3915176569535287159,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "name": "GoofyTexture",
+            "sourceName": "GoofyTexture",
             "type": 1
         }
     ]
