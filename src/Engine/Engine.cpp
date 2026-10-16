@@ -6,7 +6,6 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
-#include <Graphics/VK/SceneAdapter.hpp>
 
 using namespace Droplet;
 

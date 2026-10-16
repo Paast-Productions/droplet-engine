@@ -36,8 +36,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
-#include <Graphics/VK/ShaderStorage.hpp>
-#include <SceneAdapter.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -100,7 +99,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
-		void					RecordCommandBuffer(uint32_t p_imageIndex);
+		//void					RecordCommandBuffer(uint32_t p_imageIndex);
 		
 		void RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex);
 
@@ -134,7 +133,7 @@ namespace Droplet::Graphics
 		SDL::Window m_window{ nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::ShaderStorage m_shaderStorage;
+		VK::IntermediaryStorage m_interStorage;
 
 		SDL_Event m_event {};
 
