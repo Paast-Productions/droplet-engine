@@ -28,7 +28,7 @@ project "Engine"
             "../include",
             "../include/**",
             vkPath .. "/Include",
-            targetBuildPath .. "/External/include/"
+            targetBuildPath .. "/External/include/",
         }
 
     else

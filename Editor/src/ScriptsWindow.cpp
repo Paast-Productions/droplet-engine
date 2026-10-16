@@ -15,8 +15,7 @@
 
 using namespace Droplet::Editor;
 
-ScriptsWindow::ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine)
-    : EditorWindow(p_engine)
+ScriptsWindow::ScriptsWindow()
 {
 	m_scriptPath = Droplet::Script::ScriptSystem::Get().GetScriptPath();
 	RefreshScripts();

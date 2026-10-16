@@ -47,7 +47,9 @@ project "Scripting-Main"
         "Engine",
         "ImGui",
         "Sol2",
-        "tracy"
+        "tracy",
+	"PortableFileDialogs",
+	"IconFontCppHeaders"
     }
 
     links 
@@ -63,7 +65,6 @@ project "Scripting-Main"
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("zlibstaticd"),
+	 	AddQuotation("assimp-mtd")
     }

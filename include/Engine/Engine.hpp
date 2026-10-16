@@ -49,12 +49,14 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		[[nodiscard]] DROPLET_RETURNTYPE Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget);
 		
 		/// @brief the purpose of GetWindow is to let other systems use the window. 
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow();
+		/// Temporarily Getter function
+		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
 
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager

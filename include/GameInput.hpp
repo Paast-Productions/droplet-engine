@@ -165,7 +165,11 @@ namespace Droplet
 		/// @param p_x The new cursor x position.
 		/// @param p_y The new cursor y position.
 		/// @note SDL3 only wants this to be called in the main thread.
-		void SetCursorPosition(SDL_Window *&p_window, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+
+		/// @brief Function to hide or show cursor
+		/// @param p_active Bool that when true hide cursor and show when false
+		void HideCursor(bool p_active);
 
 	private:
 		// Keyboard variables
@@ -178,6 +182,8 @@ namespace Droplet
 		float m_mouseY = 0.0f;
 		float m_prevMouseX = 0.0f;
 		float m_prevMouseY = 0.0f;
+		float m_deltaMouseX = 0.0f;
+		float m_deltaMouseY = 0.0f;
 		std::array<bool, 2> m_currentMouse = { false };
 		std::array<bool, 2> m_previousMouse = { false };
 

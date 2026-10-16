@@ -7,9 +7,8 @@
 
 using namespace Droplet::Editor;
 
-BehaviourInspector::BehaviourInspector(std::shared_ptr<Droplet::Engine> p_engine) : EditorWindow(p_engine)
-{
-}
+BehaviourInspector::BehaviourInspector(EditorContext *editorContext) 
+    : m_editorContext(editorContext){}
 
 void BehaviourInspector::InitImpl()
 {

@@ -4,6 +4,9 @@
 #include <string>
 #include <Engine/Engine.hpp>
 #include <core/FileExplorer.hpp>
+#include <EditorContext.hpp>
+
+#include "EditorContext.hpp"
 
 namespace Droplet::Editor::Resource
 {
@@ -19,7 +22,7 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-	    ResourceBrowser(std::shared_ptr<Engine> p_engine) : EditorWindow(p_engine), m_engine(p_engine)  {}
+	    ResourceBrowser(EditorContext *p_editorContext);
 	     
 	protected:
 
@@ -48,8 +51,7 @@ namespace Droplet::Editor::Resource
         /// @return String representing the resource type.
         std::string ResourceTypeToString(ResourceType p_type);
 
-	    
-	    std::shared_ptr<Engine> m_engine;
+	    EditorContext *m_editorContext;
 	    
 	    BrowserNode m_rootBrowserNode; // The root node in the resource browser hierarchy
 	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser

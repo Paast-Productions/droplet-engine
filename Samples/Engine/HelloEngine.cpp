@@ -9,8 +9,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		}
 	});
 
-	while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
+	/*while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
 	{
 		
-	}
+	}*/
 }
