@@ -283,3 +283,8 @@ void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initi
 
     m_physics = std::make_unique<Physics>(p_initializer);
 }
+
+Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
+{
+    return m_physics.get();
+}
