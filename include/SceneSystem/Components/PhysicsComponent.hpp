@@ -12,7 +12,7 @@
 namespace Droplet
 {
 	/// @brief A physics component for some shape
-	class PhysicsComponent : public Component
+	class PhysicsComponent : public Scene::Component
 	{
 	public:
 		/// @brief Constructs the PhysicsComponent
@@ -24,6 +24,14 @@ namespace Droplet
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
 		std::string_view GetTypeName() const override { return "PhysicsComponent"; }
+
+		/// @brief Updates the component.
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void Update([[maybe_unused]] float p_deltaTime) override;
+
+		/// @brief Late updates the physics component.
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void LateUpdate([[maybe_unused]] float p_deltaTime) override;
 
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
