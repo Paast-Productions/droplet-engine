@@ -45,6 +45,7 @@ Renderer::Renderer(SDL::Window &window, const Config& cfg) :
     m_descriptorPool{ m_context.GetDevice() },
     m_globalDescriptorSet{ m_context.GetDevice(), m_descriptorPool.Get() },
     m_depthBuffer{ m_allocator.Get(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
+	// == Local Geometry ====
     m_indexBuffer{ m_allocator.Get(), G_INDICES },
     m_vertexBuffer{ m_allocator.Get(), G_VERTICES },
     // == IMGUI =======
@@ -142,7 +143,7 @@ Renderer::~Renderer()
     m_swapchain.Cleanup(m_context.GetDevice());
 }
 
-// Called to notify the renderer of a window resizing event
+/// Called on window resize to flag for the renderer to resize the swapchain and depthbuffer
 void Renderer::ResizeWindow()
 {
     m_framebufferResized = true;
