@@ -8,6 +8,16 @@
 
 using namespace Droplet::Scene;
 
+void Droplet::PhysicsComponent::Update(float p_deltaTime)
+{
+	PushTransformToPhysics();
+}
+
+void Droplet::PhysicsComponent::LateUpdate(float p_deltaTime)
+{
+	PullTransformFromPhysics();
+}
+
 void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
 	if (m_hasShape)
