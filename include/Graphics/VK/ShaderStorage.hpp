@@ -5,6 +5,7 @@
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/Allocator.hpp>
+#include <Graphics/VK/DescriptorSet.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/ResourceManager.hpp>
 
@@ -42,7 +43,7 @@ namespace Droplet::Graphics::VK
     public:
         ShaderStorage() = delete;
         
-        ShaderStorage(VK::Context &p_context);
+        ShaderStorage(VK::Context &p_context, VK::DescriptorSet &p_descriptorSet);
         
         ShaderStorage(const ShaderStorage &p_other) = delete;
         ShaderStorage &operator=(const ShaderStorage &p_other) = delete;
@@ -57,6 +58,7 @@ namespace Droplet::Graphics::VK
         
     private:
         const VK::Context &m_context;
+        const VK::DescriptorSet &m_descriptorSet;
         
         VK::Allocator m_allocator { nullptr };
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};

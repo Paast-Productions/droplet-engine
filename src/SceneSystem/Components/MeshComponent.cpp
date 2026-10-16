@@ -1,10 +1,13 @@
 #include "MeshComponent.hpp"
 
-#include <ImGui/imgui.h>
-#include <Editor/DragDropFields.hpp>
-#include <resource/ResourceManager.hpp>
-#include <Engine/Engine.hpp>
 #include <string>
+
+#include <ImGui/imgui.h>
+
+#include <Editor/DragDropFields.hpp>
+#include <Resource/ResourceManager.hpp>
+#include <Graphics/RenderData.hpp>
+#include <Engine/Engine.hpp>
 
 // imgui helper function
 
@@ -13,7 +16,6 @@ namespace
     bool ResourceSlot(
         const char *p_label,
         Droplet::GUID p_current,
-        Droplet::GUID &p_pickBuffer,
         Droplet::GUID &p_outGUID,
         Droplet::ResourceType p_expectedType)
     {
@@ -38,13 +40,13 @@ namespace
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
-            p_pickBuffer = p_current;
             OpenPopup("pick");
         }
 
         // Drag and drop
         if (BeginDragDropTarget())
         {
+            // TODO: ENSURE PAYLOAD_RESOURCE IS NULL TERMINATED 
             if (const ImGuiPayload *pl =
                 AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
             {
@@ -87,26 +89,6 @@ namespace
 
         EndDisabled();
 
-        // Manual GUID popup
-        if (BeginPopup("pick"))
-        {
-            InputScalar("GUID", ImGuiDataType_U64, &p_pickBuffer);
-
-            if (Button("Assign"))
-            {
-                p_outGUID = p_pickBuffer;
-                changed = true;
-                CloseCurrentPopup();
-            }
-
-            SameLine();
-
-            if (Button("Cancel"))
-                CloseCurrentPopup();
-
-            EndPopup();
-        }
-
         PopID();
         return changed;
     }
@@ -124,10 +106,34 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
     //TODO: will be inplemted later when the mesh system is implemented
 }
 
+void MeshComponent::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
+{
+    p_renderData.emplace_back
+    (
+        Graphics::RenderData 
+        {
+            {
+                .GUID = m_shaderData.vs.GetGUID()
+            },
+            {
+                .GUID = m_shaderData.tcs.GetGUID()
+            },
+            {
+                .GUID = m_shaderData.tes.GetGUID()
+            },
+            {
+                .GUID = m_shaderData.gs.GetGUID()
+            },
+            {
+                .GUID = m_shaderData.fs.GetGUID()
+            }
+        }      
+    );
+}
+
 void MeshComponent::RenderUIImpl()
 {
     using namespace ImGui;
-    auto &resourceManager = Droplet::ResourceManager::Get();
 
     PushID(this);
     if (BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
@@ -140,52 +146,71 @@ void MeshComponent::RenderUIImpl()
         if(ResourceSlot(
             "Mesh",
             m_mesh.GetGUID(),
-            m_meshPickGUID,
             newGUID,
             Droplet::ResourceType::Mesh))
         {
-            SetMeshGUID(newGUID, resourceManager);
+            SetMeshGUID(newGUID);
         }
-
+    
         if (ResourceSlot(
             "Texture",
             m_2dTexture.GetGUID(),
-            m_texturePickGUID,
             newGUID,
             Droplet::ResourceType::Texture2D))
         {
-            SetTextureGUID(newGUID, resourceManager);
+            SetTextureGUID(newGUID);
         }
-
+        
+        Separator();
+        
+        if(ResourceSlot(
+            "Vertex Shader",
+            m_shaderData.vs.GetGUID(),
+            newGUID,
+            Droplet::ResourceType::Shader))
+        {
+            SetVSGUID(newGUID);
+        }
+        
+        if(ResourceSlot(
+            "Tes Control Shader",
+            m_shaderData.tcs.GetGUID(),
+            newGUID,
+            Droplet::ResourceType::Shader))
+        {
+            SetTCSGUID(newGUID);
+        }
+        
+        if(ResourceSlot(
+            "Tes Evaluation Shader",
+            m_shaderData.tes.GetGUID(),
+            newGUID,
+            Droplet::ResourceType::Shader))
+        {
+            SetTESGUID(newGUID);
+        }
+        
+        if(ResourceSlot(
+            "Geometry Shader",
+            m_shaderData.gs.GetGUID(),
+            newGUID,
+            Droplet::ResourceType::Shader))
+        {
+            SetGSGUID(newGUID);
+        }
+        
+        if(ResourceSlot(
+            "Fragment Shader",
+            m_shaderData.fs.GetGUID(),
+            newGUID,
+            Droplet::ResourceType::Shader))
+        {
+            SetFSGUID(newGUID);
+        }
+        
         EndTable();
     }
     PopID();
-}
-
-void MeshComponent::SetMeshGUID(
-    Droplet::GUID p_guid,
-    Droplet::ResourceManager &p_resourceManager)
-{
-    m_mesh = p_resourceManager.LoadResource<Droplet::MeshResource>(p_guid);
-}
-
-void MeshComponent::SetTextureGUID(
-    Droplet::GUID p_guid,
-    Droplet::ResourceManager &p_resourceManager)
-{
-    m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
-}
-
-const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
-{
-    // TODO: insert return statement here
-    return m_mesh;
-}
-
-const Droplet::ResourceHandle<Droplet::Texture2DResource> &Droplet::Scene::MeshComponent::Get2dTextureResource() const
-{
-    // TODO: insert return statement here
-    return m_2dTexture;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
@@ -202,11 +227,11 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 {
 	if (p_compJson.contains("meshGUID"))
 	{
-		m_meshGUID = p_compJson["meshGUID"].get<Droplet::GUID>();
+		SetMeshGUID(p_compJson["meshGUID"].get<Droplet::GUID>());
 	}
 
 	if (p_compJson.contains("textureGUID"))
 	{
-		m_textureGUID = p_compJson["textureGUID"].get<Droplet::GUID>();
+		SetTextureGUID(p_compJson["textureGUID"].get<Droplet::GUID>());
 	}
 }

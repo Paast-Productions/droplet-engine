@@ -134,11 +134,8 @@ namespace Droplet::Graphics
 		SDL::Window m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::ShaderStorage m_shaderStorage;
 
 		SDL_Event m_event {};
-
-		VK::Swapchain m_swapchain { nullptr };
 
 		VK::CommandPool m_commandPool { nullptr };
 		//std::vector<std::size_t> m_commandBufferIds;
@@ -150,6 +147,9 @@ namespace Droplet::Graphics
 
 		VK::DescriptorPool						m_descriptorPool { nullptr };
 		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
+		
+		VK::ShaderStorage m_shaderStorage;
+		VK::Swapchain m_swapchain { nullptr };
 		vk::raii::Sampler						m_textureSampler = nullptr;
 
 		VK::Image		m_image			{ nullptr };

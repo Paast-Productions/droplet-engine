@@ -19,17 +19,14 @@ vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice,
 	throw std::runtime_error("failed to find supported format!");
 }
 
-Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::queue<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &p_queue, const PipelineConfig &p_pipelineConfig)
+Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, const PipelineConfig &p_pipelineConfig)
 {
 	vk::PipelineCacheCreateInfo cacheInfo {};
 	vk::raii::PipelineCache pipelineCache(p_device, cacheInfo);
 	
 	std::vector<vk::PipelineShaderStageCreateInfo> shaderStageInfos {};
-	while (!p_queue.empty())
+	for (const auto &pair : shaderModules)
 	{
-		const std::pair<vk::ShaderModule, vk::ShaderStageFlagBits> &pair = p_queue.front();
-		p_queue.pop();
-		
 		vk::PipelineShaderStageCreateInfo stageInfo 
 		{
 			.stage = pair.second, 

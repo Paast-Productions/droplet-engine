@@ -4,14 +4,14 @@
 
 namespace Droplet
 {
-    ShaderResource::ShaderResource(ShaderType p_type, Slang::ComPtr<slang::IBlob> p_byteCode)
-        : m_type(p_type), m_byteCode(p_byteCode) {}
+    ShaderResource::ShaderResource(ShaderType p_type, std::pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>> p_shaderByteCode)
+        : m_type(p_type), m_byteCode(p_shaderByteCode.first), m_session(p_shaderByteCode.second) {}
 
     std::unique_ptr<ShaderResource> ShaderResource::CreateFallback()
     {
         ZoneScoped;
 
-        return std::make_unique<ShaderResource>(ShaderType::Vertex, nullptr);
+        return std::make_unique<ShaderResource>(ShaderType::Vertex, std::make_pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>>(nullptr, nullptr));
     }
 
     ShaderResource::ShaderType ShaderResource::GetType() const

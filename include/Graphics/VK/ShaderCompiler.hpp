@@ -41,7 +41,7 @@ namespace Droplet::Graphics
 		/// @brief Compile file from .slang shader into a Blob
 		/// @param p_path Path to the slang shader
 		/// @returns Com-pointer of compiled shader Blob
-		Slang::ComPtr<slang::IBlob> CompileShader(const std::filesystem::path &p_path);
+		std::pair<Slang::ComPtr<slang::IBlob>, Slang::ComPtr<slang::ISession>> CompileShader(const std::filesystem::path &p_path);
 	
 	private:
 		Slang::ComPtr<slang::IGlobalSession> m_globalSession {};
