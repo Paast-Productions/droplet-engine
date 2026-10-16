@@ -25,6 +25,9 @@ namespace Droplet
 		};
 
 		Physics() = default;
+		/// @brief Constructs physics with custom defined initialize values
+		/// @param p_initializer Struct containing custom defined initialize values
+		Physics(const Initializer p_initializer);
 		~Physics() = default;
 
 		/// @brief Initializes the Jolt job and physics systems
@@ -48,17 +51,17 @@ namespace Droplet
 
 		/// @brief Getter for the body interface
 		/// @return Pointer to the body interface
-		JPH::BodyInterface *GetBodyInterface();
+		[[nodiscard]] JPH::BodyInterface *GetBodyInterface();
 
 	private:
-		std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator;
-		JPH::JobSystemThreadPool m_jobSystem;
-		JPH::PhysicsSystem m_physicsSystem;
-		BPLayerInterfaceImpl m_broadPhaseLayerInterface;
-		ObjectVsBroadPhaseLayerFilterImpl m_objectVsBroadphaseLayerFilter;
-		ObjectLayerPairFilterImpl m_objectVsObjectLayerFilter;
+		std::unique_ptr<JPH::TempAllocatorImpl> m_tempAllocator{};
+		JPH::JobSystemThreadPool m_jobSystem{};
+		JPH::PhysicsSystem m_physicsSystem{};
+		BPLayerInterfaceImpl m_broadPhaseLayerInterface{};
+		ObjectVsBroadPhaseLayerFilterImpl m_objectVsBroadphaseLayerFilter{};
+		ObjectLayerPairFilterImpl m_objectVsObjectLayerFilter{};
 
-		JPH::BodyInterface *m_bodyInterface;
+		JPH::BodyInterface *m_bodyInterface{};
 
 	};
 }
