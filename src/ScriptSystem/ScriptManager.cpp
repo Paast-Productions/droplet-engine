@@ -437,16 +437,9 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 	m_scriptDirectoryPath = scriptDirectory;
 }
 
-std::string Droplet::Script::ScriptManager::GetScriptDirectory()
-{
-	return m_scriptDirectoryPath.string();
-}
-
 std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 {
 	ZoneScoped;
-
-	const std::filesystem::path requestedPath = std::filesystem::path(p_scriptFile).lexically_normal();
 
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
@@ -455,9 +448,7 @@ std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
 			continue;
 		}
 
-		const std::filesystem::path relativePath = entry.path().lexically_relative(m_scriptDirectoryPath).lexically_normal();
-
-		if (relativePath == p_scriptFile)
+		if (entry.path().filename() == p_scriptFile)
 		{
 			return entry.path();
 		}

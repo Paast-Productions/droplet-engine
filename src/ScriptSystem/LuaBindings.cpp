@@ -420,6 +420,13 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
         "GetCursorY", &GameInput::GetCursorY,
         "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
         "GetDeltaMouseY", &GameInput::GetDeltaMouseY
+        //"SetCursorPosition",          //Add when we can get the sdl window
+        //[](GameInput& input, float x, float y)
+        //{
+        //    
+        //    //SDL_Window *window = 
+        //    //input.SetCursorPosition(window, x, y);
+        //}
     );
 
     LuaClassDefinition keyDef;

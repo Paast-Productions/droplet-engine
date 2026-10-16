@@ -10,8 +10,7 @@ project "Test"
 
 	defines{ 
         "GLM_ENABLE_EXPERIMENTAL",
-        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"',
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"'
 	}
 
     files

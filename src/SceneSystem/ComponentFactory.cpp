@@ -5,7 +5,7 @@
 
 using namespace Droplet::Scene;
 
-std::unique_ptr<Component> ComponentFactory::CreateComponent(const std::string &name)
+std::shared_ptr<Component> ComponentFactory::CreateComponent(const std::string &name)
 {
 	ZoneScoped;
 	ZoneText(name.c_str(), name.size());

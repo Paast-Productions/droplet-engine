@@ -87,6 +87,7 @@ TEST_F(MetaUtilsTest, WriteAndReadRoundTrip)
     std::vector<MetaEntry> entriesToWrite;
     
     MetaEntry entry1 = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Texture2D, "Tex", "Assets/tex.png");
+    entry1.dependencies = { 1010101, 2020202 }; // Fake GUIDs
 
     MetaEntry entry2 = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Shader, "Shd", "Assets/vs_shd.slang");
 
@@ -107,6 +108,9 @@ TEST_F(MetaUtilsTest, WriteAndReadRoundTrip)
     EXPECT_EQ(entriesRead[0].guid, entry1.guid);
     EXPECT_EQ(entriesRead[0].type, entry1.type);
     EXPECT_EQ(entriesRead[0].loadFlags, entry1.loadFlags);
+    
+    ASSERT_EQ(entriesRead[0].dependencies.size(), 2);
+    EXPECT_EQ(entriesRead[0].dependencies[0], 1010101);
     
     // Check JSON parse
     EXPECT_EQ(entriesRead[0].loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key], entry1.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key]);

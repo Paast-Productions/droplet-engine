@@ -1,5 +1,4 @@
 #include "ScriptBehaviour.hpp"
-#include "ImGui/imgui.h"
 #include <print>
 
 using namespace Droplet::Scene;
@@ -12,6 +11,13 @@ const std::string &ScriptBehaviour::GetScriptPath() const
 void ScriptBehaviour::SetScriptPath(const std::string &p_scriptPath)
 {
 	m_scriptPath = p_scriptPath;
+
+	// HACK: Likely doesn't work
+	// TODO: Fix this to ensure scripts can be loaded after construction
+	auto &scriptSystem = ScriptSystem::Get();
+	scriptSystem.SetScriptPath("../../../src/TestScripts");
+	scriptSystem.CreateBehaviourScript(this, m_scriptPath);
+	scriptSystem.ActivateBehaviourScript(this);
 }
 
 void ScriptBehaviour::DetachScript()
@@ -31,28 +37,5 @@ void ScriptBehaviour::DeactivateScript()
 
 void ScriptBehaviour::RenderUIImpl()
 {
-
-}
-
-void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
-{
-    if (m_scriptPath == p_scriptPath)
-    {
-        return;
-    }
-
-    if (p_scriptPath.empty())
-    {
-        ScriptSystem::Get().DetachBehaviourScript(this);
-    }
-
-    m_scriptPath = p_scriptPath;
-
-    if (m_scriptPath.empty())
-    {
-        return;
-    }
-
-	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-	ScriptSystem::Get().ActivateBehaviourScript(this);
+	ScriptSystem::Get().Call(this, "RenderUI");
 }

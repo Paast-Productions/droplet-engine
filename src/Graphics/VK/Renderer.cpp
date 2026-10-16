@@ -435,11 +435,22 @@ void Renderer::DrawFrame()
 		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-
-	// HACK: old code
-	float rotation = 0.0f;
+	// old code
+	float rotation;
 	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 	
+	ImGui::Begin("Camera");
+	ImGui::Text("%f", m_camera.GetPosition().x);
+	ImGui::Text("%f", m_camera.GetPosition().y);
+	ImGui::Text("%f", m_camera.GetPosition().z);
+	ImGui::Text("%f", m_camera.GetForward().x);
+	ImGui::Text("%f", m_camera.GetForward().y);
+	ImGui::Text("%f", m_camera.GetForward().z);
+	ImGui::Text("%f", deltaTime);
+
+	ImGui::SliderFloat("Roration", &rotation, 0, 360);
+	ImGui::End();
+
 	const auto extent = m_swapchain.GetExtent();
 
 	float aspectRatio =

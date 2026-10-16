@@ -147,7 +147,7 @@ namespace Droplet::IO::GliFormat
 		return resource;
 	}
     
-    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(
+    std::vector<std::pair<ResourceType, std::string>> ListAssetResources(
         const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;

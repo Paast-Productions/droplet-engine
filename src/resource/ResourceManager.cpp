@@ -54,11 +54,6 @@ namespace Droplet
             {
                 m_registry.RegisterMetaEntry(regRes.relAssetPath.generic_string(), entry);
             }
-            
-            if (regRes.onCompleteCallback)
-            {
-                regRes.onCompleteCallback(regRes.succeeded, newMetaData);
-            }
                 
             // Push metafile write operation to worker thread
             ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.absoluteMetaPath), metaData = std::move(newMetaData)]()
@@ -137,15 +132,10 @@ namespace Droplet
         }
     }
 
-    std::filesystem::path ResourceManager::GetRootDirectory() const
-    {
-        return m_rootDirectory;
-    }
-
-    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath, 
-        std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> p_onComplete)
+    void ResourceManager::RegisterAsset(const std::filesystem::path &p_relAssetPath)
     {
         ZoneScoped;
+
         assert(m_isInitialized && "Resource manager is not initialized.");
         
         std::filesystem::path relAssetPath(p_relAssetPath);
@@ -162,35 +152,29 @@ namespace Droplet
         std::string ext = absAssetPath.extension().generic_string();
         StringUtils::ToLowerInPlace(ext);
         
-        auto it = m_assetScanners.find(ext);
-        if (it == m_assetScanners.end())
-        {
-            // No Scanner was found
-            if (p_onComplete) p_onComplete(false, {});
-            return;
-        }
-        AssetScannerFunc scannerFunc = it->second;
-        
-        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, scannerFunc, p_onComplete](){
+        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, ext](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
             res.relAssetPath = relAssetPath; // Relative for registry
             res.absoluteMetaPath = absMetaPath; // Absolute for meta write
-            res.onCompleteCallback = p_onComplete;
-
-            try
+            
+            if (ext == ".fbx" || ext == ".glb" || ext == ".gltf" || ext == ".obj")
             {
-                res.foundResources = scannerFunc(absAssetPath); // Scan the asset for resources
-                res.succeeded = true;
+                res.foundResources = IO::AssimpFormat::ListAssetResources(absAssetPath);
             }
-            catch (...)
+            else if (ext == ".png" || ext == ".jpg" || ext == ".ktx" || ext == ".dds")
             {
-                res.succeeded = false;
+                res.foundResources = IO::GliFormat::ListAssetResources(absAssetPath);
+            }
+            else if (ext == ".slang")
+            {
+                res.foundResources = IO::SlangFormat::ListAssetResources(absAssetPath);
             }
             
             m_asyncRegisterResults.Push(res);
         });
     }
+
     
     std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(ResourceType p_type) const
     {
@@ -320,29 +304,6 @@ namespace Droplet
         return ResourceState::Unloaded;
     }
 
-    void ResourceManager::RegisterAssetScanner(const std::vector<std::string> &p_extensions,
-        AssetScannerFunc p_scanFunc)
-    {
-        for (const std::string &ext : p_extensions)
-        {
-            std::string lowerExt = StringUtils::ToLower(ext);
-            m_assetScanners[lowerExt] = p_scanFunc;
-        }
-    }
-
-    bool ResourceManager::IsAssetSupported(const std::filesystem::path &p_path)
-    {
-        if (!p_path.has_extension())
-        {
-            return false;
-        }
-        
-        std::string ext = p_path.extension().generic_string();
-        StringUtils::ToLowerInPlace(ext);
-        
-        return m_assetScanners.contains(ext);
-    }
-
     void ResourceManager::HotReload(GUID p_guid)
     {
         ZoneScoped;
@@ -398,7 +359,7 @@ namespace Droplet
             auto it = std::find_if(oldMetaData.begin(), oldMetaData.end(),
                 [&](const MetaEntry &existingEntry)
                 {
-                    return existingEntry.type == foundType && existingEntry.sourceName == foundName;
+                    return existingEntry.type == foundType && existingEntry.name == foundName;
                 }
             );
             

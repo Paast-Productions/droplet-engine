@@ -14,11 +14,7 @@ namespace Droplet
     {
     public:
         /// @return The global instance of the thread pool.
-        static ThreadPool &GetInstance()
-        {
-            static ThreadPool instance;
-            return instance;
-        }
+        static ThreadPool &GetInstance();
     
     	ThreadPool(const ThreadPool &other) = delete;
     	ThreadPool &operator=(const ThreadPool &p_other) = delete;
@@ -41,7 +37,7 @@ namespace Droplet
         ~ThreadPool();
         
     	/// @brief Worker loop that sleeps while idle and execute tasks as they become available.
-    	void WorkerLoop(int threadId);
+    	void WorkerLoop();
         
     	std::mutex m_taskMutex;
     	std::condition_variable m_condition; 

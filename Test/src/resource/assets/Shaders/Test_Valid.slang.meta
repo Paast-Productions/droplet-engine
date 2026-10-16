@@ -2,8 +2,7 @@
     "resources": [
         {
             "dependencies": [],
-            "displayName": "Test_Valid",
-            "sourceName": "Test_Valid",
+            "name": "Test_Valid",
             "guid": 600,
             "loadFlags": 2,
             "loadSettings": {

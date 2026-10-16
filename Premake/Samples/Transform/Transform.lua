@@ -10,34 +10,24 @@ project "Transform"
 	defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
-		"TRACY_FIBERS",
-		"TRACY_MEMORY",
-        "GLM_ENABLE_EXPERIMENTAL",
-		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "GLM_ENABLE_EXPERIMENTAL"
 	}
     
-    local vkPath = os.getenv("VULKAN_SDK")
-
-
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Transform/TransformMain.cpp",
         rootPath .. "/src/Transform.cpp"
     }
 
-    libdirs {
-        targetBuildPath .. "/Library",
-        targetBuildPath .. "/External/lib",
-        targetBuildPath .. "/External/bin",
-        vkPath .. "/Lib"
-    }
-
     if _TARGET_OS == "windows" then
 
         local vkPath = os.getenv("VULKAN_SDK")
-	
-	buildoptions {"/Zi"}
+    
+        libdirs {
+            targetBuildPath .. "/Engine",
+            vkPath .. "/Lib"
+        }
+
 
         includedirs {
             rootPath .. "/include",
@@ -46,6 +36,11 @@ project "Transform"
         }
 
     else
+
+        libdirs {
+            targetBuildPath .. "/Engine"
+        }
+
 
         includedirs {
             rootPath .. "/include",
@@ -57,25 +52,14 @@ project "Transform"
     dependson {
         "Engine",
         "ImGui",
-        "tracy",
-        "Sol2",
-	"bvh",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
+        "tracy"
     }
 
     links {
-       "Engine",
+        "Engine",
         "ImGui",
         "tracy",
-        "lua-5.4.7",
-        "winmm",
-        "gdi32",
-        "shell32",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
-
+        AddQuotation("Slangd")
     }

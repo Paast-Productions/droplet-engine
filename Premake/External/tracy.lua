@@ -18,11 +18,7 @@
     
     local vkPath = os.getenv('VULKAN_SDK')
 
-	defines{ 
-		"TRACY_ENABLE", 
-		"TRACY_ON_DEMAND",
-		"TRACY_FIBERS"
-	}
+	defines{ "TRACY_ENABLE", "TRACY_ON_DEMAND" }
 	
 	filter {"system:windows"}
 		buildoptions {"/Zi"}

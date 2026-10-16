@@ -59,7 +59,7 @@ bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const
     return false;
 }
 
-std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const
+std::vector<std::shared_ptr<Node>>InteractionState::GetSelectedNodes() const
 {
     std::vector<std::shared_ptr<Node>> selectedNodes;
 

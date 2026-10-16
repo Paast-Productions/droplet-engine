@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 using namespace Droplet;
 
-class SlangFormatTest : public ::testing::Test
+class SlangLoaderTest : public ::testing::Test
 {
 protected:
     fs::path m_validShaderPath;
@@ -37,9 +37,9 @@ protected:
     }
 };
 
-TEST_F(SlangFormatTest, ScanAssetResources)
+TEST_F(SlangLoaderTest, ListAssetResources)
 {
-    auto resources = IO::SlangFormat::ScanAssetResources(m_validShaderPath);
+    auto resources = IO::SlangFormat::ListAssetResources(m_validShaderPath);
     
     ASSERT_EQ(resources.size(), 1);
     
@@ -47,7 +47,7 @@ TEST_F(SlangFormatTest, ScanAssetResources)
     EXPECT_EQ(resources[0].second, "Test_Valid");
 }
 
-TEST_F(SlangFormatTest, CompileValidShader)
+TEST_F(SlangLoaderTest, CompileValidShader)
 {
     std::unique_ptr<ShaderResource> shader = IO::SlangFormat::CompileAndLoad(m_validShaderPath, m_defaultLoadSettings);
 
@@ -58,17 +58,17 @@ TEST_F(SlangFormatTest, CompileValidShader)
     EXPECT_EQ(shader->GetByteCode(), nullptr);
 }
 
-TEST_F(SlangFormatTest, CompileNonExistentFile)
+TEST_F(SlangLoaderTest, CompileNonExistentFile)
 {
     EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_missingPath, m_defaultLoadSettings), std::runtime_error);
 }
 
-TEST_F(SlangFormatTest, CompileInvalidSyntax)
+TEST_F(SlangLoaderTest, CompileInvalidSyntax)
 {
     EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_invalidSyntaxPath, m_defaultLoadSettings), std::runtime_error);
 }
 
-TEST_F(SlangFormatTest, CompileEmptyFile)
+TEST_F(SlangLoaderTest, CompileEmptyFile)
 {
     EXPECT_THROW(IO::SlangFormat::CompileAndLoad(m_emptyShaderPath, m_defaultLoadSettings), std::runtime_error);
 }

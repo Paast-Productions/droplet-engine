@@ -247,7 +247,7 @@ TEST_F(NodeTest, RemoveSpecificComponent)
     ASSERT_NE(component2, nullptr);
 
     EXPECT_NO_THROW(
-        root->RemoveComponent(component1.get()));
+        root->RemoveComponent(component1));
 
     auto components =
         root->GetComponents<TComponent>();
@@ -263,7 +263,7 @@ TEST_F(NodeTest, RemoveNonExistentComponentThrows)
         std::make_shared<TComponent>();
 
     EXPECT_THROW(
-        root->RemoveComponent(component.get()),
+        root->RemoveComponent(component),
         std::runtime_error);
 }
 

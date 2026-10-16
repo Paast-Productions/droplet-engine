@@ -152,11 +152,6 @@ namespace Droplet::Scene
 		/// @param p_space The space in which to perform the look-at operation. Defaults to local space.
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
 
-		/// @brief Transform the transform by a specified matrix in the specified space.
-		/// @param p_matrix The matrix by which to transform the transform.
-		/// @param p_space The space in which to perform the transform operation. Defaults to local space.
-		void TransformByMatrix(const glm::mat4 &p_matrix, Space p_space = Space::Local);
-
 	private:
 		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
 		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.

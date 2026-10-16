@@ -13,7 +13,6 @@ void ScriptComponent::Start()
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
 {
-
 }
 
 const std::string &ScriptComponent::GetScriptPath() const
@@ -35,13 +34,11 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
     m_scriptPath = p_scriptPath;
 
-    if (m_scriptPath.empty())
+    if (m_started && m_scriptPath.empty())
     {
-        return;
+        ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
+        ScriptSystem::Get().ActivateComponentScript(this);
     }
-
-    ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
-    ScriptSystem::Get().ActivateComponentScript(this);
 }
 
 void ScriptComponent::DetachScript()
@@ -66,21 +63,50 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str(), ImVec2(180.0f, 0.0f));
+    ImGui::TextUnformatted("Script-Component");
+    ImGui::Separator();
 
-    if (ImGui::BeginDragDropTarget())
+    if (!m_scriptPath.empty())
     {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
+        ImGui::Text("Script: %s", m_scriptPath.c_str());
+    }
+    else 
+    {
+        ImGui::Text("Script: None");
+    }
+
+    if (ImGui::Button("Attach Script"))
+    {
+        ImGui::OpenPopup("AttachScriptPopup");
+    }
+
+    if (ImGui::BeginPopup("AttachScriptPopup"))
+    {
+        static const std::string scripts[] =
         {
-            if (payload->Data != nullptr && payload->DataSize > 0)
+            "testScript.lua",
+            "testScript2.lua"
+        };
+
+        for (const std::string& script : scripts)
+        {
+            const bool selected = m_scriptPath == script;
+
+            if (ImGui::Selectable(script.c_str(), selected))
             {
-                const char* droppedPath = static_cast<const char*>(payload->Data);
-                AttachScript(droppedPath);
+                AttachScript(script);
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (selected)
+            {
+                ImGui::SetItemDefaultFocus();
             }
         }
-
-        ImGui::EndDragDropTarget();
+        ImGui::EndPopup();
     }
+
+    ImGui::SameLine();
 
     ImGui::BeginDisabled(m_scriptPath.empty());
 

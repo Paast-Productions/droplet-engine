@@ -18,7 +18,7 @@ namespace Droplet::Scene
 	public:
 		/// @brief Retrieves the registry of behaviour types.
 		/// @return A constant reference to the unordered map containing behaviour names and their corresponding construction functions.
-		[[nodiscard]] static const std::unordered_map<std::string, std::function<std::unique_ptr<Behaviour>()>> &GetRegistry()
+		[[nodiscard]] static const std::unordered_map<std::string, std::function<std::shared_ptr<Behaviour>()>> &GetRegistry()
 		{
 			return Get().registry;
 		}
@@ -28,7 +28,7 @@ namespace Droplet::Scene
 		/// This ensures that the behaviours are available before scene loading.
 		/// @param name The unique name of the behaviour type.
 		/// @param constructFunc The function used to create instances of the behaviour.
-		static void RegisterBehaviour(const std::string &name, std::function<std::unique_ptr<Behaviour>()> constructFunc)
+		static void RegisterBehaviour(const std::string &name, std::function<std::shared_ptr<Behaviour>()> constructFunc)
 		{
 			BehaviourRegistry &registry = Get();
 
@@ -50,6 +50,6 @@ namespace Droplet::Scene
 			return instance;
 		}
 
-		std::unordered_map<std::string, std::function<std::unique_ptr<Behaviour>()>> registry;
+		std::unordered_map<std::string, std::function<std::shared_ptr<Behaviour>()>> registry;
 	};
 }

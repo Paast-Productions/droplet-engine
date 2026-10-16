@@ -171,27 +171,8 @@ namespace Droplet::Scene
 		ZoneScoped;
 
 		// Early outs
-		if (p_node == nullptr)
-		{
-			return;
-		}
-
-		if (p_treeNode == nullptr)
-		{
-			return;
-		}
-
-		if (p_treeNode->level > C_MAX_DEPTH)
-		{
-			return;
-		}
-
-		IntersectType intersection = p_node->GetBounds()->Intersect(
-			p_treeNode->octant, 
-			p_node->GetTransform().GetMatrix(Transform::Space::World)
-		);
-
-		if (intersection == IntersectType::None)
+		if (p_node == nullptr || p_treeNode == nullptr || p_treeNode->level > C_MAX_DEPTH || 
+			p_node->GetBounds()->Intersect(p_treeNode->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::None)
 		{
 			return;
 		}
@@ -510,16 +491,10 @@ namespace Droplet::Scene
 			for (std::shared_ptr<Node> &node : p_treeNode->nodes)
 			{
 				std::string nodeName = "Node" + std::to_string(p_nodeCounter++);
-
 				p_data += BoundingBoxToGraphviz(
-					AABB::Transform(
-						node->GetBounds()->GetAABB(), 
-						node->GetTransform().GetMatrix(Transform::Space::World)
-					),
-					nodeName, 
-					node->GetName(), 
-					"blue"
-				);
+					AABB::Transform(node->GetBounds()->GetAABB(), 
+						node->GetTransform().GetMatrix(Transform::Space::World)),
+					nodeName, node->GetName(), "blue");
 			}
 		}
 

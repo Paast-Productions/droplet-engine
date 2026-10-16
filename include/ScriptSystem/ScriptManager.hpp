@@ -170,12 +170,11 @@ namespace Droplet::Script
 		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Sets the directory Path
+		/// Purpose is to be able to find the scripts directory, easiest to do this 
 		/// @param p_directoryPath This is the path for your working directory to the scripts
+		/// 
+		/// @return 
 		void SetScriptDirectory(const std::string &p_directoryPath);
-
-		/// @brief Gets the directory Path
-		/// @return String of the directory Path
-		std::string GetScriptDirectory();
 
 	private:
 		/// @brief Finds the path to a Lua script

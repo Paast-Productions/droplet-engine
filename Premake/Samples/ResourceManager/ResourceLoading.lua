@@ -37,18 +37,14 @@ project "ResourceManager-ResourceLoading"
         "json",
 	    "Gli",
 	    "bvh",
-	    "Stb",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
+	    "Stb"
     }
 
     links {
         "Engine",
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-        AddQuotation("Slangd"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+        AddQuotation("Slangd")
     }
 
     defines {

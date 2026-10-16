@@ -23,5 +23,5 @@ namespace Droplet::IO::GliFormat
     /// one texture.
     /// @param p_assetPath The path to texture asset.
     /// @return A list of all resources found in the texture file.
-    [[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath);
+    [[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath);
 }

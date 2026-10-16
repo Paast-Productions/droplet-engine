@@ -37,8 +37,7 @@ namespace Droplet
         }
         
         static std::unique_ptr<Texture2DResource> LoadCPU(
-            const std::filesystem::path& p_assetPath,
-            const std::string &p_sourceName,
+            const std::filesystem::path& p_assetPath, 
             const nlohmann::json &p_loadSettings)
         {
             try
@@ -96,7 +95,6 @@ namespace Droplet
         
         static std::unique_ptr<MeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
-            const std::string &p_sourceName,
             const nlohmann::json &p_loadSettings)
         {
             try
@@ -127,7 +125,6 @@ namespace Droplet
         
         static std::unique_ptr<SkinnedMeshResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
-            const std::string &p_sourceName,
             const nlohmann::json &p_loadSettings)
         {
             try
@@ -158,12 +155,11 @@ namespace Droplet
         
         static std::unique_ptr<AnimationResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
-            const std::string &p_sourceName,
             const nlohmann::json &p_loadSettings)
         {
             try
             {
-                return IO::AssimpFormat::LoadAnimation(p_assetPath, p_sourceName, p_loadSettings);
+                return IO::AssimpFormat::LoadAnimation(p_assetPath, p_loadSettings);
             }
             catch (std::exception &)
             {
@@ -191,7 +187,6 @@ namespace Droplet
         
         static std::unique_ptr<ShaderResource> LoadCPU(
             const std::filesystem::path &p_assetPath,
-            const std::string &p_sourceName,
             const nlohmann::json &p_loadSettings)
         {
             try

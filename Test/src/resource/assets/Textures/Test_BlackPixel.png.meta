@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "Test_BlackPixel",
+            "dependencies": [],
             "guid": 500,
-            "loadFlags": 3,
+            "loadFlags": 1,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "Test_BlackPixel",
+            "name": "Test_BlackPixel",
             "type": 1
         }
     ]

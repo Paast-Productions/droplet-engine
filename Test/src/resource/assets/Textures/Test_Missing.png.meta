@@ -7,8 +7,7 @@
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "displayName": "Test_Missing",
-            "sourceName": "Test_Missing",
+            "name": "Test_Missing",
             "type": 1
         }
     ]

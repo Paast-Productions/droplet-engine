@@ -174,10 +174,6 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
-		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
-		/// @param p_component Unique pointer to the Component to add.
-        void AddComponent(std::unique_ptr<Component> &p_component);
-
         /// @brief Adds a Component to the Node.
         ///
         /// Constructs the Component using the provided arguments, assigns this Node
@@ -271,7 +267,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
-        void RemoveComponent(const Component *p_component);
+        void RemoveComponent(const std::shared_ptr<Component> &p_component);
 
         // --------------------------------------------------
         // Bounds
@@ -283,7 +279,7 @@ namespace Droplet::Scene
         /// registered. Otherwise, returns the Node's default bounding box.
         ///
         /// @return A constant reference to the effective local-space bounding box.
-        [[nodiscard]] const NodeBounds *GetBounds() const;
+        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
 
         /// @brief Sets the Node's default local-space bounding box.
         ///
@@ -311,12 +307,7 @@ namespace Droplet::Scene
 		/// @param p_node Node to check against.
         /// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
-        [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
-
-		/// @brief Checks through all components to see if the Node is renderable.
-        /// 
-        /// @return true if the Node is renderable, otherwise false.
-        [[nodiscard]] bool IsRenderable() const;
+		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
 
     private:
         std::string m_name;
@@ -374,6 +365,6 @@ namespace Droplet::Scene
         /// @brief Component currently providing the Node's bounds override.
         ///
         /// Only one Component can provide a bounds override at a time.
-        std::weak_ptr<Component> m_boundsOverride{};
+        std::shared_ptr<Component> m_boundsOverride{};
     };
 }

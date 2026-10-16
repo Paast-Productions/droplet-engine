@@ -47,9 +47,7 @@ project "Scripting-Main"
         "Engine",
         "ImGui",
         "Sol2",
-        "tracy",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
+        "tracy"
     }
 
     links {
@@ -62,7 +60,5 @@ project "Scripting-Main"
         "shell32",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+        AddQuotation("Slangd")
     }

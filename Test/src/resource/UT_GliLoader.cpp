@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 using namespace Droplet;
 
-class GliFormatTest : public ::testing::Test
+class GliLoaderTest : public ::testing::Test
 {
 protected:
 	fs::path m_validKtxPath;
@@ -35,15 +35,15 @@ protected:
 	}
 };
 
-TEST_F(GliFormatTest, ScanAssetResources)
+TEST_F(GliLoaderTest, ListAssetResources)
 {
-	auto resources = IO::GliFormat::ScanAssetResources(m_validKtxPath);
+	auto resources = IO::GliFormat::ListAssetResources(m_validKtxPath);
     
     ASSERT_EQ(resources.size(), 1);
     EXPECT_EQ(resources[0].first, ResourceType::Texture2D);
 }
 
-TEST_F(GliFormatTest, Load2DValidKtx)
+TEST_F(GliLoaderTest, Load2DValidKtx)
 {
 	std::unique_ptr<Texture2DResource> texture2d = IO::GliFormat::LoadTexture2D(m_validKtxPath, m_defaultLoadSettings);
 
@@ -53,7 +53,7 @@ TEST_F(GliFormatTest, Load2DValidKtx)
 	// EXPECT_EQ(texture2d->GetMipLevels(), 1); // Not implemented really
 }
 
-TEST_F(GliFormatTest, Load2DValidKtxPng)
+TEST_F(GliLoaderTest, Load2DValidKtxPng)
 {
     std::unique_ptr<Texture2DResource> texture2d = IO::GliFormat::LoadTexture2D(m_validPngPath, m_defaultLoadSettings);
     
@@ -63,18 +63,18 @@ TEST_F(GliFormatTest, Load2DValidKtxPng)
     // EXPECT_EQ(texture2d->GetMipLevels(), 1); // Should we test this here?
 }
 
-TEST_F(GliFormatTest, Load2DEmptyKtx)
+TEST_F(GliLoaderTest, Load2DEmptyKtx)
 {
     EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_emptyKtxPath, m_defaultLoadSettings), std::runtime_error);
 }
 
-TEST_F(GliFormatTest, Load2DNonTextureFile)
+TEST_F(GliLoaderTest, Load2DNonTextureFile)
 {
     
     EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_nonTexturePath, m_defaultLoadSettings), std::runtime_error);
 }
 
-TEST_F(GliFormatTest, Load2DInvalidPath)
+TEST_F(GliLoaderTest, Load2DInvalidPath)
 {
     EXPECT_THROW(IO::GliFormat::LoadTexture2D(m_invalidPath, m_defaultLoadSettings), std::runtime_error);
 }

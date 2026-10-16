@@ -28,17 +28,15 @@ namespace Droplet::IO::AssimpFormat
 
 	/// @brief Loads an animation from an asset file.
 	/// @param p_assetPath Path to the asset file storing the animation.
-	/// @param p_animName The name of the animation within the asset.
 	/// @param p_loadSettings Mesh specific import settings.
 	/// @return A unique pointer with the stored animation data.
 	/// @throw std::runtime_error If Assimp failed to read the asset file or if the asset does not contain any animations.
-	[[nodiscard]] std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName, 
-	    const nlohmann::json &p_loadSettings);
+	[[nodiscard]] std::unique_ptr<AnimationResource> LoadAnimation(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings);
 
 	/// @brief Lists all resources in a model file.
 	/// @param p_assetPath File path of the model file.
 	/// @return A vector of resource types and their names.
     /// @throw std::runtime_error If Assimp failed to read the asset file.
-	[[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath);
+	[[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_assetPath);
 }
 

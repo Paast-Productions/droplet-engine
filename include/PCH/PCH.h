@@ -1,8 +1,5 @@
 #pragma once
 
-// Droplet
-#include <Debug/TracyTrackedAlloc.hpp>
-
 // C++ library headers
 #include <algorithm>
 #include <bitset>

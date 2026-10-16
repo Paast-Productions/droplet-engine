@@ -19,5 +19,5 @@ namespace Droplet::IO::SlangFormat
     /// one shader.
     /// @param p_shaderPath The path to the shader file.
     /// @return A list of all resources found in the shader file.
-    [[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_shaderPath);
+    [[nodiscard]] std::vector<std::pair<ResourceType, std::string>> ListAssetResources(const std::filesystem::path &p_shaderPath);
 }

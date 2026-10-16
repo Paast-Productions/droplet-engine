@@ -34,8 +34,6 @@ namespace Droplet::Scene
 
         void SetScriptPath(const std::string &p_scriptPath);
 
-        void AttachScript(const std::string p_scriptPath);
-
         /// @brief Detaches the script from this component.
         ///
         /// Removes the relationship between this component and its associated
@@ -60,7 +58,6 @@ namespace Droplet::Scene
 		void RenderUIImpl() override;
 
     private:
-
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
     };

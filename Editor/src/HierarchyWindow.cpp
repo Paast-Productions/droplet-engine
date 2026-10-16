@@ -6,7 +6,6 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
-#include <EditorShortcuts.hpp>
 //#include <Engine/Engine.hpp>
 #include <memory>
 
@@ -14,24 +13,23 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState) :
-	EditorWindow(p_instance), m_instance(p_instance), m_interactionState(p_interactionState)
-{ }
+Droplet::Editor::HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
+{
+	m_instance = p_instance;
+	m_interactionState = p_interactionState;
+}
 
 void HierarchyWindow::InitImpl()
 {   
     SetName("Node Hierarchy");
+
+	m_instance->GetSceneManager().LoadScene("TestScene");
 
 	m_selectedScene = m_instance->GetSceneManager().GetScene("TestScene"); 
 }
 
 void HierarchyWindow::RenderImpl()
 {
-    if (ImGui::IsWindowFocused())
-    {
-        EditorShortcuts::ProcessSceneViewKeyShortcuts();
-    }
-
     if (!m_instance)
     {
         return;
@@ -168,7 +166,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         return;
     }
 
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 
     if (p_node->GetChildren().empty())
     {
