@@ -66,6 +66,14 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update(float p_deltaTime);
 
+        /// @brief Updates the Node, its Components, and its children late.
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+        void LateUpdate(float p_deltaTime);
+
+        /// @brief Updates the Node, its Components, and its children in fixed time.
+        /// @param p_fixedDeltaTime Fixed delta time in seconds.
+        void FixedUpdate(float p_fixedDeltaTime);
+
         /// @brief Renders the Node.
         ///
         /// @note Currently unused and does not perform any rendering.
