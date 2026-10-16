@@ -216,7 +216,9 @@ end
 --
 
 function OnStart()
-	print("Name: ", self:GetName())
+    tracy.ZoneBeginN("Fih OnStart")
+
+	print("New Fih")
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()
@@ -230,10 +232,6 @@ function OnUpdate(dt)
 	if not active then
         tracy.ZoneEnd()
 		return
-	end
-
-    if Input:KeyPressed(Key.Space) then
-		print("Name: ", self:GetName())
 	end
 
 	if IsWithinTarget() then
