@@ -12,7 +12,6 @@ namespace
     bool ResourceSlot(
         const char *p_label,
         Droplet::GUID p_current,
-        Droplet::GUID &p_pickBuffer,
         Droplet::GUID &p_outGUID,
         Droplet::ResourceType p_expectedType)
     {
@@ -37,7 +36,7 @@ namespace
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
-            p_pickBuffer = p_current;
+            //p_pickBuffer = p_current;
             OpenPopup("pick");
         }
 
@@ -86,26 +85,6 @@ namespace
 
         EndDisabled();
 
-        // Manual GUID popup
-        if (BeginPopup("pick"))
-        {
-            InputScalar("GUID", ImGuiDataType_U64, &p_pickBuffer);
-
-            if (Button("Assign"))
-            {
-                p_outGUID = p_pickBuffer;
-                changed = true;
-                CloseCurrentPopup();
-            }
-
-            SameLine();
-
-            if (Button("Cancel"))
-                CloseCurrentPopup();
-
-            EndPopup();
-        }
-
         PopID();
         return changed;
     }
@@ -139,7 +118,6 @@ void MeshComponent::RenderUIImpl()
         if(ResourceSlot(
             "Mesh",
             m_mesh.GetGUID(),
-            m_meshPickGUID,
             newGUID,
             Droplet::ResourceType::Mesh))
         {
@@ -149,7 +127,6 @@ void MeshComponent::RenderUIImpl()
         if (ResourceSlot(
             "Texture",
             m_2dTexture.GetGUID(),
-            m_texturePickGUID,
             newGUID,
             Droplet::ResourceType::Texture2D))
         {
@@ -201,11 +178,11 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 {
 	if (p_compJson.contains("meshGUID"))
 	{
-		m_meshGUID = p_compJson["meshGUID"].get<Droplet::GUID>();
+        m_mesh = ResourceManager::Get().LoadResource<Droplet::MeshResource>(p_compJson["meshGUID"].get<Droplet::GUID>());
 	}
 
 	if (p_compJson.contains("textureGUID"))
 	{
-		m_textureGUID = p_compJson["textureGUID"].get<Droplet::GUID>();
+        m_2dTexture = ResourceManager::Get().LoadResource<Droplet::Texture2DResource>(p_compJson["textureGUID"].get<Droplet::GUID>());
 	}
 }
