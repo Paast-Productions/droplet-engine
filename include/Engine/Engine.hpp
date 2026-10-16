@@ -14,8 +14,6 @@
 #include <functional>
 #include <Engine/EngineFlags.hpp>
 #include <resource/ResourceManager.hpp>
-#include <Camera.hpp>
-#include <RenderTarget.hpp>
 
 namespace Droplet
 {
