@@ -26,6 +26,7 @@ namespace Droplet
 	struct EngineConfig
 	{
 		Graphics::SDL::WindowConfig WindowConfig;
+		Graphics::Renderer::Config RenderConfig;
 		UpdateFlags UpdateFlags{ UpdateFlags::DefaultFlags };
 	};
 	
