@@ -2,6 +2,11 @@
 
 #include <Time.hpp>
 
+Droplet::Physics::Physics(const Initializer p_initializer)
+{
+	Initialize(p_initializer);
+}
+
 void Droplet::Physics::Initialize(const std::uint32_t p_maxBodies, const std::uint32_t p_numBodyMutexes,
 	const std::uint32_t p_maxBodyPairs, const std::uint32_t p_maxContactConstraints)
 {
