@@ -126,8 +126,11 @@ void MeshComponent::GetRenderData(std::vector<Graphics::RenderData> &p_renderDat
             },
             {
                 .GUID = m_shaderData.fs.GetGUID()
+            },
+            {
+                .GUID = m_mesh.GetGUID()
             }
-        }      
+        }
     );
 }
 
