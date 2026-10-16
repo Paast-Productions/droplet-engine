@@ -48,7 +48,7 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem(name.c_str()))
             {
-                behaviourToOpen = &GetEngine()->AddBehaviour(name);
+                behaviourToOpen = &m_editorContext->GetEngine().AddBehaviour(name);
             }
 
         }
@@ -58,7 +58,7 @@ void BehaviourInspector::RenderImpl()
     ImGui::Separator();
 
     Droplet::Scene::Behaviour *behaviourToRemove = nullptr;
-    for (const auto &behaviour : GetEngine()->GetBehaviours())
+    for (const auto &behaviour : m_editorContext->GetEngine().GetBehaviours())
     {
         if (!behaviour)
         {
@@ -103,7 +103,7 @@ void BehaviourInspector::RenderImpl()
     // until this frame's UI rendering is complete.
     if (behaviourToRemove != nullptr)
     {
-        GetEngine()->RemoveBehaviour(*behaviourToRemove);
+        m_editorContext->GetEngine().RemoveBehaviour(*behaviourToRemove);
     }
 }
 
