@@ -67,6 +67,13 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update(float p_deltaTime);
 
+        /// @brief Updates the Scene but late.
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+        void LateUpdate(float p_deltaTime);
+        
+        /// @brief Updates the Scene in fixed time.
+        void FixedUpdate();
+
         /// @brief Renders the Scene.
         ///
         /// Renders all root Node hierarchies when the Scene is both
