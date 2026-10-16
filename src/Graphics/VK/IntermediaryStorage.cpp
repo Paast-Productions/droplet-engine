@@ -1,14 +1,15 @@
 #include "IntermediaryStorage.hpp"
 
-#include <queue>
+#include <vector>
 
 #include <Graphics/VK/ShaderModule.hpp> 
 #include <Debug/Logger.hpp>
 
 using namespace Droplet::Graphics::VK;
 
-IntermediaryStorage::IntermediaryStorage(VK::Context &p_context) :
+IntermediaryStorage::IntermediaryStorage(VK::Context &p_context, VK::DescriptorSet &p_descriptorSet) :
     m_context(p_context),
+    m_descriptorSet(p_descriptorSet),
     m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()) {}
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
@@ -44,56 +45,80 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     
     if 
     (
-        !(vs.IsReady() || vs.HasFailed())   ||
-        !(tcs.IsReady() || tcs.HasFailed()) ||
-        !(tes.IsReady() || tes.HasFailed()) ||
-        !(gs.IsReady() || gs.HasFailed())   ||
-        !(fs.IsReady() || fs.HasFailed())
+        !(vs.IsReady() || vs.HasFailed())
     )
     {
         throw std::runtime_error("Shaders for pipeline not ready");
     }
     
-    std::queue<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> queue {};
+    std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> vector {};
     
     // Vertex Shader
     
+    ShaderModule vsModule { nullptr };
     if (vs.IsReady())
     {
         ShaderResource* vsRes = vs.Get();
-        ShaderModule vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
-        queue.emplace(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
+        vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
+        vector.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     
+    ShaderModule tcsModule { nullptr };
     if (tcs.IsReady())
     {
         ShaderResource* tcsRes = tcs.Get();
-        ShaderModule tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
-        queue.emplace(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
+        tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
+        vector.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     
+    ShaderModule tesModule { nullptr };
     if (tes.IsReady())
     {
         ShaderResource* tesRes = tes.Get();
-        ShaderModule tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
-        queue.emplace(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
+        tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
+        vector.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     
+    ShaderModule gsModule { nullptr };
     if (gs.IsReady())
     {
         ShaderResource* gsRes = gs.Get();
-        ShaderModule gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
-        queue.emplace(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
+        gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
+        vector.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     
+    ShaderModule fsModule { nullptr };
     if (fs.IsReady())
     {
         ShaderResource* fsRes = fs.Get();
-        ShaderModule fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
-        queue.emplace(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
+        fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
+        vector.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
     }
     
-    m_pipelineMap[key] = Pipeline { p_device, p_physicalDevice, queue,{.SwapchainSurfaceFormat = p_surfaceFormat} };
+    std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts
+    {
+        {
+            {
+                m_descriptorSet.GetLayout()  
+            }
+        }
+    };
+    
+    m_pipelineMap[key] = Pipeline 
+    {
+        p_device, 
+        p_physicalDevice,
+        vector,
+        {
+            .PipelineLayoutInfo 
+            {
+                .setLayoutCount = static_cast<std::uint32_t>(descriptorSetLayouts.size()),
+                .pSetLayouts = descriptorSetLayouts.data()
+                
+            },
+            .SwapchainSurfaceFormat = p_surfaceFormat,
+        }
+    };
     return m_pipelineMap.at(key);
 }
 

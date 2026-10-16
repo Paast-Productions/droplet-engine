@@ -36,11 +36,11 @@ using namespace Droplet::Graphics;
 Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
 	m_window							{ p_windowConfig },
 	m_context							{ m_window.Get(), m_vkContext },
-	m_interStorage						{ m_context },
 	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
+		m_interStorage						{ m_context },
 	m_depthBuffer						{ m_interStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
 	m_indexBuffer						{ m_interStorage.GetAllocator(), G_INDICES },
 	m_vertexBuffer						{ m_interStorage.GetAllocator(), G_VERTICES }

@@ -76,21 +76,16 @@ void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const
         return;
     }
     
-    Graphics::RenderData renderData
+    for (const auto &component : m_components)
     {
-        .vsData 
-        {
-            .GUID = 0,
-            .pushConstants = { 0 }
-        }   
-    };
-    
-    p_renderData.push_back(renderData);
+        component->GetRenderData(p_renderData);
+    }
     
     for (const std::shared_ptr<Node>& child : m_children)
     {
         child->GetRenderData(p_renderData);
     }
+
 }
 
 void Node::RenderUI()
