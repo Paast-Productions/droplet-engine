@@ -4,7 +4,7 @@
 --
 
 local active = false
-local trans = self:GetTransform()
+local trans = nil
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)

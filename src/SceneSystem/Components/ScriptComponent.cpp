@@ -41,6 +41,7 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
     ScriptSystem::Get().ActivateComponentScript(this);
+    ScriptSystem::Get().Call(this, "OnStart");
 }
 
 void ScriptComponent::DetachScript()
