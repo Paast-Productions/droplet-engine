@@ -12,7 +12,8 @@ project "Vulkan-Sandbox"
 
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
-        rootPath .. "/Samples/Vulkan/Sandbox.cpp"
+        rootPath .. "/Samples/Vulkan/Sandbox.cpp",
+        rootPath .. "/Samples/Vulkan/Sandbox.hpp"
     }
 
     if _TARGET_OS == "windows" then
