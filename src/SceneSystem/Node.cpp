@@ -69,6 +69,45 @@ void Node::Update(float p_deltaTime)
     }
 }
 
+void Droplet::Scene::Node::LateUpdate(float p_deltaTime)
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_active)
+    {
+        return;
+    }
+
+    // TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
+
+    for (const auto &component : m_components)
+    {
+        component->LateUpdate(p_deltaTime);
+    }
+
+    for (const auto &child : m_children)
+    {
+        child->LateUpdate(p_deltaTime);
+    }
+}
+
+void Droplet::Scene::Node::FixedUpdate(float p_fixedDeltaTime)
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_active)
+    {
+        return;
+    }
+
+    for (const auto &component : m_components)
+    {
+        component->FixedUpdate(p_fixedDeltaTime);
+    }
+}
+
 void Node::Render()
 {
     if (!m_active)
