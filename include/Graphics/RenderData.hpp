@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <glm/glm.hpp>
 #include <vector>
 
 namespace Droplet::Graphics
@@ -36,5 +37,20 @@ namespace Droplet::Graphics
 
         TextureData texData{};
     };
+
+    namespace VK
+    {
+        struct WorldBuffer
+        {
+            glm::mat4 matrix{};
+        };
+
+        struct ViewProjectionBuffer
+        {
+            glm::mat4 view{};
+            glm::mat4 proj{};
+        };
+    }
+
 }
 

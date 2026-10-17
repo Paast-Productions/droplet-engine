@@ -21,6 +21,7 @@
 
 #include <Graphics/VK/TestData.hpp>
 #include <GameInput.hpp>
+#include <Graphics/RenderData.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -41,25 +42,22 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
 	m_interStorage						{ m_context, m_globalDescriptorSet },
-	m_depthBuffer						{ m_interStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() },
-	m_indexBuffer						{ m_interStorage.GetAllocator(), G_INDICES },
-	m_vertexBuffer						{ m_interStorage.GetAllocator(), G_VERTICES }
+	m_depthBuffer						{ m_interStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() }
 {
 	ZoneScoped;
 
 	// TODO: <REFACTOR>
 	
-	const VK::UniformBufferObject ubo
+	const VK::ViewProjectionBuffer vpb
 	{
-		.matrix = glm::mat4(1)
+		.view = glm::mat4(1),
+		.proj = glm::mat4(1)
 	};
 	
-	m_uniformBuffer = { m_interStorage.GetAllocator(), ubo };
-
-	m_viewBuffer = { m_interStorage.GetAllocator(), ubo };
-	m_projBuffer = { m_interStorage.GetAllocator(), ubo };
+	m_vpBuffer = { m_interStorage.GetAllocator(), vpb };
 
 	m_graphicsPipeline = {};
+	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
 
 	//m_image = {
 	//	m_interStorage.GetAllocator(),
@@ -325,7 +323,7 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		vk::ImageAspectFlagBits::eDepth
 	);
 	
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(0.1f, 0.1f, 0.1f, 1.0f);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 	
 	vk::RenderingAttachmentInfo colorAttachmentInfo 
@@ -379,10 +377,16 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 			cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
 			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 		
-			const VK::Mesh &mesh = m_interStorage.GetMesh(data);
+			const VK::Mesh mesh = m_interStorage.GetMesh(data);
+
+			/*vk::PushConstantsInfo pcInfo
+			{
+				.sType = vk::StructureType::ePushConstantsInfo,
+				.size = sizeof(VK::Push)
+			};*/
 
 			cmdBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
-			cmdBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint16);
+			cmdBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
 			cmdBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 		}
 		catch ([[maybe_unused]] const std::exception &err)
@@ -507,21 +511,14 @@ void Renderer::DrawFrame()
 		static_cast<float>(extent.width) /
 		static_cast<float>(extent.height);
 
-	VK::UniformBufferObject view
+	VK::ViewProjectionBuffer vp
 	{
-		.matrix = m_camera.GetViewMatrix(),
-	};
-
-	VK::UniformBufferObject proj
-	{
-		.matrix = m_camera.GetProjectionMatrix(aspectRatio)
+		.view = m_camera.GetViewMatrix(),
+		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
 	
-	m_viewBuffer.UpdateBuffer(view);
-	m_projBuffer.UpdateBuffer(proj);
-
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_viewBuffer.Get(), 0);
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_projBuffer.Get(), 1);
+	m_vpBuffer.UpdateBuffer(vp);
+	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -657,21 +654,14 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 		static_cast<float>(extent.width) /
 		static_cast<float>(extent.height);
 
-	VK::UniformBufferObject view
+	VK::ViewProjectionBuffer vp
 	{
-		.matrix = m_camera.GetViewMatrix(),
+		.view = m_camera.GetViewMatrix(),
+		.proj = m_camera.GetProjectionMatrix(aspectRatio)
 	};
 
-	VK::UniformBufferObject proj
-	{
-		.matrix = m_camera.GetProjectionMatrix(aspectRatio)
-	};
+	m_vpBuffer.UpdateBuffer(vp);
 
-	m_viewBuffer.UpdateBuffer(view);
-	m_projBuffer.UpdateBuffer(proj);
-
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_viewBuffer.Get(), 0);
-	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_projBuffer.Get(), 1);
 	
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);

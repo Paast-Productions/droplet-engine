@@ -4,16 +4,16 @@
 #include <vector>
 #include <Graphics/VK/VertexBuffer.hpp>
 
-const std::vector<std::byte> G_VERTICES = {
-	std::byte(-0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(1.0f), std::byte(0.0f),
-    std::byte(0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(0.0f), std::byte(0.0f),
-    std::byte(0.5f), std::byte(0.5f), std::byte(0.0f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(0.0f), std::byte(1.0f),
-    std::byte(-0.5f), std::byte(0.5f), std::byte(0.0f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(1.0f), std::byte(1.0f),
+const std::vector<Droplet::Graphics::VK::Vertex> G_VERTICES = {
+    {{-0.5f , -0.5f , 0.0f} , {0.0f , -1.0f , 0.0f }, {1.0f , 0.0f}},
+    {{0.5f , -0.5f , 0.0f} , {0.0f , -1.0f , 0.0f} , {0.0f , 0.0f}},
+    {{0.5f , 0.5f , 0.0f }, {0.0f , -1.0f , 0.0f }, {0.0f , 1.0f }},
+    {{-0.5f , 0.5f , 0.0f} , {0.0f , -1.0f , 0.0f }, {1.0f , 1.0f }},
 
-    std::byte(-0.5f), std::byte(-0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(1.0f), std::byte(0.0f),
-    std::byte(0.5f), std::byte(-0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(0.0f), std::byte(0.0f),
-    std::byte(0.5f), std::byte(0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(0.0f), std::byte(1.0f),
-    std::byte(-0.5f), std::byte(0.5f), std::byte(-0.5f), std::byte(0.0f), std::byte(-1.0f), std::byte(0.0f), std::byte(1.0f), std::byte(1.0f)
+    {{-0.5f , -0.5f , -0.5f} , {0.0f , -1.0f , 0.0f} , {1.0f , 0.0f}},
+    {{0.5f , -0.5f , -0.5f} , {0.0f , -1.0f , 0.0f} , {0.0f , 0.0f}},
+    {{0.5f , 0.5f , -0.5f} , {0.0f , -1.0f , 0.0f} , {0.0f , 1.0f}},
+    {{-0.5f , 0.5f , -0.5f} , {0.0f , -1.0f , 0.0f} , {1.0f , 1.0f}}
 };
 
 const std::vector<uint32_t> G_INDICES = {

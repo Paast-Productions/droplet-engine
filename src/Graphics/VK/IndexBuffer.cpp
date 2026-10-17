@@ -4,7 +4,7 @@ using namespace Droplet::Graphics::VK;
 
 IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<std::uint32_t> &p_indices)
 {
-	vk::DeviceSize bufferSize = sizeof(p_indices[0]) * p_indices.size();
+	vk::DeviceSize bufferSize = sizeof(std::uint32_t) * p_indices.size();
 	
 	m_indexCount = p_indices.size();
 

@@ -72,7 +72,7 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_vertexBuffer == std::move(p_other.m_vertexBuffer);
+			m_vertexBuffer = std::move(p_other.m_vertexBuffer);
 			
 			return *this;
 		}

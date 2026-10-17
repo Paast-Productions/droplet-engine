@@ -46,16 +46,7 @@ namespace Droplet{class Engine;}
 // HACK: Implementation subject to change
 
 namespace Droplet::Graphics
-{
-	namespace VK
-	{
-		struct UniformBufferObject
-		{
-			glm::mat4 matrix{};
-		};
-	}
-	
-	
+{	
 	class Renderer
 	{
 	public:
@@ -152,9 +143,8 @@ namespace Droplet::Graphics
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
-		VK::StorageBuffer m_viewBuffer { nullptr };
-		VK::StorageBuffer m_projBuffer { nullptr };
-		VK::UniformBuffer m_uniformBuffer { nullptr };
+		VK::StorageBuffer m_storageBuffer { nullptr };
+		VK::UniformBuffer m_vpBuffer{ nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };
 		VK::IndexBuffer	m_indexBuffer	{ nullptr };

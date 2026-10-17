@@ -26,7 +26,7 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
         {
             {
                 .binding = static_cast<std::uint32_t>(DescriptorSetBinding::eUniformBuffer),
-                .descriptorType = vk::DescriptorType::eStorageBuffer,
+                .descriptorType = vk::DescriptorType::eUniformBuffer,
                 .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
                 .stageFlags = vk::ShaderStageFlagBits::eAll
             },
@@ -83,7 +83,7 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
     }
 }
 
-void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer)
+void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex)
 {
     vk::DescriptorBufferInfo bufferInfo
     {
@@ -119,7 +119,7 @@ void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_devic
     {
         .dstSet = m_descriptorSet,
         .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eStorageBuffer),
-        .dstArrayElement = p_dstIndex,
+        .dstArrayElement = 0,
         .descriptorCount = 1,
         .descriptorType = vk::DescriptorType::eStorageBuffer,
         .pBufferInfo = &bufferInfo

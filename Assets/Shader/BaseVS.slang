@@ -14,18 +14,22 @@ struct VSOutput
 
 struct UniformBuffer
 {
-    float4x4 model;
     float4x4 view;
     float4x4 proj;
 };
 
-layout (set = 0, binding = 0) StructuredBuffer<UniformBuffer> ubo;
+struct PushConstants
+{
+    uint32_t unibuffer;
+    uint32_t sampler;
+};
+
+layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> ubo;
 
 [shader("vertex")]
 VSOutput main(VSInput input) {
     VSOutput output;
-    //output.pos = mul(ubo[0].proj, mul(ubo[0].view, mul(ubo[0].model, float4(input.inPosition, 1.0))));
-    output.pos = float4(input.inPosition, 1.0);
+    output.pos = mul(ubo.proj, mul(ubo.view, float4(input.inPosition, 1.0)));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);
     return output;
