@@ -11,8 +11,9 @@
 
 namespace Droplet::Graphics
 {
-	// Forward declaration of Renderer class
+	// Forward declarations
 	class Renderer;
+	class Camera;
 }
 
 namespace Droplet::Graphics::Debug
@@ -38,6 +39,16 @@ namespace Droplet::Graphics::Debug
 
 		static void DrawLine(
 			const glm::vec3 &p_start, const glm::vec3 &p_end,
+			const DrawOptions &p_opt
+		);
+
+		static void DrawTri(
+			const glm::vec3 &p_v1, const glm::vec3 &p_v2, const glm::vec3 &p_v3,
+			const DrawOptions &p_opt
+		);
+
+		static void DrawQuad(
+			const glm::vec3 &p_center, const glm::vec3 &p_up, const glm::vec3 &p_right,
 			const DrawOptions &p_opt
 		);
 
@@ -92,8 +103,9 @@ namespace Droplet::Graphics::Debug
 			const DrawOptions &p_opt
 		);
 
-	private:
-		DebugDraw() = default;
+
+	protected:
+		friend class Droplet::Graphics::Renderer;
 
 		[[nodiscard]] static DebugDraw &Get()
 		{
@@ -101,13 +113,15 @@ namespace Droplet::Graphics::Debug
 			return instance;
 		}
 
-		static void Initialize();
+		void Initialize(/* VK Resources */);
 
-		static void ProcessDrawCommands();
+		void RenderToCamera(const Camera &p_camera);
 
-		static void RenderDrawCommands();
+		void ClearDrawCommands();
 
-		static void ClearDrawCommands();
+
+	private:
+		DebugDraw() = default;
 
 
 		struct InternalDrawOptions
@@ -182,7 +196,5 @@ namespace Droplet::Graphics::Debug
 		std::map<InternalDrawOptions, std::vector<DbgLine>>		m_wireLists{};
 		std::map<InternalDrawOptions, std::vector<DbgTri>>		m_fillLists{};
 		std::map<InternalDrawOptions, std::vector<DbgSprite>>	m_spriteLists{};
-
-		friend class Droplet::Graphics::Renderer;
 	};
 }
