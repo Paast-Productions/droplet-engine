@@ -56,6 +56,11 @@ namespace Droplet::Script
 		/// @param p_luaState Lua state in which the ImGui bindings should be registered.
 		static void RegisterImGui(sol::state_view p_luaState);
 
+		/// @brief Registers the Tracy type with Lua.
+		/// Exposes the functionality of Tracy that is intended to be accessible from Lua scripts.
+		/// @param p_luaState Lua state in which the Tracy bindings should be registered.
+		static void RegisterTracy([[maybe_unused]] sol::state_view p_luaState);
+
 		// TODO: Implement additional engine bindings as functionality is added.
 
 	private:
@@ -63,5 +68,7 @@ namespace Droplet::Script
 		static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
 		/// @brief vector of all LuaClassDefinition for .d.lua file
 		static std::vector<LuaClassDefinition> m_luaClassDefinitions;
+		/// @brief vector of all LuaEnumDefinition for .d.lua file
+		static std::vector<LuaEnumDefinition> m_luaEnumDefinitions;
 	};
 }

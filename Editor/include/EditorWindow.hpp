@@ -46,6 +46,10 @@ namespace Droplet::Editor
 		/// @return The ImGui window flags for the editor window.
 		[[nodiscard]] ImGuiWindowFlags GetWindowFlags() const { return m_windowFlags; }
 
+		/// @brief Checks if the editor window has focus.
+		/// @return True if the editor window has focus, false otherwise.
+		[[nodiscard]] bool HasFocus() const { return m_hasFocus; }
+
 	protected:
 		//EditorWindow(std::shared_ptr<Droplet::Engine> p_engine);
 
@@ -76,6 +80,8 @@ namespace Droplet::Editor
 		std::string m_name = "Window";
 		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_None;
 		//std::shared_ptr<Droplet::Engine> m_engine{};
+
+		bool m_hasFocus = false;
 
 		/// @brief Opens the editor window. This method is called before rendering the window.
 		void OpenWindow();
