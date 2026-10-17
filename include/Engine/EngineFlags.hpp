@@ -17,6 +17,7 @@ namespace Droplet
 		// Add more flags as needed
 
 		EditorFlags = SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic | SkipAutoRender,
+		PlayModeFlags = SkipAutoRender,
 		GameFlags = SkipHotReloadScripts,
 		DefaultFlags = None
 	};

@@ -5,6 +5,8 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <EditorShortcuts.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <IconFontCppHeaders/IconsLucide.h>
 #include <chrono>
 #include <iostream>
 
@@ -205,6 +207,33 @@ void SceneViewWindow::RenderImpl()
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 	
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
+
+	// Render play/pause button
+	{
+		ImVec2 buttonSize = ImVec2(30, 30);
+		ImVec2 buttonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
+			camViewRectMin.y + 10
+		);
+
+		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
+
+		ImGui::SetCursorScreenPos(buttonPos);
+		if (isPlaying)
+		{
+			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+			}
+		}
+		else
+		{
+			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
+			}
+		}
+	}
 	
 	ImGui::EndChild();
 }
