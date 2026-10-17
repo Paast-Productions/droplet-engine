@@ -1,14 +1,20 @@
 #include "Graphics/DebugDraw.hpp"
 #include <array>
+#include <Graphics/VK/Camera.hpp>
 #include <map>
+#include <glm/gtx/quaternion.hpp>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <glm/gtx/quaternion.hpp>
 #undef _USE_MATH_DEFINES
 
 using namespace Droplet::Math;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
+
+
+//
+// Internal
+//
 
 namespace
 {
@@ -137,14 +143,33 @@ namespace
 }
 
 
-void DebugDraw::ClearDrawCommands()
+
+//
+// Renderer Backend
+//
+
+void DebugDraw::Initialize(/* VK Resources */)
 {
-	DebugDraw &dbgDraw = DebugDraw::Get();
-	dbgDraw.m_wireLists = {};
-	dbgDraw.m_fillLists = {};
-	dbgDraw.m_spriteLists = {};
+
 }
 
+void DebugDraw::RenderToCamera(const Camera &p_camera)
+{
+
+}
+
+void DebugDraw::ClearDrawCommands()
+{
+	m_wireLists = {};
+	m_fillLists = {};
+	m_spriteLists = {};
+}
+
+
+
+//
+// Drawing Functions
+//
 
 void DebugDraw::DrawRay(const Ray &p_ray, const DrawOptions &p_opt)
 {
@@ -172,6 +197,30 @@ void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, const
 	DebugDraw &dbgDraw = DebugDraw::Get();
 
 	dbgDraw.m_wireLists[intOpt].push_back(line);
+}
+
+void DebugDraw::DrawTri(const glm::vec3 &p_v1, const glm::vec3 &p_v2, const glm::vec3 &p_v3, const DrawOptions &p_opt)
+{
+	DebugDraw &dbgDraw = DebugDraw::Get();
+
+	InternalDrawOptions intOpt(p_opt);
+
+	dbgDraw.m_fillLists[intOpt].emplace_back(p_v1, p_v2, p_v3);
+}
+
+void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const glm::vec3 &p_right, const DrawOptions &p_opt)
+{
+	// Calculate the four corners of the quad
+	glm::vec3 v1 = p_center - p_right - p_up; // Bottom-left
+	glm::vec3 v2 = p_center + p_right - p_up; // Bottom-right
+	glm::vec3 v3 = p_center + p_right + p_up; // Top-right
+	glm::vec3 v4 = p_center - p_right + p_up; // Top-left
+
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	InternalDrawOptions intOpt(p_opt);
+
+	dbgDraw.m_fillLists[intOpt].emplace_back(v1, v2, v3);
+	dbgDraw.m_fillLists[intOpt].emplace_back(v1, v3, v4);
 }
 
 void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d, const glm::vec3 &p_p2, const DrawOptions &p_opt)
@@ -228,9 +277,8 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 		tri.v3 = p_sphere.center + tri.v3 * p_sphere.radius;
 	}
 
-	InternalDrawOptions intOpt(p_opt);
-
 	DebugDraw &dbgDraw = DebugDraw::Get();
+	InternalDrawOptions intOpt(p_opt);
 
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 }
@@ -262,6 +310,9 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 		p = p_center + glm::vec3(rotation * glm::vec4(p * p_radius, 1.0f));
 	}
 
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	InternalDrawOptions intOpt(p_opt);
+
 	if (p_opt.wireframe)
 	{
 		std::vector<DbgLine> lines;
@@ -272,9 +323,6 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 			lines.emplace_back(points[i], points[(i + 1) % points.size()]);
 		}
 
-		DebugDraw &dbgDraw = DebugDraw::Get();
-
-		InternalDrawOptions intOpt(p_opt);
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
 	}
 	else
@@ -287,9 +335,6 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 			triangles.emplace_back(p_center, points[i], points[(i + 1) % points.size()]);
 		}
 
-		DebugDraw &dbgDraw = DebugDraw::Get();
-
-		InternalDrawOptions intOpt(p_opt);
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 	}
 }
@@ -299,16 +344,13 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
 	// TODO
 }
 
-void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_position, const glm::vec2 &p_scale, const DrawOptions &p_opt)
+void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_center, const glm::vec2 &p_scale, const DrawOptions &p_opt)
 {
+	DebugDraw &dbgDraw = DebugDraw::Get();
 	InternalDrawOptions intOpt(p_opt, p_icon);
 
-	DbgSprite sprite{
-		.position = p_position,
-		.scale = p_scale
-	};
-
-	DebugDraw &dbgDraw = DebugDraw::Get();
-
-	dbgDraw.m_spriteLists[intOpt].push_back(sprite);
+	dbgDraw.m_spriteLists[intOpt].emplace_back(
+		p_center,
+		p_scale
+	);
 }
