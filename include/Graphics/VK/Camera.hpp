@@ -49,10 +49,12 @@ namespace Droplet::Graphics
 		/// @returns glm::vec3 Vector above the camera
 		[[nodiscard]] glm::vec3 GetUp() const;
 
+		/// @brief Get the frustum of the camera
+		/// @returns A frustum of the camera
 		[[nodiscard]] Math::Frustum GetFrustum() const; 
 
 		/// @brief Return the view matrix
-		/// @returns A glm::mat4
+		/// @returns A view matrix
 		[[nodiscard]] glm::mat4 GetViewMatrix() const;
 
 		/// @brief Getter function for the projection matrix
@@ -62,16 +64,31 @@ namespace Droplet::Graphics
 		/// @brief Gets the horizontal field of view (FOV) of the camera in degrees.
 		[[nodiscard]] float GetFOV() const { return m_fov; }
 
-		/// @brief Gets the aspect ratio of the camera. The aspect ratio is defined as the width divided by the height of the camera's view.
+		/// @brief Gets the aspect ratio of the camera.
 		[[nodiscard]] float GetAspect() const { return m_aspect; }
 
 		/// @brief Gets the near and far clipping planes of the camera. 
 		[[nodiscard]] glm::vec2 GetPlanes() const { return m_planes; }
 
+		/// @brief Gets the yaw (horizontal rotation) of the camera in degrees.
+		[[nodiscard]] float GetYaw() const { return m_yaw; }
+
+		/// @brief Gets the pitch (vertical rotation) of the camera in degrees.
+		[[nodiscard]] float GetPitch() const { return m_pitch; }
+
+		/// @brief Sets the position of the camera in world space.
+		void SetPosition(const glm::vec3 &p_position) { m_position = p_position; }
+
+		/// @brief Sets the orientation of the camera using yaw and pitch angles in degrees.
+		void SetOrientation(float p_yaw, float p_pitch) { m_yaw = p_yaw; m_pitch = p_pitch; UpdateCameraVectors(); }
+
+		/// @brief Sets the horizontal field of view (FOV) of the camera in degrees.
 		void SetFOV(float p_fov) { m_fov = p_fov; }
 
+		/// @brief Sets the aspect ratio of the camera.
 		void SetAspect(float p_aspect) { m_aspect = p_aspect; }
 
+		/// @brief Sets the near and far clipping planes of the camera. 
 		void SetPlanes(float p_near, float p_far) { m_planes = glm::vec2(p_near, p_far); }
 
 	private:

@@ -12,8 +12,8 @@ namespace Droplet::Editor::Scene
 	class EditorCamera : public Droplet::Graphics::Camera
 	{
 	public:
-		EditorCamera() = default;
-		~EditorCamera() = default;
+		EditorCamera();
+		~EditorCamera();
 
 		/// @brief Updates the camera's state based on user input and other factors.
 		/// @param hovered Indicates whether the mouse is currently hovering over the camera's view area. This can be used to determine if the camera should respond to input events.
