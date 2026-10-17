@@ -7,16 +7,10 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-
 #include <Graphics/VK/TestData.hpp>
-
 #include <tracy/public/tracy/Tracy.hpp>
-
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
-#include <Scene/SceneViewWindow.hpp>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>

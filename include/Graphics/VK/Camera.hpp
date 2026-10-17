@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Frustum.hpp>
 
 namespace Droplet::Graphics
 {
@@ -17,8 +18,8 @@ namespace Droplet::Graphics
 		Camera(
 			glm::vec3 p_position = glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3 p_up = glm::vec3(0.0f, -1.0f, 0.0f),
-			float p_yaw = -90.0f,
-			float p_pitch = 0.0f
+			float p_yaw = -90.0f, float p_pitch = 0.0f,
+			float p_fov = 45.0f, float p_aspect = 1.0f
 		);
 
 		/// @brief Apply movement inputs on the camera
@@ -48,16 +49,30 @@ namespace Droplet::Graphics
 		/// @returns glm::vec3 Vector above the camera
 		[[nodiscard]] glm::vec3 GetUp() const;
 
+		[[nodiscard]] Math::Frustum GetFrustum() const; 
+
 		/// @brief Return the view matrix
 		/// @returns A glm::mat4
 		[[nodiscard]] glm::mat4 GetViewMatrix() const;
 
 		/// @brief Getter function for the projection matrix
 		/// @returns A projection matrix
-		/// @param p_aspectRatio The width divided by height
-		/// @param p_nearPlane The near plane that is needed for projection matrix
-		/// @param p_farPlane The far plane that is needed for projection matrix
-		[[nodiscard]] glm::mat4 GetProjectionMatrix(float p_aspectRatio, float p_nearPlane = 0.1f, float p_farPlane = 100.f) const;
+		[[nodiscard]] glm::mat4 GetProjectionMatrix() const;
+
+		/// @brief Gets the horizontal field of view (FOV) of the camera in degrees.
+		[[nodiscard]] float GetFOV() const { return m_fov; }
+
+		/// @brief Gets the aspect ratio of the camera. The aspect ratio is defined as the width divided by the height of the camera's view.
+		[[nodiscard]] float GetAspect() const { return m_aspect; }
+
+		/// @brief Gets the near and far clipping planes of the camera. 
+		[[nodiscard]] glm::vec2 GetPlanes() const { return m_planes; }
+
+		void SetFOV(float p_fov) { m_fov = p_fov; }
+
+		void SetAspect(float p_aspect) { m_aspect = p_aspect; }
+
+		void SetPlanes(float p_near, float p_far) { m_planes = glm::vec2(p_near, p_far); }
 
 	private:
 		glm::vec3 m_position {};
@@ -65,12 +80,14 @@ namespace Droplet::Graphics
 		glm::vec3 m_up {};
 		glm::vec3 m_right {};
 		glm::vec3 m_worldUp {};
+		glm::vec2 m_planes = glm::vec2(0.1f, 100.0f); // near and far planes
 
 		float m_yaw {};
 		float m_pitch {};
-		float m_zoom {45.0f};
+		float m_fov = 45.0f;		// horizontal field of view in degrees
+		float m_aspect = 1.0f;		// width / height
 
-		/// @brief Updates the cameras three vectors
+		/// @brief Updates the cameras direction vectors
 		void UpdateCameraVectors();
 	};
 }

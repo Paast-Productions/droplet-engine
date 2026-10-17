@@ -42,8 +42,10 @@ namespace Droplet::Editor::Scene
 
 		/// @brief The texture that the renderer will render to
 		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
+
 		/// @brief The texture that ImGui uses to render the scene in a ImGui window
 		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;
+
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
 	};
 }
