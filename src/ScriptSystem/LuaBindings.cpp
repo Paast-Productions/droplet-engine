@@ -534,7 +534,7 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 
     imgui.set_function(
         "Text",
-		[](const std::string &p_text)
+		[](const std::string &p_text) 
 		{
 			ImGui::TextUnformatted(p_text.c_str());
 	    }

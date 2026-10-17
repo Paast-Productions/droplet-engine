@@ -47,6 +47,12 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void PostUpdate() {}
 
+        /// @brief Renders this behaviour's editor UI.
+        ///
+        /// The inspector calls this public wrapper; derived behaviours provide
+        /// their controls by overriding RenderUIImpl().
+        void RenderUI();
+
         /// @brief Sets the SceneManager used by the Behaviour.
         ///
         /// The SceneManager provides the Behaviour with access to the current
