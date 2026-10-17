@@ -18,6 +18,7 @@ namespace Droplet::Editor
 	class EditorWindow
 	{
 	public:
+		EditorWindow() = default;
 		~EditorWindow() = default;
 
 		/// @brief Initializes the editor window.
@@ -50,7 +51,7 @@ namespace Droplet::Editor
 		[[nodiscard]] bool HasFocus() const { return m_hasFocus; }
 
 	protected:
-		EditorWindow(std::shared_ptr<Droplet::Engine> p_engine) : m_engine(p_engine) {}
+		//EditorWindow(std::shared_ptr<Droplet::Engine> p_engine);
 
 		/// @brief Initializes the editor window. Derived classes can override this method to provide additional initialization logic.
 		virtual void InitImpl() { }
@@ -72,13 +73,13 @@ namespace Droplet::Editor
 		/// @param flags The ImGui window flags to set for the editor window.
 		void SetWindowFlags(ImGuiWindowFlags p_flags) { m_windowFlags = p_flags; }
 
-		std::shared_ptr<Engine> &GetEngine() { return m_engine; }
+		//std::shared_ptr<Engine> &GetEngine() { return m_engine; }
 
 	private:
 		bool m_hasToolbar = true;
 		std::string m_name = "Window";
 		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_None;
-		std::shared_ptr<Droplet::Engine> m_engine{};
+		//std::shared_ptr<Droplet::Engine> m_engine{};
 
 		bool m_hasFocus = false;
 

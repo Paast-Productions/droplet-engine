@@ -7,13 +7,16 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
-#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviour.hpp>
 #include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 #include <Engine/EngineFlags.hpp>
-#include <resource/ResourceManager.hpp>
 
 namespace Droplet
 {
@@ -46,30 +49,20 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		[[nodiscard]] DROPLET_RETURNTYPE Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget);
 		
 		/// @brief the purpose of GetWindow is to let other systems use the window. 
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow();
+		/// Temporarily Getter function
+		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
 
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
 		[[nodiscard]] ResourceManager &GetResourceManager();
-		
-		/// @brief Adds a script behaviour to the engine.
-		/// @return A reference to the added script behaviour.
-		Scene::ScriptBehaviour &AddScriptBehaviour(const std::string& p_scriptPath);
-
-		/// @brief Remove script behaviour to engine
-		/// @param p_scriptBehaviour that should be removed
-		void RemoveScriptBehaviour(Scene::ScriptBehaviour &p_scriptBehaviour);
-
-		/// @brief Get all script behaviours in engine
-		/// @return vector of all scripts
-		[[nodiscard]] const std::vector<std::unique_ptr<Scene::ScriptBehaviour>> &GetScriptBehaviours() const;
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -103,8 +96,6 @@ namespace Droplet
 
 		/// @brief The resource manager instance, should only be one.
 		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
-		
-		std::vector<std::unique_ptr<Scene::ScriptBehaviour>> m_scriptBehaviours;
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;
