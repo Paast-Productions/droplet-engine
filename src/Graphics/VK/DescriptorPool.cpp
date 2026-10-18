@@ -26,7 +26,7 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 	vk::DescriptorPoolCreateInfo poolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet | vk::DescriptorPoolCreateFlagBits::eUpdateAfterBind,
-		.maxSets = std::numeric_limits<std::uint8_t>::max(),
+		.maxSets = static_cast<std::uint32_t>(poolSize.size()),
 		.poolSizeCount = static_cast<std::uint32_t>(poolSize.size()),
 		.pPoolSizes = poolSize.data() 
 	};
