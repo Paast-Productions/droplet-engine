@@ -107,16 +107,25 @@ namespace Droplet::Graphics::Debug
 	protected:
 		friend class Droplet::Graphics::Renderer;
 
+		/// @brief Get the singleton instance of DebugDraw
+		/// @return Reference to the singleton instance of DebugDraw
 		[[nodiscard]] static DebugDraw &Get()
 		{
 			static DebugDraw instance{};
 			return instance;
 		}
 
+		/// @brief Initialize the debug draw system with necessary graphics resources
 		void Initialize(/* VK Resources */);
 
+		/// @brief Generate camera-indepentent draw data
+		void PrepareRender();
+
+		/// @brief Generate camera-dependent draw data and render to the camera output
+		/// @param p_camera The camera to render to
 		void RenderToCamera(const Camera &p_camera);
 
+		/// @brief Clear all draw commands for the next frame
 		void ClearDrawCommands();
 
 
@@ -187,14 +196,65 @@ namespace Droplet::Graphics::Debug
 			glm::vec3 v1, v2, v3;
 		};
 
-		struct DbgSprite
+		struct DbgIcon
 		{
 			glm::vec3 position;
 			glm::vec2 scale;
 		};
+
+		struct Vertex
+		{
+			glm::vec3 position;
+			glm::vec4 color;
+		};
+
+		struct IconVertex
+		{
+			glm::vec3 position;
+			glm::vec4 color;
+			glm::vec2 texCoord;
+		};
+
+		/// @brief Append the given lines to the mesh, converting them to vertices
+		/// @param p_mesh The mesh to append to
+		/// @param p_lines The lines to convert to vertices and append
+		/// @param p_color The color to use for the vertices
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines, glm::vec4 p_color);
+
+		/// @brief Append the given triangles to the mesh, converting them to vertices
+		/// @param p_mesh The mesh to append to
+		/// @param p_tris The triangles to convert to vertices and append
+		/// @param p_color The color to use for the vertices
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris, glm::vec4 p_color);
+
+		/// @brief Append the given icons to the mesh, converting them to vertices
+		/// @param p_mesh The mesh to append to
+		/// @param p_icons The icons to convert to vertices and append
+		/// @param p_color The color to use for the vertices
+		/// @param p_right The right direction for the icons
+		/// @param p_up The up direction for the icons
+		void AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec4 p_color, glm::vec3 p_right, glm::vec3 p_up);
+
 		
-		std::map<InternalDrawOptions, std::vector<DbgLine>>		m_wireLists{};
-		std::map<InternalDrawOptions, std::vector<DbgTri>>		m_fillLists{};
-		std::map<InternalDrawOptions, std::vector<DbgSprite>>	m_spriteLists{};
+		std::map<InternalDrawOptions, std::vector<DbgLine>>	m_wireLists{};
+		std::map<InternalDrawOptions, std::vector<DbgTri>>	m_fillLists{};
+		std::map<InternalDrawOptions, std::vector<DbgIcon>>	m_iconLists{};
+
+		// TODO: 
+		// Vulkan resources
+		// 
+		// Wireframe pipeline
+		// Wireframe depth pipeline
+		// Filled pipeline
+		// Filled depth pipeline
+		// Icon pipeline
+		// Icon depth pipeline
+		// 
+		// Wireframe mesh
+		// Wireframe depth mesh
+		// Filled mesh
+		// Filled depth mesh
+		// Map of icon meshes indexed by GUID
+		// Map of icon depth meshes indexed by GUID
 	};
 }
