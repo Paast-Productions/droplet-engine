@@ -305,17 +305,17 @@ namespace
 
 	static int ClampCurveSegments(int detail)
 	{
-		return std::max(1, detail);
+		return std::clamp(detail, 3, 128);
 	}
 
 	static int ClampCircleSegments(int detail)
 	{
-		return std::max(3, detail);
+		return std::clamp(detail, 3, 64);
 	}
 
 	static int ClampSphereSubdivisions(int detail)
 	{
-		return std::max(0, detail);
+		return std::clamp(detail, 0, 6);
 	}
 }
 
@@ -806,28 +806,28 @@ void DebugDraw::AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<
 // Drawing Functions
 //
 
-void DebugDraw::DrawRay(const Ray &p_ray, const DrawOptions &p_opt)
+void DebugDraw::DrawRay(const Ray &p_ray, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 	dbgDraw.m_wireLists[intOpt].emplace_back(p_ray.pos, p_ray.pos + p_ray.dir);
 }
 
-void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, const DrawOptions &p_opt)
+void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 	dbgDraw.m_wireLists[intOpt].emplace_back(p_start, p_end);
 }
 
-void DebugDraw::DrawTri(const glm::vec3 &p_v1, const glm::vec3 &p_v2, const glm::vec3 &p_v3, const DrawOptions &p_opt)
+void DebugDraw::DrawTri(const glm::vec3 &p_v1, const glm::vec3 &p_v2, const glm::vec3 &p_v3, glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 	dbgDraw.m_fillLists[intOpt].emplace_back(p_v1, p_v2, p_v3);
 }
 
-void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const glm::vec3 &p_right, const DrawOptions &p_opt)
+void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const glm::vec3 &p_right, glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	// Calculate the four corners of the quad
 	glm::vec3 v1 = p_center - p_right - p_up; // Bottom-left
@@ -836,9 +836,9 @@ void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const
 	glm::vec3 v4 = p_center - p_right + p_up; // Top-left
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
+	if (p_wire)
 	{
 		dbgDraw.m_wireLists[intOpt].emplace_back(v1, v2);
 		dbgDraw.m_wireLists[intOpt].emplace_back(v2, v3);
@@ -852,13 +852,13 @@ void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const
 	}
 }
 
-void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d, const glm::vec3 &p_p2, const DrawOptions &p_opt)
+void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d, const glm::vec3 &p_p2, glm::vec4 p_col, int p_seg, bool p_depth)
 {
 	std::vector<glm::vec3> curvePoints;
-	GenerateBezierCurve(p_p1, p_d, p_p2, ClampCurveSegments(p_opt.detail), curvePoints);
+	GenerateBezierCurve(p_p1, p_d, p_p2, ClampCurveSegments(p_seg), curvePoints);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
 	dbgDraw.m_wireLists[intOpt].reserve(dbgDraw.m_wireLists[intOpt].size() + curvePoints.size() - 1);
 
@@ -868,13 +868,13 @@ void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d, const glm
 	}
 }
 
-void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d1, const glm::vec3 &p_d2, const glm::vec3 &p_p2, const DrawOptions &p_opt)
+void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d1, const glm::vec3 &p_d2, const glm::vec3 &p_p2, glm::vec4 p_col, int p_seg, bool p_depth)
 {
 	std::vector<glm::vec3> curvePoints;
-	GenerateBezierCurve(p_p1, p_d1, p_d2, p_p2, ClampCurveSegments(p_opt.detail), curvePoints);
+	GenerateBezierCurve(p_p1, p_d1, p_d2, p_p2, ClampCurveSegments(p_seg), curvePoints);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
 	dbgDraw.m_wireLists[intOpt].reserve(dbgDraw.m_wireLists[intOpt].size() + curvePoints.size() - 1);
 
@@ -884,7 +884,7 @@ void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d1, const gl
 	}
 }
 
-void DebugDraw::DrawBox(const AABB &p_aabb, const DrawOptions &p_opt)
+void DebugDraw::DrawBox(const AABB &p_aabb, const glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	glm::vec3 min = p_aabb.GetMin();
 	glm::vec3 max = p_aabb.GetMax();
@@ -899,9 +899,9 @@ void DebugDraw::DrawBox(const AABB &p_aabb, const DrawOptions &p_opt)
 	glm::vec3 v8 = glm::vec3(min.x, max.y, max.z);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
+	if (p_wire)
 	{
 		// Draw wireframe edges
 		std::vector<DbgLine> lines = {
@@ -932,7 +932,7 @@ void DebugDraw::DrawBox(const AABB &p_aabb, const DrawOptions &p_opt)
 	}
 }
 
-void DebugDraw::DrawBox(const OBB &p_obb, const DrawOptions &p_opt)
+void DebugDraw::DrawBox(const OBB &p_obb, glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	// Calculate the corners
 	std::vector<glm::vec3> v;
@@ -940,9 +940,9 @@ void DebugDraw::DrawBox(const OBB &p_obb, const DrawOptions &p_opt)
 	p_obb.GetCorners(v.data());
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
+	if (p_wire)
 	{
 		// Draw wireframe edges
 		std::vector<DbgLine> lines = {
@@ -973,10 +973,10 @@ void DebugDraw::DrawBox(const OBB &p_obb, const DrawOptions &p_opt)
 	}
 }
 
-void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
+void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	const int subdivisions = ClampSphereSubdivisions(p_opt.detail);
+	const int subdivisions = ClampSphereSubdivisions(p_subdiv);
 
 	if (dbgDraw.m_icosphereCache.find(subdivisions) == dbgDraw.m_icosphereCache.end())
 	{
@@ -1008,29 +1008,15 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, const DrawOptions &p_opt)
 		tri.v3 = p_sphere.center + tri.v3 * p_sphere.radius;
 	}
 
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
-	{
-		auto &lines = dbgDraw.m_wireLists[intOpt];
-		lines.reserve(lines.size() + triangles.size() * 3);
-		for (const auto &tri : triangles)
-		{
-			lines.emplace_back(tri.v1, tri.v2);
-			lines.emplace_back(tri.v2, tri.v3);
-			lines.emplace_back(tri.v3, tri.v1);
-		}
-	}
-	else
-	{
-		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
-	}
+	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 }
 
-void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius, const DrawOptions &p_opt)
+void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	const int segments = ClampCircleSegments(p_opt.detail);
+	const int segments = ClampCircleSegments(p_seg);
 
 	if (dbgDraw.m_circleCache.find(segments) == dbgDraw.m_circleCache.end())
 	{
@@ -1074,9 +1060,9 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 		p = p_center + glm::vec3(rotation * glm::vec4(p * p_radius, 1.0f));
 	}
 
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
+	if (p_wire)
 	{
 		std::vector<DbgLine> lines;
 		lines.reserve(points.size());
@@ -1102,7 +1088,7 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 	}
 }
 
-void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
+void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	// Calculate the eight corners of the frustum
 	std::vector<glm::vec3> v;
@@ -1110,9 +1096,9 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
 	p_frustum.GetCorners(v.data());
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt);
+	InternalDrawOptions intOpt(p_col, p_depth);
 
-	if (p_opt.wireframe)
+	if (p_wire)
 	{
 		// Draw wireframe edges
 		std::vector<DbgLine> lines = {
@@ -1143,13 +1129,13 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, const DrawOptions &p_opt)
 	}
 }
 
-void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_center, const glm::vec2 &p_scale, const DrawOptions &p_opt)
+void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_pos, const glm::vec2 &p_scale, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_opt, p_icon);
+	InternalDrawOptions intOpt(p_col, p_depth, p_icon);
 
 	dbgDraw.m_iconLists[intOpt].emplace_back(
-		p_center,
+		p_pos,
 		p_scale
 	);
 }
