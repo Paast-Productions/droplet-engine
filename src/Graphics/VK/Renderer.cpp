@@ -20,6 +20,7 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
 #include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 
 
@@ -51,6 +52,25 @@ Renderer::Renderer(SDL::Window &p_window) :
 	// TODO: <REFACTOR>
 	
 	CreateGraphicsPipeline();
+	try
+	{
+		Debug::DebugDraw::Get().Initialize(
+			m_context.GetInstance(),
+			m_context.GetPhysicalDevice(),
+			m_context.GetDevice(),
+			m_allocator.Get(),
+			m_context.GetQueue(),
+			m_commandPool.Get(),
+			m_descriptorPool.Get(),
+			m_swapchain.GetSurfaceFormat().format,
+			m_depthBuffer.GetFormat(),
+			MAX_FRAMES_IN_FLIGHT);
+	}
+	catch (...)
+	{
+		Debug::DebugDraw::Get().Shutdown();
+		throw;
+	}
 
 	const VK::UniformBufferObject ubo
 	{
@@ -129,6 +149,7 @@ Renderer::~Renderer()
 {
 	ZoneScoped;
 
+	Debug::DebugDraw::Get().Shutdown();
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
@@ -342,6 +363,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 	commandBuffer.endRendering();
@@ -463,6 +485,7 @@ void Renderer::DrawFrame()
 	};
 	
 	m_storageBuffer.UpdateBuffer(ubo);
+	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -472,6 +495,7 @@ void Renderer::DrawFrame()
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
 	RecordCommandBuffer(m_imageIndex);
+	Debug::DebugDraw::Get().ClearDrawCommands();
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 	

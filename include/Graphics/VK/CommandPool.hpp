@@ -76,6 +76,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_id Struct containing command buffer index in command pool.
 		/// @returns Reference to command buffer.
 		[[nodiscard]] const vk::raii::CommandBuffer& GetBufferAt(std::size_t p_id);
+		[[nodiscard]] const vk::raii::CommandPool& Get() const { return m_commandPool; }
 		
 		/// @brief Submit commands to be immediately submitted to the supplied queue.
 		/// 
