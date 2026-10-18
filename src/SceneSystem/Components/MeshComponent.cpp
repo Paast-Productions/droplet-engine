@@ -106,32 +106,15 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
     //TODO: will be inplemted later when the mesh system is implemented
 }
 
-void MeshComponent::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
+void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
 {
-    p_renderData.emplace_back
-    (
-        Graphics::RenderData 
-        {
-            {
-                .GUID = m_shaderData.vs.GetGUID()
-            },
-            {
-                .GUID = m_shaderData.tcs.GetGUID()
-            },
-            {
-                .GUID = m_shaderData.tes.GetGUID()
-            },
-            {
-                .GUID = m_shaderData.gs.GetGUID()
-            },
-            {
-                .GUID = m_shaderData.fs.GetGUID()
-            },
-            {
-                .GUID = m_mesh.GetGUID()
-            }
-        }
-    );
+    p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+    p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
+    p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
+    p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
+    p_renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+
+    p_renderData.meshData.GUID = m_mesh.GetGUID();
 }
 
 void MeshComponent::RenderUIImpl()

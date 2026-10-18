@@ -14,6 +14,8 @@
 #include <shader-slang/slang.h>
 #endif
 
+#include <glm/glm.hpp>
+
 namespace Droplet::Graphics::VK
 {
 	/// @struct PipelineConfig 
@@ -43,7 +45,7 @@ namespace Droplet::Graphics::VK
 		{
 			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			.offset = 0,
-			.size = sizeof(std::uint32_t)
+			.size = sizeof(glm::mat4)
 		};
 		
 		std::vector<vk::DynamicState> DynamicStates

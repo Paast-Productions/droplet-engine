@@ -18,18 +18,25 @@ struct UniformBuffer
     float4x4 proj;
 };
 
+struct WorldBuffer
+{
+    float4x4 world;
+}
+
 struct PushConstants
 {
     uint32_t unibuffer;
     uint32_t sampler;
 };
 
-layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> ubo;
+[[vk_push_constant]] WorldBuffer pc;
+
+layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 
 [shader("vertex")]
 VSOutput main(VSInput input) {
     VSOutput output;
-    output.pos = mul(ubo.proj, mul(ubo.view, float4(input.inPosition, 1.0)));
+    output.pos = mul(vp.proj, mul(vp.view,  float4(input.inPosition, 1.0)));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);
     return output;

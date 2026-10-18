@@ -60,7 +60,7 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
     	
-    	virtual void GetRenderData([[maybe_unused]] std::vector<Graphics::RenderData> &p_renderData) {}
+    	virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();

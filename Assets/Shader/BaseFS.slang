@@ -10,5 +10,5 @@ layout(set = 0, binding = 1) Sampler2D texture;
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET {
 
-    return float4(1.0, 1.0, 1.0, 1.0);
+    return float4(1.0, 1.0, 0.0, 1.0);
 }

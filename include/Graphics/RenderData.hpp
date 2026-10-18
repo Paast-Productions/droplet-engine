@@ -23,6 +23,8 @@ namespace Droplet::Graphics
     {
         //Texture sampling options could be added here
         std::uint64_t GUID {0};
+
+        std::uint64_t samplerIndex;
     };
     
     struct RenderData
@@ -36,6 +38,8 @@ namespace Droplet::Graphics
         MeshData meshData{};
 
         TextureData texData{};
+
+        glm::mat4 transform;
     };
 
     namespace VK

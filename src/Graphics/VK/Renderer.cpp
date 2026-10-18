@@ -378,13 +378,15 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 		
 			const VK::Mesh mesh = m_interStorage.GetMesh(data);
-
-			/*vk::PushConstantsInfo pcInfo
+			
+			vk::PushConstantsInfo pcInfo
 			{
 				.sType = vk::StructureType::ePushConstantsInfo,
-				.size = sizeof(VK::Push)
-			};*/
+				.size = sizeof(glm::mat4),
+				.pValues = &data.transform
+			};
 
+			//cmdBuffer.pushConstants2(pcInfo);
 			cmdBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
 			cmdBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
 			cmdBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
@@ -395,8 +397,6 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		}
 	}
 	
-	cmdBuffer.endRendering();
-	cmdBuffer.beginRendering(renderingInfo);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *cmdBuffer);
 	cmdBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -661,7 +661,6 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 	};
 
 	m_vpBuffer.UpdateBuffer(vp);
-
 	
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);

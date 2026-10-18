@@ -13,21 +13,22 @@
 #include <Graphics/VK/Sampler.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/IndexBuffer.hpp>
+#include <Graphics/VK/UniformBuffer.hpp>
 #include <vulkan/vulkan.h>
 
 namespace Droplet::Graphics::VK
 {
     struct PipelineKey
     {
-        std::uint64_t vsGuid {0};
-        std::uint64_t tcsGuid {0};
-        std::uint64_t tesGuid {0};
-        std::uint64_t gsGuid {0};
-        std::uint64_t fsGuid {0};
-        
-        std::strong_ordering operator<=>(const PipelineKey &) const = default; 
+        std::uint64_t vsGuid{ 0 };
+        std::uint64_t tcsGuid{ 0 };
+        std::uint64_t tesGuid{ 0 };
+        std::uint64_t gsGuid{ 0 };
+        std::uint64_t fsGuid{ 0 };
+
+        std::strong_ordering operator<=>(const PipelineKey&) const = default;
     };
-    
+
     struct PipelineHasher
     {
         std::size_t operator()(const PipelineKey& key) const
@@ -38,9 +39,9 @@ namespace Droplet::Graphics::VK
             res = res * 31 + std::hash<std::uint64_t>()(key.tesGuid);
             res = res * 31 + std::hash<std::uint64_t>()(key.gsGuid);
             res = res * 31 + std::hash<std::uint64_t>()(key.fsGuid);
-            
+
             return res;
-            
+
         }
     };
 
@@ -48,7 +49,7 @@ namespace Droplet::Graphics::VK
     {
         std::uint64_t meshGUID;
 
-        std::strong_ordering operator<=>(const MeshKey &) const = default;
+        std::strong_ordering operator<=>(const MeshKey&) const = default;
     };
 
     struct Mesh
@@ -60,7 +61,7 @@ namespace Droplet::Graphics::VK
 
     struct MeshHasher
     {
-        std::size_t operator()(const MeshKey &key) const
+        std::size_t operator()(const MeshKey& key) const
         {
             std::size_t res = 17;
             res = res * 31 + std::hash<std::uint64_t>()(key.meshGUID);
@@ -73,12 +74,12 @@ namespace Droplet::Graphics::VK
     {
         std::uint64_t texGUID;
 
-        std::strong_ordering operator<=>(const TextureKey &) const = default;
+        std::strong_ordering operator<=>(const TextureKey&) const = default;
     };
 
     struct TextureHasher
     {
-        std::size_t operator()(const TextureKey &key) const
+        std::size_t operator()(const TextureKey& key) const
         {
             std::size_t res = 17;
             res = res * 31 + std::hash<std::uint64_t>()(key.texGUID);
@@ -92,7 +93,7 @@ namespace Droplet::Graphics::VK
         VertexBuffer vertices{ nullptr };
         IndexBuffer indices{ nullptr };
 
-        MeshBuffer &operator=(MeshBuffer &&p_other) noexcept
+        MeshBuffer& operator=(MeshBuffer&& p_other) noexcept
         {
             if (*this == p_other)
             {
@@ -105,12 +106,12 @@ namespace Droplet::Graphics::VK
             return *this;
         }
 
-        bool operator==(MeshBuffer &p_other) noexcept
+        bool operator==(MeshBuffer& p_other) noexcept
         {
             return indices == p_other.indices && vertices == p_other.vertices;
         }
 
-        MeshBuffer(MeshBuffer &&p_other) noexcept
+        MeshBuffer(MeshBuffer&& p_other) noexcept
         {
             std::swap(vertices, p_other.vertices);
             std::swap(indices, p_other.indices);
@@ -123,26 +124,30 @@ namespace Droplet::Graphics::VK
         Image image;
         ImageView textureView;
     };
-    
+
     class IntermediaryStorage
     {
     public:
         IntermediaryStorage() = delete;
-        
-        IntermediaryStorage(Context &p_context, const DescriptorSet &p_descriptorSet);
 
-        IntermediaryStorage(const IntermediaryStorage &p_other) = delete;
-        IntermediaryStorage &operator=(const IntermediaryStorage &p_other) = delete;
-        IntermediaryStorage(IntermediaryStorage &&p_other) noexcept = delete;
-        IntermediaryStorage &operator=(IntermediaryStorage &&p_other) noexcept = delete;
-        
+        IntermediaryStorage(Context& p_context, const DescriptorSet& p_descriptorSet);
+
+        IntermediaryStorage(const IntermediaryStorage& p_other) = delete;
+        IntermediaryStorage& operator=(const IntermediaryStorage& p_other) = delete;
+        IntermediaryStorage(IntermediaryStorage&& p_other) noexcept = delete;
+        IntermediaryStorage& operator=(IntermediaryStorage&& p_other) noexcept = delete;
+
         ~IntermediaryStorage() = default;
-        
-        [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
-        
-        [[nodiscard]] const Pipeline &GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
 
-        [[nodiscard]] const Mesh &GetMesh(RenderData p_renderData);
+        [[nodiscard]] const vma::raii::Allocator& GetAllocator() const { return m_allocator.Get(); }
+
+        [[nodiscard]] const Pipeline& GetPipeline(RenderData p_renderData, const vk::raii::Device& p_device, const vk::raii::PhysicalDevice& p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
+
+        [[nodiscard]] const Mesh& GetMesh(RenderData p_renderData);
+
+        [[nodisacrd]] const void UpdateUniformBuffers();
+
+        [[nodiscard]] const void LoadTexture(RenderData p_renderData);
         
     private:
         const VK::Context &m_context;
@@ -153,6 +158,8 @@ namespace Droplet::Graphics::VK
 
         std::unordered_map<MeshKey, VertexBuffer, MeshHasher> m_vertexMap {};
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
+
+        std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap{};
 
         std::unordered_map<std::uint32_t, Image> m_imageMap {};
         std::unordered_map<std::uint32_t, Sampler> m_samplerMap {};

@@ -24,7 +24,7 @@ namespace Droplet::Scene
 
         void Update(float p_deltaTime) override;
         
-        void GetRenderData(std::vector<Graphics::RenderData> &p_renderData) override;
+        void GetRenderData(Graphics::RenderData &p_renderData) override;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.

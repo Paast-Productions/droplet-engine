@@ -165,3 +165,47 @@ const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
 
     return mesh;
 }
+
+//const void IntermediaryStorage::LoadTexture(RenderData p_renderData)
+//{
+//    TextureKey key
+//    {
+//        .texGUID = p_renderData.texData.GUID;
+//    };
+//
+//    try
+//    {
+//        Mesh mesh
+//        {
+//            .vertexBuffer = m_vertexMap.at(key).Get(),
+//            .indexBuffer = m_indexMap.at(key).Get(),
+//            .indexCount = m_indexMap.at(key).GetIndexCount()
+//        };
+//        return mesh;
+//    }
+//    catch (const std::exception& err)
+//    {
+//        Debug::Logger& logger = Debug::Logger::GetInstance();
+//        logger.Log(Droplet::Debug::LogType::Info, err.what());
+//    }
+//
+//    ResourceManager& RMInstance = ResourceManager::GetInstance();
+//    ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
+//
+//    if (!(meshRes.IsReady() || meshRes.HasFailed()))
+//    {
+//        throw std::runtime_error("Mesh not ready");
+//    }
+//
+//    m_vertexMap[key] = VertexBuffer{ m_allocator.Get(), meshRes.Get()->GetVertexData() };
+//    m_indexMap[key] = IndexBuffer{ m_allocator.Get(), meshRes.Get()->GetIndexData() };
+//
+//    Mesh mesh
+//    {
+//        .vertexBuffer = m_vertexMap.at(key).Get(),
+//        .indexBuffer = m_indexMap.at(key).Get(),
+//        .indexCount = m_indexMap.at(key).GetIndexCount()
+//    };
+//
+//    return mesh;
+//}

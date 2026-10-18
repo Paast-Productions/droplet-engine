@@ -69,17 +69,24 @@ void Node::Update(float p_deltaTime)
     }
 }
 
-void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const
+void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) 
 {
     if (!m_active)
     {
         return;
     }
+
+    Graphics::RenderData rData
+    {
+        .transform = m_transform.GetMatrix(Transform::Space::World)
+    };
     
     for (const auto &component : m_components)
     {
-        component->GetRenderData(p_renderData);
+        component->GetRenderData(rData);
     }
+
+    p_renderData.push_back(rData);
     
     for (const std::shared_ptr<Node>& child : m_children)
     {
