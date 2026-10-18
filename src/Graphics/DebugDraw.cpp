@@ -49,12 +49,15 @@ namespace
 		}
 
 		std::vector<char> code(static_cast<std::size_t>(size));
+
 		file.seekg(0);
 		file.read(code.data(), static_cast<std::streamsize>(code.size()));
+
 		if (!file)
 		{
 			throw std::runtime_error("Failed to read debug draw shader: " + p_path.string());
 		}
+
 		return code;
 	}
 
@@ -63,11 +66,12 @@ namespace
 		ZoneScoped;
 
 		const std::vector<char> code = ReadShader(p_path);
-		const vk::ShaderModuleCreateInfo createInfo
-		{
+
+		const vk::ShaderModuleCreateInfo createInfo {
 			.codeSize = code.size(),
 			.pCode = reinterpret_cast<const std::uint32_t *>(code.data())
 		};
+
 		return vk::raii::ShaderModule(p_device, createInfo);
 	}
 
@@ -75,18 +79,18 @@ namespace
 	{
 		ZoneScoped;
 
-		const vk::BufferCreateInfo bufferInfo
-		{
+		const vk::BufferCreateInfo bufferInfo {
 			.size = p_size,
 			.usage = p_usage,
 			.sharingMode = vk::SharingMode::eExclusive
 		};
-		const vma::AllocationCreateInfo allocationInfo
-		{
+
+		const vma::AllocationCreateInfo allocationInfo {
 			.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite,
 			.usage = vma::MemoryUsage::eAuto,
 			.requiredFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
 		};
+
 		return vma::raii::Buffer(p_allocator, bufferInfo, allocationInfo);
 	}
 
@@ -109,8 +113,10 @@ namespace
 				newCapacity = requiredSize;
 				break;
 			}
+
 			newCapacity *= 2;
 		}
+
 		p_buffer = CreateHostBuffer(p_allocator, newCapacity, p_usage);
 		p_capacity = newCapacity;
 	}
@@ -361,24 +367,23 @@ void DebugDraw::Initialize(
 	m_icosphereCache.clear();
 	m_circleCache.clear();
 
-	const vk::DescriptorSetLayoutBinding cameraBinding
-	{
+	const vk::DescriptorSetLayoutBinding cameraBinding {
 		.binding = 0,
 		.descriptorType = vk::DescriptorType::eUniformBuffer,
 		.descriptorCount = 1,
 		.stageFlags = vk::ShaderStageFlagBits::eVertex
 	};
-	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(p_device, vk::DescriptorSetLayoutCreateInfo
-	{
+
+	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(p_device, vk::DescriptorSetLayoutCreateInfo {
 		.bindingCount = 1,
 		.pBindings = &cameraBinding
 	});
 
-	const vk::PipelineLayoutCreateInfo layoutInfo
-	{
+	const vk::PipelineLayoutCreateInfo layoutInfo {
 		.setLayoutCount = 1,
 		.pSetLayouts = &*m_descriptorSetLayout
 	};
+
 	m_pipelineLayout = vk::raii::PipelineLayout(p_device, layoutInfo);
 
 	m_shaderModules[0] = CreateShaderModule(p_device, "debug_draw.vert.spv");
@@ -391,35 +396,34 @@ void DebugDraw::Initialize(
 	{
 		frame.cameraBuffer = CreateHostBuffer(p_allocator, sizeof(CameraUniform), vk::BufferUsageFlagBits::eUniformBuffer);
 
-		const vk::DescriptorSetAllocateInfo allocateInfo
-		{
+		const vk::DescriptorSetAllocateInfo allocateInfo {
 			.descriptorPool = *p_descriptorPool,
 			.descriptorSetCount = 1,
 			.pSetLayouts = &*m_descriptorSetLayout
 		};
+
 		frame.descriptorSet = std::move(p_device.allocateDescriptorSets(allocateInfo).front());
 
-		const vk::DescriptorBufferInfo bufferInfo
-		{
+		const vk::DescriptorBufferInfo bufferInfo {
 			.buffer = frame.cameraBuffer,
 			.offset = 0,
 			.range = sizeof(CameraUniform)
 		};
-		const vk::WriteDescriptorSet descriptorWrite
-		{
+
+		const vk::WriteDescriptorSet descriptorWrite {
 			.dstSet = frame.descriptorSet,
 			.dstBinding = 0,
 			.descriptorCount = 1,
 			.descriptorType = vk::DescriptorType::eUniformBuffer,
 			.pBufferInfo = &bufferInfo
 		};
+
 		p_device.updateDescriptorSets(descriptorWrite, {});
 	}
 
 	const auto createPipeline = [&](std::size_t p_shaderOffset, vk::PrimitiveTopology p_topology, bool p_icon, bool p_depthTest)
 	{
-		const std::array<vk::PipelineShaderStageCreateInfo, 2> stages
-		{{
+		const std::array<vk::PipelineShaderStageCreateInfo, 2> stages {{
 			{
 				.stage = vk::ShaderStageFlagBits::eVertex,
 				.module = *m_shaderModules[p_shaderOffset],
@@ -432,50 +436,65 @@ void DebugDraw::Initialize(
 			}
 		}};
 
-		const std::array<vk::VertexInputAttributeDescription, 3> iconAttributes
-		{{
+		const std::array<vk::VertexInputAttributeDescription, 3> iconAttributes {{
 			{ .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(IconVertex, position) },
 			{ .location = 1, .binding = 0, .format = vk::Format::eR32G32B32A32Sfloat, .offset = offsetof(IconVertex, color) },
 			{ .location = 2, .binding = 0, .format = vk::Format::eR32G32Sfloat, .offset = offsetof(IconVertex, texCoord) }
 		}};
-		const std::array<vk::VertexInputAttributeDescription, 2> meshAttributes
-		{{
+
+		const std::array<vk::VertexInputAttributeDescription, 2> meshAttributes {{
 			{ .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(Vertex, position) },
 			{ .location = 1, .binding = 0, .format = vk::Format::eR32G32B32A32Sfloat, .offset = offsetof(Vertex, color) }
 		}};
-		const vk::VertexInputBindingDescription binding
-		{
+
+		const vk::VertexInputBindingDescription binding {
 			.binding = 0,
 			.stride = p_icon ? sizeof(IconVertex) : sizeof(Vertex),
 			.inputRate = vk::VertexInputRate::eVertex
 		};
-		const vk::VertexInputAttributeDescription *attributeData = p_icon ? iconAttributes.data() : meshAttributes.data();
-		const std::uint32_t attributeCount = p_icon ? static_cast<std::uint32_t>(iconAttributes.size()) : static_cast<std::uint32_t>(meshAttributes.size());
-		const vk::PipelineVertexInputStateCreateInfo vertexInput
-		{
+
+		const vk::VertexInputAttributeDescription *attributeData = p_icon ? 
+			iconAttributes.data() : 
+			meshAttributes.data();
+
+		const std::uint32_t attributeCount = p_icon ? 
+			static_cast<std::uint32_t>(iconAttributes.size()) : 
+			static_cast<std::uint32_t>(meshAttributes.size());
+
+		const vk::PipelineVertexInputStateCreateInfo vertexInput {
 			.vertexBindingDescriptionCount = 1,
 			.pVertexBindingDescriptions = &binding,
 			.vertexAttributeDescriptionCount = attributeCount,
 			.pVertexAttributeDescriptions = attributeData
 		};
-		const vk::PipelineInputAssemblyStateCreateInfo inputAssembly { .topology = p_topology };
-		const vk::PipelineViewportStateCreateInfo viewportState { .viewportCount = 1, .scissorCount = 1 };
-		const vk::PipelineRasterizationStateCreateInfo rasterizer
-		{
+
+		const vk::PipelineInputAssemblyStateCreateInfo inputAssembly { 
+			.topology = p_topology 
+		};
+
+		const vk::PipelineViewportStateCreateInfo viewportState { 
+			.viewportCount = 1, 
+			.scissorCount = 1 
+		};
+
+		const vk::PipelineRasterizationStateCreateInfo rasterizer {
 			.polygonMode = vk::PolygonMode::eFill,
 			.cullMode = vk::CullModeFlagBits::eNone,
 			.frontFace = vk::FrontFace::eCounterClockwise,
 			.lineWidth = 1.0f
 		};
-		const vk::PipelineMultisampleStateCreateInfo multisampling { .rasterizationSamples = vk::SampleCountFlagBits::e1 };
-		const vk::PipelineDepthStencilStateCreateInfo depthStencil
-		{
+
+		const vk::PipelineMultisampleStateCreateInfo multisampling { 
+			.rasterizationSamples = vk::SampleCountFlagBits::e1 
+		};
+
+		const vk::PipelineDepthStencilStateCreateInfo depthStencil {
 			.depthTestEnable = p_depthTest ? vk::True : vk::False,
 			.depthWriteEnable = vk::False,
 			.depthCompareOp = vk::CompareOp::eLessOrEqual
 		};
-		const vk::PipelineColorBlendAttachmentState blendAttachment
-		{
+
+		const vk::PipelineColorBlendAttachmentState blendAttachment {
 			.blendEnable = vk::True,
 			.srcColorBlendFactor = vk::BlendFactor::eSrcAlpha,
 			.dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
@@ -485,19 +504,23 @@ void DebugDraw::Initialize(
 			.alphaBlendOp = vk::BlendOp::eAdd,
 			.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA
 		};
-		const vk::PipelineColorBlendStateCreateInfo colorBlending
-		{
+
+		const vk::PipelineColorBlendStateCreateInfo colorBlending {
 			.attachmentCount = 1,
 			.pAttachments = &blendAttachment
 		};
-		const std::array<vk::DynamicState, 2> dynamicStates { vk::DynamicState::eViewport, vk::DynamicState::eScissor };
-		const vk::PipelineDynamicStateCreateInfo dynamicState
-		{
+
+		const std::array<vk::DynamicState, 2> dynamicStates { 
+			vk::DynamicState::eViewport, 
+			vk::DynamicState::eScissor 
+		};
+
+		const vk::PipelineDynamicStateCreateInfo dynamicState {
 			.dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
 			.pDynamicStates = dynamicStates.data()
 		};
-		vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfo
-		{
+
+		vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfo {
 			{
 				.stageCount = static_cast<std::uint32_t>(stages.size()),
 				.pStages = stages.data(),
@@ -517,6 +540,7 @@ void DebugDraw::Initialize(
 				.depthAttachmentFormat = m_depthFormat
 			}
 		};
+
 		return vk::raii::Pipeline(p_device, nullptr, createInfo.get<vk::GraphicsPipelineCreateInfo>());
 	};
 
@@ -542,11 +566,13 @@ void DebugDraw::Shutdown()
 	{
 		pipeline = nullptr;
 	}
+
 	m_pipelineLayout = nullptr;
 	for (auto &shaderModule : m_shaderModules)
 	{
 		shaderModule = nullptr;
 	}
+
 	m_descriptorSetLayout = nullptr;
 
 	m_instance = nullptr;
@@ -596,6 +622,7 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 
 	m_wireMesh = std::move(wireMesh);
 	m_wireDepthMesh = std::move(wireDepthMesh);
+
 	m_fillMesh = std::move(fillMesh);
 	m_fillDepthMesh = std::move(fillDepthMesh);
 
@@ -603,23 +630,30 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 	{
 		return;
 	}
+
 	FrameResources &frame = m_frameResources[p_frameIndex];
 
 	std::vector<Vertex> wireVertices;
 	wireVertices.reserve(m_wireMesh.size() + m_wireDepthMesh.size());
 	wireVertices.insert(wireVertices.end(), m_wireMesh.begin(), m_wireMesh.end());
+
 	frame.wireDepthFirst = static_cast<std::uint32_t>(wireVertices.size());
 	frame.wireDepthCount = static_cast<std::uint32_t>(m_wireDepthMesh.size());
+
 	wireVertices.insert(wireVertices.end(), m_wireDepthMesh.begin(), m_wireDepthMesh.end());
+
 	EnsureBuffer<Vertex>(*m_allocator, frame.wireBuffer, frame.wireCapacity, wireVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
 	UploadBuffer(frame.wireBuffer, wireVertices);
 
 	std::vector<Vertex> fillVertices;
 	fillVertices.reserve(m_fillMesh.size() + m_fillDepthMesh.size());
 	fillVertices.insert(fillVertices.end(), m_fillMesh.begin(), m_fillMesh.end());
+
 	frame.fillDepthFirst = static_cast<std::uint32_t>(fillVertices.size());
 	frame.fillDepthCount = static_cast<std::uint32_t>(m_fillDepthMesh.size());
+
 	fillVertices.insert(fillVertices.end(), m_fillDepthMesh.begin(), m_fillDepthMesh.end());
+
 	EnsureBuffer<Vertex>(*m_allocator, frame.fillBuffer, frame.fillCapacity, fillVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
 	UploadBuffer(frame.fillBuffer, fillVertices);
 
@@ -628,6 +662,7 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 	{
 		indices[i] = i;
 	}
+
 	EnsureBuffer<std::uint32_t>(*m_allocator, frame.indexBuffer, frame.indexCapacity, indices.size(), vk::BufferUsageFlagBits::eIndexBuffer);
 	UploadBuffer(frame.indexBuffer, indices);
 }
@@ -636,14 +671,30 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 {
 	ZoneScoped;
 
-	if (!m_device || p_frameIndex >= m_frameResources.size() || p_extent.width == 0 || p_extent.height == 0)
+	if (!m_device)
+	{
+		return;
+	}
+
+	if (p_frameIndex >= m_frameResources.size())
+	{
+		return;
+	}
+
+	if (p_extent.width == 0 || p_extent.height == 0)
 	{
 		return;
 	}
 
 	FrameResources &frame = m_frameResources[p_frameIndex];
+
 	const float aspectRatio = static_cast<float>(p_extent.width) / static_cast<float>(p_extent.height);
-	const CameraUniform cameraUniform { p_camera.GetViewMatrix(), p_camera.GetProjectionMatrix(aspectRatio) };
+
+	const CameraUniform cameraUniform { 
+		p_camera.GetViewMatrix(), 
+		p_camera.GetProjectionMatrix(aspectRatio) 
+	};
+
 	frame.cameraBuffer.getAllocation().copyFromMemory(&cameraUniform, 0, sizeof(cameraUniform));
 
 	glm::vec3 cameraRight = -p_camera.GetRight();
@@ -672,25 +723,33 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 		(void)icon;
 		iconVertices.insert(iconVertices.end(), vertices.begin(), vertices.end());
 	}
+
 	frame.iconDepthFirst = static_cast<std::uint32_t>(iconVertices.size());
 	for (const auto &[icon, vertices] : m_iconDepthMeshes)
 	{
 		(void)icon;
 		iconVertices.insert(iconVertices.end(), vertices.begin(), vertices.end());
 	}
+
 	EnsureBuffer<IconVertex>(*m_allocator, frame.iconBuffer, frame.iconCapacity, iconVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
 	UploadBuffer(frame.iconBuffer, iconVertices);
-	const std::size_t indexCount = std::max({ m_wireMesh.size() + m_wireDepthMesh.size(), m_fillMesh.size() + m_fillDepthMesh.size(), iconVertices.size() });
+
+	const std::size_t indexCount = std::max({ 
+		m_wireMesh.size() + m_wireDepthMesh.size(), 
+		m_fillMesh.size() + m_fillDepthMesh.size(), 
+		iconVertices.size() 
+	});
+
 	std::vector<std::uint32_t> indices(indexCount);
 	for (std::uint32_t i = 0; i < indices.size(); ++i)
 	{
 		indices[i] = i;
 	}
+
 	EnsureBuffer<std::uint32_t>(*m_allocator, frame.indexBuffer, frame.indexCapacity, indices.size(), vk::BufferUsageFlagBits::eIndexBuffer);
 	UploadBuffer(frame.indexBuffer, indices);
 
-	const vk::Viewport viewport
-	{
+	const vk::Viewport viewport {
 		.x = 0.0f,
 		.y = static_cast<float>(p_extent.height),
 		.width = static_cast<float>(p_extent.width),
@@ -698,39 +757,48 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 		.minDepth = 0.0f,
 		.maxDepth = 1.0f
 	};
-	const vk::Rect2D scissor { vk::Offset2D(0, 0), p_extent };
+
+	const vk::Rect2D scissor { 
+		vk::Offset2D(0, 0), 
+		p_extent 
+	};
+
 	p_commandBuffer.setViewport(0, viewport);
 	p_commandBuffer.setScissor(0, scissor);
 	p_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *frame.descriptorSet, nullptr);
 
-	const auto drawMesh = [&](std::size_t p_pipelineIndex, const vma::raii::Buffer &p_buffer, std::uint32_t p_firstVertex, std::uint32_t p_vertexCount)
-	{
+	const auto drawMesh = [&](std::size_t p_pipelineIndex, const vma::raii::Buffer &p_buffer, std::uint32_t p_firstVertex, std::uint32_t p_vertexCount) {
 		if (p_vertexCount == 0 || p_buffer == nullptr || frame.indexBuffer == nullptr)
 		{
 			return;
 		}
+
 		p_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_pipelines[p_pipelineIndex]);
+
 		const vk::DeviceSize offset = 0;
 		p_commandBuffer.bindVertexBuffers(0, *p_buffer, { offset });
 		p_commandBuffer.bindIndexBuffer(*frame.indexBuffer, 0, vk::IndexType::eUint32);
+
 		p_commandBuffer.drawIndexed(p_vertexCount, 1, p_firstVertex, 0, 0);
 	};
 
 	drawMesh(1, frame.wireBuffer, 0, static_cast<std::uint32_t>(m_wireMesh.size()));
 	drawMesh(0, frame.wireBuffer, frame.wireDepthFirst, frame.wireDepthCount);
+
 	drawMesh(3, frame.fillBuffer, 0, static_cast<std::uint32_t>(m_fillMesh.size()));
 	drawMesh(2, frame.fillBuffer, frame.fillDepthFirst, frame.fillDepthCount);
 
-	const auto drawIcons = [&](const std::map<GUID, std::vector<IconVertex>> &p_meshes, std::size_t p_pipelineIndex, std::uint32_t p_firstVertex)
-	{
+	const auto drawIcons = [&](const std::map<GUID, std::vector<IconVertex>> &p_meshes, std::size_t p_pipelineIndex, std::uint32_t p_firstVertex) {
 		std::uint32_t firstVertex = p_firstVertex;
 		for (const auto &[icon, vertices] : p_meshes)
 		{
-			(void)icon;
+			(void)icon; // TODO: Fetch the icon texture and bind it to the pipeline before drawing
+
 			drawMesh(p_pipelineIndex, frame.iconBuffer, firstVertex, static_cast<std::uint32_t>(vertices.size()));
 			firstVertex += static_cast<std::uint32_t>(vertices.size());
 		}
 	};
+
 	drawIcons(m_iconMeshes, 5, 0);
 	drawIcons(m_iconDepthMeshes, 4, frame.iconDepthFirst);
 }
