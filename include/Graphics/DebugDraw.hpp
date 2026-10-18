@@ -9,6 +9,14 @@
 #include <math/bounds/Frustum.hpp>
 #include <resource/GuidUtils.hpp>
 
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+#include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+
+#include <array>
+#include <cstdint>
+
 namespace Droplet::Graphics
 {
 	// Forward declarations
@@ -116,14 +124,27 @@ namespace Droplet::Graphics::Debug
 		}
 
 		/// @brief Initialize the debug draw system with necessary graphics resources
-		void Initialize(/* VK Resources */);
+		void Initialize(
+			const vk::raii::Instance &p_instance,
+			const vk::raii::PhysicalDevice &p_physicalDevice,
+			const vk::raii::Device &p_device,
+			const vma::raii::Allocator &p_allocator,
+			const vk::raii::Queue &p_queue,
+			const vk::raii::CommandPool &p_commandPool,
+			const vk::raii::DescriptorPool &p_descriptorPool,
+			vk::Format p_colorFormat,
+			vk::Format p_depthFormat,
+			std::uint32_t p_framesInFlight);
+
+		/// @brief Shutdown the debug draw system and release graphics resources
+		void Shutdown();
 
 		/// @brief Generate camera-indepentent draw data
-		void PrepareRender();
+		void PrepareRender(std::uint32_t p_frameIndex);
 
 		/// @brief Generate camera-dependent draw data and render to the camera output
 		/// @param p_camera The camera to render to
-		void RenderToCamera(const Camera &p_camera);
+		void RenderToCamera(const Camera &p_camera, const vk::raii::CommandBuffer &p_commandBuffer, vk::Extent2D p_extent, std::uint32_t p_frameIndex);
 
 		/// @brief Clear all draw commands for the next frame
 		void ClearDrawCommands();
@@ -215,6 +236,25 @@ namespace Droplet::Graphics::Debug
 			glm::vec2 texCoord;
 		};
 
+		struct FrameResources
+		{
+			vma::raii::Buffer wireBuffer { nullptr };
+			vma::raii::Buffer fillBuffer { nullptr };
+			vma::raii::Buffer iconBuffer { nullptr };
+			vma::raii::Buffer indexBuffer { nullptr };
+			vma::raii::Buffer cameraBuffer { nullptr };
+			vk::raii::DescriptorSet descriptorSet { nullptr };
+			vk::DeviceSize wireCapacity = 0;
+			vk::DeviceSize fillCapacity = 0;
+			vk::DeviceSize iconCapacity = 0;
+			vk::DeviceSize indexCapacity = 0;
+			std::uint32_t wireDepthFirst = 0;
+			std::uint32_t fillDepthFirst = 0;
+			std::uint32_t iconDepthFirst = 0;
+			std::uint32_t wireDepthCount = 0;
+			std::uint32_t fillDepthCount = 0;
+		};
+
 		/// @brief Append the given lines to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_lines The lines to convert to vertices and append
@@ -240,21 +280,45 @@ namespace Droplet::Graphics::Debug
 		std::map<InternalDrawOptions, std::vector<DbgTri>>	m_fillLists{};
 		std::map<InternalDrawOptions, std::vector<DbgIcon>>	m_iconLists{};
 
-		// TODO: 
-		// Vulkan resources
-		// 
-		// Wireframe pipeline
-		// Wireframe depth pipeline
-		// Filled pipeline
-		// Filled depth pipeline
-		// Icon pipeline
-		// Icon depth pipeline
-		// 
-		// Wireframe mesh
-		// Wireframe depth mesh
-		// Filled mesh
-		// Filled depth mesh
-		// Map of icon meshes indexed by GUID
-		// Map of icon depth meshes indexed by GUID
+		// Frame-generated meshes
+		std::vector<Vertex> m_wireMesh{};
+		std::vector<Vertex> m_wireDepthMesh{};
+		std::vector<Vertex> m_fillMesh{};
+		std::vector<Vertex> m_fillDepthMesh{};
+		std::map<GUID, std::vector<IconVertex>> m_iconMeshes{};
+		std::map<GUID, std::vector<IconVertex>> m_iconDepthMeshes{};
+
+		// Cached unit geometry by detail level.
+		std::map<int, std::vector<DbgTri>> m_icosphereCache{};
+		std::map<int, std::vector<glm::vec3>> m_circleCache{};
+
+		const vk::raii::Instance *m_instance = nullptr;
+		const vk::raii::PhysicalDevice *m_physicalDevice = nullptr;
+		const vk::raii::Device *m_device = nullptr;
+		const vma::raii::Allocator *m_allocator = nullptr;
+		const vk::raii::Queue *m_queue = nullptr;
+		const vk::raii::CommandPool *m_commandPool = nullptr;
+		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
+		vk::Format m_colorFormat {};
+		vk::Format m_depthFormat {};
+		std::vector<FrameResources> m_frameResources {};
+		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
+		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
+		std::array<vk::raii::ShaderModule, 4> m_shaderModules
+		{
+			vk::raii::ShaderModule { nullptr },
+			vk::raii::ShaderModule { nullptr },
+			vk::raii::ShaderModule { nullptr },
+			vk::raii::ShaderModule { nullptr }
+		};
+		std::array<vk::raii::Pipeline, 6> m_pipelines
+		{
+			vk::raii::Pipeline { nullptr },
+			vk::raii::Pipeline { nullptr },
+			vk::raii::Pipeline { nullptr },
+			vk::raii::Pipeline { nullptr },
+			vk::raii::Pipeline { nullptr },
+			vk::raii::Pipeline { nullptr }
+		};
 	};
 }

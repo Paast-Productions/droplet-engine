@@ -20,6 +20,7 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
 #include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 
 #include <Core/FileUtils.hpp>
@@ -53,9 +54,28 @@ Renderer::Renderer(SDL::Window &window, const Config& cfg) :
 {
     ZoneScoped;
 
-    // TODO: <REFACTOR>
-
-    CreateGraphicsPipeline();
+	// TODO: <REFACTOR>
+	
+	CreateGraphicsPipeline();
+	try
+	{
+		Debug::DebugDraw::Get().Initialize(
+			m_context.GetInstance(),
+			m_context.GetPhysicalDevice(),
+			m_context.GetDevice(),
+			m_allocator.Get(),
+			m_context.GetQueue(),
+			m_commandPool.Get(),
+			m_descriptorPool.Get(),
+			m_swapchain.GetSurfaceFormat().format,
+			m_depthBuffer.GetFormat(),
+			MAX_FRAMES_IN_FLIGHT);
+	}
+	catch (...)
+	{
+		Debug::DebugDraw::Get().Shutdown();
+		throw;
+	}
 
     const VK::UniformBufferObject ubo
     {
@@ -139,8 +159,9 @@ Renderer::~Renderer()
 {
     ZoneScoped;
 
-    m_context.GetDevice().waitIdle();
-    m_swapchain.Cleanup(m_context.GetDevice());
+	Debug::DebugDraw::Get().Shutdown();
+	m_context.GetDevice().waitIdle();
+	m_swapchain.Cleanup(m_context.GetDevice());
 }
 
 /// Called on window resize to flag for the renderer to resize the swapchain and depthbuffer
@@ -312,31 +333,32 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
     };
 
 
-    vk::RenderingInfo renderingInfo
-    {
-        .renderArea =
-        {
-            .offset =
-            {
-                .x = 0,
-                .y = 0
-            },
-            .extent = m_swapchain.GetExtent()
-        },
-        .layerCount = 1,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &colorAttachmentInfo,
-        .pDepthAttachment = &depthAttachmentInfo
-    };
-
-    commandBuffer.beginRendering(renderingInfo);
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
-    commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
-    commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-    commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
-    commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
-    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
-    commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	vk::RenderingInfo renderingInfo 
+	{
+		.renderArea = 
+		{
+			.offset = 
+			{
+				.x = 0,
+				.y = 0
+			}, 
+			.extent = m_swapchain.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo,
+		.pDepthAttachment = &depthAttachmentInfo 
+	};
+	
+	commandBuffer.beginRendering(renderingInfo);
+	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
+	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
+	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
     if (m_imGuiEnabled)
     {
@@ -459,14 +481,15 @@ void Renderer::DrawFrame()
         static_cast<float>(extent.width) /
         static_cast<float>(extent.height);
 
-    VK::UniformBufferObject ubo
-    {
-        .model = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f)),
-        .view = m_camera.GetViewMatrix(),
-        .proj = m_camera.GetProjectionMatrix(aspectRatio)
-    };
-
-    m_storageBuffer.UpdateBuffer(ubo);
+	VK::UniformBufferObject ubo
+	{
+		.model = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = m_camera.GetViewMatrix(),
+		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+	};
+	
+	m_storageBuffer.UpdateBuffer(ubo);
+	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
     // Only reset the fence if we are submitting work
     m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -477,8 +500,9 @@ void Renderer::DrawFrame()
         ImGui::Render();
     }
 
-    m_commandPool.GetBufferAt(m_frameIndex).reset();
-    RecordCommandBuffer(m_imageIndex);
+	m_commandPool.GetBufferAt(m_frameIndex).reset();
+	RecordCommandBuffer(m_imageIndex);
+	Debug::DebugDraw::Get().ClearDrawCommands();
 
     vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
 
