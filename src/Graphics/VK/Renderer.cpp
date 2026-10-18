@@ -52,25 +52,18 @@ Renderer::Renderer(SDL::Window &p_window) :
 	// TODO: <REFACTOR>
 	
 	CreateGraphicsPipeline();
-	try
-	{
-		Debug::DebugDraw::Get().Initialize(
-			m_context.GetInstance(),
-			m_context.GetPhysicalDevice(),
-			m_context.GetDevice(),
-			m_allocator.Get(),
-			m_context.GetQueue(),
-			m_commandPool.Get(),
-			m_descriptorPool.Get(),
-			m_swapchain.GetSurfaceFormat().format,
-			m_depthBuffer.GetFormat(),
-			MAX_FRAMES_IN_FLIGHT);
-	}
-	catch (...)
-	{
-		Debug::DebugDraw::Get().Shutdown();
-		throw;
-	}
+
+	Debug::DebugDraw::Get().Initialize(
+		m_context.GetInstance(),
+		m_context.GetPhysicalDevice(),
+		m_context.GetDevice(),
+		m_allocator.Get(),
+		m_context.GetQueue(),
+		m_commandPool.Get(),
+		m_descriptorPool.Get(),
+		m_swapchain.GetSurfaceFormat().format,
+		m_depthBuffer.GetFormat(),
+		MAX_FRAMES_IN_FLIGHT);
 
 	const VK::UniformBufferObject ubo
 	{
