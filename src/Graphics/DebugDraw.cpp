@@ -315,7 +315,7 @@ namespace
 
 	static int ClampSphereSubdivisions(int detail)
 	{
-		return std::clamp(detail, 0, 6);
+		return std::clamp(detail, 0, 3);
 	}
 }
 
