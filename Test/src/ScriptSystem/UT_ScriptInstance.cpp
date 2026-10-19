@@ -6,6 +6,7 @@
 #include "GameInput.hpp"
  
  using namespace Droplet::Script;
+ using namespace Droplet::Script::Bindings;
  using namespace Droplet::Scene;
 
  TEST(ScriptInstance, getScriptPath)
