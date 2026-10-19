@@ -53,7 +53,7 @@ namespace Droplet
 
 		/// @brief Set a mesh collider
 		/// @param p_mesh The mesh resource to make a collider of
-		void SetMeshCollider(const std::shared_ptr<Droplet::MeshResource> p_mesh);
+		void SetMeshCollider(const Droplet::MeshResource *p_mesh);
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
