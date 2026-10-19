@@ -19,7 +19,7 @@ namespace Droplet::Script
 	struct LoadedScript
 	{
 		/// @brief Compiled Lua script.
-		sol::load_result loadResult;
+		//sol::load_result loadResult;
 
 		/// @brief Path to the source Lua script.
 		std::filesystem::path scriptPath;
@@ -147,7 +147,7 @@ namespace Droplet::Script
 		/// @param p_scriptFile Path or name of the loaded Lua script.
 		/// @return Pointer to the loaded script result, or nullptr if the script
 		/// is not loaded.
-		[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
+		//[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
 
 		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
 

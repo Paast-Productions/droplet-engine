@@ -46,10 +46,17 @@ void ScriptManager::CreateComponentScript(
 	}
 	std::print("load script successfully\n");
 
-	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
-	if (loadResult == nullptr)
+	LoadedScript *loadedScript = GetLoadedScriptInfo(p_scriptFile);
+	if (loadedScript == nullptr)
 	{
-		throw std::invalid_argument("loadResult is recived as nullptr");
+		throw std::invalid_argument("LoadedScript not found");
+	}
+	sol::load_result instanceLoadResult = m_StateHandler.GetState().load_file(loadedScript->scriptPath.string());
+
+	if (!instanceLoadResult.valid())
+	{
+		sol::error error = instanceLoadResult;
+		throw std::runtime_error(error.what());
 	}
 	
 	if (p_scriptComponent == nullptr)
@@ -67,7 +74,7 @@ void ScriptManager::CreateComponentScript(
 	
 	GameInput &input = GameInput::Get();
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), input, m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(p_scriptComponent->GetOwner().get(), input, m_StateHandler, instanceLoadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -94,12 +101,22 @@ void ScriptManager::CreateBehaviourScript(
 	{
 		LoadScript(p_scriptFile);
 	}
-	std::print("load script successfully\n");
 
-	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
-	if (loadResult == nullptr)
+	LoadedScript *loadedScript = GetLoadedScriptInfo(p_scriptFile);
+
+	if (loadedScript == nullptr)
 	{
-		throw std::invalid_argument("loadResult is recived as nullptr");
+		throw std::invalid_argument("LoadedScript not found: " + p_scriptFile);
+	}
+
+	sol::load_result instanceLoadResult = m_StateHandler.GetState().load_file(loadedScript->scriptPath.string());
+	
+	if (!instanceLoadResult.valid())
+	{
+		sol::error error = instanceLoadResult;
+		throw std::runtime_error(
+			"Failed to load script '" + p_scriptFile +
+			"': " + error.what());
 	}
 
 	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator existing = m_behaviourScripts.find(p_scriptBehaviour);
@@ -112,7 +129,7 @@ void ScriptManager::CreateBehaviourScript(
 
 	GameInput &input = GameInput::Get();
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, instanceLoadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -188,18 +205,25 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
 
-	if (IsLoaded(p_scriptFile))
-	{
-		return;
-	}
 
-	std::filesystem::path scriptPath = FindScript(p_scriptFile);
 	if (p_scriptFile.empty())
 	{
 		throw std::runtime_error("p_scriptFile is empty");
 	}
 
+	if (IsLoaded(p_scriptFile))
+	{
+		return;
+	}
+	std::filesystem::path scriptPath = FindScript(p_scriptFile);
+
 	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+
+	if (scriptPath.empty())
+	{
+		throw std::runtime_error("Could not find scripts: " + p_scriptFile);
+	}
+
 	if (!loadResult.valid())
 	{
 		sol::error error = loadResult;
@@ -228,7 +252,7 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 		throw std::runtime_error("loadResult is not valid");
 	}
 
-	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
+	m_loadedScripts.emplace(p_scriptFile, LoadedScript{scriptPath, lastWriteTime});
 }
 
 void ScriptManager::UnloadScript(const std::string& p_scriptFile)
@@ -287,14 +311,22 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 		throw std::runtime_error("Failed to get write time for " + loadedScript.scriptPath.string() + " " + errorCode.message());
 	}
 
-	loadedScript.loadResult = std::move(newLoadResult);
 	loadedScript.lastWriteTime = newLastWriteTime;
 
 	for (auto& instance : m_scriptInstances)
 	{
 		if (instance->GetScriptPath() == p_scriptFile)
 		{
-			instance->Reload(loadedScript.loadResult); 
+			sol::load_result instanceLoadResult = m_StateHandler.GetState().load_file(loadedScript.scriptPath.string());
+
+			if (!instanceLoadResult.valid())
+			{
+				sol::error error = instanceLoadResult;
+				throw std::runtime_error(
+						"Failed to reload script '" + p_scriptFile +
+				"': " + error.what());
+			}
+			instance->Reload(instanceLoadResult); 
 		}
 	}
 
@@ -314,16 +346,16 @@ void ScriptManager::CheckForFileChanges()
 	}
 }
 
-sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
+LoadedScript *Droplet::Script::ScriptManager::GetLoadedScriptInfo(const std::string &p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
-	
+		
 	if (it == m_loadedScripts.end())
 	{
 		return nullptr;
 	}
-
-	return &it->second.loadResult;
+	
+	return &it->second;
 }
 
 void ScriptManager::ActivateComponentScript(Scene::Component *p_scriptComponent)

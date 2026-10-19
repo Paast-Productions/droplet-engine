@@ -301,12 +301,14 @@ void ScriptsWindow::RenderAddScript()
 		static std::string errorMessage;
 
 		const std::string scriptTemplate = R"lua(
+-- Called when script starts
 function OnStart()
-	-- Called when script starts
+
 end
 
+-- Called every frame
 function OnUpdate(dt)
-	-- Called every frame
+
 end
 )lua";
 
