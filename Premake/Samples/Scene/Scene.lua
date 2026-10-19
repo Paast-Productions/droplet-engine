@@ -10,7 +10,8 @@ project "SceneSystem"
 	defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
     
     local vkPath = os.getenv("VULKAN_SDK")
@@ -54,7 +55,11 @@ project "SceneSystem"
         "ImGui",
         "tracy",
         "Sol2",
-		    "bvh"
+        "Jolt",
+        "Assimp",
+	    "Gli",
+	    "Stb",
+		"bvh"
     }
 
     links {
@@ -67,5 +72,8 @@ project "SceneSystem"
         "shell32",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
+        AddQuotation("Jolt"),
     }
