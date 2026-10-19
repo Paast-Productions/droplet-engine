@@ -2,6 +2,12 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
 #include <string>
+#include <memory>
+
+namespace Droplet
+{
+	class Engine;
+}
 
 namespace Droplet::Editor
 {
@@ -26,7 +32,7 @@ namespace Droplet::Editor
 
 		/// @brief Toggles the visibility of the toolbar.
 		/// @param visible True to show the toolbar, false to hide it.
-		void ToggleToolbar(bool p_visible) { m_hasToolbar = p_visible; }
+		void ToggleToolbar(bool p_visible);
 		
 		/// @brief Checks if the editor window has a toolbar.
 		/// @return True if the editor window has a toolbar, false otherwise.
@@ -40,7 +46,12 @@ namespace Droplet::Editor
 		/// @return The ImGui window flags for the editor window.
 		[[nodiscard]] ImGuiWindowFlags GetWindowFlags() const { return m_windowFlags; }
 
+		/// @brief Checks if the editor window has focus.
+		/// @return True if the editor window has focus, false otherwise.
+		[[nodiscard]] bool HasFocus() const { return m_hasFocus; }
+
 	protected:
+		//EditorWindow(std::shared_ptr<Droplet::Engine> p_engine);
 
 		/// @brief Initializes the editor window. Derived classes can override this method to provide additional initialization logic.
 		virtual void InitImpl() { }
@@ -52,7 +63,7 @@ namespace Droplet::Editor
 		virtual void RenderImpl() = 0;
 
 		/// @brief Renders the toolbar for the editor window. Derived classes can override this method to provide custom toolbar rendering.
-		virtual void RenderToolbar() { };
+		virtual void RenderToolbar() { }
 
 		/// @brief Sets the name of the editor window.
 		/// @param name The name to set for the editor window.
@@ -62,10 +73,15 @@ namespace Droplet::Editor
 		/// @param flags The ImGui window flags to set for the editor window.
 		void SetWindowFlags(ImGuiWindowFlags p_flags) { m_windowFlags = p_flags; }
 
+		//std::shared_ptr<Engine> &GetEngine() { return m_engine; }
+
 	private:
 		bool m_hasToolbar = true;
 		std::string m_name = "Window";
 		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_None;
+		//std::shared_ptr<Droplet::Engine> m_engine{};
+
+		bool m_hasFocus = false;
 
 		/// @brief Opens the editor window. This method is called before rendering the window.
 		void OpenWindow();

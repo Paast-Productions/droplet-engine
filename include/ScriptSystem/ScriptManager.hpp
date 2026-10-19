@@ -149,6 +149,8 @@ namespace Droplet::Script
 		/// is not loaded.
 		[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
 
+		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
+
 		/// @brief Activates a script component
 		/// An activated script is added to the collection of scripts that are updated each frame
 		/// @param p_scriptComponent Component whose script should be activated.
@@ -170,11 +172,12 @@ namespace Droplet::Script
 		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Sets the directory Path
-		/// Purpose is to be able to find the scripts directory, easiest to do this 
 		/// @param p_directoryPath This is the path for your working directory to the scripts
-		/// 
-		/// @return 
 		void SetScriptDirectory(const std::string &p_directoryPath);
+
+		/// @brief Gets the directory Path
+		/// @return String of the directory Path
+		std::string GetScriptDirectory();
 
 	private:
 		/// @brief Finds the path to a Lua script

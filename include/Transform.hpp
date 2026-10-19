@@ -111,8 +111,9 @@ namespace Droplet::Scene
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
 
-		/// TODO: Edvin
-		void ResetFrame(); // Runs at the end of scene update
+		/// @brief Runs at the end of scene update and resets the transform's "was changed" state for the next frame. 
+		/// This is used to track if the transform was ever modified during the frame.
+		void ResetFrame();
 
 		// ================================ Utility ================================
 
@@ -136,6 +137,14 @@ namespace Droplet::Scene
 		/// @param p_space The space in which to perform the rotate operation. Defaults to local space.
 		void RotateEuler(const glm::vec3 &p_delta, Space p_space = Space::Local);
 
+		/// @brief Move the transform by a specified delta relative to its current orientation.
+		/// @param p_delta The delta by which to move the transform.
+		void MoveRelative(const glm::vec3 &p_delta);
+
+		/// @brief Rotate the transform by a specified delta relative to its current orientation.
+		/// @param p_delta The delta by which to rotate the transform.
+		void RotateEulerRelative(const glm::vec3 &p_delta);
+
 		/// @brief Add a scale to the transform in local space.
 		/// @param p_delta The delta to add to the current scale of the transform.
 		void AddScale(const glm::vec3 &p_delta);
@@ -151,6 +160,11 @@ namespace Droplet::Scene
 		/// @param p_up The up direction for the transform. Defaults to (0, 1, 0).
 		/// @param p_space The space in which to perform the look-at operation. Defaults to local space.
 		void LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up = glm::vec3(0.f, 1.f, 0.f), Space p_space = Space::Local);
+
+		/// @brief Transform the transform by a specified matrix in the specified space.
+		/// @param p_matrix The matrix by which to transform the transform.
+		/// @param p_space The space in which to perform the transform operation. Defaults to local space.
+		void TransformByMatrix(const glm::mat4 &p_matrix, Space p_space = Space::Local);
 
 	private:
 		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.

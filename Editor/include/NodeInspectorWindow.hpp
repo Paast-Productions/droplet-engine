@@ -2,6 +2,7 @@
 #include <EditorWindow.hpp>
 #include <SceneSystem/Node.hpp>
 #include "InteractionState.hpp"
+#include <EditorContext.hpp>
 
 namespace Droplet::Editor
 {
@@ -11,9 +12,11 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow(std::shared_ptr<InteractionState> p_interactionState);
+		NodeInspectorWindow(EditorContext *p_editorContext);
 		~NodeInspectorWindow() = default;
 
+		/// @brief Sets the node a user sends to be the current node that will be displayed
+		/// @param p_nodeToInspect The node that user wants to display
 		void SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect);
 
 	protected:
@@ -25,6 +28,9 @@ namespace Droplet::Editor
 	private:
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState;
+		
+		
+		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The node that is currently displayed.
 		std::shared_ptr<Droplet::Scene::Node> m_currentNode;

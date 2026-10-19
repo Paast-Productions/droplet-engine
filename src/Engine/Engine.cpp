@@ -6,6 +6,8 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <algorithm>
+
 
 using namespace Droplet;
 
@@ -22,19 +24,49 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	
+	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
 
 	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
+    
+    ThreadPool::GetInstance().Initialize();
+    
+    // --- Setup Resource Manager ---
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    m_resourceManager.Initialize(assetDir);
+    // Register scanners
+    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    // Register resources
+    m_resourceManager.RegisterResourceType<Texture2DResource>();
+    m_resourceManager.RegisterResourceType<MeshResource>();
+    m_resourceManager.RegisterResourceType<SkinnedMeshResource>();
+    m_resourceManager.RegisterResourceType<AnimationResource>();
+    m_resourceManager.RegisterResourceType<ShaderResource>();
+    // ------
 
-	ThreadPool::GetInstance().Initialize();
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 Droplet::Engine::~Engine()
 {
 	ZoneScoped;
+
+	// Make sure we detach our behaviours from Scene Manager before Scene Manager might destroy them
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
+	{
+		if (auto *scriptBehaviour = dynamic_cast<Scene::ScriptBehaviour *>(behaviour.get()))
+		{
+			scriptBehaviour->AttachScript("");
+		}
+	}
 
 	m_renderer.WaitIdle();
 	ImGui_ImplVulkan_Shutdown();
@@ -46,14 +78,9 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
-	// Register engine behaviours
-	RegisterBehaviours();
-
-	// Register engine components
-	RegisterComponents();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update()
+DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget)
 {
 	ZoneScoped;
 
@@ -66,6 +93,15 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
+#ifdef TRACY_ENABLE
+		ZoneNamedN(eventZone, "Event", true);
+
+		constexpr int eventStrMaxLen = 256;
+		char eventStrBuf[eventStrMaxLen]{};
+		int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+
+		ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
 		// Call all event listeners
 		for (int i = 0; i < m_eventListeners.size(); i++)
 		{
@@ -98,7 +134,13 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	// TODO: Call behaviour pre-update
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
+	{
+		if (behaviour && behaviour->IsActive())
+		{
+			behaviour->PreUpdate();
+		}
+	}
 
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
@@ -110,10 +152,16 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
 	}
 
-	// TODO: Call behaviour post-update
+	for (const auto &behaviour : m_sceneManager.GetBehaviours())
+	{
+		if (behaviour && behaviour->IsActive())
+		{
+			behaviour->PostUpdate();
+		}
+	}
 
 	// Rendering
-	m_renderer.DrawFrame();
+	m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -135,29 +183,36 @@ SDL_Window *Droplet::Engine::GetWindow()
 	return m_renderer.GetWindow();
 }
 
-Graphics::Renderer &Droplet::Engine::TEMP_GetRenderer()
-{
-	return m_renderer;
-}
-
 Scene::SceneManager &Droplet::Engine::GetSceneManager()
 {
 	return m_sceneManager;
 }
 
+ResourceManager &Droplet::Engine::GetResourceManager()
+{
+	return m_resourceManager;
+}
+
 void Droplet::Engine::AddEventListener(EventListener p_listener)
 {
+	ZoneScoped;
+
 	m_eventListeners.push_back(p_listener);
 }
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
-	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_shared<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
 {
 	// Register engine components
-	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_shared<Scene::MeshComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_shared<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+}
+
+Graphics::Renderer &Engine::GetRenderer()
+{
+	return m_renderer;
 }

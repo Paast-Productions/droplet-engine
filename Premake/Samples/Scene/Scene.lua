@@ -30,6 +30,8 @@ project "SceneSystem"
     if _TARGET_OS == "windows" then
 
         local vkPath = os.getenv("VULKAN_SDK")
+	
+	buildoptions {"/Zi"}
 
         includedirs
         {
@@ -54,7 +56,9 @@ project "SceneSystem"
         "ImGui",
         "tracy",
         "Sol2",
-		"bvh"
+        "bvh",
+        "PortableFileDialogs",
+        "IconFontCppHeaders"
     }
 
     links {
@@ -69,5 +73,7 @@ project "SceneSystem"
         AddQuotation("vulkan-1"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+	    AddQuotation("zlibstaticd"),
+ 	    AddQuotation("assimp-mtd")
     }

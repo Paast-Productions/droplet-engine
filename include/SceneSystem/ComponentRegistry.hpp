@@ -18,7 +18,7 @@ namespace Droplet::Scene
 	public:
 		/// @brief Retrieves the registry of component types.
 		/// @return A constant reference to the unordered map containing component names and their corresponding construction functions.
-		[[nodiscard]] static const std::unordered_map<std::string, std::function<std::shared_ptr<Component>()>> &GetRegistry()
+		[[nodiscard]] static const std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> &GetRegistry()
 		{
 			return Get().registry;
 		}
@@ -28,7 +28,7 @@ namespace Droplet::Scene
 		/// This ensures that the components are available before scene loading.
 		/// @param name The unique name of the component type.
 		/// @param constructFunc The function used to create instances of the component.
-		static void RegisterComponent(const std::string &name, std::function<std::shared_ptr<Component>()> constructFunc)
+		static void RegisterComponent(const std::string &name, std::function<std::unique_ptr<Component>()> constructFunc)
 		{
 			ComponentRegistry &registry = Get();
 
@@ -50,6 +50,6 @@ namespace Droplet::Scene
 			return instance;
 		}
 
-		std::unordered_map<std::string, std::function<std::shared_ptr<Component>()>> registry;
+		std::unordered_map<std::string, std::function<std::unique_ptr<Component>()>> registry;
 	};
 }

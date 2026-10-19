@@ -386,13 +386,13 @@ void Transform::MakeDirty()
 	}
 }
 
-void Droplet::Scene::Transform::ResetFrame()
+void Transform::ResetFrame()
 {
 	ZoneScoped;
 
 	m_wasChanged = false;
 
-	// Recursively mark children as dirty
+	// Recursively reset children
 	for (const auto &child : m_owner->GetChildren())
 	{
 		child->GetTransform().ResetFrame();
@@ -510,6 +510,30 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 	MakeDirty();
 }
 
+void Transform::MoveRelative(const glm::vec3 &p_delta)
+{
+	glm::vec3 right = GetRight(Space::Local);
+	glm::vec3 up = GetUp(Space::Local);
+	glm::vec3 forward = GetForward(Space::Local);
+
+	glm::vec3 relativeDelta = right * p_delta.x + up * p_delta.y + forward * p_delta.z;
+
+	Move(relativeDelta, Space::Local);
+}
+
+void Transform::RotateEulerRelative(const glm::vec3 &p_delta)
+{
+	glm::vec3 right = GetRight(Space::Local);
+	glm::vec3 up = GetUp(Space::Local);
+	glm::vec3 forward = GetForward(Space::Local);
+
+	glm::quat relativeRotation = glm::angleAxis(p_delta.x, right) *
+		glm::angleAxis(p_delta.y, up) *
+		glm::angleAxis(p_delta.z, forward);
+
+	Rotate(relativeRotation, Space::Local);
+}
+
 void Transform::AddScale(const glm::vec3 &p_delta)
 {
 	m_scale += p_delta;
@@ -576,6 +600,23 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 
 	ValidateRotation();
 
+	MakeDirty();
+}
+
+void Transform::TransformByMatrix(const glm::mat4 &p_matrix, Space p_space)
+{
+	// If the requested space is world space, but the transform has no parent, treat it as local space.
+	if (p_space == Space::World)
+	{
+		if (!HasParent())
+		{
+			p_space = Space::Local;
+		}
+	}
+
+	SetMatrix(GetMatrix(p_space) * p_matrix, p_space);
+
+	ValidateRotation();
 	MakeDirty();
 }
 

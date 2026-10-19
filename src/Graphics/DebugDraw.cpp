@@ -422,7 +422,7 @@ void DebugDraw::Initialize(
 		p_device.updateDescriptorSets(descriptorWrite, {});
 	}
 
-	const auto createPipeline = [&](std::size_t p_shaderOffset, vk::PrimitiveTopology p_topology, bool p_icon, bool p_depthTest)
+	const auto createPipeline = [&](std::size_t p_shaderOffset, vk::PrimitiveTopology p_topology, bool p_icon, bool p_depthTest, bool p_wire)
 	{
 		const std::array<vk::PipelineShaderStageCreateInfo, 2> stages {{
 			{
@@ -478,20 +478,26 @@ void DebugDraw::Initialize(
 			.scissorCount = 1 
 		};
 
+		const vk::PipelineRasterizationLineStateCreateInfo lineRasterizer {
+			.lineRasterizationMode = vk::LineRasterizationModeEXT::eRectangularSmooth,
+			.stippledLineEnable = vk::False
+		};
+
 		const vk::PipelineRasterizationStateCreateInfo rasterizer {
-			.polygonMode = vk::PolygonMode::eFill,
+			.pNext = p_wire ? &lineRasterizer : nullptr,
+			.polygonMode = p_wire ? vk::PolygonMode::eLine : vk::PolygonMode::eFill,
 			.cullMode = vk::CullModeFlagBits::eNone,
 			.frontFace = vk::FrontFace::eCounterClockwise,
-			.lineWidth = 1.0f
+			.lineWidth = 1.5f
 		};
 
 		const vk::PipelineMultisampleStateCreateInfo multisampling { 
-			.rasterizationSamples = vk::SampleCountFlagBits::e1 
+			.rasterizationSamples = vk::SampleCountFlagBits::e1
 		};
 
 		const vk::PipelineDepthStencilStateCreateInfo depthStencil {
 			.depthTestEnable = p_depthTest ? vk::True : vk::False,
-			.depthWriteEnable = vk::False,
+			.depthWriteEnable = vk::True,
 			.depthCompareOp = vk::CompareOp::eLessOrEqual
 		};
 
@@ -545,12 +551,12 @@ void DebugDraw::Initialize(
 		return vk::raii::Pipeline(p_device, nullptr, createInfo.get<vk::GraphicsPipelineCreateInfo>());
 	};
 
-	m_pipelines[0] = createPipeline(0, vk::PrimitiveTopology::eLineList, false, true);
-	m_pipelines[1] = createPipeline(0, vk::PrimitiveTopology::eLineList, false, false);
-	m_pipelines[2] = createPipeline(0, vk::PrimitiveTopology::eTriangleList, false, true);
-	m_pipelines[3] = createPipeline(0, vk::PrimitiveTopology::eTriangleList, false, false);
-	m_pipelines[4] = createPipeline(2, vk::PrimitiveTopology::eTriangleList, true, true);
-	m_pipelines[5] = createPipeline(2, vk::PrimitiveTopology::eTriangleList, true, false);
+	m_pipelines[0] = createPipeline(0, vk::PrimitiveTopology::eLineList, false, true, true);
+	m_pipelines[1] = createPipeline(0, vk::PrimitiveTopology::eLineList, false, false, true);
+	m_pipelines[2] = createPipeline(0, vk::PrimitiveTopology::eTriangleList, false, true, false);
+	m_pipelines[3] = createPipeline(0, vk::PrimitiveTopology::eTriangleList, false, false, false);
+	m_pipelines[4] = createPipeline(2, vk::PrimitiveTopology::eTriangleList, true, true, false);
+	m_pipelines[5] = createPipeline(2, vk::PrimitiveTopology::eTriangleList, true, false, false);
 }
 
 void DebugDraw::Shutdown()
@@ -689,11 +695,9 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 
 	FrameResources &frame = m_frameResources[p_frameIndex];
 
-	const float aspectRatio = static_cast<float>(p_extent.width) / static_cast<float>(p_extent.height);
-
 	const CameraUniform cameraUniform { 
 		p_camera.GetViewMatrix(), 
-		p_camera.GetProjectionMatrix(aspectRatio) 
+		p_camera.GetProjectionMatrix() 
 	};
 
 	frame.cameraBuffer.getAllocation().copyFromMemory(&cameraUniform, 0, sizeof(cameraUniform));

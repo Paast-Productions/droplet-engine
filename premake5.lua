@@ -52,8 +52,6 @@ group "Samples"
 include "Premake/Samples/Vulkan/HelloTriangle"
 include "Premake/Samples/Engine/HelloEngine"
 include "Premake/Samples/Scene/Scene"
-include "Premake/Samples/Transform/Transform"
-include "Premake/Samples/Scripting/ScriptingMain"
 
 group ""
 
@@ -62,9 +60,12 @@ group ""
 group "External"
 
 include "Premake/External/ImGui"
+include "Premake/External/ImGuizmo"
 include "Premake/External/json"
 include "Premake/External/tracy"
 include "Premake/External/Stb"
+include "Premake/External/IconFontCppHeaders"
+include "Premake/External/PortableFileDialogs"
 include "Premake/External/VulkanMemoryAllocator"
 
 if _TARGET_OS == 'windows' then

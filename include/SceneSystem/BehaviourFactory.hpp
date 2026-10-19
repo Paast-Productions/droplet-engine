@@ -13,8 +13,8 @@ namespace Droplet::Scene
 	public:
 		/// @brief Creates a new behaviour instance based on the provided name.
 		/// @param name The name of the behaviour type to create.
-		/// @return A shared pointer to the newly created behaviour.
+		/// @return A unique pointer to the newly created behaviour.
 		/// @throws std::runtime_error If the behaviour type is not registered in the BehaviourRegistry.
-		[[nodiscard]] static std::shared_ptr<Behaviour> CreateBehaviour(const std::string &name);
+		[[nodiscard]] static std::unique_ptr<Behaviour> CreateBehaviour(const std::string &name);
 	};
 }

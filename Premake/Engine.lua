@@ -6,8 +6,10 @@ project "Engine"
     defines{
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
+		"TRACY_FIBERS",
+		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")
@@ -16,7 +18,7 @@ project "Engine"
 
     if _TARGET_OS == "windows" then
 
-        buildoptions {"/Zi"}
+        buildoptions {"/Zi", "/bigobj"}
         
         -- vkPath required as windows doesn't add the vulkan sdk to lib path'
         local vkPath = os.getenv("VULKAN_SDK")
@@ -26,7 +28,7 @@ project "Engine"
             "../include",
             "../include/**",
             vkPath .. "/Include",
-            targetBuildPath .. "/External/include/"
+            targetBuildPath .. "/External/include/",
         }
 
     else

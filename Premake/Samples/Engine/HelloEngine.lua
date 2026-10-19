@@ -32,7 +32,9 @@ project "Engine-HelloEngine"
         "Engine",
         "ImGui",
         "Sol2",
-        "tracy"
+        "tracy",
+	"PortableFileDialogs",
+	"IconFontCppHeaders"
     }
 
     links {
@@ -44,5 +46,7 @@ project "Engine-HelloEngine"
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
         AddQuotation("lua-5.4.7"),
-        AddQuotation("vulkan-1")
+        AddQuotation("vulkan-1"),
+	AddQuotation("zlibstaticd"),
+ 	AddQuotation("assimp-mtd")
     }
