@@ -1,3 +1,11 @@
+struct PushConstants
+{
+    float4x4 world;
+    uint32_t sampler;
+};
+
+[[vk::push_constant]] PushConstants pc;
+
 struct FSInput 
 {
     float4 pos : SV_Position;
@@ -8,7 +16,9 @@ struct FSInput
 layout(set = 0, binding = 1) Sampler2D texture;
 
 [shader("fragment")]
-float4 main(FSInput vertIn) : SV_TARGET {
-
-    return float4(1.0, 1.0, 0.0, 1.0);
+float4 main(FSInput vertIn) : SV_TARGET 
+{
+    float3 colour = texture.Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y)).rgb;
+    
+    return float4(colour, 1.0);
 }

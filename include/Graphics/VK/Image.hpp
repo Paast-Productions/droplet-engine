@@ -45,7 +45,7 @@ namespace Droplet::Graphics::VK
 		Image(const vma::raii::Allocator &p_allocator,
 			const Droplet::Graphics::VK::CommandPool &p_commandPool,
 			const Droplet::Graphics::VK::Context &p_context,
-			const unsigned char *p_pixels,
+			const std::byte *p_pixels,
 			std::size_t p_size,
 			std::uint32_t p_width,
 			std::uint32_t p_height,

@@ -7,7 +7,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-IntermediaryStorage::IntermediaryStorage(Context &p_context, const DescriptorSet &p_descriptorSet) :
+IntermediaryStorage::IntermediaryStorage(Context &p_context, DescriptorSet &p_descriptorSet) :
     m_context(p_context),
     m_descriptorSet(p_descriptorSet),
     m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()),
@@ -194,10 +194,10 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
     }
 
     m_imageMap.emplace_back(
-        m_allocator,
+        m_allocator.Get(),
         p_commandPool,
         m_context,
-        texRes.Get()->GetPixelData(),
+        texRes.Get()->GetPixelData().data(),
         texRes.Get()->GetPixelData().size(),
         texRes.Get()->GetWidth(),
         texRes.Get()->GetHeight(),
@@ -208,7 +208,7 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
     );
     m_viewMap.emplace_back(
         m_context.GetDevice(),
-        m_imageMap.back(),
+        m_imageMap.back().Get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );

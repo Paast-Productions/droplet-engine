@@ -235,7 +235,7 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 		
 			const VK::Mesh mesh = m_interStorage.GetMesh(data);
-
+			
 			PushConstantData pcData
 			{
 				.world = data.transform,

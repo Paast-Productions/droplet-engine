@@ -130,7 +130,7 @@ namespace Droplet::Graphics::VK
     public:
         IntermediaryStorage() = delete;
 
-        IntermediaryStorage(Context& p_context, const DescriptorSet& p_descriptorSet);
+        IntermediaryStorage(Context& p_context, DescriptorSet& p_descriptorSet);
 
         IntermediaryStorage(const IntermediaryStorage& p_other) = delete;
         IntermediaryStorage& operator=(const IntermediaryStorage& p_other) = delete;
