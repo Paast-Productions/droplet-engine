@@ -1,6 +1,7 @@
 #include "Graphics/VK/Pipeline.hpp"
 
 #include <Graphics/VK/VertexBuffer.hpp>
+#include <Graphics/RenderData.hpp>
 
 using namespace Droplet::Graphics::VK;
 
@@ -25,7 +26,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	{
 		.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 		.offset = 0,
-		.size = sizeof(glm::mat4)
+		.size = sizeof(PushConstantData)
 	};
 	
 	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts 

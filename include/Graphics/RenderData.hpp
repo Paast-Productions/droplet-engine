@@ -6,10 +6,15 @@
 
 namespace Droplet::Graphics
 {
+    struct PushConstantData
+    {
+        glm::mat4 world{};
+        std::uint32_t textureID{ 0 };
+    };
+
     struct ShaderData
     {
         std::uint64_t GUID {0};
-        std::vector<std::uint32_t> pushConstants {};
     };
 
     struct MeshData
@@ -23,8 +28,6 @@ namespace Droplet::Graphics
     {
         //Texture sampling options could be added here
         std::uint64_t GUID {0};
-
-        std::uint64_t samplerIndex;
     };
     
     struct RenderData
@@ -39,16 +42,11 @@ namespace Droplet::Graphics
 
         TextureData texData{};
 
-        glm::mat4 transform;
+        glm::mat4 transform{};
     };
 
     namespace VK
     {
-        struct WorldBuffer
-        {
-            glm::mat4 matrix{};
-        };
-
         struct ViewProjectionBuffer
         {
             glm::mat4 view{};
