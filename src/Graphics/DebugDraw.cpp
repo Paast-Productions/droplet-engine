@@ -689,11 +689,9 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 
 	FrameResources &frame = m_frameResources[p_frameIndex];
 
-	const float aspectRatio = static_cast<float>(p_extent.width) / static_cast<float>(p_extent.height);
-
 	const CameraUniform cameraUniform { 
 		p_camera.GetViewMatrix(), 
-		p_camera.GetProjectionMatrix(aspectRatio) 
+		p_camera.GetProjectionMatrix() 
 	};
 
 	frame.cameraBuffer.getAllocation().copyFromMemory(&cameraUniform, 0, sizeof(cameraUniform));
