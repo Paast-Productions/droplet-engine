@@ -70,7 +70,7 @@ namespace Droplet::Script
 
 	private:
 		/// @brief ScriptComponent associated with this script instance.
-		Droplet::Scene::Node *m_owner;
+		Droplet::Scene::Node *m_owner = nullptr;
 
 		/// @brief Reference to the Lua state used by the script instance.
 		LuaStateHandler &m_stateHandler;
@@ -102,15 +102,25 @@ namespace Droplet::Script
 		const std::string &p_functionName,
 		Args&& ...args)
 	{
-		sol::protected_function function =
-			m_environment[p_functionName];
+		sol::protected_function function = m_environment[p_functionName];
 
 		if (!function.valid())
 		{
 			//Function does not exist or is not callable
 			//TODO: Add to logger here
+			std::cerr << "Error: Lua function '" << p_functionName << "' is not valid or callable.\n";
 		}
 
-		return function(std::forward<Args>(args)...);
+		sol::protected_function_result result = function(std::forward<Args>(args)...);
+
+		// Check for errors in the function call
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::string errorMessage = "Runtime Error in Lua Function '" + p_functionName + "': " + err.what() + "\n";
+			std::cerr << errorMessage; // TODO: Log
+		}
+
+		return result;
 	}
 }

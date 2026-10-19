@@ -11,7 +11,7 @@ namespace Droplet::Script
 	/// for the other scripting components that need to interact with Lua.
 	class LuaStateHandler
 	{
-	public:
+	public: 
 		/// @brief Creates and initializes the Lua state.
 		LuaStateHandler();
 

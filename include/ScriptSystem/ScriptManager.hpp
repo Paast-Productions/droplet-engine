@@ -149,6 +149,8 @@ namespace Droplet::Script
 		/// is not loaded.
 		[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
 
+		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
+
 		/// @brief Activates a script component
 		/// An activated script is added to the collection of scripts that are updated each frame
 		/// @param p_scriptComponent Component whose script should be activated.
