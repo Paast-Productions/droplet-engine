@@ -59,31 +59,6 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	m_graphicsPipeline = {};
 	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
 
-	//m_image = {
-	//	m_interStorage.GetAllocator(),
-	//	m_commandPool,
-	//	m_context,
-	//	G_CATDESPAIR,
-	//	78400,
-	//	G_CATDIM,
-	//	G_CATDIM,
-	//	vk::Format::eR8G8B8A8Unorm,
-	//	vk::ImageTiling::eOptimal,
-	//	vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-	//	vk::MemoryPropertyFlagBits::eDeviceLocal
-	//};
-
-	//m_textureView = {
-	//	m_context.GetDevice(),
-	//	m_image.Get(),
-	//	vk::Format::eR8G8B8A8Unorm,
-	//	vk::ImageAspectFlagBits::eColor
-	//};
-	
-	//CreateTextureSampler();
-
-	//m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
-	
 	CreateSyncObjects();
 
 	std::array<vk::DescriptorPoolSize, 2> poolSizes
@@ -378,6 +353,12 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 		
 			const VK::Mesh mesh = m_interStorage.GetMesh(data);
+
+			PushConstantData pcData
+			{
+				.world = data.transform,
+				.textureID = m_interStorage.GetTextureID(data, m_commandPool)
+			};
 			
 			vk::PushConstantsInfo pcInfo
 			{
@@ -385,7 +366,7 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 				.layout = pipeline.GetLayout(),
 				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 				.offset = 0,
-				.size = sizeof(glm::mat4),
+				.size = sizeof(PushConstantData),
 				.pValues = &data.transform,
 			};
 
@@ -632,11 +613,11 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-	
+	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+
 	// TODO: <REFACTOR>
 	// Remove ImGui from draw call
 	static float rotation { 0 };
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
 	
 	ImGui::Begin("Camera");
 	ImGui::Text("%f", m_camera.GetPosition().x);
