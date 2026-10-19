@@ -54,7 +54,7 @@ project "SceneSystem"
         "ImGui",
         "tracy",
         "Sol2",
-		    "bvh"
+		"bvh"
     }
 
     links {
@@ -65,6 +65,8 @@ project "SceneSystem"
         "winmm",
         "gdi32",
         "shell32",
+        "VulkanMemoryAllocator",
+        AddQuotation("vulkan-1"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd")
