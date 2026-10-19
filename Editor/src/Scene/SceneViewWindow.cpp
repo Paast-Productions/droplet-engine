@@ -302,8 +302,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				DebugDraw::DrawBox(
 					nodeOBB, 
 					glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f),
-					true,
-					false
+					true//, true
 				);
 			}
 
