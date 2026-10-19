@@ -75,11 +75,20 @@ void Droplet::PhysicsComponent::SetMeshCollider(const std::shared_ptr<Droplet::M
 	}
 
 	// Make a Jolt array for vertices
-	JPH::VertexList joltVertices;
+	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
+	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
+	
+	JPH::VertexList joltVertices{};
+	joltVertices.reserve(C_VERTEX_COUNT);
+	
 	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
-	std::size_t nrOfVertices = vertexData.size() / p_mesh->GetVertexByteSize();
-	joltVertices.reserve(nrOfVertices);
-	std::memcpy(joltVertices.data(), vertexData.data(), vertexData.size());
+	for (std::size_t i = 0; i < C_VERTEX_COUNT; i++)
+	{
+		JPH::Float3 pos;
+		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Float3));
+		
+		joltVertices.emplace_back(pos);
+	}
 
 	// Make a Jolt array for triangles based of indices
 	JPH::IndexedTriangleList triangles;
