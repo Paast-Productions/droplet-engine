@@ -32,16 +32,16 @@ namespace Droplet::Scene
 
 		/// @brief Adds a Node element to the octree
 		/// @param p_node The Node element to be added to the octree
-		void AddNode(const std::shared_ptr<Node> p_node);
+		void AddNode(const std::shared_ptr<Node> p_node); // TODO: Make weak pointer
 
 		/// @brief Removes a Node element from the octree
 		/// @param p_node The Node element to be removed
-		void RemoveNode(const std::shared_ptr<Node> p_node);
+		void RemoveNode(const std::shared_ptr<Node> p_node); // TODO: Make weak pointer
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param[out] p_outNodes The vector with Nodes to be rendered
-		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes);
+		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes); // TODO: Make weak pointer
 
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
@@ -70,17 +70,17 @@ namespace Droplet::Scene
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
 		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
-		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes);
+		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes); // TODO: Make weak pointer
 
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_node The Node to be added to the octree
 		/// @param p_treeNode The TreeNode where the Node element should be set
-		void AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode);
+		void AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
 
 		/// @brief Helper function for removing elements from the octree
 		/// @param p_node The Node to be removed
 		/// @param p_treeNode The TreeNode where to check for the Node element
-		void RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode);
+		void RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
 
 		/// @brief Subdivides a octant into eights
 		/// @param p_parentOctant The octant to be subdivided
@@ -92,7 +92,7 @@ namespace Droplet::Scene
 		/// @param p_frustum The frustum to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
-			const std::unique_ptr<TreeNode> &p_treeNode);
+			const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
 
 		/// @brief Helper function for raycasting a single Node instance
 		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray
@@ -112,7 +112,7 @@ namespace Droplet::Scene
 		/// @brief Helper function for checking frustum culling
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum 
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode);
+		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
 
 		/// @brief Recursive helper function for generating graphviz code visualizing the octree from top down
 		/// @param[in/out] p_data String of graphviz code
@@ -144,7 +144,7 @@ namespace Droplet::Scene
 			Math::AABB octant;
 			std::uint8_t level = 0;
 
-			std::vector<std::shared_ptr<Node>> nodes;
+			std::vector<std::shared_ptr<Node>> nodes; // TODO: Make weak pointer
 			std::array<std::unique_ptr<TreeNode>, 8> children;
 			bool isSubdivided = false;
 		};

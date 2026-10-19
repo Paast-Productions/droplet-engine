@@ -73,6 +73,8 @@ namespace Droplet
         /// @param ResourceManager
         ResourceManager &operator=(const ResourceManager &) = delete;
 
+		/// @brief Retrieves the singleton instance of the resource manager.
+		/// @return A reference to the resource manager singleton.
         [[nodiscard]] static ResourceManager &Get()
         {
             static ResourceManager resourceManager;
@@ -93,6 +95,7 @@ namespace Droplet
 
         /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
         /// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
+		/// @param p_onComplete Optional callback that is triggered when the register operation has completed. The callback is executed on the main thread.
         void RegisterAsset(const std::filesystem::path &p_relAssetPath, 
             std::function<void(bool p_success, const std::vector<MetaEntry>&)> p_onComplete = nullptr);
 
@@ -160,7 +163,7 @@ namespace Droplet
         /// @brief Retrieves a list of registered resources, optionally filtered by type.
         /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
         /// @return A vector of pointers to the registered metadata entries.
-        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type=ResourceType::None) const;
+        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type = ResourceType::None) const;
 
         /// @brief Retrieves the schema descriptor for the load settings of a specific resource.
         /// @param p_type The resource type to get the schema for.
