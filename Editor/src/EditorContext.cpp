@@ -37,7 +37,7 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 {
 	return m_editorCameraController;
 }
-std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
+std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene() // TODO: Make weak pointer
 {
 	return m_selectedScene;
 }

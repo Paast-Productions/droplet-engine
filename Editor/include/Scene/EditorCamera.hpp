@@ -4,7 +4,6 @@
 #include <ImGui/imgui.h>
 #include <InteractionState.hpp>
 #include <Graphics/VK/Camera.hpp>
-//#include "../../include/Graphics/VK/Camera.hpp"
 
 namespace Droplet::Editor::Scene
 {
