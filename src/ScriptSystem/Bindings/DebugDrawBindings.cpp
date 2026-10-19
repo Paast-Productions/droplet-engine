@@ -10,7 +10,7 @@ void Droplet::Script::Bindings::RegisterDebugDraw(sol::state_view p_luaState)
 {
     ZoneScoped;
 
-	sol::table dbgDraw = p_luaState.create_table("DebugDraw");
+	/*sol::table dbgDraw = p_luaState.create_table("DebugDraw");
 
 	dbgDraw.set_function("DrawRay",
 		[](glm::vec3 origin, glm::vec3 dir, glm::vec4 col = glm::vec4(0, 0, 0, 1), bool depth = true) {
@@ -83,4 +83,5 @@ void Droplet::Script::Bindings::RegisterDebugDraw(sol::state_view p_luaState)
 			DebugDraw::DrawIcon(icon, position, scale, col, depth);
 		}
 	);
+	*/
 }
