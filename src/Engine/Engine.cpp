@@ -118,6 +118,11 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
+	// Register engine behaviours
+	RegisterBehaviours();
+
+	// Register engine components
+	RegisterComponents();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget)
