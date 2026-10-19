@@ -240,10 +240,10 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
         throw std::runtime_error("Invalid json was sent to LoadFromFile");
     }
 
-    if (m_scenes.contains(json["name"]))
-    {
-        throw std::runtime_error("Cannot load Scene " + json["name"] );
-    }
+    //if (m_scenes.contains(json["name"]))
+    //{
+    //    throw std::runtime_error("Cannot load Scene " + json["name"] );
+    //}
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
 

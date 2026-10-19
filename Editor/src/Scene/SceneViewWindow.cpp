@@ -258,7 +258,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene");
+	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene();
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots();
 
 	// Render ImGuizmo cubes for all nodes in the scene

@@ -42,6 +42,11 @@ namespace Droplet
             void RenderImpl() override;
 
         private:
+
+            void RefreshLoadedScenes(std::vector<std::string>&p_sceneFiles );
+
+            void DrawSceneWindow();
+
             /// @brief Draws a scene node and its children.
             ///
             /// Recursively traverses the node hierarchy and creates an ImGui tree

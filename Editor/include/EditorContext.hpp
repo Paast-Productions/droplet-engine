@@ -41,6 +41,8 @@ namespace Droplet::Editor
 		void SetActiveScene(std::string p_sceneName);
 
 		void SaveScene(const std::string &filepath);
+
+		void LoadFromFile( std::string &p_filepath);
 	private:
 		Droplet::Engine &m_engine;
 		

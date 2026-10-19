@@ -5,7 +5,9 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	  m_interactionState(),
 	  m_editorCameraController(m_editorCamera)
 {
+	m_engine.GetSceneManager().LoadScene("TestScene");
 	SetActiveScene("TestScene");
+
 	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
 }
 
@@ -16,7 +18,7 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 		return;
 	}
 	
-	m_engine.GetSceneManager().LoadScene(p_sceneName);
+	//m_engine.GetSceneManager().LoadScene(p_sceneName);
 	
 	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
 	
@@ -31,6 +33,11 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
 {
 	m_engine.GetSceneManager().SerializeToFile(GetActiveScene(), p_filepath);
+}
+
+void Droplet::Editor::EditorContext::LoadFromFile( std::string &p_filepath)
+{
+	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
 
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
