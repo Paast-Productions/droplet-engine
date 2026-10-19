@@ -98,5 +98,18 @@ namespace Droplet::Math
 		{
 			return planes[5];
 		}
+
+		/// @brief Calculates the eight corners of the frustum and stores them in the provided array.
+		/// @param p_corners An array of eight glm::vec3 objects to store the corners of the frustum.
+		/// @details Corners are ordered as follows:
+		///		(left,	top,	near)
+		///		(right, top,	near)
+		///		(left,	bottom, near)
+		///		(right, bottom, near)
+		///		(left,	top,	far)
+		///		(right, top,	far)
+		///		(left,	bottom, far)
+		///		(right, bottom, far)
+		void GetCorners(glm::vec3 *p_corners) const;
 	};
 }

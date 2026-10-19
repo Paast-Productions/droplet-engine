@@ -25,6 +25,7 @@
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
+#include <Graphics/VK/StorageBuffer.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
 #include <Graphics/VK/DescriptorSet.hpp>
 #include <Graphics/VK/DescriptorPool.hpp>
@@ -65,8 +66,8 @@ namespace Droplet::Graphics
 		Renderer() = delete;
 
 		/// @brief Renderer Constructor
-		/// @param p_windowConfig Requested SDL Window Configuration
-		Renderer(SDL::WindowConfig p_windowConfig);
+		/// @param p_window Requested SDL Window Configuration
+		Renderer(SDL::Window &p_window);
 
 		/// @brief Destructor
 		~Renderer();
@@ -157,7 +158,7 @@ namespace Droplet::Graphics
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		SDL::Window m_window;
+		const SDL::Window *m_window;
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
 		VK::Allocator m_allocator { nullptr };
@@ -180,6 +181,7 @@ namespace Droplet::Graphics
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
+		VK::StorageBuffer m_storageBuffer { nullptr };
 		VK::UniformBuffer m_uniformBuffer { nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };

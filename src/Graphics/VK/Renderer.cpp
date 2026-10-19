@@ -16,14 +16,13 @@
 #include <string>
 #include <chrono>
 
-#include <SDL3/SDL_vulkan.h>
-#include <Graphics/VK/UniformBuffer.hpp>
-#include <Graphics/VK/TestData.hpp>
-#include <GameInput.hpp>
-
-#include <Graphics/VK/BufferHelper.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
+
+#include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
+#include <GameInput.hpp>
+
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -36,11 +35,11 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window							{ p_windowConfig },
-	m_context							{ m_window.Get(), m_vkContext },
+Renderer::Renderer(SDL::Window &p_window) :
+	m_window							{ &p_window },
+	m_context							{ m_window->Get(), m_vkContext},
 	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
@@ -54,6 +53,18 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateGraphicsPipeline();
 
+	Debug::DebugDraw::Get().Initialize(
+		m_context.GetInstance(),
+		m_context.GetPhysicalDevice(),
+		m_context.GetDevice(),
+		m_allocator.Get(),
+		m_context.GetQueue(),
+		m_commandPool.Get(),
+		m_descriptorPool.Get(),
+		m_swapchain.GetSurfaceFormat().format,
+		m_depthBuffer.GetFormat(),
+		MAX_FRAMES_IN_FLIGHT);
+
 	const VK::UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
@@ -61,7 +72,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
 	};
 	
-	m_uniformBuffer = { 
+	m_storageBuffer = { 
 		m_allocator.Get(),
 		ubo
 	};
@@ -90,7 +101,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
@@ -131,6 +142,7 @@ Renderer::~Renderer()
 {
 	ZoneScoped;
 
+	Debug::DebugDraw::Get().Shutdown();
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
@@ -367,6 +379,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 	commandBuffer.endRendering();
@@ -601,13 +614,13 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	// here and does not need to be caught by an exception.
 	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -646,7 +659,8 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		.proj = p_camera.GetProjectionMatrix()
 	};
 	
-	m_uniformBuffer.UpdateBuffer(ubo);
+	m_storageBuffer.UpdateBuffer(ubo);
+	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -668,6 +682,8 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 		commandBuffer,
 		imageIndex
 	);
+	
+	Debug::DebugDraw::Get().ClearDrawCommands();
 
 	commandBuffer.end();
 	//vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
@@ -701,12 +717,12 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -865,7 +881,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 
 SDL_Window *Renderer::GetWindow()
 {
-	return m_window.Get();
+	return m_window->Get();
 }
 
 void Renderer::WaitIdle()

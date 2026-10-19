@@ -26,7 +26,7 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
         {
             {
                 .binding = static_cast<std::uint32_t>(DescriptorSetBinding::eUniformBuffer),
-                .descriptorType = vk::DescriptorType::eUniformBuffer,
+                .descriptorType = vk::DescriptorType::eStorageBuffer,
                 .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
                 .stageFlags = vk::ShaderStageFlagBits::eAll
             },
@@ -104,6 +104,29 @@ void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_devic
     
     m_buffers.emplace_back(*p_buffer);
     p_device.updateDescriptorSets(descriptorWrite, {});
+}
+
+void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer)
+{
+    vk::DescriptorBufferInfo bufferInfo
+    {
+        .buffer = p_buffer,
+        .offset = 0,
+        .range = vk::WholeSize,
+    };
+   
+    const vk::WriteDescriptorSet descriptorWrite
+    {
+        .dstSet = m_descriptorSet,
+        .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eStorageBuffer),
+        .dstArrayElement = static_cast<std::uint32_t>(m_buffers.size()),
+        .descriptorCount = 1,
+        .descriptorType = vk::DescriptorType::eStorageBuffer,
+        .pBufferInfo = &bufferInfo
+    };
+    
+    m_buffers.emplace_back(*p_buffer);
+    p_device.updateDescriptorSets(descriptorWrite, {}); 
 }
 
 void DescriptorSet::WriteCombinedImageSamplerDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView)

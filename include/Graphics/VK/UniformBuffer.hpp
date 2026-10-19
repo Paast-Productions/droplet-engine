@@ -51,8 +51,8 @@ namespace Droplet::Graphics::VK
 		
 		UniformBuffer(UniformBuffer &&p_other) noexcept
 		{
-			m_buffer = std::move(p_other.m_buffer);
-			m_bufferMaxSize = std::move(p_other.m_bufferMaxSize);
+			std::swap(m_buffer, p_other.m_buffer);
+			m_bufferMaxSize = p_other.m_bufferMaxSize;
 		}
 		
 		UniformBuffer &operator=(UniformBuffer &&p_other) noexcept
@@ -62,8 +62,8 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_buffer = std::move(p_other.m_buffer);
-			m_bufferMaxSize = std::move(p_other.m_bufferMaxSize);
+			std::swap(m_buffer, p_other.m_buffer);
+			m_bufferMaxSize = p_other.m_bufferMaxSize;
 			
 			return *this;
 		}
@@ -72,7 +72,8 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const UniformBuffer &p_other) const
 		{
-			if (m_buffer == p_other.m_buffer && m_bufferMaxSize == p_other.m_bufferMaxSize)
+			if (m_buffer == p_other.m_buffer				&&
+				m_bufferMaxSize == p_other.m_bufferMaxSize)
 			{
 				return true;
 			}

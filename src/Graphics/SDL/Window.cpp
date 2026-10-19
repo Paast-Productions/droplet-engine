@@ -5,7 +5,7 @@
 
 using namespace Droplet::Graphics::SDL;
 
-Window::Window(WindowConfig p_windowConfig) 
+Window::Window(const WindowConfig &p_windowConfig) 
 {
     ZoneScoped;
 
@@ -19,14 +19,22 @@ Window::Window(WindowConfig p_windowConfig)
         throw SDLException("Failed (SDL_Vulkan_LoadLibrary)");
     }
     
-    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(SDL_CreateWindow("Editor", p_windowConfig.Width, p_windowConfig.Height, p_windowConfig.Flags));
+    m_sdlWindowHandle = std::unique_ptr<SDL_Window, WindowDeleter>(
+    	SDL_CreateWindow(
+    		p_windowConfig.title.c_str(), 
+    		p_windowConfig.Width, 
+    		p_windowConfig.Height, 
+    		p_windowConfig.Flags));
     
     if (not m_sdlWindowHandle)
     {
         throw SDLException("Failed to create window)");
     }
-    
-    SDL_SetWindowResizable(m_sdlWindowHandle.get(), true);
+
+    if (p_windowConfig.Flags & SDL_WINDOW_RESIZABLE)
+    {
+        SDL_SetWindowResizable(m_sdlWindowHandle.get(), true);
+    }
 }
 
 Window::~Window()

@@ -77,6 +77,8 @@ namespace Droplet::Graphics::VK
 		/// @returns Reference to command buffer.
 		[[nodiscard]] vk::raii::CommandBuffer& GetBufferAt(std::size_t p_id);
 		
+		[[nodiscard]] const vk::raii::CommandPool& Get() const { return m_commandPool; }
+		
 		/// @brief Submit commands to be immediately submitted to the supplied queue.
 		/// 
 		/// @tparam RecordFunction Callable type which accepts a CommandBuffer reference.

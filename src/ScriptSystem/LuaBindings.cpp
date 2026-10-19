@@ -15,14 +15,16 @@
 #include <vector>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <DebugDrawBindings.hpp>
 
-using namespace Droplet;
+using namespace Droplet::Script;
+using namespace Droplet::Script::Bindings;
 
-std::vector<Script::LuaGlobalFunctionDefinition> Script::LuaBindings::m_luaGlobalDefinitions;
-std::vector<Script::LuaClassDefinition> Script::LuaBindings::m_luaClassDefinitions;
-std::vector<Script::LuaEnumDefinition> Script::LuaBindings::m_luaEnumDefinitions;
+std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
+std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
+std::vector<LuaEnumDefinition> LuaBindings::m_luaEnumDefinitions;
 
-void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
+void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -33,6 +35,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
 	RegisterTracy(p_luaState);
+    RegisterDebugDraw(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -41,7 +44,7 @@ void Script::LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);
 }
 
-void Script::LuaBindings::RegisterGlobalFunctions()
+void LuaBindings::RegisterGlobalFunctions()
 {
 	m_luaGlobalDefinitions =
 	{
@@ -60,7 +63,7 @@ void Script::LuaBindings::RegisterGlobalFunctions()
 	};
 }
  
-void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
+void LuaBindings::RegisterNode(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -90,7 +93,7 @@ void Script::LuaBindings::RegisterNode(sol::state_view p_luaState)
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }
 
-void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
+void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -327,7 +330,7 @@ void Script::LuaBindings::RegisterTransform(sol::state_view p_luaState)
 	LuaBindings::m_luaClassDefinitions.push_back(transform);
 }
 
-void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
+void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -1863,7 +1866,7 @@ void Script::LuaBindings::RegisterGLM(sol::state_view p_luaState)
 	LuaBindings::m_luaClassDefinitions.push_back(glmDef);
 }
 
-void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
+void LuaBindings::RegisterInput(sol::state_view p_luaState)
 {
 	ZoneScoped;
 	
@@ -2065,7 +2068,7 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
 	LuaBindings::m_luaClassDefinitions.push_back(inputDef);
 }
 
-void Script::LuaBindings::RegisterImGui(sol::state_view p_luaState)
+void LuaBindings::RegisterImGui(sol::state_view p_luaState)
 {
 	ZoneScoped;
 
@@ -2631,7 +2634,7 @@ void Script::LuaBindings::RegisterImGui(sol::state_view p_luaState)
 	}
 }
 
-void Script::LuaBindings::RegisterTracy(sol::state_view p_luaState)
+void LuaBindings::RegisterTracy(sol::state_view p_luaState)
 {
 	tracy::LuaRegister(p_luaState.lua_state());
 
