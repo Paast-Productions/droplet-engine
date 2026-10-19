@@ -36,6 +36,7 @@
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
 #include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/RenderData.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>

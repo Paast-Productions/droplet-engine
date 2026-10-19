@@ -45,13 +45,11 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	
 	struct PipelineConfig
 	{
-		bool UseMultisampling = false;
-		bool UseBlending = false;
-		std::uint32_t ViewportCount = 1;
 		vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
 		vk::CullModeFlagBits CullMode = vk::CullModeFlagBits::eBack;
 		vk::FrontFace FrontFace = vk::FrontFace::eCounterClockwise;
 		vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
+		vk::SurfaceFormatKHR SwapchainSurfaceFormat {};
 		
 		std::vector<vk::DynamicState> DynamicStates
 		{
@@ -59,7 +57,10 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 			vk::DynamicState::eScissor
 		};
 		
-		vk::SurfaceFormatKHR SwapchainSurfaceFormat {};
+		std::uint32_t ViewportCount = 1;
+		bool UseMultisampling = false;
+		bool UseBlending = false;
+		
 	} pipelineConfig;
 	
 	vk::PipelineCacheCreateInfo cacheInfo {};

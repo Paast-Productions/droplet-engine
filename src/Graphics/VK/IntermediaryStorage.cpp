@@ -62,6 +62,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
+    else if (vs.IsValid())
+    {
+        throw std::runtime_error("Vertex Shader is not ready");
+    }
     
     ShaderModule tcsModule { nullptr };
     if (tcs.IsReady())
@@ -69,6 +73,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         ShaderResource* tcsRes = tcs.Get();
         tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
         shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
+    }
+    else if (tcs.IsValid())
+    {
+        throw std::runtime_error("Tessellation Control Shader is not ready");
     }
     
     ShaderModule tesModule { nullptr };
@@ -78,6 +86,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
         shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
+    else if (tes.IsValid())
+    {
+        throw std::runtime_error("Tessellation Evaluation Shader is not ready");
+    }
     
     ShaderModule gsModule { nullptr };
     if (gs.IsReady())
@@ -86,6 +98,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
         shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
+    else if (gs.IsValid())
+    {
+        throw std::runtime_error("Geometry Shader is not ready");
+    }
     
     ShaderModule fsModule { nullptr };
     if (fs.IsReady())
@@ -93,16 +109,11 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         ShaderResource* fsRes = fs.Get();
         fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
-    }
-    
-    std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts
+    } 
+    else if (fs.IsValid())
     {
-        {
-            {
-                *m_descriptorSet.GetLayout()  
-            }
-        }
-    };
+        throw std::runtime_error("Fragment Shader is not ready");
+    }
     
     m_pipelineMap[key] = Pipeline 
     {

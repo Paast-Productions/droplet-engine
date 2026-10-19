@@ -21,7 +21,6 @@
 
 #include <Graphics/VK/TestData.hpp>
 #include <GameInput.hpp>
-#include <Graphics/RenderData.hpp>
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -176,123 +175,6 @@ void Renderer::TransitionImageLayout(
 	
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
-
-
-////Main drawing operations are here!
-//void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
-//{
-//	ZoneScoped;
-//
-//	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-//
-//	commandBuffer.begin({});
-//
-//	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
-//	TransitionImageLayout(
-//		m_swapchain.GetImages().at(p_imageIndex),
-//		vk::ImageLayout::eUndefined,
-//		vk::ImageLayout::eColorAttachmentOptimal,
-//		{},
-//		vk::AccessFlagBits2::eColorAttachmentWrite,
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::ImageAspectFlagBits::eColor
-//	);
-//
-//	TransitionImageLayout(
-//		m_depthBuffer.GetImage(),
-//		vk::ImageLayout::eUndefined,
-//		vk::ImageLayout::eDepthAttachmentOptimal,
-//		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-//		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-//		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-//		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-//		vk::ImageAspectFlagBits::eDepth
-//	);
-//	
-//	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
-//	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
-//
-//	vk::RenderingAttachmentInfo colorAttachmentInfo 
-//	{
-//		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
-//		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
-//		.loadOp = vk::AttachmentLoadOp::eClear,
-//		.storeOp = vk::AttachmentStoreOp::eStore,
-//		.clearValue = clearColor 
-//	};
-//
-//	vk::RenderingAttachmentInfo depthAttachmentInfo
-//	{
-//		.imageView = m_depthBuffer.GetView(),
-//		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
-//		.loadOp = vk::AttachmentLoadOp::eClear,
-//		.storeOp = vk::AttachmentStoreOp::eDontCare,
-//		.clearValue = clearDepth 
-//	};
-//
-//	vk::RenderingInfo renderingInfo 
-//	{
-//		.renderArea = 
-//		{
-//			.offset = 
-//			{
-//				.x = 0,
-//				.y = 0
-//			}, 
-//			.extent = m_swapchain.GetExtent()
-//		},
-//		.layerCount = 1,
-//		.colorAttachmentCount = 1,
-//		.pColorAttachments = &colorAttachmentInfo,
-//		.pDepthAttachment = &depthAttachmentInfo 
-//	};
-//	
-//	commandBuffer.beginRendering(renderingInfo);
-//
-//	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
-//	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
-//	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-//	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
-//	
-//	for (size_t i = 0; i < renderData.meshData.size(); i++)
-//	{
-//
-//		vk::PushConstantsInfo pcInfo
-//		{
-//			.sType = vk::StructureType::ePushConstantsInfo,
-//			.pNext = VK_NULL_HANDLE,
-//			.layout = m_graphicsPipeline.GetLayout(),
-//			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-//			.offset = 0,
-//			.size = sizeof(Droplet::Graphics::VK::PushConstants),
-//			.pValues = &renderData.pushConstants[i]
-//		};
-//		commandBuffer.pushConstants2(pcInfo);
-//
-//		commandBuffer.bindVertexBuffers(0, renderData.meshData[i].vertexBuffer, {0});
-//		commandBuffer.bindIndexBuffer(renderData.meshData[i].indexBuffer, 0, vk::IndexType::eUint16);
-//
-//		commandBuffer.drawIndexed(renderData.meshData[i].indexCount, 1, 0, 0, 0);
-//	}
-//
-//	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
-//	commandBuffer.endRendering();
-//	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
-//	
-//	TransitionImageLayout(
-//		m_swapchain.GetImages().at(p_imageIndex),
-//		vk::ImageLayout::eColorAttachmentOptimal,
-//		vk::ImageLayout::ePresentSrcKHR,
-//		vk::AccessFlagBits2::eColorAttachmentWrite,
-//		{},
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::PipelineStageFlagBits2::eBottomOfPipe,
-//		vk::ImageAspectFlagBits::eColor
-//	);
-//
-//	commandBuffer.end();
-//}
 
 void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex)
 {
