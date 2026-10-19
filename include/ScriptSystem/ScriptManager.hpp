@@ -18,9 +18,6 @@ namespace Droplet::Script
 	/// script has been modified and needs to be reloaded.
 	struct LoadedScript
 	{
-		/// @brief Compiled Lua script.
-		//sol::load_result loadResult;
-
 		/// @brief Path to the source Lua script.
 		std::filesystem::path scriptPath;
 
@@ -145,10 +142,7 @@ namespace Droplet::Script
 
 		/// @brief Retrieves a loaded Lua script
 		/// @param p_scriptFile Path or name of the loaded Lua script.
-		/// @return Pointer to the loaded script result, or nullptr if the script
-		/// is not loaded.
-		//[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
-
+		/// @return LoadedScript that holds the scripts path and when it was last loaded.
 		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
 
 		/// @brief Activates a script component

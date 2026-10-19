@@ -316,7 +316,6 @@ void ScriptManager::UnloadScript(const std::string& p_scriptFile)
 
 bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 {
-	 
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
@@ -513,26 +512,42 @@ std::string Droplet::Script::ScriptManager::GetScriptDirectory()
 	return m_scriptDirectoryPath.string();
 }
 
-std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
+std::filesystem::path ScriptManager::FindScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
 
-	const std::filesystem::path requestedPath = std::filesystem::path(p_scriptFile).lexically_normal();
+	const std::filesystem::path requestedPath =
+		std::filesystem::path(p_scriptFile).lexically_normal();
 
-	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
+	if (requestedPath.empty())
+	{
+		return {};
+	}
+
+	for (const auto &entry :
+		std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())
 		{
 			continue;
 		}
 
-		const std::filesystem::path relativePath = entry.path().lexically_relative(m_scriptDirectoryPath).lexically_normal();
+		const std::filesystem::path relativePath = entry.path()
+			.lexically_relative(m_scriptDirectoryPath)
+			.lexically_normal();
 
-		if (relativePath == p_scriptFile)
+		if (relativePath == requestedPath)
+		{
+			return entry.path();
+		}
+
+		if (!requestedPath.has_parent_path() &&
+			relativePath.filename() == requestedPath.filename())
 		{
 			return entry.path();
 		}
 	}
+
 	return {};
 }
 
