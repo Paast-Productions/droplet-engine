@@ -265,6 +265,7 @@ function OnUpdate(dt)
 end
 )lua";
 
+		ImGui::SetKeyboardFocusHere();
 		const bool enterPressed = ImGui::InputText("Filename", filename, sizeof(filename), ImGuiInputTextFlags_EnterReturnsTrue);
 
 		if (ImGui::Button("Create") || enterPressed)
