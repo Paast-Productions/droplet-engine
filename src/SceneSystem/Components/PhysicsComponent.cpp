@@ -67,7 +67,7 @@ void Droplet::PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCyl
 	CreateCollider(capsuleSettings);
 }
 
-void Droplet::PhysicsComponent::SetMeshCollider(const std::shared_ptr<Droplet::MeshResource> p_mesh)
+void Droplet::PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 {
 	if (m_hasShape || p_mesh == nullptr)
 	{
@@ -129,6 +129,9 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 	m_shape = result.Get();
 	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(m_transform->GetPosition(Transform::Space::World)), 
 		GLMtoJPH(m_transform->GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
+	bodySettings.mAllowDynamicOrKinematic = true;
+	bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+	bodySettings.mMassPropertiesOverride = JPH::MassProperties(1.0f);
 
 	JPH::Body *body = m_physics->GetBodyInterface()->CreateBody(bodySettings);
 	m_bodyID = body->GetID();
