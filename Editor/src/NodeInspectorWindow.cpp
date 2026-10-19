@@ -30,7 +30,6 @@ void NodeInspectorWindow::CloseImpl()
 
 void NodeInspectorWindow::RenderImpl()
 {
-	//const auto &selectedNodes = m_interactionState->GetSelectedNodes();
 	const auto &selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 	// No selected node
@@ -165,7 +164,6 @@ void NodeInspectorWindow::RenderImpl()
 	}
 
 	ImGui::PopID();
-	//List of components (Do i need a component list with imgui functions for this?)
 }
 
 void NodeInspectorWindow::RenderToolbar()
