@@ -58,6 +58,8 @@ project "Scripting-Main"
         "winmm",
         "gdi32",
         "shell32",
+        "VulkanMemoryAllocator",
+        AddQuotation("vulkan-1"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd")
