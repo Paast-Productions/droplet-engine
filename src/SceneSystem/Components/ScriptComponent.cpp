@@ -8,7 +8,7 @@ using namespace Droplet::Script;
 
 void ScriptComponent::Start()
 {
-
+	ScriptSystem::Get().Call(this, "OnStart");
 }
 
 void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -42,6 +42,7 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
     ScriptSystem::Get().ActivateComponentScript(this);
+    ScriptSystem::Get().Start();
 }
 
 void ScriptComponent::DetachScript()
@@ -94,6 +95,12 @@ void ScriptComponent::RenderUIImpl()
     }
 
     ImGui::EndDisabled();
+
+	ImGui::BeginChild("ScriptComponentChild", ImVec2(0.0f, 0.0f), true | ImGuiChildFlags_AutoResizeY );
+
+    ScriptSystem::Get().Call(this, "RenderUI");
+
+    ImGui::EndChild();
 }
 
 nlohmann::json ScriptComponent::SerializeImpl()

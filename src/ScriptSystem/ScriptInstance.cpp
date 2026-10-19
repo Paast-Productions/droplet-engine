@@ -55,7 +55,6 @@ void ScriptInstance::OnStart()
 		{
 			sol::error err = result;
 			std::print("onStart error: {}\n", err.what());
-			// TODO: Send to error logger when it exists
 		}
 	}
 }
@@ -71,8 +70,8 @@ void ScriptInstance::OnUpdate(float deltatime)
 		if (!result.valid())
 		{
 			sol::error err = result;
-			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n", m_scriptPath, err.what());
-			// TODO: Send to error logger when it exists
+			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n",
+				m_scriptPath, err.what());
 		}
 	}
 }

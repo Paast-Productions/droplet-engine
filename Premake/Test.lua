@@ -71,10 +71,13 @@ project "Test"
         "Engine",
         "gtest",
         "tracy",
+        "VulkanMemoryAllocator",
         "ImGui",
         AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
+        AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
 		AddQuotation("lua-5.4.7")
     }
