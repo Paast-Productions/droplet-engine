@@ -22,17 +22,28 @@ void SerializationContext::RegisterNode(std::uint64_t p_nodeID, std::shared_ptr<
 
 void Droplet::Scene::SerializationContext::RegisterCopmonent(std::uint64_t p_nodeID, std::uint64_t p_componentID, std::shared_ptr<Component> p_component)
 {
-	if (p_nodeID == 0 || p_componentID == 0 || p_component == nullptr)
+	if (p_nodeID == 0)
+	{
+		throw std::invalid_argument("Invalid Node ID");
+	}
+	
+	if (p_componentID == 0)
+	{
+		throw std::invalid_argument("Invalid Component ID");
+	}
+
+	if ( p_component == nullptr)
 	{
 		throw std::invalid_argument("Invalid compoonent registration");
 	}
-
+	
 	const auto result = m_components[p_nodeID].emplace(p_componentID, p_component);
 	if (!result.second)
 	{
 		throw std::runtime_error("Duplicate Component ID on node");
 	}
-	m_registeredComponents.push_back((p_component));
+	
+	m_registeredComponents.push_back(std::move(p_component));
 }
 
 std::shared_ptr<Node> Droplet::Scene::SerializationContext::FindNode(std::uint64_t p_nodeID)
@@ -75,8 +86,5 @@ void Droplet::Scene::SerializationContext::ResolveAllReferences()
 
 		comp->ResolveReferences(*this);
 	}
-	for (auto component : m_registeredComponents)
-	{
-		//componentResolveReferences(*this);
-	}
+
 }

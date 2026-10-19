@@ -174,6 +174,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
+		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
+		/// @param p_component Unique pointer to the Component to add.
+        void AddComponent(std::unique_ptr<Component> &p_component);
+
         /// @brief Adds a Component to the Node.
         ///
         /// Constructs the Component using the provided arguments, assigns this Node
@@ -203,8 +207,8 @@ namespace Droplet::Scene
             static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
             auto component = std::make_shared<T>();
-
-            AttachComponent(std::static_pointer_cast<Component>(component));
+            std::shared_ptr<Component> baseComponent = component;
+            AttachComponent(baseComponent);
 
             return component;
         }
@@ -217,8 +221,8 @@ namespace Droplet::Scene
         /// The overloaded function uses id from serialization
         ///       
         /// @param p_component The comoponent to be attached
-        void AttachComponent(std::shared_ptr<Component> p_component); 
-        void AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
+        void AttachComponent(std::shared_ptr<Component> &p_component); 
+        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -267,7 +271,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
-        void RemoveComponent(const std::shared_ptr<Component> &p_component);
+        void RemoveComponent(const Component *p_component);
 
         // --------------------------------------------------
         // Bounds
@@ -279,7 +283,7 @@ namespace Droplet::Scene
         /// registered. Otherwise, returns the Node's default bounding box.
         ///
         /// @return A constant reference to the effective local-space bounding box.
-        [[nodiscard]] std::shared_ptr<NodeBounds> GetBounds() const;
+        [[nodiscard]] const NodeBounds *GetBounds() const;
 
         /// @brief Sets the Node's default local-space bounding box.
         ///
@@ -307,7 +311,12 @@ namespace Droplet::Scene
 		/// @param p_node Node to check against.
         /// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
-		bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+        [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const;
+
+		/// @brief Checks through all components to see if the Node is renderable.
+        /// 
+        /// @return true if the Node is renderable, otherwise false.
+        [[nodiscard]] bool IsRenderable() const;
 
     private:
         std::string m_name;
@@ -365,6 +374,6 @@ namespace Droplet::Scene
         /// @brief Component currently providing the Node's bounds override.
         ///
         /// Only one Component can provide a bounds override at a time.
-        std::shared_ptr<Component> m_boundsOverride{};
+        std::weak_ptr<Component> m_boundsOverride{};
     };
 }

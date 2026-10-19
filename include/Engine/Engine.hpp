@@ -7,11 +7,16 @@
 #include <Graphics/SDL/Window.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
+#include <SceneSystem/Behaviour.hpp>
+#include <resource/ResourceManager.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
 #include <Engine/EngineFlags.hpp>
-#include <resource/ResourceManager.hpp>
 
 namespace Droplet
 {
@@ -44,28 +49,26 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		[[nodiscard]] DROPLET_RETURNTYPE Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget);
 		
 		/// @brief the purpose of GetWindow is to let other systems use the window. 
 		/// Mainly the editor and the game itself needs access to the window.
 		/// @return An SDL window
 		[[nodiscard]] SDL_Window *GetWindow();
-
-		/// @brief 
-		/// HACK HACK HACK 
-		/// DO NOT USE THIS FUNCTION, IT WILL BE REMOVED VERY SOON.
-		/// IT ONLY EXISTS TO MAKE SURE TEMPORARY IMGUI CODE IN MAIN CAN RUN. 
-		/// HACK HACK HACK
-		/// @return Renderer
-		[[nodiscard]] Graphics::Renderer &TEMP_GetRenderer();
+		/// Temporarily Getter function
+		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
 
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager();
 
+		[[nodiscard]] ResourceManager &GetResourceManager();
+
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(EventListener p_listener);
+
+
 		
 	private:
 
@@ -90,10 +93,11 @@ namespace Droplet
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
-		ResourceManager m_resourceManager;
-
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
+
+		/// @brief The resource manager instance, should only be one.
+		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
 
 		/// @brief 
 		ImGui_ImplVulkan_InitInfo m_initInfo;

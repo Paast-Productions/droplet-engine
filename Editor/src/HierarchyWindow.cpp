@@ -6,6 +6,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <EditorShortcuts.hpp>
 //#include <Engine/Engine.hpp>
 #include <memory>
 
@@ -13,36 +14,37 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-Droplet::Editor::HierarchyWindow::HierarchyWindow(std::shared_ptr<Droplet::Engine> p_instance, std::shared_ptr<InteractionState> p_interactionState)
-{
-	m_instance = p_instance;
-	m_interactionState = p_interactionState;
-}
+HierarchyWindow::HierarchyWindow(EditorContext *p_editorContext) :
+ m_editorContext(p_editorContext)
+{ }
 
 void HierarchyWindow::InitImpl()
 {   
     SetName("Node Hierarchy");
-
-	m_instance->GetSceneManager().LoadScene("TestScene");
-
-	m_selectedScene = m_instance->GetSceneManager().GetScene("TestScene"); 
+    
 }
 
 void HierarchyWindow::RenderImpl()
 {
-    if (!m_instance)
+    auto scene = m_editorContext->GetActiveScene();
+    if (ImGui::IsWindowFocused())
     {
-        return;
+        EditorShortcuts::ProcessSceneViewKeyShortcuts();
     }
-    
-    if (!m_selectedScene)
+    //
+    // if (!m_instance)
+    // {
+    //     return;
+    // }
+    //
+    if (!scene)
     {
         return;
     }
 
     if (ImGui::Button("Add Node"))
     {
-        m_selectedScene->AddNode("New Node");
+        scene->AddNode("New Node");
     }
 
     ImGui::Separator();
@@ -91,7 +93,7 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::BeginGroup();
 
-    for (const auto &root : m_selectedScene->GetRoots())
+    for (const auto &root : scene->GetRoots())
     {
         DrawNode(root);
     }
@@ -140,7 +142,7 @@ void HierarchyWindow::RenderImpl()
 
     if (m_nodeToAddChildTo)
     {
-        auto newNode = m_selectedScene->AddNode("New Node");
+        auto newNode = scene->AddNode("New Node");
 
         m_nodeToAddChildTo->AddChild(newNode);
         m_nodeToAddChildTo.reset();
@@ -154,7 +156,7 @@ void HierarchyWindow::RenderImpl()
         {
             oldParent->RemoveChild(m_nodeToRemove);
         }
-		m_selectedScene->RemoveRoot(m_nodeToRemove);
+		scene->RemoveRoot(m_nodeToRemove);
 		m_nodeToRemove.reset();
     }
 } 
@@ -166,14 +168,14 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         return;
     }
 
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
     if (p_node->GetChildren().empty())
     {
         flags |= ImGuiTreeNodeFlags_Leaf;
     }
 
-    if (m_interactionState->IsNodeSelected(p_node))
+    if (/*m_interactionState->IsNodeSelected(p_node)*/m_editorContext->GetInteractionState().IsNodeSelected(p_node))
     {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
@@ -187,8 +189,11 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
     {
         if (ImGui::IsItemClicked())
         {
-            m_interactionState->ClearNodeSelection();
-            m_interactionState->SelectNode(p_node);
+            // m_interactionState->ClearNodeSelection();
+            // m_interactionState->SelectNode(p_node);
+            
+            m_editorContext->GetInteractionState().ClearNodeSelection();
+            m_editorContext->GetInteractionState().SelectNode(p_node);
         }
 
         if (ImGui::BeginDragDropSource())

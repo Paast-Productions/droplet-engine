@@ -10,8 +10,8 @@ namespace Droplet::Math
 		glm::vec3 extents;
 		glm::mat3 orientation;
 
-		/// @brief Default constructor initializes the OBB with zero center, zero extents, and identity orientation.
-		OBB() : center(glm::vec3(0.0f)), extents(glm::vec3(0.0f)), orientation(glm::mat3(1.0f)) {}
+		/// @brief Default constructor initializes a unit OBB centered at the origin with no rotation.
+		OBB() : center(glm::vec3(0.0f)), extents(glm::vec3(1.0f)), orientation(glm::mat3(1.0f)) {}
 
 		/// @brief Constructs an OBB with the specified center, extents, and orientation.
 		/// @param p_center The center of the OBB.

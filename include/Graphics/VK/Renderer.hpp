@@ -35,6 +35,7 @@
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -71,7 +72,9 @@ namespace Droplet::Graphics
 		~Renderer();
 		
 		/// @brief Renders a singular frame
-		void	DrawFrame();
+		void	DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
+
+		void RenderToTarget(RenderTarget &p_target, const Camera &p_camera);
 		
 		/// @brief Resizes the window
 		void	ResizeWindow();
@@ -86,6 +89,15 @@ namespace Droplet::Graphics
 
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
+
+		/// @brief Public function to apply mouse movements on the camera
+		/// @param p_xOffset position on the screen along the x-axis
+		/// @param p_yOffset position on the screen along the y-axis
+		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
+
+		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
+
+		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
 
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
@@ -114,6 +126,8 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_imageIndex which image to render to
 		void					RecordCommandBuffer(uint32_t p_imageIndex);
+		void					RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget);
+		void					RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 
 		/// @brief Creates the texture sampler
 		void					CreateTextureSampler();
@@ -138,7 +152,8 @@ namespace Droplet::Graphics
 			vk::AccessFlags2        p_dst_access_mask,
 			vk::PipelineStageFlags2 p_src_stage_mask,
 			vk::PipelineStageFlags2 p_dst_stage_mask,
-			vk::ImageAspectFlags    p_image_aspect_flags);
+			vk::ImageAspectFlags    p_image_aspect_flags,
+			vk::raii::CommandBuffer &p_commandBuffer);
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 

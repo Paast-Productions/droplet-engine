@@ -102,7 +102,7 @@ namespace Droplet::Scene
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
 
-        bool m_started;
+        bool m_started = true;
     };
 
     /// @brief Calls a Lua function on the script associated with the component.

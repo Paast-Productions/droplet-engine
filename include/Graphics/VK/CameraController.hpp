@@ -17,7 +17,7 @@ namespace Droplet::Graphics
 	
 	private:
 		float m_movementSpeed = 2.5f;
-		float m_mouseSensitivity = 0.1f;
+		float m_mouseSensitivity = 0.05f;
 
 		bool m_relativeMouse = false;
 	};

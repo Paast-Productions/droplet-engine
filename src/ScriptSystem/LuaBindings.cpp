@@ -420,13 +420,6 @@ void Script::LuaBindings::RegisterInput(sol::state_view p_luaState)
         "GetCursorY", &GameInput::GetCursorY,
         "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
         "GetDeltaMouseY", &GameInput::GetDeltaMouseY
-        //"SetCursorPosition",          //Add when we can get the sdl window
-        //[](GameInput& input, float x, float y)
-        //{
-        //    
-        //    //SDL_Window *window = 
-        //    //input.SetCursorPosition(window, x, y);
-        //}
     );
 
     LuaClassDefinition keyDef;
@@ -541,7 +534,7 @@ void Script::LuaBindings::RegisterImGui([[maybe_unused]] sol::state_view p_luaSt
 
     imgui.set_function(
         "Text",
-		[](const std::string &p_text)
+		[](const std::string &p_text) 
 		{
 			ImGui::TextUnformatted(p_text.c_str());
 	    }

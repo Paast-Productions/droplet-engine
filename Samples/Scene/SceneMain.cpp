@@ -294,10 +294,10 @@ int main()
     // Register Component types
     // ==================================================
 
-    ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_shared<ScriptComponent>(); });
-    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_shared<PlayerComponent>(); });
-    ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_shared<MeshComponent>(); });
-    ComponentRegistry::RegisterComponent("EnemyComponent", []() { return std::make_shared<EnemyComponent>(); });
+    ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<ScriptComponent>(); });
+    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<PlayerComponent>(); });
+
+    ComponentRegistry::RegisterComponent("EnemyComponent", []() { return std::make_unique<EnemyComponent>(); });
 
     // ==================================================
     // Add Components
@@ -308,10 +308,6 @@ int main()
     auto enemyComp = enemy->AddComponent<EnemyComponent>();
 
     enemyComp->SetTarget(playerComp);
-
-    player->AddComponent<MeshComponent>();
-    
-    
 
     player->AddComponent<ScriptComponent>();
 

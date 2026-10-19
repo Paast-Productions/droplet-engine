@@ -47,18 +47,24 @@ project "Scripting-Main"
         "Engine",
         "ImGui",
         "Sol2",
-        "tracy"
+        "tracy",
+	"PortableFileDialogs",
+	"IconFontCppHeaders"
     }
 
-    links {
+    links 
+    {
         "Engine",
         "ImGui",
+        "ImGuizmo",
+        "VulkanMemoryAllocator",
         "tracy",
-        "lua-5.4.7",
-        "winmm",
-        "gdi32",
-        "shell32",
+        "IconFontCppHeaders",
+        "PortableFileDialogs",
         AddQuotation("SDL3"),
+        AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd")
+        AddQuotation("Slangd"),
+		AddQuotation("zlibstaticd"),
+	 	AddQuotation("assimp-mtd")
     }

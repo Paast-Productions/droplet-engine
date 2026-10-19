@@ -46,6 +46,7 @@ namespace Droplet
         {
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
+
         }
 
         if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
@@ -134,12 +135,32 @@ namespace Droplet
         return m_mouseY - m_prevMouseY;
     }
 
-    void GameInput::SetCursorPosition(SDL_Window *&p_window, float p_x, float p_y)
+    void GameInput::HideCursor(bool p_active)
     {
-        ZoneScoped;
+        if (p_active)
+        {
+            SDL_HideCursor();
 
-        m_mouseX = p_x;
-        m_mouseY = p_y;
-        SDL_WarpMouseInWindow(p_window, m_mouseX, m_mouseY);
+        }
+        else
+        {
+            SDL_ShowCursor();
+        }
+    }
+
+    void GameInput::SetCursorPosition(SDL_Window* &p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
+    {        
+        // calculate mousepos in SDL window
+        int windowX, windowY;
+        SDL_GetWindowPosition(p_window, &windowX, &windowY);
+        float localX = p_x - static_cast<float>(windowX);
+        float localY = p_y - static_cast<float>(windowY);
+ 
+        // Set mousepos in global space (faster than local)
+        SDL_WarpMouseGlobal(p_x, p_y);
+
+        // reset the mouse to center position in SDL window
+        m_mouseX = localX;
+        m_mouseY = localY;
     }
 }
