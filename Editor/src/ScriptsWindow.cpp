@@ -1,8 +1,11 @@
 #include "ScriptsWindow.hpp"
 
-#include "ScriptSystem/ScriptSystem.hpp"
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <cstdint>
+#include <cctype>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -55,6 +58,7 @@ void ScriptsWindow::RenderImpl()
 	{
 		RenderTreeHelper(node);
 	}
+
 }
 
 void ScriptsWindow::RenderToolbar()
@@ -63,6 +67,13 @@ void ScriptsWindow::RenderToolbar()
 	{
 		RefreshScripts();
 	}
+
+	if (ImGui::Button("Add+"))
+	{
+		ImGui::OpenPopup("Create Lua Script");
+	}
+
+	RenderAddScript();
 	ImGui::Separator();
 }
 
@@ -194,6 +205,93 @@ void ScriptsWindow::RefreshScripts()
 			}
 		};
 	sortNodes(m_scriptTree, sortNodes);
+}
+
+void ScriptsWindow::RenderAddScript()
+{
+	if (ImGui::BeginPopupModal("Create Lua Script", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char filename[128] = "";
+		static std::string errorMessage;
+
+		ImGui::InputText("Filename", filename, sizeof(filename));
+
+		if (ImGui::Button("Create"))
+		{
+			std::string name = filename;
+
+			if (name.empty())
+			{
+				errorMessage = "Enter filename";
+			}
+			else 
+			{
+				if (std::filesystem::path(name).extension() != ".lua")
+				{
+					name += ".lua";
+				}
+
+				if (std::filesystem::path(name).filename() != name || name == "." || name == "..")
+				{
+					errorMessage = "Invalid filename";
+				}
+				else 
+				{
+					const std::filesystem::path scriptPath = scriptPath / name;
+
+					std::error_code error;
+
+					if (std::filesystem::exists(scriptPath, error))
+					{
+						errorMessage = "A script with this name already exists";
+					}
+					else if (error)
+					{
+						errorMessage = "Failed to check wheter the file exist";
+					}
+					else
+					{
+						std::ofstream file(scriptPath);
+						
+						if (!file) 
+						{
+							errorMessage = "Failed to create the file";
+						}
+						else
+						{
+							file.close();
+
+							filename[0] = '\0';
+							errorMessage.clear();
+
+							ImGui::CloseCurrentPopup();
+							RefreshScripts();
+						}
+					}	
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel"))
+		{
+			filename[0] = '\0';
+			ImGui::CloseCurrentPopup();
+		}
+
+		if (!errorMessage.empty())
+		{
+			ImGui::TextWrapped("%s", errorMessage.c_str());
+		}
+
+		ImGui::EndPopup();
+	}
+}
+
+void ScriptsWindow::DeleteSelectedScript()
+{
+
 }
 
 void ScriptsWindow::OpenScript(const std::filesystem::path &p_relativePath)

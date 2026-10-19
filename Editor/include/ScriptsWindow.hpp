@@ -65,6 +65,10 @@ namespace Droplet::Editor
 		/// Any errors encountered during the refresh can be stored for display.
 		void RefreshScripts();
 
+		void RenderAddScript();
+
+		void DeleteSelectedScript();
+
 		/// @brief Opens the selected script.
 		/// @param p_relativePath Path to the script relative to the script root.
 		void OpenScript(const std::filesystem::path &p_relativePath);
