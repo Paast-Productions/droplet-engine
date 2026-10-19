@@ -107,6 +107,47 @@ void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 			}
 		}
 
+		if (ImGui::BeginPopupContextItem("ScriptContextMenu"))
+		{
+			if (ImGui::MenuItem("Delete"))
+			{
+				m_selectedScript = path;
+				m_openDeleteConfirmation = true;
+			}
+			ImGui::EndPopup();
+		}
+
+		if (m_openDeleteConfirmation)
+		{
+			ImGui::OpenPopup("DeleteScriptConfirm");
+			m_openDeleteConfirmation = false;
+		} 
+
+		if (ImGui::BeginPopupModal("DeleteScriptConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Are you sure you want to delete the script %s?\n", m_selectedScript.c_str());
+
+			const float buttonWidth = 80.0f;
+			const float spacing = ImGui::GetStyle().ItemSpacing.x;
+			const float totalWidth = buttonWidth * 2.0f + spacing;
+
+			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
+
+			if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+			{
+				DeleteSelectedScript();
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("SCRIPT_PATH", path.c_str(), path.size() + 1);
@@ -214,9 +255,9 @@ void ScriptsWindow::RenderAddScript()
 		static char filename[128] = "";
 		static std::string errorMessage;
 
-		ImGui::InputText("Filename", filename, sizeof(filename));
+		const bool enterPressed = ImGui::InputText("Filename", filename, sizeof(filename), ImGuiInputTextFlags_EnterReturnsTrue);
 
-		if (ImGui::Button("Create"))
+		if (ImGui::Button("Create") || enterPressed)
 		{
 			std::string name = filename;
 
@@ -237,7 +278,7 @@ void ScriptsWindow::RenderAddScript()
 				}
 				else 
 				{
-					const std::filesystem::path scriptPath = scriptPath / name;
+					const std::filesystem::path scriptPath = m_scriptPath / name;
 
 					std::error_code error;
 
@@ -287,11 +328,24 @@ void ScriptsWindow::RenderAddScript()
 
 		ImGui::EndPopup();
 	}
+
+	if (m_needsRefresh)
+	{
+		RefreshScripts();
+		m_needsRefresh = false;
+	}
 }
 
 void ScriptsWindow::DeleteSelectedScript()
 {
+	const std::filesystem::path scriptPath = m_scriptPath / m_selectedScript;
+	std::error_code error;
 
+	if (std::filesystem::remove(scriptPath, error))
+	{
+		m_selectedScript.clear();
+		m_needsRefresh = true;
+	}
 }
 
 void ScriptsWindow::OpenScript(const std::filesystem::path &p_relativePath)

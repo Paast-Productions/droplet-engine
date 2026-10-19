@@ -87,5 +87,9 @@ namespace Droplet::Editor
 
 		/// @brief Error message produced while opening a script.
 		std::string m_openError;
+
+		bool m_needsRefresh = false;
+
+		bool m_openDeleteConfirmation = false;
 	};
 }
