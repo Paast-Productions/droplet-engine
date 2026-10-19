@@ -7,7 +7,7 @@
 
 #include <sol/sol.hpp>
 
-namespace Droplet::Script
+namespace Droplet::Script::Bindings
 {
 	/// @brief Registers engine functionality and types for use in Lua.
 	/// LuaBindings provides the interface between the C++ engine and the Lua

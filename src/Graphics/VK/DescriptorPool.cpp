@@ -5,7 +5,7 @@ using namespace Droplet::Graphics::VK;
 
 DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 {
-	std::array<vk::DescriptorPoolSize, 2> poolSize
+	std::array<vk::DescriptorPoolSize, 3> poolSize
 	{
 		{
 			{
@@ -14,6 +14,10 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 			},
 			{
 				.type = vk::DescriptorType::eCombinedImageSampler,
+				.descriptorCount = std::numeric_limits<std::uint8_t>::max()
+			},
+			{
+				.type = vk::DescriptorType::eUniformBuffer,
 				.descriptorCount = std::numeric_limits<std::uint8_t>::max()
 			}
 		} 
