@@ -125,7 +125,7 @@ std::vector<std::uint32_t> SandboxShaderCompiler::CompileSpirv(
     // 		moduleDiagnostics.writeRef())
     // };
 #endif
-    
+
     Slang::ComPtr<slang::IModule> module{
         m_session->loadModuleFromSourceString(
             moduleName,
@@ -248,7 +248,7 @@ void SandboxShaderCompiler::CreateGlobalSession()
     CheckSlangResult(
         result,
         "Failed to create Slang global session");
-    
+
     std::println("Slang build: {}", m_globalSession->getBuildTagString());
 }
 
@@ -262,24 +262,30 @@ void SandboxShaderCompiler::CreateSession()
         }
     };
 
-    const std::array options{
-        slang::CompilerOptionEntry{
+    const std::array options
+    {
+        slang::CompilerOptionEntry
+        {
             .name = slang::CompilerOptionName::EmitSpirvDirectly,
-            .value = {
+            .value =
+            {
                 .kind = slang::CompilerOptionValueKind::Int,
                 .intValue0 = 1
             }
         },
-        slang::CompilerOptionEntry{
+        slang::CompilerOptionEntry
+        {
             .name = slang::CompilerOptionName::VulkanUseEntryPointName,
-            .value = {
+            .value =
+            {
                 .kind = slang::CompilerOptionValueKind::Int,
                 .intValue0 = 1
             }
         }
     };
 
-    const slang::SessionDesc sessionDesc{
+    const slang::SessionDesc sessionDesc
+    {
         .targets = targets.data(),
         .targetCount =
         static_cast<SlangInt>(targets.size()),
@@ -346,19 +352,19 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
     : m_windowRef{window}
 {
     // 1. Vulkan instance and window as surface
-    CreateVulkanInstance();
-    CreateVulkanSurface();
-
+    CreateInstance();
+    CreateSurface();
 
     // 2. Find a GPU and query its capabilities, then create a device interface
     SelectPhysicalDevice();
     CreateLogicalDevice();
 
+    // VMA Allocator depends on device
+    CreateAllocator();
+
     // 3. Swapchain and views to it
     CreateSwapchain();
     CreateImageViews();
-
-    CreateAllocator();
 
     // 4. Create a render pass, frame buffers for the swapchain, command queue and fence + semaphore
     CreateRenderPass();
@@ -595,9 +601,20 @@ void SandboxRenderer::CreateGraphicsPipeline()
     m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr, createInfo);
 }
 
-void SandboxRenderer::CreateVulkanInstance()
+void SandboxRenderer::CreateInstance()
 {
-    ::Uint32 sdlExtensionCount = 0;
+    // we require this for dynamic rendering
+    const std::uint32_t apiVersion = m_context.enumerateInstanceVersion();
+
+    if (apiVersion < MINIMUM_API_VERSION)
+    {
+        throw std::runtime_error(
+            "Vulkan 1.3 or newer is required. "
+            "Context reports older API version.");
+    }
+
+    // Ask SDL instance for required window extensions
+    Uint32 sdlExtensionCount = 0;
     const char* const* sdlExtensions =
         SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
 
@@ -612,7 +629,29 @@ void SandboxRenderer::CreateVulkanInstance()
         sdlExtensions,
         sdlExtensions + sdlExtensionCount);
 
-    constexpr vk::ApplicationInfo appInfo{
+    const auto availableExtensions = m_context.enumerateInstanceExtensionProperties();
+
+    for (const char* required : extensions)
+    {
+        const bool supported = std::ranges::any_of(availableExtensions,
+                                                   [required](
+                                                   const vk::ExtensionProperties& extension)
+                                                   {
+                                                       return std::strcmp(
+                                                           extension.extensionName,
+                                                           required) == 0;
+                                                   });
+
+        if (!supported)
+        {
+            throw std::runtime_error(
+                std::string("Required Vulkan instance extension "
+                    "is not supported: ") + required);
+        }
+    }
+
+    constexpr vk::ApplicationInfo appInfo
+    {
         .pApplicationName = "Sandbox App",
         .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
         .pEngineName = "SandboxEngine",
@@ -629,7 +668,7 @@ void SandboxRenderer::CreateVulkanInstance()
     m_instance = vk::raii::Instance(m_context, createInfo);
 }
 
-void SandboxRenderer::CreateVulkanSurface()
+void SandboxRenderer::CreateSurface()
 {
     VkSurfaceKHR rawSurface = VK_NULL_HANDLE;
 
@@ -652,10 +691,16 @@ void SandboxRenderer::SelectPhysicalDevice()
     for (auto& device : devices)
     {
         const vk::PhysicalDeviceProperties properties = device.getProperties();
-
         auto deviceName = properties.deviceName.data();
+        std::println("Checking GPU: {}", deviceName);
 
-        std::println("GPU: {}", deviceName);
+        // Require Vulkan 1.3 or newer.
+        if (properties.apiVersion < MINIMUM_API_VERSION)
+        {
+            std::println(
+                "  Rejected: Vulkan 1.3 required.");
+            continue;
+        }
 
         const auto extensions = device.enumerateDeviceExtensionProperties();
 
@@ -669,19 +714,48 @@ void SandboxRenderer::SelectPhysicalDevice()
                                 });
 
         if (!supportsSwapChain)
-            continue;
-
-
-        // Make sure the device has valid formats and modes
-        if (device.getSurfaceFormatsKHR(*m_surface).empty() ||
-            device.getSurfacePresentModesKHR(*m_surface).empty())
         {
+            std::println(
+                "  Rejected: VK_KHR_swapchain unavailable.");
             continue;
         }
 
+        const auto formats = device.getSurfaceFormatsKHR(m_surface);
+        const auto presentModes = device.getSurfacePresentModesKHR(m_surface);
+
+
+        // Make sure the device has valid formats and modes
+        if (formats.empty() || presentModes.empty())
+        {
+            std::println(
+                "  Rejected: no usable surface formats or present modes.");
+            continue;
+        }
+
+        // Query version support without enabling features
+        const auto supportedFeatures = device.getFeatures2<vk::PhysicalDeviceFeatures2,
+                                                           vk::PhysicalDeviceVulkan13Features>();
+        
+        const auto features13 = supportedFeatures.get<vk::PhysicalDeviceVulkan13Features>();
+        
+        if (!features13.dynamicRendering)
+        {
+            std::println("  Rejected: dynamicRendering feature unsupported.");
+            continue;
+        }
+        
+        if (!features13.synchronization2)
+        {
+            std::println("  Rejected: synchronization2 feature unsupported.");
+        }
+
+        
         // Find a queue family that supports graphics and presentation.
         const std::vector<vk::QueueFamilyProperties> familyProps = device.getQueueFamilyProperties();
-
+        
+        bool foundQueueFamily = false;
+        std::uint32_t selectedQueueFamily = 0;
+        
         for (std::uint32_t i = 0; i < familyProps.size(); ++i)
         {
             if (familyProps[i].queueCount == 0)
@@ -696,14 +770,23 @@ void SandboxRenderer::SelectPhysicalDevice()
 
             if (supportsGraphics && supportsPresentation)
             {
-                m_graphicsPresentQueueFamily = i;
-                m_physicalDevice = std::move(device);
-
-                std::println("Selected physical device {}", deviceName);
-
-                return;
+                selectedQueueFamily = i;
+                foundQueueFamily = true;
+                break;
             }
         }
+        
+        if (!foundQueueFamily)
+        {
+            std::println(" Rejected: No graphics/presentation queue family present.");
+            continue;
+        }
+        
+        m_graphicsPresentQueueFamily = selectedQueueFamily;
+        m_physicalDevice = std::move(device);
+        
+        std::println("Selected GPU {}", deviceName);
+        return;
     }
 
     throw std::runtime_error("Failed to find a suitable GPU for rendering.");
@@ -713,14 +796,21 @@ void SandboxRenderer::CreateLogicalDevice()
 {
     constexpr float queuePriority = 1.0f;
 
-    vk::DeviceQueueCreateInfo queueInfo{
+    vk::DeviceQueueCreateInfo queueInfo
+    {
         .queueFamilyIndex = m_graphicsPresentQueueFamily,
         .queueCount = 1,
         .pQueuePriorities = &queuePriority
     };
 
-    // TODO: make match Graphics::Renderer 
-    constexpr vk::PhysicalDeviceFeatures features{};
+    constexpr vk::PhysicalDeviceVulkan13Features vulkan13Features
+    {
+        .synchronization2 = VK_TRUE,
+        .dynamicRendering = VK_TRUE,
+    };
+    
+    // TODO: make match Graphics::Renderer
+    // constexpr vk::PhysicalDeviceFeatures features{};
 
     // swapchain is non-optional
     constexpr const char* requiredExtensions[] =
@@ -730,11 +820,12 @@ void SandboxRenderer::CreateLogicalDevice()
 
     vk::DeviceCreateInfo deviceInfo
     {
+        .pNext = &vulkan13Features,
         .queueCreateInfoCount = 1,
         .pQueueCreateInfos = &queueInfo,
         .enabledExtensionCount = static_cast<std::uint32_t>(std::size(requiredExtensions)),
         .ppEnabledExtensionNames = requiredExtensions,
-        .pEnabledFeatures = &features
+        // .pEnabledFeatures = &features
     };
 
     // creates logical device
