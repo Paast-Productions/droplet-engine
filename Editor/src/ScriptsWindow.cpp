@@ -417,7 +417,7 @@ void ScriptsWindow::RenameScript()
 {
 	if (m_renameFilename.empty())
 	{
-		m_renameError = "Filename cannot be emtpy";
+		m_renameError = "Filename cannot be empty";
 		return;
 	}
 
