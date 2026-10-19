@@ -279,8 +279,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		scriptsWindow.Render(); 
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
-
-		switch (Droplet::DROPLET_RETURNTYPE returnType = engine.Update())
+		
+		switch (Droplet::DROPLET_RETURNTYPE returnType = engine.Update(sceneViewWindow.GetRenderTarget(), editorContext.GetEditorCamera()))
 		{
 		case Droplet::DROPLET_RETURNTYPE::OK:
 			break;

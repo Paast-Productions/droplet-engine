@@ -8,7 +8,6 @@
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <algorithm>
 
-
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
@@ -82,7 +81,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update()
+DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
@@ -165,7 +164,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 
 	// Rendering
-	m_renderer.Draw(renderDataVec);
+	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
