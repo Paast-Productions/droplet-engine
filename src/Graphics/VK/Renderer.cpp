@@ -643,7 +643,7 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 	{
 		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.view = p_camera.GetViewMatrix(),
-		.proj = p_camera.GetProjectionMatrix(aspectRatio)
+		.proj = p_camera.GetProjectionMatrix()
 	};
 	
 	m_uniformBuffer.UpdateBuffer(ubo);
@@ -733,7 +733,7 @@ void Renderer::RenderToTarget(RenderTarget &p_renderTarget, const Camera &p_came
 	{
 		.model = glm::mat4(1.0f),
 		.view = p_camera.GetViewMatrix(),
-		.proj = p_camera.GetProjectionMatrix(aspectRatio)
+		.proj = p_camera.GetProjectionMatrix()
 	};
 }
 
