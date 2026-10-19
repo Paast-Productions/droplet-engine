@@ -9,8 +9,10 @@
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <chrono>
 #include <iostream>
+#include <Graphics/DebugDraw.hpp>
 
 using namespace Droplet::Editor::Scene;
+using namespace Droplet::Graphics::Debug;
 
 void SceneViewWindow::InitImpl()
 {
@@ -265,10 +267,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	{
 		Math::Frustum camFrustum = camera.GetFrustum();
 
-		std::vector<glm::mat4> tempMatrices{};
-
 		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) {
 			if (!node)
+			{
+				return;
+			}
+
+			if (!node->IsActive())
 			{
 				return;
 			}
@@ -282,7 +287,24 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			if (intersection != Math::IntersectType::None)
 			{
-				tempMatrices.push_back(nodeMat);
+				// Draw
+				glm::vec4 nodeColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+
+				// Randomize color based on the nodes pointer to ensure it's consistent across frames
+				std::hash<std::shared_ptr<DNode>> hasher;
+				size_t hashValue = hasher(node);
+
+				srand(static_cast<unsigned int>(hashValue));
+				int r = rand() % 256;
+				int g = rand() % 256;
+				int b = rand() % 256;
+
+				DebugDraw::DrawBox(
+					nodeOBB, 
+					glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f),
+					true,
+					false
+				);
 			}
 
 			for (const auto &child : node->GetChildren())
@@ -294,11 +316,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		for (const auto &node : nodes)
 		{
 			recurseNodes(node);
-		}
-
-		if (tempMatrices.size() > 0)
-		{
-			ImGuizmo::DrawCubes(&(camViewMat[0][0]), &(camProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
 		}
 	}
 
