@@ -15,7 +15,7 @@ namespace Droplet::Script
 	///
 	/// LoadedScript contains the compiled Lua chunk together with information
 	/// about the source file. The file timestamp is used to detect when the
-	/// script has been modified and needs to be reloaded.
+	/// @brief script has been modified and needs to be reloaded.
 	struct LoadedScript
 	{
 		/// @brief Path to the source Lua script.
