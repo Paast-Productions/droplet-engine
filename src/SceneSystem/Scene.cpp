@@ -112,7 +112,7 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make we
     return node;
 }
 
-void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot // TODO: Make weak pointer
+void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TODO: Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
