@@ -154,7 +154,7 @@ void HierarchyWindow::RenderImpl()
     }
 } 
 
-void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
+void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
     if (!p_node)
     {

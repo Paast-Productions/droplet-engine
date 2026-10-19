@@ -15,6 +15,7 @@ namespace Droplet::Editor
 		/// @brief Constructs the behaviour inspector.
 		/// @param p_interactionState Shared editor interaction state.
 		BehaviourInspector(EditorContext *editorContext);
+
 		/// @brief Destroys the behaviour inspector.
 		~BehaviourInspector() = default;
 

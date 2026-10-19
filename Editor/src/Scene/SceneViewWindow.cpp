@@ -260,14 +260,14 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene");
-	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots();
+	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene"); // TODO: Make weak pointer
+	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
 
 	// Render ImGuizmo cubes for all nodes in the scene
 	{
 		Math::Frustum camFrustum = camera.GetFrustum();
 
-		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) {
+		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) { // TODO: Make weak pointer
 			if (!node)
 			{
 				return;
@@ -291,7 +291,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				glm::vec4 nodeColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 				// Randomize color based on the nodes pointer to ensure it's consistent across frames
-				std::hash<std::shared_ptr<DNode>> hasher;
+				std::hash<std::shared_ptr<DNode>> hasher; // TODO: Make weak pointer
 				size_t hashValue = hasher(node);
 
 				srand(static_cast<unsigned int>(hashValue));
@@ -320,14 +320,14 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 	// Render transform gizmo for selected node
 	{
-		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
+		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes(); // TODO: Make weak pointer
 
 		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation", 0);
 
 		if (selectedNodes.size() > 0)
 		{
-			std::shared_ptr<DNode> selectedNode = selectedNodes[0];
+			std::shared_ptr<DNode> selectedNode = selectedNodes[0]; // TODO: Make weak pointer
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
