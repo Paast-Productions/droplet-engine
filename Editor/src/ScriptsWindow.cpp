@@ -255,6 +255,16 @@ void ScriptsWindow::RenderAddScript()
 		static char filename[128] = "";
 		static std::string errorMessage;
 
+		const std::string scriptTemplate = R"lua(
+function OnStart()
+	-- Called when script starts
+end
+
+function OnUpdate(dt)
+	-- Called every frame
+end
+)lua";
+
 		const bool enterPressed = ImGui::InputText("Filename", filename, sizeof(filename), ImGuiInputTextFlags_EnterReturnsTrue);
 
 		if (ImGui::Button("Create") || enterPressed)
@@ -293,6 +303,8 @@ void ScriptsWindow::RenderAddScript()
 					else
 					{
 						std::ofstream file(scriptPath);
+
+						file << scriptTemplate;
 						
 						if (!file) 
 						{
