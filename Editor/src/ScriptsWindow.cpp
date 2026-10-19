@@ -14,7 +14,9 @@
 #include <Windows.h>
 #include <shellapi.h>
 #pragma comment(lib, "Shell32.lib")
+#undef WIN32_LEAN_AND_MEAN
 #endif
+
 
 using namespace Droplet::Editor;
 
@@ -26,7 +28,7 @@ ScriptsWindow::ScriptsWindow()
 
 void ScriptsWindow::InitImpl()
 {
-	SetName("Scripts");
+	SetName("Scripts Browser");
 	ToggleToolbar(true);
 }
 
