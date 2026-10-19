@@ -337,6 +337,8 @@ int main()
     // Serialize
     //==================================================
 
+
+    // Remember that we need to create Resource manager BEFORE we deserialize any meshComponents
     sceneManager.SerializeToFile(scene, "sceneJson.json");
     sceneManager.UnloadScene("Game");
     sceneManager.LoadFromFile("sceneJson.json");

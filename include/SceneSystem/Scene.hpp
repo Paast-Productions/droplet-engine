@@ -152,6 +152,9 @@ namespace Droplet::Scene
         /// @return A constant reference to the Scene's name.
         const std::string &GetName() const;
 
+        /// @brief Sets the Scene's name.
+        void SetName(const std::string &p_name) { m_name = p_name; }
+
         /// @brief Checks whether the Scene is loaded.
         ///
         /// @return true if the Scene is loaded, otherwise false.

@@ -28,6 +28,11 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	m_selectedScene = std::move(newScene);
 }
 
+void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
+{
+	m_engine.GetSceneManager().SerializeToFile(GetActiveScene(), p_filepath);
+}
+
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
 {
 	return m_editorCamera;

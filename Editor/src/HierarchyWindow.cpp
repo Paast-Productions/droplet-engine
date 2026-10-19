@@ -42,10 +42,22 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
+
+    static char fileName[128] = "MyScene";
+
+    ImGui::InputText("Scene name", fileName, sizeof(fileName));
+
     if (ImGui::Button("Add Node"))
     {
         scene->AddNode("New Node");
     }
+
+    if (ImGui::Button("Save Scene"))
+    {
+        std::string path = std::string(fileName) + ".json";
+        m_editorContext->SaveScene(path);
+    }
+
 
     ImGui::Separator();
 

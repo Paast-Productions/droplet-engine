@@ -40,6 +40,7 @@ namespace Droplet::Editor
 		/// @breif Lets the context set a new active scene
 		void SetActiveScene(std::string p_sceneName);
 
+		void SaveScene(const std::string &filepath);
 	private:
 		Droplet::Engine &m_engine;
 		
