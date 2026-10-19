@@ -119,7 +119,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 
-		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+		//ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 		// Main toolbar
 		if (ImGui::BeginMainMenuBar())

@@ -19,8 +19,49 @@ vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice,
 	throw std::runtime_error("failed to find supported format!");
 }
 
-Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, const PipelineConfig &p_pipelineConfig)
+Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::DescriptorSetLayout &p_descriptorSetLayout, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, vk::SurfaceFormatKHR p_surfaceFormat)
 {
+	vk::PushConstantRange pushConstantRange
+	{
+		.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+		.offset = 0,
+		.size = sizeof(glm::mat4)
+	};
+	
+	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts 
+	{
+		p_descriptorSetLayout
+	};
+	
+	vk::PipelineLayoutCreateInfo pipelineLayoutInfo
+	{
+		.setLayoutCount = static_cast<std::uint32_t>(descriptorSetLayouts.size()),
+		.pSetLayouts = descriptorSetLayouts.data(), 
+		.pushConstantRangeCount = 1,
+		.pPushConstantRanges = &pushConstantRange
+	};	
+		
+	m_pipelineLayout = vk::raii::PipelineLayout(p_device, pipelineLayoutInfo);
+	
+	struct PipelineConfig
+	{
+		bool UseMultisampling = false;
+		bool UseBlending = false;
+		std::uint32_t ViewportCount = 1;
+		vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
+		vk::CullModeFlagBits CullMode = vk::CullModeFlagBits::eBack;
+		vk::FrontFace FrontFace = vk::FrontFace::eCounterClockwise;
+		vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
+		
+		std::vector<vk::DynamicState> DynamicStates
+		{
+			vk::DynamicState::eViewport, 
+			vk::DynamicState::eScissor
+		};
+		
+		vk::SurfaceFormatKHR SwapchainSurfaceFormat {};
+	} pipelineConfig;
+	
 	vk::PipelineCacheCreateInfo cacheInfo {};
 	vk::raii::PipelineCache pipelineCache(p_device, cacheInfo);
 	
@@ -51,23 +92,23 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly
 	{
-		.topology = p_pipelineConfig.Topology
+		.topology = pipelineConfig.Topology
 	};
 	
 	// viewportCount and scissorCount must match.
 	vk::PipelineViewportStateCreateInfo      viewportState
 	{
-		.viewportCount = p_pipelineConfig.ViewportCount,
-		.scissorCount = p_pipelineConfig.ViewportCount
+		.viewportCount = pipelineConfig.ViewportCount,
+		.scissorCount = pipelineConfig.ViewportCount
 	};
 
 	vk::PipelineRasterizationStateCreateInfo rasterizer
 	{ 
 		.depthClampEnable = vk::False,
 		.rasterizerDiscardEnable = vk::False,
-		.polygonMode = p_pipelineConfig.PolygonMode,
-		.cullMode = p_pipelineConfig.CullMode,
-		.frontFace = p_pipelineConfig.FrontFace,
+		.polygonMode = pipelineConfig.PolygonMode,
+		.cullMode = pipelineConfig.CullMode,
+		.frontFace = pipelineConfig.FrontFace,
 		.depthBiasEnable = vk::False,
 		.lineWidth = 1.0f 
 	};
@@ -76,7 +117,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	vk::PipelineMultisampleStateCreateInfo multisampling
 	{
 		.rasterizationSamples = vk::SampleCountFlagBits::e1,
-		.sampleShadingEnable = p_pipelineConfig.UseMultisampling ? vk::True : vk::False
+		.sampleShadingEnable = pipelineConfig.UseMultisampling ? vk::True : vk::False
 	};
 
 	//--Added for basic model rendering functionality
@@ -93,7 +134,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	// Blending is enabled or disabled via the pipeline config
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment
 	{
-		.blendEnable = p_pipelineConfig.UseBlending ? vk::True : vk:: False,
+		.blendEnable = pipelineConfig.UseBlending ? vk::True : vk:: False,
 		.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA 
 	};
 	
@@ -108,12 +149,10 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 	// Dynamic states are defined in the pipeline config
 	vk::PipelineDynamicStateCreateInfo dynamicState 
 	{
-		.dynamicStateCount = static_cast<uint32_t>(p_pipelineConfig.DynamicStates.size()),
-		.pDynamicStates = p_pipelineConfig.DynamicStates.data()
+		.dynamicStateCount = static_cast<uint32_t>(pipelineConfig.DynamicStates.size()),
+		.pDynamicStates = pipelineConfig.DynamicStates.data()
 	};
-
-	m_pipelineLayout = vk::raii::PipelineLayout(p_device, p_pipelineConfig.PipelineLayoutInfo);
-
+	
 	vk::Format depthFormat = FindSupportedFormat(
 		p_physicalDevice,
 		{ 
@@ -143,7 +182,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 		},
 		{
 			.colorAttachmentCount = 1,
-			.pColorAttachmentFormats = &p_pipelineConfig.SwapchainSurfaceFormat.format,
+			.pColorAttachmentFormats = &p_surfaceFormat.format,
 			.depthAttachmentFormat = depthFormat
 		}
 	};

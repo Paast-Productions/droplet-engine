@@ -29,14 +29,14 @@ struct PushConstants
     uint32_t sampler;
 };
 
-[[vk_push_constant]] WorldBuffer pc;
+[[vk::push_constant]] WorldBuffer pc;
 
 layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 
 [shader("vertex")]
 VSOutput main(VSInput input) {
     VSOutput output;
-    output.pos = mul(vp.proj, mul(vp.view,  float4(input.inPosition, 1.0)));
+    output.pos = mul(vp.proj, mul(vp.view, mul(pc.world, float4(input.inPosition, 1.0))));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);
     return output;

@@ -145,9 +145,9 @@ namespace Droplet::Graphics::VK
 
         [[nodiscard]] const Mesh& GetMesh(RenderData p_renderData);
 
-        [[nodisacrd]] const void UpdateUniformBuffers();
+        const void UpdateUniformBuffers();
 
-        [[nodiscard]] const void LoadTexture(RenderData p_renderData);
+        const void LoadTexture(RenderData p_renderData);
         
     private:
         const VK::Context &m_context;

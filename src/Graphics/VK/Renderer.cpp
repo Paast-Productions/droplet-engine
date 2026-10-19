@@ -382,11 +382,14 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 			vk::PushConstantsInfo pcInfo
 			{
 				.sType = vk::StructureType::ePushConstantsInfo,
+				.layout = pipeline.GetLayout(),
+				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+				.offset = 0,
 				.size = sizeof(glm::mat4),
-				.pValues = &data.transform
+				.pValues = &data.transform,
 			};
 
-			//cmdBuffer.pushConstants2(pcInfo);
+			cmdBuffer.pushConstants2(pcInfo);
 			cmdBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
 			cmdBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
 			cmdBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);

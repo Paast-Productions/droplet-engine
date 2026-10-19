@@ -31,38 +31,6 @@ namespace Droplet::Graphics::VK
 	/// - std::vector<vk::DynamicState>		DynamicStates [{vk::DynamicState::eViewport, vk::DynamicState::eScissor}]
 	/// - vk::PipelineLayoutCreateInfo		PipelineLayoutInfo [{.setLayoutCount = 0, .pushConstantRangeCount = 0}]
 	/// - vk::SurfaceFormatKHR				SwapchainSurfaceFormat [{}]
-	struct PipelineConfig
-	{
-		bool UseMultisampling = false;
-		bool UseBlending = false;
-		std::uint32_t ViewportCount = 1;
-		vk::PolygonMode PolygonMode = vk::PolygonMode::eFill;
-		vk::CullModeFlagBits CullMode = vk::CullModeFlagBits::eBack;
-		vk::FrontFace FrontFace = vk::FrontFace::eCounterClockwise;
-		vk::PrimitiveTopology Topology = vk::PrimitiveTopology::eTriangleList;
-
-		vk::PushConstantRange pushConstantRange
-		{
-			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-			.offset = 0,
-			.size = sizeof(glm::mat4)
-		};
-		
-		std::vector<vk::DynamicState> DynamicStates
-		{
-			vk::DynamicState::eViewport, 
-			vk::DynamicState::eScissor
-		};
-		
-		vk::PipelineLayoutCreateInfo PipelineLayoutInfo
-		{
-			.setLayoutCount = 1,
-			.pushConstantRangeCount = 1,
-			.pPushConstantRanges = &pushConstantRange
-		};	
-		
-		vk::SurfaceFormatKHR SwapchainSurfaceFormat {};
-	};
 
 	/// @class Pipeline
 	/// @brief Vulkan Pipeline
@@ -83,7 +51,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_physicalDevice Hardware Device
 		/// @param shaderModules Queue of Vulkan Shader Modules and their shader type
 		/// @param p_pipelineConfig Pipeline Configuration Struct
-		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, const PipelineConfig &p_pipelineConfig);
+		Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::DescriptorSetLayout &p_descriptorSetLayout, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, vk::SurfaceFormatKHR p_surfaceFormat);
 
 		~Pipeline() = default;
 

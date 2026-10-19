@@ -51,7 +51,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         throw std::runtime_error("Shaders for pipeline not ready");
     }
     
-    std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> vector {};
+    std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec {};
     
     // Vertex Shader
     
@@ -60,7 +60,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         ShaderResource* vsRes = vs.Get();
         vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
-        vector.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
+        shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     
     ShaderModule tcsModule { nullptr };
@@ -68,7 +68,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         ShaderResource* tcsRes = tcs.Get();
         tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
-        vector.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
+        shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     
     ShaderModule tesModule { nullptr };
@@ -76,7 +76,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         ShaderResource* tesRes = tes.Get();
         tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
-        vector.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
+        shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     
     ShaderModule gsModule { nullptr };
@@ -84,7 +84,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         ShaderResource* gsRes = gs.Get();
         gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
-        vector.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
+        shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     
     ShaderModule fsModule { nullptr };
@@ -92,7 +92,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         ShaderResource* fsRes = fs.Get();
         fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
-        vector.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
+        shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
     }
     
     std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts
@@ -108,16 +108,9 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         p_device, 
         p_physicalDevice,
-        vector,
-        {
-            .PipelineLayoutInfo 
-            {
-                .setLayoutCount = static_cast<std::uint32_t>(descriptorSetLayouts.size()),
-                .pSetLayouts = descriptorSetLayouts.data()
-                
-            },
-            .SwapchainSurfaceFormat = p_surfaceFormat,
-        }
+        m_descriptorSet.GetLayout(),
+        shaderVec,
+        p_surfaceFormat
     };
     return m_pipelineMap.at(key);
 }
