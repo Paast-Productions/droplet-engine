@@ -1,5 +1,5 @@
 //--------------------------------------------------------------------------------------
-// File: Bezier.hpp
+// File: Bezier.h
 //
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
