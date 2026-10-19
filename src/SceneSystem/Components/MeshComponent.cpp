@@ -115,6 +115,8 @@ void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
     p_renderData.vsData.GUID = m_shaderData.vs.GetGUID();
 
     p_renderData.meshData.GUID = m_mesh.GetGUID();
+
+    p_renderData.texData.GUID = m_2dTexture.GetGUID();
 }
 
 void MeshComponent::RenderUIImpl()

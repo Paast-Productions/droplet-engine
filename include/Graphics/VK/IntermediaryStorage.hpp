@@ -145,13 +145,11 @@ namespace Droplet::Graphics::VK
 
         [[nodiscard]] const Mesh& GetMesh(RenderData p_renderData);
 
-        const void UpdateUniformBuffers();
-
-        const void LoadTexture(RenderData p_renderData);
+        const std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool);
         
     private:
         const VK::Context &m_context;
-        const DescriptorSet &m_descriptorSet;
+        DescriptorSet &m_descriptorSet;
 
         VK::Allocator m_allocator { nullptr };
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
@@ -161,9 +159,11 @@ namespace Droplet::Graphics::VK
 
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap{};
 
-        std::unordered_map<std::uint32_t, Image> m_imageMap {};
-        std::unordered_map<std::uint32_t, Sampler> m_samplerMap {};
-        std::unordered_map<std::uint32_t, ImageView> m_viewMap {};
+        std::vector<Image> m_imageMap {};
+        std::vector<ImageView> m_viewMap{};
+        Sampler m_textureSampler {};
+
+        std::map<std::uint64_t, std::uint32_t> m_textureGuidMap{};
     };
 }
 

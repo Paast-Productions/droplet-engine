@@ -10,7 +10,8 @@ using namespace Droplet::Graphics::VK;
 IntermediaryStorage::IntermediaryStorage(Context &p_context, const DescriptorSet &p_descriptorSet) :
     m_context(p_context),
     m_descriptorSet(p_descriptorSet),
-    m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()) {}
+    m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()),
+    m_textureSampler(m_context) {}
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
@@ -159,46 +160,61 @@ const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
     return mesh;
 }
 
-//const void IntermediaryStorage::LoadTexture(RenderData p_renderData)
-//{
-//    TextureKey key
-//    {
-//        .texGUID = p_renderData.texData.GUID;
-//    };
-//
-//    try
-//    {
-//        Mesh mesh
-//        {
-//            .vertexBuffer = m_vertexMap.at(key).Get(),
-//            .indexBuffer = m_indexMap.at(key).Get(),
-//            .indexCount = m_indexMap.at(key).GetIndexCount()
-//        };
-//        return mesh;
-//    }
-//    catch (const std::exception& err)
-//    {
-//        Debug::Logger& logger = Debug::Logger::GetInstance();
-//        logger.Log(Droplet::Debug::LogType::Info, err.what());
-//    }
-//
-//    ResourceManager& RMInstance = ResourceManager::GetInstance();
-//    ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
-//
-//    if (!(meshRes.IsReady() || meshRes.HasFailed()))
-//    {
-//        throw std::runtime_error("Mesh not ready");
-//    }
-//
-//    m_vertexMap[key] = VertexBuffer{ m_allocator.Get(), meshRes.Get()->GetVertexData() };
-//    m_indexMap[key] = IndexBuffer{ m_allocator.Get(), meshRes.Get()->GetIndexData() };
-//
-//    Mesh mesh
-//    {
-//        .vertexBuffer = m_vertexMap.at(key).Get(),
-//        .indexBuffer = m_indexMap.at(key).Get(),
-//        .indexCount = m_indexMap.at(key).GetIndexCount()
-//    };
-//
-//    return mesh;
-//}
+const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool)
+{
+    std::uint64_t guid = p_renderData.texData.GUID;
+    
+    try
+    {
+        return m_textureGuidMap.at(guid);
+    }
+    catch (const std::exception& err)
+    {
+        Debug::Logger& logger = Debug::Logger::GetInstance();
+        logger.Log(Droplet::Debug::LogType::Info, err.what());
+    }
+
+    ResourceManager& RMInstance = ResourceManager::GetInstance();
+    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_renderData.texData.GUID);
+
+    if (!(texRes.IsReady() || texRes.HasFailed()))
+    {
+        throw std::runtime_error("Texture not ready");
+    }
+
+    m_imageMap.emplace_back(
+        m_allocator,
+        p_commandPool,
+        m_context,
+        texRes.Get()->GetPixelData(),
+        texRes.Get()->GetPixelData().size(),
+        texRes.Get()->GetWidth(),
+        texRes.Get()->GetHeight(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+    m_viewMap.emplace_back(
+        m_context.GetDevice(),
+        m_imageMap.back(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageAspectFlagBits::eColor
+    );
+
+    try
+    {
+        m_descriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get());
+    }
+    catch (const std::exception &)
+    {
+        m_viewMap.erase(m_viewMap.end());
+        m_imageMap.erase(m_imageMap.end());
+
+        throw std::runtime_error("Failed to write image sampler descriptor!");
+    }
+
+    m_textureGuidMap[guid] = m_viewMap.size() - 1;
+
+    return m_textureGuidMap.at(guid);
+}
