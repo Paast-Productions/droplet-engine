@@ -20,6 +20,7 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
 #include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 
 const std::vector<char const*> validationLayers = {
@@ -33,10 +34,10 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window							{ p_windowConfig },
-	m_context							{ m_window.Get(), m_vkContext },
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+Renderer::Renderer(SDL_Window *p_window) :
+	m_window							{ p_window },
+	m_context							{ m_window, m_vkContext},
+	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
@@ -47,6 +48,18 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 
 	// TODO: <REFACTOR>
 	
+	Debug::DebugDraw::Get().Initialize(
+		m_context.GetInstance(),
+		m_context.GetPhysicalDevice(),
+		m_context.GetDevice(),
+		m_interStorage.GetAllocator(),
+		m_context.GetQueue(),
+		m_commandPool.Get(),
+		m_descriptorPool.Get(),
+		m_swapchain.GetSurfaceFormat().format,
+		m_depthBuffer.GetFormat(),
+		MAX_FRAMES_IN_FLIGHT);
+
 	const VK::ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),
@@ -95,6 +108,7 @@ Renderer::~Renderer()
 {
 	ZoneScoped;
 
+	Debug::DebugDraw::Get().Shutdown();
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
@@ -103,6 +117,26 @@ Renderer::~Renderer()
 void Renderer::ResizeWindow()
 {
 	m_framebufferResized = true;
+}
+
+std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
+{
+	return std::make_unique<RenderTarget>(
+		m_interStorage.GetAllocator(),
+		m_context.GetDevice(),
+		m_context.GetPhysicalDevice(),
+		p_width,
+		p_height
+	);
+}
+
+VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
+{
+	return ImGui_ImplVulkan_AddTexture(
+		*m_textureSampler,
+		*p_renderTarget.GetColorImageView().Get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	);
 }
 
 //Change data layout of image
@@ -114,7 +148,8 @@ void Renderer::TransitionImageLayout(
 	vk::AccessFlags2        p_dstAccessMask,
 	vk::PipelineStageFlags2 p_srcStageMask,
 	vk::PipelineStageFlags2 p_dstStageMask,
-	vk::ImageAspectFlags    p_imageAspectFlags)
+	vk::ImageAspectFlags    p_imageAspectFlags,
+	const vk::raii::CommandBuffer &p_commandBuffer)
 {
 	ZoneScoped;
 
@@ -146,8 +181,8 @@ void Renderer::TransitionImageLayout(
 		.pImageMemoryBarriers = &barrier 
 	};
 	
-	const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-	
+	//const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	auto &commandBuffer = p_commandBuffer;
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
@@ -166,7 +201,8 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		vk::AccessFlagBits2::eColorAttachmentWrite,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		cmdBuffer
 	);
 
 	TransitionImageLayout(
@@ -177,7 +213,8 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-		vk::ImageAspectFlagBits::eDepth
+		vk::ImageAspectFlagBits::eDepth,
+		cmdBuffer
 	);
 	
 	vk::ClearValue clearColor = vk::ClearColorValue(0.1f, 0.1f, 0.1f, 1.0f);
@@ -218,7 +255,6 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		.pDepthAttachment = &depthAttachmentInfo 
 	};
 	
-	
 	cmdBuffer.beginRendering(renderingInfo);
 	cmdBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
 	cmdBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
@@ -249,7 +285,7 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 				.offset = 0,
 				.size = sizeof(PushConstantData),
-				.pValues = &data.transform,
+				.pValues = &data,
 			};
 
 			cmdBuffer.pushConstants2(pcInfo);
@@ -263,6 +299,7 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		}
 	}
 	
+	Debug::DebugDraw::Get().RenderToCamera(m_camera, cmdBuffer, m_swapchain.GetExtent(), m_frameIndex);
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *cmdBuffer);
 	cmdBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -275,10 +312,179 @@ void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::u
 		{},
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eBottomOfPipe,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		cmdBuffer
 	);
 
 	cmdBuffer.end();
+}
+
+void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera)
+{
+	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
+
+	//commandBuffer.begin({});
+
+	TransitionImageLayout(
+		p_renderTarget.GetColorImage().Get(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+
+	TransitionImageLayout(
+		p_renderTarget.GetDepthBuffer().GetImage(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::ImageAspectFlagBits::eDepth,
+		commandBuffer
+	);
+
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
+
+	vk::RenderingAttachmentInfo colorAttachmentInfo
+	{
+		.imageView = p_renderTarget.GetColorImageView().Get(),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
+
+	vk::RenderingAttachmentInfo depthAttachmentInfo
+	{
+		.imageView = p_renderTarget.GetDepthBuffer().GetView(),
+		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eDontCare,
+		.clearValue = clearDepth
+	};
+
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
+		{
+			.offset =
+			{
+				.x = 0,
+				.y = 0
+			},
+			.extent = p_renderTarget.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo,
+		.pDepthAttachment = &depthAttachmentInfo
+	};
+
+	commandBuffer.beginRendering(renderingInfo);
+	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
+	// old people code swapped from swapchain to rendertarget
+	//commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
+	//commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
+	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
+	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+
+	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+
+	commandBuffer.endRendering();
+	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
+
+	TransitionImageLayout(
+		p_renderTarget.GetColorImage().Get(),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::eShaderReadOnlyOptimal,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::AccessFlagBits2::eShaderSampledRead,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+	//commandBuffer.end();
+}
+
+// Bind it to ImGui
+void Renderer::RecordImGuiCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer,
+	uint32_t p_imageIndex)
+{
+	auto &commandBuffer = p_commandBuffer;
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+
+	vk::RenderingAttachmentInfo colorAttachmentInfo
+	{
+		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
+
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
+		{
+			.offset =
+			{
+				.x = 0,
+				.y = 0
+			},
+			.extent = m_swapchain.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo
+	};
+
+
+	commandBuffer.beginRendering(renderingInfo);	
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+
+	commandBuffer.endRendering();
+
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::AccessFlagBits2::eShaderSampledRead,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
 }
 
 //Need to create fences and semaphores for each frame in flight
@@ -302,7 +508,7 @@ void Renderer::CreateSyncObjects()
 }
 
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
-void Renderer::DrawFrame()
+void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 {
 	ZoneScoped;
 
@@ -331,13 +537,13 @@ void Renderer::DrawFrame()
 	// here and does not need to be caught by an exception.
 	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
 			m_context.GetDevice(),
@@ -357,7 +563,7 @@ void Renderer::DrawFrame()
 
 	// HACK: old code
 	float rotation = 0.0f;
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	m_cameraController.UpdateCamera(m_camera, deltaTime);
 	
 	ImGui::Begin("Camera");
 	ImGui::Text("%f", m_camera.GetPosition().x);
@@ -368,10 +574,10 @@ void Renderer::DrawFrame()
 	ImGui::Text("%f", m_camera.GetForward().z);
 	ImGui::Text("%f", deltaTime);
 
-	ImGui::SliderFloat("Roration", &rotation, 0, 360);
+	ImGui::SliderFloat("Rotation", &rotation, 0, 360);
 	ImGui::End();
 
-	const auto extent = m_swapchain.GetExtent();
+	const auto extent = p_renderTarget.GetExtent();
 
 	float aspectRatio =
 		static_cast<float>(extent.width) /
@@ -380,11 +586,13 @@ void Renderer::DrawFrame()
 	VK::ViewProjectionBuffer vp
 	{
 		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+		.proj = m_camera.GetProjectionMatrix()
 	};
 	
 	m_vpBuffer.UpdateBuffer(vp);
 	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
+	
+	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -393,17 +601,36 @@ void Renderer::DrawFrame()
 	ImGui::Render();
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	//RecordCommandBuffer(m_imageIndex);
 
-	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	commandBuffer.begin({});
+	//RecordCommandBuffer(imageIndex);
 	
-	const vk::SubmitInfo   submitInfo
+	RecordRenderTargetCommandBuffer(
+		commandBuffer,
+		p_renderTarget,
+		p_camera
+	);
+
+	RecordImGuiCommandBuffer(
+		commandBuffer,
+		imageIndex
+	);
+	
+	Debug::DebugDraw::Get().ClearDrawCommands();
+
+	commandBuffer.end();
+	
+	//vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
+	
+	const vk::SubmitInfo submitInfo
 	{ 
 		.waitSemaphoreCount = 1,
 		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
 		.pWaitDstStageMask = &waitDestinationStageMask,
 		.commandBufferCount = 1,
-		.pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
+		.pCommandBuffers = &*commandBuffer,
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
 	};
@@ -425,12 +652,12 @@ void Renderer::DrawFrame()
 	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
 			m_context.GetDevice(),
@@ -472,13 +699,13 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 	// here and does not need to be caught by an exception.
 	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
 			m_context.GetDevice(),
@@ -495,7 +722,7 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+	m_cameraController.UpdateCamera(m_camera, deltaTime);
 
 	// TODO: <REFACTOR>
 	// Remove ImGui from draw call
@@ -523,7 +750,7 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 	VK::ViewProjectionBuffer vp
 	{
 		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+		.proj = m_camera.GetProjectionMatrix()
 	};
 
 	m_vpBuffer.UpdateBuffer(vp);
@@ -567,12 +794,12 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
 			m_context.GetDevice(),
@@ -586,6 +813,22 @@ void Renderer::Draw(std::vector<RenderData> p_renderData)
 		assert(m_result == vk::Result::eSuccess);
 	}
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Renderer::RenderToTarget(RenderTarget &p_renderTarget, const Camera &p_camera)
+{
+	const vk::Extent2D extent = p_renderTarget.GetExtent();
+
+	const float aspectRatio = static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	// TODO: WRITE IN OUR FORMAT
+	/*VK::UniformBufferObject ubo
+	{
+		.model = glm::mat4(1.0f),
+		.view = p_camera.GetViewMatrix(),
+		.proj = p_camera.GetProjectionMatrix()
+	};*/
 }
 
 //Descriptors and samplers

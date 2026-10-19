@@ -412,6 +412,8 @@
     "DragDropTargetBorderSize": 2.0,
     "DragDropTargetPadding": 3.0,
     "DragDropTargetRounding": 0.0,
+    "FontGlobalScale": 1.0,
+    "FontName": "ProggyClean.ttf",
     "FontScaleDpi": 1.0,
     "FontScaleMain": 1.0,
     "FontSizeBase": 13.0,

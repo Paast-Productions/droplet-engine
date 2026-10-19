@@ -111,8 +111,9 @@ namespace Droplet::Scene
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
 
-		/// TODO: Edvin
-		void ResetFrame(); // Runs at the end of scene update
+		/// @brief Runs at the end of scene update and resets the transform's "was changed" state for the next frame. 
+		/// This is used to track if the transform was ever modified during the frame.
+		void ResetFrame();
 
 		// ================================ Utility ================================
 
@@ -135,6 +136,14 @@ namespace Droplet::Scene
 		/// @param p_delta The delta by which to rotate the transform in Euler angles.
 		/// @param p_space The space in which to perform the rotate operation. Defaults to local space.
 		void RotateEuler(const glm::vec3 &p_delta, Space p_space = Space::Local);
+
+		/// @brief Move the transform by a specified delta relative to its current orientation.
+		/// @param p_delta The delta by which to move the transform.
+		void MoveRelative(const glm::vec3 &p_delta);
+
+		/// @brief Rotate the transform by a specified delta relative to its current orientation.
+		/// @param p_delta The delta by which to rotate the transform.
+		void RotateEulerRelative(const glm::vec3 &p_delta);
 
 		/// @brief Add a scale to the transform in local space.
 		/// @param p_delta The delta to add to the current scale of the transform.

@@ -11,7 +11,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 		.Flags = 0
 	};
 	
-	Droplet::Graphics::Renderer rnd { windowConfig };
+	Droplet::Graphics::SDL::Window window{ windowConfig };
+	Droplet::Graphics::Renderer rnd { window };
 
 	/*if (rnd.Initialize() == 1)
 	{
@@ -46,7 +47,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 				
 			}
 		}
-		rnd.DrawFrame();
+		//rnd.DrawFrame();
 	}
     
     return 0;

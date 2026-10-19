@@ -40,6 +40,7 @@ namespace
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
+            //p_pickBuffer = p_current;
             OpenPopup("pick");
         }
 

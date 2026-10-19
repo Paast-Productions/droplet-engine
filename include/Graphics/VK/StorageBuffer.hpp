@@ -14,6 +14,9 @@ namespace Droplet::Graphics::VK
         StorageBuffer(const std::nullptr_t p_nullptr) :
             m_buffer { p_nullptr } {}
         
+        /// @brief StorageBuffer Constructor
+        /// @param p_allocator VMA Allocator
+        /// @param p_data Data to write
         template <typename T>
         StorageBuffer(const vma::raii::Allocator &p_allocator, const T &p_data)
         {
@@ -75,6 +78,8 @@ namespace Droplet::Graphics::VK
             return false;
         }
         
+        /// @brief Update buffer with new data
+        /// @param p_data New data to update to
         template <typename T>
         void UpdateBuffer(const T& p_data) const
         {
@@ -89,6 +94,8 @@ namespace Droplet::Graphics::VK
             allocation.copyFromMemory(&p_data, 0, sizeof(p_data));
         }
         
+        /// @brief Getter-function for the buffer
+        /// @returns VMA Buffer
         [[nodiscard]] const vma::raii::Buffer &Get() const { return m_buffer; } 
         
     private:

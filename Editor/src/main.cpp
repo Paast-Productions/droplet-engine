@@ -6,14 +6,16 @@
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <Graphics/VK/TestData.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <GameInput.hpp>
+#include <EditorContext.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
 #include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
 
 using namespace Droplet::Editor;
 
@@ -26,14 +28,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-	std::shared_ptr<Droplet::Engine> engine = std::make_shared<Droplet::Engine>(Droplet::EngineConfig (
-		Droplet::Graphics::SDL::WindowConfig {
-			static_cast<int>(windowSize.x), static_cast<int>(windowSize.y), {}
-		}
-		//Droplet::UpdateFlags::EditorFlags
-	));
-
-	SDL_Window *wnd = engine->GetWindow();
+	Droplet::EngineConfig config{
+		Droplet::Graphics::SDL::WindowConfig{
+			static_cast<int>(windowSize.x),
+			static_cast<int>(windowSize.y),
+			{ SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE }
+		},
+		Droplet::UpdateFlags::EditorFlags
+	};
+	Droplet::Engine engine(config);
+	
+	SDL_Window *wnd = engine.GetWindow();
 	if (!wnd)
 	{
 		return 1;
@@ -43,16 +48,29 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
 	// Setup SDL polling listener
-	engine->AddEventListener([](SDL_Event &event) { // ImGui listener callback
+	engine.AddEventListener([](SDL_Event &event) { // ImGui listener callback
 		ImGui_ImplSDL3_ProcessEvent(&event); 
 	});
 
-	engine->AddEventListener([](SDL_Event &event) { // Window resize callback
+	engine.AddEventListener([](SDL_Event &event) { // Window state event callback
 		if (event.type == SDL_EVENT_WINDOW_RESIZED)
 		{
 			int width = event.window.data1;
 			int height = event.window.data2;
 			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+			return;
+		}
+
+		if (event.type == SDL_EVENT_WINDOW_MAXIMIZED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", true);
+			return;
+		}
+
+		if (event.type == SDL_EVENT_WINDOW_RESTORED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", false);
+			return;
 		}
 	});
 
@@ -62,10 +80,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
+
+	// Setup default ImGui style
     {
 	    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
 	    UIStyle::LoadStyle(currStyle);
     }
+
+	// Restore window maximized state
+	{
+		bool isMaximized = EditorConfig::LoadBool("Editor.WindowMaximized", false);
+
+		if (isMaximized)
+		{
+			SDL_MaximizeWindow(wnd);
+		}
+	}
     
     // --- Font Setup ---
     float baseFontSize = 13.0f; // This should match the size of our default font
@@ -82,17 +112,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
     io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
     // ------
-    
-	engine->GetSceneManager().LoadScene("TestScene"); // HACK
 
-	std::shared_ptr<InteractionState> interactionState = std::make_shared<InteractionState>();
-    
-	HierarchyWindow hierarchyWindow(engine, interactionState);
-	NodeInspectorWindow nodeInspectorWindow(engine, interactionState);
-	BehaviourInspector behaviourInspector(engine);
-	ScriptsWindow scriptsWindow(engine);
-	Resource::ResourceBrowser resourceBrowser(engine);
-    Scene::SceneViewWindow sceneViewWindow(engine, interactionState);
+    EditorContext editorContext(engine);
+
+	HierarchyWindow hierarchyWindow(&editorContext);
+	NodeInspectorWindow nodeInspectorWindow(&editorContext);
+	BehaviourInspector behaviourInspector(&editorContext);
+	ScriptsWindow scriptsWindow;
+	Resource::ResourceBrowser resourceBrowser(&editorContext);
+	Scene::SceneViewWindow sceneViewWindow(engine, &editorContext);
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
@@ -104,6 +132,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	FrameMark;
 
 	bool showStyleEditor = false;
+
+	ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
+	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
 	// Run main loop
 	bool run = true;
@@ -249,9 +280,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 
-	    Droplet::DROPLET_RETURNTYPE returnType = engine->Update();
-
-		switch (returnType)
+		switch (Droplet::DROPLET_RETURNTYPE returnType = engine.Update())
 		{
 		case Droplet::DROPLET_RETURNTYPE::OK:
 			break;

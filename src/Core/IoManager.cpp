@@ -1,5 +1,6 @@
 #include "Core/IoManager.hpp"
 #include "Debug/Logger.hpp"
+#include "Core/ThreadPool.hpp"
 
 #include <fstream>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -25,7 +26,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger log {};
 			log.Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
@@ -48,7 +49,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger log {};
 			log.Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 		}
 	}
@@ -56,20 +57,19 @@ namespace Droplet::Core::JsonIO
 	nlohmann::json ModifyWithAction(const std::string &p_path, const nlohmann::json &p_data, ModifyAction p_modifyAction)
 	{
 		
-		nlohmann::json j;
+		nlohmann::json j {};
 		std::ifstream fileRead(p_path);
 		if (!fileRead.is_open())
 		{
 			throw std::runtime_error("Failed to open file for reading: " + p_path);
 		}
-
 		try
 		{
 			fileRead >> j;
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger log {};
 			log.Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
@@ -85,7 +85,6 @@ namespace Droplet::Core::JsonIO
 			}
 		}
 
-		
 		std::ofstream fileWrite(p_path);
 
 		if (!fileWrite.is_open())
@@ -98,7 +97,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger log;
+			Logger log {};
 			log.Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
@@ -108,7 +107,7 @@ namespace Droplet::Core::JsonIO
 
 	void DeleteFile(const std::string &path)
 	{
-		std::remove(path.c_str());
+		static_cast<void>(std::remove(path.c_str()));
 	}
 
 	void CreateFile(const std::string &path)

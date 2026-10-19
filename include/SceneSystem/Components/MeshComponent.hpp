@@ -81,7 +81,6 @@ namespace Droplet::Scene
 
     private:
         // Resource handles
-
         ResourceHandle<MeshResource> m_mesh {};
         ResourceHandle<Texture2DResource> m_2dTexture {};
 

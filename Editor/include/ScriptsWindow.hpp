@@ -16,7 +16,7 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructs the scripts window.
 		/// @param p_interactionState Shared editor interaction state.
-		ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine);
+		ScriptsWindow();
 		/// @brief Destroys the scripts window.
 		~ScriptsWindow() = default;
 

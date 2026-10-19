@@ -62,7 +62,9 @@ project "Vulkan-HelloTriangle"
             "VulkanMemoryAllocator",
             AddQuotation("SDL3"),
             AddQuotation("vulkan"),
-            AddQuotation("lua-5.4.7")
+            AddQuotation("lua-5.4.7"),
+		AddQuotation("zlibstaticd"),
+ 		AddQuotation("assimp-mtd")
         }
     end
     
@@ -70,5 +72,7 @@ project "Vulkan-HelloTriangle"
         "Engine",
         "ImGui",
         "tracy",
-        "Sol2"
+        "Sol2",
+	"PortableFileDialogs",
+	"IconFontCppHeaders"
     }

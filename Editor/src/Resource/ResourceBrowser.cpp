@@ -10,6 +10,9 @@
 
 using namespace Droplet::Editor::Resource;
 
+ResourceBrowser::ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
+{}
+
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
@@ -420,10 +423,10 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 
 void ResourceBrowser::RegisterAsset()
 {
-    auto absPaths = FileExplorer::OpenFileDialog(true, m_engine->GetResourceManager().GetRootDirectory());
+    auto absPaths = FileExplorer::OpenFileDialog(true, ResourceManager::GetInstance().GetRootDirectory());
     if (!absPaths.empty())
     {
-        std::filesystem::path assetRoot = m_engine->GetResourceManager().GetRootDirectory();
+        std::filesystem::path assetRoot = ResourceManager::GetInstance().GetRootDirectory();
         std::filesystem::path normAssetRoot = std::filesystem::weakly_canonical(assetRoot);
         
         std::filesystem::path destinationBrowserDir = normAssetRoot;
@@ -436,7 +439,7 @@ void ResourceBrowser::RegisterAsset()
             
         for (auto &absPath : absPaths)
         {
-            if (!m_engine->GetResourceManager().IsAssetSupported(absPath))
+            if (ResourceManager::GetInstance().IsAssetSupported(absPath))
             {
                 m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
                 continue;
@@ -470,7 +473,7 @@ void ResourceBrowser::RegisterAsset()
                 relPath = relPathTemp;
             }
             
-            m_engine->GetResourceManager().RegisterAsset(relPath,
+            ResourceManager::GetInstance().RegisterAsset(relPath,
                 [this](bool p_succeeded, const std::vector<MetaEntry>& entries)
                 {
                     if (p_succeeded && !entries.empty())
