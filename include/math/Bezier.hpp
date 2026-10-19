@@ -4,6 +4,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 //
+// Modified by Paast Productions, 2026.
+// Modifications made for use in the Droplet Engine.
+//
 // http://go.microsoft.com/fwlink/?LinkId=248929
 // http://go.microsoft.com/fwlink/?LinkID=615561
 //--------------------------------------------------------------------------------------
