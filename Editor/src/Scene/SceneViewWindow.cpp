@@ -1,11 +1,14 @@
 #include "SceneViewWindow.hpp"
-#include <chrono>
-#include <iostream>
+#include <math/bounds/Intersection.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <EditorShortcuts.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <IconFontCppHeaders/IconsLucide.h>
+#include <chrono>
+#include <iostream>
 
 using namespace Droplet::Editor::Scene;
 
@@ -19,6 +22,7 @@ void SceneViewWindow::InitImpl()
 	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
 	m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
 }
+
 void SceneViewWindow::RenderToolbar()
 {
 	if (ImGui::BeginMenu("File"))
@@ -155,7 +159,7 @@ void SceneViewWindow::RenderImpl()
 			{
 				controller.Update(deltaTime, sceneWindow, center.x, center.y);
 				
-			// create ray that is used for raycasting
+				// create ray that is used for raycasting
 				if (input.MousePressed(Mouse::LMB)) 
 				{
 					const EditorCamera &camera = m_editorContext->GetEditorCamera();
@@ -167,7 +171,7 @@ void SceneViewWindow::RenderImpl()
 					glm::vec4 nearClip(x, y, 0.0f, 1.0f);
 					glm::vec4 farClip(x, y, 1.0f, 1.0f);
 
-					glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix(camAspect));
+					glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix());
 
 					glm::vec4 nearView = inverseProjection * nearClip;
 					glm::vec4 farView = inverseProjection * farClip;
@@ -187,7 +191,6 @@ void SceneViewWindow::RenderImpl()
 				}
 			}
 
-
 			if (input.KeyPressed(Key::KeyQ))
 			{
 				m_cameraLookToggled = !m_cameraLookToggled;
@@ -196,6 +199,7 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
+
 	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 	ImTextureRef camViewTexture = m_textureDescriptor;
 
@@ -203,6 +207,33 @@ void SceneViewWindow::RenderImpl()
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 	
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
+
+	// Render play/pause button
+	{
+		ImVec2 buttonSize = ImVec2(30, 30);
+		ImVec2 buttonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
+			camViewRectMin.y + 10
+		);
+
+		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
+
+		ImGui::SetCursorScreenPos(buttonPos);
+		if (isPlaying)
+		{
+			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+			}
+		}
+		else
+		{
+			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
+			}
+		}
+	}
 	
 	ImGui::EndChild();
 }
@@ -222,14 +253,18 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	ImGuizmo::SetRect(rectPos.x, rectPos.y, rectSize.x, rectSize.y);
 	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 
-	glm::mat4 tempViewMat = glm::lookAt(glm::vec3(0, 0, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
-	glm::mat4 tempProjMat = glm::perspective(m_editorContext->GetEditorCamera().GetFOV(), m_editorContext->GetEditorCamera().GetAspect(), 0.1f, 100.0f);
+	// Camera
+	const EditorCamera &camera = m_editorContext->GetEditorCamera();
+	glm::mat4 camViewMat = camera.GetViewMatrix();
+	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
 	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene");
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots();
 
 	// Render ImGuizmo cubes for all nodes in the scene
 	{
+		Math::Frustum camFrustum = camera.GetFrustum();
+
 		std::vector<glm::mat4> tempMatrices{};
 
 		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) {
@@ -238,13 +273,23 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				return;
 			}
 
-			tempMatrices.push_back(node->GetTransform().GetMatrix(DTransform::Space::World));
+			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
+
+			Math::OBB baseOBB = Math::OBB(glm::vec3(0.0f), glm::vec3(0.5f), glm::mat3(1.0f));
+			Math::OBB nodeOBB = Math::OBB::Transform(baseOBB, nodeMat);
+
+			Math::IntersectType intersection = Math::Intersects(camFrustum, nodeOBB);
+
+			if (intersection != Math::IntersectType::None)
+			{
+				tempMatrices.push_back(nodeMat);
+			}
 
 			for (const auto &child : node->GetChildren())
 			{
 				recurseNodes(child);
 			}
-			};
+		};
 
 		for (const auto &node : nodes)
 		{
@@ -253,7 +298,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		if (tempMatrices.size() > 0)
 		{
-			ImGuizmo::DrawCubes(&(tempViewMat[0][0]), &(tempProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
+			ImGuizmo::DrawCubes(&(camViewMat[0][0]), &(camProjMat[0][0]), (float*)&(tempMatrices[0][0]), tempMatrices.size());
 		}
 	}
 
@@ -266,7 +311,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		if (selectedNodes.size() > 0)
 		{
-			
 			std::shared_ptr<DNode> selectedNode = selectedNodes[0];
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
@@ -285,8 +329,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			ImGuizmo::MODE manipulateSpace = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
 
 			bool result = ImGuizmo::Manipulate(
-				&(tempViewMat[0][0]),	// View matrix
-				&(tempProjMat[0][0]),	// Projection matrix
+				&(camViewMat[0][0]),	// View matrix
+				&(camProjMat[0][0]),	// Projection matrix
 				currentOperation,		// Operation
 				manipulateSpace,		// Space
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
@@ -298,7 +342,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			if (result)
 			{
-				//selectedNode->GetTransform().TransformByMatrix(deltaMatrix, DTransform::Space::World);
 				selectedNode->GetTransform().SetMatrix(nodeMatrix, DTransform::Space::World);
 			}
 		}

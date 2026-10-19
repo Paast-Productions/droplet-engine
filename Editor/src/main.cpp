@@ -7,16 +7,10 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-
 #include <Graphics/VK/TestData.hpp>
-
 #include <tracy/public/tracy/Tracy.hpp>
-
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
-#include <Scene/SceneViewWindow.hpp>
-//#include <tracy/public/tracy/TracyVulkan.hpp>
-//#include <tracy/public/tracy/TracyLua.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
@@ -39,8 +33,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			static_cast<int>(windowSize.x),
 			static_cast<int>(windowSize.y),
 			{}
-		}
-		//Droplet::UpdateFlags::EditorFlags
+		},
+		Droplet::UpdateFlags::EditorFlags
 	};
 	Droplet::Engine engine(config);
 	
@@ -58,12 +52,25 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui_ImplSDL3_ProcessEvent(&event); 
 	});
 
-	engine.AddEventListener([](SDL_Event &event) { // Window resize callback
+	engine.AddEventListener([](SDL_Event &event) { // Window state event callback
 		if (event.type == SDL_EVENT_WINDOW_RESIZED)
 		{
 			int width = event.window.data1;
 			int height = event.window.data2;
 			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+			return;
+		}
+
+		if (event.type == SDL_EVENT_WINDOW_MAXIMIZED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", true);
+			return;
+		}
+
+		if (event.type == SDL_EVENT_WINDOW_RESTORED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", false);
+			return;
 		}
 	});
 
@@ -73,10 +80,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
 	}
+
+	// Setup default ImGui style
     {
 	    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
 	    UIStyle::LoadStyle(currStyle);
     }
+
+	// Restore window maximized state
+	{
+		bool isMaximized = EditorConfig::LoadBool("Editor.WindowMaximized", false);
+
+		if (isMaximized)
+		{
+			SDL_MaximizeWindow(wnd);
+		}
+	}
     
     // --- Font Setup ---
     float baseFontSize = 13.0f; // This should match the size of our default font
@@ -93,7 +112,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
     io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
     // ------
-    Droplet::Editor::EditorContext editorContext(engine);
+
+    EditorContext editorContext(engine);
 
 	HierarchyWindow hierarchyWindow(&editorContext);
 	NodeInspectorWindow nodeInspectorWindow(&editorContext);

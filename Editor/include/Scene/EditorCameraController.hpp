@@ -1,6 +1,7 @@
 #pragma once
 #include <EditorCamera.hpp>
 #include <GameInput.hpp>
+
 namespace Droplet::Editor::Scene
 {
 	/// @brief A class that controls the camera movement in the editor
@@ -9,7 +10,7 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a reference to a camera that this class will control
 		/// @param p_camera The EditorCamera that this class will control
-		EditorCameraController(Droplet::Editor::Scene::EditorCamera &p_camera) : m_editorCamera(p_camera){}
+		EditorCameraController(EditorCamera &p_camera) : m_editorCamera(p_camera){}
 
 		/// @brief Update functions that register movement of the editorCamera
 		/// @param p_deltaTime Time variable that ensures consinstent movement between different frames per second
@@ -23,7 +24,7 @@ namespace Droplet::Editor::Scene
 		void CameraLock(bool p_active);
 
 	private:
-		Droplet::Editor::Scene::EditorCamera &m_editorCamera;
+		EditorCamera &m_editorCamera;
 
 		float m_movementSpeed = 2.5f;
 		float m_mouseSensitivity = 0.1f;

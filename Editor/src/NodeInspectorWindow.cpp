@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
+#include <ImGui/ImGuiUtils.hpp>
 
 using namespace Droplet::Editor;
 

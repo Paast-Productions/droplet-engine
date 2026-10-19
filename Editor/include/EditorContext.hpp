@@ -8,7 +8,8 @@
 namespace Droplet::Editor
 {
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
-	class EditorContext {
+	class EditorContext 
+	{
 	public:
 		/// @brief Constructor that holds a reference to the rendering pipeline
 		/// @param p_engine The renderer of the rendering pipeline

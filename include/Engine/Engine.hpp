@@ -67,6 +67,8 @@ namespace Droplet
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(EventListener p_listener);
+
+
 		
 	private:
 
