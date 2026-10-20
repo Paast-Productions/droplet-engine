@@ -200,6 +200,9 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
+
+        void LoadNodeFromFile( const std::string &p_filepath);
+
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;

@@ -117,4 +117,5 @@ void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_c
         throw std::runtime_error("ScriptCompoent missing field 'filepath'");
     }
     m_scriptPath = p_compJson["filepath"];
+    
 }

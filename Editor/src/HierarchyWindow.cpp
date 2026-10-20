@@ -31,27 +31,17 @@ void HierarchyWindow::RenderImpl()
     {
         EditorShortcuts::ProcessSceneViewKeyShortcuts();
     }
-    //
-    // if (!m_instance)
-    // {
-    //     return;
-    // }
-    //
+
     if (!scene)
     {
         return;
     }
 
-
-
     if (ImGui::TreeNode("Scene Selection"))
     {
-
-
         DrawSceneWindow();
         ImGui::TreePop();
     }
-
 
     if (ImGui::Button("Add Node"))
     {

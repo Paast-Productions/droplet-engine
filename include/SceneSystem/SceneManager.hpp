@@ -10,7 +10,7 @@ namespace Droplet::Scene
 {
     class Scene;
     class Behaviour;
-
+    class Node;
     /// @brief Manages the Scenes used by the application.
     ///
     /// SceneManager is responsible for loading, unloading, activating,
@@ -109,6 +109,11 @@ namespace Droplet::Scene
         /// @brief Loads a scene from a file
         /// @param p_filePath The name of the file the scene is serialized in
         void LoadFromFile(const std::string& p_filePath);
+
+        /// @brief Serializes a lonesome node to a josn file
+        /// @param p_node the node to be serialized
+        /// @param p_filePath the filepath
+        void SerializeNodeToFile(const Droplet::Scene::Node &p_node, const std::string &p_filePath);
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
