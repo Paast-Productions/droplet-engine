@@ -83,6 +83,7 @@ void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
     
     for (const auto &component : m_components)
     {
+        // TODO: Skip component if it's inactive
         component->GetRenderData(rData);
     }
 

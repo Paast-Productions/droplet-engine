@@ -47,7 +47,6 @@ namespace
 
         if (BeginDragDropTarget())
         {
-            // TODO: ENSURE PAYLOAD_RESOURCE IS NULL TERMINATED 
             if (const ImGuiPayload *pl =
                 AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
             {

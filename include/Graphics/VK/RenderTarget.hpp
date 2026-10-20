@@ -12,6 +12,7 @@ namespace Droplet::Graphics
 {
 	/// @brief A class that represent the endpoints of what the renderer need
 	/// for rendering to a texture
+    // TODO: Add option to skip depth buffer if not needed.
 	class RenderTarget
 	{
 	public:
