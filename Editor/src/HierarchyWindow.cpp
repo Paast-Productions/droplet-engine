@@ -163,7 +163,7 @@ void HierarchyWindow::RenderImpl()
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
 {
     
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / "Scenes";
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData"/ "Scenes"; // TODO find a better solution
 
     p_sceneFiles.clear();
 
@@ -193,7 +193,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     static std::vector <std::string> sceneFiles;
     static std::string selectedScene;
     static bool hasScannedScenes = false;
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / "Scenes";
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData" / "Scenes/" ; // TODO find a better solution
     if (!hasScannedScenes)
     {
         RefreshLoadedScenes(sceneFiles);
@@ -203,7 +203,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("Save Scene"))
     {
         m_editorContext->GetActiveScene()->SetName(fileName);
-        std::string path = "Scenes/" + std::string(fileName) + ".json";
+        std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
         m_editorContext->SaveScene(path);
 
     }
@@ -245,45 +245,6 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
         ImGui::EndPopup();
     }
-
-
-
-    /*const char *preview = selectedScene.empty() ? "Select a scene" : selectedScene.c_str();
-
-    if (ImGui::BeginCombo("Scene", preview))
-    {
-        for (const std::string &sceneFile : sceneFiles)
-        {
-            const bool isSelected = (selectedScene == sceneFile);
-
-            if (ImGui::Selectable(sceneFile.c_str(), isSelected))
-            {
-                selectedScene = sceneFile;
-            }
-
-            if (isSelected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
-
-        }
-
-        ImGui::EndCombo();
-    }
-
-    ImGui::BeginDisabled(selectedScene.empty());
-
-    if (ImGui::Button("Load"))
-    {
-        std::string sceneName = std::filesystem::path(selectedScene).stem().string();
-        std::string filePath = "Scenes/" + std::string(selectedScene);
-        m_editorContext->LoadFromFile(filePath);
-        m_editorContext->SetActiveScene(sceneName);
-
-        const std::filesystem::path scenePath = scenesDirectory / selectedScene;
-    }
-
-    ImGui::EndDisabled();*/
 }
 
 
@@ -330,6 +291,8 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropSource();
         }
 
+
+ 
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))
@@ -342,6 +305,12 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
                 m_nodeToRemove = p_node;
             }
 
+            if (ImGui::MenuItem("Serialize Node"))
+            {
+                const std::filesystem::path prefabDirectory = std::filesystem::current_path() / ".." / ".." /".." / "GameData" / "Prefabs"; // TODO find a better solution
+                const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
+                m_editorContext->SaveNode(filePath, *p_node.get());
+            }
             ImGui::EndPopup();
         }
 

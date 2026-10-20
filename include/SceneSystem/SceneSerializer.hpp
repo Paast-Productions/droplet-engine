@@ -36,7 +36,7 @@ namespace Droplet::Scene
 		void DeserializeScene(const nlohmann::json& p_json,std::shared_ptr<Scene> p_scene);
 
 
-		void DeserializeLonsesomeNode(const nlohmann::json &p_josn, std::shared_ptr<Droplet::Scene::Scene> p_scene);
+		void DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene &p_scene);
 
 
 		/// @brief Serializes a node

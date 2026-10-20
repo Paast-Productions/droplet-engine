@@ -55,7 +55,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     context.ResolveAllReferences();
 }
 
-void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Scene> p_scene)
+void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene)
 {
     if (!p_json.contains("name"))
     {
@@ -86,8 +86,20 @@ void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::j
     {
         throw std::runtime_error("Node is missing required field 'active'");
     }
+    auto node = p_scene.AddNode(p_json["name"]);
+    SerializationContext nullContext;
+    DeserializeTransform(p_json["transform"], node->GetTransform());
 
+    std::shared_ptr<Droplet::Scene::Scene> scenePtr = p_scene.shared_from_this();
 
+    for (const auto componentJson : p_json["components"])
+    {
+        DeserializeComponent(componentJson, node, p_json["id"], nullContext);
+    }
+    for (const auto childJson : p_json["children"])
+    {
+        DeserializeNode(childJson, node, scenePtr, nullContext);
+    }
 }
 
 

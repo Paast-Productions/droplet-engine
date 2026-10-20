@@ -238,6 +238,5 @@ void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    //serializer.DeserializeLonsesomeNode(json, this);
-
+    serializer.DeserializeLonsesomeNode(json, *this);
 }

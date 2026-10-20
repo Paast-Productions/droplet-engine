@@ -5,8 +5,12 @@
 #include <Scene/EditorCameraController.hpp>
 #include <Graphics/VK/Renderer.hpp>
 #include <Engine/Engine.hpp>
+#include <SceneSystem/Node.hpp>
 namespace Droplet::Editor
 {
+
+	
+
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext 
 	{
@@ -50,6 +54,10 @@ namespace Droplet::Editor
 		void SaveScene(const std::string &filepath);
 
 		void LoadFromFile( std::string &p_filepath);
+
+		void SaveNode(const std::string &filepath, const Droplet::Scene::Node &p_node);
+
+		void LoadNodeFromFile(std::string &filepath);
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
