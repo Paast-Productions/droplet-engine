@@ -18,8 +18,10 @@ namespace Droplet::Graphics
 		Camera(
 			glm::vec3 p_position = glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3 p_up = glm::vec3(0.0f, -1.0f, 0.0f),
-			float p_yaw = -90.0f, float p_pitch = 0.0f,
-			float p_fov = 45.0f, float p_aspect = 1.0f
+			float p_yaw = -90.0f, 
+			float p_pitch = 0.0f,
+			float p_fov = 45.0f, 
+			float p_aspect = 1.0f
 		);
 
 		/// @brief Apply movement inputs on the camera

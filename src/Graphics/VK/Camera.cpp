@@ -64,11 +64,11 @@ glm::vec3 Camera::GetForward() const
 
 glm::vec3 Camera::GetRight() const
 {
-	return -m_right;
+	return m_right;
 }
 glm::vec3 Camera::GetUp() const
 {
-	return -m_up;
+	return m_up;
 }
 
 Frustum Camera::GetFrustum() const
@@ -86,7 +86,7 @@ Frustum Camera::GetFrustum() const
 
 glm::mat4 Camera::GetViewMatrix() const
 {
-	return glm::lookAt(m_position, m_position + m_forward, -m_up);
+	return glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
 glm::mat4 Camera::GetProjectionMatrix() const

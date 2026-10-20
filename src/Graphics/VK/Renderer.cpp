@@ -134,7 +134,7 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 {
 	return ImGui_ImplVulkan_AddTexture(
 		*m_textureSampler,
-		*p_renderTarget.GetColorImageView().Get(),
+		*p_renderTarget.GetColourImageView().Get(),
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	);
 }
@@ -326,7 +326,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
-		p_renderTarget.GetColorImage().Get(),
+		p_renderTarget.GetColourImage().Get(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -355,7 +355,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-		.imageView = p_renderTarget.GetColorImageView().Get(),
+		.imageView = p_renderTarget.GetColourImageView().Get(),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -407,7 +407,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
 	TransitionImageLayout(
-		p_renderTarget.GetColorImage().Get(),
+		p_renderTarget.GetColourImage().Get(),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
@@ -867,7 +867,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 	ZoneScoped;
 
 	//TODO: CREATE PIPELINE CACHE
-
+	//TODO: REWRITE IN VK::RAII
 	p_initInfo.Instance = *m_context.GetInstance();
 	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
 	p_initInfo.Device = *m_context.GetDevice();

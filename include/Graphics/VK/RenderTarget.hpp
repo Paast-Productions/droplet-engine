@@ -25,30 +25,37 @@ namespace Droplet::Graphics
 			const vma::raii::Allocator &p_allocator,
 			const vk::raii::Device &p_device,
 			const vk::raii::PhysicalDevice &p_physicalDevice,
-			uint32_t p_width,
-			uint32_t p_height);
+			std::uint32_t p_width,
+			std::uint32_t p_height);
 
 		/// @brief Get the texture
 		/// returns A custom Image
-		VK::Image &GetColorImage();
+		[[nodiscard]] const vk::raii::Image &GetColourImage() const { return m_colourImage.Get(); }
+		
+		/// @brief Get the depth buffer of the texture
+		/// @returns A custom DepthBuffer 
+		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthBuffer.GetImage(); }
+		
 		/// @brief Get the descriptor of the texture
 		/// @returns A custom ImageView
-		VK::ImageView &GetColorImageView();
-		/// @brief Get the depth buffer of the texture
-		/// @returns A custom DepthBuffer
-		VK::DepthBuffer &GetDepthBuffer();
+		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourView.Get(); }
+		
+		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthBuffer.GetView(); }
+		
+		[[nodiscard]] const vk::Format &GetDepthFormat() const { return m_depthBuffer.GetFormat(); }
+		
 		/// @brief Get the extent of the texture
-		/// @returns An vulkan Extent2D
-		vk::Extent2D GetExtent() const;
+		/// @returns A Vulkan Extent2D
+		[[nodiscard]] vk::Extent2D GetExtent() const { return m_extent; }
 
 	private:
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters
-		vk::Extent2D m_extent;
+		vk::Extent2D m_extent {};
 
-		VK::Image m_colorImage;
-		VK::ImageView m_colorView;
-		VK::DepthBuffer m_depthBuffer;
+		VK::Image m_colourImage { nullptr };
+		VK::ImageView m_colourView { nullptr };
+		VK::DepthBuffer m_depthBuffer { nullptr };
 
 	};
 }
