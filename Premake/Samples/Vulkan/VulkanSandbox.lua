@@ -45,7 +45,9 @@ project "Vulkan-Sandbox"
             AddQuotation("Shaderc"),
             AddQuotation("Slangd"),
             AddQuotation("lua-5.4.7"),
-            AddQuotation("vulkan-1")
+            AddQuotation("vulkan-1"),
+            AddQuotation("zlibstaticd"),
+            AddQuotation("assimp-mtd"),
         }
     else
         libdirs
@@ -65,7 +67,7 @@ project "Vulkan-Sandbox"
             "VulkanMemoryAllocator",
             AddQuotation("SDL3"),
             AddQuotation("vulkan"),
-            AddQuotation("lua-5.4.7")
+            AddQuotation("lua-5.4.7"),
         }
     end
     
