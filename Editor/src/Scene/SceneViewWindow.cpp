@@ -21,7 +21,9 @@ void SceneViewWindow::InitImpl()
 	SetName("Scene View"); 
 	//ToggleToolbar(true);
 	
-	// TODO: MOVE THIS INTO THE RENDERER
+	// TODO: 
+	//     Move this to the renderer and camera class. 
+	//     The camera should request the renderer to create a render target.
 	m_renderTarget = m_editorContext->GetEngine().CreateRenderTarget(720, 720);
 	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
 }
