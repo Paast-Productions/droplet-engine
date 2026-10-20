@@ -47,8 +47,3 @@ JPH::BodyInterface *Droplet::Physics::GetBodyInterface()
 {
 	return m_bodyInterface;
 }
-
-JPH::BodyInterface *Droplet::Physics::GetBodyInterface()
-{
-	return m_bodyInterface;
-}
