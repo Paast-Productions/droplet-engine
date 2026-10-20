@@ -46,6 +46,8 @@ namespace Droplet
 
             void RefreshLoadedScenes(std::vector<std::string>&p_sceneFiles );
 
+            void RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles);
+
             void DrawSceneWindow();
 
             /// @brief Draws a scene node and its children.
