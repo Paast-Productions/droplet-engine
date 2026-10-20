@@ -187,139 +187,6 @@ void Renderer::TransitionImageLayout(
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
-//void Renderer::RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex)
-//{
-//	const vk::raii::CommandBuffer& cmdBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-//	
-//	cmdBuffer.begin({});
-//
-//	// Before starting rendering, transition the swapchain image to vk::ImageLayout::eColorAttachmentOptimal
-//	TransitionImageLayout(
-//		m_swapchain.GetImages().at(p_imageIndex),
-//		vk::ImageLayout::eUndefined,
-//		vk::ImageLayout::eColorAttachmentOptimal,
-//		{},
-//		vk::AccessFlagBits2::eColorAttachmentWrite,
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::ImageAspectFlagBits::eColor,
-//		cmdBuffer
-//	);
-//
-//	TransitionImageLayout(
-//		m_depthBuffer.GetImage(),
-//		vk::ImageLayout::eUndefined,
-//		vk::ImageLayout::eDepthAttachmentOptimal,
-//		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-//		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
-//		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-//		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-//		vk::ImageAspectFlagBits::eDepth,
-//		cmdBuffer
-//	);
-//	
-//	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
-//	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
-//	
-//	vk::RenderingAttachmentInfo colorAttachmentInfo 
-//	{
-//		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
-//		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
-//		.loadOp = vk::AttachmentLoadOp::eClear,
-//		.storeOp = vk::AttachmentStoreOp::eStore,
-//		.clearValue = clearColor 
-//	};
-//
-//	vk::RenderingAttachmentInfo depthAttachmentInfo
-//	{
-//		.imageView = m_depthBuffer.GetView(),
-//		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
-//		.loadOp = vk::AttachmentLoadOp::eClear,
-//		.storeOp = vk::AttachmentStoreOp::eDontCare,
-//		.clearValue = clearDepth 
-//	};
-//
-//	vk::RenderingInfo renderingInfo 
-//	{
-//		.renderArea = 
-//		{
-//			.offset = 
-//			{
-//				.x = 0,
-//				.y = 0
-//			}, 
-//			.extent = m_swapchain.GetExtent()
-//		},
-//		.layerCount = 1,
-//		.colorAttachmentCount = 1,
-//		.pColorAttachments = &colorAttachmentInfo,
-//		.pDepthAttachment = &depthAttachmentInfo 
-//	};
-//	
-//	cmdBuffer.beginRendering(renderingInfo);
-//	cmdBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
-//	cmdBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
-//	// TODO: <REFACTOR>
-//	// Global Descriptor Set should be bound once and only once
-//	// TODO: </REFACTOR>
-//	
-//	for (const RenderData &data : p_renderData)
-//	{
-//		try
-//		{
-//			const VK::Pipeline &pipeline = m_interStorage.GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
-//			cmdBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
-//			cmdBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
-//		
-//			const VK::Mesh mesh = m_interStorage.GetMesh(data);
-//			
-//			PushConstantData pcData
-//			{
-//				.world = data.transform,
-//				.textureID = m_interStorage.GetTextureID(data, m_commandPool)
-//			};
-//			
-//			vk::PushConstantsInfo pcInfo
-//			{
-//				.sType = vk::StructureType::ePushConstantsInfo,
-//				.layout = pipeline.GetLayout(),
-//				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-//				.offset = 0,
-//				.size = sizeof(PushConstantData),
-//				.pValues = &data,
-//			};
-//
-//			cmdBuffer.pushConstants2(pcInfo);
-//			cmdBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
-//			cmdBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
-//			cmdBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
-//		}
-//		catch ([[maybe_unused]] const std::exception &err)
-//		{
-//			continue;
-//		}
-//	}
-//	
-//	Debug::DebugDraw::Get().RenderToCamera(m_camera, cmdBuffer, m_swapchain.GetExtent(), m_frameIndex);
-//	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *cmdBuffer);
-//	cmdBuffer.endRendering();
-//	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
-//	
-//	TransitionImageLayout(
-//		m_swapchain.GetImages().at(p_imageIndex),
-//		vk::ImageLayout::eColorAttachmentOptimal,
-//		vk::ImageLayout::ePresentSrcKHR,
-//		vk::AccessFlagBits2::eColorAttachmentWrite,
-//		{},
-//		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-//		vk::PipelineStageFlagBits2::eBottomOfPipe,
-//		vk::ImageAspectFlagBits::eColor,
-//		cmdBuffer
-//	);
-//
-//	cmdBuffer.end();
-//}
-
 void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData)
 {
 	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
@@ -391,10 +258,6 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	};
 
 	commandBuffer.beginRendering(renderingInfo);
-	////commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
-	// old people code swapped from swapchain to rendertarget
-	//commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
-	//commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
 
@@ -411,6 +274,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 			PushConstantData pcData
 			{
 				.world = data.transform,
+				.time = Time::Get().GetRuntime(),
 				.textureID = m_interStorage.GetTextureID(data, m_commandPool)
 			};
 

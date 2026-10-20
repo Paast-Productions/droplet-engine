@@ -9,6 +9,7 @@ namespace Droplet::Graphics
     struct PushConstantData
     {
         glm::mat4 world{};
+        glm::float32_t time{ 0 };
         std::uint32_t textureID{ 0 };
     };
 
