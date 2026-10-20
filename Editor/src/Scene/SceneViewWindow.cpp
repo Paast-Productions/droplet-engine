@@ -1,4 +1,4 @@
-#include "SceneViewWindow.hpp"
+#include <SceneViewWindow.hpp>
 #include <math/bounds/Intersection.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
@@ -365,5 +365,10 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 }
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
 {			
-	return *m_renderTarget;
+	return m_renderTarget;
+}
+
+void SceneViewWindow::SetViewDescriptor(VkDescriptorSet p_textureDescriptor)
+{
+	m_textureDescriptor = p_textureDescriptor;
 }

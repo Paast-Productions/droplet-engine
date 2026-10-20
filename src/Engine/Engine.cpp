@@ -8,7 +8,6 @@
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <algorithm>
 
-
 using namespace Droplet;
 
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
@@ -82,7 +81,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update()
+DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
@@ -165,7 +164,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	}
 
 	// Rendering
-	m_renderer.Draw(renderDataVec);
+	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
@@ -194,4 +193,14 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+}
+
+Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+{
+	return m_renderer.CreateRenderTarget(p_width, p_height);
+}
+
+VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
+{
+	return m_renderer.RegisterImGuiTexture(p_renderTarget);
 }

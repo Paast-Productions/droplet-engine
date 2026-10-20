@@ -64,12 +64,10 @@ namespace Droplet::Graphics
 		
 		/// @brief Renders a singular frame
 		void DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-
-		void RenderToTarget(RenderTarget &p_target, const Camera &p_camera);
 		
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
-		void Draw(std::vector<RenderData> p_renderData);
+		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);
 		
 		/// @brief Resizes the window
 		void ResizeWindow();
@@ -81,7 +79,7 @@ namespace Droplet::Graphics
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
 
-		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
+		RenderTarget CreateRenderTarget(uint32_t p_width, uint32_t p_height);
 
 		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
 
@@ -94,7 +92,7 @@ namespace Droplet::Graphics
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
 		void RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex);
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates the texture sampler

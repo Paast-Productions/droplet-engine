@@ -19,11 +19,15 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param EditorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(Droplet::Engine &p_engine, EditorContext *p_editorContext) : m_editorContext(p_editorContext){}
+		SceneViewWindow(EditorContext *p_editorContext, Graphics::RenderTarget p_renderTarget) :
+			m_editorContext(p_editorContext), m_renderTarget(p_renderTarget) {}
 		~SceneViewWindow() = default;
 		/// @brief Get the ScenViewWindow rendertarget
 		/// @returns custom RenderTarget class
 		Droplet::Graphics::RenderTarget &GetRenderTarget();
+
+		void SetViewDescriptor(VkDescriptorSet p_textureDescriptor);
+
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -38,10 +42,10 @@ namespace Droplet::Editor::Scene
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 
-		EditorContext *m_editorContext = nullptr;
+		EditorContext *m_editorContext;
 
 		/// @brief The texture that the renderer will render to
-		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
+		Graphics::RenderTarget &m_renderTarget;
 
 		/// @brief The texture that ImGui uses to render the scene in a ImGui window
 		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;

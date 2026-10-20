@@ -120,7 +120,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	BehaviourInspector behaviourInspector(&editorContext);
 	ScriptsWindow scriptsWindow;
 	Resource::ResourceBrowser resourceBrowser(&editorContext);
-	Scene::SceneViewWindow sceneViewWindow(engine, &editorContext);
+
+	Scene::SceneViewWindow sceneViewWindow(&editorContext, engine.CreateRenderTarget(1920, 1080));
+	sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
@@ -279,8 +281,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		scriptsWindow.Render(); 
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
-
-		switch (Droplet::DROPLET_RETURNTYPE returnType = engine.Update())
+		
+		switch (Droplet::DROPLET_RETURNTYPE returnType = engine.Update(sceneViewWindow.GetRenderTarget(), editorContext.GetEditorCamera()))
 		{
 		case Droplet::DROPLET_RETURNTYPE::OK:
 			break;

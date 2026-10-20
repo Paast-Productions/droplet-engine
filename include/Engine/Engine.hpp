@@ -19,6 +19,7 @@
 #include <SceneSystem/Behaviour.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
+#include <RenderTarget.hpp>
 
 namespace Droplet
 {
@@ -51,7 +52,7 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		[[nodiscard]] DROPLET_RETURNTYPE Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -62,6 +63,10 @@ namespace Droplet
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
+
+		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
+
+		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
 		
 	private:
 
