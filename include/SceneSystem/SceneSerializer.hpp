@@ -35,7 +35,9 @@ namespace Droplet::Scene
 		/// @param p_sceneManager The scenemanager that is supposed to load the scene
 		void DeserializeScene(const nlohmann::json& p_json,std::shared_ptr<Scene> p_scene);
 
-	
+
+		void DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene &p_scene);
+
 
 		/// @brief Serializes a node
 		/// @param p_node The node you want to serialize

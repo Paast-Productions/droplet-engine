@@ -36,6 +36,7 @@ void ScriptBehaviour::RenderUIImpl()
 		: m_scriptPath;
 
 	ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
+
 	if (ImGui::BeginDragDropTarget())
 	{
 		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))

@@ -1,5 +1,8 @@
 #include "Scene.hpp"
 #include "Node.hpp"
+#include "SceneSerializer.hpp"
+#include "IoManager.hpp"
+
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -94,7 +97,7 @@ void Scene::Render()
     }
 }
 
-std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
+std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -112,7 +115,7 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name)
     return node;
 }
 
-void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot)
+void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TODO: Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -142,7 +145,7 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot)
     m_roots.push_back(p_node);
 }
    
-void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)
+void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -162,7 +165,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node)
     m_roots.erase(it);
 }
 
-const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const
+const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const // TODO: Make weak pointer
 {
     return m_roots;
 }
@@ -228,4 +231,12 @@ std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_h
 std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
 {
     return m_octree.GetNodesFromRaycast(p_ray);
+}
+
+void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
+
+    serializer.DeserializeLonsesomeNode(json, *this);
 }

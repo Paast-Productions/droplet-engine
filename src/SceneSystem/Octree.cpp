@@ -47,17 +47,17 @@ namespace Droplet::Scene
 
 		// Collect dirty nodes into a temporary list first to avoid mutating 
 		// the octree during traversal (prevents iterator invalidation crashes)
-		std::vector<std::shared_ptr<Node>> dirtyNodes;
+		std::vector<std::shared_ptr<Node>> dirtyNodes; // TODO: Make weak pointer
 		CollectDirtyNodes(m_root, dirtyNodes);
 
-		for (const std::shared_ptr<Node> &dirty : dirtyNodes)
+		for (const std::shared_ptr<Node> &dirty : dirtyNodes) // TODO: Make weak pointer
 		{
 			RemoveNode(dirty);
 			AddNode(dirty);
 		}
 	}
 
-	void Octree::AddNode(const std::shared_ptr<Node> p_node)
+	void Octree::AddNode(const std::shared_ptr<Node> p_node) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -69,7 +69,7 @@ namespace Droplet::Scene
 		AddToTreeNode(p_node, m_root);
 	}
 
-	void Octree::RemoveNode(const std::shared_ptr<Node> p_node)
+	void Octree::RemoveNode(const std::shared_ptr<Node> p_node) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -81,7 +81,7 @@ namespace Droplet::Scene
 		RemoveFromTreeNode(p_node, m_root);
 	}
 
-	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes)
+	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -135,7 +135,7 @@ namespace Droplet::Scene
 		return toReturn + "}\n";
 	}
 
-	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes)
+	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -145,7 +145,7 @@ namespace Droplet::Scene
 		}
 
 		// Check stored Nodes in the current TreeNode
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
 			if (node != nullptr && node->GetTransform().HasBeenChanged())
 			{
@@ -166,7 +166,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -233,7 +233,7 @@ namespace Droplet::Scene
 			p_treeNode->isSubdivided = true;
 
 			// Push existing Nodes down into matching child octants
-			for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+			for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 			{
 				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
@@ -248,7 +248,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -258,7 +258,7 @@ namespace Droplet::Scene
 		}
 
 		// Remove target Node from local storage if present
-		std::vector<std::shared_ptr<Node>>::iterator it = std::remove(p_treeNode->nodes.begin(), p_treeNode->nodes.end(), p_node);
+		auto it = std::remove(p_treeNode->nodes.begin(), p_treeNode->nodes.end(), p_node);
 		if (it != p_treeNode->nodes.end())
 		{
 			p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
@@ -319,7 +319,7 @@ namespace Droplet::Scene
 	}
 
 	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-		const std::unique_ptr<TreeNode> &p_treeNode)
+		const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -334,7 +334,7 @@ namespace Droplet::Scene
 			return;
 		case IntersectType::Intersects:
 			// Check individual nodes stored in this leaf
-			for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+			for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 			{
 				if (node == nullptr)
 				{
@@ -398,7 +398,7 @@ namespace Droplet::Scene
 		p_hit.distance = std::numeric_limits<float>::max();
 
 		// Check individual nodes stored in this leaf
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
 			if (node == nullptr)
 			{
@@ -451,7 +451,7 @@ namespace Droplet::Scene
 		}
 
 		// Check individual nodes stored in this leaf
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
 			if (node == nullptr)
 			{
@@ -469,7 +469,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -478,7 +478,7 @@ namespace Droplet::Scene
 			return;
 		}
 
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
 			p_nodes.push_back(node);
 		}
@@ -507,7 +507,7 @@ namespace Droplet::Scene
 
 		if (!p_treeNode->nodes.empty())
 		{
-			for (std::shared_ptr<Node> &node : p_treeNode->nodes)
+			for (std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 			{
 				std::string nodeName = "Node" + std::to_string(p_nodeCounter++);
 
@@ -541,7 +541,7 @@ namespace Droplet::Scene
 			return myID;
 		}
 
-		for (std::shared_ptr<Node> &node : p_treeNode->nodes)
+		for (std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
 			p_data += std::to_string(myID) + "[label = \"" + node->GetName() + "\"]\n";
 			p_data += std::to_string(p_nodeCounter) + " -> " + std::to_string(myID) + "\n";

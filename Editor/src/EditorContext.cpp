@@ -1,4 +1,5 @@
 #include <EditorContext.hpp>
+#include <SceneSystem/Node.hpp>
 
 Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	: m_engine(p_engine),
@@ -41,6 +42,16 @@ void Droplet::Editor::EditorContext::LoadFromFile( std::string &p_filepath)
 	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
 
+void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, const Droplet::Scene::Node &p_node)
+{
+	m_engine.GetSceneManager().SerializeNodeToFile(p_node, p_filepath);
+}
+
+void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath)
+{
+	GetActiveScene()->LoadNodeFromFile(p_filepath);
+}
+
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
 {
 	return m_editorCamera;
@@ -50,7 +61,7 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 {
 	return m_editorCameraController;
 }
-std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
+std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene() // TODO: Make weak pointer
 {
 	return m_selectedScene;
 }

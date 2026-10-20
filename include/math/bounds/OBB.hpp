@@ -18,7 +18,10 @@ namespace Droplet::Math
 		/// @param p_extents The half-sizes of the OBB along each axis.
 		/// @param p_orientation The orientation of the OBB represented as a 3x3 rotation matrix.
 		OBB(const glm::vec3 &p_center, const glm::vec3 &p_extents, const glm::mat3 &p_orientation) : 
-			center(p_center), extents(p_extents), orientation(p_orientation) {}
+			center(p_center), extents(p_extents), orientation(p_orientation) 
+		{
+			NormalizeOrientation();
+		}
 
 		/// @brief Constructs an OBB with the specified center, extents, and orientation represented as a quaternion.
 		/// @param p_center The center of the OBB.
@@ -85,6 +88,15 @@ namespace Droplet::Math
 			glm::vec3 newExtents = p_obb.extents * scale;
 
 			return OBB(newCenter, newExtents, newOrientation);
+		}
+
+	private:
+
+		void NormalizeOrientation()
+		{
+			orientation[0] = glm::normalize(orientation[0]);
+			orientation[1] = glm::normalize(orientation[1]);
+			orientation[2] = glm::normalize(orientation[2]);
 		}
 	};
 }

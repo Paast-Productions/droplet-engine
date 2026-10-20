@@ -68,7 +68,11 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str(), ImVec2(180.0f, 0.0f));
+    const std::string preview = m_scriptPath.empty()
+        ? "Drop Lua script here"
+        : m_scriptPath;
+
+    ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
 
     if (ImGui::BeginDragDropTarget())
     {
@@ -113,5 +117,10 @@ nlohmann::json ScriptComponent::SerializeImpl()
 
 void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_compJson)
 {
-	// TODO: Implement deserialization logic for the script component.
+    if (!p_compJson.contains("filepath"))
+    {
+        throw std::runtime_error("ScriptCompoent missing field 'filepath'");
+    }
+    m_scriptPath = p_compJson["filepath"];
+    
 }

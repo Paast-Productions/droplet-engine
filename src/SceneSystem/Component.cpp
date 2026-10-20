@@ -47,12 +47,12 @@ void Component::RenderUI()
 	ImGui::EndChild();
 }
 
-std::shared_ptr<Node> Component::GetOwner() const
+std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer
 {
     return m_owner.lock();
 }
 
-void Component::SetOwner(std::shared_ptr<Node> p_owner)
+void Component::SetOwner(std::shared_ptr<Node> p_owner) // TODO: Make weak pointer
 {
     m_owner = p_owner;
 }

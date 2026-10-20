@@ -118,12 +118,12 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node to create.
         ///
         /// @return A shared pointer to the created Node.
-        std::shared_ptr<Node> AddNode(const std::string &p_name);
+        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: Make weak pointer
 
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
 		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
-		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot);
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: Make weak pointer
 
         /// @brief Removes a root Node from the Scene.
         ///
@@ -136,7 +136,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_node is nullptr.
         /// @throws std::runtime_error if the Node is not a root of this Scene.
-        void RemoveRoot(const std::shared_ptr<Node> &p_node);
+        void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
 
         /// @brief Gets the root Nodes of the Scene.
         ///
@@ -145,7 +145,7 @@ namespace Droplet::Scene
         /// contain any number of root Nodes.
         ///
         /// @return A constant reference to the Scene's root Nodes.
-        const std::vector<std::shared_ptr<Node>> &GetRoots() const;
+        const std::vector<std::shared_ptr<Node>> &GetRoots() const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene's name.
         ///
@@ -199,6 +199,9 @@ namespace Droplet::Scene
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
+
+
+        void LoadNodeFromFile( const std::string &p_filepath);
 
     private:
         std::string m_name;

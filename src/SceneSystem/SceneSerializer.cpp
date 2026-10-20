@@ -55,6 +55,54 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     context.ResolveAllReferences();
 }
 
+void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene)
+{
+    if (!p_json.contains("name"))
+    {
+        throw std::runtime_error("Node is missing required field 'name");
+    }
+
+    if (!p_json.contains("components"))
+    {
+        throw std::runtime_error("Node is missing required field 'components'");
+    }
+
+    if (!p_json.contains("transform"))
+    {
+        throw std::runtime_error("Node is missing required field 'transform'");
+    }
+
+    if (!p_json.contains("children"))
+    {
+        throw std::runtime_error("Node is missing required field 'name'");
+    }
+
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Node is missing required field 'id'");
+    }
+
+    if (!p_json.contains("active"))
+    {
+        throw std::runtime_error("Node is missing required field 'active'");
+    }
+    auto node = p_scene.AddNode(p_json["name"]);
+    SerializationContext nullContext;
+    DeserializeTransform(p_json["transform"], node->GetTransform());
+
+    std::shared_ptr<Droplet::Scene::Scene> scenePtr = p_scene.shared_from_this();
+
+    for (const auto componentJson : p_json["components"])
+    {
+        DeserializeComponent(componentJson, node, p_json["id"], nullContext);
+    }
+    for (const auto childJson : p_json["children"])
+    {
+        DeserializeNode(childJson, node, scenePtr, nullContext);
+    }
+}
+
+
 nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 {
     nlohmann::json json;
@@ -82,7 +130,7 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 
 void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext& p_context)
 {
-    
+
     if (!p_json.contains("name"))
     {
         throw std::runtime_error("Node is missing required field 'name'");

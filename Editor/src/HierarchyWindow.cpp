@@ -7,7 +7,6 @@
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
-//#include <Engine/Engine.hpp>
 #include <memory>
 
 
@@ -31,36 +30,22 @@ void HierarchyWindow::RenderImpl()
     {
         EditorShortcuts::ProcessSceneViewKeyShortcuts();
     }
-    //
-    // if (!m_instance)
-    // {
-    //     return;
-    // }
-    //
+
     if (!scene)
     {
         return;
     }
 
-    static char fileName[128] = "MyScene";
-
-    ImGui::InputText("Scene name", fileName, sizeof(fileName));
+    if (ImGui::TreeNode("Scene Selection"))
+    {
+        DrawSceneWindow();
+        ImGui::TreePop();
+    }
 
     if (ImGui::Button("Add Node"))
     {
         scene->AddNode("New Node");
     }
-
-    if (ImGui::Button("Save Scene"))
-    {
-        m_editorContext->GetActiveScene()->SetName(fileName);
-        std::string path ="Scenes/" + std::string(fileName) + ".json";
-        m_editorContext->SaveScene(path);
-        
-    }
-
-    DrawSceneWindow();
-
 
     ImGui::Separator();
 
@@ -125,8 +110,7 @@ void HierarchyWindow::RenderImpl()
             if (const ImGuiPayload *payload =
                 ImGui::AcceptDragDropPayload("SCENE_NODE"))
             {
-                Node *draggedNode =
-                    *static_cast<Node **>(payload->Data);
+                Node *draggedNode = *static_cast<Node **>(payload->Data);
 
                 auto oldParent = draggedNode->shared_from_this()->GetParent();
                 if (oldParent)
@@ -179,8 +163,7 @@ void HierarchyWindow::RenderImpl()
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
 {
     
-    static std::string selectedScene;
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / "Scenes";
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData"/ "Scenes"; // TODO find a better solution
 
     p_sceneFiles.clear();
 
@@ -200,72 +183,72 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::stri
     }
 
     std::sort(p_sceneFiles.begin(), p_sceneFiles.end());
-
-
-    if (std::find(
-        p_sceneFiles.begin(),
-        p_sceneFiles.end(),
-        selectedScene) == p_sceneFiles.end())
-    {
-        selectedScene.clear();
-    }
 }
 
 void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 {
+    static char fileName[128] = "MyScene";
+
+    ImGui::InputText("Scene name", fileName, sizeof(fileName));
     static std::vector <std::string> sceneFiles;
     static std::string selectedScene;
     static bool hasScannedScenes = false;
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / "Scenes";
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData" / "Scenes/" ; // TODO find a better solution
     if (!hasScannedScenes)
     {
         RefreshLoadedScenes(sceneFiles);
         hasScannedScenes = true;
     }
 
-    ImGui::SameLine();
-    ImGui::Text("Saved scenes");
-
-    const char *preview = selectedScene.empty() ? "Select a scene" : selectedScene.c_str();
-
-    if (ImGui::BeginCombo("Scene", preview))
+    if (ImGui::Button("Save Scene"))
     {
-        for (const std::string &sceneFile : sceneFiles)
-        {
-            const bool isSelected = (selectedScene == sceneFile);
+        m_editorContext->GetActiveScene()->SetName(fileName);
+        std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
+        m_editorContext->SaveScene(path);
 
-            if (ImGui::Selectable(sceneFile.c_str(), isSelected))
-            {
-                selectedScene = sceneFile;
-            }
-
-            if (isSelected)
-            {
-                ImGui::SetItemDefaultFocus();
-            }
-
-        }
-
-        ImGui::EndCombo();
     }
-
-    ImGui::BeginDisabled(selectedScene.empty());
-
+    ImGui::SameLine();
+    
     if (ImGui::Button("Load"))
     {
-        std::string sceneName = std::filesystem::path(selectedScene).stem().string();
-        std::string filePath = "Scenes/" + std::string(selectedScene);
-        m_editorContext->LoadFromFile(filePath);
-        m_editorContext->SetActiveScene(sceneName);
-
-        const std::filesystem::path scenePath = scenesDirectory / selectedScene;
+        RefreshLoadedScenes(sceneFiles);
+        ImGui::OpenPopup("Scenes");
     }
 
-    ImGui::EndDisabled();
+    if (ImGui::BeginPopup("Scenes"))
+    {
+        ImGui::SeparatorText("Saved Scenes");
+        
+        if (sceneFiles.empty())
+        {
+            ImGui::TextUnformatted("No saved scenes found.");
+        }
+        for (const std::string &sceneFile : sceneFiles)
+        {
+            if (ImGui::Selectable(sceneFile.c_str()))
+            {
+                selectedScene = sceneFile;
+
+                const std::string sceneName =
+                    std::filesystem::path(selectedScene)
+                    .stem().string();
+
+                std::string filePath = scenesDirectory.string() + std::string(selectedScene);
+
+                m_editorContext->LoadFromFile(filePath);
+                m_editorContext->SetActiveScene(sceneName);
+                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                fileName[sizeof(fileName) - 1] = '\0';
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        ImGui::EndPopup();
+    }
 }
 
 
-void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
+void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
     if (!p_node)
     {
@@ -279,7 +262,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         flags |= ImGuiTreeNodeFlags_Leaf;
     }
 
-    if (/*m_interactionState->IsNodeSelected(p_node)*/m_editorContext->GetInteractionState().IsNodeSelected(p_node))
+    if (m_editorContext->GetInteractionState().IsNodeSelected(p_node))
     {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
@@ -293,9 +276,6 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
     {
         if (ImGui::IsItemClicked())
         {
-            // m_interactionState->ClearNodeSelection();
-            // m_interactionState->SelectNode(p_node);
-            
             m_editorContext->GetInteractionState().ClearNodeSelection();
             m_editorContext->GetInteractionState().SelectNode(p_node);
         }
@@ -311,6 +291,8 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
             ImGui::EndDragDropSource();
         }
 
+
+ 
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))
@@ -323,6 +305,12 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
                 m_nodeToRemove = p_node;
             }
 
+            if (ImGui::MenuItem("Serialize Node"))
+            {
+                const std::filesystem::path prefabDirectory = std::filesystem::current_path() / ".." / ".." /".." / "GameData" / "Prefabs"; // TODO find a better solution
+                const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
+                m_editorContext->SaveNode(filePath, *p_node.get());
+            }
             ImGui::EndPopup();
         }
 

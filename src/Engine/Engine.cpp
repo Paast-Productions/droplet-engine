@@ -11,7 +11,7 @@
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_renderer(p_config.WindowConfig)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window)
 {
 	ZoneScoped;
 

@@ -10,7 +10,7 @@ namespace Droplet::Scene
 {
     class Scene;
     class Behaviour;
-
+    class Node;
     /// @brief Manages the Scenes used by the application.
     ///
     /// SceneManager is responsible for loading, unloading, activating,
@@ -78,7 +78,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the Scene, or nullptr if the
         /// Scene is not loaded.
-        std::shared_ptr<Scene> GetScene(const std::string &p_name) const;
+        std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
 
         /// @brief Gets the currently active Scenes.
         ///
@@ -104,15 +104,20 @@ namespace Droplet::Scene
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize
         /// @param p_filePath The json file to write to
-        void SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string& p_filePath);
+        void SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string& p_filePath); // TODO: Make weak pointer
 
         /// @brief Loads a scene from a file
         /// @param p_filePath The name of the file the scene is serialized in
         void LoadFromFile(const std::string& p_filePath);
 
+        /// @brief Serializes a lonesome node to a josn file
+        /// @param p_node the node to be serialized
+        /// @param p_filePath the filepath
+        void SerializeNodeToFile(const Droplet::Scene::Node &p_node, const std::string &p_filePath);
+
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
-		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; }
+		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; } // TODO: Make weak pointer
 
 		/// @brief Starts a behaviour of the specified type.
         /// @param p_behaviourTypeName The type name of the behaviour to start.
