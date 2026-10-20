@@ -189,25 +189,22 @@ void ResourceBrowser::RenderImpl()
 	            bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow);
 	            
 	            // Asset drag source
-	            if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-	            {
-	                // Create list of resource payloads for this asset
-	                std::vector<ResourcePayload> payloads;
-	                payloads.reserve(childNode.resources.size());
-	                    
-	                for (const MetaEntry *entry : childNode.resources)
-	                {
-	                    ResourcePayload payload;
-	                    payload.guid = entry->guid;
-	                    payload.type = entry->type;
-	                    snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                    payloads.push_back(payload);
-	                }
-	                    
-	                SetDragDropPayload(PAYLOAD_ASSET.data(), payloads.data(), payloads.size() * sizeof(ResourcePayload));
-	                TextDisabled("Asset: %s (%zu resources)", childName.c_str(), payloads.size());
-	                EndDragDropSource();
-	            }
+                if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+                {
+                    const auto *payload = &childNode;
+
+                    SetDragDropPayload(
+                        PAYLOAD_ASSET.data(),
+                        &payload,
+                        sizeof(payload));
+
+                    TextDisabled(
+                        "Asset: %s (%zu resources)",
+                        childName.c_str(),
+                        childNode.resources.size());
+
+                    EndDragDropSource();
+                }
 	            
 	            // Resources it contains
 	            if (isNodeOpen)
@@ -231,17 +228,19 @@ void ResourceBrowser::RenderImpl()
 	                    }
 	                    
 	                    // Resource drag source
-	                    if (BeginDragDropSource())
-	                    {
-	                        ResourcePayload payload;
-	                        payload.guid = entry->guid;
-	                        payload.type = entry->type;
-	                        snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                        
-	                        SetDragDropPayload(PAYLOAD_RESOURCE.data(), &payload, sizeof(ResourcePayload));
-	                        TextDisabled("Resource: %s", entry->displayName.c_str());
-	                        EndDragDropSource();
-	                    }
+                        if (BeginDragDropSource())
+                        {
+                            const MetaEntry *payload = entry;
+
+                            SetDragDropPayload(
+                                PAYLOAD_RESOURCE.data(),
+                                &payload,
+                                sizeof(payload));
+
+                            TextDisabled("Resource: %s", entry->displayName.c_str());
+
+                            EndDragDropSource();
+                        }
 	                }
 	                TreePop();
 	            }

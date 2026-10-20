@@ -4,6 +4,7 @@
 #include <resource/ResourceManager.hpp>
 #include <Engine/Engine.hpp>
 #include <string>
+#include "resource/meta/MetaUtils.hpp">
 
 // imgui helper function
 
@@ -12,7 +13,9 @@ namespace
     bool ResourceSlot(
         const char *p_label,
         Droplet::GUID p_current,
+        const std::string &p_currentName,
         Droplet::GUID &p_outGUID,
+        std::string &p_outName,
         Droplet::ResourceType p_expectedType)
     {
         using namespace ImGui;
@@ -31,34 +34,34 @@ namespace
         const float gap = GetStyle().ItemSpacing.x;
 
         const std::string text = p_current != Droplet::C_INVALID_GUID
-            ? "GUID: " + std::to_string(p_current)
+            ? p_currentName
             : "None (drop resource here)";
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
-            //p_pickBuffer = p_current;
             OpenPopup("pick");
         }
 
-        // Drag and drop
         if (BeginDragDropTarget())
         {
             if (const ImGuiPayload *pl =
                 AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
             {
-                if (pl->DataSize == sizeof(ResourcePayload))
+                if (pl->DataSize == sizeof(const Droplet::MetaEntry *))
                 {
-                    const auto *resourcePayload =
-                        static_cast<const ResourcePayload *>(pl->Data);
+                    const auto *entryPtr =
+                        *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
 
-                    if (resourcePayload->type == p_expectedType)
+                    if (entryPtr->type == p_expectedType)
                     {
-                        p_outGUID = resourcePayload->guid;
+                        // Access the complete entry.
+                        p_outGUID = entryPtr->guid;
+                        p_outName = entryPtr->displayName;
                         changed = true;
                     }
                     else
                     {
-                        // Optional: report incompatible resource type.
+
                     }
                 }
             }
@@ -73,13 +76,13 @@ namespace
                 static_cast<unsigned long long>(p_current));
         }
 
-        // Clear button
         SameLine();
         BeginDisabled(p_current == Droplet::C_INVALID_GUID);
 
         if (Button("X", ImVec2(clearW, clearW)))
         {
             p_outGUID = Droplet::C_INVALID_GUID;
+            p_outName.clear();
             changed = true;
         }
 
@@ -105,36 +108,52 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
 void MeshComponent::RenderUIImpl()
 {
     using namespace ImGui;
+
     auto &resourceManager = Droplet::ResourceManager::Get();
 
     PushID(this);
+
     if (BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
     {
         TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
         TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
         Droplet::GUID newGUID = C_INVALID_GUID;
+        std::string newName;
 
-        if(ResourceSlot(
+        // Retrieve the existing resource names from ResourceManager here.
+        // Replace these examples with your actual lookup API.
+
+        if (ResourceSlot(
             "Mesh",
             m_mesh.GetGUID(),
+            m_meshName,
             newGUID,
+            newName,
             Droplet::ResourceType::Mesh))
         {
             SetMeshGUID(newGUID, resourceManager);
+			m_meshName = newName;
         }
+
+        newGUID = C_INVALID_GUID;
+        newName.clear();
 
         if (ResourceSlot(
             "Texture",
             m_2dTexture.GetGUID(),
+            m_textureName,
             newGUID,
+            newName,
             Droplet::ResourceType::Texture2D))
         {
             SetTextureGUID(newGUID, resourceManager);
+			m_textureName = newName;
         }
 
         EndTable();
     }
+
     PopID();
 }
 

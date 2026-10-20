@@ -12,10 +12,11 @@ namespace Droplet::Editor
 	constexpr std::string_view PAYLOAD_RESOURCE		= "DROPLET_RESOURCE";
     constexpr std::string_view PAYLOAD_ASSET        = "DROPLET_ASSET";
     
-    struct ResourcePayload
+    /*struct ResourcePayload
     {
         GUID guid;
         ResourceType type;
         char name[256];
-    };
+    };*/
+    // display names
 }
