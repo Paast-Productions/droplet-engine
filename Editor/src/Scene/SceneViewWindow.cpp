@@ -60,48 +60,51 @@ void SceneViewWindow::RenderImpl()
 	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
 	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
 	s_lastFrameTime = currentTime;
-
-	// Calculate the camera view rect, so that inputs relative to the camera view rect can be collected and used during the camera update.
-
+	
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
-
-	float camAspect = m_editorContext->GetEditorCamera().GetAspect();
+	
+	GameInput &input = GameInput::Get();
 	float contentAspect = contentRegion.x / contentRegion.y;
+	vk::Extent2D extent = m_renderTarget->GetExtent();
 
-	ImVec2 camSize{};
-	ImVec2 camViewRectMin{};
-	ImVec2 camViewRectMax{};
-
-	if (camAspect > contentAspect) // The camera is wider than the content region, so we need to fit the camera width to the content region width.
-	{
-		camSize.x = contentRegion.x;
-		camSize.y = contentRegion.x / camAspect;
-
-		// Center the camera view rect vertically within the content region.
-		camViewRectMin.x = cursorScreenPos.x;
-		camViewRectMin.y = cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f;
-		camViewRectMax.x = camViewRectMin.x + camSize.x;
-		camViewRectMax.y = camViewRectMin.y + camSize.y;
+	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
+	uint32_t height = static_cast<uint32_t>(contentRegion.y);
+	// If mouse is released and viewSize is changed, Update the camera and renderTarget
+	if (input.MouseReleased(Mouse::LMB))
+	{	
+		if (width != extent.width || height != extent.height)
+		{
+			if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
+			{
+				return;
+			}
+			if (input.MouseReleased(Mouse::LMB))
+			{
+				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
+				UpdateRenderTarget(width, height);
+			}
+		}
 	}
-	else // The camera is taller than the content region, so we need to fit the camera height to the content region height.
-	{
-		camSize.x = contentRegion.y * camAspect;
-		camSize.y = contentRegion.y;
-
-		// Center the camera view rect horizontally within the content region.
-		camViewRectMin.x = cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f;
-		camViewRectMin.y = cursorScreenPos.y;
-		camViewRectMax.x = camViewRectMin.x + camSize.x;
-		camViewRectMax.y = camViewRectMin.y + camSize.y;
-	}
+	
+	ImVec2 camSize = contentRegion;
+	
+	ImVec2 camViewRectMin = {
+		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+	};
+	
+	ImVec2 camViewRectMax = {
+		camViewRectMin.x  + camSize.x,
+		camViewRectMin.y + camSize.y
+	};
 
 	ImVec2 camViewPos = { 
 		camViewRectMin.x - windowPos.x, 
 		camViewRectMin.y - windowPos.y 
 	};
-
+	
 	// Begin the child window that encompasses the camera view.
 	ImGui::SetCursorPos(camViewPos);
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
@@ -155,7 +158,6 @@ void SceneViewWindow::RenderImpl()
 				//drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
 			}
 
-			GameInput &input = GameInput::Get();
 			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
 			if (m_cameraLookToggled)
 			{
@@ -366,4 +368,22 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
 {			
 	return *m_renderTarget;
+}
+
+void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
+{
+	auto &renderer = m_editorContext->GetRenderer();
+	
+	renderer.WaitIdle();
+	
+	if (m_textureDescriptor != VK_NULL_HANDLE)
+	{
+		ImGui_ImplVulkan_RemoveTexture(m_textureDescriptor);
+		m_textureDescriptor = VK_NULL_HANDLE;
+	}
+	
+	m_renderTarget = renderer.CreateRenderTarget(width, height);
+	
+	m_textureDescriptor = renderer.RegisterImGuiTexture(*m_renderTarget);
+	
 }
