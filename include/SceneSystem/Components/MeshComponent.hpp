@@ -30,8 +30,10 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         [[nodiscard]] std::string_view GetTypeName() const override { return "MeshComponent"; }
 
-        // Mesh
-
+        /// @brief Getter-function for Mesh Resource
+        /// @returns Resource Handle to a Mesh Resource
+        [[nodiscard]] const ResourceHandle<MeshResource> &GetMeshResource() { return m_mesh; } 
+        
         /// @brief Sets the mesh resource using its GUID.
         /// @param p_guid GUID identifying the mesh resource to load.
         void SetMeshGUID(Droplet::GUID p_guid) { m_mesh = ResourceManager::GetInstance().LoadResource<Droplet::MeshResource>(p_guid); } 

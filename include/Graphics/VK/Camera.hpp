@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <math/bounds/Frustum.hpp>
+#include <math/bounds/Ray.hpp>
 
 namespace Droplet::Graphics
 {
@@ -92,6 +93,11 @@ namespace Droplet::Graphics
 
 		/// @brief Sets the near and far clipping planes of the camera. 
 		void SetPlanes(float p_near, float p_far) { m_planes = glm::vec2(p_near, p_far); }
+
+		/// @brief Converts a 2D position in normalized device coordinates (NDC) to a 3D ray in world space.
+		/// @param p_viewPos A 2D position in normalized device coordinates (NDC), where (0, 0) is the top-left corner and (1, 1) is the bottom-right corner of the viewport.
+		/// @return A 3D ray in world space originating from the camera position and passing through the specified NDC position.
+		[[nodiscard]] Math::Ray GetViewRay(const glm::vec2 &p_viewPos) const;
 
 	private:
 		glm::vec3 m_position {};

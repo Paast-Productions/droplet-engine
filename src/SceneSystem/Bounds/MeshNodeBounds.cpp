@@ -14,6 +14,24 @@ static OBB GetOBB(const MeshNodeBounds &p_bounds, const glm::mat4x4 &p_worldMat)
 	return OBB::Transform(obb, p_worldMat);
 }
 
+
+AABB MeshNodeBounds::GetAABB() const
+{
+	const auto &meshHandle = m_meshComponent->GetMeshResource();
+
+	if (!meshHandle.IsReady())
+	{
+		return {};
+	}
+
+	return meshHandle.Get()->GetBVH().GetBounds();
+}
+
+OBB MeshNodeBounds::GetTransformedOBB(const glm::mat4x4 &p_worldMat) const
+{
+	return GetOBB(*this, p_worldMat);
+}
+
 IntersectType MeshNodeBounds::Intersect(const Plane &p_plane, const glm::mat4x4 &p_worldMat) const
 {
 	OBB obb = GetOBB(*this, p_worldMat);
@@ -72,16 +90,4 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 	}
 
 	return hit;
-}
-
-AABB MeshNodeBounds::GetAABB() const
-{
-	const auto &meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshComponent->GetMeshGUID());
-
-	if (!meshHandle.IsReady())
-	{
-		return {};
-	}
-
-	return meshHandle.Get()->GetBVH().GetBounds();
 }

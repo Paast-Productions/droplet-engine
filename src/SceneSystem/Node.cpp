@@ -8,7 +8,7 @@
 
 using namespace Droplet::Scene;
 
-Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name)
+Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // TODO: Make weak pointer
 	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
     if (!m_scene.lock())
@@ -150,7 +150,7 @@ bool Node::IsActiveSelf() const
     return m_active;
 }
 
-std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
+std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child) // TODO: Make weak pointer
 {
     if (!p_child)
     {
@@ -209,7 +209,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     return p_child;
 }
 
-void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
+void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak pointer
 {
     if (!p_child)
     {
@@ -244,17 +244,17 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
     m_scene.lock()->SetRoot(p_child, true);
 }
 
-std::shared_ptr<Node> Node::GetParent() const
+std::shared_ptr<Node> Node::GetParent() const // TODO: Make weak pointer
 {
     return m_parent.lock();
 }
 
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
+const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const // TODO: Make weak pointer
 {
     return m_children;
 }
 
-std::shared_ptr<Scene> Node::GetScene() const
+std::shared_ptr<Scene> Node::GetScene() const // TODO: Make weak pointer
 {
     return m_scene.lock();
 }
@@ -296,12 +296,12 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
 	}
 }
 
-std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
 {
     return m_components;
 }
 
-void Node::RemoveComponent(const Component *p_component)
+void Node::RemoveComponent(const Component *p_component) // TODO: Make weak pointer
 {
     if (!p_component)
     {
@@ -381,7 +381,7 @@ void Node::SetBoundsEnabled(bool p_enabled)
     m_boundsEnabled = p_enabled;
 }
 
-void Node::SetScene(std::shared_ptr<Scene> p_scene)
+void Node::SetScene(std::shared_ptr<Scene> p_scene) // TODO: Make weak pointer
 {
     m_scene = p_scene;
 
@@ -391,7 +391,7 @@ void Node::SetScene(std::shared_ptr<Scene> p_scene)
     }
 }
 
-bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Make weak pointer
 {
     auto parent = m_parent.lock();
 

@@ -7,7 +7,6 @@
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
-//#include <Engine/Engine.hpp>
 #include <memory>
 
 
@@ -31,12 +30,7 @@ void HierarchyWindow::RenderImpl()
     {
         EditorShortcuts::ProcessSceneViewKeyShortcuts();
     }
-    //
-    // if (!m_instance)
-    // {
-    //     return;
-    // }
-    //
+
     if (!scene)
     {
         return;
@@ -110,8 +104,7 @@ void HierarchyWindow::RenderImpl()
             if (const ImGuiPayload *payload =
                 ImGui::AcceptDragDropPayload("SCENE_NODE"))
             {
-                Node *draggedNode =
-                    *static_cast<Node **>(payload->Data);
+                Node *draggedNode = *static_cast<Node **>(payload->Data);
 
                 auto oldParent = draggedNode->shared_from_this()->GetParent();
                 if (oldParent)
@@ -161,7 +154,7 @@ void HierarchyWindow::RenderImpl()
     }
 } 
 
-void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
+void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
     if (!p_node)
     {
@@ -175,7 +168,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
         flags |= ImGuiTreeNodeFlags_Leaf;
     }
 
-    if (/*m_interactionState->IsNodeSelected(p_node)*/m_editorContext->GetInteractionState().IsNodeSelected(p_node))
+    if (m_editorContext->GetInteractionState().IsNodeSelected(p_node))
     {
         flags |= ImGuiTreeNodeFlags_Selected;
     }
@@ -189,9 +182,6 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node)
     {
         if (ImGui::IsItemClicked())
         {
-            // m_interactionState->ClearNodeSelection();
-            // m_interactionState->SelectNode(p_node);
-            
             m_editorContext->GetInteractionState().ClearNodeSelection();
             m_editorContext->GetInteractionState().SelectNode(p_node);
         }

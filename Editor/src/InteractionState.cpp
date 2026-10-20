@@ -5,17 +5,22 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node)
+void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node, bool p_clearFirst) // TODO: Make weak pointer
 {
     if (!p_node || IsNodeSelected(p_node))
     {
         return;
     }
 
+    if (p_clearFirst)
+    {
+        ClearNodeSelection();
+    }
+
     m_selectedNodes.push_back(p_node);
 }
 
-void InteractionState::DeselectNode(const std::shared_ptr<Node> &p_node)
+void InteractionState::DeselectNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
     if (!p_node)
     {
@@ -39,7 +44,7 @@ void InteractionState::ClearNodeSelection()
     m_selectedNodes.clear();
 }
 
-bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const
+bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const // TODO: Make weak pointer
 {
     if (!p_node)
     {
@@ -59,9 +64,9 @@ bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const
     return false;
 }
 
-std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const
+std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const // TODO: Make weak pointer
 {
-    std::vector<std::shared_ptr<Node>> selectedNodes;
+    std::vector<std::shared_ptr<Node>> selectedNodes; // TODO: Make weak pointer
 
     for (const auto &selectedNode : m_selectedNodes)
     {

@@ -5,6 +5,8 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	  m_interactionState(),
 	  m_editorCameraController(m_editorCamera)
 {
+	m_editorCamera.SetFOV(75.0f);
+
 	SetActiveScene("TestScene");
 	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
 }
@@ -37,7 +39,7 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 {
 	return m_editorCameraController;
 }
-std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
+std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene() // TODO: Make weak pointer
 {
 	return m_selectedScene;
 }

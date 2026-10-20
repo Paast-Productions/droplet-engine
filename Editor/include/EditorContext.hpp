@@ -15,36 +15,35 @@ namespace Droplet::Editor
 		/// @param p_engine The renderer of the rendering pipeline
 		EditorContext(Droplet::Engine &p_engine);
 
-		
-		Droplet::Engine &GetEngine();
+		/// @brief Get the engine.
+		/// @return A reference to the engine that this context is associated with.
+		[[nodiscard]] Droplet::Engine &GetEngine();
 		
 		/// @brief Get the EditorCamera
 		/// @returns The Camera of the sceneView
-		Scene::EditorCamera &GetEditorCamera();
+		[[nodiscard]] Scene::EditorCamera &GetEditorCamera();
+
 		/// @brief Get the EditorCameraController
 		/// @returns The class that controls the camera movement in sceneView
-		Scene::EditorCameraController &GetEditorCameraController();
+		[[nodiscard]] Scene::EditorCameraController &GetEditorCameraController();
+
 		/// @brief Get the InteractionState
 		/// @returns InteractionState
-		InteractionState &GetInteractionState();
+		[[nodiscard]] InteractionState &GetInteractionState();
 
 		/// @brief Get the active scene
 		/// @returns A scene from scenemanager
-		std::shared_ptr<Droplet::Scene::Scene> GetActiveScene();
+		[[nodiscard]] std::shared_ptr<Droplet::Scene::Scene> GetActiveScene(); // TODO: Make weak pointer
+
 		/// @breif Lets the context set a new active scene
+		/// @param p_sceneName The name of the scene to set as active
 		void SetActiveScene(std::string p_sceneName);
 
 	private:
 		Droplet::Engine &m_engine;
-		
-		///
-		//Droplet::Scene::SceneManager &m_sceneManager;
-		//Droplet::Graphics::Renderer &m_renderer;
-
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
-		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene;
-
+		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
 	};
 }

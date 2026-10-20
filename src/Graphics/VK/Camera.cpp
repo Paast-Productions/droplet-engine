@@ -77,7 +77,7 @@ Frustum Camera::GetFrustum() const
 		m_position, 
 		m_forward, 
 		m_up, 
-		m_fov, 
+		glm::radians(m_fov), 
 		m_aspect, 
 		m_planes.x, 
 		m_planes.y
@@ -97,6 +97,28 @@ glm::mat4 Camera::GetProjectionMatrix() const
 		m_planes.x,
 		m_planes.y
 	);
-
 }
 
+Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
+{
+	using namespace glm;
+
+	// Convert viewport-space [0..1] to NDC [-1..1] (flip Y for screen-space origin at top-left)
+	const vec2 ndc = vec2(
+		(p_viewPos.x * 2.0f) - 1.0f,
+		1.0f - (p_viewPos.y * 2.0f)
+	);
+
+	const mat4 invViewProj = inverse(GetProjectionMatrix() * GetViewMatrix());
+
+	vec4 nearPoint = invViewProj * vec4(ndc, -1.0f, 1.0f);
+	vec4 farPoint = invViewProj * vec4(ndc, 1.0f, 1.0f);
+
+	nearPoint /= nearPoint.w;
+	farPoint /= farPoint.w;
+
+	const vec3 origin = vec3(nearPoint);
+	const vec3 direction = normalize(vec3(farPoint - nearPoint));
+
+	return Math::Ray(origin, direction);
+}

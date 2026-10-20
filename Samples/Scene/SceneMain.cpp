@@ -40,7 +40,7 @@ static void OctreeTest()
     SceneManager sm;
     sm.LoadScene("Game");
 
-    std::shared_ptr<Scene> s = sm.GetScene("Game");
+    std::shared_ptr<Scene> s = sm.GetScene("Game"); // TODO: Make weak pointer
     if (!s)
     {
         std::cerr << "Failed to load Game scene\n";
@@ -84,7 +84,7 @@ static void OctreeTest()
 
         if (gi.KeyPressed(Droplet::Key::KeyP))
         {
-            const std::vector<std::shared_ptr<Node>> roots = s->GetRoots();
+            const std::vector<std::shared_ptr<Node>> roots = s->GetRoots(); // TODO: Make weak pointer
             for (int i = 0; i < 100; i++)
             {
                 int idx = rand() % 1000;
