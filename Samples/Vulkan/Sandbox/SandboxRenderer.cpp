@@ -1,12 +1,12 @@
-/**
+﻿/**
  * @file Sandbox.cpp
  * @author Sebastian Lorensson
  * @date 2026-10-16
  * @brief Sandbox main for testing Vulkan functionality such as synchronisation with pipeline barriers, events, fences and timeline semaphores.
  */
-#include "include/Sandbox.hpp"
+#include "Sandbox.hpp"
 
-#include <SDL3/SDL_Vulkan.h>
+#include "SandboxSDLVulkan.hpp"
 
 #include <Core/FileUtils.hpp>
 
@@ -19,331 +19,6 @@
 #include <utility>
 
 using namespace Droplet::Sandbox;
-
-// =====================================================================
-// SDL wrapper
-// =====================================================================
-SandboxSDL::SandboxSDL(Config cfg) : m_cfg{std::move(cfg)}
-{
-    if (!SDL_Init(cfg.flags))
-        throw std::runtime_error("SDL failed to initialize.");
-}
-
-SandboxSDL::~SandboxSDL()
-{
-    SDL_DestroyWindow(m_window);
-    SDL_Quit();
-}
-
-SDL_Window* SandboxSDL::GetWindow()
-{
-    if (!m_window)
-        return CreateWindow();
-
-    return m_window;
-}
-
-void SandboxSDL::PollEvents(bool* running)
-{
-    SDL_Event event{};
-
-    while (SDL_PollEvent(&event))
-    {
-        if (event.type == SDL_EVENT_QUIT)
-            *running = false;
-        if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)
-            *running = false;
-    }
-}
-
-SDL_Window* SandboxSDL::CreateWindow()
-{
-    if (m_window)
-        SDL_DestroyWindow(m_window);
-
-    auto& cfg = m_cfg.window;
-
-    if (cfg.highDpi)
-    {
-        SDL_DisplayID primary = SDL_GetPrimaryDisplay();
-        if (primary == 0)
-            throw std::runtime_error("Failed to get primary display");
-
-        float scale = SDL_GetDisplayContentScale(primary);
-        if (scale > 1.0f && scale > cfg.dpiScale)
-            cfg.dpiScale = scale;
-
-        cfg.width = static_cast<int>(static_cast<float>(cfg.width) * cfg.dpiScale);
-        cfg.height = static_cast<int>(static_cast<float>(cfg.height) * cfg.dpiScale);
-
-        cfg.flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
-    }
-
-    m_window = SDL_CreateWindow(
-        cfg.name.c_str(),
-        cfg.width,
-        cfg.height,
-        cfg.flags
-    );
-
-    if (!m_window)
-        throw std::runtime_error("Window creation failed");
-
-    return m_window;
-}
-
-// =====================================================================
-// Slang compiler handler
-// =====================================================================
-SandboxShaderCompiler::SandboxShaderCompiler()
-{
-    CreateGlobalSession();
-    CreateSession();
-}
-
-std::vector<std::uint32_t> SandboxShaderCompiler::CompileSpirv(
-    const char* moduleName,
-    const std::filesystem::path& sourcePath,
-    const char* entryPointName)
-{
-    // Load the source module.
-    Slang::ComPtr<ISlangBlob> moduleDiagnostics;
-
-    std::vector<char> bytes = Utils::ReadFileAsBytes(sourcePath);
-
-    const std::string source{bytes.begin(), bytes.end()};
-
-    const std::string path = sourcePath.string();
-
-#if 0
-    // Does not work with slang v2026.17
-    // Slang::ComPtr<slang::IModule> module{
-    // 	m_session->loadModuleFromSource(
-    // 		moduleName,
-    // 		path.c_str(),
-    // 		nullptr,
-    // 		moduleDiagnostics.writeRef())
-    // };
-#endif
-
-    Slang::ComPtr<slang::IModule> module{
-        m_session->loadModuleFromSourceString(
-            moduleName,
-            path.c_str(),
-            source.c_str(),
-            moduleDiagnostics.writeRef()
-        )
-    };
-
-    if (!module)
-    {
-        throw std::runtime_error(
-            "Failed to load Slang module '" +
-            std::string(moduleName) + "': " +
-            GetSlangDiagnostics(moduleDiagnostics.get()));
-    }
-
-    // Find the requested shader entry point.
-    Slang::ComPtr<slang::IEntryPoint> entryPoint;
-
-    const SlangResult entryPointResult =
-        module->findEntryPointByName(
-            entryPointName,
-            entryPoint.writeRef());
-
-    CheckSlangResult(
-        entryPointResult,
-        "Failed to find shader entry point");
-
-    if (!entryPoint)
-    {
-        throw std::runtime_error(
-            "Slang entry point not found: " +
-            std::string(entryPointName));
-    }
-
-    // Compose the module with its selected entry point.
-    const std::array<slang::IComponentType*, 2> components{
-        module.get(),
-        entryPoint.get()
-    };
-
-    Slang::ComPtr<slang::IComponentType> program;
-    Slang::ComPtr<ISlangBlob> composeDiagnostics;
-
-    const SlangResult composeResult =
-        m_session->createCompositeComponentType(
-            components.data(),
-            static_cast<SlangInt>(components.size()),
-            program.writeRef(),
-            composeDiagnostics.writeRef());
-
-    CheckSlangResult(
-        composeResult,
-        "Failed to compose Slang program",
-        composeDiagnostics.get());
-
-    // Link the program.
-    Slang::ComPtr<slang::IComponentType> linkedProgram;
-    Slang::ComPtr<ISlangBlob> linkDiagnostics;
-
-    const SlangResult linkResult =
-        program->link(
-            linkedProgram.writeRef(),
-            linkDiagnostics.writeRef());
-
-    CheckSlangResult(
-        linkResult,
-        "Failed to link Slang program",
-        linkDiagnostics.get());
-
-    // Generate SPIR-V for the single selected entry point.
-    Slang::ComPtr<ISlangBlob> spirv;
-    Slang::ComPtr<ISlangBlob> compileDiagnostics;
-
-    const SlangResult compileResult =
-        linkedProgram->getEntryPointCode(
-            0, // Entry point index in the composed program
-            0, // Target index: SPIR-V
-            spirv.writeRef(),
-            compileDiagnostics.writeRef());
-
-    CheckSlangResult(
-        compileResult,
-        "Failed to compile Slang entry point",
-        compileDiagnostics.get());
-
-    if (!spirv || spirv->getBufferSize() == 0)
-    {
-        throw std::runtime_error(
-            "Slang produced empty SPIR-V bytecode.");
-    }
-
-    const std::size_t codeSize = spirv->getBufferSize();
-
-    if (codeSize % sizeof(std::uint32_t) != 0)
-    {
-        throw std::runtime_error(
-            "Invalid SPIR-V bytecode size.");
-    }
-
-    // Return owned, aligned SPIR-V words.
-    std::vector<std::uint32_t> code(
-        codeSize / sizeof(std::uint32_t));
-
-    std::memcpy(
-        code.data(),
-        spirv->getBufferPointer(),
-        codeSize);
-
-    return code;
-}
-
-void SandboxShaderCompiler::CreateGlobalSession()
-{
-    const SlangResult result =
-        slang::createGlobalSession(
-            m_globalSession.writeRef());
-
-    CheckSlangResult(
-        result,
-        "Failed to create Slang global session");
-
-    std::println("Slang build: {}", m_globalSession->getBuildTagString());
-}
-
-void SandboxShaderCompiler::CreateSession()
-{
-    const std::array targets{
-        slang::TargetDesc{
-            .format = SLANG_SPIRV,
-            .profile =
-            m_globalSession->findProfile("spirv_1_4")
-        }
-    };
-
-    const std::array options
-    {
-        slang::CompilerOptionEntry
-        {
-            .name = slang::CompilerOptionName::EmitSpirvDirectly,
-            .value =
-            {
-                .kind = slang::CompilerOptionValueKind::Int,
-                .intValue0 = 1
-            }
-        },
-        slang::CompilerOptionEntry
-        {
-            .name = slang::CompilerOptionName::VulkanUseEntryPointName,
-            .value =
-            {
-                .kind = slang::CompilerOptionValueKind::Int,
-                .intValue0 = 1
-            }
-        }
-    };
-
-    const slang::SessionDesc sessionDesc
-    {
-        .targets = targets.data(),
-        .targetCount =
-        static_cast<SlangInt>(targets.size()),
-        .defaultMatrixLayoutMode =
-        SLANG_MATRIX_LAYOUT_COLUMN_MAJOR,
-        .compilerOptionEntries = options.data(),
-        .compilerOptionEntryCount =
-        static_cast<std::uint32_t>(options.size())
-    };
-
-    const SlangResult result =
-        m_globalSession->createSession(
-            sessionDesc,
-            m_session.writeRef());
-
-    CheckSlangResult(
-        result,
-        "Failed to create Slang session");
-}
-
-std::string SandboxShaderCompiler::GetSlangDiagnostics(ISlangBlob* diagnostics)
-{
-    if (!diagnostics || !diagnostics->getBufferPointer())
-        return {};
-
-    const auto* text = static_cast<const char*>(
-        diagnostics->getBufferPointer());
-
-    std::string message(
-        text, diagnostics->getBufferSize());
-
-    // Diagnostics may include a terminating null byte.
-    while (!message.empty() && message.back() == '\0')
-        message.pop_back();
-
-    return message;
-}
-
-void SandboxShaderCompiler::CheckSlangResult(
-    SlangResult result,
-    const char* message,
-    ISlangBlob* diagnostics)
-{
-    if (SLANG_SUCCEEDED(result))
-        return;
-
-    std::string err{message};
-    const std::string details = GetSlangDiagnostics(diagnostics);
-
-    if (!details.empty())
-    {
-        err += ": ";
-        err += details;
-    }
-
-    throw std::runtime_error(err);
-}
-
 
 // =====================================================================
 // Sandbox Renderer
@@ -603,7 +278,7 @@ void SandboxRenderer::CreateGraphicsPipeline()
 
 void SandboxRenderer::CreateInstance()
 {
-    // we require this for dynamic rendering
+    // Required version for dynamic rendering
     const std::uint32_t apiVersion = m_context.enumerateInstanceVersion();
 
     if (apiVersion < MINIMUM_API_VERSION)
@@ -613,24 +288,13 @@ void SandboxRenderer::CreateInstance()
             "Context reports older API version.");
     }
 
-    // Ask SDL instance for required window extensions
-    Uint32 sdlExtensionCount = 0;
-    const char* const* sdlExtensions =
-        SDL_Vulkan_GetInstanceExtensions(&sdlExtensionCount);
+    // Ask SDL for required Vulkan extensions
+    std::vector<const char*> extensions = SandboxSDLVulkan::GetRequiredInstanceExtensions();
 
-    if (!sdlExtensions)
-    {
-        throw std::runtime_error(
-            std::string("SDL_Vulkan_GetInstanceExtensions failed: ")
-            + SDL_GetError());
-    }
-
-    std::vector<const char*> extensions(
-        sdlExtensions,
-        sdlExtensions + sdlExtensionCount);
-
+    // See which extensions are available
     const auto availableExtensions = m_context.enumerateInstanceExtensionProperties();
 
+    // Make sure all required 
     for (const char* required : extensions)
     {
         const bool supported = std::ranges::any_of(availableExtensions,
@@ -670,15 +334,25 @@ void SandboxRenderer::CreateInstance()
 
 void SandboxRenderer::CreateSurface()
 {
-    VkSurfaceKHR rawSurface = VK_NULL_HANDLE;
-
-    if (!SDL_Vulkan_CreateSurface(
-        m_windowRef, *m_instance, nullptr, &rawSurface))
+    VkSurfaceKHR rawSurface;
+    
+    try
     {
-        throw std::runtime_error(
-            std::string("SDL_Vulkan_CreateSurface failed: ")
-            + SDL_GetError());
+        rawSurface = SandboxSDLVulkan::CreateSurface(m_windowRef, *m_instance);
     }
+    catch(const std::exception& e)
+    {
+        std::println("{} threw while creating raw surface: {}", __func__, e.what());
+        throw;
+    }
+
+    // if (!SDL_Vulkan_CreateSurface(
+    //     m_windowRef, *m_instance, nullptr, &rawSurface))
+    // {
+    //     throw std::runtime_error(
+    //         std::string("SDL_Vulkan_CreateSurface failed: ")
+    //         + SDL_GetError());
+    // }
 
     // give ownership of surface to owned raii surface
     m_surface = vk::raii::SurfaceKHR(m_instance, rawSurface);
@@ -1127,13 +801,6 @@ void SandboxRenderer::RecordClearCommandBuffer(std::uint32_t imageIndex) const
 
     m_commandBuffer.begin(beginInfo);
 
-    const vk::ClearValue clearValue
-    {
-        .color = {
-            .float32 = std::array{0.2f, 0.2f, 0.4f, 1.0f}
-        }
-    };
-
     const vk::Rect2D renderArea{
         .offset = {.x = 0, .y = 0},
         .extent = m_swapchainExtent
@@ -1144,14 +811,13 @@ void SandboxRenderer::RecordClearCommandBuffer(std::uint32_t imageIndex) const
         .framebuffer = *m_swapchainFramebuffers[imageIndex],
         .renderArea = renderArea,
         .clearValueCount = 1,
-        .pClearValues = &clearValue
+        .pClearValues = &m_defaultClearColor
     };
 
     m_commandBuffer.beginRenderPass(
         renderPassInfo,
         vk::SubpassContents::eInline);
 
-    // 
     const vk::Viewport viewport{
         .x = 0.0f,
         .y = 0.0f,
