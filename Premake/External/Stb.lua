@@ -12,5 +12,6 @@ project "Stb"
     prebuildcommands
     {
         "{MKDIR} " .. AddQuotation(StbPath),
-        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/Stb/stb_image.h") .. " " .. AddQuotation(StbPath)
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/Stb/stb_image.h") .. " " .. AddQuotation(StbPath),
+        "{COPYFILE} " .. AddQuotation(rootPath .. "/External/Stb/stb_truetype.h") .. " " .. AddQuotation(StbPath)
     }
