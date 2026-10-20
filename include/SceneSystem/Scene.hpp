@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <Graphics/RenderData.hpp>
 
