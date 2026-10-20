@@ -14,6 +14,7 @@ namespace Droplet::Graphics::VK
 {
 	/// @brief Vertex structure with position, normal, color, and texture coordinates
 	/// The buffer currently assumes the resourcemanager will give it the same layout
+	/// TODO: Make VertexBuffer vertex-layout agnostic
 	struct Vertex
 	{
 		glm::vec3 pos;
