@@ -62,10 +62,19 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
+		/// @brief Getter for the window of the engine
+		/// @return An SDL window handle
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
 
+		/// @brief Creates and returns a descriptorset of a render target   //TODO: REFACTOR
+		/// @param p_renderTarget The rendertarget to bind to the descriptorset
+		/// @return A vkDescriptorSet 
 		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
 
+		/// @brief Creates and returns a rendertarget   //TODO: REFACTOR
+		/// @param p_width Width of the target
+		/// @param p_height Height of the target
+		/// @return A Droplet::Graphics::Rendertarget 
 		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
 		
 	private:
@@ -88,9 +97,6 @@ namespace Droplet
 
 		UpdateFlagsSetter m_updateFlagsSetter;
 		
-		/// @brief The resource manager instance, should only be one.
-		ResourceManager& m_resourceManager { ResourceManager::GetInstance() };
-
 		/// @brief The window instance should only be one.
 		Graphics::SDL::Window m_window;
 

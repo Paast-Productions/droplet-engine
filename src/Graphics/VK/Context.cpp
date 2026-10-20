@@ -125,7 +125,7 @@ void Context::CreateLogicalDevice()
 				.dynamicRendering = true
 			},	
 			{
-				.smoothLines = true
+				.smoothLines = false
 			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
 				.extendedDynamicState = true

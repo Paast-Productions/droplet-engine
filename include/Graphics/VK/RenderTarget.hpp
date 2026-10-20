@@ -37,7 +37,7 @@ namespace Droplet::Graphics
 
 		/// @brief Get the texture
 		/// returns A custom Image
-		[[nodiscard]] const vk::raii::Image &GetColourImage() const { return m_colourImage.Get(); }
+		[[nodiscard]] const vk::raii::Image &GetColorImage() const { return m_colourImage.Get(); }
 		
 		/// @brief Get the depth buffer of the texture
 		/// @returns A custom DepthBuffer 
@@ -45,7 +45,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Get the descriptor of the texture
 		/// @returns A custom ImageView
-		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourView.Get(); }
+		[[nodiscard]] const vk::raii::ImageView &GetColorImageView() const { return m_colourView.Get(); }
 		
 		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthBuffer.GetView(); }
 		

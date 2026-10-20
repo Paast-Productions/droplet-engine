@@ -48,6 +48,7 @@ namespace Droplet::Scene
         /// @param p_guid GUID identifying the texture resource to load.
         void SetTextureGUID(Droplet::GUID p_guid) { m_2dTexture = ResourceManager::GetInstance().LoadResource<Droplet::Texture2DResource>(p_guid); }
 
+        //TODO: Consider moving to source file
         /// @brief Gets the GUID of the assigned 2D texture resource.
         /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
         [[nodiscard]] Droplet::GUID GetTextureGUID() const { return m_2dTexture.GetGUID(); }

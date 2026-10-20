@@ -135,7 +135,7 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 {
 	return ImGui_ImplVulkan_AddTexture(
 		*m_textureSampler,
-		*p_renderTarget.GetColourImageView(),
+		*p_renderTarget.GetColorImageView(),
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	);
 }
@@ -194,7 +194,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
-		p_renderTarget.GetColourImage(),
+		p_renderTarget.GetColorImage(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -223,7 +223,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-		.imageView = p_renderTarget.GetColourImageView(),
+		.imageView = p_renderTarget.GetColorImageView(),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -305,7 +305,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
 	TransitionImageLayout(
-		p_renderTarget.GetColourImage(),
+		p_renderTarget.GetColorImage(),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,

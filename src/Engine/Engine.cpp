@@ -23,7 +23,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
+	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
 
 	ImGui_ImplSDL3_InitForVulkan(m_window.Get());
 	m_initInfo = {};
@@ -41,6 +41,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
     resManInstance.RegisterResourceType<MeshResource>();

@@ -126,7 +126,7 @@ using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-
+    SetRenderable();
 }
 
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)

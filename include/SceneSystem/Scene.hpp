@@ -77,7 +77,7 @@ namespace Droplet::Scene
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved to a separate rendering
         /// system in the future.
-    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const;
+    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///

@@ -201,24 +201,31 @@ std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
     
+    //TODO: Separate renderData between scenes for modularity 
     std::vector<Droplet::Graphics::RenderData> renderData {};
 
     for (auto it = m_scenes.begin(); it != m_scenes.end();)
     {
-        /*auto scene = it->lock();
+        it->second->GetRenderData(renderData);
+
+        ++it;
+    }
+
+    //TODO: Implement active scene logic
+    /*for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    {
+        auto scene = it->lock();
 
         if (!scene)
         {
             it = m_activeScenes.erase(it);
             continue;
-        }*/
+        }
         
-        // scene->Render();
+        it->lock()->GetRenderData(renderData);
         
-        it->second->GetRenderData(renderData);
-
         ++it;
-    }
+    }*/
     
     return renderData;
 }
