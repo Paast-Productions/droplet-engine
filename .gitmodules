@@ -40,3 +40,6 @@
 [submodule "External/portable-file-dialogs"]
 	path = External/portable-file-dialogs
 	url = https://github.com/samhocevar/portable-file-dialogs.git
+[submodule "External/Droplet-ImGuizmo"]
+	path = External/Droplet-ImGuizmo
+	url = git@github.com:Paast-Productions/Droplet-ImGuizmo.git
