@@ -3,17 +3,22 @@
 #include <algorithm>
 
 using namespace Droplet::Graphics;
+using namespace Droplet::Math;
 
 Camera::Camera(
 	glm::vec3 p_position,
 	glm::vec3 p_up,
 	float p_yaw,
-	float p_pitch) : 
+	float p_pitch,
+	float p_fov, 
+	float p_aspect) : 
 	m_position(p_position),
 	m_up(p_up),
 	m_worldUp(p_up),
 	m_yaw(p_yaw),
-	m_pitch(p_pitch)
+	m_pitch(p_pitch),
+	m_fov(p_fov),
+	m_aspect(p_aspect)
 {
 	UpdateCameraVectors();
 }
@@ -66,21 +71,31 @@ glm::vec3 Camera::GetUp() const
 	return m_up;
 }
 
+Frustum Camera::GetFrustum() const
+{
+	return Frustum(
+		m_position, 
+		m_forward, 
+		m_up, 
+		m_fov, 
+		m_aspect, 
+		m_planes.x, 
+		m_planes.y
+	);
+}
+
 glm::mat4 Camera::GetViewMatrix() const
 {
 	return glm::lookAt(m_position, m_position + m_forward, m_up);
 }
 
-glm::mat4 Camera::GetProjectionMatrix(
-	float p_aspectRatio,
-	float p_nearPlane,
-	float p_farPlane) const
+glm::mat4 Camera::GetProjectionMatrix() const
 {
 	glm::mat4 projection = glm::perspective(
-		glm::radians(m_zoom),
-		p_aspectRatio,
-		p_nearPlane,
-		p_farPlane
+		glm::radians(m_fov),
+		m_aspect,
+		m_planes.x,
+		m_planes.y
 	);
 
 	return projection;

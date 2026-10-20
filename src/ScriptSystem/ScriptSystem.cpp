@@ -11,7 +11,7 @@ ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHan
 {
 	ZoneScoped;
 
-	LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
+	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
 ScriptSystem::~ScriptSystem()

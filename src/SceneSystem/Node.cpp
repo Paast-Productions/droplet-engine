@@ -6,9 +6,10 @@
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 using namespace Droplet::Scene;
 
-Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name)
+Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // TODO: Make weak pointer
 	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
     if (!m_scene.lock())
@@ -134,7 +135,7 @@ bool Node::IsActiveSelf() const
     return m_active;
 }
 
-std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
+std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child) // TODO: Make weak pointer
 {
     if (!p_child)
     {
@@ -193,7 +194,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child)
     return p_child;
 }
 
-void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
+void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak pointer
 {
     if (!p_child)
     {
@@ -228,17 +229,89 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child)
     m_scene.lock()->SetRoot(p_child, true);
 }
 
-std::shared_ptr<Node> Node::GetParent() const
+void Droplet::Scene::Node::AttachComponent(std::unique_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add a null component");
+    }
+
+    if (m_nextComponentID == 0)
+    {
+        throw std::runtime_error("Invalid next component ID");
+    }
+    std::shared_ptr<Component> shared = std::move(p_component);
+    AttachComponent(shared, m_nextComponentID);
+}
+
+
+void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
+{
+    ZoneScoped;
+
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add a null component");
+    }
+
+    if (p_componentID == 0)
+    {
+        throw std::invalid_argument(
+            "Component ID 0 is reserved");
+    }
+
+    for (const std::shared_ptr<Component> &itComponent : m_components)
+    {
+        if (itComponent->GetID() == p_componentID)
+        {
+            throw std::runtime_error("Duplicate component ID on node");
+        }
+    }
+
+    if (p_component->GetID() != 0)
+    {
+        throw std::overflow_error("No component IDs remain for this node");
+    }
+
+    p_component->m_id = p_componentID;
+    p_component->SetOwner(shared_from_this());
+    m_components.push_back((p_component));
+    
+
+    if (p_component->HasBoundsOverride())
+    {
+        if (m_boundsOverride.expired())
+        {
+            m_boundsOverride = p_component;
+        }
+
+        
+    }
+
+    
+
+    if (p_componentID >= m_nextComponentID)
+    {
+        m_nextComponentID = p_componentID + 1;
+    }
+
+    if (m_started)
+    {
+        p_component->Start();
+    }
+}
+
+std::shared_ptr<Node> Node::GetParent() const // TODO: Make weak pointer
 {
     return m_parent.lock();
 }
 
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const
+const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const // TODO: Make weak pointer
 {
     return m_children;
 }
 
-std::shared_ptr<Scene> Node::GetScene() const
+std::shared_ptr<Scene> Node::GetScene() const // TODO: Make weak pointer
 {
     return m_scene.lock();
 }
@@ -280,12 +353,12 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
 	}
 }
 
-std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
 {
     return m_components;
 }
 
-void Node::RemoveComponent(const Component *p_component)
+void Node::RemoveComponent(const Component *p_component) // TODO: Make weak pointer
 {
     if (!p_component)
     {
@@ -365,7 +438,7 @@ void Node::SetBoundsEnabled(bool p_enabled)
     m_boundsEnabled = p_enabled;
 }
 
-void Node::SetScene(std::shared_ptr<Scene> p_scene)
+void Node::SetScene(std::shared_ptr<Scene> p_scene) // TODO: Make weak pointer
 {
     m_scene = p_scene;
 
@@ -375,7 +448,7 @@ void Node::SetScene(std::shared_ptr<Scene> p_scene)
     }
 }
 
-bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Make weak pointer
 {
     auto parent = m_parent.lock();
 

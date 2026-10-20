@@ -16,14 +16,13 @@
 #include <string>
 #include <chrono>
 
-#include <SDL3/SDL_vulkan.h>
-#include <Graphics/VK/UniformBuffer.hpp>
-#include <Graphics/VK/TestData.hpp>
-#include <GameInput.hpp>
-
-#include <Graphics/VK/BufferHelper.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
+
+#include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
+#include <GameInput.hpp>
+
 
 const std::vector<char const*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation" };
@@ -36,11 +35,11 @@ constexpr bool enableValidationLayers = true;
 
 using namespace Droplet::Graphics;
 
-Renderer::Renderer(SDL::WindowConfig p_windowConfig) : 
-	m_window							{ p_windowConfig },
-	m_context							{ m_window.Get(), m_vkContext },
+Renderer::Renderer(SDL::Window &p_window) :
+	m_window							{ &p_window },
+	m_context							{ m_window->Get(), m_vkContext},
 	m_allocator							{ m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice() },
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface() },
+	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface() },
 	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
 	m_descriptorPool					{ m_context.GetDevice() },
 	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
@@ -54,6 +53,18 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateGraphicsPipeline();
 
+	Debug::DebugDraw::Get().Initialize(
+		m_context.GetInstance(),
+		m_context.GetPhysicalDevice(),
+		m_context.GetDevice(),
+		m_allocator.Get(),
+		m_context.GetQueue(),
+		m_commandPool.Get(),
+		m_descriptorPool.Get(),
+		m_swapchain.GetSurfaceFormat().format,
+		m_depthBuffer.GetFormat(),
+		MAX_FRAMES_IN_FLIGHT);
+
 	const VK::UniformBufferObject ubo
 	{
 		.model = rotate(glm::mat4(1.0f), 0.0f * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
@@ -61,7 +72,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 		.proj = glm::perspective(glm::radians(45.0f), static_cast<float>(m_swapchain.GetExtent().width) / static_cast<float>(m_swapchain.GetExtent().height), 0.1f, 10.0f)
 	};
 	
-	m_uniformBuffer = { 
+	m_storageBuffer = { 
 		m_allocator.Get(),
 		ubo
 	};
@@ -90,7 +101,7 @@ Renderer::Renderer(SDL::WindowConfig p_windowConfig) :
 	
 	CreateTextureSampler();
 
-	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_uniformBuffer.Get());
+	m_globalDescriptorSet.WriteStorageBufferDescriptor(m_context.GetDevice(), m_storageBuffer.Get());
 	m_globalDescriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler, m_textureView.Get());
 	
 	CreateSyncObjects();
@@ -131,6 +142,7 @@ Renderer::~Renderer()
 {
 	ZoneScoped;
 
+	Debug::DebugDraw::Get().Shutdown();
 	m_context.GetDevice().waitIdle();
 	m_swapchain.Cleanup(m_context.GetDevice());
 }
@@ -188,6 +200,26 @@ void Renderer::CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shade
 	m_graphicsPipeline = { m_context.GetDevice(), m_context.GetPhysicalDevice(), shaderModule, pipelineConfig };
 }
 
+std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
+{
+	return std::make_unique<RenderTarget>(
+		m_allocator.Get(),
+		m_context.GetDevice(),
+		m_context.GetPhysicalDevice(),
+		p_width,
+		p_height
+	);
+}
+
+VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
+{
+	return ImGui_ImplVulkan_AddTexture(
+		*m_textureSampler,
+		*p_renderTarget.GetColorImageView().Get(),
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+	);
+}
+
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
 {
 	ZoneScoped;
@@ -227,7 +259,8 @@ void Renderer::TransitionImageLayout(
 	vk::AccessFlags2        p_dstAccessMask,
 	vk::PipelineStageFlags2 p_srcStageMask,
 	vk::PipelineStageFlags2 p_dstStageMask,
-	vk::ImageAspectFlags    p_imageAspectFlags)
+	vk::ImageAspectFlags    p_imageAspectFlags,
+	vk::raii::CommandBuffer &p_commandBuffer)
 {
 	ZoneScoped;
 
@@ -259,8 +292,8 @@ void Renderer::TransitionImageLayout(
 		.pImageMemoryBarriers = &barrier 
 	};
 	
-	const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-	
+	//const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	auto &commandBuffer = p_commandBuffer;
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
@@ -283,7 +316,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::AccessFlagBits2::eColorAttachmentWrite,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 	TransitionImageLayout(
@@ -294,7 +328,8 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
 		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
-		vk::ImageAspectFlagBits::eDepth
+		vk::ImageAspectFlagBits::eDepth,
+		commandBuffer
 	);
 	
 	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
@@ -344,6 +379,7 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
 	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
 	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+	Debug::DebugDraw::Get().RenderToCamera(m_camera, commandBuffer, m_swapchain.GetExtent(), m_frameIndex);
 
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
 	commandBuffer.endRendering();
@@ -357,10 +393,179 @@ void Renderer::RecordCommandBuffer(uint32_t p_imageIndex)
 		{},
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
 		vk::PipelineStageFlagBits2::eBottomOfPipe,
-		vk::ImageAspectFlagBits::eColor
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
 	);
 
 	commandBuffer.end();
+}
+
+void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera)
+{
+	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
+
+	//commandBuffer.begin({});
+
+	TransitionImageLayout(
+		p_renderTarget.GetColorImage().Get(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+
+	TransitionImageLayout(
+		p_renderTarget.GetDepthBuffer().GetImage(),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eDepthAttachmentOptimal,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::PipelineStageFlagBits2::eEarlyFragmentTests | vk::PipelineStageFlagBits2::eLateFragmentTests,
+		vk::ImageAspectFlagBits::eDepth,
+		commandBuffer
+	);
+
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
+
+	vk::RenderingAttachmentInfo colorAttachmentInfo
+	{
+		.imageView = p_renderTarget.GetColorImageView().Get(),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
+
+	vk::RenderingAttachmentInfo depthAttachmentInfo
+	{
+		.imageView = p_renderTarget.GetDepthBuffer().GetView(),
+		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eDontCare,
+		.clearValue = clearDepth
+	};
+
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
+		{
+			.offset =
+			{
+				.x = 0,
+				.y = 0
+			},
+			.extent = p_renderTarget.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo,
+		.pDepthAttachment = &depthAttachmentInfo
+	};
+
+	commandBuffer.beginRendering(renderingInfo);
+	commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline.Get());
+	// old people code swapped from swapchain to rendertarget
+	//commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(m_swapchain.GetExtent().height), static_cast<float>(m_swapchain.GetExtent().width), -static_cast<float>(m_swapchain.GetExtent().height), 0.0f, 1.0f));
+	//commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), m_swapchain.GetExtent()));
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
+	commandBuffer.bindVertexBuffers(0, *m_vertexBuffer.Get(), { 0 });
+	commandBuffer.bindIndexBuffer(*m_indexBuffer.Get(), 0, vk::IndexType::eUint16);
+	commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+	commandBuffer.drawIndexed(static_cast<uint32_t>(G_INDICES.size()), 1, 0, 0, 0);
+
+	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+
+	commandBuffer.endRendering();
+	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
+
+	TransitionImageLayout(
+		p_renderTarget.GetColorImage().Get(),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::eShaderReadOnlyOptimal,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::AccessFlagBits2::eShaderSampledRead,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+	//commandBuffer.end();
+}
+
+// Bind it to ImGui
+void Renderer::RecordImGuiCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer,
+	uint32_t p_imageIndex)
+{
+	auto &commandBuffer = p_commandBuffer;
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eUndefined,
+		vk::ImageLayout::eColorAttachmentOptimal,
+		{},
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+
+	vk::RenderingAttachmentInfo colorAttachmentInfo
+	{
+		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
+		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+		.loadOp = vk::AttachmentLoadOp::eClear,
+		.storeOp = vk::AttachmentStoreOp::eStore,
+		.clearValue = clearColor
+	};
+
+
+	vk::RenderingInfo renderingInfo
+	{
+		.renderArea =
+		{
+			.offset =
+			{
+				.x = 0,
+				.y = 0
+			},
+			.extent = m_swapchain.GetExtent()
+		},
+		.layerCount = 1,
+		.colorAttachmentCount = 1,
+		.pColorAttachments = &colorAttachmentInfo
+	};
+
+
+	commandBuffer.beginRendering(renderingInfo);	
+
+	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer);
+
+	commandBuffer.endRendering();
+
+	TransitionImageLayout(
+		m_swapchain.GetImages().at(p_imageIndex),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		vk::AccessFlagBits2::eShaderSampledRead,
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eFragmentShader,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
 }
 
 //Need to create fences and semaphores for each frame in flight
@@ -384,7 +589,7 @@ void Renderer::CreateSyncObjects()
 }
 
 //The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
-void Renderer::DrawFrame()
+void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 {
 	ZoneScoped;
 
@@ -412,13 +617,13 @@ void Renderer::DrawFrame()
 	// here and does not need to be caught by an exception.
 	if (m_result == vk::Result::eErrorOutOfDateKHR)
 	{
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -436,11 +641,15 @@ void Renderer::DrawFrame()
 		throw std::runtime_error("failed to acquire swap chain image!");
 	}
 
-	// HACK: old code
-	float rotation = 0.0f;
-	m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
-	
-	const auto extent = m_swapchain.GetExtent();
+	//m_cameraController.UpdateCamera(m_camera, deltaTime, m_window);
+
+	/*const auto extent = m_swapchain.GetExtent();
+
+	float aspectRatio =
+		static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);*/
+
+	const auto extent = p_renderTarget.GetExtent();
 
 	float aspectRatio =
 		static_cast<float>(extent.width) /
@@ -448,12 +657,13 @@ void Renderer::DrawFrame()
 
 	VK::UniformBufferObject ubo
 	{
-		.model = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f)),
-		.view = m_camera.GetViewMatrix(),
-		.proj = m_camera.GetProjectionMatrix(aspectRatio)
+		.model = rotate(glm::mat4(1.0f), deltaTime * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.view = p_camera.GetViewMatrix(),
+		.proj = p_camera.GetProjectionMatrix()
 	};
 	
-	m_uniformBuffer.UpdateBuffer(ubo);
+	m_storageBuffer.UpdateBuffer(ubo);
+	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
@@ -462,9 +672,26 @@ void Renderer::DrawFrame()
 	ImGui::Render();
 
 	m_commandPool.GetBufferAt(m_frameIndex).reset();
-	RecordCommandBuffer(m_imageIndex);
 
-	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	commandBuffer.begin({});
+	//RecordCommandBuffer(imageIndex);
+	RecordRenderTargetCommandBuffer(
+		commandBuffer,
+		p_renderTarget,
+		p_camera
+	);
+
+	RecordImGuiCommandBuffer(
+		commandBuffer,
+		imageIndex
+	);
+	
+	Debug::DebugDraw::Get().ClearDrawCommands();
+
+	commandBuffer.end();
+	//vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
 	
 	const vk::SubmitInfo   submitInfo
 	{ 
@@ -472,7 +699,7 @@ void Renderer::DrawFrame()
 		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
 		.pWaitDstStageMask = &waitDestinationStageMask,
 		.commandBufferCount = 1,
-		.pCommandBuffers = &*m_commandPool.GetBufferAt(m_frameIndex),
+		.pCommandBuffers = &*commandBuffer,
 		.signalSemaphoreCount = 1,
 		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
 	};
@@ -494,12 +721,12 @@ void Renderer::DrawFrame()
 	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
 	{
 		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window.Get()) & SDL_WINDOW_MINIMIZED) != 0)
+		while ((SDL_GetWindowFlags(m_window->Get()) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window.Get(), m_context.GetSurface());
+		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window->Get(), m_context.GetSurface());
 		m_depthBuffer = {
 			m_allocator.Get(),
 			m_context.GetDevice(),
@@ -513,6 +740,21 @@ void Renderer::DrawFrame()
 		assert(m_result == vk::Result::eSuccess);
 	}
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
+void Renderer::RenderToTarget(RenderTarget &p_renderTarget, const Camera &p_camera)
+{
+	const vk::Extent2D extent = p_renderTarget.GetExtent();
+
+	const float aspectRatio = static_cast<float>(extent.width) /
+		static_cast<float>(extent.height);
+
+	VK::UniformBufferObject ubo
+	{
+		.model = glm::mat4(1.0f),
+		.view = p_camera.GetViewMatrix(),
+		.proj = p_camera.GetProjectionMatrix()
+	};
 }
 
 //Descriptors and samplers
@@ -643,7 +885,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 
 SDL_Window *Renderer::GetWindow()
 {
-	return m_window.Get();
+	return m_window->Get();
 }
 
 void Renderer::WaitIdle()

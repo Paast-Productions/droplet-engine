@@ -1,6 +1,7 @@
 #pragma once
 
 #include "EditorWindow.hpp"
+#include <EditorContext.hpp>
 
 namespace Droplet::Editor
 {
@@ -13,7 +14,8 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructs the behaviour inspector.
 		/// @param p_interactionState Shared editor interaction state.
-		BehaviourInspector(std::shared_ptr<Droplet::Engine> p_engine);
+		BehaviourInspector(EditorContext *editorContext);
+
 		/// @brief Destroys the behaviour inspector.
 		~BehaviourInspector() = default;
 
@@ -35,6 +37,6 @@ namespace Droplet::Editor
 		void RenderToolbar() override;
 
 	private:
-
+		Droplet::Editor::EditorContext *m_editorContext;
 	};
 }

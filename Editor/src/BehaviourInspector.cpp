@@ -1,11 +1,14 @@
 #include "BehaviourInspector.hpp"
 #include <Engine.hpp>
+#include <SceneSystem/BehaviourRegistry.hpp>
+#include <algorithm>
+#include <string>
+#include <vector>
 
 using namespace Droplet::Editor;
 
-BehaviourInspector::BehaviourInspector(std::shared_ptr<Droplet::Engine> p_engine) : EditorWindow(p_engine)
-{
-}
+BehaviourInspector::BehaviourInspector(EditorContext *editorContext) 
+    : m_editorContext(editorContext){}
 
 void BehaviourInspector::InitImpl()
 {
@@ -18,58 +21,100 @@ void BehaviourInspector::CloseImpl()
 
 void BehaviourInspector::RenderImpl()
 {
-    const ImVec2 dropAreaSize(ImGui::GetContentRegionAvail().x, 50.0f);
+    auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
 
-    ImGui::Button("Drop Lua behaviour here", dropAreaSize);
+    const float width = ImGui::GetContentRegionAvail().x;
+    Droplet::Scene::Behaviour *behaviourToOpen = nullptr;
 
-    if (ImGui::BeginDragDropTarget())
+    if (ImGui::Button("+ Add Behaviour", ImVec2(width, 0.0f)))
     {
-        if (const ImGuiPayload *payload =
-            ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
-        {
-            if (payload->Data != nullptr && payload->DataSize > 0)
-            {
-                const std::string scriptPath(
-                    static_cast<const char *>(payload->Data));
-
-                GetEngine()->AddScriptBehaviour(scriptPath);
-            }
-        }
-
-        ImGui::EndDragDropTarget();
+        ImGui::OpenPopup("Add Behaviour");
     }
 
-    for (const auto &behaviour : GetEngine()->GetScriptBehaviours())
+    if (ImGui::BeginPopup("Add Behaviour"))
     {
-        const std::string scriptName = behaviour->GetScriptPath();
-
-        ImGui::PushID(behaviour.get());
-
-        ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImGui::GetStyleColorVec4(ImGuiCol_FrameBg));
-
-        ImGui::Button(scriptName.c_str(), 
-            ImVec2(ImGui::GetContentRegionAvail().x, 30.0f)
-        );
-
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        std::vector<std::string> behaviourTypes;
+        for (const auto &[name, factory] : Droplet::Scene::BehaviourRegistry::GetRegistry())
         {
-			ImGui::OpenPopup("Behaviour Options");
+            (void)factory;
+            behaviourTypes.push_back(name);
+        }
+        std::sort(behaviourTypes.begin(), behaviourTypes.end());
+
+        if (behaviourTypes.empty())
+        {
+            ImGui::TextDisabled("No behaviours registered");
         }
 
-		ImGui::PopStyleColor(3);
-
-        if (ImGui::BeginPopup("Behaviour Options"))
+        for (const std::string &name : behaviourTypes)
         {
-            if (ImGui::MenuItem("Detach Behaviour"))
+            if (ImGui::MenuItem(name.c_str()))
             {
-                GetEngine()->RemoveScriptBehaviour(*behaviour);
+                if (auto behaviour = sceneManager.StartBehaviour(name).lock())
+                {
+                    behaviourToOpen = behaviour.get();
+                }
             }
+
+        }
+        ImGui::EndPopup();
+    }
+
+    ImGui::Separator();
+
+
+    std::weak_ptr<Droplet::Scene::Behaviour> behaviourToRemove;
+    bool removeRequest = false;
+
+    for (const auto &behaviour : sceneManager.GetBehaviours())
+    {
+        if (!behaviour)
+        {
+            continue;
+        }
+
+
+        ImGui::PushID(behaviour.get());
+        const std::string typeName(behaviour->GetTypeName());
+
+        if (behaviour.get() == behaviourToOpen)
+        {
+            ImGui::SetNextItemOpen(true, ImGuiCond_Always);
+        }
+
+        const bool isOpen = ImGui::CollapsingHeader(typeName.c_str());
+
+        if (ImGui::BeginPopupContextItem("Behaviour Options"))
+        {
+            if (ImGui::MenuItem("Remove Behaviour"))
+            {
+                behaviourToRemove = behaviour;
+                removeRequest = true;
+            }
+
             ImGui::EndPopup();
         }
 
+        if (isOpen)
+        {
+            bool active = behaviour->IsActive();
+            if (ImGui::Checkbox("Active", &active))
+            {
+                behaviour->SetActive(active);
+            }
+
+            behaviour->RenderUI();
+        }
+
         ImGui::PopID();
+    }
+
+    // Erase after iteration so the vector and current behaviour stay valid
+    // until this frame's UI rendering is complete.
+
+    if (removeRequest)
+    {
+        sceneManager.ShutdownBehaviour(behaviourToRemove);
     }
 }
 

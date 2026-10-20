@@ -7,6 +7,41 @@
 #include <vector>
 #include <SceneSystem/Octree.hpp>
 
+/// @brief Scene Object ID, used to locate a component attached to a node
+struct SceneObjectID {
+    std::uint64_t nodeID = 0;
+    std::uint64_t componentID = 0;
+};
+
+/// @brief Struct to be used by components to reference nodes and components in the scene
+/// SetTarget makes the reference that object
+/// SetSerializedID used by the serializer to save the reference
+/// GetTarget returns the target the reference is referencing
+/// @tparam T the type of reference. Either "Component" or "Node"
+template<typename T>
+struct SceneReference {
+    SceneObjectID serializedID = {};
+    std::weak_ptr<T> resolvedObject;
+    
+
+    void SetTarget(const std::shared_ptr<T>& p_target)
+    {
+        resolvedObject = p_target;
+        serializedID = {};
+    } 
+    
+    std::shared_ptr<T> GetTarget() const
+    {
+        return resolvedObject.lock();
+    }
+
+    void SetSerializedID(SceneObjectID p_id)
+    {
+        serializedID = p_id;
+        resolvedObject.reset();
+    }
+};
+
 namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency
@@ -83,12 +118,12 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node to create.
         ///
         /// @return A shared pointer to the created Node.
-        std::shared_ptr<Node> AddNode(const std::string &p_name);
+        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: Make weak pointer
 
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
 		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
-		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot);
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: Make weak pointer
 
         /// @brief Removes a root Node from the Scene.
         ///
@@ -101,7 +136,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_node is nullptr.
         /// @throws std::runtime_error if the Node is not a root of this Scene.
-        void RemoveRoot(const std::shared_ptr<Node> &p_node);
+        void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
 
         /// @brief Gets the root Nodes of the Scene.
         ///
@@ -110,12 +145,15 @@ namespace Droplet::Scene
         /// contain any number of root Nodes.
         ///
         /// @return A constant reference to the Scene's root Nodes.
-        const std::vector<std::shared_ptr<Node>> &GetRoots() const;
+        const std::vector<std::shared_ptr<Node>> &GetRoots() const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene's name.
         ///
         /// @return A constant reference to the Scene's name.
         const std::string &GetName() const;
+
+        /// @brief Sets the Scene's name.
+        void SetName(const std::string &p_name) { m_name = p_name; }
 
         /// @brief Checks whether the Scene is loaded.
         ///
@@ -161,6 +199,9 @@ namespace Droplet::Scene
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
+
+
+        void LoadNodeFromFile( const std::string &p_filepath);
 
     private:
         std::string m_name;

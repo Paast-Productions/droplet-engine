@@ -1,4 +1,7 @@
 #include "SceneSerializer.hpp"
+#include "ComponentFactory.hpp"
+#include "SceneSystem/SerializationContext.hpp"
+
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
@@ -28,6 +31,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     ZoneScoped;
 	ZoneText(p_json["name"].get<std::string>().c_str(), p_json["name"].get<std::string>().size());
 
+    SerializationContext context;
     if (!p_scene)
     {
         std::cerr << "Failed to load Game scene\n";
@@ -37,23 +41,75 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     for (const auto &rootJson : p_json["roots"])
     {
         auto root = p_scene->AddNode(rootJson["name"]);
+        context.RegisterNode(rootJson["id"], root);
         DeserializeTransform(rootJson["transform"], root->GetTransform());
         for (const auto componentJson : rootJson["components"])
         {
-            DeserializeComponent(componentJson, root);
+            DeserializeComponent(componentJson, root, rootJson["id"], context);
         }
         for (const auto childJson : rootJson["children"])
         {
-            DeserializeNode(childJson, root, p_scene);
+            DeserializeNode(childJson, root, p_scene,context);
         }
     }
+    context.ResolveAllReferences();
 }
+
+void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene)
+{
+    if (!p_json.contains("name"))
+    {
+        throw std::runtime_error("Node is missing required field 'name");
+    }
+
+    if (!p_json.contains("components"))
+    {
+        throw std::runtime_error("Node is missing required field 'components'");
+    }
+
+    if (!p_json.contains("transform"))
+    {
+        throw std::runtime_error("Node is missing required field 'transform'");
+    }
+
+    if (!p_json.contains("children"))
+    {
+        throw std::runtime_error("Node is missing required field 'name'");
+    }
+
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Node is missing required field 'id'");
+    }
+
+    if (!p_json.contains("active"))
+    {
+        throw std::runtime_error("Node is missing required field 'active'");
+    }
+    auto node = p_scene.AddNode(p_json["name"]);
+    SerializationContext nullContext;
+    DeserializeTransform(p_json["transform"], node->GetTransform());
+
+    std::shared_ptr<Droplet::Scene::Scene> scenePtr = p_scene.shared_from_this();
+
+    for (const auto componentJson : p_json["components"])
+    {
+        DeserializeComponent(componentJson, node, p_json["id"], nullContext);
+    }
+    for (const auto childJson : p_json["children"])
+    {
+        DeserializeNode(childJson, node, scenePtr, nullContext);
+    }
+}
+
 
 nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
 {
     nlohmann::json json;
     
     json["name"] = p_node.GetName();
+    json["id"] = p_node.GetID();
+    json["active"] = p_node.IsActive();
     json["transform"] = SerializeTransform(p_node.GetTransform());
     json["components"] = nlohmann::json::array();
     
@@ -72,21 +128,16 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     return json;
 }
 
-void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene)
+void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext& p_context)
 {
-    // TODO: add to logger
-    Droplet::Debug::Logger log;
-    Droplet::Debug::Logger::LogType lgType;
-    lgType = Droplet::Debug::Logger::LogType::Error;
+
     if (!p_json.contains("name"))
     {
-        log.Log(lgType, "Node is missing required field 'name'");
         throw std::runtime_error("Node is missing required field 'name'");
     }
 
     if (!p_json.contains("components"))
     {
-        log.Log(lgType, "Node is missing required field 'components'");
         throw std::runtime_error("Node is missing required field 'components'");
     }
 
@@ -100,54 +151,58 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
         throw std::runtime_error("Node is missing required field 'name'");
     }
 
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Node is missing required field 'id'");
+    }
+
+    if (!p_json.contains("active"))
+    {
+        throw std::runtime_error("Node is missing required field 'active'");
+    }
+
+    
+
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
+    p_context.RegisterNode(p_json["id"], node);
+    node->SetActive(p_json["active"]);
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 
     for (const auto &componentJson : p_json["components"])
     {
-        DeserializeComponent(componentJson, node);
+        DeserializeComponent(componentJson, node, p_json["id"], p_context);
+
     }
 
     for (const auto &childJson : p_json["children"])
     {
-        DeserializeNode(childJson, node, p_scene);
+        DeserializeNode(childJson, node, p_scene, p_context);
     }
 }
 
-void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node)
+void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, std::uint64_t p_serializedNodeID,SerializationContext& p_context)
 {
     if (!p_json.contains("type"))
     {
         throw std::runtime_error("Component is missing required field 'type'");
     }
-
+    if (!p_json.contains("id"))
+    {
+        throw std::runtime_error("Component is missing required field 'id'");
+    }
+    if (!p_json.contains("data"))
+    {
+        throw std::runtime_error("Component is missing required field 'data'");
+    }
     std::string type = p_json["type"];
+    auto component = ComponentFactory::CreateComponent(type);
+    component->Deserialize(p_json);
+    std::shared_ptr<Component> sharedComponent(std::move(component));
+    p_node->AttachComponent(sharedComponent, p_json["id"]);
+    std::uint64_t ID = p_json["id"];
+    p_context.RegisterCopmonent(p_serializedNodeID, ID, sharedComponent);
 
-    if (type == "ScriptComponent")
-    {
-        if (!p_json.contains("filepath"))
-        {
-            throw std::runtime_error("component is missing required field 'filepath'");
-        }
-        p_node->AddComponent<ScriptComponent>();//p_json["filepath"]
-    }
-    else if (type == "MeshComponent")
-    {
-        if (!p_json.contains("filepath"))
-        {
-            throw std::runtime_error("component is missing required field 'filepath'");
-        }
-        p_node->AddComponent<MeshComponent>();//p_json["filepath"]
-    }
-    else if (type == "PlayerComponent")
-    {
-        //TODO: Create the component and either do the deserialization here or you can call the components deserialize function.
-    }
-    else
-    {
-
-    }
 }
 
 nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)
@@ -182,6 +237,7 @@ void SceneSerializer::DeserializeTransform(const nlohmann::json& p_json, Transfo
 
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 
+    //TODO make sure glm reads w x y z or x y z w
     glm::quat rotation = glm::quat(p_json["rotation"][0], p_json["rotation"][1], p_json["rotation"][2], p_json["rotation"][3]);
 
     glm::vec3 scale = glm::vec3(p_json["scale"][0], p_json["scale"][1], p_json["scale"][2]);

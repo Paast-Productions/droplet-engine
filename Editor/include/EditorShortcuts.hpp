@@ -10,6 +10,7 @@ namespace Droplet::Editor
 		EditorShortcuts() = default;
 		~EditorShortcuts() = default;
 
+		/// @brief Processes key shortcuts for the scene view window.
 		static void ProcessSceneViewKeyShortcuts();
 	};
 }

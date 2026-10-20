@@ -16,7 +16,7 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructs the scripts window.
 		/// @param p_interactionState Shared editor interaction state.
-		ScriptsWindow(std::shared_ptr<Droplet::Engine> p_engine);
+		ScriptsWindow();
 		/// @brief Destroys the scripts window.
 		~ScriptsWindow() = default;
 
@@ -65,6 +65,14 @@ namespace Droplet::Editor
 		/// Any errors encountered during the refresh can be stored for display.
 		void RefreshScripts();
 
+		/// @brief Renders the "Add Script" popup for creating new scripts.
+		void RenderAddScript();
+		
+		/// @brief Help function for deleting the selected script file.
+		void DeleteSelectedScript();
+
+		void RenameScript();
+
 		/// @brief Opens the selected script.
 		/// @param p_relativePath Path to the script relative to the script root.
 		void OpenScript(const std::filesystem::path &p_relativePath);
@@ -78,10 +86,25 @@ namespace Droplet::Editor
 		/// @brief Name or path of the currently selected script.
 		std::string m_selectedScript;
 
+		/// @brief Store new name for file.
+		std::string m_renameFilename;
+
 		/// @brief Error message produced while refreshing the script tree.
 		std::string m_refreshError;
 
 		/// @brief Error message produced while opening a script.
 		std::string m_openError;
+
+		/// @brief Error message produced while renaming script.
+		std::string m_renameError;
+
+		/// @brief Check if scriptfile needs to refresh.
+		bool m_needsRefresh = false;
+
+		/// @brief Check if we should open Rename from right-click.
+		bool m_openRename = false;
+
+		/// @brief Check if we should open delete from right-click.
+		bool m_openDelete = false;
 	};
 }

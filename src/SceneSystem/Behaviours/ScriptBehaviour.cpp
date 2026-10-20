@@ -31,7 +31,36 @@ void ScriptBehaviour::DeactivateScript()
 
 void ScriptBehaviour::RenderUIImpl()
 {
+	const std::string preview = m_scriptPath.empty()
+		? "Drop Lua script here"
+		: m_scriptPath;
 
+	ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
+		{
+			if (payload->Data != nullptr && payload->DataSize > 0)
+			{
+				std::string scriptPath(static_cast<const char *>(payload->Data),
+					static_cast<std::size_t>(payload->DataSize));
+				if (!scriptPath.empty() && scriptPath.back() == '\0')
+				{
+					scriptPath.pop_back();
+				}
+				AttachScript(scriptPath);
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (!m_scriptPath.empty() && ImGui::Button("Detach Script"))
+	{
+		AttachScript("");
+	}
+
+	ImGui::Separator();
 }
 
 void ScriptBehaviour::AttachScript(const std::string p_scriptPath)

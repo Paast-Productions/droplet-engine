@@ -4,15 +4,15 @@
 #include <algorithm>
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
+#include <ImGui/ImGuiUtils.hpp>
 
 using namespace Droplet::Editor;
 
-NodeInspectorWindow::NodeInspectorWindow(
-	std::shared_ptr<Droplet::Engine> p_engine, std::shared_ptr<InteractionState> p_interactionState) 
-	: EditorWindow(p_engine), m_interactionState(p_interactionState)
+NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext) 
+	: m_editorContext(p_editorContext)
 { }
 
-void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
+void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect) // TODO: Make weak pointer
 {
 	m_currentNode = p_nodeToInspect;
 }
@@ -30,7 +30,7 @@ void NodeInspectorWindow::CloseImpl()
 
 void NodeInspectorWindow::RenderImpl()
 {
-	const auto &selectedNodes = m_interactionState->GetSelectedNodes();
+	const auto &selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 	// No selected node
 	if (selectedNodes.empty())
@@ -114,7 +114,7 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonWidth = ImGui::GetContentRegionAvail().x;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents(); // TODO: Make weak pointer
 
 	for (const auto &component : components)
 	{
@@ -160,11 +160,11 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		m_currentNode->AddComponent(newComp);
+
+		m_currentNode->AttachComponent(newComp);
 	}
 
 	ImGui::PopID();
-	//List of components (Do i need a component list with imgui functions for this?)
 }
 
 void NodeInspectorWindow::RenderToolbar()
