@@ -1,8 +1,15 @@
 #include "ScriptBehaviour.hpp"
 #include "ImGui/imgui.h"
+#include "Time.hpp"
 #include <print>
 
 using namespace Droplet::Scene;
+
+void Droplet::Scene::ScriptBehaviour::PostUpdate()
+{
+	float deltaTime = Time::Get().GetDeltaTime();
+	ScriptSystem::Get().UpdateBehaviour(this, deltaTime);
+}
 
 const std::string &ScriptBehaviour::GetScriptPath() const
 {
@@ -17,16 +24,6 @@ void ScriptBehaviour::SetScriptPath(const std::string &p_scriptPath)
 void ScriptBehaviour::DetachScript()
 {
 	ScriptSystem::Get().DetachBehaviourScript(this);
-}
-
-void ScriptBehaviour::ActivateScript()
-{
-	ScriptSystem::Get().ActivateBehaviourScript(this);
-}
-
-void ScriptBehaviour::DeactivateScript()
-{
-	ScriptSystem::Get().DeactivateBehaviourScript(this);
 }
 
 void ScriptBehaviour::RenderUIImpl()
@@ -83,5 +80,6 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
     }
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-	ScriptSystem::Get().ActivateBehaviourScript(this);
+
+	ScriptSystem::Get().StartBehaviour(this);
 }

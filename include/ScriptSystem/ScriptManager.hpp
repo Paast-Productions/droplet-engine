@@ -148,26 +148,6 @@ namespace Droplet::Script
 		/// @return LoadedScript that holds the scripts path and when it was last loaded.
 		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
 
-		/// @brief Activates a script component
-		/// An activated script is added to the collection of scripts that are updated each frame
-		/// @param p_scriptComponent Component whose script should be activated.
-		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Activates a script behaviour
-		/// An activated script is added to the collection of scripts that are updated each frame
-		/// @param p_scriptBehaviour Behaviour whose script should be activated.
-		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
-
-		/// @brief Deactivates a script component
-		/// A deactivated script is removed from the collection of scripts that are updated each frame
-		/// @param p_scriptComponent Component whose script should be deactivated.
-		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Deactivates a script behaviour
-		/// A deactivated script is removed from the collection of scripts that are updated each frame
-		/// @param p_scriptBehaviour Behaviour whose script should be deactivated.
-		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
-
 		/// @brief Sets the directory Path
 		/// @param p_directoryPath This is the path for your working directory to the scripts
 		void SetScriptDirectory(const std::string &p_directoryPath);

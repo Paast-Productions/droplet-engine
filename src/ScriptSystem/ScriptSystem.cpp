@@ -102,34 +102,6 @@ void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 	m_scriptManager.UnloadScript(p_scriptFile);
 }
 
-void ScriptSystem::ActivateComponentScript(Scene::Component *p_scriptComponent)
-{
-	ZoneScoped;
-
-	m_scriptManager.ActivateComponentScript(p_scriptComponent);
-}
-
-void ScriptSystem::ActivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
-{
-	ZoneScoped;
-
-	m_scriptManager.ActivateBehaviourScript(p_scriptBehaviour);
-}
-
-void ScriptSystem::DeactivateComponentScript(Scene::Component *p_scriptComponent)
-{
-	ZoneScoped;
-
-	m_scriptManager.DeactivateComponentScript(p_scriptComponent);
-}
-
-void ScriptSystem::DeactivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
-{
-	ZoneScoped;
-
-	m_scriptManager.DeactivateBehaviourScript(p_scriptBehaviour);
-}
-
 void ScriptSystem::DetachComponentScript(Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;

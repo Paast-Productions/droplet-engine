@@ -68,30 +68,6 @@ namespace Droplet::Script
 		/// @brief Unloads a previously loaded Lua script.
 		/// @param p_scriptFile Path to the Lua script file.
 		void UnloadScript(const std::string &p_scriptFile);
-
-		/// @brief Activates a script component.
-		/// An activated script component is allowed to participate in the scripting
-		/// system's update and execution flow.
-		/// @param p_scriptComponent Script component to activate.
-		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Activates a script component.
-		/// An activated script behaviour is allowed to participate in the scripting
-		/// system's update and execution flow.
-		/// @param p_scriptBehaviour Script behaviour to activate.
-		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
-
-		/// @brief Deactivates a script behaviour.
-		/// A deactivated script component will no longer participate in the
-		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
-		/// @param p_scriptComponent Script component to deactivate.
-		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Deactivates a script behaviour.
-		/// A deactivated script component will no longer participate in the
-		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
-		/// @param p_scriptBehaviour Script component to deactivate.
-		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 		
 		/// @brief Detach Script from Component
 		/// @param p_scriptComponent 

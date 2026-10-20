@@ -41,7 +41,6 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
     }
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
-    ScriptSystem::Get().ActivateComponentScript(this);
 
     ScriptSystem::Get().StartComponent(this);
 }
@@ -54,16 +53,6 @@ void ScriptComponent::DetachScript()
     }
 
     ScriptSystem::Get().DetachComponentScript(this);
-}
-
-void ScriptComponent::ActivateScript()
-{
-    ScriptSystem::Get().ActivateComponentScript(this);
-}
-
-void ScriptComponent::DeactivateScript()
-{
-    ScriptSystem::Get().DeactivateComponentScript(this);
 }
 
 void ScriptComponent::RenderUIImpl()

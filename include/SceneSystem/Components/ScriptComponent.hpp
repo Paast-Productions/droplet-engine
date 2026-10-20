@@ -47,18 +47,6 @@ namespace Droplet::Scene
         /// script instance.
         void DetachScript();
 
-        /// @brief Activates the script associated with this component.
-        ///
-        /// An activated script participates in the scripting system's update
-        /// cycle.
-        void ActivateScript();
-
-        /// @brief Deactivates the script associated with this component.
-        ///
-        /// A deactivated script no longer participates in the scripting
-        /// system's update cycle.
-        void DeactivateScript();
-
         /// @brief Calls a Lua function on the associated script.
         ///
         /// The function is looked up by name in the script environment and
