@@ -4,6 +4,7 @@
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <Jolt/Jolt.h>
@@ -250,6 +251,7 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 }
 
 Graphics::Renderer &Engine::GetRenderer()
