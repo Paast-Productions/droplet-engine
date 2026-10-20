@@ -20,18 +20,38 @@ ScriptSystem::~ScriptSystem()
 
 }
 
-void ScriptSystem::Start(Droplet::Scene::Component *p_scriptComponent)
+void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
 
-	m_scriptManager.Start(p_scriptComponent);
+	m_scriptManager.StartComponent(p_scriptComponent);
 }
 
-void ScriptSystem::Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+void Droplet::Script::ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
 	ZoneScoped;
 
-	m_scriptManager.Update(p_scriptComponent, p_deltaTime);
+	m_scriptManager.StartBehaviour(p_scriptBehaviour);
+}
+
+void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+{
+	ZoneScoped;
+
+	m_scriptManager.UpdateComponent(p_scriptComponent, p_deltaTime);
+
+	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		m_scriptManager.CheckForFileChanges();
+	}
+}
+
+void Droplet::Script::ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
+{
+	ZoneScoped;
+
+	m_scriptManager.UpdateBehaviour(p_scriptBehaviour, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))

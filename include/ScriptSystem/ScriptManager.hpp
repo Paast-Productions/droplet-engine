@@ -50,13 +50,17 @@ namespace Droplet::Script
 
 		/// @brief Starts all active script instances.
 		/// This should be called once the scripts are allowed to be active.
-		void Start(Droplet::Scene::Component *p_scriptComponent);
+		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
+
+		void StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Updates all active script instances.
 		/// This should be called once per frame to allow active scripts to perform
 		/// their update logic.
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+		void UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+
+		void UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime);
 
 		/// @brief Calls a Lua function on a script attached to a component.
 		/// The function is looked up through the relationship between the
@@ -196,6 +200,10 @@ namespace Droplet::Script
 		[[nodiscard]] bool HasScriptFileChanged(const std::string &p_scriptFile);
 
 	private:
+		ScriptInstance *GetComponentsScript(Droplet::Scene::Component *p_scriptComponent);
+
+		ScriptInstance *GetBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
 		/// @brief Reference to the Lua state used by the script manager
 		/// The LuaStateHandler is owned by the ScriptSystem.
 		LuaStateHandler &m_StateHandler;
@@ -239,31 +247,14 @@ namespace Droplet::Script
 		const std::string &p_functionName,
 		Args&&... p_args)
 	{
-		if (p_scriptComponent == nullptr)
+		ScriptInstance *instance = GetComponentsScript(p_scriptComponent);
+
+		if (instance == nullptr)
 		{
-			// TODO: Send error to logging manager instead of sending a nullptr
 			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 		}
 
-		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *>::iterator it =
-			m_componentScripts.find(p_scriptComponent);
-
-		if (it == m_componentScripts.end())
-		{
-			//TODO: attach component to script
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-		}
-		ScriptInstance *instance = it->second;
-		std::vector<ScriptInstance *>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
-
-		if (activeIterator == m_activeScripts.end())
-		{
-			//tried to call on an inactive component
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-			//send error to logger 
-		}
-
-		return it->second->Call(p_functionName, std::forward<Args>(p_args)...);
+		return instance->Call(p_functionName, std::forward<Args>(p_args)...);
 	}
 
 	/// @brief Calls a Lua function on the script attached to the game

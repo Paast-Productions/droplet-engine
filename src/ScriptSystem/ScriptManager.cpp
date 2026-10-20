@@ -16,27 +16,44 @@ ScriptManager::ScriptManager(LuaStateHandler &p_statehandler) : m_StateHandler(p
 {
 }
 
-void ScriptManager::Start(Droplet::Scene::Component *p_scriptComponent)
+void ScriptManager::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
 
-	const auto it = m_componentScripts.find(p_scriptComponent);
-
-	if (it != m_componentScripts.end() && it->second)
+	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
 	{
-		it->second->OnStart();
+		instance->OnStart();
 	}
 }
 
-void ScriptManager::Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+void Droplet::Script::ScriptManager::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
 	ZoneScoped;
 
-	const auto it = m_componentScripts.find(p_scriptComponent);
-
-	if (it != m_componentScripts.end() && it->second)
+	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
 	{
-		it->second->OnUpdate(p_deltaTime);
+		instance->OnStart();
+	}
+
+}
+
+void ScriptManager::UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+{
+	ZoneScoped;
+
+	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
+	{
+		instance->OnUpdate(p_deltaTime);
+	}
+}
+
+void Droplet::Script::ScriptManager::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
+{
+	ZoneScoped;
+
+	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
+	{
+		instance->OnUpdate(p_deltaTime);
 	}
 }
 
@@ -112,41 +129,62 @@ void ScriptManager::CreateBehaviourScript(
 {
 	ZoneScoped;
 
-	if (p_scriptBehaviour == nullptr)
-	{
-		throw std::invalid_argument("p_scriptBehaviour is recived as nullptr");
-	}
-
 	if (!IsLoaded(p_scriptFile))
 	{
 		LoadScript(p_scriptFile);
 	}
-	std::print("load script successfully\n");
 
-	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
-	if (loadResult == nullptr)
+	LoadedScript *loadedScript = GetLoadedScriptInfo(p_scriptFile);
+	if (loadedScript == nullptr)
 	{
-		throw std::invalid_argument("loadResult is recived as nullptr");
+		throw std::invalid_argument(
+			"Loaded script information was not found.");
 	}
 
-	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator existing = m_behaviourScripts.find(p_scriptBehaviour);
-	ScriptInstance *oldinstance = nullptr;
+	if (p_scriptBehaviour == nullptr)
+	{
+		throw std::invalid_argument(
+			"Script component is nullptr.");
+	}
+
+	auto existing = m_behaviourScripts.find(p_scriptBehaviour);
+	ScriptInstance *oldInstance = nullptr;
 
 	if (existing != m_behaviourScripts.end())
 	{
-		oldinstance = existing->second;
+		oldInstance = existing->second;
+	}
+
+	// Load a fresh Lua chunk for this instance.
+	sol::load_result instanceLoadResult =
+		m_StateHandler.GetState().load_file(
+			loadedScript->scriptPath.string());
+
+	if (!instanceLoadResult.valid())
+	{
+		sol::error error = instanceLoadResult;
+		throw std::runtime_error(
+			"Failed to load script '" + p_scriptFile +
+			"': " + error.what());
 	}
 
 	GameInput &input = GameInput::Get();
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, *loadResult, p_scriptFile);
+	auto scriptInstance = std::make_unique<ScriptInstance>(
+		nullptr,
+		input,
+		m_StateHandler,
+		instanceLoadResult,
+		p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
-	if (oldinstance != nullptr)
+	// Replace the previous instance, if one exists.
+	if (oldInstance != nullptr)
 	{
-		DestroyInstance(oldinstance);
+		DestroyInstance(oldInstance);
 	}
+
 	m_scriptInstances.push_back(std::move(scriptInstance));
 	m_behaviourScripts[p_scriptBehaviour] = instance;
 }
@@ -599,4 +637,38 @@ bool ScriptManager::HasScriptFileChanged(const std::string& p_scriptFile)
 	}
 
 	return currentWriteTime != it->second.lastWriteTime;
+}
+
+ScriptInstance *Droplet::Script::ScriptManager::GetComponentsScript(Droplet::Scene::Component *p_scriptComponent)
+{
+	if (p_scriptComponent == nullptr)
+	{
+		return nullptr;
+	}
+
+	const auto it = m_componentScripts.find(p_scriptComponent);
+
+	if (it == m_componentScripts.end())
+	{
+		return nullptr;
+	}
+
+	return it->second;
+}
+
+ScriptInstance *Droplet::Script::ScriptManager::GetBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	if (p_scriptBehaviour == nullptr)
+	{
+		return nullptr;
+	}
+
+	const auto it = m_behaviourScripts.find(p_scriptBehaviour);
+
+	if (it == m_behaviourScripts.end())
+	{
+		return nullptr;
+	}
+
+	return it->second;
 }
