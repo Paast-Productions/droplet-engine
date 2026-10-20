@@ -406,7 +406,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	}
 
 	m_usingGizmo = ImGuizmo::IsUsingAny() || didUse;
-	m_hoveringGizmo = ImGuizmo::IsOver();
+	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds();
 }
 
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
