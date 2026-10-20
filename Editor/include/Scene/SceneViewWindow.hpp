@@ -40,6 +40,8 @@ namespace Droplet::Editor::Scene
 	private:
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
+		bool m_hoveringGizmo = false;
+		bool m_usingGizmo = false;
 
 		EditorContext *m_editorContext = nullptr;
 

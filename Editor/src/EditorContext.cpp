@@ -5,6 +5,8 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	  m_interactionState(),
 	  m_editorCameraController(m_editorCamera)
 {
+	m_editorCamera.SetFOV(75.0f);
+
 	SetActiveScene("TestScene");
 	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
 }
