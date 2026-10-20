@@ -160,7 +160,8 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		m_currentNode->AddComponent(newComp);
+
+		m_currentNode->AttachComponent(newComp);
 	}
 
 	ImGui::PopID();

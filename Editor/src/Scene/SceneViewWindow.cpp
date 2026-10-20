@@ -260,7 +260,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene"); // TODO: Make weak pointer
+	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
 
 	// Render ImGuizmo cubes for all nodes in the scene

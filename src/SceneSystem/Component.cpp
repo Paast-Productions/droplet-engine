@@ -3,7 +3,7 @@
 #include <ImGui/imgui.h>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
-
+#include <SerializationContext.hpp>
 using namespace Droplet::Scene;
 
 Component::Component()
@@ -74,11 +74,11 @@ nlohmann::json Component::Serialize()
     // TODO: Insert component type name.
 	// This is how we know what type of component to create when deserializing.
     // Must be an exact match to the type name used in the ComponentRegistry.
-    compJson["type"] = ""; 
-
+    compJson["type"] = GetTypeName(); 
+	compJson["id"] = GetID();
 	compJson["data"] = SerializeImpl();
 
-    return SerializeImpl();
+    return compJson;
 }
 
 void Component::Deserialize(const nlohmann::json p_compJson)
@@ -86,8 +86,15 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
+	if (!p_compJson.contains("data"))
+	{
+		throw std::runtime_error("Component is missing field 'data'");
+	}
 	nlohmann::json dataJson = p_compJson["data"];
-    //const nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
+}
+
+void Droplet::Scene::Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
+{
 }

@@ -240,11 +240,6 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
         throw std::runtime_error("Invalid json was sent to LoadFromFile");
     }
 
-    if (m_scenes.contains(json["name"]))
-    {
-        throw std::runtime_error("Cannot load Scene " + json["name"] );
-    }
-
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
 
     if (!scene)
@@ -256,7 +251,17 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     scene->Load();
 
     m_scenes[json["name"]] = scene;
+}
 
+void Droplet::Scene::SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeNode(p_node);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
 }
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
