@@ -160,8 +160,8 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-
-		m_currentNode->AttachComponent(newComp);
+		std::shared_ptr<Droplet::Scene::Component> shared = std::move(newComp);
+		m_currentNode->AttachComponent(shared);
 	}
 
 	ImGui::PopID();
