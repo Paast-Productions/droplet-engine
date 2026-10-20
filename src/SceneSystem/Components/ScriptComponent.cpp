@@ -108,7 +108,7 @@ nlohmann::json ScriptComponent::SerializeImpl()
     nlohmann::json json;
 
     json["filepath"] = GetScriptPath();
-
+    
     // TODO
 
     return json;
@@ -116,5 +116,10 @@ nlohmann::json ScriptComponent::SerializeImpl()
 
 void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_compJson)
 {
-	// TODO: Implement deserialization logic for the script component.
+    if (!p_compJson.contains("filepath"))
+    {
+        throw std::runtime_error("ScriptCompoent missing field 'filepath'");
+    }
+    m_scriptPath = p_compJson["filepath"];
+    
 }

@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>
 
+
 using namespace Droplet::Scene;
 
 Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // TODO: Make weak pointer
@@ -226,6 +227,78 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak 
 
 	// Add the removed child to the scene's root nodes
     m_scene.lock()->SetRoot(p_child, true);
+}
+
+void Droplet::Scene::Node::AttachComponent(std::unique_ptr<Component> &p_component)
+{
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add a null component");
+    }
+
+    if (m_nextComponentID == 0)
+    {
+        throw std::runtime_error("Invalid next component ID");
+    }
+    std::shared_ptr<Component> shared = std::move(p_component);
+    AttachComponent(shared, m_nextComponentID);
+}
+
+
+void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
+{
+    ZoneScoped;
+
+    if (!p_component)
+    {
+        throw std::invalid_argument("Cannot add a null component");
+    }
+
+    if (p_componentID == 0)
+    {
+        throw std::invalid_argument(
+            "Component ID 0 is reserved");
+    }
+
+    for (const std::shared_ptr<Component> &itComponent : m_components)
+    {
+        if (itComponent->GetID() == p_componentID)
+        {
+            throw std::runtime_error("Duplicate component ID on node");
+        }
+    }
+
+    if (p_component->GetID() != 0)
+    {
+        throw std::overflow_error("No component IDs remain for this node");
+    }
+
+    p_component->m_id = p_componentID;
+    p_component->SetOwner(shared_from_this());
+    m_components.push_back((p_component));
+    
+
+    if (p_component->HasBoundsOverride())
+    {
+        if (m_boundsOverride.expired())
+        {
+            m_boundsOverride = p_component;
+        }
+
+        
+    }
+
+    
+
+    if (p_componentID >= m_nextComponentID)
+    {
+        m_nextComponentID = p_componentID + 1;
+    }
+
+    if (m_started)
+    {
+        p_component->Start();
+    }
 }
 
 std::shared_ptr<Node> Node::GetParent() const // TODO: Make weak pointer

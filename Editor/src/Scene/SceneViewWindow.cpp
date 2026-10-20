@@ -18,33 +18,82 @@ void SceneViewWindow::InitImpl()
 {
 	
 	SetName("Scene View"); 
-	//ToggleToolbar(true);
+	ToggleToolbar(true);
 	
 	// TODO: Make rendertarget reziable and match ImGui window
 	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
 	m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
 }
 
-void SceneViewWindow::RenderToolbar()
+void Droplet::Editor::Scene::SceneViewWindow::RenderToolbar()
 {
-	if (ImGui::BeginMenu("File"))
+	if (ImGui::BeginMenu("Space"))
 	{
-		if (ImGui::BeginMenu("Layout"))
+		ImGuizmo::MODE currentMode = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
+		ImGuizmo::MODE worldMode = ImGuizmo::WORLD;
+		ImGuizmo::MODE localMode = ImGuizmo::LOCAL;
+
+		if (ImGui::MenuItem("World", nullptr, currentMode == worldMode))
 		{
-			if (ImGui::MenuItem("Load Default Layout"))
-			{
-				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
-
-			}
-
-			if (ImGui::MenuItem("Save Default Layout"))
-			{
-				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
-			}
-
-			ImGui::EndMenu();
+			EditorConfig::StoreInt("manipulateSpace", worldMode);
 		}
 
+		if (ImGui::MenuItem("Local", nullptr, currentMode == localMode))
+		{
+			EditorConfig::StoreInt("manipulateSpace", localMode);
+		}
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Operation"))
+	{
+		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation");
+		ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
+		ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
+		ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
+		ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
+		ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
+
+		if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+		{
+			EditorConfig::StoreBool("manipulateBounds", true);
+			EditorConfig::StoreInt("manipulateOperation", universalOperation);
+		}
+
+		if (ImGui::MenuItem("Translation", nullptr, currentOperation == translationOperation))
+		{
+			EditorConfig::StoreBool("manipulateBounds", false);
+			EditorConfig::StoreInt("manipulateOperation", translationOperation);
+		}
+
+		if (ImGui::MenuItem("Rotation", nullptr, currentOperation == rotationOperation))
+		{
+			EditorConfig::StoreBool("manipulateBounds", false);
+			EditorConfig::StoreInt("manipulateOperation", rotationOperation);
+		}
+
+		if (ImGui::MenuItem("Scale", nullptr, currentOperation == scaleOperation))
+		{
+			EditorConfig::StoreBool("manipulateBounds", false);
+			EditorConfig::StoreInt("manipulateOperation", scaleOperation);
+		}
+
+		if (ImGui::MenuItem("Bounds", nullptr, currentOperation == boundsOperation))
+		{
+			EditorConfig::StoreBool("manipulateBounds", true);
+			EditorConfig::StoreInt("manipulateOperation", boundsOperation);
+		}
+
+		ImGui::EndMenu();
+	}
+
+	float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
+	if (ImGui::BeginMenu("GizmoSize"))
+	{
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, 1);
+		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
+		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 		ImGui::EndMenu();
 	}
 }
@@ -262,7 +311,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetEngine().GetSceneManager().GetScene("TestScene"); // TODO: Make weak pointer
+	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
 
 	// Render ImGuizmo cubes for all nodes in the scene

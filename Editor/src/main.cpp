@@ -211,14 +211,19 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				if (ImGui::BeginMenu("Manipulate"))
 				{
-					if (ImGui::MenuItem("World"))
+					if (ImGui::BeginMenu("Space"))
 					{
-						EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
-					}
+						if (ImGui::MenuItem("World"))
+						{
+							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
+						}
 
-					if (ImGui::MenuItem("Local"))
-					{
-						EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
+						if (ImGui::MenuItem("Local"))
+						{
+							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
+						}
+
+						ImGui::EndMenu();
 					}
 
 					ImGui::EndMenu();

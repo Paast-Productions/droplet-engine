@@ -206,27 +206,23 @@ namespace Droplet::Scene
             // Ensure that T is derived from Component
             static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-            auto component = std::make_shared<T>();//std::forward<Args>(p_args)...
-
-            component->SetOwner(shared_from_this());
-
-            m_components.push_back(component);
-
-            if (component->HasBoundsOverride())
-            {
-                if (m_boundsOverride.expired())
-                {
-                    m_boundsOverride = component;
-                }
-            }
-
-            if (m_started)
-            {
-                component->Start();
-            }
+            auto component = std::make_shared<T>();
+            std::shared_ptr<Component> baseComponent = component;
+            AttachComponent(baseComponent);
 
             return component;
         }
+
+        /// @brief Adds an exisiting component to the node
+        /// 
+        /// Attached an already created comoponent of any type
+        /// adds it to the member vector of component the node owns.
+        /// It assigns a freshly new component id
+        /// The overloaded function uses id from serialization
+        ///       
+        /// @param p_component The comoponent to be attached
+        void AttachComponent(std::unique_ptr<Component> &p_component); 
+        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -258,6 +254,8 @@ namespace Droplet::Scene
             return components;
         }
 
+
+        
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
@@ -326,6 +324,7 @@ namespace Droplet::Scene
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
 
+        std::uint64_t m_nextComponentID = 1;
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 
