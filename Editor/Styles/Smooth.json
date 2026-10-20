@@ -8,14 +8,14 @@
         0.5
     ],
     "CellPadding": [
-        4.0,
-        2.0
+        10.0,
+        10.0
     ],
     "ChildBorderSize": 1.0,
     "ChildRounding": 6.0,
     "CircleTessellationMaxError": 0.30000001192092896,
     "ColorButtonPosition": 1,
-    "ColorMarkerSize": 3.0,
+    "ColorMarkerSize": 4.0,
     "Colors": [
         [
             0.8999999761581421,
@@ -408,10 +408,12 @@
         19.0
     ],
     "DockingNodeHasCloseButton": false,
-    "DockingSeparatorSize": 2.0,
+    "DockingSeparatorSize": 4.0,
     "DragDropTargetBorderSize": 2.0,
     "DragDropTargetPadding": 3.0,
     "DragDropTargetRounding": 0.0,
+    "FontGlobalScale": 1.0,
+    "FontName": "ProggyClean.ttf",
     "FontScaleDpi": 1.0,
     "FontScaleMain": 1.0,
     "FontSizeBase": 13.0,
@@ -421,8 +423,8 @@
         6.0
     ],
     "FrameRounding": 5.0,
-    "GrabMinSize": 12.0,
-    "GrabRounding": 4.0,
+    "GrabMinSize": 14.0,
+    "GrabRounding": 3.0,
     "HoverDelayNormal": 0.4000000059604645,
     "HoverDelayShort": 0.15000000596046448,
     "HoverFlagsForTooltipMouse": 41984,
@@ -433,8 +435,8 @@
     "IndentSpacing": 20.0,
     "InputTextCursorSize": 1.0,
     "ItemInnerSpacing": [
-        6.0,
-        4.0
+        10.0,
+        10.0
     ],
     "ItemSpacing": [
         10.0,
@@ -453,7 +455,7 @@
         0.0,
         0.0
     ],
-    "SeparatorSize": 1.0,
+    "SeparatorSize": 2.0,
     "SeparatorTextAlign": [
         0.0,
         0.5
@@ -463,7 +465,7 @@
         20.0,
         3.0
     ],
-    "TabBarBorderSize": 1.0,
+    "TabBarBorderSize": 2.0,
     "TabBarOverlineSize": 1.0,
     "TabBorderSize": 0.0,
     "TabCloseButtonMinWidthSelected": -1.0,
@@ -471,21 +473,21 @@
     "TabMinWidthBase": 1.0,
     "TabMinWidthShrink": 80.0,
     "TabRounding": 5.0,
-    "TableAngledHeadersAngle": 0.6108652353286743,
+    "TableAngledHeadersAngle": 0.3490658700466156,
     "TableAngledHeadersTextAlign": [
         0.5,
         0.0
     ],
     "TouchExtraPadding": [
-        0.0,
+        5.0,
         0.0
     ],
-    "TreeLinesFlags": 262144,
-    "TreeLinesRounding": 3.0,
+    "TreeLinesFlags": 1048576,
+    "TreeLinesRounding": 2.0,
     "TreeLinesSize": 2.0,
-    "WindowBorderHoverPadding": 4.0,
+    "WindowBorderHoverPadding": 6.0,
     "WindowBorderSize": 0.0,
-    "WindowMenuButtonPosition": 0,
+    "WindowMenuButtonPosition": -1,
     "WindowMinSize": [
         32.0,
         32.0
@@ -496,7 +498,7 @@
     ],
     "WindowRounding": 8.0,
     "WindowTitleAlign": [
-        0.0,
+        0.5,
         0.5
     ]
 }
