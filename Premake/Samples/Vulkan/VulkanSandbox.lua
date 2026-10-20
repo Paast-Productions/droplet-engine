@@ -31,7 +31,9 @@ project "Vulkan-Sandbox"
         {
             rootPath .. "/include",
             vkPath .. "/Include",
-            targetBuildPath .. "/External/include"
+            targetBuildPath .. "/External/include",
+            rootPath .. "/Samples/Vulkan/Sandbox/include",
+
         }
     
         links {
