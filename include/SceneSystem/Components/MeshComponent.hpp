@@ -101,6 +101,12 @@ namespace Droplet::Scene
 		std::string m_meshDisplayName;
 		std::string m_textureDisplayName;
 
+        std::string m_vsDisplayName;
+        std::string m_tcsDisplayName;
+        std::string m_tesDisplayName;
+        std::string m_gsDisplayName;
+        std::string m_fsDisplayName;
+
         MeshNodeBounds m_bounds;
     };
 }

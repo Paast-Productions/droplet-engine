@@ -196,46 +196,61 @@ void MeshComponent::RenderUIImpl()
         if(ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
+            m_vsDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Shader))
         {
             SetVSGUID(newGUID);
+            m_vsDisplayName = newName;
         }
         
         if(ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
+            m_tcsDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Shader))
         {
             SetTCSGUID(newGUID);
+            m_tcsDisplayName = newName;
         }
         
         if(ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
+            m_tesDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Shader))
         {
             SetTESGUID(newGUID);
+            m_tcsDisplayName = newName;
         }
         
         if(ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
+            m_gsDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Shader))
         {
             SetGSGUID(newGUID);
+            m_gsDisplayName = newName;
         }
         
         if(ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
+            m_fsDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Shader))
         {
             SetFSGUID(newGUID);
+            m_fsDisplayName = newName;
         }
         
         EndTable();
