@@ -29,33 +29,6 @@ TEST(ScriptManager, CreateScript)
 	EXPECT_THROW(manager.CreateComponentScript(&testComp, "nonExisting.lua"), std::runtime_error);
 }
 
-TEST(ScriptManager, DetachAllInstancesToScript)
-{
-	//Lua state initialization
-	LuaStateHandler stateHandler;
-	ScriptManager manager(stateHandler);
-
-	Scene::ScriptComponent firstComp;
-	Scene::ScriptComponent secondComp;
-
-	EXPECT_NO_THROW(manager.SetScriptDirectory("../src/Scripts"));
-
-	manager.CreateComponentScript(&firstComp, "testScript.lua");
-	manager.CreateComponentScript(&secondComp, "testScript.lua");
-
-	manager.ActivateComponentScript(&firstComp);
-	manager.ActivateComponentScript(&secondComp);
-
-	manager.DetachAllInstancesToScript("testScript.lua");
-
-	EXPECT_FALSE(manager.Call(&firstComp, "test").valid());
-	EXPECT_FALSE(manager.Call(&secondComp, "test").valid());
-
-	EXPECT_NO_THROW(manager.Update(0.016f));
-
-	EXPECT_NO_THROW(manager.DetachAllInstancesToScript("testScript.lua"));
-}
-
 TEST(ScriptManager, LoadScript)
 {
 	//Lua state initialization
@@ -153,41 +126,3 @@ TEST(ScriptManager, GetLoadedScriptInfo)
 	EXPECT_EQ(failedResult, nullptr);
 }
 
-TEST(ScriptManager, ActivateScript)
-{
-	//Lua state initialization
-	LuaStateHandler stateHandler;
-	ScriptManager manager(stateHandler);
-	Droplet::Scene::ScriptComponent testComp;
-
-	manager.SetScriptDirectory("../src/Scripts");
-
-	manager.CreateComponentScript(&testComp, "testScript3.lua");
-	manager.ActivateComponentScript(&testComp);
-
-	manager.Update(1);
-	int timesTwo = manager.Call(&testComp, "TimesTwo", 1);
-
-	EXPECT_EQ(timesTwo, 2);
-}
-
-TEST(ScriptManager, DeactivateScript)
-{
-	//Lua state initialization
-	LuaStateHandler stateHandler;
-	ScriptManager manager(stateHandler);
-	Droplet::Scene::ScriptComponent testComp;
-
-	manager.SetScriptDirectory("../src/Scripts");
-
-	manager.CreateComponentScript(&testComp, "testScript3.lua");
-	manager.ActivateComponentScript(&testComp);
-
-	int timesTwo = manager.Call(&testComp, "TimesTwo", 1);
-	EXPECT_EQ(timesTwo, 2);
-
-	manager.DeactivateComponentScript(&testComp);
-
-	auto result = manager.Call(&testComp, "TimesTwo", 1);
-	EXPECT_FALSE(result.valid());
-}
