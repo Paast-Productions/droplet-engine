@@ -79,7 +79,7 @@ namespace Droplet::Graphics
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
 
-		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
+		RenderTarget CreateRenderTarget(uint32_t p_width, uint32_t p_height);
 
 		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
 

@@ -63,6 +63,10 @@ namespace Droplet
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
+
+		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
+
+		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
 		
 	private:
 

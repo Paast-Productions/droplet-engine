@@ -120,9 +120,9 @@ void Renderer::ResizeWindow()
 	m_framebufferResized = true;
 }
 
-std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
+RenderTarget Renderer::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
 {
-	return std::make_unique<RenderTarget>(
+	return RenderTarget(
 		m_interStorage.GetAllocator(),
 		m_context.GetDevice(),
 		m_context.GetPhysicalDevice(),

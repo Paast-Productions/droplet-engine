@@ -62,6 +62,8 @@ namespace Droplet::Graphics::VK
 		/// @returns Vulkan Buffer Pointer
 		[[nodiscard]] const vk::raii::Buffer &Get() const { return m_indexBuffer; }
 
+		/// @brief Getter function for number of indices in index buffer
+		/// @return Number of indices
 		[[nodiscard]] std::uint32_t GetIndexCount() { return m_indexCount; }
 		
 	private:

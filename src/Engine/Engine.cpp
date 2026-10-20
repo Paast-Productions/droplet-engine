@@ -194,3 +194,13 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 }
+
+Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+{
+	return m_renderer.CreateRenderTarget(p_width, p_height);
+}
+
+VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
+{
+	return m_renderer.RegisterImGuiTexture(p_renderTarget);
+}
