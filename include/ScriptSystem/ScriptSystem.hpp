@@ -39,13 +39,13 @@ namespace Droplet::Script
 
 		/// @brief Starts the script script system.
 		/// This should be called once the scene starts with the script system.
-		void Start();
+		void Start(Droplet::Scene::Component *p_scriptComponent);
 
 		/// @brief Updates the scripting system.
 		/// This should be called once per frame to allow active scripts to perform
 		/// their per-frame update logic.
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update(float p_deltaTime);
+		void Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
 
 		/// @brief Creates a script instance for a component.
 		/// @param p_scriptComponent Component that will connect to the script instance.

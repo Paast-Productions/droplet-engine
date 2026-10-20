@@ -12,7 +12,6 @@
 namespace Droplet::Script
 {
 	/// @brief Stores information about a loaded Lua script.
-	///
 	/// LoadedScript contains the compiled Lua chunk together with information
 	/// about the source file. The file timestamp is used to detect when the
 	/// script has been modified and needs to be reloaded.
@@ -51,13 +50,13 @@ namespace Droplet::Script
 
 		/// @brief Starts all active script instances.
 		/// This should be called once the scripts are allowed to be active.
-		void Start();
+		void Start(Droplet::Scene::Component *p_scriptComponent);
 
 		/// @brief Updates all active script instances.
 		/// This should be called once per frame to allow active scripts to perform
 		/// their update logic.
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update(float p_deltaTime);
+		void Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
 
 		/// @brief Calls a Lua function on a script attached to a component.
 		/// The function is looked up through the relationship between the

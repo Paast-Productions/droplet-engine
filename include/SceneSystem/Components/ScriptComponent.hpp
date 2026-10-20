@@ -30,20 +30,6 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         std::string_view GetTypeName() const override { return "ScriptComponent"; }
 
-        /// @brief Updates the associated Lua script.
-        ///
-        /// Called during the Node's update cycle and forwards the update to
-        /// the scripting system.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime) override;
-
-        /// @brief Starts the associated Lua script.
-        ///
-        /// Called when the component is started and forwards the start
-        /// operation to the scripting system.
-        void Start() override;
-
         /// @brief Gets the path of the associated Lua script.
         ///
         /// @return Reference to the stored script path.
@@ -85,7 +71,18 @@ namespace Droplet::Scene
         template<typename... Args>
         sol::protected_function_result Call( const std::string &p_functionName, Args&&... p_args);
 
-    protected:
+    protected: 
+
+        /// @brief Starts the associated Lua script.
+        /// Called when the component is started and forwards the start
+        /// operation to the scripting system.
+        void StartImpl() override;
+
+        /// @brief Updates the associated Lua script.
+        /// Called during the Node's update cycle and forwards the update to
+        /// the scripting system.
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+        void UpdateImpl(float p_deltaTime) override;
 
 		/// @brief Internal rendering function for the component's UI.
 		///
@@ -101,6 +98,8 @@ namespace Droplet::Scene
     private:
         /// @brief Path to the Lua script associated with this component.
         std::string m_scriptPath;
+
+        Script::ScriptInstance *m_scriptInstance;
 
         bool m_started = true;
     };

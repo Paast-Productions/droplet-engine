@@ -20,18 +20,18 @@ ScriptSystem::~ScriptSystem()
 
 }
 
-void ScriptSystem::Start()
+void ScriptSystem::Start(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
 
-	m_scriptManager.Start();
+	m_scriptManager.Start(p_scriptComponent);
 }
 
-void ScriptSystem::Update(float p_deltaTime)
+void ScriptSystem::Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
 {
 	ZoneScoped;
 
-	m_scriptManager.Update(p_deltaTime);
+	m_scriptManager.Update(p_scriptComponent, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))

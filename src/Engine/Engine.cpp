@@ -147,10 +147,10 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 
 	// Scriptsystem
 
-	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
-	{
-		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
-	}
+	//if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
+	//{
+	//	Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
+	//}
 
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{

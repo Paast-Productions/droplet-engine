@@ -6,14 +6,15 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
-void ScriptComponent::Start()
+void ScriptComponent::StartImpl()
 {
-	ScriptSystem::Get().Call(this, "OnStart");
+	//ScriptSystem::Get().Call(this, "OnStart");
+    ScriptSystem::Get().Start(this);
 }
 
-void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
+void ScriptComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 {
-
+    ScriptSystem::Get().Update(this, p_deltaTime);
 }
 
 const std::string &ScriptComponent::GetScriptPath() const
@@ -42,7 +43,6 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
     ScriptSystem::Get().ActivateComponentScript(this);
-    ScriptSystem::Get().Start();
 }
 
 void ScriptComponent::DetachScript()

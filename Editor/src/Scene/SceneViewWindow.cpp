@@ -229,7 +229,7 @@ void SceneViewWindow::RenderImpl()
 		else
 		{
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-			{
+			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
 			}
 		}

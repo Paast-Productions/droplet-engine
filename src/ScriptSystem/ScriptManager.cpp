@@ -16,23 +16,27 @@ ScriptManager::ScriptManager(LuaStateHandler &p_statehandler) : m_StateHandler(p
 {
 }
 
-void ScriptManager::Start()
+void ScriptManager::Start(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
 
-	for (auto &instance : m_activeScripts)
+	const auto it = m_componentScripts.find(p_scriptComponent);
+
+	if (it != m_componentScripts.end() && it->second)
 	{
-		instance->OnStart();
+		it->second->OnStart();
 	}
 }
 
-void ScriptManager::Update(float p_deltaTime)
+void ScriptManager::Update(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
 {
 	ZoneScoped;
 
-	for (auto &instance : m_activeScripts)
+	const auto it = m_componentScripts.find(p_scriptComponent);
+
+	if (it != m_componentScripts.end() && it->second)
 	{
-		instance->OnUpdate(p_deltaTime);
+		it->second->OnUpdate(p_deltaTime);
 	}
 }
 
@@ -292,7 +296,6 @@ void ScriptManager::UnloadScript(const std::string& p_scriptFile)
 
 bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 {
-	 
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 

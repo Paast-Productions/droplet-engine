@@ -21,7 +21,8 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	//m_engine.GetSceneManager().LoadScene(p_sceneName);
 	
 	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
-	
+	m_engine.GetSceneManager().ActivateScene(p_sceneName); // TODO: Set active is not set active??
+
 	if (!newScene)
 	{
 		throw std::runtime_error("Could not load scene: " + p_sceneName);

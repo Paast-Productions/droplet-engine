@@ -12,6 +12,16 @@ Component::Component()
 
 }
 
+void Droplet::Scene::Component::Start()
+{
+	StartImpl();
+}
+
+void Droplet::Scene::Component::Update(float p_deltaTime)
+{
+	UpdateImpl(p_deltaTime);
+}
+
 void Component::RenderUI()
 {
 	ZoneScoped;
