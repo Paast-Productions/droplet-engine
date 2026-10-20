@@ -299,7 +299,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		}
 	}
 
-	//Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR

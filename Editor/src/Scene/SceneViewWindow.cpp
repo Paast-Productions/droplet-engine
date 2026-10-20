@@ -303,61 +303,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		}
 	}
 
-	// Render cubes for all nodes in the scene
-	{
-		Math::Frustum camFrustum = camera.GetFrustum();
-
-		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) { // TODO: Make weak pointer
-			if (!node)
-			{
-				return;
-			}
-
-			if (!node->IsActive())
-			{
-				return;
-			}
-
-			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
-
-			Math::OBB baseOBB = Math::OBB(glm::vec3(0.0f), glm::vec3(0.5f), glm::mat3(1.0f));
-			Math::OBB nodeOBB = Math::OBB::Transform(baseOBB, nodeMat);
-
-			Math::IntersectType intersection = Math::Intersects(camFrustum, nodeOBB);
-
-			if (intersection != Math::IntersectType::None)
-			{
-				// Draw
-				glm::vec4 nodeColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-				// Randomize color based on the nodes pointer to ensure it's consistent across frames
-				std::hash<std::shared_ptr<DNode>> hasher; // TODO: Make weak pointer
-				size_t hashValue = hasher(node);
-
-				srand(static_cast<unsigned int>(hashValue));
-				int r = rand() % 256;
-				int g = rand() % 256;
-				int b = rand() % 256;
-
-				DebugDraw::DrawBox(
-					nodeOBB, 
-					glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f),
-					true//, true
-				);
-			}
-
-			for (const auto &child : node->GetChildren())
-			{
-				recurseNodes(child);
-			}
-		};
-
-		for (const auto &node : nodes)
-		{
-			recurseNodes(node);
-		}
-	}
-
 	bool didUse = false;
 
 	// Render transform gizmo for selected node
