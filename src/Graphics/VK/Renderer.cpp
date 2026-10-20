@@ -287,7 +287,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 				.size = sizeof(PushConstantData),
 				.pValues = &pcData,
 			};
-
+			
 			commandBuffer.pushConstants2(pcInfo);
 			commandBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
 			commandBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
