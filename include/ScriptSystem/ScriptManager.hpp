@@ -198,7 +198,7 @@ namespace Droplet::Script
 
 		/// @brief Stores all currently active script instances
 		/// Only active scripts are processed during the update loop.
-		std::vector<ScriptInstance *> m_activeScripts;
+		//std::vector<ScriptInstance *> m_activeScripts;
 
 		/// @brief Is the path from the working directory to the map that 
 		/// contains all the lua script files

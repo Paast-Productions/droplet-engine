@@ -534,8 +534,6 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 			return;
 		}
 	}
-	//instance was not found in ownership vector?
-	// TODO: Log the error to the manager
 }
 
 bool ScriptManager::HasScriptFileChanged(const std::string& p_scriptFile)
