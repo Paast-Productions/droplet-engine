@@ -187,14 +187,24 @@ nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
+    // GUIDS
+
     json["meshGUID"] = GetMeshGUID();
     json["textureGUID"] = GetTextureGUID();
+
+	// Names
+
+	json["meshName"] = m_meshName;
+	json["textureName"] = m_textureName;
 
     return json;
 }
 
 void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
+
+    // GUIDS
+
 	if (p_compJson.contains("meshGUID"))
 	{
         m_mesh = ResourceManager::Get().LoadResource<Droplet::MeshResource>(p_compJson["meshGUID"].get<Droplet::GUID>());
@@ -203,5 +213,17 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 	if (p_compJson.contains("textureGUID"))
 	{
         m_2dTexture = ResourceManager::Get().LoadResource<Droplet::Texture2DResource>(p_compJson["textureGUID"].get<Droplet::GUID>());
+	}
+
+	// Names
+
+	if (p_compJson.contains("meshName"))
+	{
+		m_meshName = p_compJson["meshName"].get<std::string>();
+	}
+
+	if (p_compJson.contains("textureName"))
+	{
+		m_textureName = p_compJson["textureName"].get<std::string>();
 	}
 }
