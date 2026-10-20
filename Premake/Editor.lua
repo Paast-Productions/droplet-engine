@@ -69,7 +69,8 @@ project "Editor"
         "json",
         "tracy",
         "IconFontCppHeaders",
-        "PortableFileDialogs"
+        "PortableFileDialogs",
+        "Jolt"
     }
 
     files 
@@ -93,5 +94,6 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("lua-5.4.7"),
+		AddQuotation("Jolt")
     }
