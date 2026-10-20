@@ -37,18 +37,29 @@ namespace Droplet::Script
 			return scriptSystem;
 		}
 
-		/// @brief Starts the script script system.
+		/// @brief Starts the components.
 		/// This should be called once the scene starts with the script system.
+		/// @param ScriptComponent to call its script instance
 		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
 
+
+		/// @brief Starts the behaviour.
+		/// This should be called once the scene starts with the script system.
+		/// @param ScriptBehaviour to call its script instance
 		void StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
-		/// @brief Updates the scripting system.
+		/// @brief Updates the component.
 		/// This should be called once per frame to allow active scripts to perform
 		/// their per-frame update logic.
+		/// @param ScriptComponent to call its script instance
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
 		void UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
 
+		/// @brief Updates the behaviour.
+		/// This should be called once per frame to allow active scripts to perform
+		/// their per-frame update logic.
+		/// @param ScriptBehaviour to call its script instance
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
 		void UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime);
 
 		/// @brief Creates a script instance for a component.

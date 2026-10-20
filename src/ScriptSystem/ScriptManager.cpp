@@ -492,47 +492,34 @@ void ScriptManager::DestroyInstance(ScriptInstance *p_scriptInstance)
 		throw std::invalid_argument("p_scriptInstance is nullptr");
 	}
 
-	std::vector<ScriptInstance*>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), p_scriptInstance);
+	// Remove the component association.
+	std::erase_if(
+		m_componentScripts,
+		[p_scriptInstance](const auto &p_entry)
+		{
+			return p_entry.second == p_scriptInstance;
+		});
 
-	if (activeIterator != m_activeScripts.end())
-	{
-		*activeIterator = m_activeScripts.back();
-		m_activeScripts.pop_back();
-	}
+	// Remove the behaviour association.
+	std::erase_if(
+		m_behaviourScripts,
+		[p_scriptInstance](const auto &p_entry)
+		{
+			return p_entry.second == p_scriptInstance;
+		});
 
-	for (std::unordered_map<Scene::Component*, ScriptInstance*>::iterator it =
-		m_componentScripts.begin(); it != m_componentScripts.end();)
-	{
-		if (it->second == p_scriptInstance)
+	// Destroy the owned instance.
+	const auto it = std::find_if(
+		m_scriptInstances.begin(),
+		m_scriptInstances.end(),
+		[p_scriptInstance](const auto &p_instance)
 		{
-			it = m_componentScripts.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
+			return p_instance.get() == p_scriptInstance;
+		});
 
-	for (std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator it =
-		m_behaviourScripts.begin(); it != m_behaviourScripts.end();)
+	if (it != m_scriptInstances.end())
 	{
-		if (it->second == p_scriptInstance)
-		{
-			it = m_behaviourScripts.erase(it);
-		}
-		else
-		{
-			++it;
-		}
-	}
-
-	for (std::vector<std::unique_ptr<ScriptInstance>>::iterator it = m_scriptInstances.begin(); it != m_scriptInstances.end(); it++)
-	{
-		if (it->get() == p_scriptInstance)
-		{
-			m_scriptInstances.erase(it);
-			return;
-		}
+		m_scriptInstances.erase(it);
 	}
 }
 

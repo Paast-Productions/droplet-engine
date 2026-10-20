@@ -39,7 +39,6 @@ namespace Droplet::Scene
         ///
 		/// @param p_scriptPath Path to the Lua script to associate with this component.
 		void SetScriptPath(const std::string &p_scriptPath);
-        void AttachScript(const std::string p_scriptPath);
 
         /// @brief Detaches the script from this component.
         ///
@@ -78,6 +77,8 @@ namespace Droplet::Scene
 		/// displays the script path. Derived components can override this
 		/// function to implement their own UI rendering logic.
 		void RenderUIImpl() override;
+
+        void AttachScript(const std::string p_scriptPath);
 
         nlohmann::json SerializeImpl() override;
 
