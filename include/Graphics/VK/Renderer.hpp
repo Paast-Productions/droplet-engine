@@ -166,7 +166,6 @@ namespace Droplet::Graphics
 
 		//Latest received swapchain result
 		vk::Result m_result;
-		std::uint32_t m_imageIndex;
 
 		bool m_framebufferResized = false;
 		

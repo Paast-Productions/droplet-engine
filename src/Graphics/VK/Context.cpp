@@ -94,14 +94,20 @@ void Context::CreateLogicalDevice()
 		throw std::runtime_error("Could not find a queue for graphics and present -> terminating");
 	}
 
-	// query for Vulkan 1.3 features
+	// query for Vulkan features
 	vk::StructureChain<vk::PhysicalDeviceFeatures2,
 		vk::PhysicalDeviceVulkan11Features,
 		vk::PhysicalDeviceVulkan12Features,
 		vk::PhysicalDeviceVulkan13Features,
+		vk::PhysicalDeviceVulkan14Features,
 		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
 		featureChain = {
-			{},	// vk::PhysicalDeviceFeatures2
+			{	// vk::PhysicalDeviceFeatures2
+				.features {
+					.fillModeNonSolid = true,
+					.wideLines = true,
+				}
+			},	
 			{	// vk::PhysicalDeviceVulkan11Features
 				.shaderDrawParameters = true
 			},							
@@ -118,6 +124,9 @@ void Context::CreateLogicalDevice()
 				.synchronization2 = true, // Fixes sync2 warnings
 				.dynamicRendering = true
 			},	
+			{
+				.smoothLines = true
+			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
 				.extendedDynamicState = true
 			}							

@@ -31,8 +31,8 @@ void Camera::Move(glm::vec3 p_direction, float p_velocity)
 
 void Camera::Rotate(float p_xOffset, float p_yOffset, bool p_constrainPitch)
 {
-	m_yaw += p_xOffset * -1;
-	m_pitch += p_yOffset * -1;
+	m_yaw += p_xOffset;
+	m_pitch += p_yOffset;
 	if (p_constrainPitch)
 	{
 		m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
@@ -91,14 +91,12 @@ glm::mat4 Camera::GetViewMatrix() const
 
 glm::mat4 Camera::GetProjectionMatrix() const
 {
-	glm::mat4 projection = glm::perspective(
+	return glm::perspective(
 		glm::radians(m_fov),
 		m_aspect,
 		m_planes.x,
 		m_planes.y
 	);
-
-	return projection;
 
 }
 

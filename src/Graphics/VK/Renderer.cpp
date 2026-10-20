@@ -135,7 +135,7 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 {
 	return ImGui_ImplVulkan_AddTexture(
 		*m_textureSampler,
-		*p_renderTarget.GetColourImageView().Get(),
+		*p_renderTarget.GetColourImageView(),
 		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 	);
 }
@@ -327,7 +327,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
-		p_renderTarget.GetColourImage().Get(),
+		p_renderTarget.GetColourImage(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -340,7 +340,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 
 	TransitionImageLayout(
-		p_renderTarget.GetDepthBuffer().GetImage(),
+		p_renderTarget.GetDepthImage(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eDepthAttachmentOptimal,
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
@@ -356,7 +356,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-		.imageView = p_renderTarget.GetColourImageView().Get(),
+		.imageView = p_renderTarget.GetColourImageView(),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -365,7 +365,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo
 	{
-		.imageView = p_renderTarget.GetDepthBuffer().GetView(),
+		.imageView = p_renderTarget.GetDepthImageView(),
 		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eDontCare,
@@ -421,7 +421,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 				.offset = 0,
 				.size = sizeof(PushConstantData),
-				.pValues = &data,
+				.pValues = &pcData,
 			};
 
 			commandBuffer.pushConstants2(pcInfo);
@@ -435,13 +435,13 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		}
 	}
 
-	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	//Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
 	TransitionImageLayout(
-		p_renderTarget.GetColourImage().Get(),
+		p_renderTarget.GetColourImage(),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
@@ -797,7 +797,7 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 		.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex],
 		.swapchainCount = 1,
 		.pSwapchains = &*m_swapchain.Get(),
-		.pImageIndices = &m_imageIndex
+		.pImageIndices = &imageIndex
 	};
 	
 	result = m_context.GetQueue().presentKHR(presentInfoKHR);

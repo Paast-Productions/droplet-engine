@@ -21,8 +21,8 @@ void SceneViewWindow::InitImpl()
 	//ToggleToolbar(true);
 	
 	// TODO: MOVE THIS INTO THE RENDERER
-	//m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
-	//m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
+	m_renderTarget = m_editorContext->GetEngine().CreateRenderTarget(720, 720);
+	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -203,7 +203,7 @@ void SceneViewWindow::RenderImpl()
 	}
 
 	// TODO: Wait for the renderer to finish rendering the camera view to the texture
-	ImTextureRef camViewTexture = m_textureDescriptor;
+	ImTextureRef camViewTexture = m_textureDescriptorSet;
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -370,5 +370,5 @@ Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
 
 void SceneViewWindow::SetViewDescriptor(VkDescriptorSet p_textureDescriptor)
 {
-	m_textureDescriptor = p_textureDescriptor;
+	m_textureDescriptorSet = p_textureDescriptor;
 }

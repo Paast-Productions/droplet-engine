@@ -19,8 +19,8 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param EditorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(EditorContext *p_editorContext, Graphics::RenderTarget p_renderTarget) :
-			m_editorContext(p_editorContext), m_renderTarget(p_renderTarget) {}
+		SceneViewWindow(EditorContext *p_editorContext) :
+			m_editorContext(p_editorContext) {}
 		~SceneViewWindow() = default;
 		/// @brief Get the ScenViewWindow rendertarget
 		/// @returns custom RenderTarget class
@@ -42,13 +42,13 @@ namespace Droplet::Editor::Scene
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 
-		EditorContext *m_editorContext;
+		EditorContext *m_editorContext { nullptr };
 
 		/// @brief The texture that the renderer will render to
-		Graphics::RenderTarget &m_renderTarget;
+		Graphics::RenderTarget m_renderTarget { nullptr };
 
 		/// @brief The texture that ImGui uses to render the scene in a ImGui window
-		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;
+		VkDescriptorSet m_textureDescriptorSet = VK_NULL_HANDLE;
 
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
 	};

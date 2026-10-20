@@ -15,6 +15,13 @@ namespace Droplet::Graphics
 	class RenderTarget
 	{
 	public:
+		RenderTarget() = delete;
+		
+		RenderTarget(nullptr_t p_nullptr) :
+			m_colourImage(p_nullptr),
+			m_colourView(p_nullptr),
+			m_depthBuffer(p_nullptr) {}
+		
 		/// @brief Constructor that create every vulkan resource
 		/// @param p_allocator VMA raii Allocator
 		/// @param p_device Vulkan device

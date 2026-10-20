@@ -121,8 +121,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	ScriptsWindow scriptsWindow;
 	Resource::ResourceBrowser resourceBrowser(&editorContext);
 
-	Scene::SceneViewWindow sceneViewWindow(&editorContext, engine.CreateRenderTarget(1920, 1080));
-	sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
+	Scene::SceneViewWindow sceneViewWindow(&editorContext);
+	//sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
@@ -152,7 +152,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::NewFrame();
 		ImGuizmo::BeginFrame();
 
-		//ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 		// Main toolbar
 		if (ImGui::BeginMainMenuBar())
