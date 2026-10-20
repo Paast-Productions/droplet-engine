@@ -42,25 +42,21 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
-    static char fileName[128] = "MyScene";
 
-    ImGui::InputText("Scene name", fileName, sizeof(fileName));
+
+    if (ImGui::TreeNode("Scene Selection"))
+    {
+
+
+        DrawSceneWindow();
+        ImGui::TreePop();
+    }
+
 
     if (ImGui::Button("Add Node"))
     {
         scene->AddNode("New Node");
     }
-
-    if (ImGui::Button("Save Scene"))
-    {
-        m_editorContext->GetActiveScene()->SetName(fileName);
-        std::string path ="Scenes/" + std::string(fileName) + ".json";
-        m_editorContext->SaveScene(path);
-        
-    }
-
-    DrawSceneWindow();
-
 
     ImGui::Separator();
 
@@ -179,7 +175,6 @@ void HierarchyWindow::RenderImpl()
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
 {
     
-    static std::string selectedScene;
     const std::filesystem::path scenesDirectory = std::filesystem::current_path() / "Scenes";
 
     p_sceneFiles.clear();
@@ -200,19 +195,13 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::stri
     }
 
     std::sort(p_sceneFiles.begin(), p_sceneFiles.end());
-
-
-    if (std::find(
-        p_sceneFiles.begin(),
-        p_sceneFiles.end(),
-        selectedScene) == p_sceneFiles.end())
-    {
-        selectedScene.clear();
-    }
 }
 
 void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 {
+    static char fileName[128] = "MyScene";
+
+    ImGui::InputText("Scene name", fileName, sizeof(fileName));
     static std::vector <std::string> sceneFiles;
     static std::string selectedScene;
     static bool hasScannedScenes = false;
@@ -223,10 +212,55 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
         hasScannedScenes = true;
     }
 
-    ImGui::SameLine();
-    ImGui::Text("Saved scenes");
+    if (ImGui::Button("Save Scene"))
+    {
+        m_editorContext->GetActiveScene()->SetName(fileName);
+        std::string path = "Scenes/" + std::string(fileName) + ".json";
+        m_editorContext->SaveScene(path);
 
-    const char *preview = selectedScene.empty() ? "Select a scene" : selectedScene.c_str();
+    }
+    ImGui::SameLine();
+    
+    if (ImGui::Button("Load"))
+    {
+        RefreshLoadedScenes(sceneFiles);
+        ImGui::OpenPopup("Scenes");
+    }
+
+    if (ImGui::BeginPopup("Scenes"))
+    {
+        ImGui::SeparatorText("Saved Scenes");
+        
+        if (sceneFiles.empty())
+        {
+            ImGui::TextUnformatted("No saved scenes found.");
+        }
+        for (const std::string &sceneFile : sceneFiles)
+        {
+            if (ImGui::Selectable(sceneFile.c_str()))
+            {
+                selectedScene = sceneFile;
+
+                const std::string sceneName =
+                    std::filesystem::path(selectedScene)
+                    .stem().string();
+
+                std::string filePath = "Scenes/" + std::string(selectedScene);
+
+                m_editorContext->LoadFromFile(filePath);
+                m_editorContext->SetActiveScene(sceneName);
+                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                fileName[sizeof(fileName) - 1] = '\0';
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        ImGui::EndPopup();
+    }
+
+
+
+    /*const char *preview = selectedScene.empty() ? "Select a scene" : selectedScene.c_str();
 
     if (ImGui::BeginCombo("Scene", preview))
     {
@@ -261,7 +295,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
         const std::filesystem::path scenePath = scenesDirectory / selectedScene;
     }
 
-    ImGui::EndDisabled();
+    ImGui::EndDisabled();*/
 }
 
 
