@@ -204,7 +204,6 @@ void SceneViewWindow::RenderImpl()
 		}
 	}
 
-	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 	ImTextureRef camViewTexture = m_textureDescriptorSet;
 
 	// Render the camera view texture to the scene view window
