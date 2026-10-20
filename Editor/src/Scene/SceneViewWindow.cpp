@@ -202,7 +202,6 @@ void SceneViewWindow::RenderImpl()
 			GameInput &input = GameInput::Get();
 			const EditorCamera &camera = m_editorContext->GetEditorCamera();
 			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
-			GameInput &input = GameInput::Get();
 
 			if (m_cameraLookToggled)
 			{
