@@ -14,7 +14,8 @@ namespace Droplet::Editor
 
         /// @brief Selects a node.
         /// @param p_node The node to select.
-        void SelectNode(const std::shared_ptr<Droplet::Scene::Node> &p_node); // TODO: Make weak pointer
+        /// @param p_clearFirst Whether to clear the current selection before selecting the node.
+        void SelectNode(const std::shared_ptr<Droplet::Scene::Node> &p_node, bool p_clearFirst = true); // TODO: Make weak pointer
 
         /// @brief Deselects a node.
         /// @param p_node The node to deselect.

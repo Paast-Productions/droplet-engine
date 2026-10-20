@@ -25,10 +25,11 @@ namespace Droplet::Math
 		}
 
 		/// @brief Calculates the endpoint of the ray based on its origin and direction.
+		/// @param mult A multiplier for the direction vector to extend or shorten the ray. Default is 1.0f.
 		/// @return The endpoint of the ray.
-		[[nodiscard]] inline glm::vec3 GetEndPoint() const
+		[[nodiscard]] inline glm::vec3 GetEndPoint(float mult = 1.0f) const
 		{
-			return pos + dir;
+			return pos + (dir * mult);
 		}
 
 		// static
