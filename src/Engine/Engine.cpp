@@ -163,6 +163,10 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 		}
 	}
 
+	// ResourceManager
+
+	ResourceManager::Get().Update();
+
 	// Rendering
 	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
@@ -173,9 +177,12 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+
 	
 	// Other system that need updating go here.
     ResourceManager::GetInstance().Update();
+
+
 
 	FrameMark;
 

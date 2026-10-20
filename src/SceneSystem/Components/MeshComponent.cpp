@@ -1,13 +1,13 @@
 #include "MeshComponent.hpp"
 
-#include <string>
-
 #include <ImGui/imgui.h>
 
 #include <Editor/DragDropFields.hpp>
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
+#include <string>
+#include <resource/meta/MetaUtils.hpp>
 
 // imgui helper function
 
@@ -16,7 +16,9 @@ namespace
     bool ResourceSlot(
         const char *p_label,
         Droplet::GUID p_current,
+        const std::string &p_currentDisplayName,
         Droplet::GUID &p_outGUID,
+        std::string &p_outDisplayName,
         Droplet::ResourceType p_expectedType)
     {
         using namespace ImGui;
@@ -35,35 +37,60 @@ namespace
         const float gap = GetStyle().ItemSpacing.x;
 
         const std::string text = p_current != Droplet::C_INVALID_GUID
-            ? "GUID: " + std::to_string(p_current)
+            ? p_currentDisplayName
             : "None (drop resource here)";
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
-            //p_pickBuffer = p_current;
             OpenPopup("pick");
         }
 
-        // Drag and drop
         if (BeginDragDropTarget())
         {
             // TODO: ENSURE PAYLOAD_RESOURCE IS NULL TERMINATED 
             if (const ImGuiPayload *pl =
                 AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
             {
-                if (pl->DataSize == sizeof(ResourcePayload))
+                if (pl->DataSize == sizeof(const Droplet::MetaEntry *))
                 {
-                    const auto *resourcePayload =
-                        static_cast<const ResourcePayload *>(pl->Data);
+                    const auto *entryPtr =
+                        *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
 
-                    if (resourcePayload->type == p_expectedType)
+                    if (entryPtr->type == p_expectedType)
                     {
-                        p_outGUID = resourcePayload->guid;
+                        // Access the complete entry.
+                        p_outGUID = entryPtr->guid;
+                        p_outDisplayName = entryPtr->displayName;
                         changed = true;
                     }
                     else
                     {
-                        // Optional: report incompatible resource type.
+
+                    }
+                }
+            }
+            if (const ImGuiPayload *pl =
+                AcceptDragDropPayload(PAYLOAD_ASSET.data()))
+            {
+                if (pl->DataSize % sizeof(const Droplet::MetaEntry *) == 0)
+                {
+                    const auto *entries =
+                        static_cast<const Droplet::MetaEntry *const *>(pl->Data);
+
+                    const std::size_t count =
+                        pl->DataSize / sizeof(const Droplet::MetaEntry *);
+
+                    for (std::size_t i = 0; i < count; ++i)
+                    {
+                        const Droplet::MetaEntry *entry = entries[i];
+
+                        if (entry && entry->type == p_expectedType)
+                        {
+                            p_outGUID = entry->guid;
+                            p_outDisplayName = entry->displayName;
+                            changed = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -78,13 +105,13 @@ namespace
                 static_cast<unsigned long long>(p_current));
         }
 
-        // Clear button
         SameLine();
         BeginDisabled(p_current == Droplet::C_INVALID_GUID);
 
         if (Button("X", ImVec2(clearW, clearW)))
         {
             p_outGUID = Droplet::C_INVALID_GUID;
+            p_outDisplayName.clear();
             changed = true;
         }
 
@@ -125,29 +152,43 @@ void MeshComponent::RenderUIImpl()
     using namespace ImGui;
 
     PushID(this);
+
     if (BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
     {
         TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
         TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
         Droplet::GUID newGUID = C_INVALID_GUID;
+        std::string newName;
 
-        if(ResourceSlot(
+        // Retrieve the existing resource names from ResourceManager here.
+        // Replace these examples with your actual lookup API.
+
+        if (ResourceSlot(
             "Mesh",
             m_mesh.GetGUID(),
+            m_meshDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Mesh))
         {
             SetMeshGUID(newGUID);
+			m_meshDisplayName = newName;
         }
-    
+
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if (ResourceSlot(
             "Texture",
             m_2dTexture.GetGUID(),
+            m_textureDisplayName,
             newGUID,
+            newName,
             Droplet::ResourceType::Texture2D))
         {
             SetTextureGUID(newGUID);
+			m_textureDisplayName = newName;
         }
         
         Separator();
@@ -199,6 +240,7 @@ void MeshComponent::RenderUIImpl()
         
         EndTable();
     }
+
     PopID();
 }
 
@@ -206,14 +248,24 @@ nlohmann::json MeshComponent::SerializeImpl()
 {
     nlohmann::json json;
 
+    // GUIDS
+
     json["meshGUID"] = GetMeshGUID();
     json["textureGUID"] = GetTextureGUID();
+
+	// Names
+
+	json["meshDisplayName"] = m_meshDisplayName;
+	json["textureDisplayName"] = m_textureDisplayName;
 
     return json;
 }
 
 void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
+
+    // GUIDS
+
 	if (p_compJson.contains("meshGUID"))
 	{
 		SetMeshGUID(p_compJson["meshGUID"].get<Droplet::GUID>());
@@ -222,5 +274,17 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 	if (p_compJson.contains("textureGUID"))
 	{
 		SetTextureGUID(p_compJson["textureGUID"].get<Droplet::GUID>());
+	}
+
+	// Names
+
+	if (p_compJson.contains("meshDisplayName"))
+	{
+		m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+	}
+
+	if (p_compJson.contains("textureDisplayName"))
+	{
+		m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
 	}
 }

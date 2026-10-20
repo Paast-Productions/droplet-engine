@@ -96,6 +96,11 @@ namespace Droplet::Scene
             ResourceHandle<ShaderResource> fs {};
         } m_shaderData;
 
+        // Display Names
+
+		std::string m_meshDisplayName;
+		std::string m_textureDisplayName;
+
         MeshNodeBounds m_bounds;
     };
 }
