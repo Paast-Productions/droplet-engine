@@ -16,7 +16,11 @@ void Droplet::PhysicsComponent::Initialize(Physics *p_physics, Scene::Transform 
 
 void Droplet::PhysicsComponent::Update(float p_deltaTime)
 {
-	PushTransformToPhysics();
+	if (m_transform->HasBeenChanged())
+	{
+		PushTransformToPhysics();
+		m_physics->GetBodyInterface()->SetLinearVelocity(m_bodyID, JPH::Vec3(0.0f, 0.0f, 0.0f));
+	}
 }
 
 void Droplet::PhysicsComponent::LateUpdate(float p_deltaTime)
@@ -147,13 +151,7 @@ void Droplet::PhysicsComponent::PushTransformToPhysics()
 	{
 		return;
 	}
-
-	// TODO: Do this check outside this function
-	//if (m_transform.HasBeenChanged())
-	//{
-	//	PushTransformToPhysics();
-	//}
-
+	
 	const JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
 	const JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
 
