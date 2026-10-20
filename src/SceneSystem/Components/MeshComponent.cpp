@@ -13,9 +13,9 @@ namespace
     bool ResourceSlot(
         const char *p_label,
         Droplet::GUID p_current,
-        const std::string &p_currentName,
+        const std::string &p_currentDisplayName,
         Droplet::GUID &p_outGUID,
-        std::string &p_outName,
+        std::string &p_outDisplayName,
         Droplet::ResourceType p_expectedType)
     {
         using namespace ImGui;
@@ -34,7 +34,7 @@ namespace
         const float gap = GetStyle().ItemSpacing.x;
 
         const std::string text = p_current != Droplet::C_INVALID_GUID
-            ? p_currentName
+            ? p_currentDisplayName
             : "None (drop resource here)";
 
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
@@ -56,12 +56,37 @@ namespace
                     {
                         // Access the complete entry.
                         p_outGUID = entryPtr->guid;
-                        p_outName = entryPtr->displayName;
+                        p_outDisplayName = entryPtr->displayName;
                         changed = true;
                     }
                     else
                     {
 
+                    }
+                }
+            }
+            if (const ImGuiPayload *pl =
+                AcceptDragDropPayload(PAYLOAD_ASSET.data()))
+            {
+                if (pl->DataSize % sizeof(const Droplet::MetaEntry *) == 0)
+                {
+                    const auto *entries =
+                        static_cast<const Droplet::MetaEntry *const *>(pl->Data);
+
+                    const std::size_t count =
+                        pl->DataSize / sizeof(const Droplet::MetaEntry *);
+
+                    for (std::size_t i = 0; i < count; ++i)
+                    {
+                        const Droplet::MetaEntry *entry = entries[i];
+
+                        if (entry && entry->type == p_expectedType)
+                        {
+                            p_outGUID = entry->guid;
+                            p_outDisplayName = entry->displayName;
+                            changed = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -82,7 +107,7 @@ namespace
         if (Button("X", ImVec2(clearW, clearW)))
         {
             p_outGUID = Droplet::C_INVALID_GUID;
-            p_outName.clear();
+            p_outDisplayName.clear();
             changed = true;
         }
 
@@ -127,13 +152,13 @@ void MeshComponent::RenderUIImpl()
         if (ResourceSlot(
             "Mesh",
             m_mesh.GetGUID(),
-            m_meshName,
+            m_meshDisplayName,
             newGUID,
             newName,
             Droplet::ResourceType::Mesh))
         {
             SetMeshGUID(newGUID, resourceManager);
-			m_meshName = newName;
+			m_meshDisplayName = newName;
         }
 
         newGUID = C_INVALID_GUID;
@@ -142,13 +167,13 @@ void MeshComponent::RenderUIImpl()
         if (ResourceSlot(
             "Texture",
             m_2dTexture.GetGUID(),
-            m_textureName,
+            m_textureDisplayName,
             newGUID,
             newName,
             Droplet::ResourceType::Texture2D))
         {
             SetTextureGUID(newGUID, resourceManager);
-			m_textureName = newName;
+			m_textureDisplayName = newName;
         }
 
         EndTable();
@@ -194,8 +219,8 @@ nlohmann::json MeshComponent::SerializeImpl()
 
 	// Names
 
-	json["meshName"] = m_meshName;
-	json["textureName"] = m_textureName;
+	json["meshDisplayName"] = m_meshDisplayName;
+	json["textureDisplayName"] = m_textureDisplayName;
 
     return json;
 }
@@ -217,13 +242,13 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
 	// Names
 
-	if (p_compJson.contains("meshName"))
+	if (p_compJson.contains("meshDisplayName"))
 	{
-		m_meshName = p_compJson["meshName"].get<std::string>();
+		m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
 	}
 
-	if (p_compJson.contains("textureName"))
+	if (p_compJson.contains("textureDisplayName"))
 	{
-		m_textureName = p_compJson["textureName"].get<std::string>();
+		m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
 	}
 }

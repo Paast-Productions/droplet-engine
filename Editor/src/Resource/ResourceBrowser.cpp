@@ -189,23 +189,31 @@ void ResourceBrowser::RenderImpl()
 	            bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow);
 	            
 	            // Asset drag source
+                // Asset drag source
                 if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
                 {
-                    const auto *payload = &childNode;
+                    // Create a list of pointers to the resource metadata entries.
+                    std::vector<const MetaEntry *> payloads;
+                    payloads.reserve(childNode.resources.size());
+
+                    for (const MetaEntry *entry : childNode.resources)
+                    {
+                        payloads.push_back(entry);
+                    }
 
                     SetDragDropPayload(
                         PAYLOAD_ASSET.data(),
-                        &payload,
-                        sizeof(payload));
+                        payloads.data(),
+                        payloads.size() * sizeof(const MetaEntry *));
 
                     TextDisabled(
                         "Asset: %s (%zu resources)",
                         childName.c_str(),
-                        childNode.resources.size());
+                        payloads.size());
 
                     EndDragDropSource();
                 }
-	            
+
 	            // Resources it contains
 	            if (isNodeOpen)
 	            {
