@@ -84,7 +84,7 @@ namespace Droplet::Scene
     private:
         // Resource handles
         ResourceHandle<MeshResource> m_mesh {};
-        ResourceHandle<Texture2DResource> m_2dTexture {};
+        ResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
 
         // TODO: REWRITE AS MATERIAL
         struct ShaderResources
