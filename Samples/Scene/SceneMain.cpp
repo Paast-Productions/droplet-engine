@@ -222,11 +222,11 @@ static void PhysicsTest()
     auto player = s->AddNode("Player");
     player->GetTransform().SetPosition(glm::vec3(0.0f, 60.0f, 0.0f));
 
-    const std::shared_ptr<Droplet::PhysicsComponent> seafloorComp = seafloor->AddComponent<Droplet::PhysicsComponent>();
+    const std::shared_ptr<PhysicsComponent> seafloorComp = seafloor->AddComponent<PhysicsComponent>();
     seafloorComp->Initialize(s->GetPhysics(), &seafloor->GetTransform());
     seafloorComp->SetMeshCollider(rh.Get());
 
-    const std::shared_ptr<Droplet::PhysicsComponent> playerComp = player->AddComponent<Droplet::PhysicsComponent>();
+    const std::shared_ptr<PhysicsComponent> playerComp = player->AddComponent<PhysicsComponent>();
     playerComp->Initialize(s->GetPhysics(), &player->GetTransform());
     playerComp->SetCapsuleCollider(0.5f, 0.5f);
     playerComp->SetMotionType(JPH::EMotionType::Dynamic);

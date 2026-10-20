@@ -9,10 +9,10 @@
 #include <SceneSystem/Physics/Physics.hpp>
 #include <Transform.hpp>
 
-namespace Droplet
+namespace Droplet::Scene
 {
 	/// @brief A physics component for some shape
-	class PhysicsComponent : public Scene::Component
+	class PhysicsComponent : public Component
 	{
 	public:
 		/// @brief Constructs the PhysicsComponent
@@ -21,7 +21,7 @@ namespace Droplet
 		PhysicsComponent() = default;
 		~PhysicsComponent() = default;
 
-		void Initialize(Physics *p_physics, Scene::Transform *p_transform);
+		void Initialize(Physics *p_physics, Transform *p_transform);
 
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
@@ -77,7 +77,7 @@ namespace Droplet
 
 		bool m_hasShape = false;
 		Physics *m_physics;
-		Scene::Transform *m_transform;
+		Transform *m_transform;
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};

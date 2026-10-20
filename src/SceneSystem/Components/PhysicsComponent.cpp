@@ -8,13 +8,13 @@
 
 using namespace Droplet::Scene;
 
-void Droplet::PhysicsComponent::Initialize(Physics *p_physics, Scene::Transform *p_transform)
+void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 {
 	m_physics = p_physics;
 	m_transform = p_transform;
 }
 
-void Droplet::PhysicsComponent::Update(float p_deltaTime)
+void PhysicsComponent::Update(float p_deltaTime)
 {
 	if (m_transform->HasBeenChanged())
 	{
@@ -23,12 +23,12 @@ void Droplet::PhysicsComponent::Update(float p_deltaTime)
 	}
 }
 
-void Droplet::PhysicsComponent::LateUpdate(float p_deltaTime)
+void PhysicsComponent::LateUpdate(float p_deltaTime)
 {
 	PullTransformFromPhysics();
 }
 
-void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
+void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
 	if (m_hasShape)
 	{
@@ -39,7 +39,7 @@ void Droplet::PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 	CreateCollider(boxSettings);
 }
 
-void Droplet::PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
+void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 {
 	if (m_hasShape)
 	{
@@ -49,7 +49,7 @@ void Droplet::PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 	SetBoxCollider(JPH::Vec3(p_halfExtents.x, p_halfExtents.y, p_halfExtents.z));
 }
 
-void Droplet::PhysicsComponent::SetSphereCollider(const float p_radius)
+void PhysicsComponent::SetSphereCollider(const float p_radius)
 {
 	if (m_hasShape)
 	{
@@ -60,7 +60,7 @@ void Droplet::PhysicsComponent::SetSphereCollider(const float p_radius)
 	CreateCollider(sphereSettings);
 }
 
-void Droplet::PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
+void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
 {
 	if (m_hasShape)
 	{
@@ -71,7 +71,7 @@ void Droplet::PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCyl
 	CreateCollider(capsuleSettings);
 }
 
-void Droplet::PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
+void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 {
 	if (m_hasShape || p_mesh == nullptr)
 	{
@@ -111,17 +111,17 @@ void Droplet::PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_m
 	CreateCollider(meshSettings);
 }
 
-void Droplet::PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
+void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
 	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
 }
 
-void Droplet::PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
+void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 {
 	m_physics->GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
 }
 
-void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
+void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
 {
 	JPH::ShapeSettings::ShapeResult result = p_shapeSettings.Create();
 
@@ -146,7 +146,7 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 	m_hasShape = true;
 }
 
-void Droplet::PhysicsComponent::PushTransformToPhysics()
+void PhysicsComponent::PushTransformToPhysics()
 {
 	if (!m_hasShape)
 	{
@@ -159,7 +159,7 @@ void Droplet::PhysicsComponent::PushTransformToPhysics()
 	m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
 }
 
-void Droplet::PhysicsComponent::PullTransformFromPhysics()
+void PhysicsComponent::PullTransformFromPhysics()
 {
 	if (!m_hasShape)
 	{
