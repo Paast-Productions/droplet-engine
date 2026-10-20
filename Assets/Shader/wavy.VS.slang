@@ -32,7 +32,7 @@ layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 [shader("vertex")]
 VSOutput main(VSInput input) {
     VSOutput output;
-    float4 pos = float4(input.inPosition.x, input.inPosition.y, sin(input.inPosition.z * 3 + pc.time), 1.0);
+    float4 pos = float4(input.inPosition.x, input.inPosition.y, input.inPosition.z + sin(input.inPosition.y + pc.time), 1.0);
     output.pos = mul(vp.proj, mul(vp.view, mul(pc.world, pos)));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);
