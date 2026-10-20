@@ -133,6 +133,7 @@ void Droplet::PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettin
 	m_shape = result.Get();
 	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(m_transform->GetPosition(Transform::Space::World)), 
 		GLMtoJPH(m_transform->GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
+	bodySettings.mFriction = 0.2f;
 	bodySettings.mAllowDynamicOrKinematic = true;
 	bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
 	bodySettings.mMassPropertiesOverride = JPH::MassProperties(1.0f);
