@@ -233,7 +233,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
                     std::filesystem::path(selectedScene)
                     .stem().string();
 
-                std::string filePath = "Scenes/" + std::string(selectedScene);
+                std::string filePath = scenesDirectory.string() + std::string(selectedScene);
 
                 m_editorContext->LoadFromFile(filePath);
                 m_editorContext->SetActiveScene(sceneName);
