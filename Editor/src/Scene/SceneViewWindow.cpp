@@ -27,27 +27,6 @@ void SceneViewWindow::InitImpl()
 
 void Droplet::Editor::Scene::SceneViewWindow::RenderToolbar()
 {
-	if (ImGui::BeginMenu("File"))
-	{
-		if (ImGui::BeginMenu("Layout"))
-		{
-			if (ImGui::MenuItem("Load Default Layout"))
-			{
-				ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Default.ini");
-
-			}
-
-			if (ImGui::MenuItem("Save Default Layout"))
-			{
-				ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Default.ini");
-			}
-
-			ImGui::EndMenu();
-		}
-
-		ImGui::EndMenu();
-	}
-
 	if (ImGui::BeginMenu("Space"))
 	{
 		ImGuizmo::MODE currentMode = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
