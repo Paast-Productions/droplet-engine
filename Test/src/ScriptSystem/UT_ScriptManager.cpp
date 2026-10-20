@@ -126,12 +126,10 @@ TEST(ScriptManager, ReloadScript)
 	EXPECT_NO_THROW(manager.ReloadScript("testScript2.lua"));
 }
 
-TEST(ScriptManager, GetLoadedScript)
+TEST(ScriptManager, GetLoadedScriptInfo)
 {
-	//Lua state initialization
 	LuaStateHandler stateHandler;
 	ScriptManager manager(stateHandler);
-	
 
 	manager.SetScriptDirectory("../src/Scripts");
 
@@ -139,14 +137,19 @@ TEST(ScriptManager, GetLoadedScript)
 	manager.LoadScript("testScript3.lua");
 	manager.LoadScript("testScript2.lua");
 
-	sol::load_result *result1 = manager.GetLoadedScript("testScript.lua");
-	sol::load_result *result2 = manager.GetLoadedScript("testScript3.lua");
-	sol::load_result *result3 = manager.GetLoadedScript("testScript2.lua");
-	sol::load_result *failedResult = manager.GetLoadedScript("NonExisting.lua");
-	
-	EXPECT_TRUE(result1->valid());
-	EXPECT_TRUE(result2->valid());
-	EXPECT_TRUE(result3->valid());
+	LoadedScript *result1 = manager.GetLoadedScriptInfo("testScript.lua");
+	LoadedScript *result2 = manager.GetLoadedScriptInfo("testScript3.lua");
+	LoadedScript *result3 =	manager.GetLoadedScriptInfo("testScript2.lua");
+	LoadedScript *failedResult = manager.GetLoadedScriptInfo("NonExisting.lua");
+
+	ASSERT_NE(result1, nullptr);
+	ASSERT_NE(result2, nullptr);
+	ASSERT_NE(result3, nullptr);
+
+	EXPECT_FALSE(result1->scriptPath.empty());
+	EXPECT_FALSE(result2->scriptPath.empty());
+	EXPECT_FALSE(result3->scriptPath.empty());
+
 	EXPECT_EQ(failedResult, nullptr);
 }
 

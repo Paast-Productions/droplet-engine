@@ -127,7 +127,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
     m_activeScenes.end());
 }
 
-std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: Make weak pointer
 {
     auto it = m_scenes.find(p_name);
 
@@ -217,7 +217,7 @@ void SceneManager::Render()
     }
 }
 
-void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene,  const std::string &p_filePath)
+void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
 {
     ZoneScoped;
 

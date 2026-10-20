@@ -12,7 +12,7 @@ NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext)
 	: m_editorContext(p_editorContext)
 { }
 
-void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect)
+void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect) // TODO: Make weak pointer
 {
 	m_currentNode = p_nodeToInspect;
 }
@@ -30,7 +30,6 @@ void NodeInspectorWindow::CloseImpl()
 
 void NodeInspectorWindow::RenderImpl()
 {
-	//const auto &selectedNodes = m_interactionState->GetSelectedNodes();
 	const auto &selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes();
 
 	// No selected node
@@ -115,7 +114,7 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonWidth = ImGui::GetContentRegionAvail().x;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents();
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents(); // TODO: Make weak pointer
 
 	for (const auto &component : components)
 	{
@@ -166,7 +165,6 @@ void NodeInspectorWindow::RenderImpl()
 	}
 
 	ImGui::PopID();
-	//List of components (Do i need a component list with imgui functions for this?)
 }
 
 void NodeInspectorWindow::RenderToolbar()

@@ -17,7 +17,8 @@ namespace Droplet::Graphics::SDL
     {
         std::int32_t Width {0};
         std::int32_t Height {0};
-        SDL_WindowFlags Flags {SDL_WINDOW_VULKAN};
+        SDL_WindowFlags Flags {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE};
+        std::string title{};
     };
     
     /// @class Window
@@ -29,7 +30,7 @@ namespace Droplet::Graphics::SDL
         
         /// @brief SDL-window constructor 
         /// @param p_windowConfig SDL-Window Configuration Struct
-        Window(WindowConfig p_windowConfig);
+        Window(const WindowConfig &p_windowConfig);
         
         Window(const Window& p_sdlWindow) = delete;
         Window& operator=(const Window& p_sdlWindow) = delete;

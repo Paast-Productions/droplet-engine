@@ -42,6 +42,12 @@ void ScriptManager::CreateComponentScript(
 {
 	ZoneScoped;
 
+	if (p_scriptComponent == nullptr)
+	{
+		throw std::invalid_argument(
+			"Script component is nullptr.");
+	}
+
 	if (!IsLoaded(p_scriptFile))
 	{
 		LoadScript(p_scriptFile);
@@ -51,21 +57,7 @@ void ScriptManager::CreateComponentScript(
 	if (loadedScript == nullptr)
 	{
 		throw std::invalid_argument(
-			"Loaded script information was not found.");
-	}
-
-	if (p_scriptComponent == nullptr)
-	{
-		throw std::invalid_argument(
-			"Script component is nullptr.");
-	}
-
-	auto existing = m_componentScripts.find(p_scriptComponent);
-	ScriptInstance *oldInstance = nullptr;
-
-	if (existing != m_componentScripts.end())
-	{
-		oldInstance = existing->second;
+			"LoadedScript not found: " + p_scriptFile);
 	}
 
 	// Load a fresh Lua chunk for this instance.
@@ -79,6 +71,14 @@ void ScriptManager::CreateComponentScript(
 		throw std::runtime_error(
 			"Failed to load script '" + p_scriptFile +
 			"': " + error.what());
+	}
+
+	auto existing = m_componentScripts.find(p_scriptComponent);
+	ScriptInstance *oldInstance = nullptr;
+
+	if (existing != m_componentScripts.end())
+	{
+		oldInstance = existing->second;
 	}
 
 	GameInput &input = GameInput::Get();
@@ -117,12 +117,22 @@ void ScriptManager::CreateBehaviourScript(
 	{
 		LoadScript(p_scriptFile);
 	}
-	std::print("load script successfully\n");
 
-	sol::load_result *loadResult = GetLoadedScript(p_scriptFile);
-	if (loadResult == nullptr)
+	LoadedScript *loadedScript = GetLoadedScriptInfo(p_scriptFile);
+
+	if (loadedScript == nullptr)
 	{
-		throw std::invalid_argument("loadResult is recived as nullptr");
+		throw std::invalid_argument("LoadedScript not found: " + p_scriptFile);
+	}
+
+	sol::load_result instanceLoadResult = m_StateHandler.GetState().load_file(loadedScript->scriptPath.string());
+	
+	if (!instanceLoadResult.valid())
+	{
+		sol::error error = instanceLoadResult;
+		throw std::runtime_error(
+			"Failed to load script '" + p_scriptFile +
+			"': " + error.what());
 	}
 
 	std::unordered_map<Scene::Behaviour *, ScriptInstance *>::iterator existing = m_behaviourScripts.find(p_scriptBehaviour);
@@ -135,7 +145,7 @@ void ScriptManager::CreateBehaviourScript(
 
 	GameInput &input = GameInput::Get();
 
-	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, *loadResult, p_scriptFile);
+	std::unique_ptr<ScriptInstance> scriptInstance = std::make_unique<ScriptInstance>(nullptr, input,m_StateHandler, instanceLoadResult, p_scriptFile);
 
 	ScriptInstance *instance = scriptInstance.get();
 
@@ -211,32 +221,47 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
 
-	if (IsLoaded(p_scriptFile))
-	{
-		return;
-	}
-
-	std::filesystem::path scriptPath = FindScript(p_scriptFile);
 	if (p_scriptFile.empty())
 	{
 		throw std::runtime_error("p_scriptFile is empty");
 	}
 
-#ifdef TRACY_ENABLE
-	sol::load_result loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
-#else
-	std::string fileContents = "";
-	std::ifstream file(scriptPath);
-
-	if (file.is_open())
+	if (IsLoaded(p_scriptFile))
 	{
-		std::getline(file, fileContents, '\0');
-		file.close();
+		return;
 	}
+
+	const std::filesystem::path scriptPath = FindScript(p_scriptFile);
+
+	if (scriptPath.empty())
+	{
+		throw std::runtime_error(
+			"Could not find script: " + p_scriptFile);
+	}
+
+	sol::load_result loadResult;
+
+#ifdef TRACY_ENABLE
+	loadResult = m_StateHandler.GetState().load_file(scriptPath.string());
+#else
+	std::string fileContents;
+	std::ifstream file(scriptPath, std::ios::binary);
+
+	if (!file.is_open())
+	{
+		throw std::runtime_error(
+			"Could not open script: " + scriptPath.string());
+	}
+
+	std::getline(file, fileContents, '\0');
+	file.close();
 
 	tracy::LuaRemove(fileContents.data());
 
-	sol::load_result loadResult = m_StateHandler.GetState().load(fileContents, sol::detail::default_chunk_name(), sol::load_mode::text);
+	loadResult = m_StateHandler.GetState().load(
+		fileContents,
+		sol::detail::default_chunk_name(),
+		sol::load_mode::text);
 #endif
 
 	if (!loadResult.valid())
@@ -246,28 +271,27 @@ void ScriptManager::LoadScript(const std::string &p_scriptFile)
 		std::print(
 			"Failed to load script '{}': {}\n",
 			scriptPath.string(),
-			error.what()
-		);
+			error.what());
 
-		throw std::runtime_error("Failed to load script: ");
+		throw std::runtime_error(
+			"Failed to load script '" + p_scriptFile +
+			"': " + error.what());
 	}
-	
+
 	std::error_code errorCode;
-	auto lastWriteTime = std::filesystem::last_write_time(scriptPath, errorCode);
+	const auto lastWriteTime =
+		std::filesystem::last_write_time(scriptPath, errorCode);
 
 	if (errorCode)
 	{
-		std::print("Failed to get last write time for '{}': {}\n", scriptPath.string(), errorCode.message());
-		throw std::runtime_error("Failed to get last write time for script");
+		throw std::runtime_error(
+			"Failed to get last write time for '" +
+			scriptPath.string() + "': " + errorCode.message());
 	}
 
-	if (!loadResult.valid())
-	{
-		sol::error error = loadResult;
-		throw std::runtime_error("loadResult is not valid");
-	}
-
-	m_loadedScripts.emplace(p_scriptFile, LoadedScript{std::move(loadResult), scriptPath, lastWriteTime});
+	m_loadedScripts.emplace(
+		p_scriptFile,
+		LoadedScript{ scriptPath, lastWriteTime });
 }
 
 void ScriptManager::UnloadScript(const std::string& p_scriptFile)
@@ -292,7 +316,6 @@ void ScriptManager::UnloadScript(const std::string& p_scriptFile)
 
 bool ScriptManager::IsLoaded(const std::string& p_scriptFile)
 {
-	 
 	return m_loadedScripts.find(p_scriptFile) != m_loadedScripts.end(); // Possibly change this to a for loop
 }
 
@@ -326,14 +349,22 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 		throw std::runtime_error("Failed to get write time for " + loadedScript.scriptPath.string() + " " + errorCode.message());
 	}
 
-	loadedScript.loadResult = std::move(newLoadResult);
 	loadedScript.lastWriteTime = newLastWriteTime;
 
 	for (auto& instance : m_scriptInstances)
 	{
 		if (instance->GetScriptPath() == p_scriptFile)
 		{
-			instance->Reload(loadedScript.loadResult); 
+			sol::load_result instanceLoadResult = m_StateHandler.GetState().load_file(loadedScript.scriptPath.string());
+
+			if (!instanceLoadResult.valid())
+			{
+				sol::error error = instanceLoadResult;
+				throw std::runtime_error(
+						"Failed to reload script '" + p_scriptFile +
+				"': " + error.what());
+			}
+			instance->Reload(instanceLoadResult); 
 		}
 	}
 
@@ -353,27 +384,15 @@ void ScriptManager::CheckForFileChanges()
 	}
 }
 
-sol::load_result *ScriptManager::GetLoadedScript(const std::string& p_scriptFile)
-{
-	auto it = m_loadedScripts.find(p_scriptFile);
-	
-	if (it == m_loadedScripts.end())
-	{
-		return nullptr;
-	}
-
-	return &it->second.loadResult;
-}
-
 LoadedScript *Droplet::Script::ScriptManager::GetLoadedScriptInfo(const std::string &p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);
-
+		
 	if (it == m_loadedScripts.end())
 	{
 		return nullptr;
 	}
-
+	
 	return &it->second;
 }
 
@@ -493,26 +512,42 @@ std::string Droplet::Script::ScriptManager::GetScriptDirectory()
 	return m_scriptDirectoryPath.string();
 }
 
-std::filesystem::path ScriptManager::FindScript(const std::string& p_scriptFile)
+std::filesystem::path ScriptManager::FindScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
 
-	const std::filesystem::path requestedPath = std::filesystem::path(p_scriptFile).lexically_normal();
+	const std::filesystem::path requestedPath =
+		std::filesystem::path(p_scriptFile).lexically_normal();
 
-	for (const auto& entry : std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
+	if (requestedPath.empty())
+	{
+		return {};
+	}
+
+	for (const auto &entry :
+		std::filesystem::recursive_directory_iterator(m_scriptDirectoryPath))
 	{
 		if (!entry.is_regular_file())
 		{
 			continue;
 		}
 
-		const std::filesystem::path relativePath = entry.path().lexically_relative(m_scriptDirectoryPath).lexically_normal();
+		const std::filesystem::path relativePath = entry.path()
+			.lexically_relative(m_scriptDirectoryPath)
+			.lexically_normal();
 
-		if (relativePath == p_scriptFile)
+		if (relativePath == requestedPath)
+		{
+			return entry.path();
+		}
+
+		if (!requestedPath.has_parent_path() &&
+			relativePath.filename() == requestedPath.filename())
 		{
 			return entry.path();
 		}
 	}
+
 	return {};
 }
 

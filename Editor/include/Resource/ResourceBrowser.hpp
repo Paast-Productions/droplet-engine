@@ -6,8 +6,6 @@
 #include <core/FileExplorer.hpp>
 #include <EditorContext.hpp>
 
-#include "EditorContext.hpp"
-
 namespace Droplet::Editor::Resource
 {
     struct BrowserNode

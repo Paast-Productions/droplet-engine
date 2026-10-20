@@ -12,6 +12,7 @@ namespace Droplet::Graphics::VK
     enum class DescriptorSetBinding : std::uint32_t
     {
         eUniformBuffer = 0,
+        eStorageBuffer = 0, // Temporary
         eCombinedImageSampler = 1
     };
     
@@ -69,6 +70,11 @@ namespace Droplet::Graphics::VK
         /// @param p_device Vulkan Device
         /// @param p_buffer VMA Buffer
         void WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer);
+        
+        /// @brief Writes a storage buffer descriptor to the storage buffer binding in the descriptor set
+        /// @param p_device Vulkan Device
+        /// @param p_buffer VMA Buffer
+        void WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer);
         
         /// @brief Writes a combined image sampler descriptor to the combined image sampler binding in the descriptor set
         /// @param p_device Vulkan Device

@@ -56,10 +56,9 @@ project "SceneSystem"
         "ImGui",
         "tracy",
         "Sol2",
-	"bvh",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
-
+        "bvh",
+        "PortableFileDialogs",
+        "IconFontCppHeaders"
     }
 
     links {
@@ -70,9 +69,11 @@ project "SceneSystem"
         "winmm",
         "gdi32",
         "shell32",
+        "VulkanMemoryAllocator",
+        AddQuotation("vulkan-1"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+	    AddQuotation("zlibstaticd"),
+ 	    AddQuotation("assimp-mtd")
     }

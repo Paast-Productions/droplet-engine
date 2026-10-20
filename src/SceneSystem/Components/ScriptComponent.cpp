@@ -67,7 +67,11 @@ void ScriptComponent::DeactivateScript()
 
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str(), ImVec2(180.0f, 0.0f));
+    const std::string preview = m_scriptPath.empty()
+        ? "Drop Lua script here"
+        : m_scriptPath;
+
+    ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
 
     if (ImGui::BeginDragDropTarget())
     {
