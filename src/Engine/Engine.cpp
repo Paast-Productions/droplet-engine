@@ -33,7 +33,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     ThreadPool::GetInstance().Initialize();
     
     // --- Setup Resource Manager ---
-    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
 	// HACK: DON'T DO THIS
     ResourceManager &resManInstance = ResourceManager::GetInstance();
 	resManInstance.Initialize(assetDir);

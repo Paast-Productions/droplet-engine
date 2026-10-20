@@ -439,7 +439,7 @@ void ResourceBrowser::RegisterAsset()
             
         for (auto &absPath : absPaths)
         {
-            if (ResourceManager::GetInstance().IsAssetSupported(absPath))
+            if (!ResourceManager::GetInstance().IsAssetSupported(absPath))
             {
                 m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
                 continue;
