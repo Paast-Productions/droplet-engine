@@ -1,22 +1,21 @@
 #include "LuaBindings.hpp"
-#include <Node.hpp>
-#include <Transform.hpp>
+#include "Node.hpp"
+#include "Transform.hpp"
 #include <glm/glm.hpp>
-#include <GameInput.hpp>
+#include "GameInput.hpp"
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_video.h>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
-#include <DebugDrawBindings.hpp>
-#include <BoundsBindings.hpp>
-#include <tracy/public/tracy/Tracy.hpp>
-#include <tracy/public/tracy/TracyLua.hpp>
 
 #include <print>
 #include <filesystem>
 #include <tuple>
 #include <algorithm>
 #include <vector>
+#include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyLua.hpp>
+#include <DebugDrawBindings.hpp>
 
 using namespace Droplet::Script;
 using namespace Droplet::Script::Bindings;
@@ -36,7 +35,6 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
 	RegisterTracy(p_luaState);
-    RegisterBounds(p_luaState);
     RegisterDebugDraw(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()

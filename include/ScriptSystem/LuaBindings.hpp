@@ -24,41 +24,7 @@ namespace Droplet::Script::Bindings
 		/// registered.
 		static void RegisterBindings(sol::state_view p_luaState);
 
-		/// @brief Pushes a LuaGlobalFunctionDefinition to the internal vector.
-		/// This function is used to add a new global function definition to the
-		/// internal collection of global functions that will be registered with Lua.
-		/// @param p_definition The LuaGlobalFunctionDefinition to be added.
-		static void PushLuaGlobalFunctionDefinition(const LuaGlobalFunctionDefinition &p_definition) 
-		{
-			m_luaGlobalDefinitions.push_back(p_definition);
-		}
-
-		/// @brief Pushes a LuaClassDefinition to the internal vector.
-		/// This function is used to add a new class definition to the internal
-		/// collection of classes that will be registered with Lua.
-		/// @param p_definition The LuaClassDefinition to be added.
-		static void PushLuaClassDefinition(const LuaClassDefinition &p_definition)
-		{
-			m_luaClassDefinitions.push_back(p_definition);
-		}
-
-		/// @brief Pushes a LuaEnumDefinition to the internal vector.
-		/// This function is used to add a new enum definition to the internal
-		/// collection of enums that will be registered with Lua.
-		/// @param p_definition The LuaEnumDefinition to be added.
-		static void PushLuaEnumDefinition(const LuaEnumDefinition &p_definition)
-		{
-			m_luaEnumDefinitions.push_back(p_definition);
-		}
-
 	private:
-
-		/// @brief vector of all GlobalFunctionDefinition for .d.lua file
-		static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
-		/// @brief vector of all LuaClassDefinition for .d.lua file
-		static std::vector<LuaClassDefinition> m_luaClassDefinitions;
-		/// @brief vector of all LuaEnumDefinition for .d.lua file
-		static std::vector<LuaEnumDefinition> m_luaEnumDefinitions;
 
 		/// @brief Register all global functions for Lua.
 		/// Creates OnStart and OnUpdate for lua api
@@ -96,5 +62,13 @@ namespace Droplet::Script::Bindings
 		static void RegisterTracy([[maybe_unused]] sol::state_view p_luaState);
 
 		// TODO: Implement additional engine bindings as functionality is added.
+
+	private:
+		/// @brief vector of all GlobalFunctionDefinition for .d.lua file
+		static std::vector<LuaGlobalFunctionDefinition> m_luaGlobalDefinitions;
+		/// @brief vector of all LuaClassDefinition for .d.lua file
+		static std::vector<LuaClassDefinition> m_luaClassDefinitions;
+		/// @brief vector of all LuaEnumDefinition for .d.lua file
+		static std::vector<LuaEnumDefinition> m_luaEnumDefinitions;
 	};
 }

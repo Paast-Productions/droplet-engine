@@ -16,7 +16,6 @@
 #include <ImGui/UIStyle.hpp>
 #include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
-#include <ImGui/imgui_stdlib.h>
 
 using namespace Droplet::Editor;
 
@@ -33,8 +32,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		Droplet::Graphics::SDL::WindowConfig{
 			static_cast<int>(windowSize.x),
 			static_cast<int>(windowSize.y),
-			{ SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
-			"Droplet Editor"
+			{ SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE }
 		},
 		Droplet::UpdateFlags::EditorFlags
 	};
@@ -76,21 +74,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		}
 	});
 
-	// --- Font Setup ---
-	float baseFontSize = 13.0f; // This should match the size of our default font
+	// Setup default ImGui ini file
+	if (!EditorConfig::LoadBool("Editor.HasDefaultLayout", false))
+	{
+		ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
+		EditorConfig::StoreBool("Editor.HasDefaultLayout", true);
+	}
 
-	ImGuiIO io = ImGui::GetIO();
-	ImFontConfig baseConfig;
-	baseConfig.SizePixels = baseFontSize;
-	io.Fonts->AddFontDefault(&baseConfig);
-
-	ImFontConfig iconsConfig;
-	iconsConfig.MergeMode = true;
-	iconsConfig.PixelSnapH = true;
-	iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
-	static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
-	io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
-	// ------
+	// Setup default ImGui style
+    {
+	    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+	    UIStyle::LoadStyle(currStyle);
+    }
 
 	// Restore window maximized state
 	{
@@ -101,40 +96,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			SDL_MaximizeWindow(wnd);
 		}
 	}
-
-	// Setup default ImGui Layout
-    {
-	    std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
-
-		try
-		{
-			UIStyle::LoadLayout(currLayout);
-		}
-		catch (...)
-		{
-			if (currLayout != "Default")
-			{
-				UIStyle::LoadLayout("Default");
-			}
-		}
-    }
-
-	// Setup default ImGui style
-    {
-	    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-		try
-		{
-			UIStyle::LoadStyle(currStyle);
-		}
-		catch (...)
-		{
-			if (currStyle != "Default")
-			{
-				UIStyle::LoadStyle("Default");
-			}
-		}
-    }
+    
+    // --- Font Setup ---
+    float baseFontSize = 13.0f; // This should match the size of our default font
+    
+    ImGuiIO io = ImGui::GetIO();
+    ImFontConfig baseConfig;
+    baseConfig.SizePixels = baseFontSize;
+    io.Fonts->AddFontDefault(&baseConfig);
+    
+    ImFontConfig iconsConfig;
+    iconsConfig.MergeMode = true;
+    iconsConfig.PixelSnapH = true;
+    iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
+    static const ImWchar iconsRanges[] = { ICON_MIN_LC, ICON_MAX_16_LC, 0 };
+    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
+    // ------
 
     EditorContext editorContext(engine);
 
@@ -156,8 +133,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 	bool showStyleEditor = false;
 
-	std::string pendingLayoutChange = "";
-
 	ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
 	ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
@@ -169,31 +144,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 		EditorConfig::Update();
 
-		if (pendingLayoutChange != "")
-		{
-			try
-			{
-				UIStyle::LoadLayout(pendingLayoutChange);
-			}
-			catch (...)
-			{
-				if (pendingLayoutChange != "Default")
-				{
-					UIStyle::LoadLayout("Default");
-				}
-			}
-
-			pendingLayoutChange = "";
-		}
-
 		// ImGui
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
-		ImGui::DockSpaceOverViewport();
 		ImGuizmo::BeginFrame();
 
-		bool openLayoutPopup = false;
+		ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 		// Main toolbar
 		if (ImGui::BeginMainMenuBar())
@@ -202,29 +159,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				if (ImGui::BeginMenu("Layout"))
 				{
-					if (ImGui::BeginMenu("Set Layout"))
+					if (ImGui::MenuItem("Load Default Layout"))
 					{
-						std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
-
-						std::vector<std::string> layouts;
-						UIStyle::GetLayoutNames(layouts);
-
-						for (const auto &layoutName : layouts)
-						{
-							bool isSelected = (layoutName == currLayout);
-							if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
-							{
-								if (layoutName != currLayout)
-								{
-									pendingLayoutChange = layoutName;
-								}
-							}
-						}
-
-						ImGui::EndMenu();
+						ImGui::LoadIniSettingsFromDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
 					}
 
-					openLayoutPopup = ImGui::MenuItem("Save Layout");
+					if (ImGui::MenuItem("Save Default Layout"))
+					{
+						ImGui::SaveIniSettingsToDisk(ROOT_PATH "/Editor/Layouts/Default.ini");
+					}
 
 					ImGui::EndMenu();
 				}
@@ -287,36 +230,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			ImGui::EndMainMenuBar();
 		}
 
-		if (openLayoutPopup)
-		{
-			ImGui::OpenPopup("Save Layout");
-		}
-
-		if (ImGui::BeginPopup("Save Layout"))
-		{
-			static std::string layoutName = "";
-
-			ImGui::InputText("Layout Name", &layoutName);
-
-			// Disable if the layout name is empty
-			ImGui::BeginDisabled(layoutName.empty());
-
-			if (ImGui::Button("Confirm"))
-			{
-				UIStyle::SaveLayout(layoutName);
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndDisabled();
-
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel"))
-			{
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
-
 		if (showStyleEditor)
 		{
 			ImGui::Begin("Style Editor", &showStyleEditor);
@@ -336,20 +249,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 			if (ImGui::BeginPopup("Save Style"))
 			{
-				static std::string styleName = "";
-
-				ImGui::InputText("Style Name", &styleName);
-
-				// Disable if the style name is empty
-				ImGui::BeginDisabled(styleName.empty());
+				static char styleName[128] = "";
+				ImGui::InputText("Style Name", styleName, IM_ARRAYSIZE(styleName));
 
 				if (ImGui::Button("Confirm"))
 				{
 					UIStyle::SaveStyle(styleName);
 					ImGui::CloseCurrentPopup();
 				}
-
-				ImGui::EndDisabled();
 
 				ImGui::SameLine();
 				if (ImGui::Button("Cancel"))
