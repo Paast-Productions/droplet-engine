@@ -9,6 +9,7 @@ using namespace Droplet::Editor;
 using namespace Droplet::Core::JsonIO;
 using namespace nlohmann;
 
+constexpr const char *LAYOUTS_PATH = ROOT_PATH "/Editor/Layouts";
 constexpr const char *STYLES_PATH = ROOT_PATH "/Editor/Styles";
 
 static json ToArr(ImVec2 &vec)
@@ -36,6 +37,34 @@ static ImVec4 ToVec4(const json &arr)
 }
 
 
+void UIStyle::GetLayoutNames(std::vector<std::string> &layouts)
+{
+	layouts.clear();
+
+	// Search for all .ini files in layout directory
+	for (const auto &entry : std::filesystem::directory_iterator(LAYOUTS_PATH))
+	{
+		const auto &path = entry.path();
+		std::string filename = path.filename().string();
+		std::string ext = filename.c_str() + filename.find_last_of('.') + 1;
+
+		// Skip non-layout files
+		if (ext != "ini")
+		{
+			continue; 
+		}
+
+		// Skip files without a filename
+		if (filename.find_last_of('.') == std::string::npos)
+		{
+			continue; // Skip files without a filename
+		}
+
+		filename = filename.substr(0, filename.find_last_of('.'));
+		layouts.emplace_back(filename);
+	}
+}
+
 void UIStyle::GetStyleNames(std::vector<std::string> &styles)
 {
 	styles.clear();
@@ -47,12 +76,33 @@ void UIStyle::GetStyleNames(std::vector<std::string> &styles)
 		std::string filename = path.filename().string();
 		std::string ext = filename.c_str() + filename.find_last_of('.') + 1;
 
+		// Skip non-json files
 		if (ext != "json")
-			continue; // Skip non-style files
+		{
+			continue;
+		}
+
+		// Skip files without a filename
+		if (filename.find_last_of('.') == std::string::npos)
+		{
+			continue;
+		}
 
 		filename = filename.substr(0, filename.find_last_of('.'));
 		styles.emplace_back(filename);
 	}
+}
+
+
+void UIStyle::SaveLayout(const std::string &name)
+{
+	// Save current ImGui ini settings to file
+	std::string path = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
+
+	ImGui::SaveIniSettingsToDisk(path.c_str());
+
+	// Set the current layout name in the editor config
+	EditorConfig::StoreString("Editor.Layout", name);
 }
 
 void UIStyle::SaveStyle(const std::string &name)
@@ -177,6 +227,24 @@ void UIStyle::SaveStyle(const std::string &name)
 	}
 
 	EditorConfig::StoreString("Editor.Style", name);
+}
+
+
+void UIStyle::LoadLayout(const std::string &name)
+{
+	// Load ImGui ini settings from file
+	std::string path = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
+
+	// Check if the layout file exists
+	if (!std::filesystem::exists(path))
+	{
+		throw std::runtime_error("Layout file does not exist: " + path);
+	}
+
+	ImGui::LoadIniSettingsFromDisk(path.c_str());
+
+	// Set the current layout name in the editor config
+	EditorConfig::StoreString("Editor.Layout", name);
 }
 
 void UIStyle::LoadStyle(const std::string &name)
