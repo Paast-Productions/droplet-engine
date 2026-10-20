@@ -60,7 +60,7 @@ group ""
 group "External"
 
 include "Premake/External/ImGui"
-include "Premake/External/ImGuizmo"
+include "Premake/External/Droplet-ImGuizmo"
 include "Premake/External/json"
 include "Premake/External/tracy"
 include "Premake/External/Stb"

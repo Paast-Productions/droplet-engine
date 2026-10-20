@@ -189,26 +189,31 @@ void ResourceBrowser::RenderImpl()
 	            bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow);
 	            
 	            // Asset drag source
-	            if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-	            {
-	                // Create list of resource payloads for this asset
-	                std::vector<ResourcePayload> payloads;
-	                payloads.reserve(childNode.resources.size());
-	                    
-	                for (const MetaEntry *entry : childNode.resources)
-	                {
-	                    ResourcePayload payload;
-	                    payload.guid = entry->guid;
-	                    payload.type = entry->type;
-	                    snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                    payloads.push_back(payload);
-	                }
-	                    
-	                SetDragDropPayload(PAYLOAD_ASSET.data(), payloads.data(), payloads.size() * sizeof(ResourcePayload));
-	                TextDisabled("Asset: %s (%zu resources)", childName.c_str(), payloads.size());
-	                EndDragDropSource();
-	            }
-	            
+                // Asset drag source
+                if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+                {
+                    // Create a list of pointers to the resource metadata entries.
+                    std::vector<const MetaEntry *> payloads;
+                    payloads.reserve(childNode.resources.size());
+
+                    for (const MetaEntry *entry : childNode.resources)
+                    {
+                        payloads.push_back(entry);
+                    }
+
+                    SetDragDropPayload(
+                        PAYLOAD_ASSET.data(),
+                        payloads.data(),
+                        payloads.size() * sizeof(const MetaEntry *));
+
+                    TextDisabled(
+                        "Asset: %s (%zu resources)",
+                        childName.c_str(),
+                        payloads.size());
+
+                    EndDragDropSource();
+                }
+
 	            // Resources it contains
 	            if (isNodeOpen)
 	            {
@@ -231,17 +236,19 @@ void ResourceBrowser::RenderImpl()
 	                    }
 	                    
 	                    // Resource drag source
-	                    if (BeginDragDropSource())
-	                    {
-	                        ResourcePayload payload;
-	                        payload.guid = entry->guid;
-	                        payload.type = entry->type;
-	                        snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                        
-	                        SetDragDropPayload(PAYLOAD_RESOURCE.data(), &payload, sizeof(ResourcePayload));
-	                        TextDisabled("Resource: %s", entry->displayName.c_str());
-	                        EndDragDropSource();
-	                    }
+                        if (BeginDragDropSource())
+                        {
+                            const MetaEntry *payload = entry;
+
+                            SetDragDropPayload(
+                                PAYLOAD_RESOURCE.data(),
+                                &payload,
+                                sizeof(payload));
+
+                            TextDisabled("Resource: %s", entry->displayName.c_str());
+
+                            EndDragDropSource();
+                        }
 	                }
 	                TreePop();
 	            }

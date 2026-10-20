@@ -1,5 +1,6 @@
 #include "SceneViewWindow.hpp"
 #include <math/bounds/Intersection.hpp>
+#include <math/bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -181,9 +182,6 @@ void SceneViewWindow::RenderImpl()
 			(mousePos.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
 		};
 
-		// TODO: Send data to camera update (mousePosNormalizedToCamView, isMouseHovering)
-		//m_editorCamera.Update(isMouseHovering, mousePosNormalizedToCamView);
-
 		if (isWindowFocused && isMouseHovering)
 		{
 			ImVec2 center = {
@@ -197,50 +195,54 @@ void SceneViewWindow::RenderImpl()
 
 			if (viewport)
 			{
-
 				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
-				RenderImGuizmo(camViewRectMin, camViewRectMax);
-
 				sceneWindow = SDL_GetWindowFromID(windowID);
-
-				// HACK: Render a placeholder rectangle for the camera view until the actual camera view texture is available.
-				//drawList->AddRect(camViewRectMin, camViewRectMax, IM_COL32(255, 0, 0, 128), 0.0f, 0, 4.0f);
 			}
 
+			GameInput &input = GameInput::Get();
+			const EditorCamera &camera = m_editorContext->GetEditorCamera();
 			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
+			GameInput &input = GameInput::Get();
+
 			if (m_cameraLookToggled)
 			{
 				controller.Update(deltaTime, sceneWindow, center.x, center.y);
-				
-				// create ray that is used for raycasting
-				if (input.MousePressed(Mouse::LMB)) 
+			}
+
+			// Mouse selection of nodes in the scene view
+			if (input.MousePressed(Mouse::LMB) && !m_usingGizmo && !m_hoveringGizmo)
+			{
+				glm::vec2 mousePosInView = glm::vec2(mousePosNormalizedToCamView.x, mousePosNormalizedToCamView.y);
+				Math::Ray viewRay = camera.GetViewRay(mousePosInView);
+
+				// Perform raycast against the scene
+				std::weak_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+
+				if (!scene.expired())
 				{
-					const EditorCamera &camera = m_editorContext->GetEditorCamera();
-					glm::vec3 position = camera.GetPosition();
-					glm::vec3 front = camera.GetForward();
+					Math::RayHit hit{};
+					auto hitNode = scene.lock()->RaycastNode(viewRay, &hit);
 
-					float x = mousePosNormalizedToCamView.x * 2.0f - 1.0f;
-					float y = 1.0f - mousePosNormalizedToCamView.y * 2.0f;
-					glm::vec4 nearClip(x, y, 0.0f, 1.0f);
-					glm::vec4 farClip(x, y, 1.0f, 1.0f);
+					InteractionState &interactionState = m_editorContext->GetInteractionState();
 
-					glm::mat4 inverseProjection = glm::inverse(camera.GetProjectionMatrix());
-
-					glm::vec4 nearView = inverseProjection * nearClip;
-					glm::vec4 farView = inverseProjection * farClip;
-
-					nearView /= nearView.w;
-					farView /= farView.w;
-
-					glm::mat4 inverseView = glm::inverse(camera.GetViewMatrix());
-					glm::vec4 nearWorld = inverseView * nearView;
-					glm::vec4 farWorld = inverseView * farView;
-
-					// the ray in question
-					glm::vec3 direction = glm::normalize(
-						glm::vec3(farWorld) -
-						glm::vec3(nearWorld)
-					);
+					if (hit.didHit && !hitNode.expired())
+					{
+						if (interactionState.IsNodeSelected(hitNode.lock()))
+						{
+							// Deselect the hit node if it is already selected
+							interactionState.DeselectNode(hitNode.lock());
+						}
+						else
+						{
+							// Select the hit node
+							interactionState.SelectNode(hitNode.lock());
+						}
+					}
+					else
+					{
+						// Deselect all nodes if no hit
+						interactionState.ClearNodeSelection();
+					}
 				}
 			}
 
@@ -253,7 +255,6 @@ void SceneViewWindow::RenderImpl()
 		}
 	}
 
-	// TODO: Wait for the renderer to finish rendering the camera view to the texture
 	ImTextureRef camViewTexture = m_textureDescriptor;
 
 	// Render the camera view texture to the scene view window
@@ -274,17 +275,33 @@ void SceneViewWindow::RenderImpl()
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (isPlaying)
 		{
+			// Make red
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
 			}
+
+			ImGui::PopStyleColor(4);
 		}
 		else
 		{
+			// Make green
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 			{
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
 			}
+
+			ImGui::PopStyleColor(4);
 		}
 	}
 	
@@ -306,7 +323,9 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	ImGuizmo::SetRect(rectPos.x, rectPos.y, rectSize.x, rectSize.y);
 	ImGuizmo::SetDrawlist(ImGui::GetWindowDrawList());
 
-	// Camera
+	// Pre-fetch data
+	InteractionState &interactionState = m_editorContext->GetInteractionState();
+
 	const EditorCamera &camera = m_editorContext->GetEditorCamera();
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
@@ -314,7 +333,29 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer
 	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
 
-	// Render ImGuizmo cubes for all nodes in the scene
+	// DebugDraw wireframe around selected nodes by their bounds
+	{
+		auto selectedNodes = interactionState.GetSelectedNodes(); // TODO: Make weak pointer
+
+		for (const auto &node : selectedNodes)
+		{
+			if (!node)
+			{
+				continue;
+			}
+
+			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
+			Math::OBB nodeOBB = node->GetBounds()->GetTransformedOBB(nodeMat);
+
+			DebugDraw::DrawBox(
+				nodeOBB,
+				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+				true, true
+			);
+		}
+	}
+
+	// Render cubes for all nodes in the scene
 	{
 		Math::Frustum camFrustum = camera.GetFrustum();
 
@@ -369,6 +410,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		}
 	}
 
+	bool didUse = false;
+
 	// Render transform gizmo for selected node
 	{
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes(); // TODO: Make weak pointer
@@ -410,10 +453,15 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			if (result)
 			{
 				selectedNode->GetTransform().SetMatrix(nodeMatrix, DTransform::Space::World);
+				didUse = true;
 			}
 		}
 	}
+
+	m_usingGizmo = ImGuizmo::IsUsingAny() || didUse;
+	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds();
 }
+
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
 {			
 	return *m_renderTarget;
