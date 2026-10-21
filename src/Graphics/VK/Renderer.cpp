@@ -215,26 +215,6 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 	);
 }
 
-std::unique_ptr<RenderTarget> Renderer::CreateRenderTarget(uint32_t p_width, uint32_t p_height)
-{
-	return std::make_unique<RenderTarget>(
-		m_allocator.Get(),
-		m_context.GetDevice(),
-		m_context.GetPhysicalDevice(),
-		p_width,
-		p_height
-	);
-}
-
-VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
-{
-	return ImGui_ImplVulkan_AddTexture(
-		*m_textureSampler,
-		*p_renderTarget.GetColorImageView().Get(),
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	);
-}
-
 [[nodiscard]] vk::raii::ShaderModule Renderer::CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const
 {
     ZoneScoped;
@@ -670,9 +650,9 @@ void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
 
 	const auto extent = p_renderTarget.GetExtent();
 
-    float aspectRatio =
+ /*   float aspectRatio =
         static_cast<float>(extent.width) /
-        static_cast<float>(extent.height);
+        static_cast<float>(extent.height);*/
 
 	VK::UniformBufferObject ubo
 	{

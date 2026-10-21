@@ -4,7 +4,7 @@
 #include <resource/ResourceManager.hpp>
 #include <Engine/Engine.hpp>
 #include <string>
-#include "resource/meta/MetaUtils.hpp">
+#include "resource/meta/MetaUtils.hpp"
 
 // imgui helper function
 

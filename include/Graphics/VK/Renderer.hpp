@@ -108,17 +108,6 @@ namespace Droplet::Graphics
 		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
 
 		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
-
-		/// @brief Public function to apply mouse movements on the camera
-		/// @param p_xOffset position on the screen along the x-axis
-		/// @param p_yOffset position on the screen along the y-axis
-		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
-
-		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
-
-		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
-
-
 	
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
