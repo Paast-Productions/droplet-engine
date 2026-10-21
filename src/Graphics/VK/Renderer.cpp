@@ -189,6 +189,8 @@ void Renderer::TransitionImageLayout(
 
 void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData)
 {
+	ZoneScoped;
+
 	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
 
 	//commandBuffer.begin({});
@@ -263,40 +265,43 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 	for (const RenderData& data : p_renderData)
 	{
-		try
+
+		const VK::Pipeline& pipeline = m_interStorage.GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
+		if (pipeline == nullptr) { continue; }
+
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
+		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+
+		const VK::Mesh mesh = m_interStorage.GetMesh(data);
+
+		if (!mesh.valid) { continue; }
+
+		bool result = false;
+		std::uint32_t texID = m_interStorage.GetTextureID(data, m_commandPool, result);
+
+		if (!result) { continue; }
+
+		PushConstantData pcData
 		{
-			const VK::Pipeline& pipeline = m_interStorage.GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
-			commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
-			commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+			.world = data.transform,
+			.time = Time::Get().GetRuntime(),
+			.textureID = texID
+		};
 
-			const VK::Mesh mesh = m_interStorage.GetMesh(data);
-
-			PushConstantData pcData
-			{
-				.world = data.transform,
-				.time = Time::Get().GetRuntime(),
-				.textureID = m_interStorage.GetTextureID(data, m_commandPool)
-			};
-
-			vk::PushConstantsInfo pcInfo
-			{
-				.sType = vk::StructureType::ePushConstantsInfo,
-				.layout = pipeline.GetLayout(),
-				.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
-				.offset = 0,
-				.size = sizeof(PushConstantData),
-				.pValues = &pcData,
-			};
-			
-			commandBuffer.pushConstants2(pcInfo);
-			commandBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
-			commandBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
-			commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
-		}
-		catch ([[maybe_unused]] const std::exception& err)
+		vk::PushConstantsInfo pcInfo
 		{
-			continue;
-		}
+			.sType = vk::StructureType::ePushConstantsInfo,
+			.layout = pipeline.GetLayout(),
+			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			.offset = 0,
+			.size = sizeof(PushConstantData),
+			.pValues = &pcData,
+		};
+
+		commandBuffer.pushConstants2(pcInfo);
+		commandBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
+		commandBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
+		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 
 	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
@@ -324,6 +329,8 @@ void Renderer::RecordImGuiCommandBuffer(
 	vk::raii::CommandBuffer &p_commandBuffer,
 	uint32_t p_imageIndex)
 {
+	ZoneScoped;
+
 	auto &commandBuffer = p_commandBuffer;
 	TransitionImageLayout(
 		m_swapchain.GetImages().at(p_imageIndex),
