@@ -182,7 +182,7 @@ static void PhysicsTest()
     // ========== Initialize game ==========
 
     Droplet::ThreadPool::GetInstance().Initialize();
-    Droplet::ResourceManager rm;
+    Droplet::ResourceManager &rm = Droplet::ResourceManager::GetInstance();
     rm.Initialize(ROOT_PATH "/Assets");
     rm.RegisterResourceType<Droplet::MeshResource>();
     rm.RegisterAsset("Seafloor.fbx");

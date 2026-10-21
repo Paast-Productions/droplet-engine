@@ -452,7 +452,7 @@ bool Node::IsRenderable() const
 {
     for (const auto &component : m_components)
     {
-        if (component && component->IsRenderable())
+        if (component && component->m_renderable)
         {
             return true;
         }
