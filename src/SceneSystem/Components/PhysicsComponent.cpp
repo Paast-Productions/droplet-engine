@@ -9,6 +9,7 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 
 using namespace Droplet::Scene;
 
@@ -23,7 +24,7 @@ void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 	m_transform = p_transform;
 }
 
-void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
+void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::Vec3 &p_offset)
 {
 	if (m_shapeType != ShapeType::None)
 	{
@@ -31,21 +32,21 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 	}
 
 	JPH::BoxShapeSettings boxSettings(p_halfExtents);
-	CreateCollider(boxSettings);
+	CreateCollider(boxSettings, p_offset);
 	m_shapeType = ShapeType::Box;
 }
 
-void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
+void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset)
 {
 	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
 
-	SetBoxCollider(JPH::Vec3(p_halfExtents.x, p_halfExtents.y, p_halfExtents.z));
+	SetBoxCollider(JPH::Vec3(p_halfExtents.x, p_halfExtents.y, p_halfExtents.z), p_offset);
 }
 
-void PhysicsComponent::SetSphereCollider(const float p_radius)
+void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &p_offset)
 {
 	if (m_shapeType != ShapeType::None)
 	{
@@ -53,11 +54,11 @@ void PhysicsComponent::SetSphereCollider(const float p_radius)
 	}
 
 	JPH::SphereShapeSettings sphereSettings(p_radius);
-	CreateCollider(sphereSettings);
+	CreateCollider(sphereSettings, p_offset);
 	m_shapeType = ShapeType::Sphere;
 }
 
-void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
+void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
 {
 	if (m_shapeType != ShapeType::None)
 	{
@@ -65,11 +66,11 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 	}
 
 	JPH::CapsuleShapeSettings capsuleSettings(p_HalfHeightOfCylinder, p_radius);
-	CreateCollider(capsuleSettings);
+	CreateCollider(capsuleSettings, p_offset);
 	m_shapeType = ShapeType::Capsule;
 }
 
-void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
+void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, const JPH::Vec3 &p_offset)
 {
 	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
 	{
@@ -106,7 +107,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 	}
 
 	JPH::MeshShapeSettings meshSettings(std::move(joltVertices), std::move(triangles));
-	CreateCollider(meshSettings);
+	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 }
 
@@ -356,7 +357,7 @@ void PhysicsComponent::RenderUIImpl()
 		{
 			ImGui::Text("Input capsule radius and cylinder height:");
 			ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("Cylinder height", &h, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("Cylinder height", &h, 0.1f, 1.0f, "%.3f");
 			break;
 		}
 	case 3: // Mesh collider
@@ -404,6 +405,14 @@ void PhysicsComponent::RenderUIImpl()
 		break;
 	}
 	
+	static float offsetX = 0.0f;
+	static float offsetY = 0.0f;
+	static float offsetZ = 0.0f;
+	ImGui::Text("Input offset:");
+	ImGui::InputFloat("x", &offsetX, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("y", &offsetY, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("z", &offsetZ, 0.01f, 1.0f, "%.3f");
+	
 	// ========== Collider apply button ==========
 	static bool displayError = false;
 	if (ImGui::Button("Apply collider"))
@@ -418,7 +427,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetBoxCollider(glm::vec3(x, y, z));
+			SetBoxCollider(glm::vec3(x, y, z), JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 1: // Sphere collider
 			if (r == 0.0f)
@@ -427,7 +436,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetSphereCollider(r);
+			SetSphereCollider(r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 2: // Capsule collider
 			if (r == 0.0f || h == 0.0f)
@@ -436,10 +445,10 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetCapsuleCollider(r, h);
+			SetCapsuleCollider(r, h, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 3: // Mesh collider
-			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().Get());
+			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().Get(), JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		default:
 			break;
@@ -466,9 +475,11 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	// TODO: Deserialize
 }
 
-void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
+void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings, const JPH::Vec3 &p_offset)
 {
-	JPH::ShapeSettings::ShapeResult result = p_shapeSettings.Create();
+	JPH::RotatedTranslatedShapeSettings offsetSettings(p_offset, JPH::Quat::sIdentity(), &p_shapeSettings);
+	
+	JPH::ShapeSettings::ShapeResult result = offsetSettings.Create();
 
 	if (result.HasError())
 	{

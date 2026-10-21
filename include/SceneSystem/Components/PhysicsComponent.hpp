@@ -29,23 +29,23 @@ namespace Droplet::Scene
 		
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
-		void SetBoxCollider(const JPH::Vec3 p_halfExtents);
+		void SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
-		void SetBoxCollider(const glm::vec3 p_halfExtents);
+		void SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a sphere collider
 		/// @param p_radius Radius of the sphere
-		void SetSphereCollider(const float p_radius);
+		void SetSphereCollider(const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a capsule collider
 		/// @param p_HalfHeightOfCylinder Half height of the cylinder part of the capsule
 		/// @param p_radius Radius of the capsule
-		void SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius);
+		void SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a mesh collider
 		/// @param p_mesh The mesh resource to make a collider of
-		void SetMeshCollider(const Droplet::MeshResource *p_mesh);
+		void SetMeshCollider(const Droplet::MeshResource *p_mesh, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
@@ -83,7 +83,7 @@ namespace Droplet::Scene
 		/// @brief Helper function for creating collider body
 		/// @param p_shapeSettings The shape settings for the collider body
 		/// @throw std::runtime_error Mesh collider could not be created
-		void CreateCollider(JPH::ShapeSettings &p_shapeSettings);
+		void CreateCollider(JPH::ShapeSettings &p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Sends transform changes from the game engine to Jolt
 		void PushTransformToPhysics();
