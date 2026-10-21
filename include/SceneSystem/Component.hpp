@@ -4,6 +4,7 @@
 #include <memory>
 #include <string_view>
 
+//#include <SceneSystem/SerializationContext.hpp> 
 #include <SceneSystem/bounds/NodeBounds.hpp>
 
 namespace Droplet::Graphics
@@ -14,7 +15,7 @@ namespace Droplet::Graphics
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
-
+    class SerializationContext;
     /// @brief Base class for components that can be attached to a Node.
     ///
     /// Components provide reusable functionality that can be added to Nodes
@@ -51,16 +52,16 @@ namespace Droplet::Scene
         /// Called when the owning Node starts participating in an active Scene.
         /// This function is called at most once for each Component.
         /// Derived classes can override this function to perform startup logic.
-        virtual void Start() {}
+        void Start();
 
         /// @brief Updates the component.
         ///
         /// Called once per update for components attached to active Nodes.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update([[maybe_unused]] float p_deltaTime) {}
-    	
-    	virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
+        void Update([[maybe_unused]] float p_deltaTime);
+
+        virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
         /// @brief Late updates the component.
         ///
@@ -118,15 +119,36 @@ namespace Droplet::Scene
 		/// @throws std::runtime_error if the component has no owner.
         [[nodiscard]] bool IsActive() const;
 
-		/// @brief Check if the component itself is avtive.
+		/// @brief Check if the component itself is active.
 		/// @return A shared pointer to the owning Node, or nullptr if the
         [[nodiscard]] bool IsActiveSelf() const { return m_active; }
+
+        //virtual void ResolveReferences(SerializationContext &p_context);
 
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
+        
+        /// @brief Retrieves the components ID
+        /// @return std::uint64_t m_id
+        std::uint32_t GetID() const { return m_id; }
+
+
+        /// @brief Finds the correct node for the component with it's serializedID
+        /// 
+        /// This functions is used by components when they are deserialized,
+        /// after all nodes and components are created we lookup what id they had so the newly 
+        /// created node/component can be set as a target and more easily referenced
+        /// 
+        /// @param p_context The context that holds the mapping of newly deserialized nodes and components
+        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
 
     protected:
+
+        virtual void StartImpl() {}
+
+        virtual void UpdateImpl(float deltaTime) {}
+
 		/// @brief Internal rendering function for the component's UI.
         /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.
@@ -151,12 +173,13 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_started = false;
 		bool m_active = true;
 
         bool m_renderable = false;
 
         std::weak_ptr<Node> m_owner{};
-
+        std::uint64_t m_id = 0;
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when

@@ -37,15 +37,30 @@ namespace Droplet::Script
 			return scriptSystem;
 		}
 
-		/// @brief Starts the script script system.
+		/// @brief Starts the components.
 		/// This should be called once the scene starts with the script system.
-		void Start();
+		/// @param ScriptComponent to call its script instance
+		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
 
-		/// @brief Updates the scripting system.
+
+		/// @brief Starts the behaviour.
+		/// This should be called once the scene starts with the script system.
+		/// @param ScriptBehaviour to call its script instance
+		void StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
+		/// @brief Updates the component.
 		/// This should be called once per frame to allow active scripts to perform
 		/// their per-frame update logic.
+		/// @param ScriptComponent to call its script instance
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update(float p_deltaTime);
+		void UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+
+		/// @brief Updates the behaviour.
+		/// This should be called once per frame to allow active scripts to perform
+		/// their per-frame update logic.
+		/// @param ScriptBehaviour to call its script instance
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime);
 
 		/// @brief Creates a script instance for a component.
 		/// @param p_scriptComponent Component that will connect to the script instance.
@@ -64,30 +79,6 @@ namespace Droplet::Script
 		/// @brief Unloads a previously loaded Lua script.
 		/// @param p_scriptFile Path to the Lua script file.
 		void UnloadScript(const std::string &p_scriptFile);
-
-		/// @brief Activates a script component.
-		/// An activated script component is allowed to participate in the scripting
-		/// system's update and execution flow.
-		/// @param p_scriptComponent Script component to activate.
-		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Activates a script component.
-		/// An activated script behaviour is allowed to participate in the scripting
-		/// system's update and execution flow.
-		/// @param p_scriptBehaviour Script behaviour to activate.
-		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
-
-		/// @brief Deactivates a script behaviour.
-		/// A deactivated script component will no longer participate in the
-		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
-		/// @param p_scriptComponent Script component to deactivate.
-		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Deactivates a script behaviour.
-		/// A deactivated script component will no longer participate in the
-		/// scripting system's update and execution flow, that involves OnStart, OnUpdate, and any Call function you do.
-		/// @param p_scriptBehaviour Script component to deactivate.
-		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 		
 		/// @brief Detach Script from Component
 		/// @param p_scriptComponent 

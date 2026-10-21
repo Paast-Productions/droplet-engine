@@ -191,13 +191,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	
 	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
-	// Scriptsystem
-
-	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
-	{
-		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
-	}
-
+	
+	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (behaviour && behaviour->IsActive())

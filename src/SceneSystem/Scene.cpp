@@ -1,5 +1,8 @@
 #include "Scene.hpp"
 #include "Node.hpp"
+#include "SceneSerializer.hpp"
+#include "IoManager.hpp"
+
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -289,4 +292,12 @@ void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initi
 Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
 {
     return m_physics.get();
+}
+
+void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
+
+    serializer.DeserializeLonsesomeNode(json, *this);
 }

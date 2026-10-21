@@ -6,14 +6,14 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
-void ScriptComponent::Start()
+void ScriptComponent::StartImpl()
 {
-	ScriptSystem::Get().Call(this, "OnStart");
+
 }
 
-void ScriptComponent::Update([[maybe_unused]] float p_deltaTime)
+void ScriptComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 {
-
+    ScriptSystem::Get().UpdateComponent(this, p_deltaTime);
 }
 
 const std::string &ScriptComponent::GetScriptPath() const
@@ -41,8 +41,8 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
     }
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
-    ScriptSystem::Get().ActivateComponentScript(this);
-    ScriptSystem::Get().Start();
+
+    ScriptSystem::Get().StartComponent(this);
 }
 
 void ScriptComponent::DetachScript()
@@ -55,19 +55,13 @@ void ScriptComponent::DetachScript()
     ScriptSystem::Get().DetachComponentScript(this);
 }
 
-void ScriptComponent::ActivateScript()
-{
-    ScriptSystem::Get().ActivateComponentScript(this);
-}
-
-void ScriptComponent::DeactivateScript()
-{
-    ScriptSystem::Get().DeactivateComponentScript(this);
-}
-
 void ScriptComponent::RenderUIImpl()
 {
-    ImGui::Text("Assigned: %s", m_scriptPath.empty() ? "None" : m_scriptPath.c_str(), ImVec2(180.0f, 0.0f));
+    const std::string preview = m_scriptPath.empty()
+        ? "Drop Lua script here"
+        : m_scriptPath;
+
+    ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
 
     if (ImGui::BeginDragDropTarget())
     {
@@ -104,7 +98,7 @@ nlohmann::json ScriptComponent::SerializeImpl()
     nlohmann::json json;
 
     json["filepath"] = GetScriptPath();
-
+    
     // TODO
 
     return json;
@@ -112,5 +106,10 @@ nlohmann::json ScriptComponent::SerializeImpl()
 
 void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_compJson)
 {
-	// TODO: Implement deserialization logic for the script component.
+    if (!p_compJson.contains("filepath"))
+    {
+        throw std::runtime_error("ScriptCompoent missing field 'filepath'");
+    }
+    AttachScript(p_compJson["filepath"]);
+    ScriptSystem::Get().StartComponent(this);
 }

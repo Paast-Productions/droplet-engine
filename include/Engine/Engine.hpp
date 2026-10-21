@@ -76,6 +76,9 @@ namespace Droplet
 		/// @param p_height Height of the target
 		/// @return A Droplet::Graphics::Rendertarget 
 		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
+
+		//HACK: This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
+		Graphics::Renderer &GetRenderer() { return m_renderer; }
 		
 	private:
 

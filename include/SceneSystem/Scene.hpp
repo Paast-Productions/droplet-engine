@@ -3,12 +3,50 @@
 #include <memory>
 #include <string>
 #include <vector>
+
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
 #include <Graphics/RenderData.hpp>
 
 
+
+/// @brief Scene Object ID, used to locate a component attached to a node
+struct SceneObjectID 
+{
+    std::uint64_t nodeID = 0;
+    std::uint64_t componentID = 0;
+};
+
+/// @brief Struct to be used by components to reference nodes and components in the scene
+/// SetTarget makes the reference that object
+/// SetSerializedID used by the serializer to save the reference
+/// GetTarget returns the target the reference is referencing
+/// @tparam T the type of reference. Either "Component" or "Node"
+template<typename T>
+struct SceneReference 
+{
+    SceneObjectID serializedID = {};
+    std::weak_ptr<T> resolvedObject;
+    
+
+    void SetTarget(const std::shared_ptr<T>& p_target)
+    {
+        resolvedObject = p_target;
+        serializedID = {};
+    } 
+    
+    std::shared_ptr<T> GetTarget() const
+    {
+        return resolvedObject.lock();
+    }
+
+    void SetSerializedID(SceneObjectID p_id)
+    {
+        serializedID = p_id;
+        resolvedObject.reset();
+    }
+};
 
 namespace Droplet::Scene
 {
@@ -127,6 +165,9 @@ namespace Droplet::Scene
         /// @return A constant reference to the Scene's name.
         const std::string &GetName() const;
 
+        /// @brief Sets the Scene's name.
+        void SetName(const std::string &p_name) { m_name = p_name; }
+
         /// @brief Checks whether the Scene is loaded.
         ///
         /// @return true if the Scene is loaded, otherwise false.
@@ -177,6 +218,8 @@ namespace Droplet::Scene
         void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
 
         [[nodiscard]] Physics *GetPhysics();
+        
+        void LoadNodeFromFile( const std::string &p_filepath);
 
     private:
         std::string m_name;

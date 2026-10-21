@@ -3,6 +3,8 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Scene.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
+#include "SceneSystem/ComponentFactory.hpp"
 
 using namespace Droplet::Scene;
 
@@ -41,10 +43,12 @@ TEST_F(ComponentTest, OwnerInitiallyNull)
 
 TEST_F(ComponentTest, OwnerAssignedWhenAdded)
 {
-    auto component =
-        node->AddComponent<TestComponent>();
+    ComponentRegistry::RegisterComponent("TestComponent", []() { return std::make_unique<TestComponent>(); });
+    auto component = ComponentFactory::CreateComponent("TestComponent");
+    node->AttachComponent(component);
 
-    ASSERT_NE(component, nullptr);
+    auto components = node->GetAllComponents();
 
-    EXPECT_EQ(component->GetOwner(), node);
+    ASSERT_EQ(components.size(), 1);
+    EXPECT_EQ(components[0]->GetOwner(), node);
 }
