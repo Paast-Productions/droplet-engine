@@ -318,9 +318,6 @@ void SceneViewWindow::RenderImpl()
 			input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
 		}
 	}
-
-	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 	
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 

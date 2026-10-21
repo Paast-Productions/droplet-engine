@@ -80,7 +80,7 @@ void Droplet::Scene::Node::LateUpdate()
         return;
     }
 
-    // TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
+	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
 
     for (const auto &component : m_components)
     {
@@ -111,6 +111,8 @@ void Droplet::Scene::Node::FixedUpdate()
 
 void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) 
 {
+    ZoneScoped;
+
     if (!m_active)
     {
         return;
@@ -120,20 +122,27 @@ void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
     {
         .transform = m_transform.GetMatrix(Transform::Space::World)
     };
-    
-    for (const auto &component : m_components)
+
+    bool render = false;
+
+    for (const auto& component : m_components)
     {
         // TODO: Skip component if it's inactive
         component->GetRenderData(rData);
+
+        if (component->m_renderable)
+            render = true;
     }
 
-    p_renderData.push_back(rData);
-    
+    if (render)
+    {
+        p_renderData.push_back(rData);
+    }
+
     for (const std::shared_ptr<Node>& child : m_children)
     {
         child->GetRenderData(p_renderData);
     }
-
 }
 
 void Node::RenderUI()
@@ -518,17 +527,5 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Ma
         parent = parent->GetParent();
     }
 
-    return false;
-}
-
-bool Node::IsRenderable() const
-{
-    for (const auto &component : m_components)
-    {
-        if (component && component->m_renderable)
-        {
-            return true;
-        }
-    }
     return false;
 }

@@ -125,12 +125,11 @@ using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-    SetRenderable();
 }
 
 void MeshComponent::StartImpl()
 {
-
+    SetRenderable();
 }
 
 void MeshComponent::UpdateImpl()
@@ -141,6 +140,7 @@ void MeshComponent::UpdateImpl()
 void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
 {
     p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+
     p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
     p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
     p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
@@ -197,7 +197,7 @@ void MeshComponent::RenderUIImpl()
         
         Separator();
         
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
             m_vsDisplayName,
@@ -209,7 +209,7 @@ void MeshComponent::RenderUIImpl()
             m_vsDisplayName = newName;
         }
         
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
             m_tcsDisplayName,
@@ -221,7 +221,7 @@ void MeshComponent::RenderUIImpl()
             m_tcsDisplayName = newName;
         }
         
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
             m_tesDisplayName,
@@ -230,10 +230,10 @@ void MeshComponent::RenderUIImpl()
             Droplet::ResourceType::Shader))
         {
             SetTESGUID(newGUID);
-            m_tcsDisplayName = newName;
+            m_tesDisplayName = newName;
         }
         
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
             m_gsDisplayName,
@@ -244,8 +244,8 @@ void MeshComponent::RenderUIImpl()
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
         }
-        
-        if(ResourceSlot(
+
+        if (ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
             m_fsDisplayName,
