@@ -75,7 +75,7 @@ namespace Droplet::Scene
 
     protected:
         void StartImpl() override;
-        void UpdateImpl(float deltaTime) override;
+        void UpdateImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;

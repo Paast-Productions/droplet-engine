@@ -133,7 +133,7 @@ void MeshComponent::StartImpl()
 
 }
 
-void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
+void MeshComponent::UpdateImpl()
 {
     //TODO: will be inplemted later when the mesh system is implemented
 }

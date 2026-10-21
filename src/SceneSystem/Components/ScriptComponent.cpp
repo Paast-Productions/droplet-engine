@@ -3,6 +3,8 @@
 
 #include <print>
 
+#include "Time.hpp"
+
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
@@ -11,9 +13,9 @@ void ScriptComponent::StartImpl()
 
 }
 
-void ScriptComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
+void ScriptComponent::UpdateImpl()
 {
-    ScriptSystem::Get().UpdateComponent(this, p_deltaTime);
+    ScriptSystem::Get().UpdateComponent(this, Droplet::Time::Get().GetDeltaTime());
 }
 
 const std::string &ScriptComponent::GetScriptPath() const

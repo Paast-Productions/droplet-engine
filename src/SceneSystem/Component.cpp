@@ -26,14 +26,14 @@ void Component::Start()
 	}
 }
 
-void Component::Update(float p_deltaTime)
+void Component::Update()
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
 	if (IsActive())
 	{
-		UpdateImpl(p_deltaTime);
+		UpdateImpl();
 	}
 }
 
