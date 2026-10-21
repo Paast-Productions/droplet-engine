@@ -377,4 +377,10 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
     {
         throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
     }
+
+    m_vsDisplayName = p_compJson["vsName"];
+    m_tcsDisplayName = p_compJson["tcsName"];
+    m_tesDisplayName = p_compJson["tesName"];
+    m_gsDisplayName = p_compJson["gsName"];
+    m_fsDisplayName = p_compJson["fsName"];
 }
