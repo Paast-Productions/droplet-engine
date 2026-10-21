@@ -1,6 +1,6 @@
-#include "ImGui/ImGuiUtils.hpp"
-#include "ImGui/imgui.h"
-#include "ImGui/imgui_internal.h"
+#include "Editor/ImGuiUtils.hpp"
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_internal.h>
 
 static void WrapMousePosEx(int axises_mask, const ImRect &wrap_rect)
 {
@@ -64,7 +64,7 @@ static void WrapMousePos(int axises_mask)
 	}
 }
 
-void Droplet::Editor::LockMouseOnActive()
+void ImGui::LockToItem(bool p_hideMouse)
 {
 	using namespace ImGui;
 
@@ -81,8 +81,13 @@ void Droplet::Editor::LockMouseOnActive()
 			target_item = id;
 			prev_mous_pos = GetMousePos();
 		}
+
 		WrapMousePos(1 << ImGuiAxis_X);
-		//SetMouseCursor(ImGuiMouseCursor_None);
+
+		if (p_hideMouse)
+		{
+			SetMouseCursor(ImGuiMouseCursor_None);
+		}
 	}
 	else if (target_item > 0 && target_item == id && (IsItemDeactivated() || g.InputTextDeactivatedState.ID != id))
 	{
