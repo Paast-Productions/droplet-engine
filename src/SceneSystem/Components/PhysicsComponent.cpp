@@ -409,9 +409,9 @@ void PhysicsComponent::RenderUIImpl()
 	static float offsetY = 0.0f;
 	static float offsetZ = 0.0f;
 	ImGui::Text("Input offset:");
-	ImGui::InputFloat("x", &offsetX, 0.01f, 1.0f, "%.3f");
-	ImGui::InputFloat("y", &offsetY, 0.01f, 1.0f, "%.3f");
-	ImGui::InputFloat("z", &offsetZ, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("x##", &offsetX, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("y##", &offsetY, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("z##", &offsetZ, 0.01f, 1.0f, "%.3f");
 	
 	// ========== Collider apply button ==========
 	static bool displayError = false;
