@@ -1,22 +1,25 @@
 #pragma once
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_vulkan.h>
-#include <ImGui/imgui_impl_sdl3.h>
-#include <Graphics/SDL/Window.hpp>
-#include <Graphics/VK/Renderer.hpp>
-#include <ScriptSystem/ScriptSystem.hpp>
-#include <SceneSystem/SceneManager.hpp>
-#include <SceneSystem/Behaviour.hpp>
-#include <resource/ResourceManager.hpp>
-#include <GameInput.hpp>
-#include <Time.hpp>
 #include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_vulkan.h>
+#include <ImGui/imgui_impl_sdl3.h>
+
 #include <Engine/EngineFlags.hpp>
+#include <Graphics/SDL/Window.hpp>
+#include <Graphics/VK/Renderer.hpp>
+#include <Resource/ResourceManager.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <SceneSystem/SceneManager.hpp>
+#include <SceneSystem/Behaviour.hpp>
+#include <GameInput.hpp>
+#include <Time.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 
 namespace Droplet
 {
@@ -50,26 +53,30 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget);
-		
-		/// @brief the purpose of GetWindow is to let other systems use the window. 
-		/// Mainly the editor and the game itself needs access to the window.
-		/// @return An SDL window
-		[[nodiscard]] SDL_Window *GetWindow();
-		/// Temporarily Getter function
-		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
-
-		/// @brief Is meant to enable other classes to use functionality from scenemanager
-		/// @return A reference to engines scenemanager
-		[[nodiscard]] Scene::SceneManager &GetSceneManager();
-
-		[[nodiscard]] ResourceManager &GetResourceManager();
+		[[nodiscard]] DROPLET_RETURNTYPE Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
-		void AddEventListener(EventListener p_listener);
+		void AddEventListener(const EventListener& p_listener) { m_eventListeners.push_back(p_listener); }
+		
+		/// @brief Is meant to enable other classes to use functionality from scenemanager
+		/// @return A reference to engines scenemanager
+		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
+		
+		/// @brief Getter for the window of the engine
+		/// @return An SDL window handle
+		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
 
+		/// @brief Creates and returns a descriptorset of a render target   //TODO: REFACTOR
+		/// @param p_renderTarget The rendertarget to bind to the descriptorset
+		/// @return A vkDescriptorSet 
+		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
 
+		/// @brief Creates and returns a rendertarget   //TODO: REFACTOR
+		/// @param p_width Width of the target
+		/// @param p_height Height of the target
+		/// @return A Droplet::Graphics::Rendertarget 
+		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
 		
 	private:
 
@@ -90,7 +97,7 @@ namespace Droplet
 		};
 
 		UpdateFlagsSetter m_updateFlagsSetter;
-
+		
 		/// @brief The window instance should only be one.
 		Graphics::SDL::Window m_window;
 
@@ -100,14 +107,12 @@ namespace Droplet
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
 
-		/// @brief The resource manager instance, should only be one.
-		Droplet::ResourceManager &m_resourceManager = Droplet::ResourceManager::Get();
-
 		/// @brief 
-		ImGui_ImplVulkan_InitInfo m_initInfo;
+		ImGui_ImplVulkan_InitInfo m_initInfo {};
 
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
+		
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 

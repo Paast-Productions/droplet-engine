@@ -47,14 +47,6 @@ Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractio
 {
 	return m_interactionState;
 }
-Droplet::Graphics::Renderer &Droplet::Editor::EditorContext::GetRenderer()
-{
-	return m_engine.GetRenderer();
-}
-Droplet::ResourceManager &Droplet::Editor::EditorContext::GetResourceManager()
-{
-	return m_engine.GetResourceManager();
-}
 Droplet::Engine &Droplet::Editor::EditorContext::GetEngine()
 {
 	return m_engine;

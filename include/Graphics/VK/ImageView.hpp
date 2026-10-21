@@ -11,7 +11,10 @@ namespace Droplet::Graphics::VK
     class ImageView
     {
     public:
-        ImageView() = delete;
+        ImageView()
+        {
+            m_imageView = nullptr;
+        }
     
         /// @brief Image View Nullptr Constructor
         ImageView(nullptr_t p_nullptr)

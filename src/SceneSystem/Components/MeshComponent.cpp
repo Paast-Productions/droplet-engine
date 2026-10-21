@@ -1,10 +1,13 @@
 #include "MeshComponent.hpp"
+
 #include <ImGui/imgui.h>
+
 #include <Editor/DragDropFields.hpp>
-#include <resource/ResourceManager.hpp>
+#include <Resource/ResourceManager.hpp>
+#include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <string>
-#include "resource/meta/MetaUtils.hpp"
+#include <resource/meta/MetaUtils.hpp>
 
 // imgui helper function
 
@@ -122,7 +125,7 @@ using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-
+    SetRenderable();
 }
 
 void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
@@ -130,11 +133,22 @@ void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
     //TODO: will be inplemted later when the mesh system is implemented
 }
 
+void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
+{
+    p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+    p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
+    p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
+    p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
+    p_renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+
+    p_renderData.meshData.GUID = m_mesh.GetGUID();
+
+    p_renderData.texData.GUID = m_2dTexture.GetGUID();
+}
+
 void MeshComponent::RenderUIImpl()
 {
     using namespace ImGui;
-
-    auto &resourceManager = Droplet::ResourceManager::Get();
 
     PushID(this);
 
@@ -157,7 +171,7 @@ void MeshComponent::RenderUIImpl()
             newName,
             Droplet::ResourceType::Mesh))
         {
-            SetMeshGUID(newGUID, resourceManager);
+            SetMeshGUID(newGUID);
 			m_meshDisplayName = newName;
         }
 
@@ -172,40 +186,76 @@ void MeshComponent::RenderUIImpl()
             newName,
             Droplet::ResourceType::Texture2D))
         {
-            SetTextureGUID(newGUID, resourceManager);
+            SetTextureGUID(newGUID);
 			m_textureDisplayName = newName;
         }
-
+        
+        Separator();
+        
+        if(ResourceSlot(
+            "Vertex Shader",
+            m_shaderData.vs.GetGUID(),
+            m_vsDisplayName,
+            newGUID,
+            newName,
+            Droplet::ResourceType::Shader))
+        {
+            SetVSGUID(newGUID);
+            m_vsDisplayName = newName;
+        }
+        
+        if(ResourceSlot(
+            "Tes Control Shader",
+            m_shaderData.tcs.GetGUID(),
+            m_tcsDisplayName,
+            newGUID,
+            newName,
+            Droplet::ResourceType::Shader))
+        {
+            SetTCSGUID(newGUID);
+            m_tcsDisplayName = newName;
+        }
+        
+        if(ResourceSlot(
+            "Tes Evaluation Shader",
+            m_shaderData.tes.GetGUID(),
+            m_tesDisplayName,
+            newGUID,
+            newName,
+            Droplet::ResourceType::Shader))
+        {
+            SetTESGUID(newGUID);
+            m_tcsDisplayName = newName;
+        }
+        
+        if(ResourceSlot(
+            "Geometry Shader",
+            m_shaderData.gs.GetGUID(),
+            m_gsDisplayName,
+            newGUID,
+            newName,
+            Droplet::ResourceType::Shader))
+        {
+            SetGSGUID(newGUID);
+            m_gsDisplayName = newName;
+        }
+        
+        if(ResourceSlot(
+            "Fragment Shader",
+            m_shaderData.fs.GetGUID(),
+            m_fsDisplayName,
+            newGUID,
+            newName,
+            Droplet::ResourceType::Shader))
+        {
+            SetFSGUID(newGUID);
+            m_fsDisplayName = newName;
+        }
+        
         EndTable();
     }
 
     PopID();
-}
-
-void MeshComponent::SetMeshGUID(
-    Droplet::GUID p_guid,
-    Droplet::ResourceManager &p_resourceManager)
-{
-    m_mesh = p_resourceManager.LoadResource<Droplet::MeshResource>(p_guid);
-}
-
-void MeshComponent::SetTextureGUID(
-    Droplet::GUID p_guid,
-    Droplet::ResourceManager &p_resourceManager)
-{
-    m_2dTexture = p_resourceManager.LoadResource<Droplet::Texture2DResource>(p_guid);
-}
-
-const Droplet::ResourceHandle<Droplet::MeshResource> &Droplet::Scene::MeshComponent::GetMeshResource() const
-{
-    // TODO: insert return statement here
-    return m_mesh;
-}
-
-const Droplet::ResourceHandle<Droplet::Texture2DResource> &Droplet::Scene::MeshComponent::Get2dTextureResource() const
-{
-    // TODO: insert return statement here
-    return m_2dTexture;
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
@@ -232,12 +282,12 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
 	if (p_compJson.contains("meshGUID"))
 	{
-        m_mesh = ResourceManager::Get().LoadResource<Droplet::MeshResource>(p_compJson["meshGUID"].get<Droplet::GUID>());
+		SetMeshGUID(p_compJson["meshGUID"].get<Droplet::GUID>());
 	}
 
 	if (p_compJson.contains("textureGUID"))
 	{
-        m_2dTexture = ResourceManager::Get().LoadResource<Droplet::Texture2DResource>(p_compJson["textureGUID"].get<Droplet::GUID>());
+		SetTextureGUID(p_compJson["textureGUID"].get<Droplet::GUID>());
 	}
 
 	// Names

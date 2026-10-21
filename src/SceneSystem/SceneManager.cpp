@@ -197,11 +197,22 @@ void SceneManager::Update(float p_deltaTime)
     }
 }
 
-void SceneManager::Render()
+std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
+    
+    //TODO: Separate renderData between scenes for modularity 
+    std::vector<Droplet::Graphics::RenderData> renderData {};
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    for (auto it = m_scenes.begin(); it != m_scenes.end();)
+    {
+        it->second->GetRenderData(renderData);
+
+        ++it;
+    }
+
+    //TODO: Implement active scene logic
+    /*for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
 
@@ -210,11 +221,13 @@ void SceneManager::Render()
             it = m_activeScenes.erase(it);
             continue;
         }
-
-        scene->Render();
-
+        
+        it->lock()->GetRenderData(renderData);
+        
         ++it;
-    }
+    }*/
+    
+    return renderData;
 }
 
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)

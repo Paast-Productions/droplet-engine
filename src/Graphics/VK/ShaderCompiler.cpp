@@ -14,14 +14,15 @@ ShaderCompiler::ShaderCompiler()
     }
 }
 
-Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path& p_path)
+Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem::path &p_path) const
 {
-    Slang::ComPtr<slang::ISession> localSession{};
+    
+    Slang::ComPtr<slang::ISession> localSession {};
     
     slang::TargetDesc targetDesc
     {
         .format = SLANG_SPIRV,
-        .profile = m_globalSession->findProfile("spirv_1_6")
+        .profile = m_globalSession->findProfile("spirv_1_4")
     };
     
     std::array<slang::CompilerOptionEntry, 1> options
