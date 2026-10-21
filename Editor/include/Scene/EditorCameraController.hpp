@@ -27,7 +27,7 @@ namespace Droplet::Editor::Scene
 		EditorCamera &m_editorCamera;
 
 		float m_movementSpeed = 2.5f;
-		float m_mouseSensitivity = 0.1f;
+		float m_mouseSensitivity = 0.075f;
 
 		bool m_lookActive = false;
 	};
