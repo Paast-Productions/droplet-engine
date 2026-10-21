@@ -168,37 +168,39 @@ void PhysicsComponent::RenderUIImpl()
 		}
 		ImGui::Text(shapeType.c_str());
 		
+		// Display the current motion type 
+		std::string motionText = "Motion type: ";
+		switch (m_motion)
 		{
-			std::string motion = "Motion type: ";
-			switch (m_motion)
-			{
-			case JPH::EMotionType::Static:
-				motion += "Static";
-				break;
-			case JPH::EMotionType::Kinematic:
-				motion += "Kinematic";
-				break;
-			case JPH::EMotionType::Dynamic:
-				motion += "Dynamic";
-				break;
-			}
-			ImGui::Text(motion.c_str());
-		
-			std::string layer = "Layer type: ";
-			switch (m_layer)
-			{
-			case NON_MOVING: 
-				layer += "Non-moving";
-				break;
-			case MOVING: 
-				layer += "Moving";
-				break;
-			case NUM_LAYERS: 
-				layer += "NumLayers";
-				break;
-			}
-			ImGui::Text(layer.c_str());
+		case JPH::EMotionType::Static:
+			motionText += "Static";
+			break;
+		case JPH::EMotionType::Kinematic:
+			motionText += "Kinematic";
+			break;
+		case JPH::EMotionType::Dynamic:
+			motionText += "Dynamic";
+			break;
 		}
+		ImGui::Text(motionText.c_str());
+	
+		// Display the current layer type
+		std::string layerText = "Layer type: ";
+		switch (m_layer)
+		{
+		case NON_MOVING: 
+			layerText += "Non-moving";
+			break;
+		case MOVING: 
+			layerText += "Moving";
+			break;
+		case NUM_LAYERS: 
+			layerText += "NumLayers";
+			break;
+		}
+		ImGui::Text(layerText.c_str());
+
+		ImGui::NewLine();
 		
 		// Display and apply MotionType and ObjectLayer
 		const char* motionTypes[] = { "Static", "Kinematic", "Dynamic" };
@@ -273,7 +275,7 @@ void PhysicsComponent::RenderUIImpl()
 			break;
 		}
 		
-		if (ImGui::Button("Apply motion and layer"))
+		if (ImGui::Button("Apply Motion and Layer"))
 		{
 			SetMotionType(motion);
 			SetObjectLayer(layer);
@@ -282,7 +284,7 @@ void PhysicsComponent::RenderUIImpl()
 		ImGui::NewLine();
 
 		// Display remove collider button
-		if (ImGui::Button("Remove collider body"))
+		if (ImGui::Button("Remove Collider Body"))
 		{
 			RemoveCollider();
 		}
