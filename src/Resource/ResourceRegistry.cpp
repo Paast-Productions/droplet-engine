@@ -49,8 +49,11 @@ namespace Droplet
         {
             return it->second;
         }
+
+        MetaEntry m;
+        m.guid = C_INVALID_GUID;
     
-        throw std::runtime_error("Resource does not exist in registry.");
+        return m;
     }
 
     bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,
