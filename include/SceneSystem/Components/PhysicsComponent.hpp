@@ -64,6 +64,8 @@ namespace Droplet::Scene
 		/// @brief Set what the physics body can collide with
 		/// @param p_objectLayer The object layer to be set
 		void SetObjectLayer(const Layers p_objectLayer);
+		
+		void RemoveCollider();
 
 	protected:
 		void RenderUIImpl() override;

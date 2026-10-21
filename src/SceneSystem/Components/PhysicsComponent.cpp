@@ -135,6 +135,14 @@ void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 	m_physics->GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
 }
 
+void PhysicsComponent::RemoveCollider()
+{
+	m_physics->GetBodyInterface()->DestroyBody(m_bodyID);
+	m_shapeType = ShapeType::None;
+	m_bodyID = JPH::BodyID(JPH::BodyID::cInvalidBodyID);
+	delete m_shape;
+}
+
 void PhysicsComponent::RenderUIImpl()
 {
 	if (m_shapeType != ShapeType::None)
