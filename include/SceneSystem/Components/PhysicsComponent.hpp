@@ -74,8 +74,16 @@ namespace Droplet::Scene
 
 		/// @brief Applies the simulated Jolt transform to the Node Transform
 		void PullTransformFromPhysics();
+		
+		enum class ShapeType : std::uint8_t
+		{
+			None,
+			Box,
+			Sphere,
+			Capsule,
+			Mesh
+		}m_shapeType = ShapeType::None;
 
-		bool m_hasShape = false;
 		Physics *m_physics;
 		Transform *m_transform;
 

@@ -30,18 +30,19 @@ void PhysicsComponent::LateUpdate(float p_deltaTime)
 
 void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
-	if (m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
 
 	JPH::BoxShapeSettings boxSettings(p_halfExtents);
 	CreateCollider(boxSettings);
+	m_shapeType = ShapeType::Box;
 }
 
 void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 {
-	if (m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
@@ -51,29 +52,31 @@ void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents)
 
 void PhysicsComponent::SetSphereCollider(const float p_radius)
 {
-	if (m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
 
 	JPH::SphereShapeSettings sphereSettings(p_radius);
 	CreateCollider(sphereSettings);
+	m_shapeType = ShapeType::Sphere;
 }
 
 void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
 {
-	if (m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
 
 	JPH::CapsuleShapeSettings capsuleSettings(p_HalfHeightOfCylinder, p_radius);
 	CreateCollider(capsuleSettings);
+	m_shapeType = ShapeType::Capsule;
 }
 
 void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 {
-	if (m_hasShape || p_mesh == nullptr)
+	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
 	{
 		return;
 	}
@@ -109,6 +112,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 
 	JPH::MeshShapeSettings meshSettings(std::move(joltVertices), std::move(triangles));
 	CreateCollider(meshSettings);
+	m_shapeType = ShapeType::Mesh;
 }
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
@@ -142,13 +146,11 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
 	m_bodyID = body->GetID();
 
 	m_physics->GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
-
-	m_hasShape = true;
 }
 
 void PhysicsComponent::PushTransformToPhysics()
 {
-	if (!m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
@@ -161,7 +163,7 @@ void PhysicsComponent::PushTransformToPhysics()
 
 void PhysicsComponent::PullTransformFromPhysics()
 {
-	if (!m_hasShape)
+	if (m_shapeType != ShapeType::None)
 	{
 		return;
 	}
