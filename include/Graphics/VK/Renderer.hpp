@@ -62,9 +62,6 @@ namespace Droplet::Graphics
 		/// @brief Destructor
 		~Renderer();
 		
-		/// @brief Renders a singular frame
-		void DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-		
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
 		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);
@@ -95,9 +92,6 @@ namespace Droplet::Graphics
 		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
-		/// @brief Creates the texture sampler
-		void CreateTextureSampler();
-
 		/// @brief Creates sync objects for preventing race conditions etc
 		void CreateSyncObjects();
 
@@ -127,36 +121,36 @@ namespace Droplet::Graphics
 		SDL_Window* m_window { nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::IntermediaryStorage m_interStorage;
+		VK::IntermediaryStorage m_interStorage { nullptr };
 
 		SDL_Event m_event {};
 
 		VK::CommandPool m_commandPool { nullptr };
-		VK::Pipeline m_graphicsPipeline { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 
-		VK::DescriptorPool						m_descriptorPool { nullptr };
-		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
+		//VK::DescriptorPool						m_descriptorPool { nullptr };
+		//VK::DescriptorSet						m_globalDescriptorSet { nullptr };
 		
 		VK::Swapchain m_swapchain { nullptr };
-		vk::raii::Sampler						m_textureSampler = nullptr;
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
 		VK::StorageBuffer m_storageBuffer { nullptr };
-		VK::UniformBuffer m_vpBuffer{ nullptr };
+		VK::UniformBuffer m_vpBuffer { nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };
 		VK::IndexBuffer	m_indexBuffer	{ nullptr };
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
-		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
-		std::uint32_t m_imGuiPoolSize;
+		vk::raii::DescriptorPool m_debugDescriptorPool { nullptr };
+		
+		vk::raii::DescriptorPool m_imGuiDescriptorPool { nullptr };
+		std::uint32_t m_imGuiPoolSize { 0 };
 
-		VkFormat m_imGuiColorFormat;
+		VkFormat m_imGuiColorFormat {};
 
 		//Needs one buffer per frame in flight to avoid read write issues
 		
@@ -169,7 +163,7 @@ namespace Droplet::Graphics
 
 		bool m_framebufferResized = false;
 		
-		Camera m_camera;
-		CameraController m_cameraController;
+		Camera m_camera {};
+		CameraController m_cameraController {};
 	};
 }

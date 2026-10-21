@@ -7,11 +7,19 @@
 
 using namespace Droplet::Graphics::VK;
 
-IntermediaryStorage::IntermediaryStorage(Context &p_context, DescriptorSet &p_descriptorSet) :
+IntermediaryStorage::IntermediaryStorage(Context &p_context) :
     m_context(p_context),
-    m_descriptorSet(p_descriptorSet),
     m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()),
-    m_textureSampler(m_context) {}
+    m_descriptorPool(m_context.GetDevice()),
+    m_textureSampler(m_context.GetPhysicalDevice(), m_context.GetDevice())
+{
+    // TODO: <REFACTOR>
+    // Should be a for-loop
+    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
+    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
+    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
+    // TODO: </REFACTOR>
+}
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
@@ -30,10 +38,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         return m_pipelineMap.at(key);
     } 
-    catch (const std::exception &err) 
+    catch (const std::exception &) 
     {
-        Debug::Logger& logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
+        /*Debug::Logger& logger = Debug::Logger::GetInstance();
+        logger.Log(Droplet::Debug::LogType::Info, err.what());*/
     }
     
     // IF FAILED, CREATE NEW
@@ -116,11 +124,17 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         throw std::runtime_error("Fragment Shader is not ready");
     }
     
+    std::vector<vk::DescriptorSetLayout> descriptorSetLayouts{};
+    for (DescriptorSet& descriptorSet : m_descriptorSets)
+    {
+        descriptorSetLayouts.push_back(*descriptorSet.GetLayout());
+    }
+    
     m_pipelineMap[key] = Pipeline 
     {
         p_device, 
         p_physicalDevice,
-        m_descriptorSet.GetLayout(),
+        descriptorSetLayouts,
         shaderVec,
         p_surfaceFormat
     };
@@ -171,7 +185,7 @@ const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
     return mesh;
 }
 
-const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool)
+std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool)
 {
     std::uint64_t guid = p_renderData.texData.GUID;
     
@@ -206,16 +220,20 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
         vk::MemoryPropertyFlagBits::eDeviceLocal
     );
+    
+    std::uint32_t destIndex = static_cast<std::uint32_t>(m_viewMap.size());
+    
     m_viewMap.emplace_back(
         m_context.GetDevice(),
         m_imageMap.back().Get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
-
+    
     try
     {
-        m_descriptorSet.WriteCombinedImageSamplerDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get());
+        const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
+        m_descriptorSets.at(descriptorSetIndex).WriteDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get(), destIndex);
     }
     catch (const std::exception &)
     {
@@ -225,7 +243,19 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
         throw std::runtime_error("Failed to write image sampler descriptor!");
     }
 
-    m_textureGuidMap[guid] = m_viewMap.size() - 1;
+    m_textureGuidMap[guid] = destIndex;
 
     return m_textureGuidMap.at(guid);
+}
+
+std::vector<vk::DescriptorSet> IntermediaryStorage::GetDescriptorSets() const
+{
+    std::vector<vk::DescriptorSet> descriptorSets {};
+    
+    for (const DescriptorSet &descriptorSet : m_descriptorSets)
+    {
+        descriptorSets.push_back(descriptorSet.Get());
+    }
+        
+    return descriptorSets; 
 }

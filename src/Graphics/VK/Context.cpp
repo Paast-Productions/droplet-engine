@@ -119,13 +119,14 @@ void Context::CreateLogicalDevice()
 				.descriptorBindingStorageBufferUpdateAfterBind = true,
 				.descriptorBindingUpdateUnusedWhilePending = true,
 				.descriptorBindingPartiallyBound = true,
+				.descriptorBindingVariableDescriptorCount = true
 			},	
 			{	// vk::PhysicalDeviceVulkan13Features
 				.synchronization2 = true, // Fixes sync2 warnings
 				.dynamicRendering = true
 			},	
-			{
-				.smoothLines = false
+			{	// vk::PhysicalDeviceVulkan14Features
+				.smoothLines = true
 			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
 				.extendedDynamicState = true
