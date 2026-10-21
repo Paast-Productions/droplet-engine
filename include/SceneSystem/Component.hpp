@@ -158,6 +158,7 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_started = false;
 		bool m_active = true;
 
         std::weak_ptr<Node> m_owner{};

@@ -4,26 +4,35 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SerializationContext.hpp>
+
 using namespace Droplet::Scene;
 
 Component::Component()
 {
 	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
 
 }
 
-void Droplet::Scene::Component::Start()
+void Component::Start()
 {
-	if (IsActiveSelf())
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
 	{
 		StartImpl();
-	}
 
+		m_started = true;
+	}
 }
 
-void Droplet::Scene::Component::Update(float p_deltaTime)
+void Component::Update(float p_deltaTime)
 {
-	if (IsActiveSelf())
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
 	{
 		UpdateImpl(p_deltaTime);
 	}
@@ -80,6 +89,11 @@ bool Component::IsActive() const
 void Component::SetActiveSelf(bool p_active)
 {
 	m_active = p_active;
+
+	if (m_active && !m_started)
+	{
+		Start();
+	}
 }
 
 nlohmann::json Component::Serialize()
