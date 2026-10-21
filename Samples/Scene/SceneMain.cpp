@@ -12,6 +12,7 @@
 #include "SceneSystem/SceneSerializer.hpp"
 #include "SceneSystem/SerializationContext.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
+#include "SceneSystem/ComponentFactory.hpp"
 #include "Core/IoManager.hpp"
 #include "GameInput.hpp"
 #include <SDL3/SDL_init.h>
@@ -306,14 +307,19 @@ int main()
     // ==================================================
     // Add Components
     // ==================================================
+	auto scriptComp = ComponentFactory::CreateComponent("ScriptComponent");
+	auto playerComp = ComponentFactory::CreateComponent("PlayerComponent");   
+	auto enemyComp = ComponentFactory::CreateComponent("EnemyComponent");    
 
-    player->AddComponent<ScriptComponent>();
-    auto playerComp = player->AddComponent<PlayerComponent>();
-    auto enemyComp = enemy->AddComponent<EnemyComponent>();
+    player->AttachComponent(scriptComp);
+    player->AttachComponent(playerComp);
+    enemy->AttachComponent(enemyComp);
 
-    enemyComp->SetTarget(playerComp);
+	auto playerComponets = player->GetComponents<PlayerComponent>();
+    auto enemyComponents = enemy->GetComponents<EnemyComponent>();
+    enemyComponents[0]->SetTarget(playerComponets[0]);
 
-    player->AddComponent<ScriptComponent>();
+    
 
     // ==================================================
     // Activate the scene
