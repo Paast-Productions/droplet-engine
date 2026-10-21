@@ -22,6 +22,8 @@ namespace Droplet::Scene
 		~PhysicsComponent() = default;
 
 		void Initialize(Physics *p_physics, Transform *p_transform);
+		
+		void Start() override;
 
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
@@ -62,6 +64,13 @@ namespace Droplet::Scene
 		/// @brief Set what the physics body can collide with
 		/// @param p_objectLayer The object layer to be set
 		void SetObjectLayer(const Layers p_objectLayer);
+
+	protected:
+		void RenderUIImpl() override;
+
+		nlohmann::json SerializeImpl() override;
+		void DeserializeImpl(nlohmann::json p_compJson) override;
+
 
 	private:
 		/// @brief Helper function for creating collider body

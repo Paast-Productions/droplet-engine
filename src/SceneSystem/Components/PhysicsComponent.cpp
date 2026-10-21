@@ -1,10 +1,14 @@
 #include "PhysicsComponent.hpp"
 
+#include <SceneSystem/Node.hpp>
+#include <SceneSystem/Scene.hpp>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <ImGui/imgui.h>
+#include <SceneSystem/Components/MeshComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -12,6 +16,12 @@ void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 {
 	m_physics = p_physics;
 	m_transform = p_transform;
+}
+
+void PhysicsComponent::Start()
+{
+	m_physics = GetOwner()->GetScene()->GetPhysics();
+	m_transform = &GetOwner()->GetTransform();
 }
 
 void PhysicsComponent::Update(float p_deltaTime)
@@ -123,6 +133,183 @@ void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 {
 	m_physics->GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
+}
+
+void PhysicsComponent::RenderUIImpl()
+{
+	if (m_shapeType != ShapeType::None)
+	{
+		// TODO: Display the current collider shape
+		// TODO: Display MotionType and ObjectLayer
+		// TODO: Display remove collider button
+		
+		
+		
+		return;
+	}
+	
+	// ========== Collider type menu ==========
+	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh" };
+	static int selectedColliderIdx = 0; // Here we store our selection data as an index.
+
+	const char* comboPreviewValue1 = colliderTypes[selectedColliderIdx];
+	if (ImGui::BeginCombo("Collider Type", comboPreviewValue1, 0))
+	{
+		for (int n = 0; n < IM_COUNTOF(colliderTypes); n++)
+		{
+			const bool isSelected = (selectedColliderIdx == n);
+			if (ImGui::Selectable(colliderTypes[n], isSelected))
+			{
+				selectedColliderIdx = n;
+			}
+
+			// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+			if (isSelected)
+			{
+				ImGui::SetItemDefaultFocus();
+			}
+		}
+		ImGui::EndCombo();
+	}
+	
+	// ========== Collider settings ==========
+	static float x = 0.0f;
+	static float y = 0.0f;
+	static float z = 0.0f;
+	static float r = 0.0f;
+	static float h = 0.0f;
+	Droplet::GUID guid = 0;
+	std::shared_ptr<Node> node = GetOwner();
+	std::vector<std::shared_ptr<MeshComponent>> meshComponents = node->GetComponents<MeshComponent>();
+	static std::size_t selectedMeshIdx = 0; // Here we store our selection data as an index.
+	switch (selectedColliderIdx)
+	{
+	case 0: // Box collider
+		{
+			ImGui::Text("Input half extents:");
+			ImGui::InputFloat("x", &x, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("y", &y, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("z", &z, 0.01f, 1.0f, "%.3f");
+			break;
+		}
+	case 1: // Sphere collider
+		{
+			ImGui::Text("Input radius:");
+			ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
+			break;
+		}
+	case 2: // Capsule collider
+		{
+			ImGui::Text("Input capsule radius and cylinder height:");
+			ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("Cylinder height", &h, 0.01f, 1.0f, "%.3f");
+			break;
+		}
+	case 3: // Mesh collider
+		{   
+			if (meshComponents.empty())
+			{
+				ImGui::Text("There's no mesh component on this node!");
+			}
+			else
+			{
+				ImGui::Text("Choose mesh:");
+				
+				std::vector<std::string> meshGuids;
+				meshGuids.reserve(meshComponents.size());
+				for (const std::shared_ptr<MeshComponent> &m : meshComponents)
+				{
+					meshGuids.push_back(std::to_string(m->GetMeshGUID()));
+				}
+
+				// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
+				const char* comboPreviewValue2 = meshGuids[selectedMeshIdx].c_str();
+				if (ImGui::BeginCombo("Mesh GUID", comboPreviewValue2, 0))
+				{
+					for (std::size_t n = 0; n < meshComponents.size(); n++)
+					{
+						const bool isSelected = (selectedMeshIdx == n);
+						if (ImGui::Selectable(meshGuids[n].c_str(), isSelected))
+						{
+							selectedMeshIdx = n;
+						}
+
+						// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+						if (isSelected)
+						{
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+					ImGui::EndCombo();
+				}
+			}
+			
+			break;
+		}
+	default:
+		break;
+	}
+	
+	// ========== Collider apply button ==========
+	static bool displayError = false;
+	if (ImGui::Button("Apply collider"))
+	{
+		displayError = false;
+		switch (selectedColliderIdx)
+		{
+		case 0: // Box collider
+			if (x == 0.0f || y == 0.0f || z == 0.0f)
+			{
+				displayError = true;
+				break;
+			}
+			displayError = false;
+			SetBoxCollider(glm::vec3(x, y, z));
+			break;
+		case 1: // Sphere collider
+			if (r == 0.0f)
+			{
+				displayError = true;
+				break;
+			}
+			displayError = false;
+			SetSphereCollider(r);
+			break;
+		case 2: // Capsule collider
+			if (r == 0.0f || h == 0.0f)
+			{
+				displayError = true;
+				break;
+			}
+			displayError = false;
+			SetCapsuleCollider(r, h);
+			break;
+		case 3: // Mesh collider
+			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().Get());
+			break;
+		default:
+			break;
+		}
+	}
+	
+	if (displayError)
+	{
+		ImGui::Text("Error: Invalid collider settings!");
+	}
+}
+
+nlohmann::json PhysicsComponent::SerializeImpl()
+{
+	nlohmann::json json;
+	
+	// TODO: Serialize
+	
+	return json;
+}
+
+void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
+{
+	// TODO: Deserialize
 }
 
 void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings)
