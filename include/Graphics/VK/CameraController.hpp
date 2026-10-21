@@ -8,6 +8,7 @@ namespace Droplet::Graphics
 	class CameraController
 	{ 
 	public:
+		//TODO: Make it able to update the mouse depending on SDL_Window and/or ImGui window, see EditorCameraController.hpp
 		/// @brief Processes inputs made from the user
 		/// @param p_camera The camera object that the uppdates will apply on
 		/// @param p_deltaTime Frame rate based value to multiply the cameras velocity
