@@ -245,7 +245,11 @@ void PhysicsComponent::RenderUIImpl()
 			SetObjectLayer(layer);
 		}
 
-		// TODO: Display remove collider button
+		// Display remove collider button
+		if (ImGui::Button("Remove collider body"))
+		{
+			RemoveCollider();
+		}
 		
 		return;
 	}
