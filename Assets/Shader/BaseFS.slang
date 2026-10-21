@@ -1,6 +1,7 @@
 struct PushConstants
 {
     float4x4 world;
+    float32_t time;
     uint32_t sampler;
 };
 
