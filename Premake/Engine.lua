@@ -1,0 +1,68 @@
+project "Engine"
+    kind "StaticLib"
+
+    location(projectsPath)
+
+    defines{
+		"TRACY_ENABLE", 
+		"TRACY_ON_DEMAND",
+		"TRACY_FIBERS",
+		"TRACY_MEMORY",
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation("../../..")
+    }
+
+    targetdir(targetBuildPath .. "/%{prj.name}")
+    objdir(objBuildPath .. "/%{prj.name}")
+
+
+    if _TARGET_OS == "windows" then
+
+        buildoptions {"/Zi", "/bigobj"}
+        
+        -- vkPath required as windows doesn't add the vulkan sdk to lib path'
+        local vkPath = os.getenv("VULKAN_SDK")
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            vkPath .. "/Include",
+            targetBuildPath .. "/External/include/",
+        }
+
+    else
+
+        includedirs
+        {
+            "../include",
+            "../include/**",
+            targetBuildPath .. "/External/include"
+        }
+
+    end
+
+    dependson
+    {
+        --"GoogleTest",
+        "ImGui",
+        "Sol2",
+        "json",
+        "tracy",
+        "VulkanMemoryAllocator",
+        "Jolt",
+        "Assimp",
+        "Stb",
+        "Gli",
+        "bvh"
+    }
+    --buildoptions { "-FIEnginePCH.hpp" }
+
+    files {
+        "../include/**.hpp",
+        "../include/**.inl",
+        "../src/**.cpp",
+    }
+
+    --pchheader "%{prj.location}/EnginePCH.hpp"
+    --pchsource "%{prj.location}/EnginePCH.cpp"

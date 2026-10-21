@@ -1,0 +1,15 @@
+{
+    "resources": [
+        {
+            "dependencies": [],
+            "displayName": "Test_Valid",
+            "sourceName": "Test_Valid",
+            "guid": 600,
+            "loadFlags": 2,
+            "loadSettings": {
+                "shader_type": 0
+            },
+            "type": 6
+        }
+    ]
+}

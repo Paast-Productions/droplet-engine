@@ -1,0 +1,58 @@
+#pragma once
+
+#include <SceneSystem/Behaviour.hpp>
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <string>
+
+using namespace Droplet::Script;
+
+namespace Droplet::Scene
+{
+    /// @brief Behaviour that attaches a Lua script to game.
+    ///
+    /// ScriptBehaviour connects a scene a Lua script to the game. It stores the
+    /// path to the associated script and forwards script lifecycle operations
+    /// to the ScriptSystem.
+    ///
+    /// A Lua script attached through a ScriptBehaviour can implement behavior
+    /// such as movement, animation, interaction, or other game-specific logic.
+    /// The component participates in the Node lifecycle through its Start()
+    /// and Update() functions.
+    class ScriptBehaviour : public Behaviour
+    {
+    public:
+        ScriptBehaviour() = default;
+
+        void PostUpdate() override;
+
+        /// @brief Gets the type name of the behaviour.
+        /// @return The type name of the behaviour.
+        std::string_view GetTypeName() override { return "ScriptBehaviour"; }
+
+        /// @brief Gets the path of the associated Lua script.
+        ///
+        /// @return Reference to the stored script path.
+        [[nodiscard]] const std::string &GetScriptPath() const;
+
+        void SetScriptPath(const std::string &p_scriptPath);
+
+        void AttachScript(const std::string p_scriptPath);
+
+        /// @brief Detaches the script from this component.
+        ///
+        /// Removes the relationship between this component and its associated
+        /// script instance.
+        void DetachScript();
+
+	protected:
+		/// @brief Internal rendering function for the component's UI.
+		/// Overloaded by derived components to implement their own UI rendering logic.
+		void RenderUIImpl() override;
+
+    private:
+
+        /// @brief Path to the Lua script associated with this component.
+        std::string m_scriptPath;
+    };
+
+}

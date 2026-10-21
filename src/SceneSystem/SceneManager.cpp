@@ -1,0 +1,312 @@
+#include "SceneManager.hpp"
+#include "SceneFactory.hpp"
+#include "SceneSerializer.hpp"
+#include "Scene.hpp"
+#include "Behaviour.hpp"
+
+#include <Core/IoManager.hpp>
+#include <algorithm>
+#include <stdexcept>
+#include <tracy/public/tracy/Tracy.hpp>
+#include <EngineFlags.hpp>
+
+using namespace Droplet::Scene;
+
+void SceneManager::LoadScene(const std::string &p_name)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    if (m_scenes.contains(p_name))
+    {
+        UnloadScene(p_name);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
+    }
+
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_name);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot load Scene '" + p_name + "': SceneFactory failed to create the Scene.");
+    }
+
+    scene->Load();
+
+    m_scenes[p_name] = scene;
+}
+
+void SceneManager::UnloadScene(const std::string &p_name)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    auto it = m_scenes.find(p_name);
+
+    if (it == m_scenes.end())
+    {
+        throw std::runtime_error("Cannot unload Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    if (it->second->IsActive())
+    {
+        DeactivateScene(p_name);
+    }
+
+    it->second->Unload();
+
+    m_scenes.erase(it);
+}
+
+void SceneManager::ActivateScene(const std::string &p_name)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    auto scene = GetScene(p_name);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    if (!scene->IsLoaded())
+    {
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is not loaded.");
+    }
+
+    if (scene->IsActive())
+    {
+        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is already active.");
+    }
+
+    scene->SetActive(true);
+
+    m_activeScenes.push_back(scene);
+}
+
+void SceneManager::DeactivateScene(const std::string &p_name)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    auto scene = GetScene(p_name);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    if (!scene->IsLoaded())
+    {
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is not loaded.");
+    }
+
+    if (!scene->IsActive())
+    {
+        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is already inactive.");
+    }
+
+    scene->SetActive(false);
+
+    m_activeScenes.erase(std::remove_if(m_activeScenes.begin(), m_activeScenes.end(), [&p_name](const std::weak_ptr<Scene> &p_scene)
+    {
+        auto scene = p_scene.lock();
+
+        if (!scene)
+        {
+            return true;
+        }
+
+        if (scene->GetName() == p_name)
+        {
+            return true;
+        }
+
+        return false;
+    }
+    ),
+    m_activeScenes.end());
+}
+
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: Make weak pointer
+{
+    auto it = m_scenes.find(p_name);
+
+    if (it == m_scenes.end())
+    {
+        return nullptr;
+    }
+
+    return it->second;
+}
+
+const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
+{
+    return m_activeScenes;
+}
+
+void SceneManager::Update(float p_deltaTime)
+{
+    ZoneScoped;
+
+	// Pre-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+			ZoneNamedN(behaviourPreUpdateZone, "Behaviour Pre-Update", true);
+            ZoneTextV(behaviourPreUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PreUpdate();
+		}
+
+        ++it;
+	}
+
+	// Update all active Scenes
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+    {
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        scene->Update(p_deltaTime);
+
+        ++it;
+    }
+
+    // Post-Update all active Behaviours
+    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    {
+        auto &behaviour = *it;
+
+        if (behaviour->IsActive())
+        {
+            ZoneNamedN(behaviourPostUpdateZone, "Behaviour Posy-Update", true);
+            ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+            behaviour->PostUpdate();
+        }
+
+        ++it;
+    }
+}
+
+std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
+{
+    ZoneScoped;
+    
+    //TODO: Separate renderData between scenes for modularity 
+    std::vector<Droplet::Graphics::RenderData> renderData {};
+
+    for (auto it = m_scenes.begin(); it != m_scenes.end();)
+    {
+        it->second->GetRenderData(renderData);
+
+        ++it;
+    }
+
+    //TODO: Implement active scene logic
+    /*for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    {
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+        
+        it->lock()->GetRenderData(renderData);
+        
+        ++it;
+    }*/
+    
+    return renderData;
+}
+
+void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeScene(p_scene);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
+}
+
+void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+    if (!json.contains("name"))
+    {
+        throw std::runtime_error("Invalid json was sent to LoadFromFile");
+    }
+
+    if (m_scenes.contains(json["name"]))
+    {
+        UnloadScene(json["name"]);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
+    }
+
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
+
+    if (!scene)
+    {
+        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+    }
+
+    serializer.DeserializeScene(json, scene);
+    scene->Load();
+
+    m_scenes[json["name"]] = scene;
+}
+
+void Droplet::Scene::SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeNode(p_node);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
+}
+
+std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
+{
+	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
+
+    behaviour->SetSceneManager(this);
+    m_behaviours.push_back(behaviour);
+
+    behaviour->Start();
+
+	return behaviour;
+}
+
+void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
+{
+    auto behaviour = p_behaviour.lock();
+    if (!behaviour)
+    {
+		return;
+    }
+
+    auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
+    if (it != m_behaviours.end())
+    {
+        m_behaviours.erase(it);
+	}
+}

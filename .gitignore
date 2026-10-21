@@ -1,0 +1,55 @@
+*
+
+# Required files
+!.gitignore
+!LICENSE
+!README.md
+!.github/
+!.github/**
+
+# Source
+!/include
+!/include/**
+!/src
+!/src/**
+
+# Premake
+!premake5.lua
+!/Premake
+!/Premake/**
+
+# External
+!/External
+!/External/**
+
+# Editor
+!/Editor
+!/Editor/**
+
+# Assets
+!/Assets
+!/Assets/**
+
+# Test 
+!/Test
+!/Test/**
+
+# Docs
+!/Docs
+!/Docs/Image
+
+# Assets
+!/Assets
+!/Assets/Shader
+!/Assets/Shader/**
+
+# ////////////////////////////
+# |         SAMPLES          |
+# ////////////////////////////
+
+!/Samples
+!/Samples/**
+src/Graphics/VK/Shaders/slang.spv
+
+!/GameData
+!/GameData/**

@@ -1,0 +1,1 @@
+This is an invalid TextureFormat that is used to test how our TextureLoader will handle this situation.

@@ -1,0 +1,15 @@
+{
+    "resources": [
+        {
+            "dependencies": [],
+            "guid": 700,
+            "loadFlags": 1,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "displayName": "Test_Missing",
+            "sourceName": "Test_Missing",
+            "type": 1
+        }
+    ]
+}

@@ -1,0 +1,218 @@
+#pragma once
+
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <Math/Bounds/Intersection.hpp>
+#include <SceneSystem/Octree.hpp>
+#include <Graphics/RenderData.hpp>
+
+
+
+/// @brief Scene Object ID, used to locate a component attached to a node
+struct SceneObjectID {
+    std::uint64_t nodeID = 0;
+    std::uint64_t componentID = 0;
+};
+
+/// @brief Struct to be used by components to reference nodes and components in the scene
+/// SetTarget makes the reference that object
+/// SetSerializedID used by the serializer to save the reference
+/// GetTarget returns the target the reference is referencing
+/// @tparam T the type of reference. Either "Component" or "Node"
+template<typename T>
+struct SceneReference {
+    SceneObjectID serializedID = {};
+    std::weak_ptr<T> resolvedObject;
+    
+
+    void SetTarget(const std::shared_ptr<T>& p_target)
+    {
+        resolvedObject = p_target;
+        serializedID = {};
+    } 
+    
+    std::shared_ptr<T> GetTarget() const
+    {
+        return resolvedObject.lock();
+    }
+
+    void SetSerializedID(SceneObjectID p_id)
+    {
+        serializedID = p_id;
+        resolvedObject.reset();
+    }
+};
+
+namespace Droplet::Scene
+{
+    // forward declaration of Node to avoid circular dependency
+    class Node;
+
+	/// @brief Represents a Scene containing a Node hierarchy.
+    ///
+    /// A Scene owns any number of root Nodes that serve as the starting
+    /// points of the Scene's Node hierarchies. Scenes can be loaded,
+    /// unloaded, activated, and updated independently.
+    ///
+    /// Nodes maintain a weak reference to their containing Scene so
+    /// that they can access Scene-level functionality without creating
+    /// an ownership cycle.
+    class Scene : public std::enable_shared_from_this<Scene>
+    {
+    public:
+
+        /// @brief Constructs a Scene with the specified name.
+        /// @param p_name Name of the Scene.
+        explicit Scene(const std::string &p_name);
+
+        ~Scene() = default;      
+
+        /// @brief Loads the Scene.
+        ///
+        /// Marks the Scene as loaded and assigns the Scene reference to
+        /// all root Nodes. The Scene reference is propagated through
+        /// each Node hierarchy.
+        ///
+        /// Loading a Scene does not activate it.
+        ///
+        /// @throws std::runtime_error if the Scene is already loaded.
+        ///
+        /// Derived Scenes can override this function to perform additional
+        /// loading or initialization.
+        void Load();
+
+        /// @brief Unloads the Scene.
+        ///
+        /// Marks the Scene as unloaded and deactivates it.
+        ///
+        /// The root Nodes and their hierarchies remain owned by the Scene
+        /// and can be loaded again later.
+        ///
+        /// @throws std::runtime_error if the Scene is not loaded.
+        ///
+        /// Derived Scenes can override this function to perform additional
+        /// cleanup.
+        void Unload();
+
+        /// @brief Updates the Scene.
+        ///
+        /// Updates all root Node hierarchies when the Scene is both
+        /// loaded and active.
+        ///
+        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
+        void Update(float p_deltaTime);
+
+        /// @brief Stores render data of the scene in a vector
+        ///
+        /// Stores all root Node hierarchies when the Scene is both
+        /// loaded and active.
+        /// 
+        /// @note Currently unused and does not perform any rendering.
+        /// Rendering functionality may be moved to a separate rendering
+        /// system in the future.
+    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
+
+        /// @brief Creates a Node as a root Node of the Scene.
+        ///
+        /// If the Scene is already active, the Node is started immediately.
+        ///
+        /// @param p_name Name of the Node to create.
+        ///
+        /// @return A shared pointer to the created Node.
+        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: Make weak pointer
+
+		/// @brief Sets whether a Node is a root Node of the Scene.
+		/// @param p_node Node to set as a root Node.
+		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: Make weak pointer
+
+        /// @brief Removes a root Node from the Scene.
+        ///
+        /// The Node is removed from the Scene's root Node collection.
+        ///
+        /// Removing a root Node does not destroy it if other shared
+        /// pointers to the Node exist.
+        ///
+        /// @param p_node Root Node to remove.
+        ///
+        /// @throws std::invalid_argument if p_node is nullptr.
+        /// @throws std::runtime_error if the Node is not a root of this Scene.
+        void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
+
+        /// @brief Gets the root Nodes of the Scene.
+        ///
+        /// Root Nodes are Nodes that do not have a parent Node and serve as
+        /// the starting points of the Scene's Node hierarchies. A Scene can
+        /// contain any number of root Nodes.
+        ///
+        /// @return A constant reference to the Scene's root Nodes.
+        const std::vector<std::shared_ptr<Node>> &GetRoots() const; // TODO: Make weak pointer
+
+        /// @brief Gets the Scene's name.
+        ///
+        /// @return A constant reference to the Scene's name.
+        const std::string &GetName() const;
+
+        /// @brief Sets the Scene's name.
+        void SetName(const std::string &p_name) { m_name = p_name; }
+
+        /// @brief Checks whether the Scene is loaded.
+        ///
+        /// @return true if the Scene is loaded, otherwise false.
+        bool IsLoaded() const;
+
+        /// @brief Checks whether the Scene is active.
+        ///
+        /// An inactive Scene does not perform its normal update or
+        /// rendering operations.
+        ///
+        /// @return true if the Scene is active, otherwise false.
+        bool IsActive() const;
+
+        /// @brief Sets whether the Scene is active.
+        ///
+        /// Activating a loaded Scene starts all root Nodes and their
+        /// hierarchies. An active Scene is updated and rendered by the
+        /// SceneManager.
+        ///
+        /// Deactivating a Scene prevents its Node hierarchies from being
+        /// updated or rendered.
+        ///
+        /// @param p_active true to activate the Scene, false to deactivate it.
+        ///
+        /// @throws std::runtime_error if attempting to activate a Scene
+        /// that has not been loaded.
+        void SetActive(bool p_active);
+
+        /// @brief Prints graphviz code for visualizing the octree top-down
+        void PrintOctree();
+
+        /// @brief Prints graphviz code for visualizing the octree as a tree
+        void PrintOctreeTree();
+
+		/// @brief Finds the first Node instance intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+
+		/// @brief Finds all Node instances intersecting with a ray
+		/// @param p_ray The ray to check for intersections
+		/// @return A vector of weak pointers to all Node instances intersecting with the ray
+		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
+
+
+        void LoadNodeFromFile( const std::string &p_filepath);
+
+    private:
+        std::string m_name;
+        std::vector<std::shared_ptr<Node>> m_roots;
+
+        Octree m_octree;
+
+        bool m_loaded = false;
+        bool m_active = false;
+    };     
+}

@@ -1,0 +1,45 @@
+[submodule "External/GoogleTest"]
+	path = External/GoogleTest
+	url = https://github.com/google/googletest.git
+[submodule "External/ImGui"]
+	path = External/ImGui
+	url = https://github.com/ocornut/imgui.git
+[submodule "External/Assimp"]
+    path = External/Assimp
+    url = git@github.com:assimp/assimp.git
+[submodule "External/Dalia"]
+	path = External/Dalia
+	url = git@github.com:amHumminG/dalia.git
+[submodule "External/Gli"]
+	path = External/Gli
+	url = git@github.com:g-truc/gli.git
+[submodule "External/Jolt"]
+	path = External/Jolt
+	url = git@github.com:jrouwe/JoltPhysics.git
+[submodule "External/Sol2"]
+	path = External/Sol2
+	url = git@github.com:ThePhD/sol2.git
+[submodule "External/json"]
+	path = External/json
+	url = git@github.com:nlohmann/json.git
+[submodule "External/VulkanMemoryAllocator"]
+	path = External/VulkanMemoryAllocator
+	url = https://github.com/YaaZ/VulkanMemoryAllocator-Hpp.git
+[submodule "External/tracy"]
+	path = External/tracy
+	url = git@github.com:wolfpld/tracy.git
+[submodule "External/Stb"]
+	path = External/Stb
+	url = git@github.com:nothings/stb.git
+[submodule "external/bvh"]
+	path = External/bvh
+	url = git@github.com:madmann91/bvh.git
+[submodule "External/IconFontCppHeaders"]
+	path = External/IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders.git
+[submodule "External/portable-file-dialogs"]
+	path = External/portable-file-dialogs
+	url = https://github.com/samhocevar/portable-file-dialogs.git
+[submodule "External/Droplet-ImGuizmo"]
+	path = External/Droplet-ImGuizmo
+	url = git@github.com:Paast-Productions/Droplet-ImGuizmo.git
