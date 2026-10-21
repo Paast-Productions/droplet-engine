@@ -155,8 +155,7 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
         virtual void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) { }
 
-        //TODO: Edit/move this function and it corresponding member variable to match functionality requirements
-        /// @brief Sets the node to be renderable
+        /// @brief Sets the component to be renderable
         [[nodiscard]] void SetRenderable() { m_renderable = true; }
 
     private:
@@ -164,7 +163,6 @@ namespace Droplet::Scene
 
 		bool m_started = false;
 		bool m_active = true;
-
         bool m_renderable = false;
 
         std::weak_ptr<Node> m_owner{};
