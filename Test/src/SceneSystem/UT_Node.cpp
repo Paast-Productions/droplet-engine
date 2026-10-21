@@ -11,12 +11,12 @@ class TComponent : public Component
 public:
     std::string_view GetTypeName() const override { return "TComponent"; }
 
-    void Start() override
+    void StartImpl() override
     {
         startCount++;
     }
 
-    void Update(float p_deltaTime) override
+    void UpdateImpl(float p_deltaTime) override
     {
         updateCount++;
         lastDeltaTime = p_deltaTime;

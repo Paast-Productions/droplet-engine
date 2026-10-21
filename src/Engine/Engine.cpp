@@ -145,13 +145,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
 
-	// Scriptsystem
-
-	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
-	{
-		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
-	}
-
+	
+	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (behaviour && behaviour->IsActive())

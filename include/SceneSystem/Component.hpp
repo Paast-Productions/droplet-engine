@@ -47,14 +47,14 @@ namespace Droplet::Scene
         /// Called when the owning Node starts participating in an active Scene.
         /// This function is called at most once for each Component.
         /// Derived classes can override this function to perform startup logic.
-        virtual void Start() {}
+        void Start();
 
         /// @brief Updates the component.
         ///
         /// Called once per update for components attached to active Nodes.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update([[maybe_unused]] float p_deltaTime) {}
+        void Update([[maybe_unused]] float p_deltaTime);
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -101,7 +101,7 @@ namespace Droplet::Scene
 		/// @throws std::runtime_error if the component has no owner.
         [[nodiscard]] bool IsActive() const;
 
-		/// @brief Check if the component itself is avtive.
+		/// @brief Check if the component itself is active.
 		/// @return A shared pointer to the owning Node, or nullptr if the
         [[nodiscard]] bool IsActiveSelf() const { return m_active; }
 
@@ -133,6 +133,11 @@ namespace Droplet::Scene
         virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
 
     protected:
+
+        virtual void StartImpl() {}
+
+        virtual void UpdateImpl(float deltaTime) {}
+
 		/// @brief Internal rendering function for the component's UI.
         /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.

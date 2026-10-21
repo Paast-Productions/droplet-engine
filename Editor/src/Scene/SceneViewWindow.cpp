@@ -296,7 +296,7 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-			{
+			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
 			}
 
