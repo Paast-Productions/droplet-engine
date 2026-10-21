@@ -126,7 +126,7 @@ void SceneViewWindow::RenderToolbar()
 	float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
 	if (ImGui::BeginMenu("GizmoSize"))
 	{
-		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, 1);
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, 0.3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 		ImGui::EndMenu();
