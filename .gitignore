@@ -29,10 +29,15 @@
 # Assets
 !/Assets
 !/Assets/**
+/Assets/Fonts
 
 # Test 
 !/Test
 !/Test/**
+
+# Devtools
+!/Devtools
+!/Devtools/**
 
 # ////////////////////////////
 # |         SAMPLES          |
