@@ -21,9 +21,6 @@ namespace Droplet::Scene
     {
     public:
         MeshComponent();
-
-        void Update(float p_deltaTime) override;
-        
         void GetRenderData(Graphics::RenderData &p_renderData) override;
 
         /// @brief Gets the type name of the component.
@@ -77,6 +74,8 @@ namespace Droplet::Scene
         [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
     protected:
+        void StartImpl() override;
+        void UpdateImpl(float deltaTime) override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;

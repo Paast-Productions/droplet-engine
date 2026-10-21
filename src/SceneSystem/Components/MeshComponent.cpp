@@ -128,7 +128,12 @@ MeshComponent::MeshComponent() : m_bounds(this)
     SetRenderable();
 }
 
-void MeshComponent::Update([[maybe_unused]] float p_deltaTime)
+void MeshComponent::StartImpl()
+{
+
+}
+
+void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 {
     //TODO: will be inplemted later when the mesh system is implemented
 }

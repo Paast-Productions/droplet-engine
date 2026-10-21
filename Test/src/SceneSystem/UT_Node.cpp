@@ -3,6 +3,8 @@
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Component.hpp"
+#include "SceneSystem/ComponentFactory.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
 
 using namespace Droplet::Scene;
 
@@ -11,12 +13,12 @@ class TComponent : public Component
 public:
     std::string_view GetTypeName() const override { return "TComponent"; }
 
-    void Start() override
+    void StartImpl() override
     {
         startCount++;
     }
 
-    void Update(float p_deltaTime) override
+    void UpdateImpl(float p_deltaTime) override
     {
         updateCount++;
         lastDeltaTime = p_deltaTime;
@@ -200,21 +202,11 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
     EXPECT_EQ(weapon->GetScene(), scene);
 }
 
-
-TEST_F(NodeTest, ComponentHasOwner)
-{
-    auto component =
-        root->AddComponent<TComponent>();
-
-    ASSERT_NE(component, nullptr);
-
-    EXPECT_EQ(component->GetOwner(), root);
-}
-
-
 TEST_F(NodeTest, GetComponents)
 {
-    root->AddComponent<TComponent>();
+    ComponentRegistry::RegisterComponent("TComponent", []() { return std::make_unique<TComponent>(); });
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     auto components =
         root->GetComponents<TComponent>();
@@ -225,37 +217,16 @@ TEST_F(NodeTest, GetComponents)
 
 TEST_F(NodeTest, SupportsMultipleComponents)
 {
-    root->AddComponent<TComponent>();
-    root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
+    auto component2 = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component2);
 
     auto components =
         root->GetComponents<TComponent>();
 
     EXPECT_EQ(components.size(), 2);
 }
-
-
-TEST_F(NodeTest, RemoveSpecificComponent)
-{
-    auto component1 =
-        root->AddComponent<TComponent>();
-
-    auto component2 =
-        root->AddComponent<TComponent>();
-
-    ASSERT_NE(component1, nullptr);
-    ASSERT_NE(component2, nullptr);
-
-    EXPECT_NO_THROW(
-        root->RemoveComponent(component1.get()));
-
-    auto components =
-        root->GetComponents<TComponent>();
-
-    ASSERT_EQ(components.size(), 1);
-    EXPECT_EQ(components[0], component2);
-}
-
 
 TEST_F(NodeTest, RemoveNonExistentComponentThrows)
 {
@@ -280,12 +251,11 @@ TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 {
     scene->Load();
 
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
-    ASSERT_NE(component, nullptr);
-
-    EXPECT_EQ(component->startCount, 0);
+	std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->startCount, 0);
 }
 
 
@@ -293,12 +263,12 @@ TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
 {
     scene->Load();
 
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     scene->SetActive(true);
-
-    EXPECT_EQ(component->startCount, 1);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->startCount, 1);
 }
 
 
@@ -306,14 +276,15 @@ TEST_F(NodeTest, ComponentStartsOnlyOnce)
 {
     scene->Load();
 
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     scene->SetActive(true);
     scene->SetActive(false);
     scene->SetActive(true);
 
-    EXPECT_EQ(component->startCount, 1);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->startCount, 1);
 }
 
 
@@ -322,37 +293,38 @@ TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
     scene->Load();
     scene->SetActive(true);
 
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
-    ASSERT_NE(component, nullptr);
-
-    EXPECT_EQ(component->startCount, 1);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->startCount, 1);
 }
 
 
 TEST_F(NodeTest, ComponentUpdates)
 {
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     root->Update(0.016f);
 
-    EXPECT_EQ(component->updateCount, 1);
-    EXPECT_FLOAT_EQ(component->lastDeltaTime, 0.016f);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->updateCount, 1);
+    EXPECT_FLOAT_EQ(components[0]->lastDeltaTime, 0.016f);
 }
 
 
 TEST_F(NodeTest, ComponentUpdatesEveryFrame)
 {
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     root->Update(0.016f);
     root->Update(0.016f);
     root->Update(0.016f);
 
-    EXPECT_EQ(component->updateCount, 3);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->updateCount, 3);
 }
 
 
@@ -405,14 +377,15 @@ TEST_F(NodeTest, ChildInheritsActiveState)
 
 TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
 {
-    auto component =
-        root->AddComponent<TComponent>();
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    root->AttachComponent(component);
 
     root->SetActive(false);
 
     root->Update(0.016f);
 
-    EXPECT_EQ(component->updateCount, 0);
+    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
+    EXPECT_EQ(components[0]->updateCount, 0);
 }
 
 

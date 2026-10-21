@@ -36,11 +36,47 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
+    if (ImGui::TreeNode("Scene Selection"))
+    {
+        DrawSceneWindow();
+        ImGui::TreePop();
+    }
+
     if (ImGui::Button("Add Node"))
     {
         scene->AddNode("New Node");
     }
+    ImGui::SameLine();
 
+    static std::vector < std::string> nodeFiles;
+    static std::string selectedNode;
+    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs/"; // TODO find a better solution 
+
+    if (ImGui::Button("Add Node from file"))
+    {
+        RefreshLoadedNodes(nodeFiles);
+        ImGui::OpenPopup("Nodes");
+    }
+
+    if (ImGui::BeginPopup("Nodes"))
+    {
+        if (nodeFiles.empty())
+        {
+            ImGui::TextUnformatted("No saved nodes found.");
+        }
+        for (const std::string &nodeFile : nodeFiles)
+        {
+            if (ImGui::Selectable(nodeFile.c_str()))
+            {
+                selectedNode = nodeFile;
+                const std::string nodeName = std::filesystem::path(selectedNode).stem().string();
+                std::string filePath = nodesDirectory.string() + std::string(selectedNode);
+                scene->LoadNodeFromFile(filePath);
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        ImGui::EndPopup();
+    }
     ImGui::Separator();
 
     // Reserve a thin strip on the left for dropping nodes as roots.
@@ -152,7 +188,129 @@ void HierarchyWindow::RenderImpl()
 		scene->RemoveRoot(m_nodeToRemove);
 		m_nodeToRemove.reset();
     }
-} 
+}
+
+void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
+{
+    
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData"/ "Scenes"; // TODO find a better solution
+
+    p_sceneFiles.clear();
+
+    std::error_code error;
+
+    if (std::filesystem::exists(scenesDirectory, error) && std::filesystem::is_directory(scenesDirectory, error))
+    {
+        for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(scenesDirectory, error))
+        {
+            if (entry.is_regular_file())
+            {
+                p_sceneFiles.push_back(
+                    entry.path().filename().string()
+                );
+            }
+        }
+    }
+
+    std::sort(p_sceneFiles.begin(), p_sceneFiles.end());
+}
+
+void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles)
+{
+    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs";
+
+    p_nodeFiles.clear();
+
+    std::error_code error;
+
+    if (std::filesystem::exists(nodesDirectory, error) && std::filesystem::is_directory(nodesDirectory, error))
+    {
+        for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(nodesDirectory, error))
+        {
+            if (entry.is_regular_file())
+            {
+                p_nodeFiles.push_back(entry.path().filename().string());
+            }
+        }
+    }
+
+    std::sort(p_nodeFiles.begin(), p_nodeFiles.end());
+}
+
+void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
+{
+    static char fileName[128] = "MyScene";
+
+    ImGui::InputText("Scene name", fileName, sizeof(fileName));
+    static std::vector <std::string> sceneFiles;
+    static std::string selectedScene;
+    static bool hasScannedScenes = false;
+    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData" / "Scenes/" ; // TODO find a better solution
+    if (!hasScannedScenes)
+    {
+        RefreshLoadedScenes(sceneFiles);
+        hasScannedScenes = true;
+    }
+
+    if (ImGui::Button("Save Scene"))
+    {
+        m_editorContext->GetActiveScene()->SetName(fileName);
+        std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
+        m_editorContext->SaveScene(path);
+
+    }
+    ImGui::SameLine();
+    
+    if (ImGui::Button("New Scene"))
+    {
+        std::string name = "New Scene";
+
+        m_editorContext->CreateNewScene(name);
+        m_editorContext->SetActiveScene(name);
+        std::strncpy(fileName, name.c_str(), sizeof(fileName) - 1);
+        fileName[sizeof(fileName) - 1] = '\0';
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button("Load"))
+    {
+        RefreshLoadedScenes(sceneFiles);
+        ImGui::OpenPopup("Scenes");
+    }
+    
+
+    if (ImGui::BeginPopup("Scenes"))
+    {
+        ImGui::SeparatorText("Saved Scenes");
+        
+        if (sceneFiles.empty())
+        {
+            ImGui::TextUnformatted("No saved scenes found.");
+        }
+        for (const std::string &sceneFile : sceneFiles)
+        {
+            if (ImGui::Selectable(sceneFile.c_str()))
+            {
+                selectedScene = sceneFile;
+
+                const std::string sceneName =
+                    std::filesystem::path(selectedScene)
+                    .stem().string();
+
+                std::string filePath = scenesDirectory.string() + std::string(selectedScene);
+
+                m_editorContext->LoadFromFile(filePath);
+                m_editorContext->SetActiveScene(sceneName);
+                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                fileName[sizeof(fileName) - 1] = '\0';
+                ImGui::CloseCurrentPopup();
+            }
+        }
+
+        ImGui::EndPopup();
+    }
+}
+
 
 void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 {
@@ -197,6 +355,8 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropSource();
         }
 
+
+ 
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))
@@ -209,6 +369,12 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
                 m_nodeToRemove = p_node;
             }
 
+            if (ImGui::MenuItem("Serialize Node"))
+            {
+                const std::filesystem::path prefabDirectory = std::filesystem::current_path() / ".." / ".." /".." / "GameData" / "Prefabs"; // TODO find a better solution
+                const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
+                m_editorContext->SaveNode(filePath, *p_node.get());
+            }
             ImGui::EndPopup();
         }
 

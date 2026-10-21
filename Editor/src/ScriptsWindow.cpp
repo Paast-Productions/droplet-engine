@@ -1,8 +1,11 @@
 #include "ScriptsWindow.hpp"
 
-#include "ScriptSystem/ScriptSystem.hpp"
+#include <ScriptSystem/ScriptSystem.hpp>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <cstdint>
+#include <cctype>
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -11,7 +14,9 @@
 #include <Windows.h>
 #include <shellapi.h>
 #pragma comment(lib, "Shell32.lib")
+#undef WIN32_LEAN_AND_MEAN
 #endif
+
 
 using namespace Droplet::Editor;
 
@@ -23,7 +28,7 @@ ScriptsWindow::ScriptsWindow()
 
 void ScriptsWindow::InitImpl()
 {
-	SetName("Scripts");
+	SetName("Scripts Browser");
 	ToggleToolbar(true);
 }
 
@@ -55,14 +60,23 @@ void ScriptsWindow::RenderImpl()
 	{
 		RenderTreeHelper(node);
 	}
+
 }
 
 void ScriptsWindow::RenderToolbar()
 {
-	if (ImGui::Button("Refresh"))
+	if (ImGui::MenuItem("Refresh"))
 	{
 		RefreshScripts();
 	}
+	ImGui::Separator();
+
+	if (ImGui::MenuItem("Add+"))
+	{
+		ImGui::OpenPopup("Create Lua Script");
+	}
+
+	RenderAddScript();
 	ImGui::Separator();
 }
 
@@ -94,6 +108,91 @@ void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 			{
 				OpenScript(p_node.relativePath);
 			}
+		}
+
+		if (ImGui::BeginPopupContextItem("ScriptContextMenu"))
+		{
+			if (ImGui::MenuItem("Rename"))
+			{
+				m_selectedScript = path;
+				m_openRename = true;
+			}
+
+			if (ImGui::MenuItem("Delete"))
+			{
+				m_selectedScript = path;
+				m_openDelete = true;
+			}
+			ImGui::EndPopup();
+		}
+
+		if (m_openRename)
+		{
+			ImGui::OpenPopup("RenameScript");
+			m_openRename = false;
+		}
+
+		if (m_openDelete)
+		{
+			ImGui::OpenPopup("DeleteScriptConfirm");
+			m_openDelete = false;
+		} 
+
+		if (ImGui::BeginPopupModal("DeleteScriptConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Are you sure you want to delete the script %s?\n", m_selectedScript.c_str());
+
+			const float buttonWidth = 80.0f;
+			const float spacing = ImGui::GetStyle().ItemSpacing.x;
+			const float totalWidth = buttonWidth * 2.0f + spacing;
+
+			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
+
+			if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+			{
+				DeleteSelectedScript();
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopupModal("RenameScript", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			ImGui::Text("Rename Script:");
+			ImGui::SetNextItemWidth(250.0f);
+
+			if (ImGui::IsWindowAppearing())
+			{
+				ImGui::SetKeyboardFocusHere();
+			}
+			const bool enterPressed = ImGui::InputText("##RenameFilename", &m_renameFilename, ImGuiInputTextFlags_EnterReturnsTrue);
+
+			if (!m_renameError.empty())
+			{
+				ImGui::TextWrapped("%s", m_renameError.c_str());
+			}
+
+			if (ImGui::Button("Rename") || enterPressed)
+			{
+				RenameScript();
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Cancel"))
+			{
+				m_renameError.clear();
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
 		}
 
 		if (ImGui::BeginDragDropSource())
@@ -194,6 +293,180 @@ void ScriptsWindow::RefreshScripts()
 			}
 		};
 	sortNodes(m_scriptTree, sortNodes);
+}
+
+void ScriptsWindow::RenderAddScript()
+{
+	if (ImGui::BeginPopupModal("Create Lua Script", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		static char filename[128] = "";
+		static std::string errorMessage;
+
+		const std::string scriptTemplate = R"lua(
+-- Called when script starts
+function OnStart()
+
+end
+
+-- Called every frame
+function OnUpdate(dt)
+
+end
+)lua";
+
+		if (ImGui::IsWindowAppearing()) 
+		{
+			ImGui::SetKeyboardFocusHere();
+		}
+		const bool enterPressed = ImGui::InputText("Filename", filename, sizeof(filename), ImGuiInputTextFlags_EnterReturnsTrue);
+
+		if (ImGui::Button("Create") || enterPressed)
+		{
+			std::string name = filename;
+
+			if (name.empty())
+			{
+				errorMessage = "Enter filename";
+			}
+			else 
+			{
+				if (std::filesystem::path(name).extension() != ".lua")
+				{
+					name += ".lua";
+				}
+
+				if (std::filesystem::path(name).filename() != name || name == "." || name == "..")
+				{
+					errorMessage = "Invalid filename";
+				}
+				else
+				{
+					const std::filesystem::path scriptPath = m_scriptPath / name;
+
+					std::error_code error;
+
+					if (std::filesystem::exists(scriptPath, error))
+					{
+						errorMessage = "A script with this name already exists";
+					}
+					else if (error)
+					{
+						errorMessage = "Failed to check wheter the file exist";
+					}
+					else
+					{
+						std::ofstream file(scriptPath);
+
+						file << scriptTemplate;
+
+						if (!file)
+						{
+							errorMessage = "Failed to create the file";
+						}
+						else
+						{
+							file.close();
+
+							filename[0] = '\0';
+							errorMessage.clear();
+
+							ImGui::CloseCurrentPopup();
+							RefreshScripts();
+						}
+					}
+				}
+			}
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel"))
+		{
+			filename[0] = '\0';
+			ImGui::CloseCurrentPopup();
+		}
+
+		if (!errorMessage.empty())
+		{
+			ImGui::TextWrapped("%s", errorMessage.c_str());
+		}
+
+		ImGui::EndPopup();
+	}
+
+	if (m_needsRefresh)
+	{
+		RefreshScripts();
+		m_needsRefresh = false;
+	}
+}
+
+void ScriptsWindow::DeleteSelectedScript()
+{
+	const std::filesystem::path scriptPath = m_scriptPath / m_selectedScript;
+	std::error_code error;
+
+	if (std::filesystem::remove(scriptPath, error))
+	{
+		m_selectedScript.clear();
+		m_needsRefresh = true;
+	}
+}
+
+void ScriptsWindow::RenameScript()
+{
+	if (m_renameFilename.empty())
+	{
+		m_renameError = "Filename cannot be empty";
+		return;
+	}
+
+	const std::filesystem::path newFilename(m_renameFilename);
+
+	if (newFilename.has_parent_path() || m_renameFilename == "." || m_renameFilename == "..")
+	{
+		m_renameError = "Invalid filename";
+		return;
+	}
+
+	std::string filename = m_renameFilename;
+
+	if (std::filesystem::path(filename).extension() != ".lua")
+	{
+		filename += ".lua";
+	}
+
+	const std::filesystem::path oldPath = m_scriptPath / m_selectedScript;
+	const std::filesystem::path newPath = oldPath.parent_path() / filename;
+
+	if (oldPath == newPath)
+	{
+		ImGui::CloseCurrentPopup();
+		return;
+	}
+
+	std::error_code error;
+
+	if (std::filesystem::exists(newPath, error))
+	{
+		m_renameError = "Could not check the destination path.";
+		return;
+	}
+
+	std::filesystem::rename(oldPath, newPath, error);
+
+	if (error)
+	{
+		m_renameError = "Failed to rename script: " + error.message();
+		return;
+	}
+
+	m_selectedScript = std::filesystem::relative(newPath, m_scriptPath).generic_string();
+	m_renameError.clear();
+	
+	ImGui::CloseCurrentPopup();
+
+	m_needsRefresh = true;
 }
 
 void ScriptsWindow::OpenScript(const std::filesystem::path &p_relativePath)

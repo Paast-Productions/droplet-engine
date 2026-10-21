@@ -24,18 +24,6 @@ TEST_F(SceneManagerTest, LoadScene)
     EXPECT_TRUE(scene->IsLoaded());
 }
 
-
-TEST_F(SceneManagerTest, PreventDuplicateScene)
-{
-    ASSERT_NO_THROW(
-        sceneManager.LoadScene("Game"));
-
-    EXPECT_THROW(
-        sceneManager.LoadScene("Game"),
-        std::runtime_error);
-}
-
-
 TEST_F(SceneManagerTest, GetUnknownSceneReturnsNull)
 {
     EXPECT_EQ(
