@@ -4,8 +4,6 @@
 
 static void WrapMousePosEx(int axises_mask, const ImRect &wrap_rect)
 {
-	using namespace ImGui;
-
 	ImGuiContext &g = *GImGui;
 	IM_ASSERT(axises_mask == 1 || axises_mask == 2 || axises_mask == (1 | 2));
 	ImVec2 p_mouse = g.IO.MousePos;
@@ -29,45 +27,29 @@ static void WrapMousePosEx(int axises_mask, const ImRect &wrap_rect)
 
 	if (p_mouse.x != g.IO.MousePos.x || p_mouse.y != g.IO.MousePos.y)
 	{
-		TeleportMousePos(p_mouse);
+		ImGui::TeleportMousePos(p_mouse);
 	}
 }
 
 static void WrapMousePos(int axises_mask)
 {
-	using namespace ImGui;
-
 	ImGuiContext &g = *GImGui;
 #ifdef IMGUI_HAS_DOCK
 	if (g.IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
-		const ImGuiPlatformMonitor *monitor = GetViewportPlatformMonitor(g.MouseViewport);
-		WrapMousePosEx(
-			axises_mask, 
-			ImRect(
-				monitor->MainPos, 
-				monitor->MainPos + monitor->MainSize - ImVec2(1, 1)
-			)
-		);
+		const ImGuiPlatformMonitor *monitor = ImGui::GetViewportPlatformMonitor(g.MouseViewport);
+		WrapMousePosEx(axises_mask, ImRect(monitor->MainPos, monitor->MainPos + monitor->MainSize - ImVec2(1.0f, 1.0f)));
 	}
 	else
 #endif
 	{
-		ImGuiViewport *viewport = GetMainViewport();
-		WrapMousePosEx(
-			axises_mask, 
-			ImRect(
-				viewport->Pos,
-				viewport->Pos + viewport->Size - ImVec2(1, 1)
-			)
-		);
+		ImGuiViewport *viewport = ImGui::GetMainViewport();
+		WrapMousePosEx(axises_mask, ImRect(viewport->Pos, viewport->Pos + viewport->Size - ImVec2(1.0f, 1.0f)));
 	}
 }
 
 void ImGui::LockToItem(bool p_hideMouse)
 {
-	using namespace ImGui;
-
 	static ImGuiID target_item = 0;
 	static ImVec2  prev_mous_pos;
 

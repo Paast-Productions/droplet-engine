@@ -5,6 +5,7 @@
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
 #include <Editor/ImGuiUtils.hpp>
+#include <EditorConfig.hpp>
 
 using namespace Droplet::Editor;
 
@@ -63,17 +64,22 @@ void NodeInspectorWindow::RenderImpl()
 	// Transform
 	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		Droplet::Scene::Transform &transform = m_currentNode->GetTransform();
+		using namespace Droplet::Scene;
+		using TSpace = Transform::Space;
+
+		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
+
+		Transform &transform = m_currentNode->GetTransform();
 		float drag_speed = 0.005f;
 
-		glm::vec3 pos = transform.GetPosition();
+		glm::vec3 pos = transform.GetPosition(space);
 		if (ImGui::DragFloat3("Position", &pos.x, drag_speed))
 		{
-			transform.SetPosition(pos);
+			transform.SetPosition(pos, space);
 		}
 		ImGui::LockToItem();
 
-		static glm::vec3 rot = glm::degrees(transform.GetEuler());
+		static glm::vec3 rot = glm::degrees(transform.GetEuler(space));
 		glm::vec3 prevRot = rot;
 		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
@@ -82,22 +88,22 @@ void NodeInspectorWindow::RenderImpl()
 
 			if (rot.x != prevRot.x)
 			{
-				normal = glm::vec3(1, 0, 0);
+				normal = (space == TSpace::Local) ? transform.GetRight() : glm::vec3(1, 0, 0);
 				deltaRot = glm::radians(rot.x - prevRot.x);
 			}
 			else if (rot.y != prevRot.y)
 			{
-				normal = glm::vec3(0, 1, 0);
+				normal = (space == TSpace::Local) ? transform.GetUp() : glm::vec3(0, 1, 0);
 				deltaRot = glm::radians(rot.y - prevRot.y);
 			}
 			else if (rot.z != prevRot.z)
 			{
-				normal = glm::vec3(0, 0, 1);
+				normal = (space == TSpace::Local) ? transform.GetForward() : glm::vec3(0, 0, 1);
 				deltaRot = glm::radians(rot.z - prevRot.z);
 			}
 
 			glm::quat deltaQuat = glm::angleAxis(deltaRot, normal);
-			transform.Rotate(deltaQuat);
+			transform.Rotate(deltaQuat, space);
 		}
 		ImGui::LockToItem();
 
