@@ -15,12 +15,12 @@ namespace Droplet::Scene
 	class PhysicsComponent : public Component
 	{
 	public:
-		/// @brief Constructs the PhysicsComponent
-		/// @param p_physics The Physics instance of the Scene where this component exists
-		/// @param p_transform The transform of the Node this component is added to
 		PhysicsComponent() = default;
 		~PhysicsComponent();
 
+		/// @brief Initializes the PhysicsComponent
+		/// @param p_physics The Physics instance of the Scene where this component exists
+		/// @param p_transform The transform of the Node this component is added to
 		void Initialize(Physics *p_physics, Transform *p_transform);
 		
 		/// @brief Gets the type name of the component.
@@ -49,6 +49,12 @@ namespace Droplet::Scene
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
+		/// 
+		/// A motion type defines how a body is allowed to move and interact with the physics simulation.
+		/// Motion types:
+		/// @li Static, Non movable
+		/// @li Kinematic, Movable using velocities only, does not respond to forces
+		/// @li Dynamic, Responds to forces as a normal physics object
 		void SetMotionType(const JPH::EMotionType p_motionType);
 
 		/// @brief Set what the physics body can collide with

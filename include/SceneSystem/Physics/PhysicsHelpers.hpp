@@ -40,7 +40,7 @@ namespace Droplet
 
 	static glm::quat JPHtoGLM(JPH::Quat p_quat)
 	{
-		return glm::quat(p_quat.GetX(), p_quat.GetY(), p_quat.GetZ(), p_quat.GetW());
+		return glm::quat(p_quat.GetW(), p_quat.GetX(), p_quat.GetY(), p_quat.GetZ());
 	}
 
 	// BroadPhaseLayerInterface implementation
