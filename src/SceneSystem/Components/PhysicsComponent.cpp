@@ -139,11 +139,105 @@ void PhysicsComponent::RenderUIImpl()
 {
 	if (m_shapeType != ShapeType::None)
 	{
-		// TODO: Display the current collider shape
-		// TODO: Display MotionType and ObjectLayer
+		// Display the current collider shape
+		std::string shapeType = "Shape type: ";
+		switch (m_shapeType)
+		{
+		case ShapeType::Box:
+			shapeType += "Box";
+			break;
+		case ShapeType::Sphere:
+			shapeType += "Sphere";
+			break;
+		case ShapeType::Capsule:
+			shapeType += "Capsule";
+			break;
+		case ShapeType::Mesh:
+			shapeType += "Mesh";
+			break;
+		}
+		ImGui::Text(shapeType.c_str());
+		
+		// Display and apply MotionType and ObjectLayer
+		const char* motionTypes[] = { "Static", "Kinematic", "Dynamic" };
+		const char* objectLayers[] = { "Non-moving", "Moving", "NumLayers" };
+		static int motionSelectedIdx = 0;
+		static int layerSelectedIdx = 0;
+		
+		const char* motionPreview = motionTypes[motionSelectedIdx];
+		const char* layerPreview = objectLayers[layerSelectedIdx];
+		
+		if (ImGui::BeginCombo("Motion type", motionPreview, 0))
+		{
+			for (int n = 0; n < IM_COUNTOF(motionTypes); n++)
+			{
+				const bool isSelected = (motionSelectedIdx == n);
+				if (ImGui::Selectable(motionTypes[n], isSelected))
+				{
+					motionSelectedIdx = n;
+				}
+				
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+		
+		if (ImGui::BeginCombo("Object layer", layerPreview, 0))
+		{
+			for (int n = 0; n < IM_COUNTOF(objectLayers); n++)
+			{
+				const bool isSelected = (layerSelectedIdx == n);
+				if (ImGui::Selectable(objectLayers[n], isSelected))
+				{
+					layerSelectedIdx = n;
+				}
+				
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+		
+		JPH::EMotionType motionType = JPH::EMotionType::Static;
+		switch (motionSelectedIdx)
+		{
+		case 0: 
+			motionType = JPH::EMotionType::Static;
+			break;
+		case 1: 
+			motionType = JPH::EMotionType::Kinematic;
+			break;
+		case 2: 
+			motionType = JPH::EMotionType::Dynamic;
+			break;
+		}
+		
+		Layers layer = NON_MOVING;
+		switch (layerSelectedIdx)
+		{
+		case 0: 
+			layer = NON_MOVING;
+			break;
+		case 1: 
+			layer = MOVING;
+			break;
+		case 2: 
+			layer = NUM_LAYERS;
+			break;
+		}
+		
+		if (ImGui::Button("Apply motion and layer"))
+		{
+			SetMotionType(motionType);
+			SetObjectLayer(layer);
+		}
+
 		// TODO: Display remove collider button
-		
-		
 		
 		return;
 	}
