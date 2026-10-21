@@ -50,7 +50,7 @@ void HierarchyWindow::RenderImpl()
 
     static std::vector < std::string> nodeFiles;
     static std::string selectedNode;
-    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs/"; // TODO find a better solution 
+    const std::filesystem::path nodesDirectory = ROOT_PATH "/GameData/Prefabs/";
 
     if (ImGui::Button("Add Node from file"))
     {
@@ -193,7 +193,7 @@ void HierarchyWindow::RenderImpl()
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
 {
     
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData"/ "Scenes"; // TODO find a better solution
+    const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes";
 
     p_sceneFiles.clear();
 
@@ -217,7 +217,7 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::stri
 
 void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles)
 {
-    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs";
+    const std::filesystem::path nodesDirectory = ROOT_PATH "/GameData/Prefabs";
 
     p_nodeFiles.clear();
 
@@ -245,7 +245,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     static std::vector <std::string> sceneFiles;
     static std::string selectedScene;
     static bool hasScannedScenes = false;
-    const std::filesystem::path scenesDirectory = std::filesystem::current_path() / ".." / ".." / ".."/"GameData" / "Scenes/" ; // TODO find a better solution
+    const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/";
     if (!hasScannedScenes)
     {
         RefreshLoadedScenes(sceneFiles);
@@ -371,7 +371,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             if (ImGui::MenuItem("Serialize Node"))
             {
-                const std::filesystem::path prefabDirectory = std::filesystem::current_path() / ".." / ".." /".." / "GameData" / "Prefabs"; // TODO find a better solution
+                const std::filesystem::path prefabDirectory = ROOT_PATH "/GameData/Prefabs";
                 const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
                 m_editorContext->SaveNode(filePath, *p_node.get());
             }
