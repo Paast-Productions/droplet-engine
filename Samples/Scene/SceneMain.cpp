@@ -119,12 +119,12 @@ class PlayerComponent : public Component
 public:
     std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
-    void Start() override
+    void StartImpl() override
     {
         std::cout << "PlayerComponent started\n";
     }
 
-    void Update(float p_deltaTime) override
+    void UpdateImpl(float p_deltaTime) override
     {
         std::cout
             << "PlayerComponent updating: "
@@ -145,19 +145,22 @@ public:
     }
 
 };
+
 // --------------------------------------------------
 // Another Example Component
 // --------------------------------------------------
+
 class EnemyComponent :public Component
 {
 public:
     std::string_view GetTypeName() const override { return "EnemyComponent"; }
 
-    void Start() override
+    void StartImpl() override
     {
         std::cout << "EnemyComponent started\n";
     }
-    void Update(float p_deltaTime) override
+
+    void UpdateImpl(float p_deltaTime) override
     {
         std::cout
             << "EnemyComponent updating: "
@@ -220,9 +223,11 @@ public:
     {
         return m_target.serializedID;
     }
+
 private:
     SceneReference<Component> m_target;
 };
+
 // --------------------------------------------------
 // Main
 // --------------------------------------------------
@@ -296,7 +301,6 @@ int main()
 
     ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<ScriptComponent>(); });
     ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<PlayerComponent>(); });
-
     ComponentRegistry::RegisterComponent("EnemyComponent", []() { return std::make_unique<EnemyComponent>(); });
 
     // ==================================================
