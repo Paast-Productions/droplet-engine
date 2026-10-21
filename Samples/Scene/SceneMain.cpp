@@ -183,6 +183,8 @@ static void PhysicsTest()
     JPH::RegisterTypes();
 
     // ========== Initialize game ==========
+    
+    ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<PhysicsComponent>(); });
 
     Droplet::ThreadPool::GetInstance().Initialize();
     Droplet::ResourceManager &rm = Droplet::ResourceManager::GetInstance();
@@ -225,15 +227,19 @@ static void PhysicsTest()
     auto player = s->AddNode("Player");
     player->GetTransform().SetPosition(glm::vec3(0.0f, 60.0f, 0.0f));
 
-    const std::shared_ptr<PhysicsComponent> seafloorComp = seafloor->AddComponent<PhysicsComponent>();
-    seafloorComp->Initialize(s->GetPhysics(), &seafloor->GetTransform());
-    seafloorComp->SetMeshCollider(rh.Get());
+    std::unique_ptr<Component> seafloorComp = ComponentFactory::CreateComponent("PhysicsComponent");
+    seafloor->AddComponent(seafloorComp);
+	auto seafloorComponets = seafloor->GetComponents<PhysicsComponent>();
+    seafloorComponets[0]->Initialize(s->GetPhysics(), &seafloor->GetTransform());
+    seafloorComponets[0]->SetMeshCollider(rh.Get());
 
-    const std::shared_ptr<PhysicsComponent> playerComp = player->AddComponent<PhysicsComponent>();
-    playerComp->Initialize(s->GetPhysics(), &player->GetTransform());
-    playerComp->SetCapsuleCollider(0.5f, 0.5f);
-    playerComp->SetMotionType(JPH::EMotionType::Dynamic);
-    playerComp->SetObjectLayer(Droplet::Layers::MOVING);
+    std::unique_ptr<Component> playerComp = ComponentFactory::CreateComponent("PhysicsComponent");
+    player->AddComponent(playerComp);
+	auto playerComponets = player->GetComponents<PhysicsComponent>();
+    playerComponets[0]->Initialize(s->GetPhysics(), &player->GetTransform());
+    playerComponets[0]->SetCapsuleCollider(0.5f, 0.5f);
+    playerComponets[0]->SetMotionType(JPH::EMotionType::Dynamic);
+    playerComponets[0]->SetObjectLayer(Droplet::Layers::MOVING);
 
     std::cout << "Initialization finished\n";
 
