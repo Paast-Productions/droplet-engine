@@ -12,7 +12,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
 	};
 	
 	Droplet::Graphics::SDL::Window window{ windowConfig };
-	Droplet::Graphics::Renderer rnd { window };
+	Droplet::Graphics::Renderer rnd { window.Get()};
 
 	/*if (rnd.Initialize() == 1)
 	{

@@ -19,7 +19,7 @@
 #include <SceneSystem/Behaviour.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
-#include <RenderTarget.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 
 namespace Droplet
 {
