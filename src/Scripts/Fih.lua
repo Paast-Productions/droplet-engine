@@ -3,7 +3,6 @@
 -- Member Variables
 --
 
-local active = false
 local trans = nil
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
@@ -228,11 +227,6 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Fih OnUpdate")
-	
-	if not active then
-        tracy.ZoneEnd()
-		return
-	end
 
 	if IsWithinTarget() then
 		NewTargetPoint()
@@ -247,8 +241,6 @@ end
 
 function RenderUI()
     tracy.ZoneBeginN("Fih RenderUI")
-
-	_, active = ImGui.Checkbox("Active", active)
 
 	ImGui.Spacing()
 

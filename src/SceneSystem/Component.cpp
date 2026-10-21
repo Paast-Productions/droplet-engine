@@ -14,12 +14,19 @@ Component::Component()
 
 void Droplet::Scene::Component::Start()
 {
-	StartImpl();
+	if (IsActiveSelf())
+	{
+		StartImpl();
+	}
+
 }
 
 void Droplet::Scene::Component::Update(float p_deltaTime)
 {
-	UpdateImpl(p_deltaTime);
+	if (IsActiveSelf())
+	{
+		UpdateImpl(p_deltaTime);
+	}
 }
 
 void Component::RenderUI()
@@ -32,9 +39,10 @@ void Component::RenderUI()
 	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
 	if (ImGui::BeginChild("ComponentUI", ImVec2(0,0), childFlags))
 	{
-		if (ImGui::Button("Remove Component"))
+		bool active = IsActiveSelf();
+		if (ImGui::Checkbox("Active", &active))
 		{
-			m_owner.lock()->RemoveComponent(this);
+			SetActiveSelf(active);
 		}
 
 		ImGui::Dummy(ImVec2(0, 8.0f));
