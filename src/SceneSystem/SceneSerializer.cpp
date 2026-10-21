@@ -197,9 +197,10 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
     }
     std::string type = p_json["type"];
     auto component = ComponentFactory::CreateComponent(type);
-    component->Deserialize(p_json);
     std::shared_ptr<Component> sharedComponent(std::move(component));
     p_node->AttachComponent(sharedComponent, p_json["id"]);
+    sharedComponent->Deserialize(p_json);
+
     std::uint64_t ID = p_json["id"];
     p_context.RegisterCopmonent(p_serializedNodeID, ID, sharedComponent);
 
