@@ -15,6 +15,38 @@
 using namespace Droplet::Editor::Scene;
 using namespace Droplet::Graphics::Debug;
 
+namespace
+{
+	float GetFPSDisplayNum()
+	{
+		static std::vector<float> s_frameTimes;
+		static float s_frameTimeCollectTimer = 0.0f;
+		static float s_frameTimeCollectInterval = 0.2f;
+		static float s_lastFPSAvg = 0.0f;
+
+		float dT = ImGui::GetIO().DeltaTime;
+
+		s_frameTimeCollectTimer += dT;
+		s_frameTimes.push_back(dT);
+
+		if (s_frameTimeCollectTimer >= s_frameTimeCollectInterval)
+		{
+			s_frameTimeCollectTimer -= s_frameTimeCollectInterval;
+
+			float frameTimeSum = 0.0f;
+			for (float frameTime : s_frameTimes)
+			{
+				frameTimeSum += frameTime;
+			}
+
+			s_lastFPSAvg = s_frameTimes.empty() ? 0.0f : ((float)s_frameTimes.size() / frameTimeSum);
+			s_frameTimes.clear();
+		}
+
+		return s_lastFPSAvg;
+	}
+}
+
 void SceneViewWindow::InitImpl()
 {
 	
@@ -28,7 +60,7 @@ void SceneViewWindow::InitImpl()
 	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
 }
 
-void Droplet::Editor::Scene::SceneViewWindow::RenderToolbar()
+void SceneViewWindow::RenderToolbar()
 {
 	if (ImGui::BeginMenu("Space"))
 	{
@@ -99,6 +131,13 @@ void Droplet::Editor::Scene::SceneViewWindow::RenderToolbar()
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 		ImGui::EndMenu();
 	}
+
+	ImGui::Separator();
+
+	float fpsDisplayNum = GetFPSDisplayNum();
+
+	std::string fpsDisplayText = std::format("{:.0f}", fpsDisplayNum);
+	ImGui::Text("FPS: %s", fpsDisplayText.c_str());
 }
 
 void SceneViewWindow::RenderImpl()
