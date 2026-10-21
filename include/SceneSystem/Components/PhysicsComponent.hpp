@@ -94,6 +94,8 @@ namespace Droplet::Scene
 			Capsule,
 			Mesh
 		}m_shapeType = ShapeType::None;
+		JPH::EMotionType m_motion = JPH::EMotionType::Static;
+		Layers m_layer = NON_MOVING;
 
 		Physics *m_physics;
 		Transform *m_transform;

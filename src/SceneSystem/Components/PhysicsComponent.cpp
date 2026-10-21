@@ -128,19 +128,21 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh)
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
 	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
+	m_motion = p_motionType;
 }
 
 void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 {
 	m_physics->GetBodyInterface()->SetObjectLayer(m_bodyID, p_objectLayer);
+	m_layer = p_objectLayer;
 }
 
 void PhysicsComponent::RemoveCollider()
 {
+	m_physics->GetBodyInterface()->DeactivateBody(m_bodyID);
+	m_physics->GetBodyInterface()->RemoveBody(m_bodyID);
 	m_physics->GetBodyInterface()->DestroyBody(m_bodyID);
 	m_shapeType = ShapeType::None;
-	m_bodyID = JPH::BodyID(JPH::BodyID::cInvalidBodyID);
-	delete m_shape;
 }
 
 void PhysicsComponent::RenderUIImpl()
@@ -166,11 +168,43 @@ void PhysicsComponent::RenderUIImpl()
 		}
 		ImGui::Text(shapeType.c_str());
 		
+		{
+			std::string motion = "Motion type: ";
+			switch (m_motion)
+			{
+			case JPH::EMotionType::Static:
+				motion += "Static";
+				break;
+			case JPH::EMotionType::Kinematic:
+				motion += "Kinematic";
+				break;
+			case JPH::EMotionType::Dynamic:
+				motion += "Dynamic";
+				break;
+			}
+			ImGui::Text(motion.c_str());
+		
+			std::string layer = "Layer type: ";
+			switch (m_layer)
+			{
+			case NON_MOVING: 
+				layer += "Non-moving";
+				break;
+			case MOVING: 
+				layer += "Moving";
+				break;
+			case NUM_LAYERS: 
+				layer += "NumLayers";
+				break;
+			}
+			ImGui::Text(layer.c_str());
+		}
+		
 		// Display and apply MotionType and ObjectLayer
 		const char* motionTypes[] = { "Static", "Kinematic", "Dynamic" };
 		const char* objectLayers[] = { "Non-moving", "Moving", "NumLayers" };
-		static int motionSelectedIdx = 0;
-		static int layerSelectedIdx = 0;
+		static int motionSelectedIdx = static_cast<int>(m_motion);
+		static int layerSelectedIdx = m_layer;
 		
 		const char* motionPreview = motionTypes[motionSelectedIdx];
 		const char* layerPreview = objectLayers[layerSelectedIdx];
@@ -211,39 +245,41 @@ void PhysicsComponent::RenderUIImpl()
 			ImGui::EndCombo();
 		}
 		
-		JPH::EMotionType motionType = JPH::EMotionType::Static;
-		switch (motionSelectedIdx)
+		JPH::EMotionType motion = m_motion;
+		switch (static_cast<JPH::EMotionType>(motionSelectedIdx))
 		{
-		case 0: 
-			motionType = JPH::EMotionType::Static;
+		case JPH::EMotionType::Static: 
+			motion = JPH::EMotionType::Static;
 			break;
-		case 1: 
-			motionType = JPH::EMotionType::Kinematic;
+		case JPH::EMotionType::Kinematic: 
+			motion = JPH::EMotionType::Kinematic;
 			break;
-		case 2: 
-			motionType = JPH::EMotionType::Dynamic;
+		case JPH::EMotionType::Dynamic: 
+			motion = JPH::EMotionType::Dynamic;
 			break;
 		}
 		
-		Layers layer = NON_MOVING;
+		Layers layer = m_layer;
 		switch (layerSelectedIdx)
 		{
-		case 0: 
+		case NON_MOVING: 
 			layer = NON_MOVING;
 			break;
-		case 1: 
+		case MOVING: 
 			layer = MOVING;
 			break;
-		case 2: 
+		case NUM_LAYERS: 
 			layer = NUM_LAYERS;
 			break;
 		}
 		
 		if (ImGui::Button("Apply motion and layer"))
 		{
-			SetMotionType(motionType);
+			SetMotionType(motion);
 			SetObjectLayer(layer);
 		}
+		
+		ImGui::NewLine();
 
 		// Display remove collider button
 		if (ImGui::Button("Remove collider body"))
