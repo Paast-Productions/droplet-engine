@@ -42,6 +42,8 @@ namespace Droplet::Editor::Scene
 		bool m_cameraLookToggled = false;
 		bool m_hoveringGizmo = false;
 		bool m_usingGizmo = false;
+		bool m_hoveringSceneView = false;
+		bool m_hoveringPlayButton = false;
 		
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;

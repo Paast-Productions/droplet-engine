@@ -160,29 +160,38 @@ void SceneViewWindow::RenderImpl()
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 
 	// Process shortcut key presses
-	if (ImGui::IsWindowFocused())
+	if (ImGui::IsWindowFocused() && !m_cameraLookToggled)
 	{
 		EditorShortcuts::ProcessSceneViewKeyShortcuts();
 	}
 
-	// Collect mouse and keyboard inputs for the camera update, if the mouse is within the camera view rect.
+	ImTextureRef camViewTexture = m_textureDescriptor;
+
+	// Render the camera view texture to the scene view window
+	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
+
+	// Check if the mouse is hovering over the scene view
+	m_hoveringSceneView = ImGui::IsItemHovered();
 
 	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 	if (isWindowFocused)
 	{
-		[[maybe_unused]] bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
+		bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
 
-		// Get the mouse position relative to the camera view rect.
+		GameInput &input = GameInput::Get();
+		const EditorCamera &camera = m_editorContext->GetEditorCamera();
+		EditorCameraController &controller = m_editorContext->GetEditorCameraController();
 
-		ImVec2 mousePos = ImGui::GetIO().MousePos; // TODO: Potential failure-point. Ensure this is in screen-space.
+		// Get the mouse position relative to the camera view rect
+		ImVec2 mousePos = ImGui::GetIO().MousePos;
 
 		ImVec2 mousePosNormalizedToCamView = {
 			(mousePos.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
 			(mousePos.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
 		};
 
-		if (isWindowFocused && isMouseHovering)
+		if (isMouseHovering)
 		{
 			ImVec2 center = {
 				(camViewRectMin.x + camViewRectMax.x) * 0.5f,
@@ -199,17 +208,16 @@ void SceneViewWindow::RenderImpl()
 				sceneWindow = SDL_GetWindowFromID(windowID);
 			}
 
-			GameInput &input = GameInput::Get();
-			const EditorCamera &camera = m_editorContext->GetEditorCamera();
-			EditorCameraController &controller = m_editorContext->GetEditorCameraController();
-
 			if (m_cameraLookToggled)
 			{
 				controller.Update(deltaTime, sceneWindow, center.x, center.y);
 			}
+		}
 
+		if (m_hoveringSceneView)
+		{
 			// Mouse selection of nodes in the scene view
-			if (input.MousePressed(Mouse::LMB) && !m_usingGizmo && !m_hoveringGizmo)
+			if (input.MousePressed(Mouse::LMB) && !m_usingGizmo && !m_hoveringGizmo && !m_hoveringPlayButton)
 			{
 				glm::vec2 mousePosInView = glm::vec2(mousePosNormalizedToCamView.x, mousePosNormalizedToCamView.y);
 				Math::Ray viewRay = camera.GetViewRay(mousePosInView);
@@ -253,11 +261,6 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-
-	ImTextureRef camViewTexture = m_textureDescriptor;
-
-	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 	
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
@@ -302,6 +305,8 @@ void SceneViewWindow::RenderImpl()
 
 			ImGui::PopStyleColor(4);
 		}
+
+		m_hoveringPlayButton = ImGui::IsItemHovered();
 	}
 	
 	ImGui::EndChild();
