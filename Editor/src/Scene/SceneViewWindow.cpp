@@ -126,7 +126,7 @@ void SceneViewWindow::RenderToolbar()
 	float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
 	if (ImGui::BeginMenu("GizmoSize"))
 	{
-		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, 1);
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, 0.3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 		ImGui::EndMenu();
@@ -196,6 +196,16 @@ void SceneViewWindow::RenderImpl()
 		camViewRectMin.y - windowPos.y 
 	};
 	
+	ImVec2 viewCenter = {
+		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+		(camViewRectMin.y + camViewRectMax.y) * 0.5f
+	};
+
+	if (m_cameraLookToggled)
+	{
+		ImGui::SetNextWindowFocus();
+	}
+
 	// Begin the child window that encompasses the camera view.
 	ImGui::SetCursorPos(camViewPos);
 	ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
@@ -232,27 +242,19 @@ void SceneViewWindow::RenderImpl()
 			(mousePos.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
 		};
 
-		if (isMouseHovering)
+		ImGuiViewport *viewport = ImGui::GetWindowViewport();
+
+		SDL_Window *sceneWindow = nullptr;
+
+		if (viewport)
 		{
-			ImVec2 center = {
-				(camViewRectMin.x + camViewRectMax.x) * 0.5f,
-				(camViewRectMin.y + camViewRectMax.y) * 0.5f
-			};
+			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+			sceneWindow = SDL_GetWindowFromID(windowID);
+		}
 
-			ImGuiViewport *viewport = ImGui::GetWindowViewport();
-
-			SDL_Window *sceneWindow = nullptr;
-
-			if (viewport)
-			{
-				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
-				sceneWindow = SDL_GetWindowFromID(windowID);
-			}
-
-			if (m_cameraLookToggled)
-			{
-				controller.Update(deltaTime, sceneWindow, center.x, center.y);
-			}
+		if (m_cameraLookToggled)
+		{
+			controller.Update(deltaTime, sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
 		if (m_hoveringSceneView)
@@ -293,13 +295,27 @@ void SceneViewWindow::RenderImpl()
 					}
 				}
 			}
+		}
+	}
 
-			if (input.KeyPressed(Key::KeyQ))
+	if (m_hoveringSceneView || isWindowFocused)
+	{
+		if (input.KeyPressed(Key::KeyQ))
+		{
+			m_cameraLookToggled = !m_cameraLookToggled;
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+
+			ImGuiViewport *viewport = ImGui::GetWindowViewport();
+
+			SDL_Window *sceneWindow = nullptr;
+
+			if (viewport)
 			{
-				m_cameraLookToggled = !m_cameraLookToggled;
-
-				controller.CameraLock(m_cameraLookToggled);
+				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+				sceneWindow = SDL_GetWindowFromID(windowID);
 			}
+
+			input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
 		}
 	}
 
