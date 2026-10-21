@@ -119,7 +119,7 @@ void SceneViewWindow::RenderImpl()
 	
 	GameInput &input = GameInput::Get();
 	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = m_renderTarget->GetExtent();
+	vk::Extent2D extent = m_renderTarget.GetExtent();
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -167,7 +167,7 @@ void SceneViewWindow::RenderImpl()
 		EditorShortcuts::ProcessSceneViewKeyShortcuts();
 	}
 
-	ImTextureRef camViewTexture = m_textureDescriptor;
+	ImTextureRef camViewTexture = m_textureDescriptorSet;
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -263,8 +263,6 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-
-	ImTextureRef camViewTexture = m_textureDescriptor;
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -430,18 +428,17 @@ void SceneViewWindow::SetViewDescriptor(VkDescriptorSet p_textureDescriptor)
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
 {
-	auto &renderer = m_editorContext->GetRenderer();
+	auto &renderer = m_editorContext->GetEngine().GetRenderer();
 	
 	renderer.WaitIdle();
 	
-	if (m_textureDescriptor != VK_NULL_HANDLE)
+	if (m_textureDescriptorSet != VK_NULL_HANDLE)
 	{
-		ImGui_ImplVulkan_RemoveTexture(m_textureDescriptor);
-		m_textureDescriptor = VK_NULL_HANDLE;
+		ImGui_ImplVulkan_RemoveTexture(m_textureDescriptorSet);
+		m_textureDescriptorSet = VK_NULL_HANDLE;
 	}
 	
 	m_renderTarget = renderer.CreateRenderTarget(width, height);
 	
-	m_textureDescriptor = renderer.RegisterImGuiTexture(*m_renderTarget);
-	
+	m_textureDescriptorSet = renderer.RegisterImGuiTexture(m_renderTarget);
 }
