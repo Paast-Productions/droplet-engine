@@ -19,7 +19,7 @@ namespace Droplet::Scene
 		/// @param p_physics The Physics instance of the Scene where this component exists
 		/// @param p_transform The transform of the Node this component is added to
 		PhysicsComponent() = default;
-		~PhysicsComponent() = default;
+		~PhysicsComponent();
 
 		void Initialize(Physics *p_physics, Transform *p_transform);
 		

@@ -12,6 +12,11 @@
 
 using namespace Droplet::Scene;
 
+PhysicsComponent::~PhysicsComponent()
+{
+	RemoveCollider();
+}
+
 void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 {
 	m_physics = p_physics;
