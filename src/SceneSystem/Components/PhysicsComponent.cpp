@@ -128,6 +128,11 @@ void PhysicsComponent::RemoveCollider()
 void PhysicsComponent::StartImpl()
 {
 	m_physics = GetOwner()->GetScene()->GetPhysics();
+	if (m_physics == nullptr)
+	{
+		GetOwner()->GetScene()->InitializePhysics();
+		m_physics = GetOwner()->GetScene()->GetPhysics();
+	}
 	m_transform = &GetOwner()->GetTransform();
 }
 
