@@ -37,6 +37,28 @@ void Component::Update()
 	}
 }
 
+void Component::LateUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		LateUpdateImpl();
+	}
+}
+
+void Component::FixedUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		FixedUpdateImpl();
+	}
+}
+
 void Component::RenderUI()
 {
 	ZoneScoped;

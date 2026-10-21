@@ -20,7 +20,7 @@ Scene::Scene(const std::string &p_name)
 
 }
 
-void Scene::Update(float p_deltaTime)
+void Scene::Update()
 {
 	ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -34,14 +34,14 @@ void Scene::Update(float p_deltaTime)
     {
         for (const auto &root : m_roots)
         {
-            root->Update(p_deltaTime);
+            root->Update();
         }
     }
 
     m_octree.Update();
 }
 
-void Droplet::Scene::Scene::LateUpdate(float p_deltaTime)
+void Droplet::Scene::Scene::LateUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -55,7 +55,7 @@ void Droplet::Scene::Scene::LateUpdate(float p_deltaTime)
     {
         for (const auto &root : m_roots)
         {
-            root->LateUpdate(p_deltaTime);
+            root->LateUpdate();
         }
     }
 
@@ -75,18 +75,17 @@ void Droplet::Scene::Scene::FixedUpdate()
         return;
     }
 
-    float fixedDeltaTime = Droplet::Time::Get().GetFixedDeltaTime();
     if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
     {
         for (const auto &root : m_roots)
         {
-            root->FixedUpdate(fixedDeltaTime);
+            root->FixedUpdate();
         }
     }
 
     if (m_physics != nullptr)
     {
-        m_physics->FixedUpdate(fixedDeltaTime);
+        m_physics->FixedUpdate();
     }
 }
 

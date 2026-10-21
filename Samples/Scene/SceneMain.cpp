@@ -300,11 +300,11 @@ public:
         std::cout << "PlayerComponent started\n";
     }
 
-    void UpdateImpl(float p_deltaTime) override
+    void UpdateImpl() override
     {
         std::cout
             << "PlayerComponent updating: "
-            << p_deltaTime
+            << Droplet::Time::Get().GetDeltaTime()
             << " seconds\n";
     }
 
@@ -336,11 +336,11 @@ public:
         std::cout << "EnemyComponent started\n";
     }
 
-    void UpdateImpl(float p_deltaTime) override
+    void UpdateImpl() override
     {
         std::cout
             << "EnemyComponent updating: "
-            << p_deltaTime
+            << Droplet::Time::Get().GetDeltaTime()
             << " seconds\n";
     }
 

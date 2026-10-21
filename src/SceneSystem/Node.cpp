@@ -47,7 +47,7 @@ void Node::Start()
     }
 }
 
-void Node::Update(float p_deltaTime)
+void Node::Update()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -61,16 +61,16 @@ void Node::Update(float p_deltaTime)
 
     for (const auto &component : m_components)
     {
-        component->Update(p_deltaTime);
+        component->Update();
     }
 
     for (const auto &child : m_children)
     {
-        child->Update(p_deltaTime);
+        child->Update();
     }
 }
 
-void Droplet::Scene::Node::LateUpdate(float p_deltaTime)
+void Droplet::Scene::Node::LateUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -84,16 +84,16 @@ void Droplet::Scene::Node::LateUpdate(float p_deltaTime)
 
     for (const auto &component : m_components)
     {
-        component->LateUpdate(p_deltaTime);
+        component->LateUpdate();
     }
 
     for (const auto &child : m_children)
     {
-        child->LateUpdate(p_deltaTime);
+        child->LateUpdate();
     }
 }
 
-void Droplet::Scene::Node::FixedUpdate(float p_fixedDeltaTime)
+void Droplet::Scene::Node::FixedUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -105,7 +105,7 @@ void Droplet::Scene::Node::FixedUpdate(float p_fixedDeltaTime)
 
     for (const auto &component : m_components)
     {
-        component->FixedUpdate(p_fixedDeltaTime);
+        component->FixedUpdate();
     }
 }
 

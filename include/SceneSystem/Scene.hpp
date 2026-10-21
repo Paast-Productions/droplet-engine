@@ -103,13 +103,10 @@ namespace Droplet::Scene
         ///
         /// Updates all root Node hierarchies when the Scene is both
         /// loaded and active.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
 
         /// @brief Updates the Scene but late.
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void LateUpdate(float p_deltaTime);
+        void LateUpdate();
         
         /// @brief Updates the Scene in fixed time.
         void FixedUpdate();

@@ -177,7 +177,7 @@ void SceneManager::Update(float p_deltaTime)
             continue;
         }
 
-        scene->Update(p_deltaTime);
+        scene->Update();
 
         ++it;
     }
@@ -214,7 +214,7 @@ void SceneManager::Update(float p_deltaTime)
             continue;
         }
 
-        scene->LateUpdate(p_deltaTime);
+        scene->LateUpdate();
 
         ++it;
     }

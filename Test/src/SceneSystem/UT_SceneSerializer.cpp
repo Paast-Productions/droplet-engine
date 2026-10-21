@@ -6,6 +6,7 @@
 #include "Core/IoManager.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
+#include "Time.hpp"
 using namespace Droplet::Scene;
 
 
@@ -29,11 +30,11 @@ public:
         std::cout << "PlayerComponent started\n";
     }
 
-    void UpdateImpl(float p_deltaTime) override
+    void UpdateImpl() override
     {
         std::cout
             << "PlayerComponent updating: "
-            << p_deltaTime
+            << Droplet::Time::Get().GetDeltaTime()
             << " seconds\n";
     }
 
