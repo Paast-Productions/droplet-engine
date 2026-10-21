@@ -87,6 +87,11 @@ namespace Droplet::Scene
         ResourceHandle<MeshResource> m_mesh;
         ResourceHandle<Texture2DResource> m_2dTexture;
 
+        // Display Names
+
+		std::string m_meshDisplayName;
+		std::string m_textureDisplayName;
+
         MeshNodeBounds m_bounds;
     };
 }

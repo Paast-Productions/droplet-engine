@@ -229,7 +229,7 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak 
     m_scene.lock()->SetRoot(p_child, true);
 }
 
-void Droplet::Scene::Node::AttachComponent(std::unique_ptr<Component> &p_component)
+void Droplet::Scene::Node::AttachComponent(std::shared_ptr<Component> &p_component)
 {
     if (!p_component)
     {
@@ -240,8 +240,7 @@ void Droplet::Scene::Node::AttachComponent(std::unique_ptr<Component> &p_compone
     {
         throw std::runtime_error("Invalid next component ID");
     }
-    std::shared_ptr<Component> shared = std::move(p_component);
-    AttachComponent(shared, m_nextComponentID);
+    AttachComponent(p_component, m_nextComponentID);
 }
 
 

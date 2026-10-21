@@ -46,7 +46,37 @@ void HierarchyWindow::RenderImpl()
     {
         scene->AddNode("New Node");
     }
+    ImGui::SameLine();
 
+    static std::vector < std::string> nodeFiles;
+    static std::string selectedNode;
+    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs/"; // TODO find a better solution 
+
+    if (ImGui::Button("Add Node from file"))
+    {
+        RefreshLoadedNodes(nodeFiles);
+        ImGui::OpenPopup("Nodes");
+    }
+
+    if (ImGui::BeginPopup("Nodes"))
+    {
+        if (nodeFiles.empty())
+        {
+            ImGui::TextUnformatted("No saved nodes found.");
+        }
+        for (const std::string &nodeFile : nodeFiles)
+        {
+            if (ImGui::Selectable(nodeFile.c_str()))
+            {
+                selectedNode = nodeFile;
+                const std::string nodeName = std::filesystem::path(selectedNode).stem().string();
+                std::string filePath = nodesDirectory.string() + std::string(selectedNode);
+                scene->LoadNodeFromFile(filePath);
+                ImGui::CloseCurrentPopup();
+            }
+        }
+        ImGui::EndPopup();
+    }
     ImGui::Separator();
 
     // Reserve a thin strip on the left for dropping nodes as roots.
@@ -185,6 +215,28 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::stri
     std::sort(p_sceneFiles.begin(), p_sceneFiles.end());
 }
 
+void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles)
+{
+    const std::filesystem::path nodesDirectory = std::filesystem::current_path() / ".." / ".." / ".." / "GameData" / "Prefabs";
+
+    p_nodeFiles.clear();
+
+    std::error_code error;
+
+    if (std::filesystem::exists(nodesDirectory, error) && std::filesystem::is_directory(nodesDirectory, error))
+    {
+        for (const std::filesystem::directory_entry &entry : std::filesystem::directory_iterator(nodesDirectory, error))
+        {
+            if (entry.is_regular_file())
+            {
+                p_nodeFiles.push_back(entry.path().filename().string());
+            }
+        }
+    }
+
+    std::sort(p_nodeFiles.begin(), p_nodeFiles.end());
+}
+
 void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 {
     static char fileName[128] = "MyScene";
@@ -209,11 +261,23 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     }
     ImGui::SameLine();
     
+    if (ImGui::Button("New Scene"))
+    {
+        std::string name = "New Scene";
+
+        m_editorContext->CreateNewScene(name);
+        m_editorContext->SetActiveScene(name);
+        std::strncpy(fileName, name.c_str(), sizeof(fileName) - 1);
+        fileName[sizeof(fileName) - 1] = '\0';
+    }
+
+    ImGui::SameLine();
     if (ImGui::Button("Load"))
     {
         RefreshLoadedScenes(sceneFiles);
         ImGui::OpenPopup("Scenes");
     }
+    
 
     if (ImGui::BeginPopup("Scenes"))
     {

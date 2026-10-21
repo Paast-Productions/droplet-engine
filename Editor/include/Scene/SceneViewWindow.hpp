@@ -40,7 +40,10 @@ namespace Droplet::Editor::Scene
 	private:
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
-
+		bool m_hoveringGizmo = false;
+		bool m_usingGizmo = false;
+		
+		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The texture that the renderer will render to
@@ -53,5 +56,10 @@ namespace Droplet::Editor::Scene
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
 		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
+		
+		/// @brief Updates the SceneViews render target to match the cameraSize
+		/// @param p_width The width of the render target
+		/// @param p_height The height of the render target
+		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
 	};
 }

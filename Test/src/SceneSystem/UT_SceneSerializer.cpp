@@ -4,6 +4,7 @@
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
 #include "Core/IoManager.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
 using namespace Droplet::Scene;
 
 
@@ -126,6 +127,7 @@ TEST_F(SceneSerializerTest, DeserializeNode)
     testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
 
     testNode->AddComponent<PlayerComponent>();
+    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<PlayerComponent>(); });
 
 
     nlohmann::json json = serializer.SerializeScene(testScene);

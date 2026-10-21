@@ -5,11 +5,16 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node, bool p_clearFirst) // TODO: Make weak pointer
 {
     if (!p_node || IsNodeSelected(p_node))
     {
         return;
+    }
+
+    if (p_clearFirst)
+    {
+        ClearNodeSelection();
     }
 
     m_selectedNodes.push_back(p_node);

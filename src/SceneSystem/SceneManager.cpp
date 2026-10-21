@@ -19,7 +19,8 @@ void SceneManager::LoadScene(const std::string &p_name)
 
     if (m_scenes.contains(p_name))
     {
-        throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
+        UnloadScene(p_name);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_name);
@@ -238,6 +239,12 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     if (!json.contains("name"))
     {
         throw std::runtime_error("Invalid json was sent to LoadFromFile");
+    }
+
+    if (m_scenes.contains(json["name"]))
+    {
+        UnloadScene(json["name"]);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
