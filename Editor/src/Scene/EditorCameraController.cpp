@@ -54,13 +54,17 @@ void EditorCameraController::CameraLock(bool p_enabled)
 
 	m_lookActive = p_enabled;
 
-
+	GameInput &input = GameInput::Get();
 	ImGuiIO &io = ImGui::GetIO();
 
 	if (p_enabled)
+	{
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	}
 	else
+	{
 		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+	}
 
-	GameInput::Get().HideCursor(m_lookActive);
+	input.HideCursor(m_lookActive);
 }
