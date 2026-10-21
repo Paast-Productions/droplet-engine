@@ -6,6 +6,11 @@
 
 #include <SceneSystem/bounds/NodeBounds.hpp>
 
+namespace Droplet::Graphics
+{
+	struct RenderData;
+}
+
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
@@ -54,6 +59,8 @@ namespace Droplet::Scene
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         virtual void Update([[maybe_unused]] float p_deltaTime) {}
+    	
+    	virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
         /// @brief Late updates the component.
         ///
@@ -118,13 +125,6 @@ namespace Droplet::Scene
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
-        
-		/// @brief Determines whether the component makes the Node renderable, components that are renderable should override this function and return true.
-		/// @return true if the component is renderable, otherwise false.
-        [[nodiscard]] virtual bool IsRenderable() const
-        {
-            return false;
-        }
 
     protected:
 		/// @brief Internal rendering function for the component's UI.
@@ -144,10 +144,16 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
         virtual void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) { }
 
+        //TODO: Edit/move this function and it corresponding member variable to match functionality requirements
+        /// @brief Sets the node to be renderable
+        [[nodiscard]] void SetRenderable() { m_renderable = true; }
+
     private:
         friend class Node;
 
 		bool m_active = true;
+
+        bool m_renderable = false;
 
         std::weak_ptr<Node> m_owner{};
 

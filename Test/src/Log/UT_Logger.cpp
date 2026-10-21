@@ -35,8 +35,8 @@ TEST_F(ThreadPoolLoggerTest, SystemStartupLogging)
     Logger &log = Logger::GetInstance();
 	ThreadPool &pool = ThreadPool::GetInstance();
     EXPECT_NO_THROW({
-        log.Log(Logger::LogType::Info, "Systemet och trådpoolen är startade!");
-        log.Log(Logger::LogType::Debug, "Testar loggning via trådpoolen");
+        log.Log(Droplet::Debug::LogType::Info, "Systemet och trådpoolen är startade!");
+        log.Log(Droplet::Debug::LogType::Debug, "Testar loggning via trådpoolen");
         });
 	log.WriteToJsonFile();
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -55,7 +55,7 @@ TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
     {
         processedFrames++;
 
-        log.Log(Logger::LogType::Info, "Alexander är väldigt vacker - Frame: " + std::to_string(frameCounter));
+        log.Log(Droplet::Debug::LogType::Info, "Alexander är väldigt vacker - Frame: " + std::to_string(frameCounter));
         if (frameCounter % 10 == 0)
         {
 			log.WriteToJsonFile();
@@ -70,7 +70,7 @@ TEST_F(ThreadPoolLoggerTest, ClearLogRemovesFile)
 {
     Logger &log = Logger::GetInstance();
     ThreadPool &pool = ThreadPool::GetInstance();
-    log.Log(Logger::LogType::Info, "Tillfälligt loggmeddelande");
+    log.Log(Droplet::Debug::LogType::Info, "Tillfälligt loggmeddelande");
     log.WriteToJsonFile();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(50));

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <math/bounds/Intersection.hpp>
-
 #include <memory>
 #include <string>
 #include <vector>
+#include <Math/Bounds/Intersection.hpp>
+#include <Graphics/RenderData.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
+
+
 
 namespace Droplet::Scene
 {
@@ -74,15 +76,15 @@ namespace Droplet::Scene
         /// @brief Updates the Scene in fixed time.
         void FixedUpdate();
 
-        /// @brief Renders the Scene.
+        /// @brief Stores render data of the scene in a vector
         ///
-        /// Renders all root Node hierarchies when the Scene is both
+        /// Stores all root Node hierarchies when the Scene is both
         /// loaded and active.
         /// 
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved to a separate rendering
         /// system in the future.
-        void Render();
+    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///

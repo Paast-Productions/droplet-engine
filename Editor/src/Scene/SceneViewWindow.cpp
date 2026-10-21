@@ -21,9 +21,11 @@ void SceneViewWindow::InitImpl()
 	SetName("Scene View"); 
 	//ToggleToolbar(true);
 	
-	// TODO: Make rendertarget reziable and match ImGui window
-	m_renderTarget = m_editorContext->GetRenderer().CreateRenderTarget(720, 720);
-	m_textureDescriptor = m_editorContext->GetRenderer().RegisterImGuiTexture(*m_renderTarget);
+	// TODO: 
+	//     Move this to the renderer and camera class. 
+	//     The camera should request the renderer to create a render target.
+	m_renderTarget = m_editorContext->GetEngine().CreateRenderTarget(720, 720);
+	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -202,7 +204,7 @@ void SceneViewWindow::RenderImpl()
 		}
 	}
 
-	ImTextureRef camViewTexture = m_textureDescriptor;
+	ImTextureRef camViewTexture = m_textureDescriptorSet;
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -302,61 +304,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		}
 	}
 
-	// Render cubes for all nodes in the scene
-	{
-		Math::Frustum camFrustum = camera.GetFrustum();
-
-		std::function<void(const std::shared_ptr<DNode> &)> recurseNodes = [&](const std::shared_ptr<DNode> &node) { // TODO: Make weak pointer
-			if (!node)
-			{
-				return;
-			}
-
-			if (!node->IsActive())
-			{
-				return;
-			}
-
-			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
-
-			Math::OBB baseOBB = Math::OBB(glm::vec3(0.0f), glm::vec3(0.5f), glm::mat3(1.0f));
-			Math::OBB nodeOBB = Math::OBB::Transform(baseOBB, nodeMat);
-
-			Math::IntersectType intersection = Math::Intersects(camFrustum, nodeOBB);
-
-			if (intersection != Math::IntersectType::None)
-			{
-				// Draw
-				glm::vec4 nodeColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-				// Randomize color based on the nodes pointer to ensure it's consistent across frames
-				std::hash<std::shared_ptr<DNode>> hasher; // TODO: Make weak pointer
-				size_t hashValue = hasher(node);
-
-				srand(static_cast<unsigned int>(hashValue));
-				int r = rand() % 256;
-				int g = rand() % 256;
-				int b = rand() % 256;
-
-				DebugDraw::DrawBox(
-					nodeOBB, 
-					glm::vec4(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f),
-					true//, true
-				);
-			}
-
-			for (const auto &child : node->GetChildren())
-			{
-				recurseNodes(child);
-			}
-		};
-
-		for (const auto &node : nodes)
-		{
-			recurseNodes(node);
-		}
-	}
-
 	bool didUse = false;
 
 	// Render transform gizmo for selected node
@@ -364,11 +311,11 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		std::vector<std::shared_ptr<DNode>> selectedNodes = m_editorContext->GetInteractionState().GetSelectedNodes(); // TODO: Make weak pointer
 
 		// TODO: Make this configurable by the user
-		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation", 0);
+		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
 
-		if (selectedNodes.size() > 0)
+		if (!selectedNodes.empty())
 		{
-			std::shared_ptr<DNode> selectedNode = selectedNodes[0]; // TODO: Make weak pointer
+			const std::shared_ptr<DNode> &selectedNode = selectedNodes[0]; // TODO: Make weak pointer
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
@@ -411,5 +358,10 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
 {			
-	return *m_renderTarget;
+	return m_renderTarget;
+}
+
+void SceneViewWindow::SetViewDescriptor(VkDescriptorSet p_textureDescriptor)
+{
+	m_textureDescriptorSet = p_textureDescriptor;
 }

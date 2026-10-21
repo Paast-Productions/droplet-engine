@@ -91,14 +91,12 @@ glm::mat4 Camera::GetViewMatrix() const
 
 glm::mat4 Camera::GetProjectionMatrix() const
 {
-	glm::mat4 projection = glm::perspective(
+	return glm::perspective(
 		glm::radians(m_fov),
 		m_aspect,
 		m_planes.x,
 		m_planes.y
 	);
-
-	return projection;
 }
 
 Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const

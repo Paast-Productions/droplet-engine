@@ -108,14 +108,31 @@ void Droplet::Scene::Node::FixedUpdate(float p_fixedDeltaTime)
     }
 }
 
-void Node::Render()
+void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) 
 {
     if (!m_active)
     {
         return;
     }
 
-    return;
+    Graphics::RenderData rData
+    {
+        .transform = m_transform.GetMatrix(Transform::Space::World)
+    };
+    
+    for (const auto &component : m_components)
+    {
+        // TODO: Skip component if it's inactive
+        component->GetRenderData(rData);
+    }
+
+    p_renderData.push_back(rData);
+    
+    for (const std::shared_ptr<Node>& child : m_children)
+    {
+        child->GetRenderData(p_renderData);
+    }
+
 }
 
 void Node::RenderUI()
