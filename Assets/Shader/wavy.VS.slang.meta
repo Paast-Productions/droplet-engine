@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "wavy.VS",
+            "guid": 6846475175127286139,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 0
+            },
+            "sourceName": "wavy.VS",
+            "type": 6
+        }
+    ]
+}

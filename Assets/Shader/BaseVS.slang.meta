@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "BaseVS",
+            "guid": 17704871794447121608,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 0
+            },
+            "sourceName": "BaseVS",
+            "type": 6
+        }
+    ]
+}

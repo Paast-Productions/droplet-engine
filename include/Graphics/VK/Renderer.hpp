@@ -33,10 +33,11 @@
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
-#include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/CameraController.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/RenderData.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -47,18 +48,7 @@ namespace Droplet{class Engine;}
 // HACK: Implementation subject to change
 
 namespace Droplet::Graphics
-{
-	namespace VK
-	{
-		struct UniformBufferObject
-		{
-			glm::mat4 model {};
-			glm::mat4 view {};
-			glm::mat4 proj {};
-		};
-	}
-	
-	
+{	
 	class Renderer
 	{
 	public:
@@ -67,23 +57,21 @@ namespace Droplet::Graphics
 
 		/// @brief Renderer Constructor
 		/// @param p_window Requested SDL Window Configuration
-		Renderer(SDL::Window &p_window);
+		Renderer(SDL_Window* p_window);
 
 		/// @brief Destructor
 		~Renderer();
 		
 		/// @brief Renders a singular frame
-		void	DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-
-		void RenderToTarget(RenderTarget &p_target, const Camera &p_camera);
+		void DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
+		
+		/// @brief Renders a singular mesh with the data that is pushed into the function
+		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
+		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);
 		
 		/// @brief Resizes the window
-		void	ResizeWindow();
+		void ResizeWindow();
 		
-		/// @brief Getter-function for an SDL_Window pointer
-		/// @returns An SDL Window
-		[[nodiscard]] SDL_Window *GetWindow();
-
 	/// @brief Fills and returns initInfo for ImGui
 	/// @return ImGui init info
 	void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
@@ -91,12 +79,7 @@ namespace Droplet::Graphics
 		/// @brief Wait for the Vulkan device to be idle
 		void WaitIdle();
 
-		/// @brief Public function to apply mouse movements on the camera
-		/// @param p_xOffset position on the screen along the x-axis
-		/// @param p_yOffset position on the screen along the y-axis
-		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
-
-		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
+		RenderTarget CreateRenderTarget(uint32_t p_width, uint32_t p_height);
 
 		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
 
@@ -105,36 +88,18 @@ namespace Droplet::Graphics
 		
 	private:
 		
-		/// @brief Creates a graphics pipeline
-		void					CreateGraphicsPipeline();
-
-		/// @brief Creates a graphics pipeline based on a shader
-		/// @param p_shaderBlob shader to be used
-		void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
-
-		/// @brief Creates a shader module from a vector containing raw code
-		/// @param p_device Pointer to the vulkan device
-		/// @param code Vector containing raw code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
-
-		/// @brief Creates a shader module from a blob containing code
-		/// @param p_device Pointer to the vulkan device
-		/// @param p_shaderBlob Blob containing code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
-		
 		/// @brief Records a command buffer for rendering an image
-		/// @param p_imageIndex which image to render to
-		void					RecordCommandBuffer(uint32_t p_imageIndex);
-		void					RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera);
-		void					RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
-
+		/// @param p_renderData Vector of RenderData
+		/// @param p_imageIndex Which image to render to
+		void RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
+		
 		/// @brief Creates the texture sampler
-		void					CreateTextureSampler();
+		void CreateTextureSampler();
 
 		/// @brief Creates sync objects for preventing race conditions etc
-		void					CreateSyncObjects();
+		void CreateSyncObjects();
 
 		/// @brief Changes the layout of an image from one to another
 		/// @param p_image The image to be translated
@@ -145,6 +110,7 @@ namespace Droplet::Graphics
 		/// @param p_src_stage_mask Source stage mask
 		/// @param p_dst_stage_mask Destination stage mask
 		/// @param p_image_aspect_flags Image aspect flags and/or bits
+		/// @param p_commandBuffer Vulkan Command Buffer
 		void TransitionImageLayout(
 			vk::Image				p_image,
 			vk::ImageLayout         p_old_layout,
@@ -154,21 +120,18 @@ namespace Droplet::Graphics
 			vk::PipelineStageFlags2 p_src_stage_mask,
 			vk::PipelineStageFlags2 p_dst_stage_mask,
 			vk::ImageAspectFlags    p_image_aspect_flags,
-			vk::raii::CommandBuffer &p_commandBuffer);
+			const vk::raii::CommandBuffer &p_commandBuffer);
 
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		const SDL::Window *m_window;
+		SDL_Window* m_window { nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::Allocator m_allocator { nullptr };
+		VK::IntermediaryStorage m_interStorage;
 
 		SDL_Event m_event {};
 
-		VK::Swapchain m_swapchain { nullptr };
-
 		VK::CommandPool m_commandPool { nullptr };
-		//std::vector<std::size_t> m_commandBufferIds;
 		VK::Pipeline m_graphicsPipeline { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
@@ -177,12 +140,14 @@ namespace Droplet::Graphics
 
 		VK::DescriptorPool						m_descriptorPool { nullptr };
 		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
+		
+		VK::Swapchain m_swapchain { nullptr };
 		vk::raii::Sampler						m_textureSampler = nullptr;
 
 		VK::Image		m_image			{ nullptr };
 		VK::ImageView	m_textureView	{ nullptr };
 		VK::StorageBuffer m_storageBuffer { nullptr };
-		VK::UniformBuffer m_uniformBuffer { nullptr };
+		VK::UniformBuffer m_vpBuffer{ nullptr };
 		
 		VK::DepthBuffer	m_depthBuffer	{ nullptr };
 		VK::IndexBuffer	m_indexBuffer	{ nullptr };
@@ -197,17 +162,14 @@ namespace Droplet::Graphics
 		
 		
 		//Index for rendered frames
-		std::uint32_t							 m_frameIndex = 0;
+		std::uint32_t m_frameIndex = 0;
 
 		//Latest received swapchain result
 		vk::Result m_result;
-		std::uint32_t m_imageIndex;
 
-		bool								 m_framebufferResized = false;
+		bool m_framebufferResized = false;
 		
 		Camera m_camera;
 		CameraController m_cameraController;
-
-		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
 	};
 }

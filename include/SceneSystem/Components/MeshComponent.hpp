@@ -23,49 +23,51 @@ namespace Droplet::Scene
         MeshComponent();
 
         void Update(float p_deltaTime) override;
+        
+        void GetRenderData(Graphics::RenderData &p_renderData) override;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
         [[nodiscard]] std::string_view GetTypeName() const override { return "MeshComponent"; }
 
-        // Mesh
-
+        /// @brief Getter-function for Mesh Resource
+        /// @returns Resource Handle to a Mesh Resource
+        [[nodiscard]] const ResourceHandle<MeshResource> &GetMeshResource() { return m_mesh; } 
+        
         /// @brief Sets the mesh resource using its GUID.
         /// @param p_guid GUID identifying the mesh resource to load.
-        /// @param p_resourceManager Resource manager used to load the mesh resource.
-        void SetMeshGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+        void SetMeshGUID(Droplet::GUID p_guid) { m_mesh = ResourceManager::GetInstance().LoadResource<Droplet::MeshResource>(p_guid); } 
 
         /// @brief Gets the GUID of the assigned mesh resource.
         /// @return GUID of the assigned mesh resource, or the invalid GUID if none is assigned.
-        [[nodiscard]] Droplet::GUID GetMeshGUID() const
-        {
-            return m_mesh.GetGUID();
-        }
+        [[nodiscard]] Droplet::GUID GetMeshGUID() const { return m_mesh.GetGUID(); }
 
         // Texture
 
         /// @brief Sets the 2D texture resource using its GUID.
         /// @param p_guid GUID identifying the texture resource to load.
-        /// @param p_resourceManager Resource manager used to load the texture resource.
-        void SetTextureGUID(Droplet::GUID p_guid, Droplet::ResourceManager &p_resourceManager);
+        void SetTextureGUID(Droplet::GUID p_guid) { m_2dTexture = ResourceManager::GetInstance().LoadResource<Droplet::Texture2DResource>(p_guid); }
 
+        //TODO: Consider moving to source file
         /// @brief Gets the GUID of the assigned 2D texture resource.
         /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
-        [[nodiscard]] Droplet::GUID GetTextureGUID() const
-        {
-            return m_2dTexture.GetGUID();
-        }
-
-        /// @brief Gets the resource handle for the assigned mesh.
-        /// @return Constant reference to the mesh resource handle.
-        [[nodiscard]] const Droplet::ResourceHandle<Droplet::MeshResource> &
-            GetMeshResource() const;
-
-        /// @brief Gets the resource handle for the assigned 2D texture.
-        /// @return Constant reference to the 2D texture resource handle.
-        [[nodiscard]] const Droplet::ResourceHandle<Droplet::Texture2DResource> &
-            Get2dTextureResource() const;
-
+        [[nodiscard]] Droplet::GUID GetTextureGUID() const { return m_2dTexture.GetGUID(); }
+        
+        void SetVSGUID(Droplet::GUID p_guid) { m_shaderData.vs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); }
+        [[nodiscard]] Droplet::GUID GetVSGUID() const { return m_shaderData.vs.GetGUID(); }
+        
+        void SetTCSGUID(Droplet::GUID p_guid) { m_shaderData.tcs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); }
+        [[nodiscard]] Droplet::GUID GetTCSGUID() const { return m_shaderData.tcs.GetGUID(); }
+        
+        void SetTESGUID(Droplet::GUID p_guid) { m_shaderData.tes = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); }
+        [[nodiscard]] Droplet::GUID GetTESGUID() const { return m_shaderData.tes.GetGUID(); }
+        
+        void SetGSGUID(Droplet::GUID p_guid) { m_shaderData.gs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); }
+        [[nodiscard]] Droplet::GUID GetGSGUID() const { return m_shaderData.gs.GetGUID(); }
+        
+        void SetFSGUID(Droplet::GUID p_guid) { m_shaderData.fs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); }
+        [[nodiscard]] Droplet::GUID GetFSGUID() const { return m_shaderData.fs.GetGUID(); }
+        
         /// @brief Determines whether the component provides custom bounds.
         /// @return True if the component provides custom bounds, otherwise false.
         [[nodiscard]] bool HasBoundsOverride() const override { return true; }
@@ -81,16 +83,30 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-
         // Resource handles
+        ResourceHandle<MeshResource> m_mesh {};
+        ResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
 
-        ResourceHandle<MeshResource> m_mesh;
-        ResourceHandle<Texture2DResource> m_2dTexture;
+        // TODO: REWRITE AS MATERIAL
+        struct ShaderResources
+        {
+            ResourceHandle<ShaderResource> vs {};
+            ResourceHandle<ShaderResource> tcs {};
+            ResourceHandle<ShaderResource> tes {};
+            ResourceHandle<ShaderResource> gs {};
+            ResourceHandle<ShaderResource> fs {};
+        } m_shaderData;
 
         // Display Names
 
 		std::string m_meshDisplayName;
 		std::string m_textureDisplayName;
+
+        std::string m_vsDisplayName;
+        std::string m_tcsDisplayName;
+        std::string m_tesDisplayName;
+        std::string m_gsDisplayName;
+        std::string m_fsDisplayName;
 
         MeshNodeBounds m_bounds;
     };
