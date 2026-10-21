@@ -18,26 +18,6 @@ void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 	m_transform = p_transform;
 }
 
-void PhysicsComponent::Start()
-{
-	m_physics = GetOwner()->GetScene()->GetPhysics();
-	m_transform = &GetOwner()->GetTransform();
-}
-
-void PhysicsComponent::Update(float p_deltaTime)
-{
-	if (m_transform->HasBeenChanged())
-	{
-		PushTransformToPhysics();
-		m_physics->GetBodyInterface()->SetLinearVelocity(m_bodyID, JPH::Vec3(0.0f, 0.0f, 0.0f));
-	}
-}
-
-void PhysicsComponent::LateUpdate(float p_deltaTime)
-{
-	PullTransformFromPhysics();
-}
-
 void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents)
 {
 	if (m_shapeType != ShapeType::None)
@@ -143,6 +123,26 @@ void PhysicsComponent::RemoveCollider()
 	m_physics->GetBodyInterface()->RemoveBody(m_bodyID);
 	m_physics->GetBodyInterface()->DestroyBody(m_bodyID);
 	m_shapeType = ShapeType::None;
+}
+
+void PhysicsComponent::StartImpl()
+{
+	m_physics = GetOwner()->GetScene()->GetPhysics();
+	m_transform = &GetOwner()->GetTransform();
+}
+
+void PhysicsComponent::UpdateImpl()
+{
+	if (m_transform->HasBeenChanged())
+	{
+		PushTransformToPhysics();
+		m_physics->GetBodyInterface()->SetLinearVelocity(m_bodyID, JPH::Vec3(0.0f, 0.0f, 0.0f));
+	}
+}
+
+void PhysicsComponent::LateUpdateImpl()
+{
+	PullTransformFromPhysics();
 }
 
 void PhysicsComponent::RenderUIImpl()

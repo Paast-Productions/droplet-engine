@@ -23,20 +23,10 @@ namespace Droplet::Scene
 
 		void Initialize(Physics *p_physics, Transform *p_transform);
 		
-		void Start() override;
-
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
 		std::string_view GetTypeName() const override { return "PhysicsComponent"; }
-
-		/// @brief Updates the component.
-		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update([[maybe_unused]] float p_deltaTime) override;
-
-		/// @brief Late updates the physics component.
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void LateUpdate([[maybe_unused]] float p_deltaTime) override;
-
+		
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
 		void SetBoxCollider(const JPH::Vec3 p_halfExtents);
@@ -68,6 +58,15 @@ namespace Droplet::Scene
 		void RemoveCollider();
 
 	protected:
+		/// @brief Starts the component.
+		void StartImpl() override;
+		
+		/// @brief Updates the component.
+		void UpdateImpl() override;
+
+		/// @brief Late updates the physics component.
+		void LateUpdateImpl() override;
+		
 		void RenderUIImpl() override;
 
 		nlohmann::json SerializeImpl() override;
