@@ -1,0 +1,139 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": ""
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 5,
+            "name": "GoofySon",
+            "transform": {
+                "position": [
+                    0.28672897815704346,
+                    -0.08063048124313354,
+                    -0.3891429901123047
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.4895816445350647,
+                    0.5384652018547058,
+                    0.5033053755760193
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": ""
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 3,
+            "name": "GoofyDaughter",
+            "transform": {
+                "position": [
+                    -0.145330548286438,
+                    -0.20256012678146362,
+                    -0.2451242208480835
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.4300000071525574,
+                    0.4300000071525574,
+                    0.4300000071525574
+                ]
+            }
+        }
+    ],
+    "components": [
+        {
+            "data": {
+                "fs": 3575449250532881688,
+                "fsName": "",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "goofy_reference.smd.003",
+                "meshGUID": 3560615082615574069,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "GoofyTexture",
+                "textureGUID": 3915176569535287159,
+                "vs": 17704871794447121608,
+                "vsName": ""
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 4,
+    "name": "GoofyDadOfTwo",
+    "transform": {
+        "position": [
+            0.9149975776672363,
+            -0.9648706316947937,
+            -0.9380226135253906
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}
