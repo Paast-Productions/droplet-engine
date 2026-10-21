@@ -190,28 +190,6 @@ namespace Droplet::Scene
         /// If the Node has already been started, the Component is started immediately.
         ///
         /// Multiple Components of the same type can be attached to a Node.
-        ///
-        /// @tparam T Type of Component to create.
-        /// @tparam Args Types of arguments used to construct the Component.
-        ///
-        /// @param p_args Arguments forwarded to the Component constructor.
-        ///
-        /// @return A shared pointer to the newly created Component.
-        ///
-        /// @throws std::runtime_error if the Component provides a bounds override
-        /// and another bounds override is already registered with this Node.
-        template<typename T, typename... Args>
-        std::shared_ptr<T> AddComponent(Args&&... p_args) // TODO: Make weak pointer
-        {
-            // Ensure that T is derived from Component
-            static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
-
-            auto component = std::make_shared<T>();
-            std::shared_ptr<Component> baseComponent = component;
-            AttachComponent(baseComponent);
-
-            return component;
-        }
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -221,7 +199,7 @@ namespace Droplet::Scene
         /// The overloaded function uses id from serialization
         ///       
         /// @param p_component The comoponent to be attached
-        void AttachComponent(std::shared_ptr<Component> &p_component); 
+        void AttachComponent(std::unique_ptr<Component> &p_component); 
         void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
