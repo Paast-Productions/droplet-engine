@@ -24,6 +24,8 @@ void ResourceBrowser::RenderImpl()
 	using namespace ImGui;
     
     bool updatedRegistry = false;
+
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
     
     // --- Registering Resources ---
     
@@ -32,7 +34,7 @@ void ResourceBrowser::RenderImpl()
         RegisterAsset();
     }
     SameLine();
-    TextDisabled(std::filesystem::absolute(ResourceManager::GetInstance().GetRootDirectory()).string().c_str());
+    TextDisabled(std::filesystem::absolute(resManInstance.GetRootDirectory()).string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
@@ -100,7 +102,7 @@ void ResourceBrowser::RenderImpl()
         {
             for (const auto &entry : currentEntries)
             {
-                static_cast<void>(ResourceManager::GetInstance().UpdateMetaEntry(entry.guid, entry));
+                static_cast<void>(resManInstance.UpdateMetaEntry(entry.guid, entry));
                 updatedRegistry = true;
             }
             
@@ -124,7 +126,7 @@ void ResourceBrowser::RenderImpl()
 	ImVec2 cursorStartPos = GetCursorPos();
 	ImVec2 listSize = ImVec2(windowSize.x * 0.5f, 0);
     
-    std::vector<const MetaEntry *> resources = ResourceManager::GetInstance().GetRegisteredResources();
+    std::vector<const MetaEntry *> resources = resManInstance.GetRegisteredResources();
     if (updatedRegistry)
     {
         BuildBrowserTree(resources);
@@ -191,26 +193,31 @@ void ResourceBrowser::RenderImpl()
 	            bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow);
 	            
 	            // Asset drag source
-	            if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
-	            {
-	                // Create list of resource payloads for this asset
-	                std::vector<ResourcePayload> payloads;
-	                payloads.reserve(childNode.resources.size());
-	                    
-	                for (const MetaEntry *entry : childNode.resources)
-	                {
-	                    ResourcePayload payload;
-	                    payload.guid = entry->guid;
-	                    payload.type = entry->type;
-	                    snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                    payloads.push_back(payload);
-	                }
-	                    
-	                SetDragDropPayload(PAYLOAD_ASSET.data(), payloads.data(), payloads.size() * sizeof(ResourcePayload));
-	                TextDisabled("Asset: %s (%zu resources)", childName.c_str(), payloads.size());
-	                EndDragDropSource();
-	            }
-	            
+                // Asset drag source
+                if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+                {
+                    // Create a list of pointers to the resource metadata entries.
+                    std::vector<const MetaEntry *> payloads;
+                    payloads.reserve(childNode.resources.size());
+
+                    for (const MetaEntry *entry : childNode.resources)
+                    {
+                        payloads.push_back(entry);
+                    }
+
+                    SetDragDropPayload(
+                        PAYLOAD_ASSET.data(),
+                        payloads.data(),
+                        payloads.size() * sizeof(const MetaEntry *));
+
+                    TextDisabled(
+                        "Asset: %s (%zu resources)",
+                        childName.c_str(),
+                        payloads.size());
+
+                    EndDragDropSource();
+                }
+
 	            // Resources it contains
 	            if (isNodeOpen)
 	            {
@@ -233,17 +240,19 @@ void ResourceBrowser::RenderImpl()
 	                    }
 	                    
 	                    // Resource drag source
-	                    if (BeginDragDropSource())
-	                    {
-	                        ResourcePayload payload;
-	                        payload.guid = entry->guid;
-	                        payload.type = entry->type;
-	                        snprintf(payload.name, sizeof(payload.name), "%s", entry->displayName.c_str());
-	                        
-	                        SetDragDropPayload(PAYLOAD_RESOURCE.data(), &payload, sizeof(ResourcePayload));
-	                        TextDisabled("Resource: %s", entry->displayName.c_str());
-	                        EndDragDropSource();
-	                    }
+                        if (BeginDragDropSource())
+                        {
+                            const MetaEntry *payload = entry;
+
+                            SetDragDropPayload(
+                                PAYLOAD_RESOURCE.data(),
+                                &payload,
+                                sizeof(payload));
+
+                            TextDisabled("Resource: %s", entry->displayName.c_str());
+
+                            EndDragDropSource();
+                        }
 	                }
 	                TreePop();
 	            }
@@ -279,7 +288,7 @@ void ResourceBrowser::RenderImpl()
 		                SameLine();
 		                if (Button("Apply", ImVec2(100, 0)))
 		                {
-		                    static_cast<void>(ResourceManager::GetInstance().UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true));
+		                    static_cast<void>(resManInstance.UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true));
 		                }
 		            }
 		            break;
@@ -423,10 +432,12 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 
 void ResourceBrowser::RegisterAsset()
 {
-    auto absPaths = FileExplorer::OpenFileDialog(true, ResourceManager::GetInstance().GetRootDirectory());
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+
+    auto absPaths = FileExplorer::OpenFileDialog(true, resManInstance.GetRootDirectory());
     if (!absPaths.empty())
     {
-        std::filesystem::path assetRoot = ResourceManager::GetInstance().GetRootDirectory();
+        std::filesystem::path assetRoot = resManInstance.GetRootDirectory();
         std::filesystem::path normAssetRoot = std::filesystem::weakly_canonical(assetRoot);
         
         std::filesystem::path destinationBrowserDir = normAssetRoot;
@@ -439,7 +450,7 @@ void ResourceBrowser::RegisterAsset()
             
         for (auto &absPath : absPaths)
         {
-            if (!ResourceManager::GetInstance().IsAssetSupported(absPath))
+            if (!resManInstance.IsAssetSupported(absPath))
             {
                 m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
                 continue;
@@ -473,7 +484,7 @@ void ResourceBrowser::RegisterAsset()
                 relPath = relPathTemp;
             }
             
-            ResourceManager::GetInstance().RegisterAsset(relPath,
+            resManInstance.RegisterAsset(relPath,
                 [this](bool p_succeeded, const std::vector<MetaEntry>& entries)
                 {
                     if (p_succeeded && !entries.empty())

@@ -48,6 +48,7 @@ namespace Droplet::Scene
         /// @param p_guid GUID identifying the texture resource to load.
         void SetTextureGUID(Droplet::GUID p_guid) { m_2dTexture = ResourceManager::GetInstance().LoadResource<Droplet::Texture2DResource>(p_guid); }
 
+        //TODO: Consider moving to source file
         /// @brief Gets the GUID of the assigned 2D texture resource.
         /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
         [[nodiscard]] Droplet::GUID GetTextureGUID() const { return m_2dTexture.GetGUID(); }
@@ -84,7 +85,7 @@ namespace Droplet::Scene
     private:
         // Resource handles
         ResourceHandle<MeshResource> m_mesh {};
-        ResourceHandle<Texture2DResource> m_2dTexture {};
+        ResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
 
         // TODO: REWRITE AS MATERIAL
         struct ShaderResources
@@ -95,6 +96,17 @@ namespace Droplet::Scene
             ResourceHandle<ShaderResource> gs {};
             ResourceHandle<ShaderResource> fs {};
         } m_shaderData;
+
+        // Display Names
+
+		std::string m_meshDisplayName;
+		std::string m_textureDisplayName;
+
+        std::string m_vsDisplayName;
+        std::string m_tcsDisplayName;
+        std::string m_tesDisplayName;
+        std::string m_gsDisplayName;
+        std::string m_fsDisplayName;
 
         MeshNodeBounds m_bounds;
     };

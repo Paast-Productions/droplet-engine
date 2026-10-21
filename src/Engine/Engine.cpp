@@ -23,7 +23,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
+	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
 
 	ImGui_ImplSDL3_InitForVulkan(m_window.Get());
 	m_initInfo = {};
@@ -38,9 +38,11 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     ResourceManager &resManInstance = ResourceManager::GetInstance();
 	resManInstance.Initialize(assetDir);
     // Register scanners
+    // TODO: Don't hardcode accepted extensions in Engine constructor
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
     resManInstance.RegisterResourceType<MeshResource>();
@@ -163,6 +165,10 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 		}
 	}
 
+	// ResourceManager
+
+	ResourceManager::Get().Update();
+
 	// Rendering
 	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
@@ -173,9 +179,12 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+
 	
 	// Other system that need updating go here.
     ResourceManager::GetInstance().Update();
+
+
 
 	FrameMark;
 

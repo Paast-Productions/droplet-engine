@@ -75,23 +75,25 @@ void Scene::Unload()
     m_loaded = false;
 }
 
-void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) const
+void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
-    /*if (!m_loaded || !m_active)
+    //TODO: Add rendering conditions
+    if (!m_loaded /*|| !m_active*/)
     {
         return;
-    }*/
+    }
 
+    //TODO: Readd when editor user can toggle/change the flags in some way
     /*if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {*/
-    for (const auto &root : m_roots)
-    {
-        root->GetRenderData(p_renderData);
-    }
-    //}
+        for (const auto &root : m_roots)
+        {
+            root->GetRenderData(p_renderData);
+        }
+    /*}*/
 }
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make weak pointer

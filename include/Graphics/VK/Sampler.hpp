@@ -7,6 +7,7 @@
 
 namespace Droplet::Graphics::VK
 {
+	//TODO: Make sampler modular
 	class Sampler
 	{
 	public:

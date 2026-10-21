@@ -20,6 +20,7 @@
 namespace Droplet::Scene
 {
 
+    // TODO: Refactor after Material implementation
     struct NodeData
     {
         std::uint32_t meshID;

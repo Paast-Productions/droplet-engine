@@ -68,7 +68,7 @@ RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) 
 	glm::mat4x4 invWorldMat = glm::inverse(p_worldMat);
 	Ray localRay = Ray::Transform(p_ray, invWorldMat);
 
-	const auto &meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshComponent->GetMeshGUID());
+	const auto &meshHandle = m_meshComponent->GetMeshResource();
 	RayHit hit{};
 
 	if (!meshHandle.IsReady())
