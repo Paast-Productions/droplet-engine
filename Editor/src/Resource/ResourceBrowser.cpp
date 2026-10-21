@@ -1,10 +1,12 @@
 #include "Resource/ResourceBrowser.hpp"
+
+#include <IconFontCppHeaders/IconsLucide.h>
+
 #include "core/FileExplorer.hpp"
 #include "resource/meta/MetaUtils.hpp"
 #include "Editor/DragDropFields.hpp"
 
 #include <ImGui/imgui.h>
-#include <IconFontCppHeaders/IconsLucide.h>
 
 using namespace Droplet::Editor::Resource;
 
@@ -14,7 +16,7 @@ ResourceBrowser::ResourceBrowser(EditorContext *p_editorContext) : m_editorConte
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
-    BuildBrowserTree(m_editorContext->GetResourceManager().GetRegisteredResources());
+    BuildBrowserTree(ResourceManager::GetInstance().GetRegisteredResources());
 }
 
 void ResourceBrowser::RenderImpl()
@@ -22,6 +24,8 @@ void ResourceBrowser::RenderImpl()
 	using namespace ImGui;
     
     bool updatedRegistry = false;
+
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
     
     // --- Registering Resources ---
     
@@ -30,7 +34,7 @@ void ResourceBrowser::RenderImpl()
         RegisterAsset();
     }
     SameLine();
-    TextDisabled(std::filesystem::absolute(m_editorContext->GetResourceManager().GetRootDirectory()).string().c_str());
+    TextDisabled(std::filesystem::absolute(resManInstance.GetRootDirectory()).string().c_str());
     Separator();
     
     // --- Queued Popup Rendering ---
@@ -98,7 +102,7 @@ void ResourceBrowser::RenderImpl()
         {
             for (const auto &entry : currentEntries)
             {
-                m_editorContext->GetResourceManager().UpdateMetaEntry(entry.guid, entry);
+                static_cast<void>(resManInstance.UpdateMetaEntry(entry.guid, entry));
                 updatedRegistry = true;
             }
             
@@ -122,7 +126,7 @@ void ResourceBrowser::RenderImpl()
 	ImVec2 cursorStartPos = GetCursorPos();
 	ImVec2 listSize = ImVec2(windowSize.x * 0.5f, 0);
     
-    std::vector<const MetaEntry *> resources = m_editorContext->GetResourceManager().GetRegisteredResources();
+    std::vector<const MetaEntry *> resources = resManInstance.GetRegisteredResources();
     if (updatedRegistry)
     {
         BuildBrowserTree(resources);
@@ -284,7 +288,7 @@ void ResourceBrowser::RenderImpl()
 		                SameLine();
 		                if (Button("Apply", ImVec2(100, 0)))
 		                {
-		                    m_editorContext->GetResourceManager().UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true);
+		                    static_cast<void>(resManInstance.UpdateMetaEntry(m_selectedResourceGuid, m_inspectedEntry, true));
 		                }
 		            }
 		            break;
@@ -350,7 +354,7 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
     
     
     // Draw UI based on descriptor
-    auto schema = m_editorContext->GetResourceManager().GetSettingsSchema(p_entry.type);
+    auto schema = ResourceManager::GetInstance().GetSettingsSchema(p_entry.type);
     for (const auto &desc : schema)
     {
         if (!p_entry.loadSettings.contains(desc.key)) continue;
@@ -428,10 +432,12 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 
 void ResourceBrowser::RegisterAsset()
 {
-    auto absPaths = FileExplorer::OpenFileDialog(true, m_editorContext->GetResourceManager().GetRootDirectory());
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+
+    auto absPaths = FileExplorer::OpenFileDialog(true, resManInstance.GetRootDirectory());
     if (!absPaths.empty())
     {
-        std::filesystem::path assetRoot = m_editorContext->GetResourceManager().GetRootDirectory();
+        std::filesystem::path assetRoot = resManInstance.GetRootDirectory();
         std::filesystem::path normAssetRoot = std::filesystem::weakly_canonical(assetRoot);
         
         std::filesystem::path destinationBrowserDir = normAssetRoot;
@@ -444,7 +450,7 @@ void ResourceBrowser::RegisterAsset()
             
         for (auto &absPath : absPaths)
         {
-            if (!m_editorContext->GetResourceManager().IsAssetSupported(absPath))
+            if (!resManInstance.IsAssetSupported(absPath))
             {
                 m_unsupportedFilesList += "- " + absPath.filename().string() + "\n";
                 continue;
@@ -478,7 +484,7 @@ void ResourceBrowser::RegisterAsset()
                 relPath = relPathTemp;
             }
             
-            m_editorContext->GetResourceManager().RegisterAsset(relPath,
+            resManInstance.RegisterAsset(relPath,
                 [this](bool p_succeeded, const std::vector<MetaEntry>& entries)
                 {
                     if (p_succeeded && !entries.empty())

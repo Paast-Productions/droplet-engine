@@ -7,6 +7,11 @@
 //#include <SceneSystem/SerializationContext.hpp> 
 #include <SceneSystem/bounds/NodeBounds.hpp>
 
+namespace Droplet::Graphics
+{
+	struct RenderData;
+}
+
 namespace Droplet::Scene
 {
     class Node; // Forward declaration
@@ -55,6 +60,8 @@ namespace Droplet::Scene
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update([[maybe_unused]] float p_deltaTime);
+
+        virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -111,13 +118,6 @@ namespace Droplet::Scene
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
         
-		/// @brief Determines whether the component makes the Node renderable, components that are renderable should override this function and return true.
-		/// @return true if the component is renderable, otherwise false.
-        [[nodiscard]] virtual bool IsRenderable() const
-        {
-            return false;
-        }
-
         /// @brief Retrieves the components ID
         /// @return std::uint64_t m_id
         std::uint32_t GetID() const { return m_id; }
@@ -155,11 +155,17 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
         virtual void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) { }
 
+        //TODO: Edit/move this function and it corresponding member variable to match functionality requirements
+        /// @brief Sets the node to be renderable
+        [[nodiscard]] void SetRenderable() { m_renderable = true; }
+
     private:
         friend class Node;
 
 		bool m_started = false;
 		bool m_active = true;
+
+        bool m_renderable = false;
 
         std::weak_ptr<Node> m_owner{};
         std::uint64_t m_id = 0;

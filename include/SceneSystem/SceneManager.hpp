@@ -6,6 +6,8 @@
 #include <vector>
 #include <json/json.hpp>
 
+#include <Graphics/RenderData.hpp>
+
 namespace Droplet::Scene
 {
     class Scene;
@@ -95,11 +97,11 @@ namespace Droplet::Scene
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
         void Update(float p_deltaTime);
 
-        /// @brief Renders all active Scenes.
+        /// @brief Returns Renderdata for all active scenes
         ///
         /// @note This function is currently a placeholder and does not
         /// perform any rendering.
-        void Render();
+        [[nodiscard]] std::vector<Droplet::Graphics::RenderData> GetRenderData();
 
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize

@@ -23,15 +23,7 @@ namespace Droplet::Editor
 		/// @return A reference to the engine that this context is associated with.
 		[[nodiscard]] Droplet::Engine &GetEngine();
 		
-		/// @breif Get the renderer
-		/// @returns A custom renderer class
-		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
-		
-		/// @brief Get the resource manager.
-		/// @return A reference to the resource manager that this context is associated with.
-		[[nodiscard]] Droplet::ResourceManager &GetResourceManager();
-
-		/// @breif Get the EditorCamera
+		/// @brief Get the EditorCamera
 		/// @returns The Camera of the sceneView
 		[[nodiscard]] Scene::EditorCamera &GetEditorCamera();
 

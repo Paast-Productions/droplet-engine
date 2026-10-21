@@ -34,6 +34,15 @@
 !/Test
 !/Test/**
 
+# Docs
+!/Docs
+!/Docs/Image
+
+# Assets
+!/Assets
+!/Assets/Shader
+!/Assets/Shader/**
+
 # ////////////////////////////
 # |         SAMPLES          |
 # ////////////////////////////

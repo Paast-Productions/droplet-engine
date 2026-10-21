@@ -8,10 +8,9 @@
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <algorithm>
 
-
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window)
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
 {
 	ZoneScoped;
 
@@ -24,9 +23,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
+	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
 
-	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
+	ImGui_ImplSDL3_InitForVulkan(m_window.Get());
 	m_initInfo = {};
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
@@ -34,18 +33,22 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     ThreadPool::GetInstance().Initialize();
     
     // --- Setup Resource Manager ---
-    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
-    m_resourceManager.Initialize(assetDir);
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
+	// HACK: DON'T DO THIS
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+	resManInstance.Initialize(assetDir);
     // Register scanners
-    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
-    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
-    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    // TODO: Don't hardcode accepted extensions in Engine constructor
+    resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+	
     // Register resources
-    m_resourceManager.RegisterResourceType<Texture2DResource>();
-    m_resourceManager.RegisterResourceType<MeshResource>();
-    m_resourceManager.RegisterResourceType<SkinnedMeshResource>();
-    m_resourceManager.RegisterResourceType<AnimationResource>();
-    m_resourceManager.RegisterResourceType<ShaderResource>();
+    resManInstance.RegisterResourceType<Texture2DResource>();
+    resManInstance.RegisterResourceType<MeshResource>();
+    resManInstance.RegisterResourceType<SkinnedMeshResource>();
+	resManInstance.RegisterResourceType<AnimationResource>();
+    resManInstance.RegisterResourceType<ShaderResource>();
     // ------
 
 	// Register engine behaviours
@@ -80,7 +83,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget)
+DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
@@ -144,6 +147,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 
 	// Scenesystem
 	m_sceneManager.Update(Time::Get().GetDeltaTime());
+	
+	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
 	
 	// Script Behaviours
@@ -160,7 +165,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 	ResourceManager::Get().Update();
 
 	// Rendering
-	m_renderer.DrawFrame(p_camera, p_renderTarget);
+	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
+	//m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -171,6 +177,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 
 	
 	// Other system that need updating go here.
+    ResourceManager::GetInstance().Update();
 
 
 
@@ -179,28 +186,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
-{
-	// TODO: insert return statement here
-	return m_renderer.GetWindow();
-}
-
-Scene::SceneManager &Droplet::Engine::GetSceneManager()
-{
-	return m_sceneManager;
-}
-
-ResourceManager &Droplet::Engine::GetResourceManager()
-{
-	return m_resourceManager;
-}
-
-void Droplet::Engine::AddEventListener(EventListener p_listener)
-{
-	ZoneScoped;
-
-	m_eventListeners.push_back(p_listener);
-}
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
@@ -214,7 +199,12 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 }
 
-Graphics::Renderer &Engine::GetRenderer()
+Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
 {
-	return m_renderer;
+	return m_renderer.CreateRenderTarget(p_width, p_height);
+}
+
+VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
+{
+	return m_renderer.RegisterImGuiTexture(p_renderTarget);
 }

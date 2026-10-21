@@ -1,22 +1,34 @@
 #pragma once
 
 #include <stdexcept>
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/quaternion.hpp>
 #include <utility>
 #include <string>
 #include <vector>
 #include <memory>
 #include <algorithm>
-
-#include <Transform.hpp>
 #include <cstdint>
 #include <atomic>
+
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/quaternion.hpp>
+
+#include <Transform.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
+#include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene
 {
+
+    // TODO: Refactor after Material implementation
+    struct NodeData
+    {
+        std::uint32_t meshID;
+        std::uint32_t textureID;
+
+        glm::mat4 world;
+    };
+
     /// Forward declarations to avoid circular dependencies
     class Component;
     class Scene;
@@ -70,7 +82,7 @@ namespace Droplet::Scene
         ///
         /// @note Currently unused and does not perform any rendering.
         /// Rendering functionality may be moved.
-        void Render();
+        void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
 
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();

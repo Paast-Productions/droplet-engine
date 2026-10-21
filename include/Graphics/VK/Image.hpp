@@ -14,7 +14,10 @@ namespace Droplet::Graphics::VK
 	class Image
 	{
 	public:
-		Image() = delete;
+		Image()
+		{
+			m_image = nullptr;
+		}
 		
 		/// @brief Image Nullptr Constructor
 		/// @param p_nullptr Nullptr
@@ -40,9 +43,9 @@ namespace Droplet::Graphics::VK
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
 		Image(const vma::raii::Allocator &p_allocator,
-			Droplet::Graphics::VK::CommandPool &p_commandPool,
-			Droplet::Graphics::VK::Context &p_context,
-			const unsigned char *p_pixels,
+			const Droplet::Graphics::VK::CommandPool &p_commandPool,
+			const Droplet::Graphics::VK::Context &p_context,
+			const std::byte *p_pixels,
 			std::size_t p_size,
 			std::uint32_t p_width,
 			std::uint32_t p_height,

@@ -18,14 +18,19 @@ namespace Droplet::Editor::Scene
 	{
 	public:
 		/// @brief Constructor with a pointer to the editor context
-		/// @param EditorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(Droplet::Engine &p_engine, EditorContext *p_editorContext) : m_editorContext(p_editorContext){}
+		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
+		SceneViewWindow(EditorContext *p_editorContext) :
+			m_editorContext(p_editorContext) {}
 
 		~SceneViewWindow() = default;
 
+		// TODO: Possible <REFACTOR>
 		/// @brief Get the ScenViewWindow rendertarget
 		/// @returns custom RenderTarget class
 		Droplet::Graphics::RenderTarget &GetRenderTarget();
+		
+		void SetViewDescriptor(VkDescriptorSet p_textureDescriptor);
+		// TODO: Possible </REFACTOR> 
 
 	protected:
 
@@ -49,10 +54,10 @@ namespace Droplet::Editor::Scene
 		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The texture that the renderer will render to
-		std::unique_ptr<Droplet::Graphics::RenderTarget> m_renderTarget;
+		Graphics::RenderTarget m_renderTarget { nullptr };
 
 		/// @brief The texture that ImGui uses to render the scene in a ImGui window
-		VkDescriptorSet m_textureDescriptor = VK_NULL_HANDLE;
+		VkDescriptorSet m_textureDescriptorSet = VK_NULL_HANDLE;
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
