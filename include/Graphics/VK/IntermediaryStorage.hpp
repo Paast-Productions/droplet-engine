@@ -56,6 +56,7 @@ namespace Droplet::Graphics::VK
 
     struct Mesh
     {
+        bool valid = false;
         vk::Buffer vertexBuffer;
         vk::Buffer indexBuffer;
         std::uint32_t indexCount;
@@ -150,8 +151,9 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
         
         // TODO: <REFACTOR>
-        // Should return vk::raii::Pipeline instead
-        // New function for vk::raii::PipelineLayout needs to be created
+        // --   Should return vk::raii::Pipeline instead
+        //      New function for vk::raii::PipelineLayout needs to be created
+        // --   Refactor Get functions to have similar handling of invalid GUIDs
         
         [[nodiscard]] const Pipeline &GetPipeline(RenderData p_renderData, const vk::raii::Device& p_device, const vk::raii::PhysicalDevice& p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
         
@@ -159,7 +161,7 @@ namespace Droplet::Graphics::VK
             
         [[nodiscard]] const Mesh &GetMesh(RenderData p_renderData);
 
-        [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool);
+        [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result);
         
         // HACK: Temporary getter to be removed
         [[nodiscard]] const vk::raii::Sampler &GetSampler() const { return m_textureSampler.Get(); }

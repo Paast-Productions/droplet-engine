@@ -1,7 +1,8 @@
 #include "IntermediaryStorage.hpp"
 
 #include <vector>
-
+#include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 #include <Graphics/VK/ShaderModule.hpp> 
 #include <Debug/Logger.hpp>
 
@@ -23,6 +24,7 @@ IntermediaryStorage::IntermediaryStorage(Context &p_context) :
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
+    ZoneScoped;
     // TRY FINDING ALREADY CREATED PIPELINE
     
     PipelineKey key 
@@ -34,94 +36,91 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         .fsGuid = p_renderData.fsData.GUID
     };
     
-    try
+    auto it = m_pipelineMap.find(key);
+
+    if (it != m_pipelineMap.end())
     {
         return m_pipelineMap.at(key);
-    } 
-    catch (const std::exception &) 
-    {
-        /*Debug::Logger& logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());*/
     }
-    
+
     // IF FAILED, CREATE NEW
-    ResourceManager &RMInstance = ResourceManager::GetInstance();
+    ResourceManager& RMInstance = ResourceManager::GetInstance();
     ResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
     ResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
     ResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
     ResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
     ResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
-    
-    if 
+
+    if
     (
         !(vs.IsReady() || vs.HasFailed())
     )
     {
-        throw std::runtime_error("Shaders for pipeline not ready");
+        return nullptr;
     }
-    
-    std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec {};
-    
+
+    std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec{};
+
     // Vertex Shader
-    
-    ShaderModule vsModule { nullptr };
+
+    ShaderModule vsModule{ nullptr };
     if (vs.IsReady())
     {
         ShaderResource* vsRes = vs.Get();
-        vsModule = ShaderModule { p_device, vsRes->GetByteCode() };
+        vsModule = ShaderModule{ p_device, vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     else if (vs.IsValid())
     {
-        throw std::runtime_error("Vertex Shader is not ready");
+        return nullptr;
     }
-    
-    ShaderModule tcsModule { nullptr };
+
+    ShaderModule tcsModule{ nullptr };
     if (tcs.IsReady())
     {
         ShaderResource* tcsRes = tcs.Get();
-        tcsModule = ShaderModule { p_device, tcsRes->GetByteCode() };
+        tcsModule = ShaderModule{ p_device, tcsRes->GetByteCode() };
         shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     else if (tcs.IsValid())
     {
-        throw std::runtime_error("Tessellation Control Shader is not ready");
+        return nullptr;
     }
-    
-    ShaderModule tesModule { nullptr };
+
+    ShaderModule tesModule{ nullptr };
     if (tes.IsReady())
     {
         ShaderResource* tesRes = tes.Get();
-        tesModule = ShaderModule { p_device, tesRes->GetByteCode() };
+        tesModule = ShaderModule{ p_device, tesRes->GetByteCode() };
         shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     else if (tes.IsValid())
     {
-        throw std::runtime_error("Tessellation Evaluation Shader is not ready");
+        return nullptr;
     }
-    
-    ShaderModule gsModule { nullptr };
+
+    ShaderModule gsModule{ nullptr };
     if (gs.IsReady())
     {
         ShaderResource* gsRes = gs.Get();
-        gsModule = ShaderModule { p_device, gsRes->GetByteCode() };
+        gsModule = ShaderModule{ p_device, gsRes->GetByteCode() };
         shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     else if (gs.IsValid())
     {
-        throw std::runtime_error("Geometry Shader is not ready");
+        return nullptr;
     }
-    
-    ShaderModule fsModule { nullptr };
+
+    ShaderModule fsModule{ nullptr };
     if (fs.IsReady())
     {
         ShaderResource* fsRes = fs.Get();
-        fsModule = ShaderModule { p_device, fsRes->GetByteCode() };
+        fsModule = ShaderModule{ p_device, fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
-    } 
+    }
     else if (fs.IsValid())
     {
-        throw std::runtime_error("Fragment Shader is not ready");
+        return nullptr;
     }
     
     std::vector<vk::DescriptorSetLayout> descriptorSetLayouts{};
@@ -129,74 +128,80 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         descriptorSetLayouts.push_back(*descriptorSet.GetLayout());
     }
-    
-    m_pipelineMap[key] = Pipeline 
+
+    m_pipelineMap[key] = Pipeline
     {
-        p_device, 
+        p_device,
         p_physicalDevice,
         descriptorSetLayouts,
         shaderVec,
         p_surfaceFormat
     };
+    
     return m_pipelineMap.at(key);
 }
 
 const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
 {
+    ZoneScoped;
+
     MeshKey key
     {
         .meshGUID = p_renderData.meshData.GUID
     };
+    
+    auto it = m_indexMap.find(key);
 
-    try
+    if (it == m_indexMap.end())
+    {
+        ResourceManager& RMInstance = ResourceManager::GetInstance();
+        ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
+
+        if (!(meshRes.IsReady() || meshRes.HasFailed()))
+        {
+            Mesh m;
+            m.valid = false;
+            return m;
+        }
+
+        m_vertexMap[key] = VertexBuffer{ m_allocator.Get(), meshRes.Get()->GetVertexData() };
+        m_indexMap[key] = IndexBuffer{ m_allocator.Get(), meshRes.Get()->GetIndexData() };
+
+        Mesh mesh
+        {
+            .valid = true,
+            .vertexBuffer = m_vertexMap.at(key).Get(),
+            .indexBuffer = m_indexMap.at(key).Get(),
+            .indexCount = m_indexMap.at(key).GetIndexCount()
+        };
+
+        return mesh;
+    }
+    else
     {
         Mesh mesh
         {
+            .valid = true,
             .vertexBuffer = m_vertexMap.at(key).Get(),
             .indexBuffer = m_indexMap.at(key).Get(),
             .indexCount = m_indexMap.at(key).GetIndexCount()
         };
         return mesh;
     }
-    catch (const std::exception &err)
-    {
-        Debug::Logger &logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
-    }
-
-    ResourceManager &RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
-
-    if (!(meshRes.IsReady() || meshRes.HasFailed()))
-    {
-        throw std::runtime_error("Mesh not ready");
-    }
-
-    m_vertexMap[key] = VertexBuffer { m_allocator.Get(), meshRes.Get()->GetVertexData()};
-    m_indexMap[key] = IndexBuffer { m_allocator.Get(), meshRes.Get()->GetIndexData()};
-
-    Mesh mesh
-    {
-        .vertexBuffer = m_vertexMap.at(key).Get(),
-        .indexBuffer = m_indexMap.at(key).Get(),
-        .indexCount = m_indexMap.at(key).GetIndexCount()
-    };
-
-    return mesh;
 }
 
-std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool)
+std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result)
 {
+    ZoneScoped;
+
     std::uint64_t guid = p_renderData.texData.GUID;
     
-    try
+    auto it = m_textureGuidMap.find(guid);
+
+    if (it != m_textureGuidMap.end())
     {
+        result = true;
         return m_textureGuidMap.at(guid);
-    }
-    catch (const std::exception& err)
-    {
-        Debug::Logger& logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
     }
 
     ResourceManager& RMInstance = ResourceManager::GetInstance();
@@ -204,7 +209,8 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
 
     if (!(texRes.IsReady() || texRes.HasFailed()))
     {
-        throw std::runtime_error("Texture not ready");
+        result = false;
+        return 0;
     }
 
     m_imageMap.emplace_back(
@@ -229,22 +235,13 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
-    
-    try
-    {
-        const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
-        m_descriptorSets.at(descriptorSetIndex).WriteDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get(), destIndex);
-    }
-    catch (const std::exception &)
-    {
-        m_viewMap.erase(m_viewMap.end());
-        m_imageMap.erase(m_imageMap.end());
 
-        throw std::runtime_error("Failed to write image sampler descriptor!");
-    }
+    const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
+    m_descriptorSets.at(descriptorSetIndex).WriteDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get(), destIndex);
 
-    m_textureGuidMap[guid] = destIndex;
+    m_textureGuidMap[guid] = m_viewMap.size() - 1;
 
+    result = true;
     return m_textureGuidMap.at(guid);
 }
 

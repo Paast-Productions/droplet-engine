@@ -50,3 +50,6 @@
 !/Samples
 !/Samples/**
 src/Graphics/VK/Shaders/slang.spv
+
+!/GameData
+!/GameData/**
