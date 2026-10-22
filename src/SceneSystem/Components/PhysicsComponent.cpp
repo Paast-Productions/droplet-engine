@@ -379,6 +379,15 @@ void PhysicsComponent::RenderUIImpl()
 			ImGui::InputFloat("Cylinder height", &h, 0.1f, 1.0f, "%.3f");
 			break;
 		}
+	case 4: // Convex hull collider
+		{
+			if (!meshComponents.empty())
+			{
+				ImGui::Text("Input edge radius:");
+				ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
+				ImGui::SetItemTooltip("Values <= 0.0 sets to default value of %.2f", JPH::cDefaultConvexRadius);
+			}
+		}
 	case 3: // Mesh collider
 		{   
 			if (meshComponents.empty())
@@ -429,11 +438,6 @@ void PhysicsComponent::RenderUIImpl()
 				}
 			}
 			
-			break;
-		}
-	case 4:
-		{
-			// TODO: Implement convex hull
 			break;
 		}
 	case 5:
@@ -489,6 +493,17 @@ void PhysicsComponent::RenderUIImpl()
 			break;
 		case 3: // Mesh collider
 			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
+			break;
+		case 4:
+			if (r == 0.0f)
+			{
+				displayError = true;
+				break;
+			}
+			SetConvexHullCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), r, JPH::Vec3(offsetX, offsetY, offsetZ));
+			break;
+		case 5:
+			// TODO: Implement compound shape
 			break;
 		default:
 			break;
