@@ -166,7 +166,7 @@ void NodeInspectorWindow::RenderImpl()
 			auto cameraComponent =
 				dynamic_cast<Droplet::Scene::CameraComponent *>(newComp.get());
 
-			if (cameraComponent)
+			if (cameraComponent)      
 			{
 				cameraComponent->SetCamera(&m_editorContext->GetEditorCamera());
 			}

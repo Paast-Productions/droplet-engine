@@ -11,7 +11,7 @@ namespace Droplet::Scene
 {
     /// @brief Component representing a camera attached to a scene Node.
     ///
-    /// Temporarily controls the editor camera by following a target Node.
+    /// Temporarily controls the editor camera by attaching to a Node.
     /// The editor camera is borrowed and is not owned by this component.
     class CameraComponent : public Component
     {
@@ -28,20 +28,6 @@ namespace Droplet::Scene
         [[nodiscard]] std::string_view GetTypeName() const override
         {
             return "CameraComponent";
-        }
-
-        /// @brief Sets the Node the camera should follow.
-        /// @param p_target Node to follow.
-        void SetTarget(const std::shared_ptr<Node> &p_target)
-        {
-            m_target = p_target;
-        }
-
-        /// @brief Gets the Node the camera follows.
-        /// @return The target Node, or nullptr if it no longer exists.
-        [[nodiscard]] std::shared_ptr<Node> GetTarget() const
-        {
-            return m_target.lock();
         }
 
         /// @brief Sets the camera offset relative to the target.
@@ -72,6 +58,6 @@ namespace Droplet::Scene
         std::weak_ptr<Node> m_target;
 
         // Offset from the target's world position.
-        glm::vec3 m_offset{ 0.0f, 2.0f, -5.0f };
+        glm::vec3 m_offset{1.5f, 0.0f, 0.0f};
     };
 }
