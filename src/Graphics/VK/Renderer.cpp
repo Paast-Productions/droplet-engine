@@ -262,7 +262,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
-
+	
 	for (const RenderData& data : p_renderData)
 	{
 
@@ -418,9 +418,12 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 {	
 	ZoneScoped;
 
+	auto &device = m_context.GetDevice();
+	auto &queue = m_context.GetQueue();
+
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
 	//while renderFinishedSemaphores is indexed by imageIndex
-	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
+	auto fenceResult = device.waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
 	if (fenceResult != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to wait for fence!");
@@ -431,18 +434,18 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 	
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
-	if (m_result == vk::Result::eErrorOutOfDateKHR)
+	if (result == vk::Result::eErrorOutOfDateKHR)
 	{
 		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&m_event);
 		}
 
-		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
+		m_swapchain.Cleanup(device);
+		m_swapchain.Recreate(device, m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
-			m_context.GetDevice(),
+			device,
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
 		};
@@ -469,7 +472,7 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 	
 	// Only reset the fence if we are submitting work
-	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
+	device.resetFences(*m_inFlightFences[m_frameIndex]);
 
 	ImGui::EndFrame();
 	ImGui::Render();
@@ -508,7 +511,7 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 		.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex]
 	};
 	
-	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
+	queue.submit(submitInfo, *m_inFlightFences[m_frameIndex]);
 
 	const vk::PresentInfoKHR presentInfoKHR
 	{
@@ -519,7 +522,7 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 		.pImageIndices = &imageIndex
 	};
 	
-	result = m_context.GetQueue().presentKHR(presentInfoKHR);
+	result = queue.presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
@@ -529,11 +532,11 @@ void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::v
 		{
 			SDL_WaitEvent(&m_event);
 		}
-		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
+		m_swapchain.Cleanup(device);
+		m_swapchain.Recreate(device, m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
 		m_depthBuffer = {
 			m_interStorage.GetAllocator(),
-			m_context.GetDevice(),
+			device,
 			m_context.GetPhysicalDevice(),
 			m_swapchain.GetExtent()
 		};

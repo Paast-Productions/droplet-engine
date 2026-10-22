@@ -65,7 +65,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule tcsModule{ nullptr };
-        if (tcs.IsReady())
+        if (tcs.IsReady() && tcs.Get()->GetType() == ShaderResource::ShaderType::TessellationControl)
         {
             ShaderResource* tcsRes = tcs.Get();
             tcsModule = ShaderModule{ p_device, tcsRes->GetByteCode() };
@@ -77,7 +77,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule tesModule{ nullptr };
-        if (tes.IsReady())
+        if (tes.IsReady() && tes.Get()->GetType() == ShaderResource::ShaderType::TessellationEvaluation)
         {
             ShaderResource* tesRes = tes.Get();
             tesModule = ShaderModule{ p_device, tesRes->GetByteCode() };
@@ -89,7 +89,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule gsModule{ nullptr };
-        if (gs.IsReady())
+        if (gs.IsReady() && gs.Get()->GetType() == ShaderResource::ShaderType::Geometry)
         {
             ShaderResource* gsRes = gs.Get();
             gsModule = ShaderModule{ p_device, gsRes->GetByteCode() };
@@ -101,7 +101,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule fsModule{ nullptr };
-        if (fs.IsReady())
+        if (fs.IsReady() && fs.Get()->GetType() == ShaderResource::ShaderType::Fragment)
         {
             ShaderResource* fsRes = fs.Get();
             fsModule = ShaderModule{ p_device, fsRes->GetByteCode() };

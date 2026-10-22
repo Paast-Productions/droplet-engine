@@ -154,15 +154,9 @@ namespace Droplet::Graphics
 		std::uint32_t m_imGuiPoolSize;
 
 		VkFormat m_imGuiColorFormat;
-
-		//Needs one buffer per frame in flight to avoid read write issues
-		
 		
 		//Index for rendered frames
 		std::uint32_t m_frameIndex = 0;
-
-		//Latest received swapchain result
-		vk::Result m_result;
 
 		bool m_framebufferResized = false;
 		
