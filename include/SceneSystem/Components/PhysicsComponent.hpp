@@ -15,6 +15,14 @@ namespace Droplet::Scene
 	class PhysicsComponent : public Component
 	{
 	public:
+		/// @brief A struct containing necessary data to create a compound shape collider
+		struct CompoundShape
+		{
+			glm::vec3 Pos = glm::vec3(0.0f, 0.0f, 0.0f);
+			glm::quat Rot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+			JPH::ShapeSettings *Shape = nullptr;
+		};
+		
 		PhysicsComponent() = default;
 		/// @brief Destructs the physics component by removing and destroying the physics body
 		~PhysicsComponent() override;
@@ -59,6 +67,10 @@ namespace Droplet::Scene
 		/// @param p_offset The offset position from the nodes position, negative values defaults to Jolts value
 		void SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius = -1.0f,
 			const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
+		
+		/// @brief Set a compound shape collider, merges multiple shapes into one shape
+		/// @param p_shapes A vector containing data for each shape
+		void SetCompoundCollider(const std::vector<CompoundShape> &p_shapes);
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
@@ -115,7 +127,8 @@ namespace Droplet::Scene
 			Sphere,
 			Capsule,
 			Mesh,
-			ConvexHull
+			ConvexHull,
+			Compound
 		}m_shapeType = ShapeType::None;
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;

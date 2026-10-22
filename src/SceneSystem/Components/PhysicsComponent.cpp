@@ -7,6 +7,7 @@
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
@@ -143,6 +144,18 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh
 	m_shapeType = ShapeType::ConvexHull;
 }
 
+void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_shapes)
+{
+	JPH::Ref<JPH::StaticCompoundShapeSettings> compoundSettings = new JPH::StaticCompoundShapeSettings();
+	for (const CompoundShape &shape : p_shapes)
+	{
+		compoundSettings->AddShape(GLMtoJPH(shape.Pos), GLMtoJPH(shape.Rot), shape.Shape);
+	}
+	
+	CreateCollider(compoundSettings);
+	m_shapeType = ShapeType::Compound;
+}
+
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
 	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
@@ -225,6 +238,9 @@ void PhysicsComponent::RenderUIImpl()
 			break;
 		case ShapeType::ConvexHull:
 			shapeType += "Convex Hull";
+			break;
+		case ShapeType::Compound:
+			shapeType += "Compound";
 			break;
 		}
 		
@@ -454,7 +470,12 @@ void PhysicsComponent::RenderUIImpl()
 		}
 	case 4:
 		{
-			// TODO: Implement
+			// TODO: Implement convex hull
+			break;
+		}
+	case 5:
+		{
+			// TODO: Implement compound shape
 			break;
 		}
 	default:
