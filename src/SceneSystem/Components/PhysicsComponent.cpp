@@ -388,7 +388,11 @@ void PhysicsComponent::RenderUIImpl()
 				meshGuids.reserve(meshComponents.size());
 				for (const std::shared_ptr<MeshComponent> &m : meshComponents)
 				{
-					meshGuids.push_back(std::to_string(m->GetMeshGUID()));
+					Droplet::MetaEntry metaEntry{};
+					if (Droplet::ResourceManager::Get().GetResourceMetaEntry(m->GetMeshGUID(), metaEntry))
+					{
+						meshGuids.push_back(metaEntry.displayName);
+					}
 				}
 
 				// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
