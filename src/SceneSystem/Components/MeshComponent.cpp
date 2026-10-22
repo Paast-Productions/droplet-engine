@@ -324,74 +324,63 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
     // Shader GUIDS
 
-    if (!p_compJson.contains("vs"))
+    if (p_compJson.contains("vs"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'vs'");
+        SetVSGUID(p_compJson["vs"]);
     }
-    if (!p_compJson.contains("tcs"))
+    if (p_compJson.contains("tcs"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'tcs'");
+        SetTCSGUID(p_compJson["tcs"]);
     }
-    if (!p_compJson.contains("tes"))
+    if (p_compJson.contains("tes"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'tes'");
+        SetTESGUID(p_compJson["tes"]);
     }
-    if (!p_compJson.contains("gs"))
+    if (p_compJson.contains("gs"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'gs'");
+        SetGSGUID(p_compJson["gs"]);
     }
-    if (!p_compJson.contains("fs"))
+    if (p_compJson.contains("fs"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'fs'");
+        SetFSGUID(p_compJson["fs"]);
+
     }
 
-    SetVSGUID(p_compJson["vs"]);
-    SetTCSGUID(p_compJson["tcs"]);
-    SetTESGUID(p_compJson["tes"]);
-    SetGSGUID(p_compJson["gs"]);
-    SetFSGUID(p_compJson["fs"]);
 
 	// Names
 
-	if (!p_compJson.contains("meshDisplayName"))
+	if (p_compJson.contains("meshDisplayName"))
 	{
-        throw std::runtime_error("Meshcomponent missing required field 'meshDisplayName'");
-	}
-    m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+        m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+    }
 
-	if (!p_compJson.contains("textureDisplayName"))
+	if (p_compJson.contains("textureDisplayName"))
 	{
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
-	}
-    m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+        m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+    }
 
 
     // Shader Names
 
-    if (!p_compJson.contains("vsName"))
+    if (p_compJson.contains("vsName"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+        m_vsDisplayName = p_compJson["vsName"].get<std::string>();
     }
-    if (!p_compJson.contains("tcsName"))
+    if (p_compJson.contains("tcsName"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+        m_tcsDisplayName = p_compJson["tcsName"].get<std::string>();
     }
-    if (!p_compJson.contains("tesName"))
+    if (p_compJson.contains("tesName"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+        m_tesDisplayName = p_compJson["tesName"].get<std::string>();
     }
-    if (!p_compJson.contains("gsName"))
+    if (p_compJson.contains("gsName"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+        m_gsDisplayName = p_compJson["gsName"].get<std::string>();
     }
-    if (!p_compJson.contains("fsName"))
+    if (p_compJson.contains("fsName"))
     {
-        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+        m_fsDisplayName = p_compJson["fsName"].get<std::string>();
     }
 
-    m_vsDisplayName = p_compJson["vsName"].get<std::string>();
-    m_tcsDisplayName = p_compJson["tcsName"].get<std::string>();
-    m_tesDisplayName = p_compJson["tesName"].get<std::string>();
-    m_gsDisplayName = p_compJson["gsName"].get<std::string>();
-    m_fsDisplayName = p_compJson["fsName"].get<std::string>();
 }
