@@ -314,49 +314,47 @@ void SceneViewWindow::RenderImpl()
 		}
 	}
 
-	if (m_hoveringSceneView && !m_cameraLookToggled)
+	static bool isDragging = false;
+	static ImVec2 dragStartPos;
+
+	if (!isDragging && m_hoveringSceneView && !m_cameraLookToggled)
 	{
-		static bool isDragging = false;
-		static ImVec2 dragStartPos;
-		ImVec2 dragEndPos;
-
-		if (isDragging)
-		{
-			if (input.MouseReleased(Mouse::LMB) || !input.MouseHeld(Mouse::LMB))
-			{
-				isDragging = false;
-
-				// TODO: Select nodes within the world tile
-			}
-
-			dragEndPos = ImGui::GetIO().MousePos;
-
-			glm::vec4 rect {
-				std::min(dragStartPos.x, dragEndPos.x),
-				std::min(dragStartPos.y, dragEndPos.y),
-				std::max(dragStartPos.x, dragEndPos.x),
-				std::max(dragStartPos.y, dragEndPos.y)
-			};
-
-			glm::vec4 rectNormalized {
-				(rect.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
-				(rect.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y),
-				(rect.z - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
-				(rect.w - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
-			};
-			
-			Math::Frustum rectFrustum = camera.ViewRectToWorldTile(rectNormalized);
-
-			//rectFrustum.GetNear().Slide(0.05f);
-
-			DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 1.0f, 1.0f, 0.2f), false);
-			DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), false, true);
-
-		}
-		else if (input.MousePressed(Mouse::LMB))
+		if (input.MousePressed(Mouse::LMB))
 		{
 			isDragging = true;
 			dragStartPos = ImGui::GetIO().MousePos;
+		}
+	}
+	else if (isDragging)
+	{
+		ImVec2 dragEndPos = ImGui::GetIO().MousePos;
+
+		glm::vec4 rect{
+			std::min(dragStartPos.x, dragEndPos.x),
+			std::min(dragStartPos.y, dragEndPos.y),
+			std::max(dragStartPos.x, dragEndPos.x),
+			std::max(dragStartPos.y, dragEndPos.y)
+		};
+
+		glm::vec4 rectNormalized{
+			(rect.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
+			(rect.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y),
+			(rect.z - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
+			(rect.w - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
+		};
+
+		Math::Frustum rectFrustum = camera.ViewRectToWorldTile(rectNormalized);
+
+		rectFrustum.GetNear().Slide(2.0f);
+
+		DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 1.0f, 1.0f, 0.1f), false);
+		DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 0.0f, 1.0f, 0.65f), false, true);
+
+		if (input.MouseReleased(Mouse::LMB) || !input.MouseHeld(Mouse::LMB))
+		{
+			isDragging = false;
+
+			// TODO: Select nodes within the world tile
 		}
 	}
 	
