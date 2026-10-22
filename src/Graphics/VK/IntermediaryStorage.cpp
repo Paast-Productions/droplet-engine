@@ -236,9 +236,9 @@ VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid, Comman
 {
     ZoneScoped;
 
-    auto it = m_textureGuidMap.find(p_guid);
+    auto it = m_imGuiTexMap.find(p_guid);
 
-    if (it != m_textureGuidMap.end())
+    if (it != m_imGuiTexMap.end())
     {
 		return m_imGuiTexMap[p_guid].descriptorSet;
     }

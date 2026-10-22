@@ -365,7 +365,7 @@ void ResourceBrowser::DrawResourceInspector(const MetaEntry &p_entry)
 	float settingsHeight = GetItemRectSize().y;
 	SetCursorPosY(cursorStartPos.y + settingsHeight - GetTextLineHeightWithSpacing() / 2);
 	SeparatorText("Preview");
-	SetCursorPosY(cursorStartPos.y + settingsHeight);
+	SetCursorPosY(cursorStartPos.y + settingsHeight + GetTextLineHeightWithSpacing() / 2);
 
 	BeginChild("Resource Preview");
 	DrawResourcePreview(m_inspectedEntry);
@@ -521,7 +521,9 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
 
 			SetCursorPos(previewPos);
-			Image(textureRef, scaledImageSize, ImVec2(0, 0), ImVec2(1, 1));
+			BeginChild("Preview Image", scaledImageSize);
+			Image(textureRef, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
+			EndChild();
 		}
 
 		break;
