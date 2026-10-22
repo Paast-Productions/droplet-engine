@@ -61,10 +61,7 @@ namespace Droplet::Graphics
 
 		/// @brief Destructor
 		~Renderer();
-		
-		/// @brief Renders a singular frame
-		void DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-		
+				
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
 		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);

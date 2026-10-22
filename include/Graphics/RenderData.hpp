@@ -11,6 +11,8 @@ namespace Droplet::Graphics
         glm::mat4 world{};
         glm::float32_t time{ 0 };
         std::uint32_t textureID{ 0 };
+        glm::vec3 cameraDir{};
+        glm::vec3 cameraPos{};
     };
 
     struct ShaderData
