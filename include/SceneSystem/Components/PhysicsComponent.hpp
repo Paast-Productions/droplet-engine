@@ -13,6 +13,8 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <resource/GuidUtils.hpp>
+#include <SceneSystem/Physics/MeshColliderManager.h>
 
 namespace Droplet::Scene
 {
@@ -43,13 +45,13 @@ namespace Droplet::Scene
 			{
 				Shape = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
 			}
-			void SetMeshCollider(const Droplet::MeshResource *p_mesh)
+			void SetMeshCollider(const Droplet::GUID p_meshGuid)
 			{
-				Shape = new JPH::MeshShapeSettings(CreateMeshShapeSettings(p_mesh));
+				Shape = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
 			}
-			void SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius = 0.0f)
+			void SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f)
 			{
-				Shape = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_mesh, p_edgeRadius));
+				Shape = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_meshGuid, p_edgeRadius));
 			}
 		};
 		
@@ -87,15 +89,15 @@ namespace Droplet::Scene
 		void SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a mesh collider
-		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_meshGuid The GUID of the mesh
 		/// @param p_offset The offset position from the nodes position
-		void SetMeshCollider(const Droplet::MeshResource *p_mesh, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
+		void SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		
 		/// @brief Set a convex hull collider
 		/// @param p_mesh The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		/// @param p_offset The offset position from the nodes position
-		void SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius = 0.0f,
+		void SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f,
 			const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		
 		/// @brief Set a compound shape collider, merges multiple shapes into one shape
@@ -150,14 +152,10 @@ namespace Droplet::Scene
 		/// @brief Applies the simulated Jolt transform to the Node Transform
 		void PullTransformFromPhysics();
 		
-		/// @brief Helper function creating mesh collider shape settings
-		/// @param p_mesh The mesh resource to make a collider of
-		static JPH::MeshShapeSettings CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh);
-		
 		/// @brief Helper function creating convex hull shape settings
 		/// @param p_mesh The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
-		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::MeshResource *p_mesh, float p_edgeRadius = 0.0f);
+		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
 		enum class ShapeType : std::uint8_t
 		{

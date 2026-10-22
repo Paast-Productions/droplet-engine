@@ -12,6 +12,10 @@
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <SceneSystem/Physics/MeshColliderManager.h>
+#include <resource/GuidUtils.hpp>
+
+#include "IntermediaryStorage.hpp"
 
 using namespace Droplet::Scene;
 
@@ -67,26 +71,27 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 	m_shapeType = ShapeType::Capsule;
 }
 
-void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
+	if (m_shapeType != ShapeType::None)
 	{
 		RemoveCollider();
 	}
 	
-	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(CreateMeshShapeSettings(p_mesh));
+	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
+	
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 }
 
-void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
+	if (m_shapeType != ShapeType::None)
 	{
 		RemoveCollider();
 	}
 	
-	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_mesh, p_edgeRadius));
+	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_meshGuid, p_edgeRadius));
 	CreateCollider(convexSettings, p_offset);
 	m_shapeType = ShapeType::ConvexHull;
 }
@@ -382,27 +387,34 @@ void PhysicsComponent::RenderUIImpl()
 			}
 			else
 			{
-				ImGui::Text("Choose mesh:");
 				
-				std::vector<std::string> meshGuids;
-				meshGuids.reserve(meshComponents.size());
+				std::vector<std::string> meshNames;
+				meshNames.reserve(meshComponents.size());
 				for (const std::shared_ptr<MeshComponent> &m : meshComponents)
 				{
 					Droplet::MetaEntry metaEntry{};
 					if (Droplet::ResourceManager::Get().GetResourceMetaEntry(m->GetMeshGUID(), metaEntry))
 					{
-						meshGuids.push_back(metaEntry.displayName);
+						meshNames.push_back(metaEntry.displayName);
 					}
 				}
+				
+				if (meshComponents.size() != meshNames.size())
+				{
+					ImGui::Text("There's no valid mesh components on this node!");
+					break;
+				}
 
+				ImGui::Text("Choose mesh:");
+				
 				// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
-				const char* comboPreviewValue2 = meshGuids[selectedMeshIdx].c_str();
+				const char* comboPreviewValue2 = meshNames[selectedMeshIdx].c_str();
 				if (ImGui::BeginCombo("Mesh GUID", comboPreviewValue2, 0))
 				{
 					for (std::size_t n = 0; n < meshComponents.size(); n++)
 					{
 						const bool isSelected = (selectedMeshIdx == n);
-						if (ImGui::Selectable(meshGuids[n].c_str(), isSelected))
+						if (ImGui::Selectable(meshNames[n].c_str(), isSelected))
 						{
 							selectedMeshIdx = n;
 						}
@@ -476,7 +488,7 @@ void PhysicsComponent::RenderUIImpl()
 			SetCapsuleCollider(r, h, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 3: // Mesh collider
-			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().Get(), JPH::Vec3(offsetX, offsetY, offsetZ));
+			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		default:
 			break;
@@ -566,49 +578,17 @@ void PhysicsComponent::PullTransformFromPhysics()
 	m_transform->SetRotation(rot);
 }
 
-JPH::MeshShapeSettings PhysicsComponent::CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh)
+JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)
 {
-	// Make a Jolt array for vertices
-	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
-	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
-	
-	JPH::VertexList joltVertices{};
-	joltVertices.reserve(C_VERTEX_COUNT);
-	
-	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
-	for (std::size_t i = 0; i < C_VERTEX_COUNT; i++)
-	{
-		JPH::Float3 pos;
-		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Float3));
-		
-		joltVertices.emplace_back(pos);
-	}
-
-	// Make a Jolt array for triangles based of indices
-	JPH::IndexedTriangleList triangles;
-	std::vector<std::uint32_t> indexData = p_mesh->GetIndexData();
-	std::size_t nrOfIndices = indexData.size();
-	for (std::size_t i = 0; i < nrOfIndices; i += 3)
-	{
-		triangles.emplace_back(
-			indexData[i],
-			indexData[i + 1],
-			indexData[i + 2]
-		);
-	}
-
-	return JPH::MeshShapeSettings(std::move(joltVertices), std::move(triangles));
-}
-
-JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::MeshResource* p_mesh, float p_edgeRadius)
-{
-	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
-	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
+	ResourceHandle<MeshResource> meshHandle = ResourceManager::Get().LoadResource<MeshResource>(p_meshGuid);
+	MeshResource *mesh = meshHandle.Get();
+	const std::size_t C_BYTES_PER_VERTEX = mesh->GetVertexByteSize();
+	const std::size_t C_VERTEX_COUNT = mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
 	
 	JPH::Array<JPH::Vec3> points;
 	points.reserve(C_VERTEX_COUNT);
 	
-	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
+	std::vector<std::byte> vertexData = mesh->GetVertexData();
 	for (size_t i = 0; i < C_VERTEX_COUNT; ++i)
 	{
 		JPH::Vec3 pos;

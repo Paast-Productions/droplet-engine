@@ -231,7 +231,7 @@ static void PhysicsTest()
     seafloor->AddComponent(seafloorComp);
 	auto seafloorComponets = seafloor->GetComponents<PhysicsComponent>();
     seafloorComponets[0]->Initialize(s->GetPhysics(), &seafloor->GetTransform());
-    seafloorComponets[0]->SetMeshCollider(rh.Get());
+    seafloorComponets[0]->SetMeshCollider(rh.GetGUID());
 
     std::unique_ptr<Component> playerComp = ComponentFactory::CreateComponent("PhysicsComponent");
     player->AddComponent(playerComp);
