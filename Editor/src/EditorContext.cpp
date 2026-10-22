@@ -16,13 +16,6 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 
 void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 {
-	//if (m_selectedScene && m_selectedScene->GetName() == p_sceneName)
-	//{
-	//	return;
-	//}
-	
-	//m_engine.GetSceneManager().LoadScene(p_sceneName);
-	
 	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
 	m_engine.GetSceneManager().ActivateScene(p_sceneName); // TODO: Set active is not set active??
 
