@@ -232,6 +232,24 @@ function OnUpdate(dt)
         trans:Move(toMove, TransformSpace.World)
     end
 
+    if Input:KeyHeld(Key.A) then
+        print("A pressed")
+        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
+        -- trans:Move(toMove, TransformSpace.World)
+    end
+
+    if Input:KeyHeld(Key.S) then
+        print("S pressed")
+        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), -1.0), dt)
+        trans:Move(toMove, TransformSpace.World)
+    end
+
+    if Input:KeyHeld(Key.D) then
+        print("D pressed")
+        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
+        -- trans:Move(toMove, TransformSpace.World)
+    end
+
     tracy.ZoneEnd()
 end
 
