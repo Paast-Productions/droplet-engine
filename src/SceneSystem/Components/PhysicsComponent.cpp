@@ -29,7 +29,7 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 {
 	if (m_shapeType != ShapeType::None)
 	{
-		return;
+		RemoveCollider();
 	}
 
 	JPH::Ref<JPH::BoxShapeSettings> boxSettings = new JPH::BoxShapeSettings(p_halfExtents);
@@ -39,11 +39,6 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 
 void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
-	{
-		return;
-	}
-
 	SetBoxCollider(JPH::Vec3(p_halfExtents.x, p_halfExtents.y, p_halfExtents.z), p_offset);
 }
 
@@ -51,7 +46,7 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 {
 	if (m_shapeType != ShapeType::None)
 	{
-		return;
+		RemoveCollider();
 	}
 
 	JPH::Ref<JPH::SphereShapeSettings> sphereSettings = new JPH::SphereShapeSettings(p_radius);
@@ -63,7 +58,7 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 {
 	if (m_shapeType != ShapeType::None)
 	{
-		return;
+		RemoveCollider();
 	}
 
 	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
@@ -75,7 +70,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, cons
 {
 	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
 	{
-		return;
+		RemoveCollider();
 	}
 
 	// Make a Jolt array for vertices
@@ -114,6 +109,11 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, cons
 
 void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius, const JPH::Vec3 &p_offset)
 {
+	if (m_shapeType != ShapeType::None || p_mesh == nullptr)
+	{
+		RemoveCollider();
+	}
+	
 	// Make a Jolt array for vertices
 	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
 	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
