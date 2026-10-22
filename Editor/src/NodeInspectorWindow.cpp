@@ -5,6 +5,7 @@
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
 #include <ImGui/ImGuiUtils.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Editor;
 
@@ -160,6 +161,16 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
+		if (selectedComponentName == "CameraComponent")
+		{
+			auto cameraComponent =
+				dynamic_cast<Droplet::Scene::CameraComponent *>(newComp.get());
+
+			if (cameraComponent)
+			{
+				cameraComponent->SetCamera(&m_editorContext->GetEditorCamera());
+			}
+		}
 		m_currentNode->AttachComponent(newComp);
 	}
 
