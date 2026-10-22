@@ -140,7 +140,7 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh
 		convexSettings = new JPH::ConvexHullShapeSettings(points, p_edgeRadius);
 	}
 	CreateCollider(convexSettings, p_offset);
-	m_shapeType = ShapeType::Mesh;
+	m_shapeType = ShapeType::ConvexHull;
 }
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
