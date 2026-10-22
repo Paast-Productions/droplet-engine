@@ -155,6 +155,18 @@ void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 	m_layer = p_objectLayer;
 }
 
+void PhysicsComponent::SetActive(bool p_active)
+{
+	if (p_active)
+	{
+		m_physics->GetBodyInterface()->ActivateBody(m_bodyID);
+	}
+	else
+	{
+		m_physics->GetBodyInterface()->DeactivateBody(m_bodyID);
+	}
+}
+
 void PhysicsComponent::RemoveCollider()
 {
 	if (m_shapeType != ShapeType::None)

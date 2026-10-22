@@ -73,6 +73,10 @@ namespace Droplet::Scene
 		/// @param p_objectLayer The object layer to be set
 		void SetObjectLayer(const Layers p_objectLayer);
 		
+		/// @brief Activate or deactivate the physics body
+		/// @param p_active True to activate, false to deactivate
+		void SetActive(bool p_active);
+		
 		void RemoveCollider();
 
 	protected:
