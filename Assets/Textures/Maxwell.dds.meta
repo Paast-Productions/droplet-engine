@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Maxwell",
+            "guid": 4589835762757455367,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Maxwell",
+            "type": 1
+        }
+    ]
+}
