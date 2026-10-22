@@ -71,6 +71,9 @@ namespace Droplet
 		/// @return A vkDescriptorSet 
 		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
 
+		VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid);
+		void RemoveImGuiTexture(GUID p_guid);
+
 		/// @brief Creates and returns a rendertarget   //TODO: REFACTOR
 		/// @param p_width Width of the target
 		/// @param p_height Height of the target
