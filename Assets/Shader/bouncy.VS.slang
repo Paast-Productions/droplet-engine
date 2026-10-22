@@ -1,6 +1,8 @@
 struct PushConstants
 {
     float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
     float32_t time;
     uint32_t sampler;
 };
@@ -17,6 +19,7 @@ struct VSInput
 struct VSOutput
 {
     float4 pos : SV_Position;
+    float4 wPos;
     float4 fragNormal;
     float2 fragTexCoord;
 };
@@ -27,12 +30,12 @@ struct UniformBuffer
     float4x4 proj;
 };
 
-layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
+layout(set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp; 
 
 [shader("vertex")]
 VSOutput main(VSInput input) {
     VSOutput output;
-    float4 pos = float4(input.inPosition.x + sin(pc.time), input.inPosition.y, input.inPosition.z, 1.0);
+    float4 pos = float4(input.inPosition.x, input.inPosition.y + 0.05 * sin(pc.time * 20), input.inPosition.z, 1.0);
     output.pos = mul(vp.proj, mul(vp.view, mul(pc.world, pos)));
     output.fragTexCoord = input.inTexCoord;
     output.fragNormal = float4(input.inNormal, 1.0);

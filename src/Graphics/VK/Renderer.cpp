@@ -284,10 +284,10 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		PushConstantData pcData
 		{
 			.world = data.transform,
+			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
+			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
 			.time = Time::Get().GetRuntime(),
-			.textureID = texID,
-			.cameraDir = p_camera.GetForward(),
-			.cameraPos = p_camera.GetPosition()
+			.textureID = texID
 		};
 
 		vk::PushConstantsInfo pcInfo

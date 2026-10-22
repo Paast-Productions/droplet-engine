@@ -53,7 +53,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         // Vertex Shader
 
         ShaderModule vsModule{ nullptr };
-        if (vs.IsReady())
+        if (vs.IsReady() && vs.Get()->GetType() == ShaderResource::ShaderType::Vertex)
         {
             ShaderResource* vsRes = vs.Get();
             vsModule = ShaderModule{ p_device, vsRes->GetByteCode() };

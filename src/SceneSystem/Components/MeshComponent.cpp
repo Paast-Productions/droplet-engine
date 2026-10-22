@@ -200,7 +200,7 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
             m_vsDisplayName,
@@ -214,7 +214,7 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
             m_tcsDisplayName,
@@ -228,7 +228,7 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
             m_tesDisplayName,
@@ -242,7 +242,7 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
             m_gsDisplayName,
@@ -256,7 +256,7 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
             m_fsDisplayName,

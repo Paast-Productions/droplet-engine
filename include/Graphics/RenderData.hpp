@@ -9,10 +9,10 @@ namespace Droplet::Graphics
     struct PushConstantData
     {
         glm::mat4 world{};
+        float cameraDir[4]{};
+        float cameraPos[4]{};
         glm::float32_t time{ 0 };
         std::uint32_t textureID{ 0 };
-        glm::vec3 cameraDir{};
-        glm::vec3 cameraPos{};
     };
 
     struct ShaderData

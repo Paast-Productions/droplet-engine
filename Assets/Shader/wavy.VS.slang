@@ -1,6 +1,8 @@
 struct PushConstants
 {
     float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
     float32_t time;
     uint32_t sampler;
 };

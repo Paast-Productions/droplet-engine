@@ -1,6 +1,8 @@
 struct PushConstants
 {
     float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
     float32_t time;
     uint32_t sampler;
 };
@@ -39,5 +41,6 @@ VSOutput main(VSInput input)
     output.pos = mul(vp.proj, mul(vp.view, output.wPos));
     output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     output.fragTexCoord = input.inTexCoord;
+    output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     return output;
 }

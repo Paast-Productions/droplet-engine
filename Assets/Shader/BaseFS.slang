@@ -1,10 +1,10 @@
 struct PushConstants
 {
     float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
     float32_t time;
     uint32_t sampler;
-    float3 cameraDir;
-    float3 cameraPos;
 };
 
 [[vk::push_constant]] PushConstants pc;
@@ -24,7 +24,7 @@ float4 main(FSInput vertIn) : SV_TARGET
 {
     float3 colour = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y)).rgb;
 
-    float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.pos.xyz);
+    float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
 
     float viewDotNormal = abs(dot(vertIn.fragNormal.xyz, camToFrag));
     colour *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
