@@ -26,7 +26,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 5,
+            "id": 8,
             "name": "GoofySon",
             "transform": {
                 "position": [
@@ -72,7 +72,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 3,
+            "id": 9,
             "name": "GoofyDaughter",
             "transform": {
                 "position": [
@@ -98,7 +98,7 @@
         {
             "data": {
                 "fs": 3575449250532881688,
-                "fsName": "",
+                "fsName": "BaseFS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "goofy_reference.smd.003",
@@ -110,13 +110,13 @@
                 "textureDisplayName": "GoofyTexture",
                 "textureGUID": 3915176569535287159,
                 "vs": 17704871794447121608,
-                "vsName": ""
+                "vsName": "BaseVS"
             },
             "id": 1,
             "type": "MeshComponent"
         }
     ],
-    "id": 4,
+    "id": 7,
     "name": "GoofyDadOfTwo",
     "transform": {
         "position": [

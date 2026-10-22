@@ -196,7 +196,10 @@ void MeshComponent::RenderUIImpl()
         }
         
         Separator();
-        
+
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if(ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
@@ -208,7 +211,9 @@ void MeshComponent::RenderUIImpl()
             SetVSGUID(newGUID);
             m_vsDisplayName = newName;
         }
-        
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if(ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
@@ -220,7 +225,9 @@ void MeshComponent::RenderUIImpl()
             SetTCSGUID(newGUID);
             m_tcsDisplayName = newName;
         }
-        
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if(ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
@@ -232,7 +239,9 @@ void MeshComponent::RenderUIImpl()
             SetTESGUID(newGUID);
             m_tcsDisplayName = newName;
         }
-        
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if(ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
@@ -244,7 +253,9 @@ void MeshComponent::RenderUIImpl()
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
         }
-        
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
         if(ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
@@ -378,9 +389,9 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
         throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
     }
 
-    m_vsDisplayName = p_compJson["vsName"];
-    m_tcsDisplayName = p_compJson["tcsName"];
-    m_tesDisplayName = p_compJson["tesName"];
-    m_gsDisplayName = p_compJson["gsName"];
-    m_fsDisplayName = p_compJson["fsName"];
+    m_vsDisplayName = p_compJson["vsName"].get<std::string>();
+    m_tcsDisplayName = p_compJson["tcsName"].get<std::string>();
+    m_tesDisplayName = p_compJson["tesName"].get<std::string>();
+    m_gsDisplayName = p_compJson["gsName"].get<std::string>();
+    m_fsDisplayName = p_compJson["fsName"].get<std::string>();
 }
