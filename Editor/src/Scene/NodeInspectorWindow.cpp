@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
-#include <ImGui/ImGuiUtils.hpp>
+#include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
