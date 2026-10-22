@@ -1,3 +1,5 @@
+//Values that are quick to receive in the shader but have limited space, 128-256 bytes
+//pc.sampler is used for finding the texture in the Sampler2D array
 struct PushConstants
 {
     float4x4 world;
@@ -9,6 +11,7 @@ struct PushConstants
 
 [[vk::push_constant]] PushConstants pc;
 
+//Definition of shader input values, must match vertex shader otherwise incorrect data will be read
 struct FSInput 
 {
     float4 pos : SV_Position;
@@ -17,6 +20,8 @@ struct FSInput
     float2 fragTexCoord;
 };
 
+//Normally you would add a sampler without the "[]" but in bindless all used textures are bound to the same descriptor
+//To access a specific texture, the CPU sends the index through the PushConstants sampler.
 layout(set = 0, binding = 1) Sampler2D texture[];
 
 [shader("fragment")]

@@ -41,6 +41,5 @@ VSOutput main(VSInput input)
     output.pos = mul(vp.proj, mul(vp.view, output.wPos));
     output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     output.fragTexCoord = input.inTexCoord;
-    output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     return output;
 }

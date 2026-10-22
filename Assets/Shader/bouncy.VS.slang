@@ -36,8 +36,9 @@ layout(set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 VSOutput main(VSInput input) {
     VSOutput output;
     float4 pos = float4(input.inPosition.x, input.inPosition.y + 0.05 * sin(pc.time * 20), input.inPosition.z, 1.0);
-    output.pos = mul(vp.proj, mul(vp.view, mul(pc.world, pos)));
+    output.wPos = mul(pc.world, pos);
+    output.pos = mul(vp.proj, mul(vp.view, output.wPos));
     output.fragTexCoord = input.inTexCoord;
-    output.fragNormal = float4(input.inNormal, 1.0);
+    output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     return output;
 }

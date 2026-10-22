@@ -62,10 +62,6 @@ namespace
                         p_outDisplayName = entryPtr->displayName;
                         changed = true;
                     }
-                    else
-                    {
-
-                    }
                 }
             }
             if (const ImGuiPayload *pl =
