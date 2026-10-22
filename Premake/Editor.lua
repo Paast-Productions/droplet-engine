@@ -69,7 +69,8 @@ project "Editor"
         "json",
         "tracy",
         "IconFontCppHeaders",
-        "PortableFileDialogs"
+        "PortableFileDialogs",
+        "Lua"
     }
 
     files 
@@ -93,5 +94,5 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("lua_static")
     }
