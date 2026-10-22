@@ -17,6 +17,7 @@ struct VSInput
 struct VSOutput
 {
     float4 pos : SV_Position;
+    float4 wPos;
     float4 fragNormal;
     float2 fragTexCoord;
 };
@@ -30,11 +31,13 @@ struct UniformBuffer
 layout (set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 
 [shader("vertex")]
-VSOutput main(VSInput input) {
+VSOutput main(VSInput input) 
+{
     VSOutput output;
-    float4 pos = float4(input.inPosition.x, input.inPosition.y, input.inPosition.z, 1.0);
-    output.pos = mul(vp.proj, mul(vp.view, mul(pc.world, pos)));
+    float4 pos = float4(input.inPosition.xyz, 1.0);
+    output.wPos = mul(pc.world, pos);
+    output.pos = mul(vp.proj, mul(vp.view, output.wPos));
+    output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
     output.fragTexCoord = input.inTexCoord;
-    output.fragNormal = float4(input.inNormal, 1.0);
     return output;
 }
