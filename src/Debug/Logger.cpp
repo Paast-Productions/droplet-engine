@@ -40,7 +40,7 @@ void Logger::Log(LogType p_type, const std::string &p_msg,
     Push(logEntry);
 }
 
-void Logger::WriteToJsonFile()
+void Logger::WriteLogsAsync()
 {
     if (GetInstance().m_queue.IsEmpty()) return;
 
@@ -49,6 +49,13 @@ void Logger::WriteToJsonFile()
 	{
 		ProcessQueue();
 	});
+}
+
+void Logger::Update()
+{
+    if (GetInstance().m_queue.IsEmpty()) return;
+
+    WriteLogsAsync();
 }
 
 void Logger::ProcessQueue()
@@ -102,6 +109,8 @@ void Logger::Push(LogEntry &p_in)
 {
     std::scoped_lock<std::mutex> lock(m_mutex);
     m_queue.Push(std::move(p_in));
+
+    //WriteToJsonFile();
 }
 
 bool Logger::Pop(LogEntry &p_out)

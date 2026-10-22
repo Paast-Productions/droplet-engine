@@ -60,8 +60,10 @@ namespace Droplet::Debug
 			return s_logger;
 		}
 
-		/// @brief Initiates the process of writing queued log entries to the JSON file.
-		void WriteToJsonFile();
+		/// @brief Asynchronously writes queued log entries to the JSON file.
+		void WriteLogsAsync();
+
+		void Update();
 
 	private:
 		/// @brief Processes queued log entries on the background thread.

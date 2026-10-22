@@ -21,6 +21,8 @@
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 
+#include <Debug/Logger.hpp>
+
 namespace Droplet
 {
 	enum class DROPLET_RETURNTYPE
@@ -120,5 +122,7 @@ namespace Droplet
 
 		/// @brief Registers all components owned by the engine.
 		void RegisterComponents();
+
+		Droplet::Debug::Logger& log = Droplet::Debug::Logger::GetInstance();
 	};
 }

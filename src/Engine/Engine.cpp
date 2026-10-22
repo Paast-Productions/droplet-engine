@@ -87,6 +87,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 {
 	ZoneScoped;
 
+	log.Update();
+
 	// Time
 	Time::Get().Update();
 
