@@ -45,9 +45,11 @@ namespace Droplet::Scene
 			}
 			void SetMeshCollider(const Droplet::MeshResource *p_mesh)
 			{
+				Shape = new JPH::MeshShapeSettings(CreateMeshShapeSettings(p_mesh));
 			}
 			void SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius = 0.0f)
 			{
+				Shape = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_mesh, p_edgeRadius));
 			}
 		};
 		
@@ -147,6 +149,15 @@ namespace Droplet::Scene
 
 		/// @brief Applies the simulated Jolt transform to the Node Transform
 		void PullTransformFromPhysics();
+		
+		/// @brief Helper function creating mesh collider shape settings
+		/// @param p_mesh The mesh resource to make a collider of
+		static JPH::MeshShapeSettings CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh);
+		
+		/// @brief Helper function creating convex hull shape settings
+		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
+		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::MeshResource *p_mesh, float p_edgeRadius = 0.0f);
 		
 		enum class ShapeType : std::uint8_t
 		{

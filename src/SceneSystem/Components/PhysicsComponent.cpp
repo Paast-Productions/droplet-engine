@@ -73,37 +73,8 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, cons
 	{
 		RemoveCollider();
 	}
-
-	// Make a Jolt array for vertices
-	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
-	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
 	
-	JPH::VertexList joltVertices{};
-	joltVertices.reserve(C_VERTEX_COUNT);
-	
-	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
-	for (std::size_t i = 0; i < C_VERTEX_COUNT; i++)
-	{
-		JPH::Float3 pos;
-		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Float3));
-		
-		joltVertices.emplace_back(pos);
-	}
-
-	// Make a Jolt array for triangles based of indices
-	JPH::IndexedTriangleList triangles;
-	std::vector<std::uint32_t> indexData = p_mesh->GetIndexData();
-	std::size_t nrOfIndices = indexData.size();
-	for (std::size_t i = 0; i < nrOfIndices; i += 3)
-	{
-		triangles.emplace_back(
-			indexData[i],
-			indexData[i + 1],
-			indexData[i + 2]
-		);
-	}
-
-	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(std::move(joltVertices), std::move(triangles));
+	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(CreateMeshShapeSettings(p_mesh));
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 }
@@ -115,31 +86,7 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh
 		RemoveCollider();
 	}
 	
-	// Make a Jolt array for vertices
-	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
-	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
-	
-	JPH::Array<JPH::Vec3> points;
-	points.reserve(C_VERTEX_COUNT);
-	
-	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
-	for (size_t i = 0; i < C_VERTEX_COUNT; ++i)
-	{
-		JPH::Vec3 pos;
-		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Vec3));
-		
-		points.emplace_back(pos);
-	}
-	
-	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = nullptr;
-	if (p_edgeRadius < 0.0f)
-	{
-		convexSettings = new JPH::ConvexHullShapeSettings(points);
-	}
-	else
-	{
-		convexSettings = new JPH::ConvexHullShapeSettings(points, p_edgeRadius);
-	}
+	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_mesh, p_edgeRadius));
 	CreateCollider(convexSettings, p_offset);
 	m_shapeType = ShapeType::ConvexHull;
 }
@@ -613,4 +560,62 @@ void PhysicsComponent::PullTransformFromPhysics()
 
 	m_transform->SetPosition(pos);
 	m_transform->SetRotation(rot);
+}
+
+JPH::MeshShapeSettings PhysicsComponent::CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh)
+{
+	// Make a Jolt array for vertices
+	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
+	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
+	
+	JPH::VertexList joltVertices{};
+	joltVertices.reserve(C_VERTEX_COUNT);
+	
+	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
+	for (std::size_t i = 0; i < C_VERTEX_COUNT; i++)
+	{
+		JPH::Float3 pos;
+		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Float3));
+		
+		joltVertices.emplace_back(pos);
+	}
+
+	// Make a Jolt array for triangles based of indices
+	JPH::IndexedTriangleList triangles;
+	std::vector<std::uint32_t> indexData = p_mesh->GetIndexData();
+	std::size_t nrOfIndices = indexData.size();
+	for (std::size_t i = 0; i < nrOfIndices; i += 3)
+	{
+		triangles.emplace_back(
+			indexData[i],
+			indexData[i + 1],
+			indexData[i + 2]
+		);
+	}
+
+	return JPH::MeshShapeSettings(std::move(joltVertices), std::move(triangles));
+}
+
+JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::MeshResource* p_mesh, float p_edgeRadius)
+{
+	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
+	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
+	
+	JPH::Array<JPH::Vec3> points;
+	points.reserve(C_VERTEX_COUNT);
+	
+	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
+	for (size_t i = 0; i < C_VERTEX_COUNT; ++i)
+	{
+		JPH::Vec3 pos;
+		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Vec3));
+		
+		points.emplace_back(pos);
+	}
+	
+	if (p_edgeRadius <= 0.0f)
+	{
+		return JPH::ConvexHullShapeSettings(points);
+	}
+	return JPH::ConvexHullShapeSettings(points, p_edgeRadius);
 }
