@@ -1,0 +1,377 @@
+{
+    "name": "GoofyFishScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 1,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -5.947973728179932,
+                    -2.336909532546997,
+                    -0.7196341156959534
+                ],
+                "rotation": [
+                    0.4670136272907257,
+                    -0.660709798336029,
+                    0.3392082452774048,
+                    0.4798944592475891
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 2,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -4.866005897521973,
+                    -4.823347568511963,
+                    -3.181870937347412
+                ],
+                "rotation": [
+                    -0.009060785174369812,
+                    0.01003229059278965,
+                    0.6701889634132385,
+                    0.7420673966407776
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 3,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -1.2711745500564575,
+                    -3.832188367843628,
+                    -0.18746763467788696
+                ],
+                "rotation": [
+                    -0.06747252494096756,
+                    0.9382637739181519,
+                    0.024332985281944275,
+                    0.33840304613113403
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 4,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -2.803910732269287,
+                    -1.9711006879806519,
+                    0.28077515959739685
+                ],
+                "rotation": [
+                    5.477356171468273e-05,
+                    0.3805409371852875,
+                    -0.00014145813474897295,
+                    0.9247641563415527
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 5,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -1.323979139328003,
+                    -0.5958895087242126,
+                    -0.0595998615026474
+                ],
+                "rotation": [
+                    0.017872948199510574,
+                    0.20189698040485382,
+                    -0.08636151999235153,
+                    0.9754281044006348
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 6,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -5.004528522491455,
+                    -1.544727087020874,
+                    0.1239665225148201
+                ],
+                "rotation": [
+                    -5.740621986660699e-07,
+                    -0.3155873417854309,
+                    8.668795089761261e-06,
+                    0.948896586894989
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "goofy_reference.smd.003",
+                        "meshGUID": 3560615082615574069,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "GoofyTexture",
+                        "textureGUID": 3915176569535287159,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 7,
+            "name": "GoofyFish",
+            "transform": {
+                "position": [
+                    -4.863819599151611,
+                    -4.738495826721191,
+                    -5.084122657775879
+                ],
+                "rotation": [
+                    -0.05612196773290634,
+                    0.9113722443580627,
+                    0.02505836822092533,
+                    0.40696799755096436
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

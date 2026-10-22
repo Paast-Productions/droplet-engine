@@ -260,15 +260,16 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     }
     ImGui::SameLine();
-    
+    static int sceneNumber = 0;
     if (ImGui::Button("New Scene"))
     {
-        std::string name = "New Scene";
+        std::string name = "New Scene" +(sceneNumber);
 
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
         std::strncpy(fileName, name.c_str(), sizeof(fileName) - 1);
         fileName[sizeof(fileName) - 1] = '\0';
+        sceneNumber++;
     }
 
     ImGui::SameLine();
