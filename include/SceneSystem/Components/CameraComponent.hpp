@@ -13,6 +13,7 @@ namespace Droplet::Scene
     ///
     /// Temporarily controls the editor camera by attaching to a Node.
     /// The editor camera is borrowed and is not owned by this component.
+    /// TODO: Should handle multiple cameras and scene cameras not the editor camera like it is now.
     class CameraComponent : public Component
     {
     public:

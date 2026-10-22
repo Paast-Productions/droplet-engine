@@ -198,6 +198,7 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
+		//HACK: SHOULD NOT DO THIS
 		if (selectedComponentName == "CameraComponent")
 		{
 			auto cameraComponent =
