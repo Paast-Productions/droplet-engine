@@ -16,7 +16,7 @@ namespace Droplet::Scene
 	{
 	public:
 		PhysicsComponent() = default;
-		~PhysicsComponent();
+		~PhysicsComponent() override;
 
 		/// @brief Initializes the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
@@ -78,12 +78,11 @@ namespace Droplet::Scene
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
-
 	private:
 		/// @brief Helper function for creating collider body
 		/// @param p_shapeSettings The shape settings for the collider body
 		/// @throw std::runtime_error Mesh collider could not be created
-		void CreateCollider(JPH::ShapeSettings &p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
+		void CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Sends transform changes from the game engine to Jolt
 		void PushTransformToPhysics();

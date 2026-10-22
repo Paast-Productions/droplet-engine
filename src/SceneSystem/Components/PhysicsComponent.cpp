@@ -31,7 +31,7 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 		return;
 	}
 
-	JPH::BoxShapeSettings boxSettings(p_halfExtents);
+	JPH::Ref<JPH::BoxShapeSettings> boxSettings = new JPH::BoxShapeSettings(p_halfExtents);
 	CreateCollider(boxSettings, p_offset);
 	m_shapeType = ShapeType::Box;
 }
@@ -53,7 +53,7 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 		return;
 	}
 
-	JPH::SphereShapeSettings sphereSettings(p_radius);
+	JPH::Ref<JPH::SphereShapeSettings> sphereSettings = new JPH::SphereShapeSettings(p_radius);
 	CreateCollider(sphereSettings, p_offset);
 	m_shapeType = ShapeType::Sphere;
 }
@@ -65,7 +65,7 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 		return;
 	}
 
-	JPH::CapsuleShapeSettings capsuleSettings(p_HalfHeightOfCylinder, p_radius);
+	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
 	CreateCollider(capsuleSettings, p_offset);
 	m_shapeType = ShapeType::Capsule;
 }
@@ -106,7 +106,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, cons
 		);
 	}
 
-	JPH::MeshShapeSettings meshSettings(std::move(joltVertices), std::move(triangles));
+	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(std::move(joltVertices), std::move(triangles));
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 }
@@ -475,9 +475,14 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	// TODO: Deserialize
 }
 
-void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings, const JPH::Vec3 &p_offset)
+void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset)
 {
-	JPH::RotatedTranslatedShapeSettings offsetSettings(p_offset, JPH::Quat::sIdentity(), &p_shapeSettings);
+	if (m_physics == nullptr)
+	{
+		throw std::runtime_error("Physics system is null");
+	}
+
+	JPH::RotatedTranslatedShapeSettings offsetSettings(p_offset, JPH::Quat::sIdentity(), p_shapeSettings);
 	
 	JPH::ShapeSettings::ShapeResult result = offsetSettings.Create();
 
@@ -495,6 +500,10 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings &p_shapeSettings, const
 	bodySettings.mMassPropertiesOverride = JPH::MassProperties(1.0f);
 
 	JPH::Body *body = m_physics->GetBodyInterface()->CreateBody(bodySettings);
+	if (body == nullptr)
+	{
+		throw std::runtime_error("Failed to create Jolt body");
+	}
 	m_bodyID = body->GetID();
 
 	m_physics->GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
