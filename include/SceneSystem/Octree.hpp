@@ -136,8 +136,8 @@ namespace Droplet::Scene
 		std::string BoundingBoxToGraphviz(const Math::AABB &p_aabb, const std::string &p_nodeName,
 			const std::string &p_label, const std::string &p_color);
 
-		static constexpr std::uint8_t C_MAX_CHILDREN = 8;
-		static constexpr std::uint8_t C_MAX_DEPTH = 8;
+		static constexpr std::uint8_t C_MAX_NODES = 16;
+		static constexpr std::uint8_t C_MAX_DEPTH = 4;
 
 		struct TreeNode
 		{
