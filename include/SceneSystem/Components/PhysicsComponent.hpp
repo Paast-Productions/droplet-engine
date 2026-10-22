@@ -16,6 +16,7 @@ namespace Droplet::Scene
 	{
 	public:
 		PhysicsComponent() = default;
+		/// @brief Destructs the physics component by removing and destroying the physics body
 		~PhysicsComponent() override;
 
 		/// @brief Initializes the PhysicsComponent
@@ -77,6 +78,7 @@ namespace Droplet::Scene
 		/// @param p_active True to activate, false to deactivate
 		void SetActive(bool p_active);
 		
+		/// @brief Removes the collider body from the physics simulation
 		void RemoveCollider();
 
 	protected:
