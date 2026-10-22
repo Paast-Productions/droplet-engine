@@ -29,23 +29,35 @@ namespace Droplet::Scene
 		
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
+		/// @param p_offset The offset position from the nodes position
 		void SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		/// @brief Set a box collider
 		/// @param p_halfExtents Vector of the half extents of the box
+		/// @param p_offset The offset position from the nodes position
 		void SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a sphere collider
 		/// @param p_radius Radius of the sphere
+		/// @param p_offset The offset position from the nodes position
 		void SetSphereCollider(const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a capsule collider
 		/// @param p_HalfHeightOfCylinder Half height of the cylinder part of the capsule
 		/// @param p_radius Radius of the capsule
+		/// @param p_offset The offset position from the nodes position
 		void SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set a mesh collider
 		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_offset The offset position from the nodes position
 		void SetMeshCollider(const Droplet::MeshResource *p_mesh, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
+		
+		/// @brief Set a convex hull collider
+		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_edgeRadius The radius of the edges of the collider
+		/// @param p_offset The offset position from the nodes position, negative values defaults to Jolts value
+		void SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius = -1.0f,
+			const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
@@ -96,7 +108,8 @@ namespace Droplet::Scene
 			Box,
 			Sphere,
 			Capsule,
-			Mesh
+			Mesh,
+			ConvexHull
 		}m_shapeType = ShapeType::None;
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;

@@ -6,6 +6,7 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
@@ -111,6 +112,37 @@ void PhysicsComponent::SetMeshCollider(const Droplet::MeshResource *p_mesh, cons
 	m_shapeType = ShapeType::Mesh;
 }
 
+void PhysicsComponent::SetConvexHullCollider(const Droplet::MeshResource *p_mesh, float p_edgeRadius, const JPH::Vec3 &p_offset)
+{
+	// Make a Jolt array for vertices
+	const std::size_t C_BYTES_PER_VERTEX = p_mesh->GetVertexByteSize();
+	const std::size_t C_VERTEX_COUNT = p_mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;
+	
+	JPH::Array<JPH::Vec3> points;
+	points.reserve(C_VERTEX_COUNT);
+	
+	std::vector<std::byte> vertexData = p_mesh->GetVertexData();
+	for (size_t i = 0; i < C_VERTEX_COUNT; ++i)
+	{
+		JPH::Vec3 pos;
+		std::memcpy(&pos, vertexData.data() + i * C_BYTES_PER_VERTEX, sizeof(JPH::Vec3));
+		
+		points.emplace_back(pos);
+	}
+	
+	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = nullptr;
+	if (p_edgeRadius < 0.0f)
+	{
+		convexSettings = new JPH::ConvexHullShapeSettings(points);
+	}
+	else
+	{
+		convexSettings = new JPH::ConvexHullShapeSettings(points, p_edgeRadius);
+	}
+	CreateCollider(convexSettings, p_offset);
+	m_shapeType = ShapeType::Mesh;
+}
+
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
 	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
@@ -179,7 +211,11 @@ void PhysicsComponent::RenderUIImpl()
 		case ShapeType::Mesh:
 			shapeType += "Mesh";
 			break;
+		case ShapeType::ConvexHull:
+			shapeType += "Convex Hull";
+			break;
 		}
+		
 		ImGui::Text(shapeType.c_str());
 		
 		// Display the current motion type 
@@ -307,7 +343,7 @@ void PhysicsComponent::RenderUIImpl()
 	}
 	
 	// ========== Collider type menu ==========
-	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh" };
+	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull" };
 	static int selectedColliderIdx = 0; // Here we store our selection data as an index.
 
 	const char* comboPreviewValue1 = colliderTypes[selectedColliderIdx];
@@ -402,6 +438,11 @@ void PhysicsComponent::RenderUIImpl()
 				}
 			}
 			
+			break;
+		}
+	case 4:
+		{
+			// TODO: Implement
 			break;
 		}
 	default:
