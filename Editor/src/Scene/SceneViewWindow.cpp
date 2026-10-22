@@ -213,17 +213,20 @@ void SceneViewWindow::RenderImpl()
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 
-	// Check if the mouse is hovering over the scene view
 	m_hoveringSceneView = ImGui::IsItemHovered();
 
 	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	ImVec2 imageMin = ImGui::GetItemRectMin();
+	ImVec2 imageMax = ImGui::GetItemRectMax();
+
+	const EditorCamera &camera = m_editorContext->GetEditorCamera();
 
 	if (isWindowFocused)
 	{
 		bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
 
 		GameInput &input = GameInput::Get();
-		const EditorCamera &camera = m_editorContext->GetEditorCamera();
 		EditorCameraController &controller = m_editorContext->GetEditorCameraController();
 
 		// Get the mouse position relative to the camera view rect
@@ -308,6 +311,52 @@ void SceneViewWindow::RenderImpl()
 			}
 
 			input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
+		}
+	}
+
+	if (m_hoveringSceneView && !m_cameraLookToggled)
+	{
+		static bool isDragging = false;
+		static ImVec2 dragStartPos;
+		ImVec2 dragEndPos;
+
+		if (isDragging)
+		{
+			if (input.MouseReleased(Mouse::LMB) || !input.MouseHeld(Mouse::LMB))
+			{
+				isDragging = false;
+
+				// TODO: Select nodes within the world tile
+			}
+
+			dragEndPos = ImGui::GetIO().MousePos;
+
+			glm::vec4 rect {
+				std::min(dragStartPos.x, dragEndPos.x),
+				std::min(dragStartPos.y, dragEndPos.y),
+				std::max(dragStartPos.x, dragEndPos.x),
+				std::max(dragStartPos.y, dragEndPos.y)
+			};
+
+			glm::vec4 rectNormalized {
+				(rect.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
+				(rect.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y),
+				(rect.z - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
+				(rect.w - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
+			};
+			
+			Math::Frustum rectFrustum = camera.ViewRectToWorldTile(rectNormalized);
+
+			//rectFrustum.GetNear().Slide(0.05f);
+
+			DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 1.0f, 1.0f, 0.2f), false);
+			DebugDraw::DrawFrustum(rectFrustum, glm::vec4(0.0f, 0.0f, 1.0f, 0.5f), false, true);
+
+		}
+		else if (input.MousePressed(Mouse::LMB))
+		{
+			isDragging = true;
+			dragStartPos = ImGui::GetIO().MousePos;
 		}
 	}
 	

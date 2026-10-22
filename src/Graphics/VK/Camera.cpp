@@ -99,7 +99,7 @@ glm::mat4 Camera::GetProjectionMatrix() const
 	);
 }
 
-Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
+Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
 {
 	using namespace glm;
 
@@ -121,4 +121,37 @@ Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
 	const vec3 direction = normalize(vec3(farPoint - nearPoint));
 
 	return Math::Ray(origin, direction);
+}
+
+Frustum Camera::ViewRectToWorldTile(const glm::vec4 &minMax) const
+{
+	using namespace glm;
+
+	mat4x4 projMatrix = GetProjectionMatrix();
+
+	float nearZ = m_planes.x;
+	float farZ = m_planes.y;
+
+	// Convert minMax from viewport space [0..1] to NDC [-1..1]
+	vec4 ndcMinMax = vec4(
+		(minMax.x * 2.0f) - 1.0f,
+		(minMax.y * 2.0f) - 1.0f,
+		(minMax.z * 2.0f) - 1.0f,
+		(minMax.w * 2.0f) - 1.0f
+	);
+
+	// Create a projection matrix for the tile
+	mat4x4 projTile = glm::frustum(
+		ndcMinMax.x * nearZ, ndcMinMax.z * nearZ,
+		ndcMinMax.y * nearZ, ndcMinMax.w * nearZ,
+		nearZ, farZ
+	);
+
+	// Store bounding frustum
+	Frustum frustum{projTile};
+
+	// Convert to world space
+	mat4x4 invViewMatrix = inverse(GetViewMatrix());
+
+	return Frustum::Transform(frustum, invViewMatrix);
 }

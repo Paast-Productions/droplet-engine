@@ -38,6 +38,10 @@ namespace Droplet::Math
 				planes[i] = *p_planes[i];
 			}
 		}
+		
+		/// @brief Constructs a new Frustum object from a projection matrix.
+		/// @param p_matrix The projection matrix from which to extract the frustum planes.
+		Frustum(const glm::mat4x4 &p_matrix);
 
 		/// @brief Constructs a new Frustum object with the specified view parameters.
 		/// @param p_origin The view origin (camera position).
@@ -52,6 +56,10 @@ namespace Droplet::Math
 		/// @brief Gets the plane at the specified index.
 		/// @param p_index The index of the plane to retrieve (0-5).
 		/// @return The plane at the specified index.
+		[[nodiscard]] inline Plane &GetPlane(int p_index)
+		{
+			return planes[p_index];
+		}
 		[[nodiscard]] inline const Plane &GetPlane(int p_index) const
 		{
 			return planes[p_index];
@@ -59,6 +67,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the left plane of the frustum.
 		/// @return The left plane of the frustum.
+		[[nodiscard]] inline Plane &GetLeft()
+		{
+			return planes[0];
+		}
 		[[nodiscard]] inline const Plane &GetLeft() const
 		{
 			return planes[0];
@@ -66,6 +78,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the right plane of the frustum.
 		/// @return The right plane of the frustum.
+		[[nodiscard]] inline Plane &GetRight()
+		{
+			return planes[1];
+		}
 		[[nodiscard]] inline const Plane &GetRight() const
 		{
 			return planes[1];
@@ -73,6 +89,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the top plane of the frustum.
 		/// @return The top plane of the frustum.
+		[[nodiscard]] inline Plane &GetTop()
+		{
+			return planes[2];
+		}
 		[[nodiscard]] inline const Plane &GetTop() const
 		{
 			return planes[2];
@@ -80,6 +100,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the bottom plane of the frustum.
 		/// @return The bottom plane of the frustum.
+		[[nodiscard]] inline Plane &GetBottom()
+		{
+			return planes[3];
+		}
 		[[nodiscard]] inline const Plane &GetBottom() const
 		{
 			return planes[3];
@@ -87,6 +111,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the near plane of the frustum.
 		/// @return The near plane of the frustum.
+		[[nodiscard]] inline Plane &GetNear()
+		{
+			return planes[4];
+		}
 		[[nodiscard]] inline const Plane &GetNear() const
 		{
 			return planes[4];
@@ -94,6 +122,10 @@ namespace Droplet::Math
 
 		/// @brief Gets the far plane of the frustum.
 		/// @return The far plane of the frustum.
+		[[nodiscard]] inline Plane &GetFar()
+		{
+			return planes[5];
+		}
 		[[nodiscard]] inline const Plane &GetFar() const
 		{
 			return planes[5];
@@ -111,5 +143,11 @@ namespace Droplet::Math
 		///		(left,	bottom, far)
 		///		(right, bottom, far)
 		void GetCorners(glm::vec3 *p_corners) const;
+
+		/// @brief Transforms the frustum by the given matrix and returns a new frustum.
+		/// @param p_frustum The frustum to transform.
+		/// @param p_matrix The transformation matrix to apply to the frustum.
+		/// @return A new frustum that is the result of transforming the input frustum by the given matrix.
+		static Frustum Transform(const Frustum &p_frustum, const glm::mat4x4 &p_matrix);
 	};
 }
