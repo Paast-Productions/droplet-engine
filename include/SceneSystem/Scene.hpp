@@ -70,7 +70,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Scene.
         explicit Scene(const std::string &p_name);
 
-        ~Scene() = default;      
+        ~Scene();      
 
         /// @brief Loads the Scene.
         ///

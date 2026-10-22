@@ -125,10 +125,13 @@ void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)
 
 void PhysicsComponent::RemoveCollider()
 {
-	m_physics->GetBodyInterface()->DeactivateBody(m_bodyID);
-	m_physics->GetBodyInterface()->RemoveBody(m_bodyID);
-	m_physics->GetBodyInterface()->DestroyBody(m_bodyID);
-	m_shapeType = ShapeType::None;
+	if (m_shapeType != ShapeType::None)
+	{
+		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+		bodyInterface->RemoveBody(m_bodyID);
+		bodyInterface->DestroyBody(m_bodyID);
+		m_shapeType = ShapeType::None;
+	}
 }
 
 void PhysicsComponent::StartImpl()

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -18,6 +19,18 @@ Scene::Scene(const std::string &p_name)
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
+}
+
+Scene::~Scene()
+{
+    for (std::shared_ptr<Node> &node : m_roots)
+    {
+        std::vector<std::shared_ptr<PhysicsComponent>> comps = node->GetComponents<PhysicsComponent>();
+        for (std::shared_ptr<PhysicsComponent> comp : comps)
+        {
+            node->RemoveComponent(comp.get());
+        }
+    }
 }
 
 void Scene::Update()
