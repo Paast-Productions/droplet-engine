@@ -16,10 +16,10 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 
 void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 {
-	if (m_selectedScene && m_selectedScene->GetName() == p_sceneName)
-	{
-		return;
-	}
+	//if (m_selectedScene && m_selectedScene->GetName() == p_sceneName)
+	//{
+	//	return;
+	//}
 	
 	//m_engine.GetSceneManager().LoadScene(p_sceneName);
 	
