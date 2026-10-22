@@ -16,13 +16,8 @@ void Droplet::Scene::AudioEmitterComponent::UpdateImpl(float deltaTime)
 
 void Droplet::Scene::AudioEmitterComponent::RenderUIImpl()
 {
-
-	ImGui::SliderFloat("volume", &m_volume, 0.0f, 1.0f);
-
-	
+	ImGui::SliderFloat("volume", &m_volume, 0.0f, 1.0f,"%.2f");
 	ImGui::Checkbox("Is Looping", &m_looping);
-
-
 }
 
 nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()

@@ -4,6 +4,7 @@
 
 namespace Droplet::Scene 
 {
+	/// @brief Right now just outline class to start work with later
 	class AudioEmitterComponent : public Component
 	{
 	public:

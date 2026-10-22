@@ -4,6 +4,7 @@
 
 namespace Droplet::Scene
 {
+	/// @brief Right now just outline class to start work with later
 	class AudioListenerComponent : public Component
 	{
 	public:
@@ -21,6 +22,6 @@ namespace Droplet::Scene
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
 	private:
-
+		
 	};
 }
