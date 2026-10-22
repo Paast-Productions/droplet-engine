@@ -210,3 +210,13 @@ VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTar
 {
 	return m_renderer.RegisterImGuiTexture(p_renderTarget);
 }
+
+VkDescriptorSet Engine::GetOrCreateImGuiTexture(GUID p_guid)
+{
+	return m_renderer.GetOrCreateImGuiTexture(p_guid);
+}
+
+void Engine::RemoveImGuiTexture(GUID p_guid)
+{
+	m_renderer.RemoveImGuiTexture(p_guid);
+}

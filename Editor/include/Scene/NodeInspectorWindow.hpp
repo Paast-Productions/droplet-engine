@@ -35,6 +35,6 @@ namespace Droplet::Editor
 		std::shared_ptr<Droplet::Scene::Node> m_currentNode; // TODO: Make weak pointer
 
 		/// @brief A variable to remember if the scale should be locked
-		bool m_lockScale = true;
+		bool m_lockScale = false;
 	};
 }
