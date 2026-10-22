@@ -83,6 +83,9 @@ namespace Droplet::Graphics
 
 		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
 
+		VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid);
+		void RemoveImGuiTexture(GUID p_guid);
+
 		SDL_Event				Event;
 		inline static			SDL_InitState s_Init {};
 		

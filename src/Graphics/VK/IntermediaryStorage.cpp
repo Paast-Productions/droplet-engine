@@ -5,6 +5,7 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 #include <Graphics/VK/ShaderModule.hpp> 
 #include <Debug/Logger.hpp>
+#include <ImGui/imgui_impl_vulkan.h>
 
 using namespace Droplet::Graphics::VK;
 
@@ -229,4 +230,67 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
         result = true;
         return m_textureGuidMap.at(guid);
     }
+}
+
+VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid, CommandPool &p_commandPool)
+{
+    ZoneScoped;
+
+    auto it = m_textureGuidMap.find(p_guid);
+
+    if (it != m_textureGuidMap.end())
+    {
+		return m_imGuiTexMap[p_guid].descriptorSet;
+    }
+
+    ResourceManager &RMInstance = ResourceManager::GetInstance();
+    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
+
+    if (!(texRes.IsReady() || texRes.HasFailed()))
+    {
+        return VK_NULL_HANDLE;
+    }
+
+	ImGuiTexture &imguiTex = m_imGuiTexMap[p_guid];
+
+    imguiTex.image = Image(
+        m_allocator.Get(),
+        p_commandPool,
+        m_context,
+        texRes.Get()->GetPixelData().data(),
+        texRes.Get()->GetPixelData().size(),
+        texRes.Get()->GetWidth(),
+        texRes.Get()->GetHeight(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+
+    imguiTex.view = ImageView(
+        m_context.GetDevice(),
+        imguiTex.image.Get(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageAspectFlagBits::eColor
+    );
+
+	imguiTex.descriptorSet = ImGui_ImplVulkan_AddTexture(
+        *m_textureSampler.Get(),
+        *imguiTex.view.Get(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    );
+
+	return imguiTex.descriptorSet;
+}
+
+void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
+{
+	auto it = m_imGuiTexMap.find(p_guid);
+	if (it == m_imGuiTexMap.end())
+	{
+        return;
+	}
+
+	ImGui_ImplVulkan_RemoveTexture(it->second.descriptorSet);
+	m_imGuiTexMap.erase(it);
 }

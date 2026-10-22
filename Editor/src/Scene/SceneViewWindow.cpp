@@ -142,15 +142,7 @@ void SceneViewWindow::RenderToolbar()
 void SceneViewWindow::RenderImpl()
 {
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-	// Temporarily time variable to create deltaTime for our update
-	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-
-	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
-	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
-	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
-	s_lastFrameTime = currentTime;
-	
+		
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
@@ -170,6 +162,7 @@ void SceneViewWindow::RenderImpl()
 			{
 				return;
 			}
+
 			if (input.MouseReleased(Mouse::LMB))
 			{
 				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
@@ -253,7 +246,7 @@ void SceneViewWindow::RenderImpl()
 
 		if (m_cameraLookToggled)
 		{
-			controller.Update(deltaTime, sceneWindow, viewCenter.x, viewCenter.y);
+			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
 		if (m_hoveringSceneView)
