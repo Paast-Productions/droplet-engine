@@ -140,6 +140,16 @@ VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
 	);
 }
 
+VkDescriptorSet Renderer::GetOrCreateImGuiTexture(GUID p_guid)
+{
+	return m_interStorage.GetOrCreateImGuiTexture(p_guid, m_commandPool);
+}
+
+void Renderer::RemoveImGuiTexture(GUID p_guid)
+{
+	m_interStorage.RemoveImGuiTexture(p_guid);
+}
+
 //Change data layout of image
 void Renderer::TransitionImageLayout(
 	vk::Image				p_image,
