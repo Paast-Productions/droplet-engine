@@ -236,6 +236,13 @@ function OnUpdate(dt)
 
 	ApplyVelocity(dt)
 
+    --local sphere = Sphere.new(targetPoint, targetAcceptanceRadius)
+    --DebugDraw.DrawSphere(sphere, Vec4.new(1.0, 1.0, 0.0, 0.3), 2, nil)
+
+    --local fishPos = trans:GetPosition(TransformSpace.World)
+    --local movement = GLM.V3MulF(trans:GetForward(TransformSpace.World), moveSpeed)
+    --DebugDraw.DrawCurveQuadratic(fishPos, movement, targetPoint, Vec4.new(1.0, 0.0, 1.0, 0.7), 32)
+
     tracy.ZoneEnd()
 end
 
@@ -258,6 +265,28 @@ function RenderUI()
 	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
 	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")
 	ImGui.Text("Distance to Target: " .. GLM.V3Length(GLM.V3Sub(trans:GetPosition(TransformSpace.World), targetPoint)))
+
+    if trans then
+        local fishPos = trans:GetPosition(TransformSpace.World)
+        local movement = GLM.V3MulF(trans:GetForward(TransformSpace.World), moveSpeed)
+
+        DebugDraw.DrawCurveQuadratic(
+            fishPos, 
+            movement, 
+            targetPoint, 
+            Vec4.new(1.0, 0.0, 1.0, 0.7), 
+            32,
+            true
+        )
+
+        local sphere = Sphere.new(targetPoint, targetAcceptanceRadius)
+        DebugDraw.DrawSphere(
+            sphere, 
+            Vec4.new(1.0, 1.0, 0.0, 0.3), 
+            2, 
+            true
+        )
+    end
 
     tracy.ZoneEnd()
 end
