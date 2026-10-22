@@ -1,0 +1,39 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "looping": false,
+                "volume": 0.5210000276565552
+            },
+            "id": 1,
+            "type": "AudioEmitterComponent"
+        },
+        {
+            "data": null,
+            "id": 2,
+            "type": "AudioListenerComponent"
+        }
+    ],
+    "id": 1,
+    "name": "TestSoundNode",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

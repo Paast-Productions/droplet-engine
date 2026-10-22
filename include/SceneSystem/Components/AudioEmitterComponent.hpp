@@ -22,5 +22,9 @@ namespace Droplet::Scene
 
 	private:
 
+		float m_volume = 0;
+		bool m_looping = false;
+
+
 	};
 }
