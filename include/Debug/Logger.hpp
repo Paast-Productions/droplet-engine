@@ -30,7 +30,8 @@ namespace Droplet::Debug
 		Debug    /// Detailed information for debugging purposes.
 	};
 
-	/// @class Logger
+	/// @class 
+	/// 
 	/// @brief Thread-safe logger class for writing formatted JSON logs.
 	///
 	/// Provides thread-safe logging functionality to capture timestamped

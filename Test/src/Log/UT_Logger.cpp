@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <thread>
-#include <atomic>
 
 #include "Debug/Logger.hpp"
 #include "Core/ThreadPool.hpp"
@@ -63,6 +60,21 @@ TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
     }
 
     EXPECT_EQ(processedFrames, totalFrames);
+    EXPECT_TRUE(std::filesystem::exists("logger.json"));
+}
+
+
+TEST_F(ThreadPoolLoggerTest, LeaksMemory)
+{
+    Logger& log = Logger::GetInstance();
+    ThreadPool& pool = ThreadPool::GetInstance();
+    constexpr int totalLogs = 1000;
+    for (int i = 0; i < totalLogs; ++i)
+    {
+        log.Log(Droplet::Debug::LogType::Debug, "Memory leak test log entry: " + std::to_string(i));
+    }
+    log.WriteToJsonFile();
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
     EXPECT_TRUE(std::filesystem::exists("logger.json"));
 }
 

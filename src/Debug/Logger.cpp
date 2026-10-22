@@ -5,7 +5,6 @@
 #include <thread>
 
 #include <json/json.hpp>
-#include <stacktrace>
 
 #include <core/ThreadPool.hpp>
 
