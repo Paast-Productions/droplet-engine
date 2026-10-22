@@ -125,12 +125,11 @@ using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-    SetRenderable();
 }
 
 void MeshComponent::StartImpl()
 {
-
+    SetRenderable();
 }
 
 void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
@@ -141,6 +140,7 @@ void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
 {
     p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+
     p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
     p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
     p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
@@ -237,7 +237,7 @@ void MeshComponent::RenderUIImpl()
             Droplet::ResourceType::Shader))
         {
             SetTESGUID(newGUID);
-            m_tcsDisplayName = newName;
+            m_tesDisplayName = newName;
         }
         newGUID = C_INVALID_GUID;
         newName.clear();
