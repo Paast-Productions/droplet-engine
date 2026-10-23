@@ -168,7 +168,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	//I do not know if i should be doing this here, but it seems like a good place to do it
 	ThreadPool& pool = ThreadPool::GetInstance();
     Logger& log = Logger::GetInstance();
-    log.ClearLog();
 
     hierarchyWindow.Init();
     nodeInspectorWindow.Init();

@@ -80,30 +80,33 @@ void Logger::ProcessQueue()
         };
 
         {
-            std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
-            std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
-            if (writingToJsonFile.is_open())
-            {
-                writingToJsonFile << j.dump(4) << ",\n";
-            }
+            //std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
+            //std::ofstream writingToJsonFile("logger.json", std::ios_base::app);
+            //if (writingToJsonFile.is_open())
+            //{
+            //    writingToJsonFile << j.dump(4) << ",\n";
+            //}
+        
+			std::cout << j.dump(4) << std::endl;
+        
         }
     }
 }
 
-void Logger::ClearLog()
-{
-    std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
-    LogEntry dummy;
-    while (!GetInstance().m_queue.IsEmpty())
-    {
-        GetInstance().m_queue.Pop(dummy);
-    }
-
-    if (std::filesystem::exists("logger.json"))
-    {
-        std::filesystem::remove("logger.json");
-    }
-}
+//void Logger::ClearLog()
+//{
+//    std::scoped_lock<std::mutex> lock(GetInstance().m_mutex);
+//    LogEntry dummy;
+//    while (!GetInstance().m_queue.IsEmpty())
+//    {
+//        GetInstance().m_queue.Pop(dummy);
+//    }
+//
+//    if (std::filesystem::exists("logger.json"))
+//    {
+//        std::filesystem::remove("logger.json");
+//    }
+//}
 
 void Logger::Push(LogEntry &p_in)
 {
