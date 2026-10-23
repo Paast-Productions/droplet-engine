@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "White",
+            "guid": 13855953862202670664,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "White",
+            "type": 1
+        }
+    ]
+}

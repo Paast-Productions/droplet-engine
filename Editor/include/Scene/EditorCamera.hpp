@@ -1,8 +1,8 @@
-#pragma once
+  #pragma once
 #include <vector>
 #include <memory>
 #include <ImGui/imgui.h>
-#include <InteractionState.hpp>
+#include <EditorCamera.hpp>
 #include <Graphics/VK/Camera.hpp>
 
 namespace Droplet::Editor::Scene

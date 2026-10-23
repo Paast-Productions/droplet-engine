@@ -3,7 +3,8 @@
 
 #include <memory>
 
-namespace Droplet {
+namespace Droplet 
+{
     /// @brief Class for 2D texture resources.s
 	class Texture2DResource : public TextureResource
 	{
