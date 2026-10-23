@@ -9,7 +9,7 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-    UseGraphicsPCH()
+    UseEditorPCH()
 
     defines{ 
 		"TRACY_ENABLE", 

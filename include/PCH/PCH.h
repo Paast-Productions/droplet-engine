@@ -1,6 +1,6 @@
 #pragma once
 
-// Droplet
+// FIRST INCLUDE
 #include <Debug/TracyTrackedAlloc.hpp>
 
 // C++ library headers
@@ -127,3 +127,12 @@
 #include <json/json.hpp>
 #include <glm/glm.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+
+// Engine
+#include <Core/IoManager.hpp>
+#include <Core/StringUtils.hpp>
+#include <Core/ThreadPool.hpp>
+#include <Core/ThreadSafeQueue.hpp>
+#include <Debug/Logger.hpp>
+#include <Editor/DragDropFields.hpp>
+//#include <Engine/EngineFlags.hpp>
