@@ -19,7 +19,8 @@ void SceneManager::LoadScene(const std::string &p_name)
 
     if (m_scenes.contains(p_name))
     {
-        throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
+        UnloadScene(p_name);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_name);
@@ -255,7 +256,8 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
 
     if (m_scenes.contains(json["name"]))
     {
-        throw std::runtime_error("Cannot load Scene " + json["name"] );
+        UnloadScene(json["name"]);
+        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
@@ -264,12 +266,21 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     {
         throw std::runtime_error("Cannot load Scene "+ json["name"]);
     }
-
-    serializer.DeserializeScene(json, scene);
     scene->Load();
+    serializer.DeserializeScene(json, scene);
 
     m_scenes[json["name"]] = scene;
+}
 
+void Droplet::Scene::SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+    nlohmann::json json;
+
+    json = serializer.SerializeNode(p_node);
+    Droplet::Core::JsonIO::Write(p_filePath, json);
 }
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)

@@ -119,6 +119,7 @@ void Context::CreateLogicalDevice()
 				.descriptorBindingStorageBufferUpdateAfterBind = true,
 				.descriptorBindingUpdateUnusedWhilePending = true,
 				.descriptorBindingPartiallyBound = true,
+				.runtimeDescriptorArray = true, 
 			},	
 			{	// vk::PhysicalDeviceVulkan13Features
 				.synchronization2 = true, // Fixes sync2 warnings

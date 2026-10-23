@@ -6,6 +6,7 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 #include <algorithm>
 
 using namespace Droplet;
@@ -150,13 +151,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	
 	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
-	// Scriptsystem
-
-	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
-	{
-		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
-	}
-
+	
+	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
 		if (behaviour && behaviour->IsActive())
@@ -202,6 +198,7 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 }
 
 Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
@@ -212,4 +209,14 @@ Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::ui
 VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
 {
 	return m_renderer.RegisterImGuiTexture(p_renderTarget);
+}
+
+VkDescriptorSet Engine::GetOrCreateImGuiTexture(GUID p_guid)
+{
+	return m_renderer.GetOrCreateImGuiTexture(p_guid);
+}
+
+void Engine::RemoveImGuiTexture(GUID p_guid)
+{
+	m_renderer.RemoveImGuiTexture(p_guid);
 }

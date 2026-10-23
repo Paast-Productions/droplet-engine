@@ -202,43 +202,17 @@ namespace Droplet::Scene
         /// If the Node has already been started, the Component is started immediately.
         ///
         /// Multiple Components of the same type can be attached to a Node.
-        ///
-        /// @tparam T Type of Component to create.
-        /// @tparam Args Types of arguments used to construct the Component.
-        ///
-        /// @param p_args Arguments forwarded to the Component constructor.
-        ///
-        /// @return A shared pointer to the newly created Component.
-        ///
-        /// @throws std::runtime_error if the Component provides a bounds override
-        /// and another bounds override is already registered with this Node.
-        template<typename T, typename... Args>
-        std::shared_ptr<T> AddComponent(Args&&... p_args) // TODO: Make weak pointer
-        {
-            // Ensure that T is derived from Component
-            static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-            auto component = std::make_shared<T>();//std::forward<Args>(p_args)...
-
-            component->SetOwner(shared_from_this());
-
-            m_components.push_back(component);
-
-            if (component->HasBoundsOverride())
-            {
-                if (m_boundsOverride.expired())
-                {
-                    m_boundsOverride = component;
-                }
-            }
-
-            if (m_started)
-            {
-                component->Start();
-            }
-
-            return component;
-        }
+        /// @brief Adds an exisiting component to the node
+        /// 
+        /// Attached an already created comoponent of any type
+        /// adds it to the member vector of component the node owns.
+        /// It assigns a freshly new component id
+        /// The overloaded function uses id from serialization
+        ///       
+        /// @param p_component The comoponent to be attached
+        void AttachComponent(std::unique_ptr<Component> &p_component); 
+        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -270,6 +244,8 @@ namespace Droplet::Scene
             return components;
         }
 
+
+        
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
@@ -327,17 +303,13 @@ namespace Droplet::Scene
 		/// @return true if this Node is a descendant of p_node, otherwise false.
         [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
 
-		/// @brief Checks through all components to see if the Node is renderable.
-        /// 
-        /// @return true if the Node is renderable, otherwise false.
-        [[nodiscard]] bool IsRenderable() const;
-
     private:
         std::string m_name;
         
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
 
+        std::uint64_t m_nextComponentID = 1;
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 

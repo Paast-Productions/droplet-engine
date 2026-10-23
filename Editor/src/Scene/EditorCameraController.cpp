@@ -1,13 +1,14 @@
 #include <Scene/EditorCameraController.hpp>
 #include <iostream>
+#include <Time.hpp>
 
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(float p_deltaTime, SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
+void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	GameInput &input = GameInput::Get();
-	float velocity = p_deltaTime * m_movementSpeed;
+	float velocity = Time::Get().GetDeltaTime() * m_movementSpeed;
 
 	if (input.KeyHeld(Key::KeyW)) 
 	{
@@ -54,13 +55,17 @@ void EditorCameraController::CameraLock(bool p_enabled)
 
 	m_lookActive = p_enabled;
 
-
+	GameInput &input = GameInput::Get();
 	ImGuiIO &io = ImGui::GetIO();
 
 	if (p_enabled)
+	{
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+	}
 	else
+	{
 		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+	}
 
-	GameInput::Get().HideCursor(m_lookActive);
+	input.HideCursor(m_lookActive);
 }

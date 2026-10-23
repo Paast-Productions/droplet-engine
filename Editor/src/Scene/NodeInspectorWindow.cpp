@@ -4,7 +4,9 @@
 #include <algorithm>
 #include <TransformUI.hpp>
 #include <ComponentList.hpp>
-#include <ImGui/ImGuiUtils.hpp>
+#include <Editor/ImGuiUtils.hpp>
+#include <EditorConfig.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Editor;
 
@@ -63,27 +65,61 @@ void NodeInspectorWindow::RenderImpl()
 	// Transform
 	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		Droplet::Scene::Transform &transform = m_currentNode->GetTransform();
-		float drag_speed = 0.001f;
+		using namespace Droplet::Scene;
+		using TSpace = Transform::Space;
 
-		glm::vec3 pos = transform.GetPosition();
+		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
+
+		Transform &transform = m_currentNode->GetTransform();
+		float drag_speed = 0.005f;
+
+		glm::vec3 pos = transform.GetPosition(space);
 		if (ImGui::DragFloat3("Position", &pos.x, drag_speed))
 		{
-			transform.SetPosition(pos);
+			transform.SetPosition(pos, space);
 		}
+		ImGui::LockToItem();
 
-		glm::vec3 rot = transform.GetEuler();
-		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed))
+		static glm::vec3 rot = glm::degrees(transform.GetEuler(space));
+		glm::vec3 prevRot = rot;
+		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
-			transform.SetEuler(rot);
+			glm::vec3 normal = glm::vec3(0, 1, 0);
+			float deltaRot = 0.0f;
+
+			if (rot.x != prevRot.x)
+			{
+				normal = (space == TSpace::Local) ? transform.GetRight() : glm::vec3(1, 0, 0);
+				deltaRot = glm::radians(rot.x - prevRot.x);
+			}
+			else if (rot.y != prevRot.y)
+			{
+				normal = (space == TSpace::Local) ? transform.GetUp() : glm::vec3(0, 1, 0);
+				deltaRot = glm::radians(rot.y - prevRot.y);
+			}
+			else if (rot.z != prevRot.z)
+			{
+				normal = (space == TSpace::Local) ? transform.GetForward() : glm::vec3(0, 0, 1);
+				deltaRot = glm::radians(rot.z - prevRot.z);
+			}
+
+			glm::quat deltaQuat = glm::angleAxis(deltaRot, normal);
+			transform.Rotate(deltaQuat, space);
+		}
+		ImGui::LockToItem();
+
+		if (!ImGui::IsItemActive())
+		{
+			rot = glm::degrees(transform.GetEuler());
 		}
 
 		glm::vec3 scl = transform.GetScale();
-		glm::vec3 oldScl = transform.GetScale();
-		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed))
+		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed * 0.5f))
 		{
 			if (m_lockScale)
 			{
+				glm::vec3 oldScl = scl;
+
 				if (scl.x != oldScl.x)
 				{
 					float deltaScale = scl.x - oldScl.x;
@@ -103,8 +139,10 @@ void NodeInspectorWindow::RenderImpl()
 					scl.y += deltaScale * (oldScl.y / oldScl.z);
 				}
 			}
+
 			transform.SetScale(scl);
 		}
+		ImGui::LockToItem();
 
 		// Lock scale
 		ImGui::Checkbox("Lock Scale", &m_lockScale);
@@ -160,7 +198,18 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		m_currentNode->AddComponent(newComp);
+		//HACK: SHOULD NOT DO THIS
+		if (selectedComponentName == "CameraComponent")
+		{
+			auto cameraComponent =
+				dynamic_cast<Droplet::Scene::CameraComponent *>(newComp.get());
+
+			if (cameraComponent)      
+			{
+				cameraComponent->SetCamera(&m_editorContext->GetEditorCamera());
+			}
+		}
+		m_currentNode->AttachComponent(newComp);
 	}
 
 	ImGui::PopID();

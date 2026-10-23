@@ -17,7 +17,7 @@ function OnUpdate(dt)
 		print(flaot)
 	end
 
-	--print(Input:KeyPressed(Key.Space))
+	--print("Behaviour is Updating")
 end             
 
 function RenderUI()

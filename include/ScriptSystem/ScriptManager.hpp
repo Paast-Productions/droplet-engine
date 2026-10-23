@@ -12,15 +12,11 @@
 namespace Droplet::Script
 {
 	/// @brief Stores information about a loaded Lua script.
-	///
 	/// LoadedScript contains the compiled Lua chunk together with information
 	/// about the source file. The file timestamp is used to detect when the
-	/// script has been modified and needs to be reloaded.
+	/// @brief script has been modified and needs to be reloaded.
 	struct LoadedScript
 	{
-		/// @brief Compiled Lua script.
-		sol::load_result loadResult;
-
 		/// @brief Path to the source Lua script.
 		std::filesystem::path scriptPath;
 
@@ -49,15 +45,27 @@ namespace Droplet::Script
 		/// @brief Destroys the ScriptManager.
 		~ScriptManager() = default;
 
-		/// @brief Starts all active script instances.
-		/// This should be called once the scripts are allowed to be active.
-		void Start();
+		/// @brief Starts components script instance.
+		/// @param ScriptComponent to call its script instance
+		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
 
-		/// @brief Updates all active script instances.
+		/// @brief Starts behaviour script instance.
+		/// @param ScriptBehaviour to call its script instance
+		void StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
+		/// @brief Updates component script instance
 		/// This should be called once per frame to allow active scripts to perform
 		/// their update logic.
+		/// @param ScriptComponent to call its script instance
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void Update(float p_deltaTime);
+		void UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+
+		/// @brief Updates behaviour script instance.
+		/// This should be called once per frame to allow active scripts to perform
+		/// their update logic.
+		/// @param ScriptBehaviour to call its script instance
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime);
 
 		/// @brief Calls a Lua function on a script attached to a component.
 		/// The function is looked up through the relationship between the
@@ -145,31 +153,8 @@ namespace Droplet::Script
 
 		/// @brief Retrieves a loaded Lua script
 		/// @param p_scriptFile Path or name of the loaded Lua script.
-		/// @return Pointer to the loaded script result, or nullptr if the script
-		/// is not loaded.
-		[[nodiscard]] sol::load_result *GetLoadedScript(const std::string &p_scriptFile);
-
+		/// @return LoadedScript that holds the scripts path and when it was last loaded.
 		[[nodiscard]] LoadedScript *GetLoadedScriptInfo(const std::string &p_scriptFile);
-
-		/// @brief Activates a script component
-		/// An activated script is added to the collection of scripts that are updated each frame
-		/// @param p_scriptComponent Component whose script should be activated.
-		void ActivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Activates a script behaviour
-		/// An activated script is added to the collection of scripts that are updated each frame
-		/// @param p_scriptBehaviour Behaviour whose script should be activated.
-		void ActivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
-
-		/// @brief Deactivates a script component
-		/// A deactivated script is removed from the collection of scripts that are updated each frame
-		/// @param p_scriptComponent Component whose script should be deactivated.
-		void DeactivateComponentScript(Droplet::Scene::Component *p_scriptComponent);
-
-		/// @brief Deactivates a script behaviour
-		/// A deactivated script is removed from the collection of scripts that are updated each frame
-		/// @param p_scriptBehaviour Behaviour whose script should be deactivated.
-		void DeactivateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Sets the directory Path
 		/// @param p_directoryPath This is the path for your working directory to the scripts
@@ -197,6 +182,16 @@ namespace Droplet::Script
 		[[nodiscard]] bool HasScriptFileChanged(const std::string &p_scriptFile);
 
 	private:
+		/// @brief Get script instance corresponding to given components
+		/// @param p_scriptComponent 
+		/// @return ScriptInstance 
+		ScriptInstance *GetComponentsScript(Droplet::Scene::Component *p_scriptComponent);
+
+		/// @brief Get script instance corresponding to given behaviours
+		/// @param p_scriptComponent 
+		/// @return ScriptInstance 
+		ScriptInstance *GetBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
 		/// @brief Reference to the Lua state used by the script manager
 		/// The LuaStateHandler is owned by the ScriptSystem.
 		LuaStateHandler &m_StateHandler;
@@ -217,7 +212,7 @@ namespace Droplet::Script
 
 		/// @brief Stores all currently active script instances
 		/// Only active scripts are processed during the update loop.
-		std::vector<ScriptInstance *> m_activeScripts;
+		//std::vector<ScriptInstance *> m_activeScripts;
 
 		/// @brief Is the path from the working directory to the map that 
 		/// contains all the lua script files
@@ -240,31 +235,14 @@ namespace Droplet::Script
 		const std::string &p_functionName,
 		Args&&... p_args)
 	{
-		if (p_scriptComponent == nullptr)
+		ScriptInstance *instance = GetComponentsScript(p_scriptComponent);
+
+		if (instance == nullptr)
 		{
-			// TODO: Send error to logging manager instead of sending a nullptr
 			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 		}
 
-		std::unordered_map<Droplet::Scene::Component *, ScriptInstance *>::iterator it =
-			m_componentScripts.find(p_scriptComponent);
-
-		if (it == m_componentScripts.end())
-		{
-			//TODO: attach component to script
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-		}
-		ScriptInstance *instance = it->second;
-		std::vector<ScriptInstance *>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
-
-		if (activeIterator == m_activeScripts.end())
-		{
-			//tried to call on an inactive component
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-			//send error to logger 
-		}
-
-		return it->second->Call(p_functionName, std::forward<Args>(p_args)...);
+		return instance->Call(p_functionName, std::forward<Args>(p_args)...);
 	}
 
 	/// @brief Calls a Lua function on the script attached to the game
@@ -282,30 +260,13 @@ namespace Droplet::Script
 		const std::string &p_functionName,
 		Args&&... p_args)
 	{
-		if (p_scriptBehaviour == nullptr)
+		ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour);
+
+		if (instance == nullptr)
 		{
-			// TODO: Send error to logging manager instead of sending a nullptr
 			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
 		}
 
-		std::unordered_map<Droplet::Scene::Behaviour *, ScriptInstance *>::iterator it =
-			m_behaviourScripts.find(p_scriptBehaviour);
-
-		if (it == m_behaviourScripts.end())
-		{
-			//TODO: attach component to script
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-		}
-		ScriptInstance *instance = it->second;
-		std::vector<ScriptInstance *>::iterator activeIterator = std::find(m_activeScripts.begin(), m_activeScripts.end(), instance);
-
-		if (activeIterator == m_activeScripts.end())
-		{
-			//tried to call on an inactive component
-			return sol::protected_function_result(m_StateHandler.GetState(), 0, 0, 0, sol::call_status::runtime);
-			//send error to logger 
-		}
-
-		return it->second->Call(p_functionName, std::forward<Args>(p_args)...);
+		return instance->Call(p_functionName, std::forward<Args>(p_args)...);
 	}
 }

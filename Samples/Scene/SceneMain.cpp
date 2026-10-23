@@ -10,6 +10,9 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/ScriptComponent.hpp"
 #include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/SerializationContext.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
+#include "SceneSystem/ComponentFactory.hpp"
 #include "Core/IoManager.hpp"
 #include "GameInput.hpp"
 #include <SDL3/SDL_init.h>
@@ -62,7 +65,7 @@ static void OctreeTest()
     std::printf("Done spawning rocks\n");
 
     Droplet::GameInput &gi = Droplet::GameInput::Get();
-    while (true)
+    while (false)
     {
         gi.Update();
 
@@ -117,12 +120,12 @@ class PlayerComponent : public Component
 public:
     std::string_view GetTypeName() const override { return "PlayerComponent"; }
 
-    void Start() override
+    void StartImpl() override
     {
         std::cout << "PlayerComponent started\n";
     }
 
-    void Update(float p_deltaTime) override
+    void UpdateImpl(float p_deltaTime) override
     {
         std::cout
             << "PlayerComponent updating: "
@@ -136,8 +139,95 @@ public:
         json["type"] = "PlayerComponent";
         return json;
     }
+
+    void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
+    {
+
+    }
+
 };
 
+// --------------------------------------------------
+// Another Example Component
+// --------------------------------------------------
+
+class EnemyComponent :public Component
+{
+public:
+    std::string_view GetTypeName() const override { return "EnemyComponent"; }
+
+    void StartImpl() override
+    {
+        std::cout << "EnemyComponent started\n";
+    }
+
+    void UpdateImpl(float p_deltaTime) override
+    {
+        std::cout
+            << "EnemyComponent updating: "
+            << p_deltaTime
+            << " seconds\n";
+    }
+
+    nlohmann::json SerializeImpl() override
+    {
+        nlohmann::json json;
+        
+        json["reference"]["nodeid"] = GetTarget()->GetOwner()->GetID();
+        json["reference"]["componentid"] = GetTarget()->GetID();
+        
+        
+        return json;
+    }
+
+    void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
+    {
+        SceneObjectID targetID;
+        if (!p_compJson.contains("reference"))
+        {
+            throw std::runtime_error("Component missing field 'reference'");
+        }
+        nlohmann::json refJson = p_compJson["reference"];
+
+        if (!refJson.contains("nodeid"))
+        {
+            throw std::runtime_error("Reference missing field 'nodeid'");
+        }
+        if (!refJson.contains("componentid"))
+        {
+            throw std::runtime_error("Reference missing field 'componentid'");
+        }
+
+        targetID.nodeID = refJson["nodeid"];
+        targetID.componentID = refJson["componentid"];
+
+        m_target.SetSerializedID(targetID);
+        
+    }
+
+    void ResolveReferences([[maybe_unused]]SerializationContext &p_context) override
+    {
+        auto comp = p_context.FindComponent(m_target.serializedID.nodeID, m_target.serializedID.componentID);
+        SetTarget(comp);
+    }
+
+    void SetTarget(std::shared_ptr<Component> p_target)
+    {
+        m_target.SetTarget(p_target);
+    }
+    std::shared_ptr<Component>GetTarget() const
+    {
+        return m_target.GetTarget();
+    }
+
+    SceneObjectID GetTargetID()
+    {
+        return m_target.serializedID;
+    }
+
+private:
+    SceneReference<Component> m_target;
+};
 
 // --------------------------------------------------
 // Main
@@ -206,18 +296,30 @@ int main()
 
     enemy->GetTransform().SetPosition(
         glm::vec3(-5.0f, 0.0f, 10.0f));
+    // ==================================================
+    // Register Component types
+    // ==================================================
+
+    ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<ScriptComponent>(); });
+    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<PlayerComponent>(); });
+    ComponentRegistry::RegisterComponent("EnemyComponent", []() { return std::make_unique<EnemyComponent>(); });
 
     // ==================================================
     // Add Components
     // ==================================================
+	auto scriptComp = ComponentFactory::CreateComponent("ScriptComponent");
+	auto playerComp = ComponentFactory::CreateComponent("PlayerComponent");   
+	auto enemyComp = ComponentFactory::CreateComponent("EnemyComponent");    
 
-    player->AddComponent<PlayerComponent>();
+    player->AttachComponent(scriptComp);
+    player->AttachComponent(playerComp);
+    enemy->AttachComponent(enemyComp);
 
-    player->AddComponent<MeshComponent>(
-        "Meshes/Player.obj");
+	auto playerComponets = player->GetComponents<PlayerComponent>();
+    auto enemyComponents = enemy->GetComponents<EnemyComponent>();
+    enemyComponents[0]->SetTarget(playerComponets[0]);
 
-    enemy->AddComponent<MeshComponent>(
-        "Meshes/Enemy.obj");
+    
 
     // ==================================================
     // Activate the scene
@@ -245,9 +347,13 @@ int main()
     // Serialize
     //==================================================
 
-    SceneSerializer seri;
-    nlohmann::json json = seri.SerializeScene(sceneManager.GetScene("Game"));
-    Droplet::Core::JsonIO::Write("testJson.json", json);
+
+    // Remember that we need to create Resource manager BEFORE we deserialize any meshComponents
+    sceneManager.SerializeToFile(scene, "sceneJson.json");
+    sceneManager.UnloadScene("Game");
+    sceneManager.LoadFromFile("sceneJson.json");
+    auto loadedScene = sceneManager.GetScene("Game");
+    sceneManager.SerializeToFile(loadedScene, "sceneJson2.json");
 
     // ==================================================
     // Deactivate / unload

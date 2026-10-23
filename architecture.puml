@@ -1,0 +1,120 @@
+@startuml System architecture
+skinparam Linetype polyline
+skinparam Linetype ortho
+
+interface "System" as sys
+interface "Game" as game
+
+package "Engine" as engine {
+    package "Asset Manager" as assman #Yellow{
+        [Assimp] as assimp
+        [OpenGL Image] as gli
+    }
+    [Game UI Manager] as uiman
+    [Renderer] as renderer
+    [SceneManager] as sceneman
+    [Animation Manager] as animman
+    [I/O Manager] as ioman
+    [Input] as input
+    package "Script Manager" as scriptman #Yellow{
+        [Scripting helper library] as scriptlib
+    }
+    [Logging Manager] as logman
+    [Memory Manager] as memman
+    [Audio Engine (dalia)] as audioeng
+    [Physics Engine - Jolt] as physeng
+    [SDL3] as sdl
+
+    package "Debug tools" as debugging #Yellow{
+        [Profiling Manager] as profman
+        [Tracy] as tracy
+        [ImGui] as imgui
+    }
+
+    package "Assets" as assets #Yellow{
+        interface "Raw Mesh" as mesh
+        interface "Texture" as tex
+        interface "Audio" as audio
+    }
+
+    uiman ---> game
+    uiman ---> scriptman
+
+    input ---> game
+    sdl ---> input
+    input ---> sceneman
+    input ---> imgui
+    input ---> uiman
+
+    tracy ---> profman
+
+    sdl <--- renderer
+
+    sceneman ---> renderer
+    assman ---> sceneman
+    audioeng ---> sceneman
+
+    mesh ---> assman
+    tex ---> assman
+    assman ---> animman
+    audio ---> audioeng
+
+    animman ---> renderer
+    
+    sys ---> memman
+    memman ---> assman
+    memman ---> audioeng
+    memman ---> renderer
+    memman ---> ioman
+    
+    sceneman ---> scriptman
+    input ---> scriptman
+    logman ---> scriptman
+    profman ---> scriptman
+    physeng ---> scriptman
+
+    scriptman ---> animman
+    scriptman ---> sceneman
+    scriptman ---> audioeng
+    scriptman ---> uiman
+    scriptman ---> ioman
+
+    profman ---> ioman
+    logman ---> ioman
+    ioman ---> sys
+    sceneman ---> debugging
+    assman ---> sceneman
+    assman ---> ioman
+    assman ---> logman
+}
+
+
+' Linus - Game UI, Input, Tracy, SDL3
+' Sebbe - Renderer, Profiling Manager, Audio Engine
+' Oliver - SceneManager, Logging Manager, Physics Engine
+' Christoffer - Animation Manager, Memory Manager, Scripting Helper Library/Script Manager
+' Alex - I/O Manager, ImGui, (OpenGL Image, Assimp)/Asset Manager
+
+
+@enduml
+    ' ' Connections going to memory manager
+    ' assman ..> memman : Requests memory
+    ' sceneman ..> memman : Requests memory
+    ' audioeng ..> memman : Requests memory
+
+    ' ' Connections going to renderer
+    ' uiman ---> "Sends data" renderer
+    ' sceneman ---> "Sends data" renderer
+    ' animman ---> "Sends data" renderer
+
+    ' uiman ---> "Requests assets" assman
+
+
+    ' sceneman ---> "Requests assets" assman
+
+
+
+    ' audioeng ---> "Imports" audio
+
+    ' assman ---> "Imports" tex
+    ' assman ---> "Imports" mesh

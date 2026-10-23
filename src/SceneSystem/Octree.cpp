@@ -218,12 +218,12 @@ namespace Droplet::Scene
 		p_treeNode->nodes.push_back(p_node);
 
 		// Subdivide if capacity is exceeded and max depth is not reached
-		if (p_treeNode->nodes.size() > C_MAX_CHILDREN && p_treeNode->level < C_MAX_DEPTH)
+		if (p_treeNode->nodes.size() > C_MAX_NODES && p_treeNode->level < C_MAX_DEPTH)
 		{
 			std::vector<AABB> octants;
 			SubdivideOctant(p_treeNode->octant, octants);
 
-			for (std::uint8_t i = 0; i < C_MAX_CHILDREN; i++)
+			for (std::uint8_t i = 0; i < 8; i++)
 			{
 				p_treeNode->children[i] = std::make_unique<TreeNode>();
 				p_treeNode->children[i]->octant = octants[i];

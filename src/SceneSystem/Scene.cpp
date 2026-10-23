@@ -1,5 +1,8 @@
 #include "Scene.hpp"
 #include "Node.hpp"
+#include "SceneSerializer.hpp"
+#include "IoManager.hpp"
+
 #include <utility>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -230,4 +233,12 @@ std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_h
 std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
 {
     return m_octree.GetNodesFromRaycast(p_ray);
+}
+
+void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
+{
+    SceneSerializer serializer;
+    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
+
+    serializer.DeserializeLonsesomeNode(json, *this);
 }

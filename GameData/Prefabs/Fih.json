@@ -1,0 +1,53 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "filepath": "Fih.lua"
+            },
+            "id": 1,
+            "type": "ScriptComponent"
+        },
+        {
+            "data": {
+                "fs": 3575449250532881688,
+                "fsName": "BaseFS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Toe.001",
+                "meshGUID": 2719175114284423147,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "EvilToeTexture",
+                "textureGUID": 7393664924385117438,
+                "vs": 17704871794447121608,
+                "vsName": "BaseVS"
+            },
+            "id": 2,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 12,
+    "name": "Fih",
+    "transform": {
+        "position": [
+            -0.01936003752052784,
+            -0.01989518478512764,
+            0.11862453818321228
+        ],
+        "rotation": [
+            0.9735588431358337,
+            0.16098183393478394,
+            -0.15990333259105682,
+            0.026440611109137535
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

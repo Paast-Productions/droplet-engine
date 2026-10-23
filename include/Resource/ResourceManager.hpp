@@ -114,14 +114,13 @@ namespace Droplet
             assert(m_isInitialized && "ResourceManager is not initialized.");
 
             MetaEntry metaEntry;
-            try
-            {
-                metaEntry = m_registry.GetResourceMetaData(p_guid);
-            }
-            catch (...)
+
+            metaEntry = m_registry.GetResourceMetaData(p_guid);
+
+            if (metaEntry.guid == C_INVALID_GUID)
             {
                 // Handle missing resource
-                // TODO: Log this as a warning/error
+                            // TODO: Log this as a warning/error
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
             

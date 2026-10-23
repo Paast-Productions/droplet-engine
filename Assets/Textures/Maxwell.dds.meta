@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "GoofyTexture",
-            "guid": 3915176569535287159,
+            "displayName": "Maxwell",
+            "guid": 4589835762757455367,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "GoofyTexture",
+            "sourceName": "Maxwell",
             "type": 1
         }
     ]
