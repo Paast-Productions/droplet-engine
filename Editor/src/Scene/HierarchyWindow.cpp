@@ -135,6 +135,10 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::Dummy(ImVec2(rootDropWidth, rootDropHeight));
 
+    // The node area starts at the top of the root drop strip and spans the rest of the window
+    const ImVec2 nodeAreaMin = ImGui::GetItemRectMin();
+    const ImVec2 nodeAreaMax = ImGui::GetWindowPos() + ImGui::GetWindowSize();
+
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload *payload =
@@ -235,11 +239,11 @@ void HierarchyWindow::RenderImpl()
 
             ImGui::EndDragDropTarget();
         }
-
-        HandleRectSelection(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
     }
 
     ImGui::EndGroup();
+
+    HandleRectSelection(nodeAreaMin, nodeAreaMax);
 
     if (!m_nodesToReparent.empty() && m_newParent)
     {
@@ -565,6 +569,19 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
     }
 }
 
+bool HierarchyWindow::IsOverNodeRow(const ImVec2 &p_pos) const
+{
+    for (const auto &[rowMin, rowMax] : m_visibleNodeRects)
+    {
+        if (p_pos.x >= rowMin.x && p_pos.x <= rowMax.x && p_pos.y >= rowMin.y && p_pos.y <= rowMax.y)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void HierarchyWindow::HandleRectSelection(const ImVec2 &p_emptyAreaMin, const ImVec2 &p_emptyAreaMax)
 {
     InteractionState &interactionState = m_editorContext->GetInteractionState();
@@ -575,7 +592,8 @@ void HierarchyWindow::HandleRectSelection(const ImVec2 &p_emptyAreaMin, const Im
     if (!m_marqueeActive)
     {
         if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)
-            && !ImGui::IsAnyItemActive() && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax))
+            && !ImGui::IsAnyItemActive() && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
+            && !IsOverNodeRow(io.MousePos))
         {
             m_marqueeActive = true;
             m_marqueeStart = io.MousePos + scroll;

@@ -62,9 +62,12 @@ namespace Droplet
             void DrawNode(const std::shared_ptr<Droplet::Scene::Node> &p_node); // TODO: Make weak pointer
 
             /// @brief Handles rectangle (marquee) selection that is started in the empty area of the hierarchy.
-            /// @param p_emptyAreaMin Top-left of the empty area, in screen space.
-            /// @param p_emptyAreaMax Bottom-right of the empty area, in screen space.
+            /// @param p_emptyAreaMin Top-left of the node area, in screen space.
+            /// @param p_emptyAreaMax Bottom-right of the node area, in screen space.
             void HandleRectSelection(const ImVec2 &p_emptyAreaMin, const ImVec2 &p_emptyAreaMax);
+
+            /// @brief Checks whether a screen-space position is over a node row drawn this frame.
+            [[nodiscard]] bool IsOverNodeRow(const ImVec2 &p_pos) const;
 
             /// @brief Nodes drawn this frame in display order, used for shift-click range selection.
             std::vector<std::shared_ptr<Droplet::Scene::Node>> m_visibleNodes; // TODO: Make weak pointer
