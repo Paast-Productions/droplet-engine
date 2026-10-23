@@ -799,7 +799,7 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 
 void PhysicsComponent::PushTransformToPhysics()
 {
-	if (m_shapeType != ShapeType::None)
+	if (m_shapeType == ShapeType::None)
 	{
 		return;
 	}
@@ -812,7 +812,7 @@ void PhysicsComponent::PushTransformToPhysics()
 
 void PhysicsComponent::PullTransformFromPhysics()
 {
-	if (m_shapeType != ShapeType::None)
+	if (m_shapeType == ShapeType::None)
 	{
 		return;
 	}
