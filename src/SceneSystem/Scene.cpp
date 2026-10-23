@@ -94,11 +94,11 @@ void Droplet::Scene::Scene::FixedUpdate()
         {
             root->FixedUpdate();
         }
-    }
-
-    if (m_physics != nullptr)
-    {
-        m_physics->FixedUpdate();
+        
+        if (m_physics != nullptr)
+        {
+            m_physics->FixedUpdate();
+        }
     }
 }
 
