@@ -1,0 +1,103 @@
+{
+    "name": "PhysicsTestScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "",
+                        "meshGUID": 12751091778080588892,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": null,
+                    "id": 3,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "id": 1,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    0.0,
+                    30.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
