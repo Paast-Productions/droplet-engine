@@ -103,7 +103,7 @@ namespace Droplet::Scene
 	}
 
 	void Octree::CollectContained(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-		const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+		const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -112,10 +112,22 @@ namespace Droplet::Scene
 			return;
 		}
 
-		// Nodes stored in an octant may extend outside of it, so octants that are only touched must still be searched
-		if (Intersects(p_frustum, p_treeNode->octant) == IntersectType::None)
+		// Child octants lie within their parent, so if the parent is fully inside the frustum, so are they and
+		// the octant test can be skipped for the whole subtree.
+		// Nodes stored in an octant may extend outside of it, so they are still tested individually, and
+		// octants that are only touched must still be searched.
+		bool octantContained = p_octantContained;
+
+		if (!octantContained)
 		{
-			return;
+			const IntersectType octantIntersection = Intersects(p_frustum, p_treeNode->octant);
+
+			if (octantIntersection == IntersectType::None)
+			{
+				return;
+			}
+
+			octantContained = octantIntersection == IntersectType::Contains;
 		}
 
 		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
@@ -135,7 +147,7 @@ namespace Droplet::Scene
 		{
 			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				CollectContained(p_nodes, p_frustum, child);
+				CollectContained(p_nodes, p_frustum, child, octantContained);
 			}
 		}
 	}
