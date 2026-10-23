@@ -75,10 +75,10 @@ static void OctreeTest()
             gi.ProcessEvent(event);
         }
 
-        if (gi.KeyPressed(Droplet::Key::KeyEscape))
-        {
-            break;
-        }
+        // if (gi.KeyPressed(Droplet::Key::KeyEscape))
+        // {
+        //     break;
+        // }
 
         if (gi.KeyPressed(Droplet::Key::KeyP))
         {
