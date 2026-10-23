@@ -32,6 +32,7 @@ project "Engine-HelloEngine"
         "Engine",
         "ImGui",
         "Sol2",
+        "Lua",
         "tracy",
 	"PortableFileDialogs",
 	"IconFontCppHeaders"
@@ -45,8 +46,8 @@ project "Engine-HelloEngine"
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        AddQuotation("lua-5.4.7"),
+        AddQuotation("lua_static"),
         AddQuotation("vulkan-1"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd")
     }
