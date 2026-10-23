@@ -11,9 +11,6 @@
 class MeshColliderManager
 {
 public:
-    MeshColliderManager() = default;
-    ~MeshColliderManager() = default;
-    
     /// @brief Copy assignment operator deleting itself
     /// @param MeshColliderManager
     MeshColliderManager &operator=(const MeshColliderManager &) = delete;
@@ -31,6 +28,9 @@ public:
     JPH::MeshShapeSettings GetMeshSettings(const Droplet::GUID p_guid);
     
 private:
+	MeshColliderManager() = default;
+	~MeshColliderManager() = default;
+    
 	/// @brief Helper function creating mesh collider shape settings
 	/// @param p_mesh The mesh resource to make a collider of
 	static JPH::MeshShapeSettings CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh);
