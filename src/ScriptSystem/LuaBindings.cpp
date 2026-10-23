@@ -9,6 +9,7 @@
 #include <ImGui/imgui_stdlib.h>
 #include <DebugDrawBindings.hpp>
 #include <BoundsBindings.hpp>
+#include <SceneBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
 
@@ -25,7 +26,7 @@ std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
 std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
 std::vector<LuaEnumDefinition> LuaBindings::m_luaEnumDefinitions;
 
-void LuaBindings::RegisterBindings(sol::state_view p_luaState)
+void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::SceneManager p_sceneManager)
 {
 	ZoneScoped;
 
@@ -38,6 +39,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterTracy(p_luaState);
     RegisterBounds(p_luaState);
     RegisterDebugDraw(p_luaState);
+	RegisterScenes(p_luaState, p_sceneManager);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";

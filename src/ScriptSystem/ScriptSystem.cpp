@@ -9,15 +9,18 @@ using namespace Droplet::Script;
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 {
-	ZoneScoped;
-
-	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
 ScriptSystem::~ScriptSystem()
 {
 	ZoneScoped;
+}
 
+void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager p_sceneManager)
+{
+	ZoneScoped;
+
+	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState(), p_sceneManager);
 }
 
 void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
