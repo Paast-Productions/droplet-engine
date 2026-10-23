@@ -1,10 +1,20 @@
+-- DroneMovement.lua
 
 --
 -- Member Variables
 --
 
-local trans = nil
+-- Movement settings
+local acceleration = 5.0
+local maxSpeed = 8.0
+local drag = 1.5
 
+-- Runtime state
+local trans = nil
+local velocity = nil
+
+
+-- fih.lua variables
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetRadius = 3.0
@@ -22,7 +32,7 @@ local turnSpeedY = 0.0 -- Turn speed around local X axis (pitch)
 
 
 --
--- Member Functions
+-- Member Functions fih.lua
 --
 function Clamp(value, minValue, maxValue)
     return math.max(minValue, math.min(maxValue, value))
@@ -211,6 +221,95 @@ end
 
 
 --
+-- Member functions
+--
+
+function UpdateMovement(dt)
+    -- Build the movement input directions
+    local inputDirection = Vec3.new(0.0, 0.0, 0.0)
+
+    -- Forward and backward
+    if Input:KeyHeld(Key.W) then
+        inputDirection = GLM.V3Add(
+            inputDirection,
+            trans:GetForward(TransformSpace.World)
+        )
+    end
+
+    if Input:KeyHeld(Key.S) then
+        inputDirection = GLM.V3Sub(
+            inputDirection,
+            trans:GetForward(TransformSpace.World)
+        )
+    end
+
+    -- Strafe left and right
+    if Input:KeyHeld(Key.D) then
+        inputDirection = GLM.V3Add(
+            inputDirection,
+            trans:GetRight(TransformSpace.World)
+        )
+    end
+
+    if Input:KeyHeld(Key.A) then
+        inputDirection = GLM.V3Sub(
+            inputDirection,
+            trans:GetRight(TransformSpace.World)
+        )
+    end
+
+    -- Dedicated vertical movement in world space
+    local worldUp = Vec3.new(0.0, 0.0, 0.0)
+
+    if Input:KeyHeld(Key.Space) then
+        inputDirection = GLM.V3Add(inputDirection, worldUp)
+    end
+
+    if Input:KeyHeld(Key.LCTRL) then
+        inputDirection = GLM.V3Sub(inputDirection, worldUp)
+    end
+
+    -- Normalize only if the direction is longer than 1
+    -- This prevents diagonal movement from increasing speed
+    local inputLength = GLM.V3Length(inputDirection)
+
+    if inputLength > 1.0 then
+        inputDirection = GLM.V3Normalize(inputDirection)
+    end
+
+    -- Accelerate while input is held
+    if inputLength > 0.0 then 
+        local accelerationStep = GLM.V3MulF(
+            inputDirection,
+            acceleration * dt
+        )
+
+        velocity = GLM.V3Add(velocity, accelerationStep)
+    else
+        local dragFactor = math.max(0.0, 1.0 - drag * dt)
+
+        velocity = GLM.V3MulF(velocity, dragFactor)
+    end
+
+    -- Limit the total velocity, regardless of direction
+    local speed = GLM.V3Length(velocity)
+
+    if speed > maxSpeed then
+        velocity = GLM.V3MulF(
+            GLM.V3Normalize(velocity),
+            maxSpeed
+        )
+    end
+
+    -- Apply movement in world space
+    local movement = GLM.V3MulF(velocity, dt)
+
+    trans:Move(movement, TransformSpace.World)
+end
+
+
+
+--
 -- Auto Functions
 --
 
@@ -218,7 +317,10 @@ function OnStart()
     tracy.ZoneBeginN("Drone_movement OnStart")
 
     print("New Drone_movement")
+    local test = Vec3.new(0.0, 0.0, 0.0)
+    print(test.x)
 	trans = self:GetTransform()
+    velocity = Vec3.new(0.0, 0.0, 0.0)
     
     tracy.ZoneEnd()
 end
@@ -226,29 +328,7 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-	if Input:KeyHeld(Key.W) then
-        print("W pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
-        trans:Move(toMove, TransformSpace.World)
-    end
-
-    if Input:KeyHeld(Key.A) then
-        print("A pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
-        -- trans:Move(toMove, TransformSpace.World)
-    end
-
-    if Input:KeyHeld(Key.S) then
-        print("S pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), -1.0), dt)
-        trans:Move(toMove, TransformSpace.World)
-    end
-
-    if Input:KeyHeld(Key.D) then
-        print("D pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
-        -- trans:Move(toMove, TransformSpace.World)
-    end
+	UpdateMovement(dt)
 
     tracy.ZoneEnd()
 end
@@ -256,22 +336,50 @@ end
 function RenderUI()
     tracy.ZoneBeginN("Drone_movement RenderUI")
 
-	ImGui.Spacing()
+    if ImGui.Begin("Drone Movement") then
+        local changed, newAcceleration =
+            ImGui.SliderFloat(
+                "Acceleration",
+                acceleration,
+                0.5,
+                20.0
+            )
 
-	_, orbitPoint = ImGui.DragFloat3("Orbit Point", orbitPoint, 0.2)
-	_, targetRadius = ImGui.DragFloat("Target Radius", targetRadius, 0.1)
-	_, targetAcceptanceRadius = ImGui.DragFloat("Target Acceptance Radius", targetAcceptanceRadius, 0.1)
+        if changed then
+            acceleration = newAcceleration
+        end
 
-	_, maxMoveSpeed = ImGui.DragFloat("Move Speed", maxMoveSpeed, 0.1)
-	_, moveSpeedRateOfChange = ImGui.DragFloat("Move Rate of Change", moveSpeedRateOfChange, 0.01)
+        local speedChanged, newMaxSpeed =
+            ImGui.SliderFloat(
+                "Maximum Speed",
+                maxSpeed,
+                1.0,
+                30.0
+            )
 
-	_, maxTurnSpeed = ImGui.DragFloat("Turn Speed", maxTurnSpeed, 0.01)
-	_, turnSpeedRateOfChange = ImGui.DragFloat("Turn Rate of Change", turnSpeedRateOfChange, 0.01)
+        if speedChanged then
+            maxSpeed = newMaxSpeed
+        end
 
-	ImGui.Text("Current Move Speed: " .. moveSpeed)
-	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
-	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")
-	ImGui.Text("Distance to Target: " .. GLM.V3Length(GLM.V3Sub(trans:GetPosition(TransformSpace.World), targetPoint)))
+        local dragChanged, newDrag =
+            ImGui.SliderFloat(
+                "Drag",
+                drag,
+                0.0,
+                5.0
+            )
+
+        if dragChanged then
+            drag = newDrag
+        end
+
+        ImGui.Separator()
+        ImGui.Text("W/S: Forward / Backward")
+        ImGui.Text("A/D: Strafe Left / Right")
+        ImGui.Text("Space / Left Ctrl: Up / Down")
+    end
+
+    ImGui.End()
 
     tracy.ZoneEnd()
 end
