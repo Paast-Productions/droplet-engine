@@ -19,7 +19,8 @@ namespace
         const std::string &p_currentDisplayName,
         Droplet::GUID &p_outGUID,
         std::string &p_outDisplayName,
-        Droplet::ResourceType p_expectedType)
+        Droplet::ResourceType p_expectedType,
+        Droplet::ShaderResource::ShaderType p_expectedShader = Droplet::ShaderResource::ShaderType::Vertex)
     {
         using namespace ImGui;
         using namespace Droplet::Editor;
@@ -54,8 +55,8 @@ namespace
                 {
                     const auto *entryPtr =
                         *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    if (entryPtr->type == p_expectedType)
+                    Droplet::ShaderResource::ShaderType shaderType = entryPtr->loadSettings.value(Droplet::MetaLoadSettings::C_SHADER_TYPE.key, Droplet::MetaLoadSettings::C_SHADER_TYPE.defaultValue);
+                    if (entryPtr->type == p_expectedType && shaderType == p_expectedShader)
                     {
                         // Access the complete entry.
                         p_outGUID = entryPtr->guid;
@@ -78,8 +79,9 @@ namespace
                     for (std::size_t i = 0; i < count; ++i)
                     {
                         const Droplet::MetaEntry *entry = entries[i];
+                        Droplet::ShaderResource::ShaderType shaderType = entry->loadSettings.value(Droplet::MetaLoadSettings::C_SHADER_TYPE.key, Droplet::MetaLoadSettings::C_SHADER_TYPE.defaultValue);
 
-                        if (entry && entry->type == p_expectedType)
+                        if (entry && entry->type == p_expectedType && shaderType == p_expectedShader)
                         {
                             p_outGUID = entry->guid;
                             p_outDisplayName = entry->displayName;
@@ -202,7 +204,8 @@ void MeshComponent::RenderUIImpl()
             m_vsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Vertex))
         {
             SetVSGUID(newGUID);
             m_vsDisplayName = newName;
@@ -216,7 +219,8 @@ void MeshComponent::RenderUIImpl()
             m_tcsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationControl))
         {
             SetTCSGUID(newGUID);
             m_tcsDisplayName = newName;
@@ -230,7 +234,8 @@ void MeshComponent::RenderUIImpl()
             m_tesDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationEvaluation))
         {
             SetTESGUID(newGUID);
             m_tesDisplayName = newName;
@@ -244,7 +249,8 @@ void MeshComponent::RenderUIImpl()
             m_gsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Geometry))
         {
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
@@ -258,7 +264,8 @@ void MeshComponent::RenderUIImpl()
             m_fsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Fragment))
         {
             SetFSGUID(newGUID);
             m_fsDisplayName = newName;
