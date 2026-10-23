@@ -49,6 +49,7 @@ include "Premake/Test"
 
 group "Samples"
 
+include "Premake/Samples/Vulkan/VulkanSandbox"
 include "Premake/Samples/Engine/HelloEngine"
 include "Premake/Samples/Scene/Scene"
 
