@@ -18,6 +18,7 @@
 #include <cstring>
 #include <iostream>
 #include <utility>
+#include "SandboxGeometry.hpp"
 
 using namespace Droplet::Sandbox;
 
@@ -74,6 +75,9 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
 
     // 5. Pipeline layout TODO: move
     CreatePipelineLayout();
+    
+    // Create vertex buffer
+    CreateVertexBuffer();
 }
 
 SandboxRenderer::~SandboxRenderer() noexcept
@@ -128,7 +132,7 @@ void SandboxRenderer::DrawFrame()
         vk::True,
         UINT64_MAX);
     CheckResult(fenceResult, "Wait for fences failed");
-    
+
     // 2. get first available swapchain image
     auto [result, imageIndex] =
         m_swapchain.acquireNextImage(
@@ -148,7 +152,7 @@ void SandboxRenderer::DrawFrame()
     }
     // Reset fences for the current frame
     m_device.resetFences(*m_inFlightFences[m_frameIndex]);
-    
+
     // 3. record commands for the acquired image
     RecordCommandBuffer(imageIndex);
 
@@ -174,14 +178,14 @@ void SandboxRenderer::DrawFrame()
         .pSwapchains = &*m_swapchain,
         .pImageIndices = &imageIndex,
     };
-    
+
     result = m_graphicsQueue.presentKHR(presentInfo);
     CheckResult(result, "Presentation failed", vk::Result::eSuccess, vk::Result::eSuboptimalKHR);
     if (result == vk::Result::eSuboptimalKHR)
     {
         RecreateSwapchain();
     }
-    
+
     // always increment frame index
     IncrementFrameIndex();
 }
@@ -196,13 +200,13 @@ void SandboxRenderer::CreateGraphicsPipeline()
         {
             .stage = vk::ShaderStageFlagBits::eVertex,
             .module = *m_vertexShaderModule,
-            .pName = "vertexMain"
+            .pName = "vMain"
         },
         vk::PipelineShaderStageCreateInfo
         {
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = *m_fragmentShaderModule,
-            .pName = "fragmentMain"
+            .pName = "fMain"
         }
     };
 
@@ -220,12 +224,15 @@ void SandboxRenderer::CreateGraphicsPipeline()
     };
 
     // Not using vertex buffers or vertex attributes
+    auto bindingDescription = Vertex::GetBindingDescription();
+    auto attributeDescription = Vertex::GetAttributeDescription();
+
     const vk::PipelineVertexInputStateCreateInfo vertexInputInfo
     {
-        .vertexBindingDescriptionCount = 0,
-        .pVertexBindingDescriptions = nullptr,
-        .vertexAttributeDescriptionCount = 0,
-        .pVertexAttributeDescriptions = nullptr
+        .vertexBindingDescriptionCount = 1,
+        .pVertexBindingDescriptions = &bindingDescription,
+        .vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescription.size()),
+        .pVertexAttributeDescriptions = attributeDescription.data()
     };
 
     // Interpret every group of three vertices as a triangle.
@@ -790,7 +797,7 @@ void SandboxRenderer::TransitionImageLayout(
 
 void SandboxRenderer::RecordCommandBuffer(std::uint32_t imageIndex) const
 {
-    auto &commandBuffer = m_commandBuffers[m_frameIndex];
+    auto& commandBuffer = m_commandBuffers[m_frameIndex];
     commandBuffer.begin({});
 
     TransitionImageLayout(
@@ -821,7 +828,7 @@ void SandboxRenderer::RecordCommandBuffer(std::uint32_t imageIndex) const
 
     commandBuffer.beginRendering(renderingInfo);
 
-    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_graphicsPipeline);
+    commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *m_graphicsPipeline);
 
     // viewport and scissors are dynamic so they need to be set every time
     const vk::Viewport viewport{
@@ -841,9 +848,8 @@ void SandboxRenderer::RecordCommandBuffer(std::uint32_t imageIndex) const
     commandBuffer.setViewport(0, viewport);
     commandBuffer.setScissor(0, scissor);
 
-    // now we draw
-    commandBuffer.draw(3, 1, 0, 0);
-
+    commandBuffer.bindVertexBuffers(0, *m_vertexBuffer, {0});
+    commandBuffer.draw(static_cast<uint32_t>(m_vertices.size()), 1, 0, 0);
     commandBuffer.endRendering();
 
     // transition image to present
@@ -873,8 +879,8 @@ void SandboxRenderer::CreateSyncObjects()
     {
         m_presentCompleteSemaphores.emplace_back(m_device, vk::SemaphoreCreateInfo{});
         m_inFlightFences.emplace_back(m_device, vk::FenceCreateInfo{
-            .flags = vk::FenceCreateFlagBits::eSignaled
-        });
+                                          .flags = vk::FenceCreateFlagBits::eSignaled
+                                      });
     }
 }
 
@@ -904,6 +910,48 @@ void SandboxRenderer::CreateAllocator()
     };
 }
 
+void SandboxRenderer::CreateVertexBuffer()
+{
+    vk::BufferCreateInfo bufferInfo{
+        .size = sizeof(m_vertices[0]) * m_vertices.size(),
+        .usage = vk::BufferUsageFlagBits::eVertexBuffer,
+        .sharingMode = vk::SharingMode::eExclusive
+    };
+
+    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
+
+    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
+    vk::MemoryAllocateInfo memAllocateInfo{
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits,
+                                          vk::MemoryPropertyFlagBits::eHostVisible |
+                                          vk::MemoryPropertyFlagBits::eHostCoherent)
+    };
+
+    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memAllocateInfo);
+
+    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+
+    void* data = m_vertexBufferMemory.mapMemory(0, bufferInfo.size);
+    memcpy(data, m_vertices.data(), bufferInfo.size);
+    m_vertexBufferMemory.unmapMemory();
+}
+
+uint32_t SandboxRenderer::FindMemoryType(uint32_t typeFiller, vk::MemoryPropertyFlags properties) const
+{
+    vk::PhysicalDeviceMemoryProperties memProperties = m_physicalDevice.getMemoryProperties();
+
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+    {
+        if ((typeFiller) & (1 << i) && memProperties.memoryTypes[i].propertyFlags & properties)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("Failed to find suitable memory type.");
+}
+
 void SandboxRenderer::CleanupSwapchain()
 {
     m_swapchainImageViews.clear();
@@ -921,10 +969,9 @@ void SandboxRenderer::RecreateSwapchain()
     // }
     //
     WaitIdle();
-    
+
     CleanupSwapchain();
-    
+
     CreateSwapchain();
     CreateImageViews();
 }
-

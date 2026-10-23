@@ -13,7 +13,7 @@ SandboxApp::SandboxApp(SandboxAppConfig cfg) :
     m_renderer(m_sdl.GetWindow()),
     m_camera({0.0f, 0.0f, -5.0f})
 {
-    const std::filesystem::path rootPath = std::filesystem::current_path() / "../../../Assets";
+    const fs::path rootPath = fs::current_path() / "../../../Assets";
 
     ResourceManager::GetInstance().Initialize(rootPath);
     
@@ -37,7 +37,7 @@ void SandboxApp::LoadResources()
 {
     constexpr std::string_view relative = "../../../Assets";
     // initialize resource manager and register mesh    
-    const std::filesystem::path rootPath = fs::current_path() / relative;
+    const fs::path rootPath = fs::current_path() / relative;
     auto rscMan = &ResourceManager::GetInstance();
 
     const fs::path gupta{"gupta.glb"};
@@ -55,17 +55,17 @@ void SandboxApp::InitVulkan()
 {
     SandboxShaderCompiler shaderCompiler;
     
-    const char * shaderPath = "triangle_gradient.slang";
+    const char * shaderPath = "base_shader.slang";
 
     const auto vertexSpirv = shaderCompiler.CompileSpirv(
-        "triangle",
+        "base",
         shaderPath,
-        "vertexMain");
+        "vMain");
 
     const auto fragmentSpirv = shaderCompiler.CompileSpirv(
-        "triangle",
+        "base",
         shaderPath,
-        "fragmentMain");
+        "fMain");
 
     m_renderer.CreateShaderModules(vertexSpirv, fragmentSpirv);
     m_renderer.CreateGraphicsPipeline();

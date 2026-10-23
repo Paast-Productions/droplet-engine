@@ -14,6 +14,8 @@
 #include <array>
 #include <SDL3/SDL_video.h>
 
+#include "SandboxGeometry.hpp"
+
 namespace Droplet::Sandbox
 {
     class SandboxRenderer
@@ -69,11 +71,17 @@ namespace Droplet::Sandbox
         void RecordCommandBuffer(std::uint32_t imageIndex) const;
 
         void CreateSyncObjects();
-
-        void IncrementFrameIndex(){ m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT; };
         void CreatePipelineLayout();
         void CreateAllocator();
+
+        // buffers
+        void CreateVertexBuffer();
         
+        // utils
+        void IncrementFrameIndex(){ m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT; };
+        uint32_t FindMemoryType(uint32_t typeFiller, vk::MemoryPropertyFlags properties) const;
+                
+        // swapchain utils
         void CleanupSwapchain();
         void RecreateSwapchain();
     
@@ -132,6 +140,15 @@ namespace Droplet::Sandbox
         vk::raii::Pipeline m_graphicsPipeline{nullptr};
         vk::ClearValue m_defaultClearColor{vk::ClearColorValue{{{0.002f, 0.002f, 0.002f, 1.0f}}}};
 
+        // buffer objects
+        const std::vector<Vertex> m_vertices = {
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+        };
+        vk::raii::Buffer m_vertexBuffer { nullptr };
+        vk::raii::DeviceMemory m_vertexBufferMemory {nullptr};
+        
         // keeping a reference to the window instance for convenience
         SDL_Window* m_windowRef{nullptr};
         bool m_frameBufferResized{false};
