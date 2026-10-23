@@ -59,6 +59,6 @@ namespace Droplet::Scene
         std::weak_ptr<Node> m_target;
 
         // Offset from the target's world position.
-        glm::vec3 m_offset{1.5f, 0.0f, 0.0f};
+        glm::vec3 m_offset{0.0f, 0.0f, 0.0f};
     };
 }

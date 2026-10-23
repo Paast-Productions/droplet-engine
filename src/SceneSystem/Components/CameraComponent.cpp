@@ -5,6 +5,7 @@
 
 #include <glm/gtc/constants.hpp>
 #include <glm/common.hpp>
+#include <ImGui/imgui.h>
 
 #include <cmath>
 
@@ -33,11 +34,15 @@ void CameraComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
     const glm::vec3 position =
         transform.GetPosition(Transform::Space::World);
 
-    m_camera->SetPosition(position);
+    const glm::vec3 forward = transform.GetForward(Transform::Space::World);
+    const glm::vec3 right = transform.GetRight(Transform::Space::World);
+    const glm::vec3 up = transform.GetUp(Transform::Space::World);
 
-    // Use the node's actual world-space forward direction.
-    const glm::vec3 forward =
-        transform.GetForward(Transform::Space::World);
+    // Offset is local: x = right, y = up, z = forward
+    const glm::vec3 worldOffset =
+        right * m_offset.x + up * m_offset.y + forward * m_offset.z;
+
+    m_camera->SetPosition(position + worldOffset);
 
     constexpr float radiansToDegrees = 180.0f / glm::pi<float>();
 
@@ -53,7 +58,14 @@ void CameraComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 
 void CameraComponent::RenderUIImpl()
 {
-    
+    ImGui::DragFloat3("Offset", &m_offset.x, 0.1f);
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Reset"))
+    {
+        m_offset = { 0.0f, 0.0f, 0.0f };
+    }
 }
 
 nlohmann::json CameraComponent::SerializeImpl()
