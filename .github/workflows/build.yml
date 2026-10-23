@@ -1,12 +1,12 @@
-# To reduce the tun time of this action, it might be relevant to cache externals. This is not done currently.
-# Linux is not currently being tested.defaults: 
-# Release configuration is not currently being tested.
+# TODO: Linux build
+# TODO: Release build on Windows and Linux
+
 name: Build
 
 on:
-  #push:
-  #  branches:
-  #    - 
+  push:
+    branches:
+      - feature/buildtime-improvements
     
   pull_request: 
     branches:
@@ -121,6 +121,26 @@ jobs:
         with:
           msbuild-architecture: 'x64'
           vs-version: '[18.0, 19.0)'
+
+      # Generate a file used to set the cache key - this has no impact on the build itself
+      - name: Generate fingerprint for external cache
+        shell: pwsh
+        run: |
+          git submodule status --recursive |
+            Out-File .submodule-status -Encoding utf8
+
+      # Generate a cache of the built externals, to reduce build times.
+      - name: Cache externals
+        uses: actions/cache@v6
+        with:
+          path: |
+            Build/Obj/Assimp
+            Build/Obj/Dalia
+            Build/Obj/GoogleTest
+            Build/Obj/Jolt
+            BUild/Obj/Lua
+            Build/Target/External
+          key: externals-v1-${{ runner.os }}-debug-${{ hashFiles('.submodule-status', 'Premake/External/**') }}
 
       - name: Generate Visual Studio solution
         run: premake5 vs2026
