@@ -224,6 +224,24 @@ end
 -- Member functions
 --
 
+function GetVerticalInput()
+    local vertical = 0.0
+
+    if Input:KeyHeld(Key.Space) then
+        vertical = vertical + 1.0
+    end
+
+    if Input:KeyHeld(Key.LCTRL) then
+        vertical = vertical - 1.0
+    end
+
+    if vertical ~= 0.0 then
+        print("VerticalInput: " .. vertical)
+    end
+
+    return vertical
+end
+
 function UpdateMovement(dt)
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
@@ -244,14 +262,14 @@ function UpdateMovement(dt)
     end
 
     -- Strafe left and right
-    if Input:KeyHeld(Key.D) then
+    if Input:KeyHeld(Key.A) then
         inputDirection = GLM.V3Add(
             inputDirection,
             trans:GetRight(TransformSpace.World)
         )
     end
 
-    if Input:KeyHeld(Key.A) then
+    if Input:KeyHeld(Key.D) then
         inputDirection = GLM.V3Sub(
             inputDirection,
             trans:GetRight(TransformSpace.World)
@@ -259,14 +277,29 @@ function UpdateMovement(dt)
     end
 
     -- Dedicated vertical movement in world space
-    local worldUp = Vec3.new(0.0, 0.0, 0.0)
 
     if Input:KeyHeld(Key.Space) then
-        inputDirection = GLM.V3Add(inputDirection, worldUp)
+        inputDirection = GLM.V3Add(
+            inputDirection,
+            trans:GetUp(TransformSpace.World)
+        )
     end
 
     if Input:KeyHeld(Key.LCTRL) then
-        inputDirection = GLM.V3Sub(inputDirection, worldUp)
+        inputDirection = GLM.V3Sub(
+            inputDirection,
+            trans:GetUp(TransformSpace.World)
+        )
+    end
+
+    --local worldUp = Vec3.new(0.0, 0.0, 0.0)
+
+    if Input:KeyHeld(Key.Space) then
+        --inputDirection = GLM.V3Add(inputDirection, worldUp)
+    end
+
+    if Input:KeyHeld(Key.LCTRL) then
+        --inputDirection = GLM.V3Sub(inputDirection, worldUp)
     end
 
     -- Normalize only if the direction is longer than 1
@@ -329,6 +362,8 @@ function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
 	UpdateMovement(dt)
+
+    GetVerticalInput()
 
     tracy.ZoneEnd()
 end
