@@ -269,21 +269,57 @@ function RenderUI()
     if trans then
         local fishPos = trans:GetPosition(TransformSpace.World)
         local movement = GLM.V3MulF(trans:GetForward(TransformSpace.World), moveSpeed)
+        local distToTarget = GLM.V3Length(GLM.V3Sub(targetPoint, fishPos))
 
         DebugDraw.DrawCurveQuadratic(
             fishPos, 
-            movement, 
+            GLM.V3MulF(movement, distToTarget), 
             targetPoint, 
             Vec4.new(1.0, 0.0, 1.0, 0.7), 
-            32,
+            16,
             true
         )
 
-        local sphere = Sphere.new(targetPoint, targetAcceptanceRadius)
-        DebugDraw.DrawSphere(
-            sphere, 
+        local ray = Ray.new(fishPos, movement)
+        DebugDraw.DrawRay(
+            ray, 
             Vec4.new(1.0, 1.0, 0.0, 0.3), 
-            2, 
+            true
+        )
+
+        local acceptedRadiusSphere = Sphere.new(targetPoint, targetAcceptanceRadius)
+        DebugDraw.DrawSphere(
+            acceptedRadiusSphere, 
+            Vec4.new(0.0, 1.0, 0.0, 0.2), 
+            1, 
+            true
+        )
+
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(1.0, 0.0, 0.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
+            true
+        )
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(0.0, 1.0, 0.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
+            true
+        )
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(0.0, 0.0, 1.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
             true
         )
     end
