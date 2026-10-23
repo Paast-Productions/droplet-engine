@@ -21,5 +21,7 @@ float4 main(FSInput vertIn) : SV_TARGET
 {
     float3 colour = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y)).rgb;
     
-    return float4(colour, 1.0);
+    float3 b = colour * float3(0.65f, 0.65f, 1.0f);
+    
+    return float4(b, 1.0);
 }
