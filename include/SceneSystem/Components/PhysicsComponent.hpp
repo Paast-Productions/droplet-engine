@@ -22,6 +22,17 @@ namespace Droplet::Scene
 	class PhysicsComponent : public Component
 	{
 	public:
+		enum class ShapeType : std::uint8_t
+		{
+			None,
+			Box,
+			Sphere,
+			Capsule,
+			Mesh,
+			ConvexHull,
+			Compound
+		};
+		
 		/// @brief A struct containing necessary data to create a compound shape collider
 		struct CompoundShape
 		{
@@ -29,30 +40,41 @@ namespace Droplet::Scene
 			glm::quat Rot = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 			JPH::Ref<JPH::ShapeSettings> Shape = nullptr;
 			
+			ShapeType GetShapeType() const { return ShapeType; }
+			
 			void SetBoxShape(const JPH::Vec3 p_halfExtents)
 			{
 				Shape = new JPH::BoxShapeSettings(p_halfExtents);
+				ShapeType = ShapeType::Box;
 			}
 			void SetBoxShape(const glm::vec3 p_halfExtents)
 			{
 				Shape = new JPH::BoxShapeSettings(GLMtoJPH(p_halfExtents));
+				ShapeType = ShapeType::Box;
 			}
 			void SetSphereShape(const float p_radius)
 			{
 				Shape = new JPH::SphereShapeSettings(p_radius);
+				ShapeType = ShapeType::Sphere;
 			}
-			void SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius)
+			void SetCapsuleShape(const float p_HalfHeightOfCylinder, const float p_radius)
 			{
 				Shape = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
+				ShapeType = ShapeType::Capsule;
 			}
-			void SetMeshCollider(const Droplet::GUID p_meshGuid)
+			void SetMeshShape(const Droplet::GUID p_meshGuid)
 			{
 				Shape = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
+				ShapeType = ShapeType::Mesh;
 			}
-			void SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f)
+			void SetConvexHullShape(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f)
 			{
 				Shape = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_meshGuid, p_edgeRadius));
+				ShapeType = ShapeType::ConvexHull;
 			}
+			
+		private:
+			ShapeType ShapeType = ShapeType::None;
 		};
 		
 		PhysicsComponent() = default;
@@ -157,16 +179,7 @@ namespace Droplet::Scene
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
-		enum class ShapeType : std::uint8_t
-		{
-			None,
-			Box,
-			Sphere,
-			Capsule,
-			Mesh,
-			ConvexHull,
-			Compound
-		}m_shapeType = ShapeType::None;
+		ShapeType m_shapeType = ShapeType::None;
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;
 

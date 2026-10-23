@@ -1,5 +1,6 @@
 #include "PhysicsComponent.hpp"
 
+#include <DragDropFields.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -14,10 +15,118 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <SceneSystem/Physics/MeshColliderManager.h>
 #include <resource/GuidUtils.hpp>
-
-#include "IntermediaryStorage.hpp"
+#include <IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
+
+namespace
+{
+    bool ResourceSlot(
+        const char *p_label,
+        Droplet::GUID p_current,
+        const std::string &p_currentDisplayName,
+        Droplet::GUID &p_outGUID,
+        std::string &p_outDisplayName,
+        Droplet::ResourceType p_expectedType)
+    {
+        using namespace ImGui;
+        using namespace Droplet::Editor;
+
+        bool changed = false;
+
+        PushID(p_label);
+        TableNextRow();
+        TableNextColumn();
+        AlignTextToFramePadding();
+        TextUnformatted(p_label);
+        TableNextColumn();
+
+        const float clearW = GetFrameHeight();
+        const float gap = GetStyle().ItemSpacing.x;
+
+        const std::string text = p_current != Droplet::C_INVALID_GUID
+            ? p_currentDisplayName
+            : "None (drop resource here)";
+
+        if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
+        {
+            OpenPopup("pick");
+        }
+
+        if (BeginDragDropTarget())
+        {
+            if (const ImGuiPayload *pl =
+                AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
+            {
+                if (pl->DataSize == sizeof(const Droplet::MetaEntry *))
+                {
+                    const auto *entryPtr =
+                        *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
+
+                    if (entryPtr->type == p_expectedType)
+                    {
+                        // Access the complete entry.
+                        p_outGUID = entryPtr->guid;
+                        p_outDisplayName = entryPtr->displayName;
+                        changed = true;
+                    }
+                    else
+                    {
+                    }
+                }
+            }
+            if (const ImGuiPayload *pl =
+                AcceptDragDropPayload(PAYLOAD_ASSET.data()))
+            {
+                if (pl->DataSize % sizeof(const Droplet::MetaEntry *) == 0)
+                {
+                    const auto *entries =
+                        static_cast<const Droplet::MetaEntry *const *>(pl->Data);
+
+                    const std::size_t count =
+                        pl->DataSize / sizeof(const Droplet::MetaEntry *);
+
+                    for (std::size_t i = 0; i < count; ++i)
+                    {
+                        const Droplet::MetaEntry *entry = entries[i];
+
+                        if (entry && entry->type == p_expectedType)
+                        {
+                            p_outGUID = entry->guid;
+                            p_outDisplayName = entry->displayName;
+                            changed = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            EndDragDropTarget();
+        }
+
+        if (p_current != Droplet::C_INVALID_GUID && IsItemHovered())
+        {
+            SetTooltip(
+                "GUID: %llu",
+                static_cast<unsigned long long>(p_current));
+        }
+    	
+    	SameLine();
+    	BeginDisabled(p_current == Droplet::C_INVALID_GUID);
+
+    	if (Button("X", ImVec2(clearW, clearW)))
+    	{
+    		p_outGUID = Droplet::C_INVALID_GUID;
+    		p_outDisplayName.clear();
+    		changed = true;
+    	}
+
+    	EndDisabled();
+
+        PopID();
+        return changed;
+    }
+}
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -173,30 +282,34 @@ void PhysicsComponent::RenderUIImpl()
 	if (m_shapeType != ShapeType::None)
 	{
 		// Display the current collider shape
-		std::string shapeType = "Shape type: ";
-		switch (m_shapeType)
 		{
-		case ShapeType::Box:
-			shapeType += "Box";
-			break;
-		case ShapeType::Sphere:
-			shapeType += "Sphere";
-			break;
-		case ShapeType::Capsule:
-			shapeType += "Capsule";
-			break;
-		case ShapeType::Mesh:
-			shapeType += "Mesh";
-			break;
-		case ShapeType::ConvexHull:
-			shapeType += "Convex Hull";
-			break;
-		case ShapeType::Compound:
-			shapeType += "Compound";
-			break;
-		}
+			std::string shapeType = "Shape type: ";
+			switch (m_shapeType)
+			{
+			case ShapeType::Box:
+				shapeType += "Box";
+				break;
+			case ShapeType::Sphere:
+				shapeType += "Sphere";
+				break;
+			case ShapeType::Capsule:
+				shapeType += "Capsule";
+				break;
+			case ShapeType::Mesh:
+				shapeType += "Mesh";
+				break;
+			case ShapeType::ConvexHull:
+				shapeType += "Convex Hull";
+				break;
+			case ShapeType::Compound:
+				shapeType += "Compound";
+				break;
+			case ShapeType::None:
+				break;
+			}
 		
-		ImGui::Text(shapeType.c_str());
+			ImGui::Text(shapeType.c_str());
+		}
 		
 		// Display the current motion type 
 		std::string motionText = "Motion type: ";
@@ -323,7 +436,7 @@ void PhysicsComponent::RenderUIImpl()
 	}
 	
 	// ========== Collider type menu ==========
-	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull" };
+	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull", "Compound" };
 	static int selectedColliderIdx = 0; // Here we store our selection data as an index.
 
 	const char* comboPreviewValue1 = colliderTypes[selectedColliderIdx];
@@ -355,28 +468,29 @@ void PhysicsComponent::RenderUIImpl()
 	Droplet::GUID guid = 0;
 	std::shared_ptr<Node> node = GetOwner();
 	std::vector<std::shared_ptr<MeshComponent>> meshComponents = node->GetComponents<MeshComponent>();
+	static std::vector<CompoundShape> compoundShapes{};
 	static std::size_t selectedMeshIdx = 0; // Here we store our selection data as an index.
 	switch (selectedColliderIdx)
 	{
 	case 0: // Box collider
 		{
 			ImGui::Text("Input half extents:");
-			ImGui::InputFloat("x", &x, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("y", &y, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("z", &z, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
 			break;
 		}
 	case 1: // Sphere collider
 		{
 			ImGui::Text("Input radius:");
-			ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
 			break;
 		}
 	case 2: // Capsule collider
 		{
 			ImGui::Text("Input capsule radius and cylinder height:");
-			ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("Cylinder height", &h, 0.1f, 1.0f, "%.3f");
+			ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("Cylinder height##0", &h, 0.1f, 1.0f, "%.3f");
 			break;
 		}
 	case 4: // Convex hull collider
@@ -384,7 +498,7 @@ void PhysicsComponent::RenderUIImpl()
 			if (!meshComponents.empty())
 			{
 				ImGui::Text("Input edge radius:");
-				ImGui::InputFloat("Radius", &r, 0.01f, 1.0f, "%.3f");
+				ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
 				ImGui::SetItemTooltip("Values <= 0.0 sets to default value of %.2f", JPH::cDefaultConvexRadius);
 			}
 		}
@@ -396,7 +510,6 @@ void PhysicsComponent::RenderUIImpl()
 			}
 			else
 			{
-				
 				std::vector<std::string> meshNames;
 				meshNames.reserve(meshComponents.size());
 				for (const std::shared_ptr<MeshComponent> &m : meshComponents)
@@ -440,22 +553,240 @@ void PhysicsComponent::RenderUIImpl()
 			
 			break;
 		}
-	case 5:
+	case 5: // Compound collider
 		{
-			// TODO: Implement compound shape
+			if (ImGui::Button("Empty list"))
+			{
+				compoundShapes.clear();
+			}
+			
+			CompoundShape compoundShape{};
+			static float shapePosX = 0.0f;
+			static float shapePosY = 0.0f;
+			static float shapePosZ = 0.0f;
+			static float shapeRotW = 1.0f;
+			static float shapeRotX = 0.0f;
+			static float shapeRotY = 0.0f;
+			static float shapeRotZ = 0.0f;
+			
+			ImGui::NewLine();
+			ImGui::Text("Input shape position:");
+			ImGui::InputFloat("x##1", &shapePosX, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("y##1", &shapePosY, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("z##1", &shapePosZ, 0.01f, 1.0f, "%.3f");
+			
+			ImGui::NewLine();
+			ImGui::Text("Input shape rotation:");
+			ImGui::InputFloat("w##0", &shapeRotW, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("x##2", &shapeRotX, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("y##2", &shapeRotY, 0.01f, 1.0f, "%.3f");
+			ImGui::InputFloat("z##2", &shapeRotZ, 0.01f, 1.0f, "%.3f");
+			
+			static std::string displayName = "";
+			static Droplet::GUID currentGUID = Droplet::C_INVALID_GUID;
+			static std::string newName = "";
+			static Droplet::GUID newGUID{};
+			static int selectedColliderIdx1 = 0; // Here we store our selection data as an index.
+			
+			ImGui::NewLine();
+			ImGui::Separator();
+			ImGui::Text("Choose shape:");
+			
+			const char* comboPreviewValue2 = colliderTypes[selectedColliderIdx1];
+			if (ImGui::BeginCombo("Collider Type##1", comboPreviewValue2, 0))
+			{
+				for (int n = 0; n < IM_COUNTOF(colliderTypes) - 1; n++)
+				{
+					const bool isSelected = (selectedColliderIdx1 == n);
+					if (ImGui::Selectable(colliderTypes[n], isSelected))
+					{
+						selectedColliderIdx1 = n;
+					}
+
+					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+					if (isSelected)
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+				ImGui::EndCombo();
+			}
+			
+			static float x1 = 0.0f;
+			static float y1 = 0.0f;
+			static float z1 = 0.0f;
+			static float r1 = 0.0f;
+			static float h1 = 0.0f;
+			
+			switch (selectedColliderIdx1)
+			{
+			case 0: // Box collider
+				{
+					ImGui::Text("Input half extents:");
+					ImGui::InputFloat("x##3", &x1, 0.01f, 1.0f, "%.3f");
+					ImGui::InputFloat("y##3", &y1, 0.01f, 1.0f, "%.3f");
+					ImGui::InputFloat("z##3", &z1, 0.01f, 1.0f, "%.3f");
+					break;
+				}
+			case 1: // Sphere collider
+				{
+					ImGui::Text("Input radius:");
+					ImGui::InputFloat("Radius##1", &r1, 0.01f, 1.0f, "%.3f");
+					break;
+				}
+			case 2: // Capsule collider
+				{
+					ImGui::Text("Input capsule radius and cylinder height:");
+					ImGui::InputFloat("Radius##1", &r1, 0.01f, 1.0f, "%.3f");
+					ImGui::InputFloat("Cylinder height##1", &h1, 0.1f, 1.0f, "%.3f");
+					break;
+				}
+			case 4: // Convex hull collider
+				{
+					if (!meshComponents.empty())
+					{
+						ImGui::Text("Input edge radius:");
+						ImGui::InputFloat("Radius##1", &r1, 0.01f, 1.0f, "%.3f");
+						ImGui::SetItemTooltip("Values <= 0.0 sets to default value of %.2f", JPH::cDefaultConvexRadius);
+					}
+				}
+			case 3:
+				if (ImGui::BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
+				{
+					ImGui::TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
+        			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+				
+					if (ResourceSlot(
+						"Mesh",
+						currentGUID,
+						displayName,
+						newGUID,
+						newName,
+						Droplet::ResourceType::Mesh))
+					{
+						currentGUID = newGUID;
+						displayName = newName;
+					}
+					ImGui::EndTable();
+				}
+				break;
+			}
+			
+			static bool displayError = false;
+			if (ImGui::Button("Add shape"))
+			{
+				compoundShape.Pos = glm::vec3(shapePosX, shapePosY, shapePosZ);
+				compoundShape.Rot = glm::quat(shapeRotW, shapeRotX, shapeRotY, shapeRotZ);
+				switch (selectedColliderIdx1)
+				{
+				case 0: // Box collider
+					if (x1 == 0.0f || y1 == 0.0f || z1 == 0.0f)
+					{
+						displayError = true;
+						break;
+					}
+					compoundShape.SetBoxShape(glm::vec3(x, y, z));
+					displayError = false;
+					break;
+				case 1: // Sphere collider
+					if (r1 == 0.0f)
+					{
+						displayError = true;
+						break;
+					}
+					displayError = false;
+					compoundShape.SetSphereShape(r);
+					break;
+				case 2: // Capsule collider
+					if (r1 == 0.0f || h1 == 0.0f)
+					{
+						displayError = true;
+						break;
+					}
+					compoundShape.SetCapsuleShape(r, h);
+					displayError = false;
+					break;
+				case 3: // Mesh collider
+					if (newGUID == Droplet::C_INVALID_GUID)
+					{
+						displayError = true;
+						break;
+					}
+					compoundShape.SetMeshShape(newGUID);
+					displayError = false;
+					break;
+				case 4:
+					if (newGUID == Droplet::C_INVALID_GUID)
+					{
+						displayError = true;
+						break;
+					}
+					compoundShape.SetConvexHullShape(newGUID, r);
+					displayError = false;
+					break;
+				default:
+					break;
+				}
+				
+				if (!displayError)
+				{
+					compoundShapes.push_back(compoundShape);
+				}
+			}
+			
+			if (displayError)
+			{
+				ImGui::Text("Error: Invalid collider settings!");
+			}
+			
+			ImGui::Separator();
+			
+			ImGui::Text("List of colliders:");
+			
+			// Display all compound shapes
+			for (CompoundShape &cs : compoundShapes)
+			{
+				std::string shapeType = "Shape type: ";
+				switch (cs.GetShapeType())
+				{
+				case ShapeType::Box:
+					shapeType += "Box";
+					break;
+				case ShapeType::Sphere:
+					shapeType += "Sphere";
+					break;
+				case ShapeType::Capsule:
+					shapeType += "Capsule";
+					break;
+				case ShapeType::Mesh:
+					shapeType += "Mesh";
+					break;
+				case ShapeType::ConvexHull:
+					shapeType += "Convex Hull";
+					break;
+				case ShapeType::None:
+				case ShapeType::Compound:
+					break;
+				}
+				ImGui::Text(shapeType.c_str());
+			}
+			
+			ImGui::NewLine();
 			break;
 		}
 	default:
 		break;
 	}
 	
+	ImGui::Separator();
+	
 	static float offsetX = 0.0f;
 	static float offsetY = 0.0f;
 	static float offsetZ = 0.0f;
 	ImGui::Text("Input offset:");
-	ImGui::InputFloat("x##", &offsetX, 0.01f, 1.0f, "%.3f");
-	ImGui::InputFloat("y##", &offsetY, 0.01f, 1.0f, "%.3f");
-	ImGui::InputFloat("z##", &offsetZ, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("x##4", &offsetX, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("y##4", &offsetY, 0.01f, 1.0f, "%.3f");
+	ImGui::InputFloat("z##4", &offsetZ, 0.01f, 1.0f, "%.3f");
 	
 	// ========== Collider apply button ==========
 	static bool displayError = false;
@@ -495,15 +826,13 @@ void PhysicsComponent::RenderUIImpl()
 			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 4:
-			if (r == 0.0f)
-			{
-				displayError = true;
-				break;
-			}
 			SetConvexHullCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 5:
-			// TODO: Implement compound shape
+			if (!compoundShapes.empty())
+			{
+				SetCompoundCollider(compoundShapes);
+			}
 			break;
 		default:
 			break;
