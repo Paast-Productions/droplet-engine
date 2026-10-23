@@ -38,7 +38,7 @@ namespace Droplet::Script
 			return scriptSystem;
 		}
 
-		void Initialize(Scene::SceneManager p_sceneManager);
+		void Initialize(Scene::SceneManager &p_sceneManager);
 
 		/// @brief Starts the components.
 		/// This should be called once the scene starts with the script system.

@@ -58,7 +58,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	RegisterComponents();
 
 	// Script Init
-	ScriptSystem::Get().Initialize(m_sceneManager);
+	ScriptSystem::Get().Initialize(&m_sceneManager);
 }
 
 Droplet::Engine::~Engine()

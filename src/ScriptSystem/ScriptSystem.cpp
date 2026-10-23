@@ -16,7 +16,7 @@ ScriptSystem::~ScriptSystem()
 	ZoneScoped;
 }
 
-void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager p_sceneManager)
+void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 

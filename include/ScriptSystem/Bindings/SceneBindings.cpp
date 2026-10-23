@@ -7,7 +7,7 @@
 
 using namespace Droplet;
 
-void Droplet::Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneManager p_sceneManager)
+void Droplet::Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 

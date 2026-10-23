@@ -26,7 +26,7 @@ std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
 std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
 std::vector<LuaEnumDefinition> LuaBindings::m_luaEnumDefinitions;
 
-void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::SceneManager p_sceneManager)
+void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 
