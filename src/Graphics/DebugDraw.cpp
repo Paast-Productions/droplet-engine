@@ -577,7 +577,7 @@ void DebugDraw::Shutdown()
 
 	if (m_device)
 	{
-		(*m_device).waitIdle();
+		m_device->waitIdle();
 	}
 
 	m_frameResources.clear();

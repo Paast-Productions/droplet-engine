@@ -4,7 +4,7 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Graphics/VK/Context.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/DescriptorPool.hpp>
@@ -18,8 +18,20 @@
 #include <Graphics/RenderData.hpp>
 #include <Resource/ResourceManager.hpp>
 
+namespace Droplet::Graphics
+{
+    // Forward declarations
+    class Renderer;
+    class Context;
+}
+
 namespace Droplet::Graphics::VK
 {
+    // TODO: <REFACTOR>
+    // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something
+    constexpr std::uint32_t INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
+    // TODO: </REFACTOR>
+    
     struct PipelineKey
     {
         std::uint64_t vsGuid{ 0 };
@@ -131,23 +143,33 @@ namespace Droplet::Graphics::VK
     class IntermediaryStorage
     {
     public:
-        IntermediaryStorage() = delete;
+        [[nodiscard]] static IntermediaryStorage &GetInstance()
+        {
+            static IntermediaryStorage instance {};
+            return instance; 
+        }
         
-        IntermediaryStorage(nullptr_t p_nullptr) :
-            m_context(p_nullptr),
-            m_allocator(p_nullptr),
-            m_descriptorPool(p_nullptr),
-            m_textureSampler(p_nullptr) {}
-
-        IntermediaryStorage(Context &p_context);
-
         IntermediaryStorage(const IntermediaryStorage &p_other) = delete;
         IntermediaryStorage& operator=(const IntermediaryStorage &p_other) = delete;
         IntermediaryStorage(IntermediaryStorage &&p_other) noexcept = delete;
         IntermediaryStorage& operator=(IntermediaryStorage &&p_other) noexcept = delete;
-
+        
+        [[nodiscard]] std::uint32_t CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
+        [[nodiscard]] RenderTarget &GetRenderTargetAt(std::uint32_t p_index) { return m_renderTargets.at(p_index); }
+        
+        [[nodiscard]] std::uint32_t CreateImGuiTexture(const RenderTarget &p_renderTarget);
+        void UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height);
+        
+    private:
+        // Friend class Renderer to give it access to internals
+        friend class Renderer;
+        
+        IntermediaryStorage() = default;
         ~IntermediaryStorage() = default;
-
+        
+        void Initialise(const Context &p_context);
+        void Shutdown();
+        
         [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
         
         // TODO: <REFACTOR>
@@ -164,19 +186,12 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result);
         
         // HACK: Temporary getter to be removed
-        [[nodiscard]] const vk::raii::Sampler &GetSampler() const { return m_textureSampler.Get(); }
-        
-        // HACK: Temporary getter to be removed
-        [[nodiscard]] const DescriptorPool &GetDescriptorPool() const { return m_descriptorPool; }
-        
-        // HACK: Temporary getter to be removed
         [[nodiscard]] DescriptorSet &GetDescriptorSet(const vk::DescriptorType p_descriptorType) { return m_descriptorSets.at(m_descriptorSetIndexMap.at(p_descriptorType)); }
         
         [[nodiscard]] std::vector<vk::DescriptorSet> GetDescriptorSets() const; 
         
-    private:
-        // Vulkan Context reference (non-owning)
-        const Context &m_context;
+        // Vulkan Context Pointer (non-owning)
+        const Context *m_context = nullptr;
         
         // Vulkan thingies
         Allocator m_allocator { nullptr };
@@ -194,13 +209,17 @@ namespace Droplet::Graphics::VK
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
         std::unordered_map<MeshKey, VertexBuffer, MeshHasher> m_vertexMap {};
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
-        std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap{};
+        std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
         std::vector<Image> m_imageMap {};
-        std::vector<ImageView> m_viewMap{};
+        std::vector<ImageView> m_viewMap {};
+        std::vector<RenderTarget> m_renderTargets {};
         Sampler m_textureSampler {};
 
-        std::map<std::uint64_t, std::uint32_t> m_textureGuidMap{};
+        std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
+        
+        // ImGui
+        std::vector<vk::DescriptorSet> m_imguiTextures {};
     };
 }
 

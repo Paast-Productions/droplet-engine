@@ -24,14 +24,6 @@ namespace Droplet::Editor::Scene
 
 		~SceneViewWindow() = default;
 
-		// TODO: Possible <REFACTOR>
-		/// @brief Get the ScenViewWindow rendertarget
-		/// @returns custom RenderTarget class
-		Droplet::Graphics::RenderTarget &GetRenderTarget();
-		
-		void SetViewDescriptor(VkDescriptorSet p_textureDescriptor);
-		// TODO: Possible </REFACTOR> 
-
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -53,11 +45,11 @@ namespace Droplet::Editor::Scene
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
 
-		/// @brief The texture that the renderer will render to
-		Graphics::RenderTarget m_renderTarget { nullptr };
+		/// @brief The index of the texture that the renderer will render to
+		std::uint32_t m_targetIndex { Graphics::VK::INVALID_INDEX };
 
-		/// @brief The texture that ImGui uses to render the scene in a ImGui window
-		VkDescriptorSet m_textureDescriptorSet = VK_NULL_HANDLE;
+		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
+		std::uint32_t m_textureIndex { Graphics::VK::INVALID_INDEX };
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.

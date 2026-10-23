@@ -20,21 +20,12 @@
 #include <shader-slang/slang-com-ptr.h>
 #endif
 
-#include <Graphics/SDL/Window.hpp>
-#include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/IndexBuffer.hpp>
-#include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
-#include <Graphics/VK/StorageBuffer.hpp>
-#include <Graphics/VK/DepthBuffer.hpp>
-#include <Graphics/VK/DescriptorSet.hpp>
-#include <Graphics/VK/DescriptorPool.hpp>
-#include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/CameraController.hpp>
 #include <Graphics/VK/IntermediaryStorage.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/RenderData.hpp>
@@ -64,23 +55,13 @@ namespace Droplet::Graphics
 		
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
-		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);
+		void Draw(const Camera& p_camera, std::vector<RenderData> p_renderData);
 		
 		/// @brief Resizes the window
 		void ResizeWindow();
 		
-	/// @brief Fills and returns initInfo for ImGui
-	/// @return ImGui init info
-	void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
 
-		/// @brief Wait for the Vulkan device to be idle
-		void WaitIdle();
-
-		RenderTarget CreateRenderTarget(uint32_t p_width, uint32_t p_height);
-
-		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
-
-		SDL_Event				Event;
+		SDL_Event				Event {};
 		inline static			SDL_InitState s_Init {};
 		
 	private:
@@ -88,7 +69,6 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordCommandBuffer(std::vector<RenderData> &p_renderData, std::uint32_t p_imageIndex);
 		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
@@ -115,55 +95,37 @@ namespace Droplet::Graphics
 			vk::PipelineStageFlags2 p_dst_stage_mask,
 			vk::ImageAspectFlags    p_image_aspect_flags,
 			const vk::raii::CommandBuffer &p_commandBuffer);
+		
+		/// @brief Fills and returns initInfo for ImGui
+		/// @return ImGui init info
+		void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
 
+		// MAIN RENDERER
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 		SDL_Window* m_window { nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::IntermediaryStorage m_interStorage { nullptr };
-
-		SDL_Event m_event {};
-
 		VK::CommandPool m_commandPool { nullptr };
+		VK::Swapchain m_swapchain { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
-
-		//VK::DescriptorPool						m_descriptorPool { nullptr };
-		//VK::DescriptorSet						m_globalDescriptorSet { nullptr };
 		
-		VK::Swapchain m_swapchain { nullptr };
-
-		VK::Image		m_image			{ nullptr };
-		VK::ImageView	m_textureView	{ nullptr };
-		VK::StorageBuffer m_storageBuffer { nullptr };
 		VK::UniformBuffer m_vpBuffer { nullptr };
-		
-		VK::DepthBuffer	m_depthBuffer	{ nullptr };
-		VK::IndexBuffer	m_indexBuffer	{ nullptr };
-		VK::VertexBuffer m_vertexBuffer { nullptr };
 
+		vk::Result m_latestResult;
+		bool m_framebufferResized = false;
+		
+		// DEBUG
 		vk::raii::DescriptorPool m_debugDescriptorPool { nullptr };
 		
+		// IMGUI 
 		vk::raii::DescriptorPool m_imGuiDescriptorPool { nullptr };
 		std::uint32_t m_imGuiPoolSize { 0 };
 
 		VkFormat m_imGuiColorFormat {};
 
-		//Needs one buffer per frame in flight to avoid read write issues
-		
-		
-		//Index for rendered frames
-		std::uint32_t m_frameIndex = 0;
-
-		//Latest received swapchain result
-		vk::Result m_result;
-
-		bool m_framebufferResized = false;
-		
-		Camera m_camera {};
-		CameraController m_cameraController {};
 	};
 }

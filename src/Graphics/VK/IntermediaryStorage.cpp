@@ -1,25 +1,100 @@
 #include "IntermediaryStorage.hpp"
 
 #include <vector>
+
+#include <ImGui/imgui_impl_vulkan.h>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
+
 #include <Graphics/VK/ShaderModule.hpp> 
-#include <Debug/Logger.hpp>
 
 using namespace Droplet::Graphics::VK;
 
-IntermediaryStorage::IntermediaryStorage(Context &p_context) :
-    m_context(p_context),
-    m_allocator(m_context.GetInstance(), m_context.GetPhysicalDevice(), m_context.GetDevice()),
-    m_descriptorPool(m_context.GetDevice()),
-    m_textureSampler(m_context.GetPhysicalDevice(), m_context.GetDevice())
+void IntermediaryStorage::Initialise(const Context &p_context)
 {
-    // TODO: <REFACTOR>
-    // Should be a for-loop
-    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
-    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
-    m_descriptorSets.emplace_back(m_context.GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
-    // TODO: </REFACTOR>
+    m_context = &p_context;
+    m_allocator = { m_context->GetInstance(), m_context->GetPhysicalDevice(), m_context->GetDevice() };
+    m_descriptorPool = { m_context->GetDevice() };
+    m_textureSampler = { m_context->GetPhysicalDevice(), m_context->GetDevice() };
+    
+    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
+    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
+    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
+}
+
+void IntermediaryStorage::Shutdown()
+{
+    // Reverse deinit (Order matters)
+    for (const vk::DescriptorSet &p_descriptorSet : m_imguiTextures)
+    {
+        ImGui_ImplVulkan_RemoveTexture(p_descriptorSet);
+    }
+    m_imguiTextures.clear();
+    
+    m_textureSampler = nullptr;
+    
+    // STORAGE
+    m_renderTargets.clear();
+    m_viewMap.clear();
+    m_imageMap.clear();
+    m_worldMap.clear();
+    m_indexMap.clear();
+    m_vertexMap.clear();
+    m_pipelineMap.clear();
+    
+    // VULKAN
+    m_descriptorSets.clear();
+    m_textureSampler = { nullptr };
+    m_descriptorPool = { nullptr };
+    m_allocator = { nullptr };
+    m_context = { nullptr };
+}
+
+std::uint32_t IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+{
+    m_renderTargets.emplace_back(
+        m_allocator.Get(),
+        m_context->GetDevice(),
+        m_context->GetPhysicalDevice(),
+        p_width,
+        p_height);
+    
+    return static_cast<std::uint32_t>(m_renderTargets.size() - 1);
+}
+
+std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
+{
+    m_imguiTextures.emplace_back(
+        ImGui_ImplVulkan_AddTexture(
+            *m_textureSampler.Get(),
+            *p_renderTarget.GetColorImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        )
+    );
+    
+    return static_cast<std::uint32_t>(m_imguiTextures.size() - 1);
+}
+
+void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
+{
+    m_context->GetDevice().waitIdle();
+    
+    ImGui_ImplVulkan_RemoveTexture(m_imguiTextures.at(p_textureIndex));
+    
+    m_renderTargets.emplace(m_renderTargets.begin() + p_targetIndex,
+        m_allocator.Get(),
+        m_context->GetDevice(),
+        m_context->GetPhysicalDevice(),
+        p_width,
+        p_height);
+    
+    m_imguiTextures.emplace(m_imguiTextures.begin() + p_textureIndex,
+        ImGui_ImplVulkan_AddTexture(
+            *m_textureSampler.Get(),
+            *m_renderTargets.at(p_targetIndex).GetColorImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+        )
+    );
 }
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
@@ -216,7 +291,7 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     m_imageMap.emplace_back(
         m_allocator.Get(),
         p_commandPool,
-        m_context,
+        *m_context,
         texRes.Get()->GetPixelData().data(),
         texRes.Get()->GetPixelData().size(),
         texRes.Get()->GetWidth(),
@@ -230,14 +305,14 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     std::uint32_t destIndex = static_cast<std::uint32_t>(m_viewMap.size());
     
     m_viewMap.emplace_back(
-        m_context.GetDevice(),
+        m_context->GetDevice(),
         m_imageMap.back().Get(),
         vk::Format::eR8G8B8A8Unorm,
         vk::ImageAspectFlagBits::eColor
     );
 
     const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
-    m_descriptorSets.at(descriptorSetIndex).WriteDescriptor(m_context.GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get(), destIndex);
+    m_descriptorSets.at(descriptorSetIndex).WriteDescriptor(m_context->GetDevice(), m_textureSampler.Get(), m_viewMap.back().Get(), destIndex);
 
     m_textureGuidMap[guid] = m_viewMap.size() - 1;
 

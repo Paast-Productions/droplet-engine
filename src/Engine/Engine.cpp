@@ -13,23 +13,8 @@ using namespace Droplet;
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
 {
 	ZoneScoped;
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-
+	
 	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
-
-	ImGui_ImplSDL3_InitForVulkan(m_window.Get());
-	m_initInfo = {};
-	m_renderer.GetImGuiInitInfo(m_initInfo);
-	ImGui_ImplVulkan_Init(&m_initInfo);
-    
     ThreadPool::GetInstance().Initialize();
     
     // --- Setup Resource Manager ---
@@ -71,9 +56,6 @@ Droplet::Engine::~Engine()
 		}
 	}
 
-	m_renderer.WaitIdle();
-	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
 
 	Shutdown();
 }
@@ -83,7 +65,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
@@ -165,7 +147,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	ResourceManager::Get().Update();
 
 	// Rendering
-	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
+	m_renderer.Draw(p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
@@ -178,8 +160,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	
 	// Other system that need updating go here.
     ResourceManager::GetInstance().Update();
-
-
 
 	FrameMark;
 
@@ -197,14 +177,4 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
-}
-
-Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
-{
-	return m_renderer.CreateRenderTarget(p_width, p_height);
-}
-
-VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
-{
-	return m_renderer.RegisterImGuiTexture(p_renderTarget);
 }
