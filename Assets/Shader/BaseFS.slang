@@ -20,14 +20,15 @@ struct FSInput
 layout(set = 0, binding = 1) Sampler2D texture[];
 
 [shader("fragment")]
-float4 main(FSInput vertIn) : SV_TARGET 
+float4 main(FSInput vertIn) : SV_TARGET
 {
-    float3 colour = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y)).rgb;
+    float4 color = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y));
+    
+    clip(color.w - 0.5);
 
     float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
 
     float viewDotNormal = abs(dot(vertIn.fragNormal.xyz, camToFrag));
-    colour *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
-
-    return float4(colour, 1.0);
+    color.xyz *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
+    return float4(color);
 }
