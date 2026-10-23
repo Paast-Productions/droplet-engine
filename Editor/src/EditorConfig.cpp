@@ -68,6 +68,12 @@ static bool TraverseToKey(json &p_json, json *&p_out, const std::vector<std::str
 				return false;
 			}
 
+			[[unlikely]]
+			if ((*current).type() != json::value_t::object)
+			{
+				(*current) = json::object();
+			}
+
 			(*current)[p_keys[i]] = json::object();
 		}
 
@@ -481,6 +487,11 @@ int EditorConfig::LoadInt(const std::string &p_key, int p_default)
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	return (*parent).value(lastKey, p_default);
 }
 
@@ -500,6 +511,11 @@ long EditorConfig::LoadLong(const std::string &p_key, long p_default)
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -527,6 +543,11 @@ float EditorConfig::LoadFloat(const std::string &p_key, float p_default)
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	return (*parent).value(lastKey, p_default);
 }
 
@@ -546,6 +567,11 @@ bool EditorConfig::LoadBool(const std::string &p_key, bool p_default)
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -573,6 +599,11 @@ std::string EditorConfig::LoadString(const std::string &p_key, const std::string
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	return (*parent).value(lastKey, p_default);
 }
 
@@ -592,6 +623,11 @@ glm::vec2 EditorConfig::LoadVec2(const std::string &p_key, const glm::vec2 &p_de
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -630,6 +666,11 @@ glm::vec3 EditorConfig::LoadVec3(const std::string &p_key, const glm::vec3 &p_de
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	json &value = (*parent)[lastKey];
 
 	[[unlikely]]
@@ -661,6 +702,11 @@ glm::vec4 EditorConfig::LoadVec4(const std::string &p_key, const glm::vec4 &p_de
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -701,6 +747,11 @@ std::vector<int> EditorConfig::LoadIntArray(const std::string &p_key, const std:
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	json &value = (*parent)[lastKey];
 
 	[[unlikely]]
@@ -732,6 +783,11 @@ std::vector<float> EditorConfig::LoadFloatArray(const std::string &p_key, const 
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	json &value = (*parent)[lastKey];
 
 	[[unlikely]]
@@ -759,6 +815,11 @@ std::vector<bool> EditorConfig::LoadBoolArray(const std::string &p_key, const st
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -794,6 +855,11 @@ std::vector<std::string> EditorConfig::LoadStringArray(const std::string &p_key,
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	json &value = (*parent)[lastKey];
 
 	[[unlikely]]
@@ -825,10 +891,20 @@ std::vector<glm::vec2> EditorConfig::LoadVec2Array(const std::string &p_key, con
 		return p_default;
 	}
 
+	if (!parent->contains(lastKey))
+	{
+		return p_default;
+	}
+
 	json &value = (*parent)[lastKey];
 
 	[[unlikely]]
 	if (!value.is_array())
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -865,6 +941,11 @@ std::vector<glm::vec3> EditorConfig::LoadVec3Array(const std::string &p_key, con
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
@@ -909,6 +990,11 @@ std::vector<glm::vec4> EditorConfig::LoadVec4Array(const std::string &p_key, con
 
 	json *parent = nullptr;
 	if (!TraverseToKey(config, parent, splitKeys))
+	{
+		return p_default;
+	}
+
+	if (!parent->contains(lastKey))
 	{
 		return p_default;
 	}
