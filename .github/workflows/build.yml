@@ -1,12 +1,16 @@
 # TODO: Linux build
 # TODO: Release build on Windows and Linux
+# TODO: Implement sccache - this would allow CMake to fully utilize the externals cache
+#       This would require Ninja as the generator, though. We'll hold off on this for now, since that introduces
+#       unnecessary complexity.
 
 name: Build
 
 on:
-  push:
-    branches:
-      - feature/buildtime-improvements
+# Uncommenting the lines below will allow for testing of the build system on push - just add the branch name.
+#  push:
+#    branches:
+#      - 
     
   pull_request: 
     branches:
@@ -151,7 +155,7 @@ jobs:
             Build/Obj/Dalia
             Build/Obj/GoogleTest
             Build/Obj/Jolt
-            BUild/Obj/Lua
+            Build/Obj/Lua
             Build/Target/External
           key: externals-v1-${{ runner.os }}-debug-${{ hashFiles('.submodule-status', 'Premake/External/**') }}
 
