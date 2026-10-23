@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Cylinder.004",
+            "guid": 17990721949996262870,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cylinder.004",
+            "type": 3
+        }
+    ]
+}

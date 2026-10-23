@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "kelp",
+            "guid": 10162919735263167665,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cylinder.001",
+            "type": 3
+        }
+    ]
+}
