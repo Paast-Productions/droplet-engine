@@ -1,7 +1,8 @@
 ﻿#pragma once
 
 #include "Sandbox.hpp"
-#include "resource/ResourceManager.hpp"
+#include <resource/ResourceManager.hpp>
+#include <Graphics/VK/Camera.hpp>
 
 namespace Droplet::Sandbox
 {
@@ -30,6 +31,9 @@ namespace Droplet::Sandbox
         SandboxAppConfig m_config;
         SandboxSDL m_sdl;
         SandboxRenderer m_renderer;
+        
+        // camera
+        Graphics::Camera m_camera;
         
         bool m_running = true;
     };

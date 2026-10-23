@@ -6,6 +6,7 @@
  */
 #pragma once
 
+#include <functional>
 #include <SDL3/SDL.h>
 
 #include <string>
@@ -40,15 +41,17 @@ namespace Droplet::Sandbox
         
         /// Return the stored window instance
         SDL_Window* GetWindow();
+        void SetResizeCallback(const std::function<void()>& callback);
         
         /// Poll for events and sets running to false if a quit message was caught or ESCAPE was pressed.
-        static void PollEvents(bool* running);
+        void PollEvents(bool* running);
     private:
         /// Creates a single window instance when GetWindow is called.
         SDL_Window* CreateOwnedWindow();
 
     private:
         SDL_Window* m_window{ nullptr };
+        std::function<void()> m_resizeCallback;
         Config m_cfg;
     };
 }

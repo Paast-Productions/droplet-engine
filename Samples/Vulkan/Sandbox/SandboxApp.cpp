@@ -10,11 +10,14 @@ using namespace Droplet;
 SandboxApp::SandboxApp(SandboxAppConfig cfg) :
     m_config(std::move(cfg)),
     m_sdl(m_config.wnd),
-    m_renderer(m_sdl.GetWindow())
+    m_renderer(m_sdl.GetWindow()),
+    m_camera({0.0f, 0.0f, -5.0f})
 {
     const std::filesystem::path rootPath = std::filesystem::current_path() / "../../../Assets";
 
     ResourceManager::GetInstance().Initialize(rootPath);
+    
+    m_sdl.SetResizeCallback([this]() { m_renderer.OnResize(); });
 }
 
 void SandboxApp::Run()
@@ -37,7 +40,6 @@ void SandboxApp::LoadResources()
     const std::filesystem::path rootPath = fs::current_path() / relative;
     auto rscMan = &ResourceManager::GetInstance();
 
-    
     const fs::path gupta{"gupta.glb"};
     rscMan->RegisterAsset(gupta);
 
@@ -52,15 +54,17 @@ void SandboxApp::LoadResources()
 void SandboxApp::InitVulkan()
 {
     SandboxShaderCompiler shaderCompiler;
+    
+    const char * shaderPath = "triangle_gradient.slang";
 
     const auto vertexSpirv = shaderCompiler.CompileSpirv(
         "triangle",
-        "sandbox_shader.slang",
+        shaderPath,
         "vertexMain");
 
     const auto fragmentSpirv = shaderCompiler.CompileSpirv(
         "triangle",
-        "sandbox_shader.slang",
+        shaderPath,
         "fragmentMain");
 
     m_renderer.CreateShaderModules(vertexSpirv, fragmentSpirv);
@@ -71,7 +75,7 @@ void SandboxApp::MainLoop()
 {
     while (m_running)
     {
-        SandboxSDL::PollEvents(&m_running);
+        m_sdl.PollEvents(&m_running);
         if (!m_running)
             break;
 
@@ -80,6 +84,8 @@ void SandboxApp::MainLoop()
         // TODO: draw
         m_renderer.DrawFrame();
     }
+
+    m_renderer.WaitIdle();
 }
 
 void SandboxApp::Cleanup()

@@ -31,6 +31,11 @@ SDL_Window* SandboxSDL::GetWindow()
     return m_window;
 }
 
+void SandboxSDL::SetResizeCallback(const std::function<void()>& callback)
+{
+    m_resizeCallback = callback;
+}
+
 void SandboxSDL::PollEvents(bool* running)
 {
     SDL_Event event{};
@@ -41,6 +46,11 @@ void SandboxSDL::PollEvents(bool* running)
             *running = false;
         if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)
             *running = false;
+        
+        if (event.type == SDL_EVENT_WINDOW_RESIZED)
+        {
+            m_resizeCallback();
+        }
     }
 }
 

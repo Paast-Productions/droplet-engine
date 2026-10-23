@@ -33,9 +33,13 @@ namespace Droplet::Sandbox
             const std::vector<std::uint32_t>& vertexSpirv,
             const std::vector<std::uint32_t>& fragmentSpirv);
 
+        void WaitIdle();
         void DrawFrame();
         void CreateGraphicsPipeline();
-
+        
+        // sets a flag to recreate the swapchain
+        void OnResize(){m_frameBufferResized = true;};
+    
     private:
         void CreateInstance();
         void SetupDebugMessenger();
@@ -53,12 +57,26 @@ namespace Droplet::Sandbox
         void CreateSwapchain();
         void CreateImageViews();
 
-        void CreateCommandResources();
-        void RecordClearCommandBuffer(std::uint32_t imageIndex) const;
+        void CreateCommandPool();
+        void CreateCommandBuffers();
+        void TransitionImageLayout(uint32_t imageIndex,
+                                   vk::ImageLayout old_layout,
+                                   vk::ImageLayout new_layout,
+                                   vk::AccessFlags2 src_access_mask,
+                                   vk::AccessFlags2 dst_access_mask,
+                                   vk::PipelineStageFlags2 src_stage_mask,
+                                   vk::PipelineStageFlags2 dst_stage_mask) const;
+        void RecordCommandBuffer(std::uint32_t imageIndex) const;
+
         void CreateSyncObjects();
+
+        void IncrementFrameIndex(){ m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT; };
         void CreatePipelineLayout();
         void CreateAllocator();
-
+        
+        void CleanupSwapchain();
+        void RecreateSwapchain();
+    
     private:
         static constexpr std::uint32_t MAX_FRAMES_IN_FLIGHT{2};
         static constexpr std::uint32_t MINIMUM_API_VERSION = vk::ApiVersion13;
@@ -75,7 +93,6 @@ namespace Droplet::Sandbox
 #else
         static constexpr bool enableValidationLayers = true;
 #endif
-
         // Rendering surface
         vk::raii::SurfaceKHR m_surface{nullptr};
 
@@ -98,15 +115,15 @@ namespace Droplet::Sandbox
 
         // == Command Pool ==
         vk::raii::CommandPool m_commandPool{nullptr};
-        vk::raii::CommandBuffer m_commandBuffer{nullptr};
+        std::vector<vk::raii::CommandBuffer> m_commandBuffers;
 
         // == Synchronization resources ==
-        vk::raii::Semaphore m_imageAvailableSemaphore{nullptr};
+        std::vector<vk::raii::Semaphore> m_presentCompleteSemaphores;
         std::vector<vk::raii::Semaphore> m_renderFinishedSemaphores;
-        vk::raii::Fence m_inFlightFence{nullptr};
+        std::vector<vk::raii::Fence> m_inFlightFences;
+        uint32_t m_frameIndex{0};
 
         // == Shaders ==
-        // move these
         vk::raii::ShaderModule m_vertexShaderModule{nullptr};
         vk::raii::ShaderModule m_fragmentShaderModule{nullptr};
 
@@ -117,6 +134,7 @@ namespace Droplet::Sandbox
 
         // keeping a reference to the window instance for convenience
         SDL_Window* m_windowRef{nullptr};
+        bool m_frameBufferResized{false};
 
 #ifndef NDEBUG
         vk::raii::DebugUtilsMessengerEXT m_debugMessenger{nullptr};
