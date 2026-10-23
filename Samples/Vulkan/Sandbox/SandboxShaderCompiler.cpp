@@ -6,12 +6,15 @@
  */
 #include "SandboxShaderCompiler.hpp"
 
-#include <array>
+#include <slang/slang.h>
+#include <slang/slang-com-ptr.h>
 
 #include "Core/FileUtils.hpp"
 
 #include <filesystem>
 #include <print>
+#include <array>
+#include <string>
 
 using namespace Droplet::Sandbox;
 // =====================================================================
@@ -28,17 +31,20 @@ std::vector<std::uint32_t> SandboxShaderCompiler::CompileSpirv(
     const std::filesystem::path& sourcePath,
     const char* entryPointName) const
 {
-    // Load the source module.
-    Slang::ComPtr<ISlangBlob> moduleDiagnostics;
+    if (moduleName == nullptr)
+        throw std::invalid_argument("moduleName param was nullptr");
+
+    if (entryPointName == nullptr)
+        throw std::invalid_argument("entryPointName param was nullptr");
 
     std::vector<char> bytes = Utils::ReadFileAsBytes(sourcePath);
-
-    const std::string source{bytes.begin(), bytes.end()};
-
+    const std::string source{ bytes.begin(), bytes.end() };
     const std::string path = sourcePath.string();
 
+    Slang::ComPtr<ISlangBlob> moduleDiagnostics;
+
 #if 0
-    // Does not work with slang v2026.17
+    // TODO: this does not work with slang v2026.17, needs a later version.
     // Slang::ComPtr<slang::IModule> module{
     // 	m_session->loadModuleFromSource(
     // 		moduleName,

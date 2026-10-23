@@ -7,16 +7,19 @@
 
 #pragma once
 
-#include <slang/slang.h>
-#include <slang/slang-com-ptr.h>
-
 #include <string>
 #include <vector>
+#include <slang/slang-com-ptr.h>
 
 
 namespace std::filesystem
 {
     class path;
+}
+namespace slang
+{
+    struct IGlobalSession;
+    struct ISession;
 }
 
 namespace Droplet::Sandbox
@@ -26,6 +29,7 @@ namespace Droplet::Sandbox
 class SandboxShaderCompiler
 {
 public:
+
     /// Initializes a global session and one local session.
     SandboxShaderCompiler();
 

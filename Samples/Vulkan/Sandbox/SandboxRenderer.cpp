@@ -1,24 +1,54 @@
 ﻿/**
- * @file Sandbox.cpp
+ * @file SandboxRenderer.cpp
  * @author Sebastian Lorensson
  * @date 2026-10-16
  * @brief Sandbox main for testing Vulkan functionality such as synchronisation with pipeline barriers, events, fences and timeline semaphores.
  */
-#include "Sandbox.hpp"
-
+#include "SandboxRenderer.hpp"
 #include "SandboxSDLVulkan.hpp"
 
 #include <Core/FileUtils.hpp>
+#include "SandboxVulkanUtils.hpp"
 
-
+// stl
 #include <vector>
 #include <print>
 #include <algorithm>
 #include <string>
 #include <cstring>
+#include <iostream>
 #include <utility>
 
 using namespace Droplet::Sandbox;
+
+using Droplet::Sandbox::VulkanUtils::CheckResult;
+
+namespace
+{
+    void PrintRejectReason(std::string_view reason)
+    {
+        std::println(
+            "  Device Rejected: {}", reason.data());
+    }
+
+    VKAPI_ATTR vk::Bool32 VKAPI_CALL
+    DebugCallback(
+        vk::DebugUtilsMessageSeverityFlagBitsEXT severity,
+        vk::DebugUtilsMessageTypeFlagsEXT type,
+        const vk::DebugUtilsMessengerCallbackDataEXT* data,
+        void*)
+    {
+        if (severity == vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning
+            || severity == vk::DebugUtilsMessageSeverityFlagBitsEXT::eError)
+        {
+            std::cerr << "validation layer: type " << to_string(type)
+                << " msg: " << data->pMessage << '\n';
+        }
+
+
+        return vk::False;
+    }
+}
 
 // =====================================================================
 // Sandbox Renderer
@@ -28,6 +58,7 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
 {
     // 1. Vulkan instance and window as surface
     CreateInstance();
+    SetupDebugMessenger();
     CreateSurface();
 
     // 2. Find a GPU and query its capabilities, then create a device interface
@@ -41,9 +72,7 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
     CreateSwapchain();
     CreateImageViews();
 
-    // 4. Create a render pass, frame buffers for the swapchain, command queue and fence + semaphore
-    CreateRenderPass();
-    CreateFramebuffers();
+    // 4. Create the command queue and fence + semaphore
     CreateCommandResources();
     CreateSyncObjects();
 
@@ -51,31 +80,42 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
     CreatePipelineLayout();
 }
 
-SandboxRenderer::~SandboxRenderer()
+SandboxRenderer::~SandboxRenderer() noexcept
 {
+    try
+    {
+        m_device.waitIdle();
+    }
+    catch (const std::exception& e)
+    {
+        std::println(
+            "Vulkan device wait during shutdown failed: {}",
+            e.what());
+    }
+    catch (...)
+    {
+        std::println(
+            "Vulkan device wait during shutdown failed.");
+    }
+}
+
+vk::raii::ShaderModule SandboxRenderer::CreateShaderModule(const std::vector<std::uint32_t>& spirv)
+{
+    const vk::ShaderModuleCreateInfo createInfo{
+        .codeSize =
+        spirv.size() * sizeof(std::uint32_t),
+        .pCode = spirv.data()
+    };
+
+    return {m_device, createInfo};
 }
 
 void SandboxRenderer::CreateShaderModules(
     const std::vector<std::uint32_t>& vertexSpirv,
     const std::vector<std::uint32_t>& fragmentSpirv)
 {
-    const vk::ShaderModuleCreateInfo vertexInfo{
-        .codeSize =
-        vertexSpirv.size() * sizeof(std::uint32_t),
-        .pCode = vertexSpirv.data()
-    };
-
-    const vk::ShaderModuleCreateInfo fragmentInfo{
-        .codeSize =
-        fragmentSpirv.size() * sizeof(std::uint32_t),
-        .pCode = fragmentSpirv.data()
-    };
-
-    m_vertexShaderModule =
-        vk::raii::ShaderModule(m_device, vertexInfo);
-
-    m_fragmentShaderModule =
-        vk::raii::ShaderModule(m_device, fragmentInfo);
+    m_vertexShaderModule = CreateShaderModule(vertexSpirv);
+    m_fragmentShaderModule = CreateShaderModule(fragmentSpirv);
 }
 
 void SandboxRenderer::DrawFrame()
@@ -83,24 +123,18 @@ void SandboxRenderer::DrawFrame()
     // 1. wait for previous submission
     vk::Result result = m_device.waitForFences(
         *m_inFlightFence,
-        VK_TRUE,
+        vk::True,
         UINT64_MAX);
-
-    if (result != vk::Result::eSuccess)
-        throw std::runtime_error("Wait for fences failed");
+    CheckResult(result, "Wait for fences failed");
 
     // 2. get first available swapchain image
     const auto [acquireResult, imageIndex] =
         m_swapchain.acquireNextImage(
             UINT64_MAX,
             *m_imageAvailableSemaphore);
-
-    if (acquireResult != vk::Result::eSuccess &&
-        acquireResult != vk::Result::eSuboptimalKHR)
-    {
-        throw std::runtime_error(
-            "Failed to acquire a swapchain image.");
-    }
+    CheckResult(acquireResult,
+                "Failed to acquire a swapchain image.",
+                vk::Result::eSuccess, vk::Result::eSuboptimalKHR);
 
     // 3. record commands for the acquired image
     RecordClearCommandBuffer(imageIndex);
@@ -109,30 +143,40 @@ void SandboxRenderer::DrawFrame()
     m_device.resetFences(*m_inFlightFence);
 
     // 4. submit the command buffer
-    const vk::Semaphore imageAvailable =
-        *m_imageAvailableSemaphore;
-
     const vk::Semaphore renderFinished =
         *m_renderFinishedSemaphores.at(imageIndex);
 
-    const vk::CommandBuffer commandBuffer =
-        *m_commandBuffer;
 
-    const vk::PipelineStageFlags waitStage{
-        vk::PipelineStageFlagBits::eColorAttachmentOutput
+    const vk::SemaphoreSubmitInfo waitSemaphoreInfo{
+        .semaphore = *m_imageAvailableSemaphore,
+        .value = 0,
+        .stageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        .deviceIndex = 0
     };
 
-    const vk::SubmitInfo submitInfo{
-        .waitSemaphoreCount = 1,
-        .pWaitSemaphores = &imageAvailable,
-        .pWaitDstStageMask = &waitStage,
-        .commandBufferCount = 1,
-        .pCommandBuffers = &commandBuffer,
-        .signalSemaphoreCount = 1,
-        .pSignalSemaphores = &renderFinished
+    const vk::CommandBufferSubmitInfo commandBufferSubmitInfo
+    {
+        .commandBuffer = *m_commandBuffer,
+        .deviceMask = 0
     };
 
-    m_graphicsPresentQueue.submit(
+    const vk::SemaphoreSubmitInfo signalSemaphoreInfo{
+        .semaphore = *m_renderFinishedSemaphores.at(imageIndex),
+        .value = 0,
+        .stageMask = vk::PipelineStageFlagBits2::eAllCommands,
+        .deviceIndex = 0
+    };
+
+    const vk::SubmitInfo2 submitInfo{
+        .waitSemaphoreInfoCount = 1,
+        .pWaitSemaphoreInfos = &waitSemaphoreInfo,
+        .commandBufferInfoCount = 1,
+        .pCommandBufferInfos = &commandBufferSubmitInfo,
+        .signalSemaphoreInfoCount = 1,
+        .pSignalSemaphoreInfos = &signalSemaphoreInfo
+    };
+
+    m_graphicsQueue.submit2(
         submitInfo,
         *m_inFlightFence);
 
@@ -147,35 +191,49 @@ void SandboxRenderer::DrawFrame()
         .pImageIndices = &imageIndex
     };
 
-    const auto presentResult =
-        m_graphicsPresentQueue.presentKHR(presentInfo);
+    const auto presentResult = m_graphicsQueue.presentKHR(presentInfo);
 
-    if (presentResult != vk::Result::eSuccess)
-    {
-        throw std::runtime_error(
-            "Swapchain presentation needs attention; "
-            "swapchain recreation is not implemented yet.");
-    }
+    CheckResult(presentResult,
+                "Swapchain presentation failed.",
+                vk::Result::eSuccess);
 }
 
 void SandboxRenderer::CreateGraphicsPipeline()
 {
+    // TODO: move this
     // The entry-point names must match those emitted by Slang.
-    const std::array shaderStages{
-        vk::PipelineShaderStageCreateInfo{
+    const std::array shaderStages
+    {
+        vk::PipelineShaderStageCreateInfo
+        {
             .stage = vk::ShaderStageFlagBits::eVertex,
             .module = *m_vertexShaderModule,
             .pName = "vertexMain"
         },
-        vk::PipelineShaderStageCreateInfo{
+        vk::PipelineShaderStageCreateInfo
+        {
             .stage = vk::ShaderStageFlagBits::eFragment,
             .module = *m_fragmentShaderModule,
             .pName = "fragmentMain"
         }
     };
 
-    // No vertex buffers or vertex attributes.
-    const vk::PipelineVertexInputStateCreateInfo vertexInputInfo{
+    // Viewport and scissor are dynamic pipeline state
+    constexpr std::array dynamicStates
+    {
+        vk::DynamicState::eViewport,
+        vk::DynamicState::eScissor
+    };
+
+    const vk::PipelineDynamicStateCreateInfo dynamicStateInfo
+    {
+        .dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
+        .pDynamicStates = dynamicStates.data()
+    };
+
+    // Not using vertex buffers or vertex attributes
+    const vk::PipelineVertexInputStateCreateInfo vertexInputInfo
+    {
         .vertexBindingDescriptionCount = 0,
         .pVertexBindingDescriptions = nullptr,
         .vertexAttributeDescriptionCount = 0,
@@ -183,46 +241,50 @@ void SandboxRenderer::CreateGraphicsPipeline()
     };
 
     // Interpret every group of three vertices as a triangle.
-    const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo{
+    const vk::PipelineInputAssemblyStateCreateInfo inputAssemblyInfo
+    {
         .topology = vk::PrimitiveTopology::eTriangleList,
-        .primitiveRestartEnable = VK_FALSE
+        .primitiveRestartEnable = vk::False
     };
 
-    // We set the viewport and scissor when recording commands.
-    const vk::PipelineViewportStateCreateInfo viewportStateInfo{
+    // This is set when recording commands, so no need to set now
+    const vk::PipelineViewportStateCreateInfo viewportStateInfo
+    {
         .viewportCount = 1,
         .pViewports = nullptr,
         .scissorCount = 1,
         .pScissors = nullptr
     };
 
+    const vk::PipelineMultisampleStateCreateInfo multisampleInfo
+    {
+        .rasterizationSamples = vk::SampleCountFlagBits::e1,
+        .sampleShadingEnable = vk::False,
+        .minSampleShading = 1.0f,
+        .pSampleMask = nullptr,
+        .alphaToCoverageEnable = vk::False,
+        .alphaToOneEnable = vk::False
+    };
+
     const vk::PipelineRasterizationStateCreateInfo rasterizationInfo{
-        .depthClampEnable = VK_FALSE,
-        .rasterizerDiscardEnable = VK_FALSE,
+        .depthClampEnable = vk::False,
+        .rasterizerDiscardEnable = vk::False,
         .polygonMode = vk::PolygonMode::eFill,
-        .cullMode = vk::CullModeFlagBits::eNone,
-        .frontFace = vk::FrontFace::eCounterClockwise,
-        .depthBiasEnable = VK_FALSE,
+        .cullMode = vk::CullModeFlagBits::eBack,
+        .frontFace = vk::FrontFace::eClockwise,
+        .depthBiasEnable = vk::False,
         .depthBiasConstantFactor = 0.0f,
         .depthBiasClamp = 0.0f,
         .depthBiasSlopeFactor = 0.0f,
         .lineWidth = 1.0f
     };
 
-    const vk::PipelineMultisampleStateCreateInfo multisampleInfo{
-        .rasterizationSamples = vk::SampleCountFlagBits::e1,
-        .sampleShadingEnable = VK_FALSE,
-        .minSampleShading = 1.0f,
-        .pSampleMask = nullptr,
-        .alphaToCoverageEnable = VK_FALSE,
-        .alphaToOneEnable = VK_FALSE
-    };
-
-    // Write RGBA to the attachment without blending.
-    const vk::PipelineColorBlendAttachmentState colorBlendAttachment{
-        .blendEnable = VK_FALSE,
-        .srcColorBlendFactor = vk::BlendFactor::eOne,
-        .dstColorBlendFactor = vk::BlendFactor::eZero,
+    // Write RGBA to the attachment without blending
+    const vk::PipelineColorBlendAttachmentState colorBlendAttachment
+    {
+        .blendEnable = vk::True,
+        .srcColorBlendFactor = vk::BlendFactor::eSrcAlpha,
+        .dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
         .colorBlendOp = vk::BlendOp::eAdd,
         .srcAlphaBlendFactor = vk::BlendFactor::eOne,
         .dstAlphaBlendFactor = vk::BlendFactor::eZero,
@@ -234,26 +296,47 @@ void SandboxRenderer::CreateGraphicsPipeline()
         vk::ColorComponentFlagBits::eA
     };
 
-    const vk::PipelineColorBlendStateCreateInfo colorBlendInfo{
-        .logicOpEnable = VK_FALSE,
+    const vk::PipelineColorBlendStateCreateInfo colorBlendInfo
+    {
+        .logicOpEnable = vk::False,
         .logicOp = vk::LogicOp::eCopy,
         .attachmentCount = 1,
         .pAttachments = &colorBlendAttachment
     };
 
-    // Viewport and scissor are dynamic pipeline state.
-    const std::array dynamicStates{
-        vk::DynamicState::eViewport,
-        vk::DynamicState::eScissor
+    // pipeline expects one color attachment and no depth or stencil attachment yet
+    const vk::Format colorFormat = m_swapchainSurfaceFormat.format;
+
+    const vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> pipelineCreateChain{
+        {
+            .stageCount = static_cast<std::uint32_t>(shaderStages.size()),
+            .pStages = shaderStages.data(),
+            .pVertexInputState = &vertexInputInfo,
+            .pInputAssemblyState = &inputAssemblyInfo,
+            .pTessellationState = nullptr,
+            .pViewportState = &viewportStateInfo,
+            .pRasterizationState = &rasterizationInfo,
+            .pMultisampleState = &multisampleInfo,
+            .pDepthStencilState = nullptr,
+            .pColorBlendState = &colorBlendInfo,
+            .pDynamicState = &dynamicStateInfo,
+        },
+        {
+            .viewMask = 0,
+            .colorAttachmentCount = 1,
+            .pColorAttachmentFormats = &colorFormat,
+            .depthAttachmentFormat = vk::Format::eUndefined,
+            .stencilAttachmentFormat = vk::Format::eUndefined
+        }
+    };
+    const vk::PipelineRenderingCreateInfo renderingInfo
+    {
+
     };
 
-    const vk::PipelineDynamicStateCreateInfo dynamicStateInfo{
-        .dynamicStateCount =
-        static_cast<std::uint32_t>(dynamicStates.size()),
-        .pDynamicStates = dynamicStates.data()
-    };
-
-    const vk::GraphicsPipelineCreateInfo createInfo{
+    const vk::GraphicsPipelineCreateInfo createInfo
+    {
+        .pNext = &renderingInfo,
         .stageCount =
         static_cast<std::uint32_t>(shaderStages.size()),
         .pStages = shaderStages.data(),
@@ -266,8 +349,9 @@ void SandboxRenderer::CreateGraphicsPipeline()
         .pDepthStencilState = nullptr,
         .pColorBlendState = &colorBlendInfo,
         .pDynamicState = &dynamicStateInfo,
+
         .layout = *m_pipelineLayout,
-        .renderPass = *m_renderPass,
+        .renderPass = vk::RenderPass{},
         .subpass = 0,
         .basePipelineHandle = vk::Pipeline{},
         .basePipelineIndex = -1
@@ -288,14 +372,50 @@ void SandboxRenderer::CreateInstance()
             "Context reports older API version.");
     }
 
+    constexpr vk::ApplicationInfo appInfo
+    {
+        .pApplicationName = "Sandbox App",
+        .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+        .pEngineName = "SandboxEngine",
+        .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+        .apiVersion = vk::ApiVersion13
+    };
+
+    std::vector<const char*> requiredLayers;
+    if constexpr (enableValidationLayers)
+    {
+        requiredLayers.assign(m_validationLayers.begin(), m_validationLayers.end());
+    }
+
+    // Check if the required layers are supported by the Vulkan implementation.
+    auto layerProperties = m_context.enumerateInstanceLayerProperties();
+    auto unsupportedLayerIt = std::ranges::find_if(requiredLayers,
+                                                   [&layerProperties](auto const& requiredLayer)
+                                                   {
+                                                       return std::ranges::none_of(layerProperties,
+                                                           [requiredLayer](auto const& layerProperty)
+                                                           {
+                                                               return strcmp(layerProperty.layerName, requiredLayer) ==
+                                                                   0;
+                                                           });
+                                                   });
+    if (unsupportedLayerIt != requiredLayers.end())
+    {
+        throw std::runtime_error("Required layer not supported: " + std::string(*unsupportedLayerIt));
+    }
+
     // Ask SDL for required Vulkan extensions
-    std::vector<const char*> extensions = SandboxSDLVulkan::GetRequiredInstanceExtensions();
+    std::vector<const char*> requiredExtensions = SandboxSDLVulkan::GetRequiredInstanceExtensions();
+    if (enableValidationLayers)
+    {
+        requiredExtensions.push_back(vk::EXTDebugUtilsExtensionName);
+    }
 
     // See which extensions are available
     const auto availableExtensions = m_context.enumerateInstanceExtensionProperties();
 
-    // Make sure all required 
-    for (const char* required : extensions)
+    // Make sure all required are available
+    for (const char* required : requiredExtensions)
     {
         const bool supported = std::ranges::any_of(availableExtensions,
                                                    [required](
@@ -314,232 +434,219 @@ void SandboxRenderer::CreateInstance()
         }
     }
 
-    constexpr vk::ApplicationInfo appInfo
-    {
-        .pApplicationName = "Sandbox App",
-        .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
-        .pEngineName = "SandboxEngine",
-        .engineVersion = VK_MAKE_VERSION(1, 0, 0),
-        .apiVersion = vk::ApiVersion14
-    };
-
     const vk::InstanceCreateInfo createInfo{
         .pApplicationInfo = &appInfo,
-        .enabledExtensionCount = static_cast<std::uint32_t>(extensions.size()),
-        .ppEnabledExtensionNames = extensions.data()
+        .enabledLayerCount = static_cast<std::uint32_t>(requiredLayers.size()),
+        .ppEnabledLayerNames = requiredLayers.data(),
+        .enabledExtensionCount = static_cast<std::uint32_t>(requiredExtensions.size()),
+        .ppEnabledExtensionNames = requiredExtensions.data()
     };
 
     m_instance = vk::raii::Instance(m_context, createInfo);
 }
 
+void SandboxRenderer::SetupDebugMessenger()
+{
+    if constexpr (!enableValidationLayers)
+        return;
+
+    vk::DebugUtilsMessageSeverityFlagsEXT severityFlags(vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+        vk::DebugUtilsMessageSeverityFlagBitsEXT::eError);
+    vk::DebugUtilsMessageTypeFlagsEXT messageTypeFlags(
+        vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral | vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
+        vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation);
+    vk::DebugUtilsMessengerCreateInfoEXT debugUtilsMessengerCreateInfoEXT{
+        .messageSeverity = severityFlags,
+        .messageType = messageTypeFlags,
+        .pfnUserCallback = &DebugCallback
+    };
+    m_debugMessenger = m_instance.createDebugUtilsMessengerEXT(debugUtilsMessengerCreateInfoEXT);
+}
+
 void SandboxRenderer::CreateSurface()
 {
     VkSurfaceKHR rawSurface;
-    
+
     try
     {
         rawSurface = SandboxSDLVulkan::CreateSurface(m_windowRef, *m_instance);
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
         std::println("{} threw while creating raw surface: {}", __func__, e.what());
         throw;
     }
 
-    // if (!SDL_Vulkan_CreateSurface(
-    //     m_windowRef, *m_instance, nullptr, &rawSurface))
-    // {
-    //     throw std::runtime_error(
-    //         std::string("SDL_Vulkan_CreateSurface failed: ")
-    //         + SDL_GetError());
-    // }
-
     // give ownership of surface to owned raii surface
     m_surface = vk::raii::SurfaceKHR(m_instance, rawSurface);
 }
 
+bool SandboxRenderer::IsDeviceSuitable(const vk::raii::PhysicalDevice& candidate)
+{
+    const vk::PhysicalDeviceProperties properties = candidate.getProperties();
+    const char* deviceName = properties.deviceName.data();
+
+    std::println("Checking GPU: {}", deviceName);
+
+    bool supportsVulkanVersion = properties.apiVersion >= MINIMUM_API_VERSION;
+
+    auto queueFamilies = candidate.getQueueFamilyProperties();
+    bool supportsGraphics = std::ranges::any_of(queueFamilies, [](auto const& qfp)
+    {
+        return !!(qfp.queueFlags & vk::QueueFlagBits::eGraphics);
+    });
+
+    auto availableDeviceExtensions = candidate.enumerateDeviceExtensionProperties();
+    bool supportsRequiredExtensions =
+        std::ranges::all_of(m_requiredDeviceExtensions,
+                            [&availableDeviceExtensions](auto const& requiredExtension)
+                            {
+                                return std::ranges::any_of(
+                                    availableDeviceExtensions,
+                                    [requiredExtension](auto const& availableDeviceExtension)
+                                    {
+                                        return std::strcmp(availableDeviceExtension.extensionName, requiredExtension) ==
+                                            0;
+                                    });
+                            });
+
+    auto features = candidate.template getFeatures2<vk::PhysicalDeviceFeatures2,
+                                                    vk::PhysicalDeviceVulkan11Features,
+                                                    vk::PhysicalDeviceVulkan13Features,
+                                                    vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
+
+    bool supportsRequiredFeatures = features.template get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters &&
+        features.template get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering &&
+        features.template get<vk::PhysicalDeviceVulkan13Features>().synchronization2 &&
+        features.template get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState;
+
+    // returns true if all criteria are supported
+    return supportsGraphics && supportsVulkanVersion && supportsRequiredExtensions && supportsRequiredFeatures;
+}
+
 void SandboxRenderer::SelectPhysicalDevice()
 {
-    std::vector<vk::raii::PhysicalDevice> devices = m_instance.enumeratePhysicalDevices();
-
-    for (auto& device : devices)
-    {
-        const vk::PhysicalDeviceProperties properties = device.getProperties();
-        auto deviceName = properties.deviceName.data();
-        std::println("Checking GPU: {}", deviceName);
-
-        // Require Vulkan 1.3 or newer.
-        if (properties.apiVersion < MINIMUM_API_VERSION)
+    std::vector<vk::raii::PhysicalDevice> physicalDevices = m_instance.enumeratePhysicalDevices();
+    auto const devIter = std::ranges::find_if(
+        physicalDevices.begin(), physicalDevices.end(),
+        [this](auto const& device)
         {
-            std::println(
-                "  Rejected: Vulkan 1.3 required.");
-            continue;
-        }
+            return IsDeviceSuitable(device);
+        });
 
-        const auto extensions = device.enumerateDeviceExtensionProperties();
+    if (devIter == physicalDevices.end())
+        throw std::runtime_error("Failed to find a GPU with the required features.");
 
-        const bool supportsSwapChain =
-            std::ranges::any_of(extensions,
-                                [](const vk::ExtensionProperties& extension)
-                                {
-                                    return std::strcmp(
-                                        extension.extensionName,
-                                        VK_KHR_SWAPCHAIN_EXTENSION_NAME) == 0;
-                                });
-
-        if (!supportsSwapChain)
-        {
-            std::println(
-                "  Rejected: VK_KHR_swapchain unavailable.");
-            continue;
-        }
-
-        const auto formats = device.getSurfaceFormatsKHR(m_surface);
-        const auto presentModes = device.getSurfacePresentModesKHR(m_surface);
-
-
-        // Make sure the device has valid formats and modes
-        if (formats.empty() || presentModes.empty())
-        {
-            std::println(
-                "  Rejected: no usable surface formats or present modes.");
-            continue;
-        }
-
-        // Query version support without enabling features
-        const auto supportedFeatures = device.getFeatures2<vk::PhysicalDeviceFeatures2,
-                                                           vk::PhysicalDeviceVulkan13Features>();
-        
-        const auto features13 = supportedFeatures.get<vk::PhysicalDeviceVulkan13Features>();
-        
-        if (!features13.dynamicRendering)
-        {
-            std::println("  Rejected: dynamicRendering feature unsupported.");
-            continue;
-        }
-        
-        if (!features13.synchronization2)
-        {
-            std::println("  Rejected: synchronization2 feature unsupported.");
-        }
-
-        
-        // Find a queue family that supports graphics and presentation.
-        const std::vector<vk::QueueFamilyProperties> familyProps = device.getQueueFamilyProperties();
-        
-        bool foundQueueFamily = false;
-        std::uint32_t selectedQueueFamily = 0;
-        
-        for (std::uint32_t i = 0; i < familyProps.size(); ++i)
-        {
-            if (familyProps[i].queueCount == 0)
-                continue;
-
-            const bool supportsGraphics =
-                static_cast<bool>(
-                    familyProps[i].queueFlags &
-                    vk::QueueFlagBits::eGraphics);
-
-            const bool supportsPresentation = device.getSurfaceSupportKHR(i, *m_surface);
-
-            if (supportsGraphics && supportsPresentation)
-            {
-                selectedQueueFamily = i;
-                foundQueueFamily = true;
-                break;
-            }
-        }
-        
-        if (!foundQueueFamily)
-        {
-            std::println(" Rejected: No graphics/presentation queue family present.");
-            continue;
-        }
-        
-        m_graphicsPresentQueueFamily = selectedQueueFamily;
-        m_physicalDevice = std::move(device);
-        
-        std::println("Selected GPU {}", deviceName);
-        return;
-    }
-
-    throw std::runtime_error("Failed to find a suitable GPU for rendering.");
+    m_physicalDevice = std::move(*devIter);
 }
 
 void SandboxRenderer::CreateLogicalDevice()
 {
+    // pick first available queue family
+    std::vector<vk::QueueFamilyProperties> queueFamilyProperties = m_physicalDevice.getQueueFamilyProperties();
+
+    auto graphicsQueueFamilyProperty = std::ranges::find_if(queueFamilyProperties, [](auto const& qfp)
+    {
+        return (qfp.queueFlags & vk::QueueFlagBits::eGraphics)
+            != static_cast<vk::QueueFlags>(0);
+    });
+    assert(graphicsQueueFamilyProperty != queueFamilyProperties.end() && "No graphics queue family found");
+
+    m_graphicsPresentQueueFamily = static_cast<uint32_t>(std::distance(queueFamilyProperties.begin(),
+                                                                       graphicsQueueFamilyProperty));
+
+    // query for 1.3 features
+    vk::StructureChain<vk::PhysicalDeviceFeatures2,
+                       vk::PhysicalDeviceVulkan11Features,
+                       vk::PhysicalDeviceVulkan13Features,
+                       vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
+        featureChain = {
+            {}, // vk::PhysicalDeviceFeatures2
+            {.shaderDrawParameters = vk::True}, // vk::PhysicalDeviceVulkan11Features
+            {
+                .synchronization2 = vk::True,
+                .dynamicRendering = vk::True
+            }, // vk::PhysicalDeviceVulkan13Features
+            {.extendedDynamicState = vk::True} // vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
+        };
+
     constexpr float queuePriority = 1.0f;
 
-    vk::DeviceQueueCreateInfo queueInfo
+    vk::DeviceQueueCreateInfo queueCreateInfo
     {
         .queueFamilyIndex = m_graphicsPresentQueueFamily,
         .queueCount = 1,
         .pQueuePriorities = &queuePriority
     };
 
-    constexpr vk::PhysicalDeviceVulkan13Features vulkan13Features
+    vk::DeviceCreateInfo deviceCreateInfo
     {
-        .synchronization2 = VK_TRUE,
-        .dynamicRendering = VK_TRUE,
-    };
-    
-    // TODO: make match Graphics::Renderer
-    // constexpr vk::PhysicalDeviceFeatures features{};
-
-    // swapchain is non-optional
-    constexpr const char* requiredExtensions[] =
-    {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-
-    vk::DeviceCreateInfo deviceInfo
-    {
-        .pNext = &vulkan13Features,
+        .pNext = &featureChain.get<vk::PhysicalDeviceFeatures2>(),
         .queueCreateInfoCount = 1,
-        .pQueueCreateInfos = &queueInfo,
-        .enabledExtensionCount = static_cast<std::uint32_t>(std::size(requiredExtensions)),
-        .ppEnabledExtensionNames = requiredExtensions,
-        // .pEnabledFeatures = &features
+        .pQueueCreateInfos = &queueCreateInfo,
+        .enabledExtensionCount = static_cast<std::uint32_t>(m_requiredDeviceExtensions.size()),
+        .ppEnabledExtensionNames = m_requiredDeviceExtensions.data(),
     };
 
-    // creates logical device
-    m_device = vk::raii::Device{m_physicalDevice, deviceInfo};
+    m_device = vk::raii::Device{m_physicalDevice, deviceCreateInfo};
 
-    // retrieve queue 0 from queue family
-    m_graphicsPresentQueue = m_device.getQueue(m_graphicsPresentQueueFamily, 0);
+    // retrieve first queue from device queue family
+    m_graphicsQueue = vk::raii::Queue(m_device, m_graphicsPresentQueueFamily, 0);
 }
 
-vk::SurfaceFormatKHR SandboxRenderer::ChooseSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& formats)
+uint32_t SandboxRenderer::ChooseSwapchainMinImageCount(const vk::SurfaceCapabilitiesKHR& capabilities)
 {
-    if (formats.empty())
-        throw std::runtime_error("No surface formats available.");
+    auto minImageCount = std::max(3u, capabilities.minImageCount);
+    if ((0 < capabilities.maxImageCount) && capabilities.maxImageCount < minImageCount)
+    {
+        minImageCount = capabilities.maxImageCount;
+    }
+    return minImageCount;
+}
 
-    const auto it = std::ranges::find_if(
-        formats,
-        [](const vk::SurfaceFormatKHR& format)
+vk::SurfaceFormatKHR SandboxRenderer::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats)
+{
+    assert(!availableFormats.empty());
+
+    const auto formatIt = std::ranges::find_if(
+        availableFormats,
+        [](const auto& format)
         {
-            return format.format == vk::Format::eB8G8R8A8Srgb &&
-                format.colorSpace ==
-                vk::ColorSpaceKHR::eSrgbNonlinear;
+            return format.format == vk::Format::eB8G8R8A8Srgb
+                && format.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear;
         });
 
-    if (it != formats.end())
-        return *it;
+    return formatIt != availableFormats.end() ? *formatIt : availableFormats.front();
+}
 
-    return formats.front();
+vk::PresentModeKHR SandboxRenderer::ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availableModes)
+{
+    // ensure at least one mode supports FIFO
+    assert(std::ranges::any_of(availableModes,
+        [](auto presentMode)
+        {
+        return presentMode == vk::PresentModeKHR::eFifo;
+        }));
+
+    return std::ranges::any_of(availableModes,
+                               [](const vk::PresentModeKHR value)
+                               {
+                                   return vk::PresentModeKHR::eMailbox == value;
+                               })
+               ? vk::PresentModeKHR::eMailbox
+               : vk::PresentModeKHR::eFifo;
 }
 
 vk::Extent2D SandboxRenderer::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities)
 {
     // the surface specifies the size for us
-    if (capabilities.currentExtent.width !=
-        std::numeric_limits<std::uint32_t>::max())
+    if (capabilities.currentExtent.width != std::numeric_limits<std::uint32_t>::max())
     {
         return capabilities.currentExtent;
     }
 
-    int width = 0;
-    int height = 0;
+    // query window size
+    int width, height;
 
     if (!SDL_GetWindowSizeInPixels(m_windowRef, &width, &height))
     {
@@ -554,6 +661,7 @@ vk::Extent2D SandboxRenderer::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR&
             "Cannot create a swapchain for a zero-sized window.");
     }
 
+    // clamp window size to surface capabilities
     return vk::Extent2D{
         .width = std::clamp(
             static_cast<std::uint32_t>(width),
@@ -569,95 +677,40 @@ vk::Extent2D SandboxRenderer::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR&
 
 void SandboxRenderer::CreateSwapchain()
 {
-    // 1. Query the capabilities of this surface.
-    const vk::SurfaceCapabilitiesKHR capabilities =
-        m_physicalDevice.getSurfaceCapabilitiesKHR(*m_surface);
+    // query device for surface capabilities
+    auto capabilities = m_physicalDevice.getSurfaceCapabilitiesKHR(*m_surface);
+    m_swapchainExtent = ChooseSwapExtent(capabilities);
+    std::uint32_t minImageCount = ChooseSwapchainMinImageCount(capabilities);
 
     // 2. Query supported formats and choose one.
-    const std::vector<vk::SurfaceFormatKHR> formats =
-        m_physicalDevice.getSurfaceFormatsKHR(*m_surface);
-
-    m_swapchainSurfaceFormat = ChooseSurfaceFormat(formats);
+    const auto formats = m_physicalDevice.getSurfaceFormatsKHR(*m_surface);
+    m_swapchainSurfaceFormat = ChooseSwapSurfaceFormat(formats);
 
     // 3. Query presentation modes
-    const std::vector<vk::PresentModeKHR> presentModes =
-        m_physicalDevice.getSurfacePresentModesKHR(*m_surface);
+    const auto availablePresentModes = m_physicalDevice.getSurfacePresentModesKHR(*m_surface);
+    vk::PresentModeKHR presentMode = ChooseSwapPresentMode(availablePresentModes);
 
-    if (std::ranges::find(
-            presentModes, vk::PresentModeKHR::eFifo) ==
-        presentModes.end())
-    {
-        throw std::runtime_error(
-            "FIFO presentation mode is unavailable.");
-    }
-
-    // 4. Choose the image extent.
-    m_swapchainExtent = ChooseSwapExtent(capabilities);
-
-    // 5. Request one more image than the minimum, if supported.
-    std::uint32_t imageCount = capabilities.minImageCount + 1;
-
-    if (capabilities.maxImageCount != 0 &&
-        imageCount > capabilities.maxImageCount)
-    {
-        imageCount = capabilities.maxImageCount;
-    }
-
-    // We intend to render directly into swapchain images
-    if (!static_cast<bool>(
-        capabilities.supportedUsageFlags &
-        vk::ImageUsageFlagBits::eColorAttachment))
-    {
-        throw std::runtime_error(
-            "Surface does not support color-attachment swapchain images.");
-    }
-
-    // Choose a supported composite-alpha mode.
-    constexpr std::array alphaModes{
-        vk::CompositeAlphaFlagBitsKHR::eOpaque,
-        vk::CompositeAlphaFlagBitsKHR::ePreMultiplied,
-        vk::CompositeAlphaFlagBitsKHR::ePostMultiplied,
-        vk::CompositeAlphaFlagBitsKHR::eInherit
-    };
-
-    const auto alphaIt = std::ranges::find_if(
-        alphaModes,
-        [&](vk::CompositeAlphaFlagBitsKHR mode)
-        {
-            return static_cast<bool>(
-                capabilities.supportedCompositeAlpha & mode);
-        });
-
-    if (alphaIt == alphaModes.end())
-    {
-        throw std::runtime_error(
-            "No supported composite-alpha mode.");
-    }
-
-    // 6. Describe the swapchain
-    vk::SwapchainCreateInfoKHR createInfo{
+    vk::SwapchainCreateInfoKHR swapChainCreateInfo{
         .surface = *m_surface,
-        .minImageCount = imageCount,
+        .minImageCount = minImageCount,
         .imageFormat = m_swapchainSurfaceFormat.format,
         .imageColorSpace = m_swapchainSurfaceFormat.colorSpace,
         .imageExtent = m_swapchainExtent,
         .imageArrayLayers = 1,
         .imageUsage = vk::ImageUsageFlagBits::eColorAttachment,
-        .imageSharingMode = vk::SharingMode::eExclusive, // graphics and presentation family is the same
+        .imageSharingMode = vk::SharingMode::eExclusive,
         .preTransform = capabilities.currentTransform,
-        .compositeAlpha = *alphaIt,
-        .presentMode = vk::PresentModeKHR::eFifo,
-        .clipped = VK_TRUE
+        .compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
+        .presentMode = presentMode,
+        .clipped = true
     };
 
     // 7. Create the RAII swapchain.
-    m_swapchain = vk::raii::SwapchainKHR(m_device, createInfo);
-
-    // 8. Retrieve the non-owning handles of its images.
+    m_swapchain = vk::raii::SwapchainKHR(m_device, swapChainCreateInfo);
     m_swapchainImages = m_swapchain.getImages();
 
     std::println(
-        "Swapchain created: {} images, {}x{}",
+        "Swapchain created: {} images, extents {}x{}",
         m_swapchainImages.size(),
         m_swapchainExtent.width,
         m_swapchainExtent.height);
@@ -665,105 +718,32 @@ void SandboxRenderer::CreateSwapchain()
 
 void SandboxRenderer::CreateImageViews()
 {
+    assert(!m_swapchainImages.empty());
+
     m_swapchainImageViews.reserve(m_swapchainImages.size());
+
+    vk::ImageViewCreateInfo info
+    {
+        .image = VK_NULL_HANDLE, // we assign this in the loop
+        .viewType = vk::ImageViewType::e2D,
+        .format = m_swapchainSurfaceFormat.format,
+        .subresourceRange = vk::ImageSubresourceRange
+        {
+            .aspectMask = vk::ImageAspectFlagBits::eColor,
+            .baseMipLevel = 0,
+            .levelCount = 1,
+            .baseArrayLayer = 0,
+            .layerCount = 1
+        }
+    };
 
     for (const auto& image : m_swapchainImages)
     {
-        vk::ImageViewCreateInfo info
-        {
-            .image = image,
-            .viewType = vk::ImageViewType::e2D,
-            .format = m_swapchainSurfaceFormat.format,
-            .subresourceRange = vk::ImageSubresourceRange
-            {
-                .aspectMask = vk::ImageAspectFlagBits::eColor,
-                .baseMipLevel = 0,
-                .levelCount = 1,
-                .baseArrayLayer = 0,
-                .layerCount = 1
-            }
-        };
-
-        // create an owned raii view
+        info.image = image;
         m_swapchainImageViews.emplace_back(m_device, info);
     }
 
     std::println("Created {} swapchain image views.", m_swapchainImageViews.size());
-}
-
-void SandboxRenderer::CreateRenderPass()
-{
-    const vk::AttachmentDescription colorAttachment{
-        .format = m_swapchainSurfaceFormat.format,
-        .samples = vk::SampleCountFlagBits::e1,
-        .loadOp = vk::AttachmentLoadOp::eClear,
-        .storeOp = vk::AttachmentStoreOp::eStore,
-        .stencilLoadOp = vk::AttachmentLoadOp::eDontCare,
-        .stencilStoreOp = vk::AttachmentStoreOp::eDontCare,
-        .initialLayout = vk::ImageLayout::eUndefined,
-        .finalLayout = vk::ImageLayout::ePresentSrcKHR
-    };
-
-    const vk::AttachmentReference colorAttachmentRef{
-        .attachment = 0,
-        .layout = vk::ImageLayout::eColorAttachmentOptimal
-    };
-
-    const vk::SubpassDescription subpass{
-        .pipelineBindPoint = vk::PipelineBindPoint::eGraphics,
-        .colorAttachmentCount = 1,
-        .pColorAttachments = &colorAttachmentRef
-    };
-
-    const vk::SubpassDependency dependency{
-        .srcSubpass = VK_SUBPASS_EXTERNAL,
-        .dstSubpass = 0,
-        .srcStageMask =
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,
-        .dstStageMask =
-        vk::PipelineStageFlagBits::eColorAttachmentOutput,
-        .srcAccessMask = {},
-        .dstAccessMask =
-        vk::AccessFlagBits::eColorAttachmentWrite
-    };
-
-    const vk::RenderPassCreateInfo createInfo{
-        .attachmentCount = 1,
-        .pAttachments = &colorAttachment,
-        .subpassCount = 1,
-        .pSubpasses = &subpass,
-        .dependencyCount = 1,
-        .pDependencies = &dependency
-    };
-
-    m_renderPass = vk::raii::RenderPass(m_device, createInfo);
-}
-
-void SandboxRenderer::CreateFramebuffers()
-{
-    m_swapchainFramebuffers.reserve(
-        m_swapchainImageViews.size());
-
-    for (const auto& imageView : m_swapchainImageViews)
-    {
-        const vk::ImageView attachment = *imageView;
-
-        const vk::FramebufferCreateInfo createInfo{
-            .renderPass = *m_renderPass,
-            .attachmentCount = 1,
-            .pAttachments = &attachment,
-            .width = m_swapchainExtent.width,
-            .height = m_swapchainExtent.height,
-            .layers = 1
-        };
-
-        m_swapchainFramebuffers.emplace_back(
-            m_device, createInfo);
-    }
-
-    std::println(
-        "Created {} framebuffers.",
-        m_swapchainFramebuffers.size());
 }
 
 void SandboxRenderer::CreateCommandResources()
@@ -790,33 +770,73 @@ void SandboxRenderer::CreateCommandResources()
 
 void SandboxRenderer::RecordClearCommandBuffer(std::uint32_t imageIndex) const
 {
-    if (imageIndex >= m_swapchainFramebuffers.size())
+    if (imageIndex >= m_swapchainImages.size() ||
+        imageIndex >= m_swapchainImageViews.size())
         throw std::runtime_error("Invalid swapchain image index.");
 
+    // DrawFrame waits for previous submission's frame first
     m_commandBuffer.reset();
 
-    const vk::CommandBufferBeginInfo beginInfo{
+    // prepare new command buffer submission
+    constexpr vk::CommandBufferBeginInfo beginInfo{
         .flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit
     };
 
     m_commandBuffer.begin(beginInfo);
 
-    const vk::Rect2D renderArea{
-        .offset = {.x = 0, .y = 0},
-        .extent = m_swapchainExtent
+    // Prepare to draw to current swapchain image and set up synchronization
+    const vk::Image image = m_swapchainImages[imageIndex];
+
+    constexpr vk::ImageSubresourceRange colorRange{
+        .aspectMask = vk::ImageAspectFlagBits::eColor,
+        .baseMipLevel = 0,
+        .levelCount = 1,
+        .baseArrayLayer = 0,
+        .layerCount = 1
     };
 
-    const vk::RenderPassBeginInfo renderPassInfo{
-        .renderPass = *m_renderPass,
-        .framebuffer = *m_swapchainFramebuffers[imageIndex],
-        .renderArea = renderArea,
-        .clearValueCount = 1,
-        .pClearValues = &m_defaultClearColor
+    const vk::ImageMemoryBarrier2 toColorAttachment{
+        .srcStageMask = vk::PipelineStageFlagBits2::eNone,
+        .srcAccessMask = {},
+        .dstStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        .dstAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite,
+        .oldLayout = vk::ImageLayout::eUndefined, // Discard image's previous contents
+        .newLayout = vk::ImageLayout::eColorAttachmentOptimal,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = image,
+        .subresourceRange = colorRange
     };
 
-    m_commandBuffer.beginRenderPass(
-        renderPassInfo,
-        vk::SubpassContents::eInline);
+    const vk::DependencyInfo toColorDependency{
+        .imageMemoryBarrierCount = 1,
+        .pImageMemoryBarriers = &toColorAttachment
+    };
+
+    m_commandBuffer.pipelineBarrier2(toColorDependency);
+
+    // Prepare begin rendering
+    const vk::ClearValue clearColor = m_defaultClearColor;
+
+    const vk::RenderingAttachmentInfo colorAttachment{
+        .imageView = *m_swapchainImageViews[imageIndex],
+        .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+        .loadOp = vk::AttachmentLoadOp::eClear,
+        .storeOp = vk::AttachmentStoreOp::eStore,
+        .clearValue = clearColor
+    };
+
+    const vk::RenderingInfo renderingInfo{
+        .renderArea = vk::Rect2D{
+            .offset = {.x = 0, .y = 0},
+            .extent = m_swapchainExtent
+        },
+        .layerCount = 1,
+        .colorAttachmentCount = 1,
+        .pColorAttachments = &colorAttachment
+    };
+
+    m_commandBuffer.beginRendering(renderingInfo);
 
     const vk::Viewport viewport{
         .x = 0.0f,
@@ -839,11 +859,31 @@ void SandboxRenderer::RecordClearCommandBuffer(std::uint32_t imageIndex) const
     m_commandBuffer.setViewport(0, viewport);
     m_commandBuffer.setScissor(0, scissor);
 
-    // Three vertices, one instance.
+    // Three vertices, one instance
     m_commandBuffer.draw(3, 1, 0, 0);
 
-    m_commandBuffer.endRenderPass();
+    m_commandBuffer.endRendering();
 
+    // prepare image for presentation
+    const vk::ImageMemoryBarrier2 toPresent{
+        .srcStageMask = vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+        .srcAccessMask = vk::AccessFlagBits2::eColorAttachmentWrite,
+        .dstStageMask = vk::PipelineStageFlagBits2::eNone,
+        .dstAccessMask = {},
+        .oldLayout = vk::ImageLayout::eColorAttachmentOptimal,
+        .newLayout = vk::ImageLayout::ePresentSrcKHR,
+        .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+        .image = image,
+        .subresourceRange = colorRange
+    };
+
+    const vk::DependencyInfo toPresentDependency{
+        .imageMemoryBarrierCount = 1,
+        .pImageMemoryBarriers = &toPresent
+    };
+
+    m_commandBuffer.pipelineBarrier2(toPresentDependency);
     m_commandBuffer.end();
 }
 
@@ -874,15 +914,14 @@ void SandboxRenderer::CreateSyncObjects()
 
 void SandboxRenderer::CreatePipelineLayout()
 {
-    const vk::PipelineLayoutCreateInfo createInfo{
+    constexpr vk::PipelineLayoutCreateInfo createInfo{
         .setLayoutCount = 0,
         .pSetLayouts = nullptr,
         .pushConstantRangeCount = 0,
         .pPushConstantRanges = nullptr
     };
 
-    m_pipelineLayout =
-        vk::raii::PipelineLayout(m_device, createInfo);
+    m_pipelineLayout = vk::raii::PipelineLayout(m_device, createInfo);
 }
 
 void SandboxRenderer::CreateAllocator()

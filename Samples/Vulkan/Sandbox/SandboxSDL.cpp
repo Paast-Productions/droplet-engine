@@ -68,7 +68,7 @@ SDL_Window* SandboxSDL::CreateOwnedWindow()
     }
 
     m_window = SDL_CreateWindow(
-        cfg.name.c_str(),
+        cfg.name,
         cfg.width,
         cfg.height,
         cfg.flags

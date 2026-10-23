@@ -10,7 +10,6 @@
 
 #include <string>
 #include <vector>
-#include <SDL3/SDL_vulkan.h>
 
 namespace Droplet::Sandbox
 {
@@ -26,21 +25,22 @@ namespace Droplet::Sandbox
             /// window creation data
             struct Window
             {
-                std::string name{ "Sandbox" };
+                const char * name{ "Sandbox" };
                 int width{ 800 };
                 int height{ 600 };
-                float dpiScale = 1.0f;
+                float dpiScale {1.0f};
                 SDL_WindowFlags flags{ SDL_WINDOW_VULKAN };
                 // bool flags, override creation flags
-                bool highDpi = true;
+                bool highDpi {true};
             }window{};
         };
     public:
         SandboxSDL(Config cfg);
         ~SandboxSDL();
         
-        /// Return stored window instance
+        /// Return the stored window instance
         SDL_Window* GetWindow();
+        
         /// Poll for events and sets running to false if a quit message was caught or ESCAPE was pressed.
         static void PollEvents(bool* running);
     private:
