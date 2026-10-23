@@ -15,7 +15,8 @@ namespace Droplet
         const std::string &p_currentDisplayName,
         Droplet::GUID &p_outGUID,
         std::string &p_outDisplayName,
-        Droplet::ResourceType p_expectedType)
+        Droplet::ResourceType p_expectedType,
+        Droplet::ShaderResource::ShaderType p_expectedShader)
     {
         using namespace ImGui;
         using namespace Droplet::Editor;
@@ -50,17 +51,13 @@ namespace Droplet
                 {
                     const auto *entryPtr =
                         *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    if (entryPtr->type == p_expectedType)
+                    Droplet::ShaderResource::ShaderType shaderType = entryPtr->loadSettings.value(Droplet::MetaLoadSettings::C_SHADER_TYPE.key, Droplet::MetaLoadSettings::C_SHADER_TYPE.defaultValue);
+                    if (entryPtr->type == p_expectedType && shaderType == p_expectedShader)
                     {
                         // Access the complete entry.
                         p_outGUID = entryPtr->guid;
                         p_outDisplayName = entryPtr->displayName;
                         changed = true;
-                    }
-                    else
-                    {
-
                     }
                 }
             }
@@ -78,8 +75,9 @@ namespace Droplet
                     for (std::size_t i = 0; i < count; ++i)
                     {
                         const Droplet::MetaEntry *entry = entries[i];
+                        Droplet::ShaderResource::ShaderType shaderType = entry->loadSettings.value(Droplet::MetaLoadSettings::C_SHADER_TYPE.key, Droplet::MetaLoadSettings::C_SHADER_TYPE.defaultValue);
 
-                        if (entry && entry->type == p_expectedType)
+                        if (entry && entry->type == p_expectedType && shaderType == p_expectedShader)
                         {
                             p_outGUID = entry->guid;
                             p_outDisplayName = entry->displayName;

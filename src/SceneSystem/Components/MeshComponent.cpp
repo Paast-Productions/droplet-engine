@@ -90,13 +90,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
             m_vsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Vertex))
         {
             SetVSGUID(newGUID);
             m_vsDisplayName = newName;
@@ -104,13 +105,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
             m_tcsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationControl))
         {
             SetTCSGUID(newGUID);
             m_tcsDisplayName = newName;
@@ -118,13 +120,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
             m_tesDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationEvaluation))
         {
             SetTESGUID(newGUID);
             m_tesDisplayName = newName;
@@ -132,13 +135,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
             m_gsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Geometry))
         {
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
@@ -146,13 +150,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
             m_fsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Fragment))
         {
             SetFSGUID(newGUID);
             m_fsDisplayName = newName;

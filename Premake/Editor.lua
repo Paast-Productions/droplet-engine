@@ -70,6 +70,7 @@ project "Editor"
         "tracy",
         "IconFontCppHeaders",
         "PortableFileDialogs",
+        "Lua",
         "Jolt"
     }
 
@@ -94,6 +95,6 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7"),
+		AddQuotation("lua_static"),
 		AddQuotation("Jolt")
     }

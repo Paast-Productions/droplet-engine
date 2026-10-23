@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "greyscale.fs",
+            "guid": 7119882261339692162,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 1
+            },
+            "sourceName": "greyscale.fs",
+            "type": 6
+        }
+    ]
+}
