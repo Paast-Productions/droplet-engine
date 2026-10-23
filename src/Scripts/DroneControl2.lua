@@ -25,19 +25,15 @@ local maxPitch = math.rad(80.0)   -- pitch limit up/down
 local invertY = false
 local requireRightMouse = true    -- only rotate while right mouse is held
 
+local mouseSmoothTime = 0.04   -- seconds, 0 = raw input
+local smoothDX = 0.0
+local smoothDY = 0.0
+
 --
 -- Member Functions
 --
 function Clamp(value, minValue, maxValue)
     return math.max(minValue, math.min(maxValue, value))
-end
-
-function MoveTowards(current, target, maxDelta)
-    if current < target then
-        return math.min(current + maxDelta, target)
-    else
-        return math.max(current - maxDelta, target)
-    end
 end
 
 function WrapAngle(angle)
@@ -52,183 +48,32 @@ function WrapAngle(angle)
     return angle
 end
 
-function NewTargetPoint()
-    tracy.ZoneBeginN("NewTargetPoint")
-    
-	-- Random point on a sphere using spherical coordinates
-	local theta = math.random() * 2 * math.pi
-    local phi = math.acos(2 * math.random() - 1)
+function ApplyMouseLook(dt)
+    local dx, dy = 0.0, 0.0
+    if (not requireRightMouse) or Input:MouseHeld(Mouse.RMB) then
+        dx = Input:GetDeltaMouseX()
+        dy = Input:GetDeltaMouseY()
+    end
 
-    -- Random distance, uniform by volume
-    local r = targetRadius * math.random()^(1/3)
+    -- Frame-rate independent one-pole filter. Total rotation is preserved,
+    -- it's just spread over a few frames.
+    local a = 1.0
+    if mouseSmoothTime > 0.0001 then
+        a = 1.0 - math.exp(-dt / mouseSmoothTime)
+    end
+    smoothDX = smoothDX + (dx - smoothDX) * a
+    smoothDY = smoothDY + (dy - smoothDY) * a
 
-	local v = Vec3.new(0.0, 0.0, 0.0)
-    v.x = r * math.sin(phi) * math.cos(theta)
-    v.y = r * math.sin(phi) * math.sin(theta)
-    v.z = r * math.cos(phi)
-
-	targetPoint = GLM.V3Add(orbitPoint, v)
-
-    tracy.ZoneEnd()
-end
-
-function IsWithinTarget()
-    tracy.ZoneBeginN("IsWithinTarget")
-
-	local pos = trans:GetPosition(TransformSpace.World)
-	local dist = GLM.V3Distance(pos, targetPoint)
-    
-    tracy.ZoneEnd()
-	return (dist <= targetAcceptanceRadius)
-end
-
-function UpdateVelocity(dt)
-    tracy.ZoneBeginN("UpdateVelocity")
-
-	-- TODO: Steering behavior to move forwards and turn towards target point
-	 local pos = trans:GetPosition(TransformSpace.World)
-
-    -- Direction towards the target
-    local toTarget = GLM.V3Sub(targetPoint, pos)
-    local distance = GLM.V3Length(toTarget)
-
-    if distance < 0.0001 then
-        moveSpeed = MoveTowards(
-            moveSpeed, 0.0, moveSpeedRateOfChange * dt
-        )
-        turnSpeedX = MoveTowards(
-            turnSpeedX, 0.0, turnSpeedRateOfChange * dt
-        )
-        turnSpeedY = MoveTowards(
-            turnSpeedY, 0.0, turnSpeedRateOfChange * dt
-        )
-
-        tracy.ZoneEnd()
+    -- Keep running until the tail has decayed, then stop
+    if math.abs(smoothDX) < 0.001 and math.abs(smoothDY) < 0.001 then
+        smoothDX, smoothDY = 0.0, 0.0
         return
     end
 
-    toTarget = GLM.V3MulF(toTarget, 1.0 / distance)
-
-    local forward = trans:GetForward()
-
-    -- Calculate yaw error around global Y.
-    local currentYaw = math.atan(forward.x, forward.z)
-    local targetYaw = math.atan(toTarget.x, toTarget.z)
-    local yawError = WrapAngle(targetYaw - currentYaw)
-
-    -- Calculate pitch error.
-    local currentPitch = math.atan(
-        forward.y,
-        math.sqrt(forward.x * forward.x + forward.z * forward.z)
-    )
-
-    local targetPitch = math.atan(
-        toTarget.y,
-        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
-    )
-
-    local pitchError = targetPitch - currentPitch
-
-    -- Convert angular errors to desired turn speeds.
-    local turnGain = 2.0
-
-    local desiredTurnX = Clamp(
-        yawError * turnGain,
-        -maxTurnSpeed,
-        maxTurnSpeed
-    )
-
-    local desiredTurnY = Clamp(
-        pitchError * turnGain,
-        -maxTurnSpeed,
-        maxTurnSpeed
-    )
-
-    -- Smoothly change turn speeds.
-    turnSpeedX = MoveTowards(
-        turnSpeedX,
-        desiredTurnX,
-        turnSpeedRateOfChange * dt
-    )
-
-    turnSpeedY = MoveTowards(
-        turnSpeedY,
-        desiredTurnY,
-        turnSpeedRateOfChange * dt
-    )
-
-    -- Move forward, slowing down when misaligned or close to target.
-    local yawAlignment = math.cos(yawError)
-    local pitchAlignment = math.cos(pitchError)
-
-    local alignment = Clamp(
-        yawAlignment * pitchAlignment,
-        0.0,
-        1.0
-    )
-
-    -- Slow down as the fish approaches the target,
-	-- but keep moving until it enters the acceptance radius.
-	local brakingDistance = math.max(targetAcceptanceRadius * 2.0, 0.5)
-
-	local distanceFactor = Clamp(
-		(distance - targetAcceptanceRadius) / brakingDistance,
-		0.0,
-		1.0
-	)
-
-	-- Maintain some forward speed while outside the target radius.
-	local minSpeedFactor = 0.2
-
-	local desiredMoveSpeed = maxMoveSpeed *
-		math.max(minSpeedFactor, distanceFactor) *
-		alignment
-
-	-- Only stop when actually within the acceptance radius.
-	if distance <= targetAcceptanceRadius then
-		desiredMoveSpeed = 0.0
-	end
-
-	moveSpeed = MoveTowards(
-		moveSpeed,
-		desiredMoveSpeed,
-		moveSpeedRateOfChange * dt
-	)
-    
-    tracy.ZoneEnd()
-end
-
-function ApplyVelocity(dt)
-    tracy.ZoneBeginN("ApplyVelocity")
-
-	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
-	trans:Move(toMove, TransformSpace.World)
-
-	local toRotateY = GLM.AngleAxis(trans:GetRight(), turnSpeedY * dt)
-	trans:Rotate(toRotateY)
-
-	local toRotateX = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeedX * dt)
-	trans:Rotate(toRotateX, TransformSpace.World)
-
-    tracy.ZoneEnd()
-end
-
-function ApplyMouseLook()
-    if requireRightMouse and not Input:MouseHeld(Mouse.RMB) then
-        return
-    end
-
-    local dx = Input:GetDeltaMouseX()
-    local dy = Input:GetDeltaMouseY()
-    if dx == 0.0 and dy == 0.0 then
-        return
-    end
-
-    local yawDelta = -dx * mouseSensitivity
-    local pitchDelta = -dy * mouseSensitivity   -- mouse up = look up
+    local yawDelta = -smoothDX * mouseSensitivity
+    local pitchDelta = -smoothDY * mouseSensitivity
     if invertY then pitchDelta = -pitchDelta end
 
-    -- Clamp pitch so the drone can't flip over
     local forward = trans:GetForward()
     local currentPitch = math.atan(
         forward.y,
@@ -237,7 +82,6 @@ function ApplyMouseLook()
     local newPitch = Clamp(currentPitch + pitchDelta, -maxPitch, maxPitch)
     pitchDelta = newPitch - currentPitch
 
-    -- Pitch around local right, yaw around global Y (same as ApplyVelocity)
     trans:Rotate(GLM.AngleAxis(trans:GetRight(), pitchDelta))
     trans:Rotate(GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), yawDelta), TransformSpace.World)
 end
@@ -250,22 +94,19 @@ function OnStart()
 
     print("New Drone_movement")
 	trans = self:GetTransform()
-    
+    moveSpeed = 2.5
+    mouseSmoothTime = 0.050
     tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-    if trans == nil then
-        trans = self:GetTransform()
-    end
-
-    ApplyMouseLook()
+    ApplyMouseLook(dt)
     
 	if Input:KeyHeld(Key.W) then
         print("W pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), 1.0), dt)
+        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), maxMoveSpeed), dt)
         trans:Move(toMove, TransformSpace.World)
     end
 
@@ -277,7 +118,7 @@ function OnUpdate(dt)
 
     if Input:KeyHeld(Key.S) then
         print("S pressed")
-        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), -1.0), dt)
+        local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), -maxMoveSpeed), dt)
         trans:Move(toMove, TransformSpace.World)
     end
 
@@ -294,17 +135,8 @@ function RenderUI()
     tracy.ZoneBeginN("Drone_movement RenderUI")
 
 	ImGui.Spacing()
-
-	_, orbitPoint = ImGui.DragFloat3("Orbit Point", orbitPoint, 0.2)
-	_, targetRadius = ImGui.DragFloat("Target Radius", targetRadius, 0.1)
-	_, targetAcceptanceRadius = ImGui.DragFloat("Target Acceptance Radius", targetAcceptanceRadius, 0.1)
-
 	_, maxMoveSpeed = ImGui.DragFloat("Move Speed", maxMoveSpeed, 0.1)
-	_, moveSpeedRateOfChange = ImGui.DragFloat("Move Rate of Change", moveSpeedRateOfChange, 0.01)
-
-	_, maxTurnSpeed = ImGui.DragFloat("Turn Speed", maxTurnSpeed, 0.01)
-	_, turnSpeedRateOfChange = ImGui.DragFloat("Turn Rate of Change", turnSpeedRateOfChange, 0.01)
-
+    _, mouseSmoothTime = ImGui.DragFloat("Mouse Smoothing (s)", mouseSmoothTime, 0.005, 0.0, 0.3)
 	ImGui.Text("Current Move Speed: " .. moveSpeed)
 	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
 	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")

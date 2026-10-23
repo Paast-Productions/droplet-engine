@@ -5,7 +5,7 @@
             "active": true,
             "children": [],
             "components": [],
-            "id": 1,
+            "id": 2,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -51,7 +51,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 2,
+            "id": 3,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -74,33 +74,7 @@
         },
         {
             "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [],
-                    "id": 6,
-                    "name": "camera",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                }
-            ],
+            "children": [],
             "components": [
                 {
                     "data": {
@@ -128,15 +102,10 @@
                     },
                     "id": 3,
                     "type": "ScriptComponent"
-                },
-                {
-                    "data": {},
-                    "id": 4,
-                    "type": "CameraComponent"
                 }
             ],
-            "id": 3,
-            "name": "Toe",
+            "id": 4,
+            "name": "Drone",
             "transform": {
                 "position": [
                     5.481722831726074,
@@ -181,7 +150,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 4,
+            "id": 5,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -227,7 +196,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 5,
+            "id": 6,
             "name": "Toe",
             "transform": {
                 "position": [
