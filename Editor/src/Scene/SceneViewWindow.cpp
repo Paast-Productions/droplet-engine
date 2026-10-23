@@ -62,73 +62,72 @@ void SceneViewWindow::InitImpl()
 
 void SceneViewWindow::RenderToolbar()
 {
-	if (ImGui::BeginMenu("Space"))
+	if (ImGui::BeginMenu("Edit"))
 	{
-		ImGuizmo::MODE currentMode = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
-		ImGuizmo::MODE worldMode = ImGuizmo::WORLD;
-		ImGuizmo::MODE localMode = ImGuizmo::LOCAL;
-
-		if (ImGui::MenuItem("World", nullptr, currentMode == worldMode))
+		if (ImGui::BeginMenu("Space"))
 		{
-			EditorConfig::StoreInt("manipulateSpace", worldMode);
+			ImGuizmo::MODE currentMode = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
+
+			if (ImGui::MenuItem("World", nullptr, currentMode == ImGuizmo::WORLD))
+			{
+				EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
+			}
+
+			if (ImGui::MenuItem("Local", nullptr, currentMode == ImGuizmo::LOCAL))
+			{
+				EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
+			}
+
+			ImGui::EndMenu();
 		}
 
-		if (ImGui::MenuItem("Local", nullptr, currentMode == localMode))
+		if (ImGui::BeginMenu("Operation"))
 		{
-			EditorConfig::StoreInt("manipulateSpace", localMode);
+			ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation");
+			ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
+			ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
+			ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
+			ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
+			ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
+
+			if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", true);
+				EditorConfig::StoreInt("manipulateOperation", universalOperation);
+			}
+
+			if (ImGui::MenuItem("Translation", nullptr, currentOperation == translationOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", translationOperation);
+			}
+
+			if (ImGui::MenuItem("Rotation", nullptr, currentOperation == rotationOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", rotationOperation);
+			}
+
+			if (ImGui::MenuItem("Scale", nullptr, currentOperation == scaleOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", scaleOperation);
+			}
+
+			if (ImGui::MenuItem("Bounds", nullptr, currentOperation == boundsOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", true);
+				EditorConfig::StoreInt("manipulateOperation", boundsOperation);
+			}
+
+			ImGui::EndMenu();
 		}
 
-		ImGui::EndMenu();
-	}
-
-	if (ImGui::BeginMenu("Operation"))
-	{
-		ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation");
-		ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
-		ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
-		ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
-		ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
-		ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
-
-		if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
-		{
-			EditorConfig::StoreBool("manipulateBounds", true);
-			EditorConfig::StoreInt("manipulateOperation", universalOperation);
-		}
-
-		if (ImGui::MenuItem("Translation", nullptr, currentOperation == translationOperation))
-		{
-			EditorConfig::StoreBool("manipulateBounds", false);
-			EditorConfig::StoreInt("manipulateOperation", translationOperation);
-		}
-
-		if (ImGui::MenuItem("Rotation", nullptr, currentOperation == rotationOperation))
-		{
-			EditorConfig::StoreBool("manipulateBounds", false);
-			EditorConfig::StoreInt("manipulateOperation", rotationOperation);
-		}
-
-		if (ImGui::MenuItem("Scale", nullptr, currentOperation == scaleOperation))
-		{
-			EditorConfig::StoreBool("manipulateBounds", false);
-			EditorConfig::StoreInt("manipulateOperation", scaleOperation);
-		}
-
-		if (ImGui::MenuItem("Bounds", nullptr, currentOperation == boundsOperation))
-		{
-			EditorConfig::StoreBool("manipulateBounds", true);
-			EditorConfig::StoreInt("manipulateOperation", boundsOperation);
-		}
-
-		ImGui::EndMenu();
-	}
-
-	float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
-	if (ImGui::BeginMenu("GizmoSize"))
-	{
-		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, 0.3f);
+		float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
+
 		ImGui::EndMenu();
 	}
 
@@ -143,15 +142,7 @@ void SceneViewWindow::RenderToolbar()
 void SceneViewWindow::RenderImpl()
 {
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-	// Temporarily time variable to create deltaTime for our update
-	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-
-	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
-	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
-	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
-	s_lastFrameTime = currentTime;
-	
+		
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
@@ -171,6 +162,7 @@ void SceneViewWindow::RenderImpl()
 			{
 				return;
 			}
+
 			if (input.MouseReleased(Mouse::LMB))
 			{
 				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
@@ -254,7 +246,7 @@ void SceneViewWindow::RenderImpl()
 
 		if (m_cameraLookToggled)
 		{
-			controller.Update(deltaTime, sceneWindow, viewCenter.x, viewCenter.y);
+			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
 		if (m_hoveringSceneView)

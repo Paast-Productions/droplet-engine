@@ -21,6 +21,11 @@
             },
             "id": 1,
             "type": "MeshComponent"
+        },
+        {
+            "data": {},
+            "id": 2,
+            "type": "CameraComponent"
         }
     ],
     "id": 1,
