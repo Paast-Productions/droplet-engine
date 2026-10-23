@@ -1,0 +1,144 @@
+{
+    "name": "GuptaScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Test",
+                        "textureGUID": 8173859370960447319,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "TestNode",
+            "transform": {
+                "position": [
+                    2.685331344604492,
+                    0.152237668633461,
+                    -0.028858661651611328
+                ],
+                "rotation": [
+                    0.6821396350860596,
+                    0.0,
+                    0.7312219738960266,
+                    0.0
+                ],
+                "scale": [
+                    1.0000040531158447,
+                    1.0,
+                    1.000004768371582
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Test",
+                        "textureGUID": 8173859370960447319,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 4,
+            "name": "TestNode",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.6821398735046387,
+                    0.0,
+                    0.7312217354774475,
+                    0.0
+                ],
+                "scale": [
+                    1.0000038146972656,
+                    1.0,
+                    1.000004529953003
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3575449250532881688,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Test",
+                        "textureGUID": 8173859370960447319,
+                        "vs": 17704871794447121608,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 5,
+            "name": "TestNode",
+            "transform": {
+                "position": [
+                    3.050464630126953,
+                    2.4206011295318604,
+                    -0.18404626846313477
+                ],
+                "rotation": [
+                    0.6821396350860596,
+                    0.0,
+                    0.7312219738960266,
+                    0.0
+                ],
+                "scale": [
+                    1.0000040531158447,
+                    1.0,
+                    1.000004768371582
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
