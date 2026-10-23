@@ -52,12 +52,6 @@ namespace Droplet::Graphics
 	class Renderer
 	{
 	public:
-		/// Config struct for a renderer, scalable for more settings later
-		struct Config
-		{
-			bool usingImGui{ false }; ///< Whether to enable imGui on creation
-		};
-	public:
 		/// @brief Deleted Constructor
 		Renderer() = delete;
 
