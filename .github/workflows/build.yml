@@ -37,7 +37,15 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Cache Vulkan SDK
+        id: cache-vulkan
+        uses: actions/cache@v6
+        with:
+          path: C:\VulkanSDK\${{ env.VULKAN_SDK_VERSION }}
+          key: vulkan-${{ runner.os }}-${{ env.VULKAN_SDK_VERSION }}-v1
+
       - name: Install Vulkan SDK
+        if: steps.cache-vulkan.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $version = "${{ env.VULKAN_SDK_VERSION }}"
@@ -63,6 +71,11 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Vulkan SDK installation failed."
           }
+          
+      - name: Configure Vulkan SDK
+        shell: pwsh
+        run: |
+          $sdkPath = "C:\VulkanSDK\${{ env.VULKAN_SDK_VERSION }}"
           
           if (-not (Test-Path "$sdkPath\Lib\SDL3.lib")) {
             throw "SDL3.lib was not found in the Vulkan SDK."
