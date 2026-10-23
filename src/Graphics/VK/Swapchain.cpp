@@ -1,5 +1,6 @@
 #include <Graphics/VK/Swapchain.hpp>
-
+#include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 #include <assert.h>
 
 using namespace Droplet::Graphics::VK;
@@ -76,6 +77,8 @@ vk::Extent2D Swapchain::ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &p_cap
 
 void Swapchain::Cleanup(const vk::raii::Device &p_device)
 {
+	ZoneScoped;
+
 	p_device.waitIdle();
 	m_swapchainImageViews.clear();
 	m_swapchain = nullptr;
@@ -83,6 +86,8 @@ void Swapchain::Cleanup(const vk::raii::Device &p_device)
 
 void Swapchain::Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_surface)
 {
+	ZoneScoped;
+
 	p_device.waitIdle();
 	CreateSwapchain(p_device, p_physicalDevice, p_window, p_surface);
 	CreateImageViews(p_device);
