@@ -1,4 +1,4 @@
-﻿#include <MeshColliderManager.h>
+﻿#include <MeshColliderManager.hpp>
 
 #include <resource/Types/MeshResource.hpp>
 #include <resource/ResourceManager.hpp>
@@ -9,14 +9,30 @@ JPH::MeshShapeSettings MeshColliderManager::GetMeshSettings(const GUID p_guid)
 {
     if (m_shapeSettings.contains(p_guid))
     {
-        return m_shapeSettings[p_guid];
+        m_shapeSettings[p_guid].AddRef();
+        return m_shapeSettings[p_guid].meshShapeSettings;
     }
     
     ResourceHandle<MeshResource> meshHandle = ResourceManager::Get().LoadResource<MeshResource>(p_guid);
     
     JPH::MeshShapeSettings meshSettings = CreateMeshShapeSettings(meshHandle.Get());
-    m_shapeSettings[p_guid] = meshSettings;
-    return meshSettings;
+    m_shapeSettings[p_guid].meshShapeSettings = meshSettings;
+    m_shapeSettings[p_guid].AddRef();
+    return m_shapeSettings[p_guid].meshShapeSettings;
+}
+
+void MeshColliderManager::UnloadMeshSetting(const GUID p_guid)
+{
+    if (!m_shapeSettings.contains(p_guid))
+    {
+        return;
+    }
+    
+    m_shapeSettings[p_guid].Release();
+    if (m_shapeSettings[p_guid].GetRefCount() == 0)
+    {
+        m_shapeSettings.erase(p_guid);
+    }
 }
 
 JPH::MeshShapeSettings MeshColliderManager::CreateMeshShapeSettings(const MeshResource *p_mesh)

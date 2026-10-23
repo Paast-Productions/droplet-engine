@@ -14,7 +14,7 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <resource/GuidUtils.hpp>
-#include <SceneSystem/Physics/MeshColliderManager.h>
+#include <SceneSystem/Physics/MeshColliderManager.hpp>
 
 namespace Droplet::Scene
 {
@@ -188,6 +188,8 @@ namespace Droplet::Scene
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};
+		
+		Droplet::GUID m_meshGuid;
 
 	};
 }

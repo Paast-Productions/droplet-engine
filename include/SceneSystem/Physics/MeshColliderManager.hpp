@@ -23,18 +23,33 @@ public:
     
 	/// @brief Get mesh shape settings
 	///
-	/// If the mesh shape settings isn't cached, the mesh shape settings will be created
+	/// If the mesh shape settings isn't cached, the mesh shape settings will be created and stored
 	/// @param p_guid The GUID of the mesh
     JPH::MeshShapeSettings GetMeshSettings(const Droplet::GUID p_guid);
+	
+	void UnloadMeshSetting(const Droplet::GUID p_guid);
     
 private:
 	MeshColliderManager() = default;
 	~MeshColliderManager() = default;
+	
+	struct MeshColliderCache
+	{
+		JPH::MeshShapeSettings meshShapeSettings{};
+		
+		std::uint32_t GetRefCount() const { return refCount; }
+		void AddRef() { refCount++; }
+		void Release() { refCount--; }
+		
+	private:
+		std::uint32_t refCount{0};
+		
+	};
     
 	/// @brief Helper function creating mesh collider shape settings
 	/// @param p_mesh The mesh resource to make a collider of
 	static JPH::MeshShapeSettings CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh);
 
-    std::unordered_map<Droplet::GUID, JPH::MeshShapeSettings> m_shapeSettings{};
+    std::unordered_map<Droplet::GUID, MeshColliderCache> m_shapeSettings{};
     
 };

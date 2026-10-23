@@ -12,7 +12,7 @@
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
-#include <SceneSystem/Physics/MeshColliderManager.h>
+#include <SceneSystem/Physics/MeshColliderManager.hpp>
 #include <resource/GuidUtils.hpp>
 #include <IntermediaryStorage.hpp>
 #include <Editor/ResourceSlot.hpp>
@@ -82,6 +82,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 	
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
+	m_meshGuid = p_meshGuid;
 }
 
 void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
@@ -94,6 +95,7 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, flo
 	JPH::Ref<JPH::ConvexHullShapeSettings> convexSettings = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_meshGuid, p_edgeRadius));
 	CreateCollider(convexSettings, p_offset);
 	m_shapeType = ShapeType::ConvexHull;
+	m_meshGuid = p_meshGuid;
 }
 
 void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_shapes)
@@ -136,6 +138,12 @@ void PhysicsComponent::RemoveCollider()
 {
 	if (m_shapeType != ShapeType::None)
 	{
+		if (m_shapeType == ShapeType::Mesh || 
+			m_shapeType == ShapeType::ConvexHull)
+		{
+			MeshColliderManager::Get().UnloadMeshSetting(m_meshGuid);
+		}
+		
 		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
 		bodyInterface->RemoveBody(m_bodyID);
 		bodyInterface->DestroyBody(m_bodyID);
@@ -427,6 +435,10 @@ void PhysicsComponent::RenderUIImpl()
 					for (std::size_t n = 0; n < meshComponents.size(); n++)
 					{
 						const bool isSelected = (selectedMeshIdx == n);
+						if (meshNames[n].empty())
+						{
+							meshNames[n] = "##" + std::to_string(n);
+						}
 						if (ImGui::Selectable(meshNames[n].c_str(), isSelected))
 						{
 							selectedMeshIdx = n;
@@ -622,6 +634,7 @@ void PhysicsComponent::RenderUIImpl()
 				if (!displayError)
 				{
 					compoundShapes.push_back(compoundShape);
+					m_meshGuid = newGUID;
 				}
 			}
 			
