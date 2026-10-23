@@ -1,0 +1,1432 @@
+{
+    "name": "TutorialScecne",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor",
+                        "meshGUID": 783955779018406974,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 1,
+            "name": "SeafloorMain",
+            "transform": {
+                "position": [
+                    -0.19978991150856018,
+                    -0.24797379970550537,
+                    -99.27012634277344
+                ],
+                "rotation": [
+                    0.7060003876686096,
+                    0.0,
+                    -0.7082114815711975,
+                    0.0
+                ],
+                "scale": [
+                    1.0000008344650269,
+                    1.0,
+                    1.0000008344650269
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor",
+                        "meshGUID": 783955779018406974,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor",
+                        "meshGUID": 783955779018406974,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 3,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    -29.240234375,
+                    4.658286094665527,
+                    -48.729644775390625
+                ],
+                "rotation": [
+                    0.5524958968162537,
+                    0.11899898201227188,
+                    -0.7051836252212524,
+                    -0.4281396269798279
+                ],
+                "scale": [
+                    0.19251741468906403,
+                    0.4154430031776428,
+                    0.9490936994552612
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cylinder.004",
+                        "meshGUID": 17990721949996262870,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "underwater_lab2_base",
+                        "textureGUID": 17525405162226008434,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 4,
+            "name": "UnderWaterLab",
+            "transform": {
+                "position": [
+                    115.29148864746094,
+                    4.063864707946777,
+                    -120.96678161621094
+                ],
+                "rotation": [
+                    0.8397557139396667,
+                    0.0,
+                    0.5429643988609314,
+                    0.0
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    1.0,
+                    0.9999998807907104
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 5,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -66.67864990234375,
+                    32.18245315551758,
+                    -53.76752471923828
+                ],
+                "rotation": [
+                    0.8979991674423218,
+                    0.0,
+                    0.43999719619750977,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor",
+                        "meshGUID": 783955779018406974,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 6,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    -22.976831436157227,
+                    -43.601383209228516,
+                    -63.14371109008789
+                ],
+                "rotation": [
+                    0.9663660526275635,
+                    -0.10051203519105911,
+                    -0.02103249356150627,
+                    -0.2357787936925888
+                ],
+                "scale": [
+                    2.070218324661255,
+                    2.986380100250244,
+                    1.000000238418579
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 7,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -65.73015594482422,
+                    32.09954071044922,
+                    -55.304168701171875
+                ],
+                "rotation": [
+                    0.8012517690658569,
+                    0.0,
+                    0.5983275175094604,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 8,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -65.6257095336914,
+                    32.08675003051758,
+                    -54.394981384277344
+                ],
+                "rotation": [
+                    0.8413406014442444,
+                    0.0,
+                    0.5405053496360779,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 9,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -66.67900085449219,
+                    34.169551849365234,
+                    -53.768001556396484
+                ],
+                "rotation": [
+                    0.8810619115829468,
+                    0.0,
+                    0.47300097346305847,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 10,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    44.63186264038086,
+                    24.317140579223633,
+                    -46.73657989501953
+                ],
+                "rotation": [
+                    0.9111024141311646,
+                    0.0,
+                    -0.4121801555156708,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 11,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    43.81902313232422,
+                    24.317140579223633,
+                    -47.66129684448242
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 12,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    44.63186264038086,
+                    25.98023796081543,
+                    -46.73657989501953
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 13,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    44.63186264038086,
+                    27.78789710998535,
+                    -46.73657989501953
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 14,
+            "name": "BigSeaGrass2",
+            "transform": {
+                "position": [
+                    -5.119226455688477,
+                    -0.014855265617370605,
+                    -43.97995376586914
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 15,
+            "name": "BigSeaGrass2",
+            "transform": {
+                "position": [
+                    -3.024198293685913,
+                    0.04820281267166138,
+                    -41.738460540771484
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 16,
+            "name": "BigSeaGrass2",
+            "transform": {
+                "position": [
+                    3.3876495361328125,
+                    0.01878458261489868,
+                    -39.006996154785156
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 17,
+            "name": "BigSeaGrass2",
+            "transform": {
+                "position": [
+                    -3.024198293685913,
+                    -0.12439227104187012,
+                    -47.23717498779297
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 18,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -23.03040885925293,
+                    9.128704071044922,
+                    -54.32068634033203
+                ],
+                "rotation": [
+                    0.9631074070930481,
+                    0.0,
+                    0.2691173255443573,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 19,
+            "name": "BigSeaGrass2",
+            "transform": {
+                "position": [
+                    -24.440536499023438,
+                    8.79300308227539,
+                    -57.26615905761719
+                ],
+                "rotation": [
+                    0.9819347858428955,
+                    0.0,
+                    0.0,
+                    -0.1892196238040924
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 20,
+            "name": "kelp",
+            "transform": {
+                "position": [
+                    -22.08434295654297,
+                    8.598255157470703,
+                    -54.34614562988281
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 21,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    27.032331466674805,
+                    8.106138229370117,
+                    27.908098220825195
+                ],
+                "rotation": [
+                    0.9508061408996582,
+                    0.0,
+                    0.3097865581512451,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 22,
+            "name": "kelp2",
+            "transform": {
+                "position": [
+                    24.969825744628906,
+                    7.349797248840332,
+                    28.88959312438965
+                ],
+                "rotation": [
+                    0.5128411054611206,
+                    0.0,
+                    -0.8584835529327393,
+                    0.0
+                ],
+                "scale": [
+                    1.0000030994415283,
+                    1.0,
+                    1.0000032186508179
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 23,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -34.52227020263672,
+                    14.498332977294922,
+                    26.97825813293457
+                ],
+                "rotation": [
+                    0.9995894432067871,
+                    0.0,
+                    0.028653476387262344,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 24,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -35.71482849121094,
+                    14.485645294189453,
+                    26.57848358154297
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 25,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -35.3482551574707,
+                    14.722027778625488,
+                    24.446868896484375
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 26,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -33.97863006591797,
+                    14.881972312927246,
+                    26.03411865234375
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 27,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -36.612056732177734,
+                    14.299610137939453,
+                    25.55776596069336
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 28,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -36.612056732177734,
+                    15.946028709411621,
+                    25.55776596069336
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 29,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -36.612056732177734,
+                    17.79961395263672,
+                    25.55776596069336
+                ],
+                "rotation": [
+                    0.9786708354949951,
+                    0.0,
+                    -0.20543470978736877,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 11929133566856826472,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "RockV2_base",
+                        "textureGUID": 2617992142281023542,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 30,
+            "name": "Stone",
+            "transform": {
+                "position": [
+                    -49.75555419921875,
+                    4.183419227600098,
+                    -15.798869132995605
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.5613908767700195,
+                    2.8379786014556885,
+                    2.7266223430633545
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "vs": 7809030845991192100,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 31,
+            "name": "kelp3",
+            "transform": {
+                "position": [
+                    -43.27011489868164,
+                    3.28126859664917,
+                    -19.01875114440918
+                ],
+                "rotation": [
+                    0.9111023545265198,
+                    0.0,
+                    -0.41218018531799316,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

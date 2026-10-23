@@ -1,0 +1,40 @@
+{
+    "resources": [
+        {
+            "displayName": "Fish.001",
+            "guid": 12700707095395000405,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Fish.001",
+            "type": 3
+        },
+        {
+            "displayName": "Material.004",
+            "guid": 1156643809729900413,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Material.004",
+            "type": 3
+        },
+        {
+            "displayName": "Material.005",
+            "guid": 2574857411070814888,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Material.005",
+            "type": 3
+        }
+    ]
+}
