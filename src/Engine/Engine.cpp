@@ -5,6 +5,7 @@
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <Jolt/Jolt.h>
@@ -239,6 +240,7 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 }
 
 Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
@@ -249,4 +251,14 @@ Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::ui
 VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
 {
 	return m_renderer.RegisterImGuiTexture(p_renderTarget);
+}
+
+VkDescriptorSet Engine::GetOrCreateImGuiTexture(GUID p_guid)
+{
+	return m_renderer.GetOrCreateImGuiTexture(p_guid);
+}
+
+void Engine::RemoveImGuiTexture(GUID p_guid)
+{
+	m_renderer.RemoveImGuiTexture(p_guid);
 }

@@ -14,12 +14,12 @@ struct FSInput
     float2 fragTexCoord;
 };
 
-layout(set = 0, binding = 1) Sampler2D texture;
+layout(set = 0, binding = 1) Sampler2D texture[];
 
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET
 {
-    float3 colour = texture.Sample(float2(vertIn.fragTexCoord.x + pc.time, -vertIn.fragTexCoord.y + pc.time)).rgb;
+    float3 colour = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x + pc.time, -vertIn.fragTexCoord.y + pc.time)).rgb;
     
     return float4(colour, 1.0);
 }

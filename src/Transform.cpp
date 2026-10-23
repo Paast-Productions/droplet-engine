@@ -308,10 +308,10 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 void Transform::SetScale(const glm::vec3 &p_scale)
 {
 	// Sanitize scale values to avoid zero
-	constexpr float MIN_SCALE = 0.0001f;
-	m_scale.x = Sign(p_scale.x) * ((std::abs(p_scale.x) < MIN_SCALE) ? MIN_SCALE : p_scale.x);
-	m_scale.y = Sign(p_scale.y) * ((std::abs(p_scale.y) < MIN_SCALE) ? MIN_SCALE : p_scale.y);
-	m_scale.z = Sign(p_scale.z) * ((std::abs(p_scale.z) < MIN_SCALE) ? MIN_SCALE : p_scale.z);
+	constexpr float MIN_SCALE = 1.0e-6;
+	m_scale.x = (std::abs(p_scale.x) < MIN_SCALE) ? (Sign(p_scale.x) * MIN_SCALE) : p_scale.x;
+	m_scale.y = (std::abs(p_scale.y) < MIN_SCALE) ? (Sign(p_scale.y) * MIN_SCALE) : p_scale.y;
+	m_scale.z = (std::abs(p_scale.z) < MIN_SCALE) ? (Sign(p_scale.z) * MIN_SCALE) : p_scale.z;
 
 	MakeDirty();
 }
