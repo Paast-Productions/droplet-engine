@@ -70,6 +70,7 @@ void CameraComponent::UpdateImpl(float p_deltaTime)
     }
 
     // Smooth orientation (shortest path for yaw)
+    p_deltaTime = Time::Get().GetDeltaTime();
     const float rotT = Smooth(m_rotationLag, p_deltaTime);
     m_smoothedYaw += WrapDegrees(targetYaw - m_smoothedYaw) * rotT;
     m_smoothedPitch += (targetPitch - m_smoothedPitch) * rotT;
