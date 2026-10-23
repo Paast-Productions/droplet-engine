@@ -88,6 +88,58 @@ namespace Droplet::Scene
 		CheckIntersection(p_outNodes, p_frustum, m_root);
 	}
 
+	void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes) // TODO: Make weak pointer
+	{
+		ZoneScoped;
+
+		std::vector<std::shared_ptr<Node>> found;
+		CollectContained(found, p_frustum, m_root);
+
+		// A node may be stored in several octants, so only keep unique ones
+		std::sort(found.begin(), found.end());
+		found.erase(std::unique(found.begin(), found.end()), found.end());
+
+		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
+	}
+
+	void Octree::CollectContained(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
+		const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+	{
+		ZoneScoped;
+
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		// Nodes stored in an octant may extend outside of it, so octants that are only touched must still be searched
+		if (Intersects(p_frustum, p_treeNode->octant) == IntersectType::None)
+		{
+			return;
+		}
+
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		{
+			if (node == nullptr || node->GetBounds() == nullptr)
+			{
+				continue;
+			}
+
+			if (node->GetBounds()->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
+			{
+				p_nodes.push_back(node);
+			}
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				CollectContained(p_nodes, p_frustum, child);
+			}
+		}
+	}
+
 	std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit)
 	{
 		RayHit hit{};
