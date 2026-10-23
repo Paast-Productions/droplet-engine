@@ -39,7 +39,7 @@ VSOutput main(VSInput input)
     float3 inpos = input.inPosition;
     float4 wPos = mul(pc.world, float4(inpos, 1.0));
 
-    float4 pos = float4(inpos.x, inpos.y, inpos.z + 0.2 * cos(100 * pc.time + wPos.x + wPos.z) * saturate(inpos.y), 1.0);
+    float4 pos = float4(inpos.x, inpos.y, inpos.z + 0.2 * cos(pc.time + wPos.x + wPos.z) * saturate(inpos.y), 1.0);
     output.wPos = mul(pc.world, pos);
     output.pos = mul(vp.proj, mul(vp.view,  output.wPos));
     output.fragTexCoord = input.inTexCoord;
