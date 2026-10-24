@@ -578,7 +578,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	// Render transform gizmo for the selected nodes
 	{
 		// Nodes whose ancestor is also selected follow that ancestor, so they are excluded to avoid double transforms
-		std::vector<std::shared_ptr<DNode>> manipulated = GetManipulatableSelection(interactionState.GetSelectedNodes());
+		const auto &allSelected = interactionState.GetSelectedNodes();
+		std::vector<std::shared_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
 
 		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
@@ -618,12 +619,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		}
 		else if (manipulated.size() > 1)
 		{
-			// The group gizmo is placed at the center of the aggregate world-space bounds of the selection, axis-aligned.
+			// The group gizmo is placed at the center of the aggregate world-space bounds of every selected node (including
+			// selected descendants of selected nodes), axis-aligned.
 			// While the gizmo is in use, the matrix is kept between frames so the pivot does not drift as nodes move.
 			glm::vec3 boundsMin{}, boundsMax{};
 			if (!m_groupGizmoActive || !ImGuizmo::IsUsing())
 			{
-				if (ComputeWorldBounds(manipulated, boundsMin, boundsMax))
+				if (ComputeWorldBounds(allSelected, boundsMin, boundsMax))
 				{
 					m_groupGizmoMatrix = glm::translate(glm::mat4(1.0f), (boundsMin + boundsMax) * 0.5f);
 					m_groupGizmoBounds[0] = boundsMin - (boundsMin + boundsMax) * 0.5f;
