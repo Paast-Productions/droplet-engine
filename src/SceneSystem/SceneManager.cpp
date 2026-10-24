@@ -266,9 +266,8 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     {
         throw std::runtime_error("Cannot load Scene "+ json["name"]);
     }
-
-    serializer.DeserializeScene(json, scene);
     scene->Load();
+    serializer.DeserializeScene(json, scene);
 
     m_scenes[json["name"]] = scene;
 }

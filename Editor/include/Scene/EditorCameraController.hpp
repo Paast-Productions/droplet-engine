@@ -13,11 +13,10 @@ namespace Droplet::Editor::Scene
 		EditorCameraController(EditorCamera &p_camera) : m_editorCamera(p_camera){}
 
 		/// @brief Update functions that register movement of the editorCamera
-		/// @param p_deltaTime Time variable that ensures consinstent movement between different frames per second
 		/// @param p_window The SDL_window the camera cursor should apply its changes to
 		/// @param p_centerX X-axis position in screen space which to reset the cursor position to after rotation
 		/// @param p_centerY Y-axis position in screen space which to reset the cursor position to after rotation
-		void Update(float p_deltaTime, SDL_Window* p_window, float p_centerX, float p_centerY);
+		void Update(SDL_Window* p_window, float p_centerX, float p_centerY);
 
 		/// @brief Function that controls if the camera should follow the cursor
 		/// @param p_active Boolean if true sets the camera to follow the cursor

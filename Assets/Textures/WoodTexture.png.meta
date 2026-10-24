@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "WoodTexture",
+            "guid": 1466059150086384494,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "WoodTexture",
+            "type": 1
+        }
+    ]
+}
