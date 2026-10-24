@@ -80,7 +80,12 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		static glm::vec3 rot = glm::degrees(transform.GetEuler(space));
+		// Displayed angles are only a readout; edits are applied as per-axis delta rotations
+		glm::vec3 &rot = m_displayedRotation;
+		if (!m_rotationActive)
+		{
+			rot = glm::degrees(transform.GetEuler(space));
+		}
 		glm::vec3 prevRot = rot;
 		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
@@ -108,17 +113,14 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		if (!ImGui::IsItemActive())
-		{
-			rot = glm::degrees(transform.GetEuler());
-		}
+		m_rotationActive = ImGui::IsItemActive();
 
 		glm::vec3 scl = transform.GetScale();
+		const glm::vec3 oldScl = scl;
 		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed * 0.5f))
 		{
 			if (m_lockScale)
 			{
-				glm::vec3 oldScl = scl;
 
 				if (scl.x != oldScl.x)
 				{
