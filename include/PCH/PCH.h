@@ -1,7 +1,11 @@
+// Any files that are not frequently changed and are used across multiple source files can be included in a precompiled header (PCH) to speed up compilation times. 
+// This file serves as a precompiled header for the project, including commonly used headers and external libraries.
+
 #pragma once
 
-// FIRST INCLUDE
+// ALWAYS FIRST INCLUDE
 #include <Debug/TracyTrackedAlloc.hpp>
+#include <Core/GlobalDefs.hpp>
 
 // C++ library headers
 #include <algorithm>
@@ -135,4 +139,4 @@
 #include <Core/ThreadSafeQueue.hpp>
 #include <Debug/Logger.hpp>
 #include <Editor/DragDropFields.hpp>
-//#include <Engine/EngineFlags.hpp>
+#include <Engine/EngineFlags.hpp>
