@@ -9,7 +9,6 @@
 
 // Editor
 #include <core/FileExplorer.hpp>
-#include <ImGui/ImGuiUtils.hpp>
 #include <ImGui/UIStyle.hpp>
 #include <Scene/ComponentList.hpp>
 #include <EditorConfig.hpp>

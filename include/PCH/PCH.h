@@ -139,4 +139,5 @@
 #include <Core/ThreadSafeQueue.hpp>
 #include <Debug/Logger.hpp>
 #include <Editor/DragDropFields.hpp>
+#include <Editor/ImGuiUtils.hpp>
 #include <Engine/EngineFlags.hpp>
