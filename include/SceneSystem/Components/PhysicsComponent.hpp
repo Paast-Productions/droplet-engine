@@ -157,6 +157,8 @@ namespace Droplet::Scene
 		/// @brief Late updates the physics component.
 		void LateUpdateImpl() override;
 		
+		void ActiveChangedImpl(const bool p_active) override;
+		
 		void RenderUIImpl() override;
 
 		nlohmann::json SerializeImpl() override;

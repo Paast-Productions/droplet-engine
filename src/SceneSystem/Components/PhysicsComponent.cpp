@@ -176,6 +176,18 @@ void PhysicsComponent::LateUpdateImpl()
 	PullTransformFromPhysics();
 }
 
+void PhysicsComponent::ActiveChangedImpl(const bool p_active)
+{
+	if (p_active)
+	{
+		m_physics->GetBodyInterface()->ActivateBody(m_bodyID);
+	}
+	else
+	{
+		m_physics->GetBodyInterface()->DeactivateBody(m_bodyID);
+	}
+}
+
 void PhysicsComponent::RenderUIImpl()
 {
 	if (m_shapeType != ShapeType::None)

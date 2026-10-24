@@ -147,6 +147,8 @@ namespace Droplet::Scene
     	virtual void LateUpdateImpl() {}
     	
     	virtual void FixedUpdateImpl() {}
+    	
+    	virtual void ActiveChangedImpl(const bool p_active) {}
 
 		/// @brief Internal rendering function for the component's UI.
         /// 

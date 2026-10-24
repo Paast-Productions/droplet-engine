@@ -75,6 +75,11 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
+                },
+                {
+                    "data": null,
+                    "id": 2,
+                    "type": "PhysicsComponent"
                 }
             ],
             "id": 2,

@@ -111,9 +111,16 @@ void Component::SetActiveSelf(bool p_active)
 {
 	m_active = p_active;
 
-	if (m_active && !m_started)
+	if (m_started)
 	{
-		Start();
+		ActiveChangedImpl(p_active);
+	}
+	else
+	{
+		if (m_active)
+		{
+			Start();
+		}
 	}
 }
 
