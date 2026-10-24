@@ -8,6 +8,8 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <iostream>
 #include <EngineFlags.hpp>
+#include <Time.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -19,7 +21,19 @@ Scene::Scene(const std::string &p_name)
 
 }
 
-void Scene::Update(float p_deltaTime)
+Scene::~Scene()
+{
+    for (std::shared_ptr<Node> &node : m_roots)
+    {
+        std::vector<std::shared_ptr<PhysicsComponent>> comps = node->GetComponents<PhysicsComponent>();
+        for (std::shared_ptr<PhysicsComponent> comp : comps)
+        {
+            node->RemoveComponent(comp.get());
+        }
+    }
+}
+
+void Scene::Update()
 {
 	ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -33,11 +47,30 @@ void Scene::Update(float p_deltaTime)
     {
         for (const auto &root : m_roots)
         {
-            root->Update(p_deltaTime);
+            root->Update();
         }
     }
 
     m_octree.Update();
+}
+
+void Droplet::Scene::Scene::LateUpdate()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->LateUpdate();
+        }
+    }
 
     for (const auto &root : m_roots)
     {
@@ -45,6 +78,29 @@ void Scene::Update(float p_deltaTime)
     }
 }
 
+void Droplet::Scene::Scene::FixedUpdate()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->FixedUpdate();
+        }
+        
+        if (m_physics != nullptr)
+        {
+            m_physics->FixedUpdate();
+        }
+    }
+}
 
 void Scene::Load()
 {
@@ -233,6 +289,21 @@ std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_h
 std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
 {
     return m_octree.GetNodesFromRaycast(p_ray);
+}
+
+void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initializer)
+{
+    if (m_physics != nullptr)
+    {
+        return;
+    }
+
+    m_physics = std::make_unique<Physics>(p_initializer);
+}
+
+Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
+{
+    return m_physics.get();
 }
 
 void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)

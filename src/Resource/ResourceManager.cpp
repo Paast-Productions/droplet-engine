@@ -197,6 +197,11 @@ namespace Droplet
         return m_registry.GetEntries(p_type);
     }
 
+    bool ResourceManager::GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const
+    {
+        return m_registry.GetResourceMetaData(p_guid, p_metaEntry);
+    }
+
     std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(ResourceType p_type) const
     {
         return MetaUtils::GetSettingsSchema(p_type);
@@ -218,15 +223,11 @@ namespace Droplet
         
         // Sanitize entry
         MetaEntry originalEntry;
-        try
+        if (!m_registry.GetResourceMetaData(p_guid, originalEntry))
         {
-            originalEntry = m_registry.GetResourceMetaData(p_guid);
-        }
-        catch (...)
-        {
-            // TODO: Log warning
             return false;
         }
+        
         MetaEntry sanitizedEntry = p_updatedEntry;
         sanitizedEntry.guid = originalEntry.guid;
         sanitizedEntry.type = originalEntry.type;
@@ -366,7 +367,11 @@ namespace Droplet
         live.resource.reset(); // Clear RAM
         live.state = ResourceState::LoadingAsync;
         
-        MetaEntry metaEntry = m_registry.GetResourceMetaData(p_guid);
+        MetaEntry metaEntry; 
+        if (m_registry.GetResourceMetaData(p_guid, metaEntry))
+        {
+            // TODO: Log error (resource with p_guid was not found)
+        }
         
         // Look up the load dispatcher for the resource type and call it
         auto dispatcherIt = m_loadDispatchers.find(metaEntry.type);
