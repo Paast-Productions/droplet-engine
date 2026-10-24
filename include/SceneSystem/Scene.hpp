@@ -204,6 +204,11 @@ namespace Droplet::Scene
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
 
+        /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
+        /// @param p_frustum The frustum that must fully contain the nodes
+        /// @return A vector of all Node instances fully contained in the frustum
+        [[nodiscard]] std::vector<std::shared_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum); // TODO: Make weak pointer
+
         void LoadNodeFromFile( const std::string &p_filepath);
 
     private:
