@@ -16,6 +16,7 @@ project "Engine"
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+    UseGraphicsPCH()
 
     if _TARGET_OS == "windows" then
 
