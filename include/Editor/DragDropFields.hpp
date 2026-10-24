@@ -1,8 +1,8 @@
 #pragma once
 #include <ImGui/imgui.h>
 #include <string>
-#include <resource/GuidUtils.hpp>
-#include <IResource.hpp>
+#include <Resource/GuidUtils.hpp>
+#include <Resource/IResource.hpp>
 
 namespace Droplet::Editor
 {

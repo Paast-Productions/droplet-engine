@@ -15,6 +15,8 @@ project "SceneSystem"
     
     local vkPath = os.getenv("VULKAN_SDK")
 
+    UseGraphicsPCH()
+
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Scene/SceneMain.cpp"
