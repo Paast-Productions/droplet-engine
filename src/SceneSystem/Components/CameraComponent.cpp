@@ -18,7 +18,7 @@ void CameraComponent::StartImpl()
 {
 }
 
-void CameraComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
+void CameraComponent::UpdateImpl()
 {
     if (!m_camera)
         return;

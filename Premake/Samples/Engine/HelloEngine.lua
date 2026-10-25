@@ -36,8 +36,9 @@ project "Engine-HelloEngine"
         "Sol2",
         "Lua",
         "tracy",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
+        "PortableFileDialogs",
+        "IconFontCppHeaders",
+        "Jolt"
     }
 
     links {
@@ -51,5 +52,6 @@ project "Engine-HelloEngine"
         AddQuotation("lua_static"),
         AddQuotation("vulkan-1"),
         AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd")
+        AddQuotation("assimp-mtd"),
+        AddQuotation("Jolt")
     }

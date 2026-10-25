@@ -40,20 +40,21 @@ namespace Droplet
         }
     }
 
-    MetaEntry ResourceRegistry::GetResourceMetaData(GUID p_guid)
+    bool ResourceRegistry::GetResourceMetaData(const GUID p_guid, MetaEntry &p_metaEntry) const
     {
         ZoneScoped;
 
         auto it = m_guidToEntryMap.find(p_guid);
         if (it != m_guidToEntryMap.end())
         {
-            return it->second;
+            p_metaEntry = it->second;
+            return true;
         }
 
         MetaEntry m;
         m.guid = C_INVALID_GUID;
-    
-        return m;
+        p_metaEntry = m;
+        return false;
     }
 
     bool ResourceRegistry::GetCachedMetaDataForAsset(const std::string &p_assetPath,

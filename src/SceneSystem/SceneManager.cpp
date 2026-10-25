@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
+#include <Time.hpp>
 
 using namespace Droplet::Scene;
 
@@ -176,7 +177,44 @@ void SceneManager::Update(float p_deltaTime)
             continue;
         }
 
-        scene->Update(p_deltaTime);
+        scene->Update();
+
+        ++it;
+    }
+
+    Droplet::Time &time = Droplet::Time::Get();
+    while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
+    {
+        // Update all active Scenes
+        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        {
+            auto scene = it->lock();
+
+            if (!scene)
+            {
+                it = m_activeScenes.erase(it);
+                continue;
+            }
+
+            scene->FixedUpdate();
+
+            ++it;
+        }
+
+        time.ConsumeFixedTime();
+    }
+
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+    {
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        scene->LateUpdate();
 
         ++it;
     }
