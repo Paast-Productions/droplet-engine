@@ -13,6 +13,8 @@ project "Engine-HelloEngine"
     }
         
     local vkPath = os.getenv("VULKAN_SDK")
+
+    UseGraphicsPCH()
     
     libdirs {
         targetBuildPath .. "/Engine",
