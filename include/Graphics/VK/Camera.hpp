@@ -99,6 +99,11 @@ namespace Droplet::Graphics
 		/// @return A 3D ray in world space originating from the camera position and passing through the specified NDC position.
 		[[nodiscard]] Math::Ray GetViewRay(const glm::vec2 &p_viewPos) const;
 
+		/// @brief Calculates the frustum that corresponds to a specific rectangular region of the camera's view, defined in normalized device coordinates (NDC).
+		/// @param minMax A 4D vector representing the minimum and maximum coordinates of the rectangular region in NDC space (x_min, y_min, x_max, y_max).
+		/// @return A frustum that corresponds to the specified rectangular region of the camera's view.
+		[[nodiscard]] Math::Frustum ViewRectToWorldTile(const glm::vec4 &minMax) const;
+
 	private:
 		glm::vec3 m_position {};
 		glm::vec3 m_forward {};

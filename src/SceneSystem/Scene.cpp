@@ -291,6 +291,13 @@ std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
     return m_octree.GetNodesFromRaycast(p_ray);
 }
 
+std::vector<std::shared_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
+{
+    std::vector<std::shared_ptr<Node>> nodes;
+    m_octree.GetNodesFullyInFrustum(p_frustum, nodes);
+    return nodes;
+}
+
 void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initializer)
 {
     if (m_physics != nullptr)
