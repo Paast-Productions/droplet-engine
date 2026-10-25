@@ -214,6 +214,11 @@ namespace Droplet::Scene
         /// @param p_initializer Struct contaning values to initialize the physics engine
         void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
 
+        /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
+        /// @param p_frustum The frustum that must fully contain the nodes
+        /// @return A vector of all Node instances fully contained in the frustum
+        [[nodiscard]] std::vector<std::shared_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum); // TODO: Make weak pointer
+
         [[nodiscard]] Physics *GetPhysics();
         
         void LoadNodeFromFile( const std::string &p_filepath);
