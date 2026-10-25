@@ -2,7 +2,6 @@
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/ComponentFactory.hpp>
 #include <algorithm>
-#include <TransformUI.hpp>
 #include <ComponentList.hpp>
 #include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
