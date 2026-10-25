@@ -100,7 +100,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	RegisterComponents();
 }
 
-Droplet::Engine::~Engine()
+Engine::~Engine()
 {
 	ZoneScoped;
 
@@ -120,20 +120,24 @@ Droplet::Engine::~Engine()
 	Shutdown();
 }
 
-void Droplet::Engine::Shutdown()
+void Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Engine::Update(Graphics::RenderTarget &p_renderTarget, Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
+	Time &time = Time::Get();
+	GameInput &input = GameInput::Get();
+	SDL_Window *sdlWindow = m_window.Get();
+
 	// Time
-	Time::Get().Update();
+	time.Update();
 
 	// Inputs
-	Droplet::GameInput::Get().Update();
+	input.Update(sdlWindow);
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
@@ -176,8 +180,10 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 			break;
 		}
 
-		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
+		GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
+
+	input.UpdatePostEvents(sdlWindow);
 
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
@@ -188,7 +194,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	}
 
 	// Scenesystem
-	m_sceneManager.Update(Time::Get().GetDeltaTime());
+	m_sceneManager.Update(time.GetDeltaTime());
 	
 	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 

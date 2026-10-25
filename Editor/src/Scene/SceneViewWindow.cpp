@@ -149,16 +149,18 @@ void SceneViewWindow::RenderToolbar()
 		if (ImGui::BeginMenu("Operation"))
 		{
 			ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation");
+
+			ImGuizmo::OPERATION noneOperation = (ImGuizmo::OPERATION)0;
 			ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
 			ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
 			ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
 			ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
-			ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
+			ImGuizmo::OPERATION universalOperation = ImGuizmo::UNIVERSAL;
 
-			if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+			if (ImGui::MenuItem("None", nullptr, currentOperation == noneOperation))
 			{
-				EditorConfig::StoreBool("manipulateBounds", true);
-				EditorConfig::StoreInt("manipulateOperation", universalOperation);
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", noneOperation);
 			}
 
 			if (ImGui::MenuItem("Translation", nullptr, currentOperation == translationOperation))
@@ -185,6 +187,12 @@ void SceneViewWindow::RenderToolbar()
 				EditorConfig::StoreInt("manipulateOperation", boundsOperation);
 			}
 
+			if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", universalOperation);
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -206,13 +214,25 @@ void SceneViewWindow::RenderToolbar()
 
 void SceneViewWindow::RenderImpl()
 {
+	GameInput &input = GameInput::Get();
+	EditorCameraController &controller = m_editorContext->GetEditorCameraController();
+	const EditorCamera &camera = m_editorContext->GetEditorCamera();
+
+	ImGuiViewport *viewport = ImGui::GetWindowViewport();
+	SDL_Window *sceneWindow = nullptr;
+
+	if (viewport)
+	{
+		SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+		sceneWindow = SDL_GetWindowFromID(windowID);
+	}
+
 	ImDrawList *drawList = ImGui::GetWindowDrawList();
 		
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
-	
-	GameInput &input = GameInput::Get();
+
 	float contentAspect = contentRegion.x / contentRegion.y;
 	vk::Extent2D extent = m_renderTarget.GetExtent();
 
@@ -235,7 +255,7 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-	
+
 	ImVec2 camSize = contentRegion;
 	
 	ImVec2 camViewRectMin = {
@@ -285,58 +305,19 @@ void SceneViewWindow::RenderImpl()
 	ImVec2 imageMin = ImGui::GetItemRectMin();
 	ImVec2 imageMax = ImGui::GetItemRectMax();
 
-	const EditorCamera &camera = m_editorContext->GetEditorCamera();
-
-	if (isWindowFocused)
+	if (m_cameraLookToggled)
 	{
-		bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
-
-		GameInput &input = GameInput::Get();
-		EditorCameraController &controller = m_editorContext->GetEditorCameraController();
-
-		// Get the mouse position relative to the camera view rect
-		ImVec2 mousePos = ImGui::GetIO().MousePos;
-
-		ImVec2 mousePosNormalizedToCamView = {
-			(mousePos.x - camViewRectMin.x) / (camViewRectMax.x - camViewRectMin.x),
-			(mousePos.y - camViewRectMin.y) / (camViewRectMax.y - camViewRectMin.y)
-		};
-
-		ImGuiViewport *viewport = ImGui::GetWindowViewport();
-
-		SDL_Window *sceneWindow = nullptr;
-
-		if (viewport)
-		{
-			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
-			sceneWindow = SDL_GetWindowFromID(windowID);
-		}
-
-		if (m_cameraLookToggled)
-		{
-			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
-		}
-
+		controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 	}
 
-	if (m_hoveringSceneView || isWindowFocused)
+	if (m_cameraLookToggled || m_hoveringSceneView || isWindowFocused)
 	{
-		if (input.KeyPressed(Key::KeyQ))
+		if (input.KeyPressed(Key::Tab))
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+			controller.CameraLock(m_cameraLookToggled);
 
-			ImGuiViewport *viewport = ImGui::GetWindowViewport();
-
-			SDL_Window *sceneWindow = nullptr;
-
-			if (viewport)
-			{
-				SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
-				sceneWindow = SDL_GetWindowFromID(windowID);
-			}
-
-			input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
+			input.LockCursor(m_cameraLookToggled ? sceneWindow : nullptr);
 		}
 	}
 
@@ -347,7 +328,7 @@ void SceneViewWindow::RenderImpl()
 	constexpr float c_minDragSize = 4.0f;
 
 	// Shift or Ctrl makes the selection additive/toggling instead of replacing it
-	const bool additiveSelection = input.KeyHeld(Key::KeyShift) || input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
+	const bool additiveSelection = input.KeyHeld(Key::LShift) || input.KeyHeld(Key::LCtrl) || input.KeyHeld(Key::RCtrl);
 
 	if (!isDragging)
 	{
@@ -419,7 +400,7 @@ void SceneViewWindow::RenderImpl()
 
 					for (const auto &node : hitNodes)
 					{
-						if (additiveSelection && input.KeyHeld(Key::KeyLCTRL) && interactionState.IsNodeSelected(node))
+						if (additiveSelection && input.KeyHeld(Key::LCtrl) && interactionState.IsNodeSelected(node))
 						{
 							interactionState.DeselectNode(node);
 						}
@@ -528,6 +509,27 @@ void SceneViewWindow::RenderImpl()
 	}
 	
 	ImGui::EndChild();
+
+	static ImVec2 circleCenter;
+
+	// HACK HACK HACK: For testing mouse locking
+	if (GameInput::Get().KeyPressed(Key::L))
+	{
+		circleCenter = ImGui::GetIO().MousePos;
+	}
+	else if (GameInput::Get().KeyHeld(Key::L))
+	{
+		// Move cursor in a circular path around where the cursor was when the key was first pressed, to test camera rotation
+		float time = Time::Get().GetRuntime();
+		float tScale = 10.0f; // Speed of rotation
+		float radius = 8.0f;
+
+		float x = circleCenter.x + radius * std::cos(time * tScale);
+		float y = circleCenter.y + radius * std::sin(time * tScale);
+
+		GameInput::Get().MoveCursor(glm::vec2(x, y), false, true);
+	}
+	// HACK HACK HACK: For testing mouse locking
 }
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)

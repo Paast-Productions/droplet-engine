@@ -7,160 +7,218 @@
 #include <iostream>
 #include <tracy/public/tracy/Tracy.hpp>
 
-namespace Droplet
+using namespace Droplet;
+
+static constexpr float C_EPSILON = 0.0001f;
+
+
+void GameInput::Update(SDL_Window *&p_mainWindow)
 {
-    static constexpr float C_EPSILON = 0.0001f;
+	ZoneScoped;
 
-    void GameInput::Update()
-    {
-        ZoneScoped;
+	m_previousKeys = m_currentKeys;
+	m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
+	m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
+	m_prevMouseX = m_mouseX;
+	m_prevMouseY = m_mouseY;
+}
 
-        m_previousKeys = m_currentKeys;
-        m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
-        m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
-        m_prevMouseX = m_mouseX;
-        m_prevMouseY = m_mouseY;
+void GameInput::UpdatePostEvents(SDL_Window *&p_mainWindow)
+{
+	if (m_hasQueuedCursorPos)
+	{
+		int newPosX = static_cast<int>(m_queuedCursorPos.x);
+		int newPosY = static_cast<int>(m_queuedCursorPos.y);
 
-    }
+		if (m_queuedCursorPosRelative)
+		{
+			int windowX, windowY;
+			SDL_GetWindowPosition(p_mainWindow, &windowX, &windowY);
 
-    void GameInput::ProcessEvent(const SDL_Event &p_event)
-    {
-        ZoneScoped;
+			SDL_WarpMouseInWindow(p_mainWindow, newPosX, newPosY);
 
-        // Keyboard events
-        if (p_event.type == SDL_EVENT_KEY_DOWN)
-        {
-            // Ignore key repeat events.
-            if (!p_event.key.repeat)
-            {
-                m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
-            }
-        }
-        else if (p_event.type == SDL_EVENT_KEY_UP)
-        {
-            m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
-        }
+			newPosX += static_cast<float>(windowX);
+			newPosY += static_cast<float>(windowY);
+		}
+		else
+		{
+			SDL_WarpMouseGlobal(newPosX, newPosY);
+		}
 
-        // Mouse events
-        if (p_event.type == SDL_EVENT_MOUSE_MOTION)
-        {
-            m_mouseX = p_event.motion.x;
-            m_mouseY = p_event.motion.y;
+		if (m_queuedCursorPosTeleport)
+		{
+			glm::vec2 delta = glm::vec2(GetDeltaMouseX(), GetDeltaMouseY());
 
-        }
+			float newLastPosX = static_cast<float>(newPosX) - delta.x;
+			float newLastPosY = static_cast<float>(newPosY) - delta.y;
 
-        if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-        {
-            if (p_event.button.button == SDL_BUTTON_LEFT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
-            }
-            if (p_event.button.button == SDL_BUTTON_RIGHT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
-            }
-        }
-        else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-        {
-            if (p_event.button.button == SDL_BUTTON_LEFT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
-            }
-            if (p_event.button.button == SDL_BUTTON_RIGHT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
-            }
-        }
-    }
+			m_prevMouseX = newLastPosX;
+			m_prevMouseY = newLastPosY;
 
-    bool GameInput::KeyPressed(const Key p_key)
-    {
-        return m_currentKeys.contains(p_key) && !m_previousKeys.contains(p_key);
-    }
+			//ImGui::GetIO().MousePosPrev = ImVec2(m_prevMouseX, m_prevMouseY);
+		}
 
-    bool GameInput::KeyHeld(const Key p_key)
-    {
-        return m_currentKeys.contains(p_key);
-    }
+		m_mouseX = static_cast<float>(newPosX);
+		m_mouseY = static_cast<float>(newPosY);
 
-    bool GameInput::KeyReleased(const Key p_key)
-    {
-        return !m_currentKeys.contains(p_key) && m_previousKeys.contains(p_key);
-    }
+		//ImGui::GetIO().MousePos = ImVec2(m_mouseX, m_mouseY);
 
-    bool GameInput::KeyToggle(const Key p_key)
-    {
-        if (KeyPressed(p_key))
-        {
-            m_toggledKeys[p_key] = !m_toggledKeys[p_key];
-        }
+		m_hasQueuedCursorPos = false;
+	}
+}
 
-        return m_toggledKeys.contains(p_key) && m_toggledKeys[p_key];
-    }
+void GameInput::ProcessEvent(const SDL_Event &p_event)
+{
+	ZoneScoped;
 
-    bool GameInput::MousePressed(const Mouse p_mouse)
-    {
-        return m_currentMouse[static_cast<std::size_t>(p_mouse)] &&
-            !m_previousMouse[static_cast<std::size_t>(p_mouse)];
-    }
+	// Keyboard events
+	if (p_event.type == SDL_EVENT_KEY_DOWN)
+	{
+		// Ignore key repeat events.
+		if (!p_event.key.repeat)
+		{
+			m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
+		}
+	}
+	else if (p_event.type == SDL_EVENT_KEY_UP)
+	{
+		m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
+	}
 
-    bool GameInput::MouseHeld(const Mouse p_mouse)
-    {
-        return m_currentMouse[static_cast<std::size_t>(p_mouse)];
-    }
+	// Mouse events
+	if (p_event.type == SDL_EVENT_MOUSE_MOTION)
+	{
+		m_mouseX = p_event.motion.x;
+		m_mouseY = p_event.motion.y;
 
-    bool GameInput::MouseReleased(const Mouse p_mouse)
-    {
-        return !m_currentMouse[static_cast<std::size_t>(p_mouse)] &&
-            m_previousMouse[static_cast<std::size_t>(p_mouse)];
-    }
+	}
 
-    float GameInput::GetCursorX() const
-    {
-        return m_mouseX;
-    }
+	if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
+	{
+		if (p_event.button.button == SDL_BUTTON_LEFT)
+		{
+			m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
+		}
+		if (p_event.button.button == SDL_BUTTON_RIGHT)
+		{
+			m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
+		}
+	}
+	else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
+	{
+		if (p_event.button.button == SDL_BUTTON_LEFT)
+		{
+			m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
+		}
+		if (p_event.button.button == SDL_BUTTON_RIGHT)
+		{
+			m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
+		}
+	}
+}
 
-    float GameInput::GetCursorY() const
-    {
-        return m_mouseY;
-    }
 
-    float GameInput::GetDeltaMouseX() const
-    {
-        return m_mouseX - m_prevMouseX;
-    }
+bool GameInput::KeyPressed(const Key p_key)
+{
+	return m_currentKeys.contains(p_key) && !m_previousKeys.contains(p_key);
+}
 
-    float GameInput::GetDeltaMouseY() const
-    {
-        return m_mouseY - m_prevMouseY;
-    }
+bool GameInput::KeyHeld(const Key p_key)
+{
+	return m_currentKeys.contains(p_key);
+}
 
-    void GameInput::HideCursor(bool p_active)
-    {
-        if (p_active)
-        {
-            SDL_HideCursor();
+bool GameInput::KeyReleased(const Key p_key)
+{
+	return !m_currentKeys.contains(p_key) && m_previousKeys.contains(p_key);
+}
 
-        }
-        else
-        {
-            SDL_ShowCursor();
-        }
-    }
+bool GameInput::KeyToggle(const Key p_key)
+{
+	if (KeyPressed(p_key))
+	{
+		m_toggledKeys[p_key] = !m_toggledKeys[p_key];
+	}
 
-    void GameInput::SetCursorPosition(SDL_Window* &p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
-    {        
-        // calculate mousepos in SDL window
-        int windowX, windowY;
-        SDL_GetWindowPosition(p_window, &windowX, &windowY);
-        float localX = p_x - static_cast<float>(windowX);
-        float localY = p_y - static_cast<float>(windowY);
- 
-        // Set mousepos in global space (faster than local)
-        SDL_WarpMouseGlobal(p_x, p_y);
+	return m_toggledKeys.contains(p_key) && m_toggledKeys[p_key];
+}
 
-        // reset the mouse to center position in SDL window
-        m_mouseX = localX;
-        m_mouseY = localY;
-    }
+bool GameInput::MousePressed(const Mouse p_mouse)
+{
+	return m_currentMouse[static_cast<std::size_t>(p_mouse)] &&
+		!m_previousMouse[static_cast<std::size_t>(p_mouse)];
+}
+
+bool GameInput::MouseHeld(const Mouse p_mouse)
+{
+	return m_currentMouse[static_cast<std::size_t>(p_mouse)];
+}
+
+bool GameInput::MouseReleased(const Mouse p_mouse)
+{
+	return !m_currentMouse[static_cast<std::size_t>(p_mouse)] &&
+		m_previousMouse[static_cast<std::size_t>(p_mouse)];
+}
+
+float GameInput::GetCursorX() const
+{
+	return m_mouseX;
+}
+
+float GameInput::GetCursorY() const
+{
+	return m_mouseY;
+}
+
+float GameInput::GetDeltaMouseX() const
+{
+	return m_mouseX - m_prevMouseX;
+}
+
+float GameInput::GetDeltaMouseY() const
+{
+	return m_mouseY - m_prevMouseY;
+}
+
+void GameInput::SetCursorPosition(SDL_Window *&p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y, bool p_teleport)
+{
+	// calculate mousepos in SDL window
+	int windowX, windowY;
+	SDL_GetWindowPosition(p_window, &windowX, &windowY);
+
+	float localX = p_x - static_cast<float>(windowX);
+	float localY = p_y - static_cast<float>(windowY);
+	 
+	// Set mousepos in global space (faster than local)
+	SDL_WarpMouseGlobal(p_x, p_y);
+
+	// reset the mouse to center position in SDL window
+	m_mouseX = localX;
+	m_mouseY = localY;
+}
+
+void GameInput::MoveCursor(glm::vec2 p_newPos, bool p_windowRelative, bool p_teleport)
+{
+	m_queuedCursorPos = p_newPos;
+	m_queuedCursorPosRelative = p_windowRelative;
+	m_queuedCursorPosTeleport = p_teleport;
+	m_hasQueuedCursorPos = true;
+}
+
+void GameInput::HideCursor(bool p_active)
+{
+	if (p_active)
+	{
+		SDL_HideCursor();
+
+	}
+	else
+	{
+		SDL_ShowCursor();
+	}
+}
+
+void GameInput::LockCursor(SDL_Window *p_window)
+{
+	SDL_SetWindowRelativeMouseMode(p_window, (p_window != nullptr));
 }
