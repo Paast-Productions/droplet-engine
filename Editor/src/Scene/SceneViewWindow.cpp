@@ -8,10 +8,12 @@
 #include <EditorShortcuts.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
+#include <cmath>
 #include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <Graphics/DebugDraw.hpp>
+#include <ImGuiUtils.hpp>
 
 using namespace Droplet::Editor::Scene;
 using namespace Droplet::Graphics::Debug;
@@ -544,7 +546,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	// Pre-fetch data
 	InteractionState &interactionState = m_editorContext->GetInteractionState();
 
-	const EditorCamera &camera = m_editorContext->GetEditorCamera();
+	EditorCamera &camera = m_editorContext->GetEditorCamera();
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
@@ -697,12 +699,65 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		}
 	}
 
-	m_usingGizmo = ImGuizmo::IsUsingAny() || didUse;
-	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds();
+	// Render view manipulation gizmo in the top-right corner of the scene view
+	{
+		static float viewGizmoLength = 8.0f;
+		static float viewGizmoSize = 96.0f;
+		static float viewGizmoMargin = 8.0f;
+		static float drawPivotTimer = 0.0f;
+
+		ImVec2 viewGizmoPos(p_sceneViewMax.x - viewGizmoSize - viewGizmoMargin, p_sceneViewMin.y + viewGizmoMargin);
+
+		glm::mat4 editedView = camViewMat;
+		ImGuizmo::ViewManipulate(
+			&editedView[0][0], 
+			viewGizmoLength, 
+			viewGizmoPos, 
+			ImVec2(viewGizmoSize, viewGizmoSize), 
+			0x10101010
+		);
+		ImGui::LockToItem();
+
+		if (ImGuizmo::IsUsingViewManipulate() && editedView != camViewMat)
+		{
+			// The view matrix is the inverse of the camera's world matrix, so the camera's basis and position are in its inverse
+			glm::mat4 world = glm::inverse(editedView);
+			glm::vec3 forward = glm::normalize(-glm::vec3(world[2]));
+
+			float pitch = glm::degrees(glm::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
+			float yaw = glm::degrees(std::atan2(forward.z, forward.x));
+			pitch = glm::clamp(pitch, -89.0f, 89.0f);
+
+			camera.SetPosition(glm::vec3(world[3]));
+			camera.SetOrientation(yaw, pitch);
+		}
+
+		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())
+		{
+			// Draw the point around which the camera rotates when using the view manipulation gizmo.
+			glm::vec3 pivot = camera.GetPosition() + camera.GetForward() * viewGizmoLength;
+			Math::Sphere pivotSphere(pivot, 0.1f);
+			DebugDraw::DrawSphere(pivotSphere, glm::vec4(1), 2, true);
+
+			// Scroll to move the camera forward/backward while keeping the pivot point in the same place.
+			float scrollDelta = -ImGui::GetIO().MouseWheel;
+			if (scrollDelta != 0.0f)
+			{
+				float lengthChange = scrollDelta * 0.05f;
+				viewGizmoLength *= 1.0f + lengthChange;
+				viewGizmoLength = std::max(viewGizmoLength, 0.2f);
+
+				camera.SetPosition(pivot - camera.GetForward() * viewGizmoLength);
+			}
+		}
+	}
+
+	m_usingGizmo = ImGuizmo::IsUsingAny() || ImGuizmo::IsUsingViewManipulate() || didUse;
+	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds() || ImGuizmo::IsViewManipulateHovered();
 }
 
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
-{			
+{
 	return m_renderTarget;
 }
 
