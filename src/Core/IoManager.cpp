@@ -5,8 +5,6 @@
 #include <fstream>
 #include <tracy/public/tracy/Tracy.hpp>
 
-using Droplet::Debug::Logger;
-
 namespace Droplet::Core::JsonIO
 {
 	nlohmann::json Read(const std::string &p_path)
@@ -26,8 +24,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger& log = Logger::GetInstance();
-			log.Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		return j;
@@ -49,8 +46,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger& log = Logger::GetInstance();
-			log.Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 		}
 	}
 
@@ -69,8 +65,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger& log = Logger::GetInstance();
-			log.Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		fileRead.close();
@@ -97,8 +92,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{	
-			Logger& log = Logger::GetInstance();
-			log.Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		fileWrite.close();

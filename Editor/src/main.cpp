@@ -18,12 +18,8 @@
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
 
-#include <debug/Logger.hpp>
-#include "Core/ThreadPool.hpp"
-
 using namespace Droplet::Editor;
-using Droplet::Debug::Logger;
-using Droplet::ThreadPool;
+
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
@@ -165,18 +161,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     Scene::SceneViewWindow sceneViewWindow(&editorContext);
     //sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
 
-	//I do not know if i should be doing this here, but it seems like a good place to do it
-	ThreadPool& pool = ThreadPool::GetInstance();
-    Logger& log = Logger::GetInstance();
-
     hierarchyWindow.Init();
     nodeInspectorWindow.Init();
     behaviourInspector.Init();
     scriptsWindow.Init();
     resourceBrowser.Init();
     sceneViewWindow.Init();
-
-    pool.Initialize();
 
     FrameMark;
 

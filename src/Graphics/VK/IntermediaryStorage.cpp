@@ -32,8 +32,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     } 
     catch (const std::exception &err) 
     {
-        Debug::Logger& logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
+        Log(Droplet::Debug::LogType::Info, err.what());
     }
     
     // IF FAILED, CREATE NEW
@@ -146,8 +145,7 @@ const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
     }
     catch (const std::exception &err)
     {
-        Debug::Logger &logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
+        Log(Droplet::Debug::LogType::Info, err.what());
     }
 
     ResourceManager &RMInstance = ResourceManager::GetInstance();
@@ -181,8 +179,7 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
     }
     catch (const std::exception& err)
     {
-        Debug::Logger& logger = Debug::Logger::GetInstance();
-        logger.Log(Droplet::Debug::LogType::Info, err.what());
+        Log(Droplet::Debug::LogType::Info, err.what());
     }
 
     ResourceManager& RMInstance = ResourceManager::GetInstance();
