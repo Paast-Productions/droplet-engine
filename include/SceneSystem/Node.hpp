@@ -74,9 +74,13 @@ namespace Droplet::Scene
         ///
         /// Updates the Node's transforms, followed by its Components
         /// and child Nodes.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
+
+        /// @brief Updates the Node, its Components, and its children late.
+        void LateUpdate();
+
+        /// @brief Updates the Node, its Components, and its children in fixed time.
+        void FixedUpdate();
 
         /// @brief Renders the Node.
         ///

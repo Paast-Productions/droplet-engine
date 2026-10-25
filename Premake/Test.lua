@@ -64,7 +64,8 @@ project "Test"
         "stb",
         "Sol2",
         "Lua",
-        "tracy"
+        "tracy",
+        "Jolt"
     }
 
     links
@@ -80,5 +81,6 @@ project "Test"
         AddQuotation("assimp-mtd"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-		AddQuotation("lua_static")
+		AddQuotation("lua_static"),
+        AddQuotation("Jolt")
     }
