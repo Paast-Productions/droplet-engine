@@ -18,7 +18,7 @@ protected:
 
     void SetUp() override
     {
-        ThreadPool::GetInstance().Initialize();
+        Core::Threads::ThreadPool::GetInstance().Initialize();
 
         auto& resourceManager = ResourceManager::GetInstance();
         
@@ -32,7 +32,7 @@ protected:
 
     void TearDown() override
     {
-        ThreadPool::GetInstance().Shutdown();
+        Core::Threads::ThreadPool::GetInstance().Shutdown();
     }
 
     // Helper function to simulate the Engine's Main Loop

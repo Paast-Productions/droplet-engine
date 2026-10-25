@@ -45,7 +45,7 @@ void Logger::WriteToJsonFile()
 {
     if (GetInstance().m_queue.IsEmpty()) return;
 
-	ThreadPool &pool = ThreadPool::GetInstance();
+	Core::Threads::ThreadPool &pool = Core::Threads::ThreadPool::GetInstance();
 	pool.PushTask([this]()
 	{
 		ProcessQueue();

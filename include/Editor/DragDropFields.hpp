@@ -4,6 +4,10 @@
 #include <Resource/GuidUtils.hpp>
 #include <Resource/IResource.hpp>
 
+/**
+ * @namespace Droplet::Editor
+ * @brief Implements functionality for the ImGUI-based editor tool.
+ */
 namespace Droplet::Editor
 {
 	/// @brief Implements functionality to create ImGui drag and drop fields for various engine types, such as Components, Nodes and Assets.

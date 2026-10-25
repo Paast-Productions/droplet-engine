@@ -5,6 +5,10 @@
 
 #include <SDL3/SDL.h>
 
+/**
+ * @namespace Droplet::Graphics::SDL
+ * @brief Wrapping implementation of SDL3 Window creation.
+ */
 namespace Droplet::Graphics::SDL
 {
     /// @struct WindowConfig

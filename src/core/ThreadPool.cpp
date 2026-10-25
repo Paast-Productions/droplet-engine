@@ -1,9 +1,10 @@
-#include "core/ThreadPool.hpp"
+#include "Core/ThreadPool.hpp"
+
 #include <string>
 #include <iostream>
 #include <tracy/public/tracy/Tracy.hpp>
 
-namespace Droplet
+namespace Droplet::Core::Threads
 {
     void ThreadPool::Initialize()
     {

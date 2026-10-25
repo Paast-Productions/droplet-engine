@@ -6,6 +6,7 @@
 #include <atomic>
 
 using namespace Droplet;
+using namespace Droplet::Core::Threads;
 
 TEST(ThreadSafeQueueTest, StartsEmpty)
 {

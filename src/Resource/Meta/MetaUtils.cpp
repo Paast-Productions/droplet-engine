@@ -1,10 +1,10 @@
-#include "resource/meta/MetaUtils.hpp"
-#include "resource/meta/MetaData.hpp"
-#include "resource/types/ShaderResource.hpp"
+#include "Resource/Meta/MetaUtils.hpp"
+#include "Resource/Meta/MetaData.hpp"
+#include "Resource/Types/ShaderResource.hpp"
 
 #include <fstream>
 
-#include "core/StringUtils.hpp"
+#include "Core/StringUtils.hpp"
 #include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
@@ -90,7 +90,7 @@ namespace Droplet::MetaUtils
     ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
     {
         std::string shaderFileName = p_shaderPath.filename().generic_string();
-        StringUtils::ToLowerInPlace(shaderFileName);
+        Core::Utils::String::ToLowerInPlace(shaderFileName);
         
         if (shaderFileName.starts_with("vs_"))
         {

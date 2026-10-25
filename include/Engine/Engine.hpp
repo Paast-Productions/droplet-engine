@@ -21,6 +21,10 @@
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 
+/**
+ * @namespace Droplet
+ * @brief Contains all major engine systems.
+ */
 namespace Droplet
 {
 	enum class DROPLET_RETURNTYPE

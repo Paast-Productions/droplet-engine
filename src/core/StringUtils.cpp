@@ -1,8 +1,8 @@
-#include "core/StringUtils.hpp"
+#include "Core/StringUtils.hpp"
 
 #include <algorithm>
 
-namespace Droplet::StringUtils
+namespace Droplet::Core::Utils::String
 {
     void ToLowerInPlace(std::string &p_string)
     {

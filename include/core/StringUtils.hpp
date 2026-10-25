@@ -2,7 +2,11 @@
 
 #include <string>
 
-namespace Droplet::StringUtils
+/**
+ * @namespace Droplet::Core::Utils::String
+ * @brief Contains core string utility functions.
+ */
+namespace Droplet::Core::Utils::String
 {
     /// @brief Transforms a string to lowercase in-place to avoid copying and allocating.
     /// @param p_string The string to transform.

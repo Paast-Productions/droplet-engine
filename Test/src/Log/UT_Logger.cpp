@@ -9,7 +9,7 @@
 #include "Debug/Logger.hpp"
 #include "Core/ThreadPool.hpp"
 
-using Droplet::ThreadPool;
+using Droplet::Core::Threads::ThreadPool;
 using Droplet::Debug::Logger;
 
 class ThreadPoolLoggerTest : public ::testing::Test

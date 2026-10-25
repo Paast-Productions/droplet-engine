@@ -186,7 +186,7 @@ static void PhysicsTest()
     
     ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<PhysicsComponent>(); });
 
-    Droplet::ThreadPool::GetInstance().Initialize();
+    Droplet::Core::Threads::ThreadPool::GetInstance().Initialize();
     Droplet::ResourceManager &rm = Droplet::ResourceManager::GetInstance();
     rm.Initialize(ROOT_PATH "/Assets");
     rm.RegisterResourceType<Droplet::MeshResource>();

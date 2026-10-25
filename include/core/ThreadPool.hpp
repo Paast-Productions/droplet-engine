@@ -7,7 +7,11 @@
 #include <thread>
 #include <vector>
 
-namespace Droplet
+/**
+ * @namespace Droplet::Core::Threads
+ * @brief Contains Core threadpool and threading functionality.
+ */
+namespace Droplet::Core::Threads
 {
     /// @brief Universal threadpool class. 
     class ThreadPool

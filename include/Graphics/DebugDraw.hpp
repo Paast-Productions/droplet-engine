@@ -24,6 +24,10 @@ namespace Droplet::Graphics
 	class Camera;
 }
 
+/**
+ * @namespace
+ * @brief Debugging functionality for graphics.
+ */
 namespace Droplet::Graphics::Debug
 {
 	/// @brief A utility class for rendering debug shapes in 3D space.

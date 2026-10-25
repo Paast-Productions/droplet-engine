@@ -37,7 +37,7 @@ std::vector<std::uint32_t> SandboxShaderCompiler::CompileSpirv(
     if (entryPointName == nullptr)
         throw std::invalid_argument("entryPointName param was nullptr");
 
-    std::vector<char> bytes = Utils::ReadFileAsBytes(sourcePath);
+    std::vector<char> bytes = Core::Utils::ReadFileAsBytes(sourcePath);
     const std::string source{ bytes.begin(), bytes.end() };
     const std::string path = sourcePath.string();
 

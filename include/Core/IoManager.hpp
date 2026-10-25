@@ -2,6 +2,10 @@
 #include <json/json.hpp>
 #include <stdexcept>
 
+/**
+ * @namespace Droplet::Core::JsonIO
+ * @brief Contains Core JSON I/O functionality.
+ */
 namespace Droplet::Core::JsonIO
 {
 		/// @brief Defines the type of modification action to perform on a JSON file.

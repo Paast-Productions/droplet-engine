@@ -7,6 +7,10 @@
 #include <source_location>
 #include <core/ThreadSafeQueue.hpp>
 
+/**
+ * @namespace Droplet::Debug
+ * @brief Contains debugging functionality such as logging.
+ */
 namespace Droplet::Debug
 {
 	/// @brief With the information that the queue holds.
@@ -82,6 +86,6 @@ namespace Droplet::Debug
 
 		std::mutex m_mutex{};
 		std::mutex m_fileMutex{};
-		Droplet::ThreadSafeQueue<LogEntry> m_queue{};
+		Core::Threads::ThreadSafeQueue<LogEntry> m_queue{};
 	};
 }

@@ -64,7 +64,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	m_renderer.GetImGuiInitInfo(m_initInfo);
 	ImGui_ImplVulkan_Init(&m_initInfo);
 	
-	ThreadPool::GetInstance().Initialize();
+    Core::Threads::ThreadPool::GetInstance().Initialize();
 	
 	JPH::RegisterDefaultAllocator();
 	JPH::Trace = TraceImpl;
@@ -122,7 +122,7 @@ Droplet::Engine::~Engine()
 
 void Droplet::Engine::Shutdown()
 {
-	ThreadPool::GetInstance().Shutdown();
+	Core::Threads::ThreadPool::GetInstance().Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)

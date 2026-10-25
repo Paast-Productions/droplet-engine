@@ -1,7 +1,7 @@
-#include "resource/ResourceManager.hpp"
+#include "Resource/ResourceManager.hpp"
 
-#include "core/StringUtils.hpp"
-#include "resource/meta/MetaUtils.hpp"
+#include "Core/StringUtils.hpp"
+#include "Resource/Meta/MetaUtils.hpp"
 #include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet
@@ -61,7 +61,7 @@ namespace Droplet
             }
                 
             // Push metafile write operation to worker thread
-            ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.absoluteMetaPath), metaData = std::move(newMetaData)]()
+            Core::Threads::ThreadPool::GetInstance().PushTask([metaPath = std::move(regRes.absoluteMetaPath), metaData = std::move(newMetaData)]()
             {
                MetaUtils::Write(metaPath, metaData); 
             });
@@ -160,7 +160,7 @@ namespace Droplet
         std::filesystem::path absMetaPath = absAssetPath.generic_string() + ".meta";
         
         std::string ext = absAssetPath.extension().generic_string();
-        StringUtils::ToLowerInPlace(ext);
+        Core::Utils::String::ToLowerInPlace(ext);
         
         auto it = m_assetScanners.find(ext);
         if (it == m_assetScanners.end())
@@ -170,8 +170,8 @@ namespace Droplet
             return;
         }
         AssetScannerFunc scannerFunc = it->second;
-        
-        ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, scannerFunc, p_onComplete](){
+
+        Core::Threads::ThreadPool::GetInstance().PushTask([this, absAssetPath, relAssetPath, absMetaPath, scannerFunc, p_onComplete](){
             // --- Async Worker Thread ---
             AsyncRegisterResult res;
             res.relAssetPath = relAssetPath; // Relative for registry
@@ -255,7 +255,7 @@ namespace Droplet
         
         // Push an overwrite task to a worker thread
         std::filesystem::path absMetaPath = m_rootDirectory / (relAssetPathStr + ".meta");
-        ThreadPool::GetInstance().PushTask([metaPath = absMetaPath, metaData = std::move(assetMetaData)]()
+        Core::Threads::ThreadPool::GetInstance().PushTask([metaPath = absMetaPath, metaData = std::move(assetMetaData)]()
         {
            MetaUtils::Write(metaPath, metaData); 
         });
@@ -326,7 +326,7 @@ namespace Droplet
     {
         for (const std::string &ext : p_extensions)
         {
-            std::string lowerExt = StringUtils::ToLower(ext);
+            std::string lowerExt = Core::Utils::String::ToLower(ext);
             m_assetScanners[lowerExt] = p_scanFunc;
         }
     }
@@ -339,7 +339,7 @@ namespace Droplet
         }
         
         std::string ext = p_path.extension().generic_string();
-        StringUtils::ToLowerInPlace(ext);
+        Core::Utils::String::ToLowerInPlace(ext);
         
         return m_assetScanners.contains(ext);
     }

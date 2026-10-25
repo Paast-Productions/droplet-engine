@@ -3,7 +3,7 @@
 #include <mutex>
 #include <queue>
 
-namespace Droplet
+namespace Droplet::Core::Threads
 {
     /// @brief Thread-safe queue using a mutex lock.
     template<typename T>

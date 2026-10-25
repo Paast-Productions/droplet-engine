@@ -3,17 +3,17 @@
 #include <string>
 #include <memory>
 #include <mutex>
-#include <filesystem>
+#include <filesystem>        
 #include <cassert>
 #include <functional>
 #include <typeindex>
 
-#include "resource/ResourceTraits.hpp"
-#include "resource/ResourceHandle.hpp"
-#include "resource/ResourceRegistry.hpp"
+#include "Resource/ResourceTraits.hpp"
+#include "Resource/ResourceHandle.hpp"
+#include "Resource/ResourceRegistry.hpp"
 
-#include "core/ThreadSafeQueue.hpp"
-#include "core/ThreadPool.hpp"
+#include "Core/ThreadSafeQueue.hpp"
+#include "Core/ThreadPool.hpp"
 
 namespace Droplet
 {
@@ -281,7 +281,7 @@ namespace Droplet
         template<typename T>
         void PushWorkerLoadTask(GUID p_guid, MetaEntry p_metaEntry)
         {
-            ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
+            Core::Threads::ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
             {
                 std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / p_metaEntry.relAssetPath;
                 std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.sourceName, p_metaEntry.loadSettings);
@@ -305,9 +305,9 @@ namespace Droplet
         std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
         std::unordered_map<ResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
         std::unordered_map<std::string, AssetScannerFunc> m_assetScanners;
-        
-        ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
-        ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
+
+        Core::Threads::ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
+        Core::Threads::ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
     };
     
 }

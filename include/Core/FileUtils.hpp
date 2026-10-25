@@ -10,8 +10,17 @@
 #include <filesystem>
 #include <string_view>
 
+/**
+ * @namespace Droplet::Core
+ * @brief Contains Core functionality and utilities with no engine subsystem dependencies.
+ */
+namespace Droplet::Core{};
 
-namespace Droplet::Utils
+/**
+ * @namespace Droplet::Core::Utils
+ * @brief Contains Core utility functions.
+ */
+namespace Droplet::Core::Utils
 {
 	/**
 	* @brief Read a file on disc as a char of bytes.

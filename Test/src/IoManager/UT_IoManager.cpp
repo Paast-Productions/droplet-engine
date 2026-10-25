@@ -10,7 +10,7 @@
 
 namespace fs = std::filesystem;
 using Droplet::Debug::Logger;
-using Droplet::ThreadPool;
+using Droplet::Core::Threads::ThreadPool;
 namespace Droplet::Core
 {
     class IOManagerTest : public ::testing::Test
