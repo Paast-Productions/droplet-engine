@@ -9,6 +9,8 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+    UseEditorPCH()
+
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
@@ -69,7 +71,9 @@ project "Editor"
         "json",
         "tracy",
         "IconFontCppHeaders",
-        "PortableFileDialogs"
+        "PortableFileDialogs",
+        "Lua",
+        "Jolt"
     }
 
     files 
@@ -93,5 +97,6 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("lua_static"),
+		AddQuotation("Jolt")
     }

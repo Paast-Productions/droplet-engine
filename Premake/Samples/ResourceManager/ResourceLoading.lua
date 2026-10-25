@@ -18,6 +18,8 @@ project "ResourceManager-ResourceLoading"
     }
     local vkPath = os.getenv("VULKAN_SDK")
 
+    UseGraphicsPCH()
+
     libdirs {
         targetBuildPath .. "/Engine",
         targetBuildPath .. "/External/lib",
