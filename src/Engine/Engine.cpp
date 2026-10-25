@@ -3,6 +3,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
@@ -241,6 +242,7 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
 }
 
 Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)

@@ -173,10 +173,10 @@ namespace Droplet::IO::AssimpFormat
 			throw std::runtime_error("Mesh does not contain mesh data.");
 		}
 
-		if (!meshData->HasAnimations())
+		if (!meshData->mMeshes[0]->HasBones())
 		{
 			s_importer.FreeScene();
-			throw std::runtime_error("Mesh does not contain animation data.");
+			throw std::runtime_error("Mesh does not contain skeleton data.");
 		}
 
 		std::size_t vertexByteSize = 0; // Size dependent on vertex layout
@@ -203,8 +203,12 @@ namespace Droplet::IO::AssimpFormat
 
 		skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 
+		assert(skinnedMesh.ValidateSkinnedVertexLayout() && "Vertex layout is invalid for skinned mesh.");
+
+		skinnedMesh.GenerateBoneBounds();
+
 		// Log Info: Successfully loaded p_meshFile
-		std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
+		std::println("Successfully loaded {}", p_assetPath.generic_string()); // HACK: Temporary log
 
 		s_importer.FreeScene();
 
@@ -395,18 +399,21 @@ namespace Droplet::IO::AssimpFormat
 
 		if (meshData->HasMeshes())
 		{
-			ResourceType rType = ResourceType::Mesh;
-			if (meshData->HasAnimations())
-			{
-				rType = ResourceType::SkinnedMesh;
-			}
-
+			bool hasSkinnedMesh = false;
 			for (std::uint32_t i = 0; i < meshData->mNumMeshes; i++)
 			{
-				resourceList.emplace_back(rType, meshData->mMeshes[i]->mName.C_Str());
+				const aiMesh *mesh = meshData->mMeshes[i];
+				resourceList.emplace_back(ResourceType::Mesh, mesh->mName.C_Str());
+
+				// Meshes with bone data can additionally be loaded as skinned meshes
+				if (mesh->HasBones())
+				{
+					hasSkinnedMesh = true;
+					resourceList.emplace_back(ResourceType::SkinnedMesh, mesh->mName.C_Str());
+				}
 			}
 
-			if (rType == ResourceType::SkinnedMesh && meshData->HasAnimations())
+			if (hasSkinnedMesh && meshData->HasAnimations())
 			{
 				for (std::uint32_t i = 0; i < meshData->mNumAnimations; i++)
 				{
