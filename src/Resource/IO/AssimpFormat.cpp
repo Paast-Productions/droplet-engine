@@ -74,14 +74,19 @@ namespace Droplet::IO::AssimpFormat
     /// @brief Helper function that creates the vertex layout.
     /// @param[out] p_vertexByteSize The size of the created vertex layout.
     /// @return A vector of the vertex layout.
-	[[nodiscard]] static std::vector<MeshResource::VertexAttribute> CreateVertexLayout(std::size_t &p_vertexByteSize)
+	[[nodiscard]] static std::vector<MeshResource::VertexAttribute> CreateVertexLayout(std::size_t &p_vertexByteSize, bool p_skinned = false)
 	{
-		std::vector<MeshResource::VertexAttribute> vertexLayout = 
-		{
+		std::vector<MeshResource::VertexAttribute> vertexLayout = {
 			std::make_pair("POSITION", 3 * sizeof(float)),
 			std::make_pair("NORMAL",   3 * sizeof(float)),
 			std::make_pair("UV",       2 * sizeof(float))
 		};
+
+		if (p_skinned)
+		{
+			vertexLayout.emplace_back("BONE_INDICES", 4 * sizeof(int));
+			vertexLayout.emplace_back("BONE_WEIGHTS", 4 * sizeof(float));
+		}
 
 		// Calculates the total size of a vertex based of what's set in vertexLayout
 		for (MeshResource::VertexAttribute attribute : vertexLayout)
@@ -103,7 +108,7 @@ namespace Droplet::IO::AssimpFormat
         bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
         bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
         
-        unsigned int flags = aiProcess_SortByPType;
+        unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure;
         if (generateNormals) flags |= aiProcess_ForceGenNormals;
         if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
         if (triangulate)     flags |= aiProcess_Triangulate;
@@ -155,7 +160,7 @@ namespace Droplet::IO::AssimpFormat
         bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
         bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
         
-        unsigned int flags = aiProcess_SortByPType;
+        unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure | aiProcess_LimitBoneWeights | aiProcess_PopulateArmatureData;
         if (generateNormals) flags |= aiProcess_ForceGenNormals;
         if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
         if (triangulate)     flags |= aiProcess_Triangulate;
@@ -180,26 +185,72 @@ namespace Droplet::IO::AssimpFormat
 		}
 
 		std::size_t vertexByteSize = 0; // Size dependent on vertex layout
-		std::vector<MeshResource::VertexAttribute> vertexLayout = CreateVertexLayout(vertexByteSize);
+		std::vector<MeshResource::VertexAttribute> vertexLayout = CreateVertexLayout(vertexByteSize, true);
 		std::vector<std::byte> vertexData = BuildVertexData(meshData, vertexByteSize);
 		std::vector<std::uint32_t> indexData = BuildIndexData(meshData);
 
 		SkinnedMeshResource skinnedMesh{};
-		int parentIndex = -1;
 		aiMesh *mesh = meshData->mMeshes[0];
-		for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
+
+		std::unordered_map<std::string, int> boneMap{};
+
+		// Old. Replace with node recursive search
+		/*for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
 		{
 			aiBone *bone = mesh->mBones[i];
-			aiMatrix4x4 o = bone->mOffsetMatrix;
-			glm::mat4 offsetMat =
+			aiNode *node = bone->mArmature;
+
+			int parentIndex = -1;
+			if (node->mParent != nullptr)
 			{
+				auto it = boneMap.find(node->mParent->mName.C_Str());
+				if (it != boneMap.end())
+				{
+					parentIndex = it->second;
+				}
+			}
+
+			aiMatrix4x4 o = node->mTransformation;
+			glm::mat4 offsetMat = {
 				o.a1, o.a2, o.a3, o.a4,
 				o.b1, o.b2, o.b3, o.b4,
 				o.c1, o.c2, o.c3, o.c4,
 				o.d1, o.d2, o.d3, o.d4,
 			};
-			parentIndex = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
-		}
+
+			boneMap[bone->mName.C_Str()] = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
+		}*/
+
+		// Assume there is only one mesh in the scene for now. If there are multiple meshes, we will need to handle that case.
+		auto processNode = [&](aiNode *node, int parentIndex, auto &processNodeRef) -> void {
+			// Check if the node is a bone
+			auto it = std::find_if(mesh->mBones, mesh->mBones + mesh->mNumBones, [&](aiBone *bone) {
+				return bone->mName == node->mName;
+			});
+
+			int currentIndex = -1;
+			if (it != mesh->mBones + mesh->mNumBones)
+			{
+				aiMatrix4x4 t = node->mTransformation;
+
+				glm::mat4 mat = {
+					t.a1, t.a2, t.a3, t.a4,
+					t.b1, t.b2, t.b3, t.b4,
+					t.c1, t.c2, t.c3, t.c4,
+					t.d1, t.d2, t.d3, t.d4,
+				};
+
+				currentIndex = skinnedMesh.AddBone(node->mName.C_Str(), parentIndex, mat);
+				boneMap[node->mName.C_Str()] = currentIndex;
+			}
+
+			for (std::uint32_t i = 0; i < node->mNumChildren; i++)
+			{
+				processNodeRef(node->mChildren[i], currentIndex != -1 ? currentIndex : parentIndex, processNodeRef);
+			}
+		};
+
+		processNode(meshData->mRootNode, -1, processNode);
 
 		skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 

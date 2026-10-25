@@ -40,6 +40,13 @@ namespace Droplet
 		/// @throws std::out_of_range If the parent index is out of range.
 		[[nodiscard]] int AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat);
 
+		/// @brief Sets the bone data for the skinned mesh resource.
+		/// @param p_index The index of the bone to set.
+		/// @param p_name The name of the bone.
+		/// @param p_parentIndex The index of the parent bone. -1 if the bone is a root bone.
+		/// @param p_offsetMat The offset matrix of the bone. This is the transformation from mesh space to bone space at bind pose.
+		void UpdateBone(int p_index, const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat);
+
 		/// @brief Validates that the vertex layout contains both bone indices and weights, and that they have the same size.
 		/// @return True if the vertex layout is valid for a skinned mesh, otherwise false.
 		[[nodiscard]] bool ValidateSkinnedVertexLayout() const;

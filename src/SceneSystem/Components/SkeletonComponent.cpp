@@ -161,6 +161,7 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
         {
             local = IsInvertible(globals[parent]) ? glm::inverse(globals[parent]) * globals[i] : globals[i];
         }
+
         m_boneNodes[i]->GetTransform().SetMatrix(local);
     }
 

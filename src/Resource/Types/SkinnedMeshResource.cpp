@@ -12,6 +12,8 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     struct SkinnedVertex
     {
         glm::vec3 pos;
+		glm::vec3 normal;
+		glm::vec2 uv;
         int b[4];   // Bone indices
         float w[4]; // Bone weights
     };
@@ -23,11 +25,27 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
         {-0.5f, -0.5f, -0.5f}, { 0.5f, -0.5f, -0.5f},
         { 0.5f,  0.5f, -0.5f}, {-0.5f,  0.5f, -0.5f}
     };
+
+    float rawNormal[8][3] = {
+        { 0.0f,  0.0f,  1.0f}, { 1.0f,  0.0f,  0.0f},
+        { 0.0f,  1.0f,  0.0f}, {-1.0f,  0.0f,  0.0f},
+        { 0.0f, -1.0f,  0.0f}, { 0.0f,  0.0f, -1.0f},
+        { 1.0f,  1.0f, -1.0f}, {-1.0f, -1.0f, -1.0f}
+	};
+
+    float rawUV[8][2] = {
+        {0.0f, 0.0f}, {1.0f, 0.0f},
+        {1.0f, 1.0f}, {0.0f, 1.0f},
+        {0.0f, 0.0f}, {1.0f, 0.0f},
+        {1.0f, 1.0f}, {0.0f, 1.0f}
+	};
     
     SkinnedVertex vertices[8];
     for (int i = 0; i < 8; i++)
     {
         vertices[i].pos = glm::vec3(rawPos[i][0], rawPos[i][1], rawPos[i][2]);
+		vertices[i].normal = glm::vec3(rawNormal[i][0], rawNormal[i][1], rawNormal[i][2]);
+		vertices[i].uv = glm::vec2(rawUV[i][0], rawUV[i][1]);
             
         // Rig 100% to Bone 0
         vertices[i].b[0] = 0; vertices[i].b[1] = 0; vertices[i].b[2] = 0; vertices[i].b[3] = 0;
@@ -49,11 +67,12 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     std::vector<std::byte> vertexData(8 * vertexByteSize);
     std::memcpy(vertexData.data(), vertices, vertexData.size());
     
-    // NOTE: I'm unsure if these name strings are correct?
     std::vector<MeshResource::VertexAttribute> layout = {
-        {"POSITION", sizeof(float) * 3},
-        {"bone_indices", sizeof(int) * 4},
-        {"bone_weights", sizeof(float) * 4}
+        {"POSITION",        sizeof(float) * 3},
+        {"NORMAL",          sizeof(float) * 3},
+        {"UV",              sizeof(float) * 2},
+        {"BONE_INDICES",    sizeof(int) * 4},
+        {"BONE_WEIGHTS",    sizeof(float) * 4}
     };
     
     fallback->SetMeshData(vertexData, indices, vertexByteSize, layout);
@@ -97,6 +116,37 @@ int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, c
     return m_boneMap[p_name];
 }
 
+void SkinnedMeshResource::UpdateBone(int p_index, const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
+{
+    ZoneScoped;
+
+    if (p_index < 0 || p_index >= static_cast<int>(m_bones.size()))
+    {
+        throw std::out_of_range("Bone index is out of range: " + std::to_string(p_index));
+    }
+
+    if (m_boneMap.find(p_name) != m_boneMap.end() && m_boneMap[p_name] != p_index)
+    {
+        throw std::runtime_error("Bone with the same name already exists: " + p_name);
+    }
+
+    if (p_parentIndex < -1 || p_parentIndex >= static_cast<int>(m_bones.size()))
+    {
+        throw std::out_of_range("Parent index is out of range: " + std::to_string(p_parentIndex));
+    }
+
+    // Remove old name from map
+    m_boneMap.erase(m_bones[p_index].name);
+
+    // Update bone data
+    m_bones[p_index].name = p_name;
+    m_bones[p_index].parentIndex = p_parentIndex;
+    m_bones[p_index].offsetMat = p_offsetMat;
+
+    // Add new name to map
+	m_boneMap[p_name] = p_index;
+}
+
 bool SkinnedMeshResource::ValidateSkinnedVertexLayout() const
 {
     bool hasBoneIndices = false;
@@ -105,7 +155,7 @@ bool SkinnedMeshResource::ValidateSkinnedVertexLayout() const
 
     for (const auto &attribute : m_vertexLayout)
     {
-        if (attribute.first == "bone_indices")
+        if (attribute.first == "BONE_INDICES")
         {
             if (size == -1)
             {
@@ -118,7 +168,7 @@ bool SkinnedMeshResource::ValidateSkinnedVertexLayout() const
 
             hasBoneIndices = true;
         }
-        else if (attribute.first == "bone_weights")
+        else if (attribute.first == "BONE_WEIGHTS")
         {
             if (size == -1)
             {
@@ -150,22 +200,22 @@ void SkinnedMeshResource::GenerateBoneBounds()
 {
     ZoneScoped;
 
-    // Ensure layout has bone_indices attribute
+    // Ensure layout has BONE_INDICES attribute
     std::size_t boneIndexDataOffset = 0;
     std::size_t boneIndexDataSize = 0;
 
-    if (!FindVertexAttribute("bone_indices", boneIndexDataOffset, boneIndexDataSize))
+    if (!FindVertexAttribute("BONE_INDICES", boneIndexDataOffset, boneIndexDataSize))
     {
-        throw std::runtime_error("SkinnedMeshResource vertex layout does not contain bone_indices attribute.");
+        throw std::runtime_error("SkinnedMeshResource vertex layout does not contain BONE_INDICES attribute.");
     }
 
-	// Ensure layout has bone_weights attribute
+	// Ensure layout has BONE_WEIGHTS attribute
     std::size_t boneWeightsDataOffset = 0;
     std::size_t boneWeightsDataSize = 0;
 
-    if (!FindVertexAttribute("bone_weights", boneWeightsDataOffset, boneWeightsDataSize))
+    if (!FindVertexAttribute("BONE_WEIGHTS", boneWeightsDataOffset, boneWeightsDataSize))
     {
-        throw std::runtime_error("SkinnedMeshResource vertex layout does not contain bone_weights attribute.");
+        throw std::runtime_error("SkinnedMeshResource vertex layout does not contain BONE_WEIGHTS attribute.");
     }
 
 	// Get position attribute offset and size
