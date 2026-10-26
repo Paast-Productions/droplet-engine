@@ -38,10 +38,16 @@ namespace Droplet::Sandbox
         void WaitIdle();
         void DrawFrame();
         void CreateGraphicsPipeline();
-        
+
         // sets a flag to recreate the swapchain
-        void OnResize(){m_frameBufferResized = true;};
-    
+        void OnResize() { m_frameBufferResized = true; };
+
+        std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
+            vk::DeviceSize size,
+            vk::BufferUsageFlags usage,
+            vk::MemoryPropertyFlags properties) const;
+        void CopyBuffer(vk::raii::Buffer& srcBuffer, vk::raii::Buffer& dstBuffer, vk::DeviceSize size) const;
+
     private:
         void CreateInstance();
         void SetupDebugMessenger();
@@ -55,9 +61,10 @@ namespace Droplet::Sandbox
         static uint32_t ChooseSwapchainMinImageCount(const vk::SurfaceCapabilitiesKHR& capabilities);
         static vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
         static vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR>& availableModes);
-        vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
+        vk::Extent2D ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const;
         void CreateSwapchain();
         void CreateImageViews();
+        void CreateDescriptorSetLayout();
 
         void CreateCommandPool();
         void CreateCommandBuffers();
@@ -76,15 +83,21 @@ namespace Droplet::Sandbox
 
         // buffers
         void CreateVertexBuffer();
-        
+        void CreateIndexBuffer();
+        void CreateUniformBuffers();
+        void UpdateUniformBuffer(uint32_t currentImage) const;
+
+        void CreateDescriptorPool();
+        void CreateDescriptorSets();
+
         // utils
-        void IncrementFrameIndex(){ m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT; };
+        void IncrementFrameIndex() { m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT; };
         uint32_t FindMemoryType(uint32_t typeFiller, vk::MemoryPropertyFlags properties) const;
-                
+
         // swapchain utils
         void CleanupSwapchain();
         void RecreateSwapchain();
-    
+
     private:
         static constexpr std::uint32_t MAX_FRAMES_IN_FLIGHT{2};
         static constexpr std::uint32_t MINIMUM_API_VERSION = vk::ApiVersion13;
@@ -93,7 +106,10 @@ namespace Droplet::Sandbox
         vk::raii::Context m_context;
         vk::raii::Instance m_instance{nullptr};
 
-        std::vector<const char*> m_requiredDeviceExtensions{vk::KHRSwapchainExtensionName};
+        std::vector<const char*> m_requiredDeviceExtensions{
+            vk::KHRSwapchainExtensionName, 
+            vk::KHRTimelineSemaphoreExtensionName
+        };
         const std::vector<char const*> m_validationLayers = {"VK_LAYER_KHRONOS_validation"};
 
 #ifdef NDEBUG
@@ -136,19 +152,34 @@ namespace Droplet::Sandbox
         vk::raii::ShaderModule m_fragmentShaderModule{nullptr};
 
         // == Pipeline == 
+        vk::raii::DescriptorSetLayout m_descriptorSetLayout{nullptr};
         vk::raii::PipelineLayout m_pipelineLayout{nullptr};
         vk::raii::Pipeline m_graphicsPipeline{nullptr};
         vk::ClearValue m_defaultClearColor{vk::ClearColorValue{{{0.002f, 0.002f, 0.002f, 1.0f}}}};
 
         // buffer objects
         const std::vector<Vertex> m_vertices = {
-            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}
+            {{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+            {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
         };
-        vk::raii::Buffer m_vertexBuffer { nullptr };
-        vk::raii::DeviceMemory m_vertexBufferMemory {nullptr};
-        
+        const std::vector<uint16_t> m_indices = {
+            0, 1, 2, 2, 3, 0
+        };
+
+        vk::raii::Buffer m_vertexBuffer{nullptr};
+        vk::raii::DeviceMemory m_vertexBufferMemory{nullptr};
+        vk::raii::Buffer m_indexBuffer{nullptr};
+        vk::raii::DeviceMemory m_indexBufferMemory{nullptr};
+
+        std::vector<vk::raii::Buffer> m_uniformBuffers;
+        std::vector<vk::raii::DeviceMemory> m_uniformBuffersMemory;
+        std::vector<void*> m_uniformBuffersMapped;
+
+        vk::raii::DescriptorPool m_descriptorPool{nullptr};
+        std::vector<vk::raii::DescriptorSet> m_descriptorSets;
+
         // keeping a reference to the window instance for convenience
         SDL_Window* m_windowRef{nullptr};
         bool m_frameBufferResized{false};

@@ -7,8 +7,8 @@ namespace fs = std::filesystem;
 using namespace Droplet::Sandbox;
 using namespace Droplet;
 
-SandboxApp::SandboxApp(SandboxAppConfig cfg) :
-    m_config(std::move(cfg)),
+SandboxApp::SandboxApp(SandboxAppConfig cfg) 
+:   m_config(std::move(cfg)),
     m_sdl(m_config.wnd),
     m_renderer(m_sdl.GetWindow()),
     m_camera({0.0f, 0.0f, -5.0f})
@@ -55,7 +55,7 @@ void SandboxApp::InitVulkan()
 {
     SandboxShaderCompiler shaderCompiler;
     
-    const char * shaderPath = "base_shader.slang";
+    const char * shaderPath = "base_shader_wvp.slang";
 
     const auto vertexSpirv = shaderCompiler.CompileSpirv(
         "base",

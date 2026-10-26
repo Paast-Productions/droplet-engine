@@ -18,6 +18,9 @@
 #include <cstring>
 #include <iostream>
 #include <utility>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
+
 #include "SandboxGeometry.hpp"
 
 using namespace Droplet::Sandbox;
@@ -51,7 +54,7 @@ namespace
 SandboxRenderer::SandboxRenderer(SDL_Window* window)
     : m_windowRef{window}
 {
-    // 1. Vulkan instance and window as surface
+    // 1. Vulkan instance
     CreateInstance();
     SetupDebugMessenger();
     CreateSurface();
@@ -66,18 +69,23 @@ SandboxRenderer::SandboxRenderer(SDL_Window* window)
     // 3. Swapchain and views to it
     CreateSwapchain();
     CreateImageViews();
+    CreateDescriptorSetLayout();
 
-    // 4. Create 
+    // 4. Command pool
     CreateCommandPool();
+
+    // 5. Buffers
+    CreateVertexBuffer();
+    CreateIndexBuffer();
+    CreateUniformBuffers();
+    CreateDescriptorPool();
+    CreateDescriptorSets();
     CreateCommandBuffers();
 
     CreateSyncObjects();
 
-    // 5. Pipeline layout TODO: move
+    // 6. Pipeline layout TODO: move
     CreatePipelineLayout();
-    
-    // Create vertex buffer
-    CreateVertexBuffer();
 }
 
 SandboxRenderer::~SandboxRenderer() noexcept
@@ -150,6 +158,8 @@ void SandboxRenderer::DrawFrame()
         assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
         VulkanUtils::ThrowResult(result, "Failed to acquire a swapchain image");
     }
+    UpdateUniformBuffer(m_frameIndex);
+
     // Reset fences for the current frame
     m_device.resetFences(*m_inFlightFences[m_frameIndex]);
 
@@ -223,7 +233,6 @@ void SandboxRenderer::CreateGraphicsPipeline()
         .pDynamicStates = dynamicStates.data()
     };
 
-    // Not using vertex buffers or vertex attributes
     auto bindingDescription = Vertex::GetBindingDescription();
     auto attributeDescription = Vertex::GetAttributeDescription();
 
@@ -266,7 +275,7 @@ void SandboxRenderer::CreateGraphicsPipeline()
         .rasterizerDiscardEnable = vk::False,
         .polygonMode = vk::PolygonMode::eFill,
         .cullMode = vk::CullModeFlagBits::eBack,
-        .frontFace = vk::FrontFace::eClockwise,
+        .frontFace = vk::FrontFace::eCounterClockwise, // this is needed because we flip the viewport y
         .depthBiasEnable = vk::False,
         .depthBiasConstantFactor = 0.0f,
         .depthBiasClamp = 0.0f,
@@ -327,28 +336,40 @@ void SandboxRenderer::CreateGraphicsPipeline()
         }
     };
 
-    // const vk::GraphicsPipelineCreateInfo createInfo
-    // {
-    //     .pNext = &renderingInfo,
-    //     .stageCount = static_cast<std::uint32_t>(shaderStages.size()),
-    //     .pStages = shaderStages.data(),
-    //     .pVertexInputState = &vertexInputInfo,
-    //     .pInputAssemblyState = &inputAssemblyInfo,
-    //     .pTessellationState = nullptr,
-    //     .pViewportState = &viewportStateInfo,
-    //     .pRasterizationState = &rasterizationInfo,
-    //     .pMultisampleState = &multisampleInfo,
-    //     .pDepthStencilState = nullptr,
-    //     .pColorBlendState = &colorBlendInfo,
-    //     .pDynamicState = &dynamicStateInfo,
-    //
-    //     .layout = *m_pipelineLayout,
-    //     .renderPass = nullptr,
-    //     .subpass = 0,
-    // };
-
     m_graphicsPipeline = vk::raii::Pipeline(m_device, nullptr,
                                             pipelineCreateChain.get<vk::GraphicsPipelineCreateInfo>());
+}
+
+std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> SandboxRenderer::CreateBuffer(
+    vk::DeviceSize size,
+    vk::BufferUsageFlags usage,
+    vk::MemoryPropertyFlags properties) const
+{
+    vk::BufferCreateInfo bufferInfo{.size = size, .usage = usage, .sharingMode = vk::SharingMode::eExclusive};
+    auto buffer = vk::raii::Buffer(m_device, bufferInfo);
+    vk::MemoryRequirements memRequirements = buffer.getMemoryRequirements();
+    vk::MemoryAllocateInfo allocInfo{
+        .allocationSize = memRequirements.size,
+        .memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties)
+    };
+    vk::raii::DeviceMemory bufferMemory = vk::raii::DeviceMemory(m_device, allocInfo);
+    buffer.bindMemory(*bufferMemory, 0);
+    return {std::move(buffer), std::move(bufferMemory)};
+}
+
+void SandboxRenderer::CopyBuffer(vk::raii::Buffer& srcBuffer, vk::raii::Buffer& dstBuffer, vk::DeviceSize size) const
+{
+    vk::CommandBufferAllocateInfo allocInfo{
+        .commandPool = m_commandPool,
+        .level = vk::CommandBufferLevel::ePrimary,
+        .commandBufferCount = 1
+    };
+    vk::raii::CommandBuffer commandCopyBuffer = std::move(m_device.allocateCommandBuffers(allocInfo).front());
+    commandCopyBuffer.begin({.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+    commandCopyBuffer.copyBuffer(srcBuffer, dstBuffer, vk::BufferCopy{.srcOffset = 0, .dstOffset = 0, .size = size});
+    commandCopyBuffer.end();
+    m_graphicsQueue.submit(vk::SubmitInfo{.commandBufferCount = 1, .pCommandBuffers = &*commandCopyBuffer}, nullptr);
+    m_graphicsQueue.waitIdle();
 }
 
 void SandboxRenderer::CreateInstance()
@@ -628,7 +649,7 @@ vk::PresentModeKHR SandboxRenderer::ChooseSwapPresentMode(const std::vector<vk::
                : vk::PresentModeKHR::eFifo;
 }
 
-vk::Extent2D SandboxRenderer::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities)
+vk::Extent2D SandboxRenderer::ChooseSwapExtent(const vk::SurfaceCapabilitiesKHR& capabilities) const
 {
     // the surface specifies the size for us
     if (capabilities.currentExtent.width != std::numeric_limits<std::uint32_t>::max())
@@ -737,9 +758,25 @@ void SandboxRenderer::CreateImageViews()
     std::println("Created {} swapchain image views.", m_swapchainImageViews.size());
 }
 
+void SandboxRenderer::CreateDescriptorSetLayout()
+{
+    vk::DescriptorSetLayoutBinding uboLayoutBinding = {
+        .binding = 0,
+        .descriptorType = vk::DescriptorType::eUniformBuffer,
+        .descriptorCount = 1,
+        .stageFlags = vk::ShaderStageFlagBits::eVertex
+    };
+    vk::DescriptorSetLayoutCreateInfo layoutInfo{
+        .bindingCount = 1,
+        .pBindings = &uboLayoutBinding
+    };
+    m_descriptorSetLayout = vk::raii::DescriptorSetLayout(m_device, layoutInfo);
+}
+
 void SandboxRenderer::CreateCommandPool()
 {
-    vk::CommandPoolCreateInfo poolInfo{
+    const vk::CommandPoolCreateInfo poolInfo
+    {
         .flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
         .queueFamilyIndex = m_graphicsPresentQueueFamily
     };
@@ -833,9 +870,9 @@ void SandboxRenderer::RecordCommandBuffer(std::uint32_t imageIndex) const
     // viewport and scissors are dynamic so they need to be set every time
     const vk::Viewport viewport{
         .x = 0.0f,
-        .y = 0.0f,
+        .y = static_cast<float>(m_swapchainExtent.height), // move the offset to account for the flipped Y
         .width = static_cast<float>(m_swapchainExtent.width),
-        .height = static_cast<float>(m_swapchainExtent.height),
+        .height = -static_cast<float>(m_swapchainExtent.height), // negative to flip the Y coordinate for Vulkan
         .minDepth = 0.0f,
         .maxDepth = 1.0f
     };
@@ -849,7 +886,13 @@ void SandboxRenderer::RecordCommandBuffer(std::uint32_t imageIndex) const
     commandBuffer.setScissor(0, scissor);
 
     commandBuffer.bindVertexBuffers(0, *m_vertexBuffer, {0});
-    commandBuffer.draw(static_cast<uint32_t>(m_vertices.size()), 1, 0, 0);
+    commandBuffer.bindIndexBuffer(*m_indexBuffer, 0, vk::IndexType::eUint16);
+
+    // set descriptor set
+    commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_pipelineLayout, 0,
+                                     *m_descriptorSets[m_frameIndex], nullptr);
+
+    commandBuffer.drawIndexed(static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
     commandBuffer.endRendering();
 
     // transition image to present
@@ -886,9 +929,10 @@ void SandboxRenderer::CreateSyncObjects()
 
 void SandboxRenderer::CreatePipelineLayout()
 {
-    constexpr vk::PipelineLayoutCreateInfo createInfo{
-        .setLayoutCount = 0,
-        .pSetLayouts = nullptr,
+    const vk::PipelineLayoutCreateInfo createInfo
+    {
+        .setLayoutCount = 1,
+        .pSetLayouts = &*m_descriptorSetLayout,
         .pushConstantRangeCount = 0,
         .pPushConstantRanges = nullptr
     };
@@ -912,29 +956,123 @@ void SandboxRenderer::CreateAllocator()
 
 void SandboxRenderer::CreateVertexBuffer()
 {
-    vk::BufferCreateInfo bufferInfo{
-        .size = sizeof(m_vertices[0]) * m_vertices.size(),
-        .usage = vk::BufferUsageFlagBits::eVertexBuffer,
-        .sharingMode = vk::SharingMode::eExclusive
+    const vk::DeviceSize bufferSize = sizeof(m_vertices[0]) * m_vertices.size();
+
+    auto [stagingBuffer, stagingBufferMemory] = CreateBuffer(bufferSize,
+                                                             vk::BufferUsageFlagBits::eTransferSrc,
+                                                             vk::MemoryPropertyFlagBits::eHostVisible |
+                                                             vk::MemoryPropertyFlagBits::eHostCoherent);
+
+
+    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, m_vertices.data(), bufferSize);
+    stagingBufferMemory.unmapMemory();
+
+    std::tie(m_vertexBuffer, m_vertexBufferMemory) = CreateBuffer(bufferSize,
+                                                                  vk::BufferUsageFlagBits::eVertexBuffer |
+                                                                  vk::BufferUsageFlagBits::eTransferDst,
+                                                                  vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+    CopyBuffer(stagingBuffer, m_vertexBuffer, bufferSize);
+}
+
+void SandboxRenderer::CreateIndexBuffer()
+{
+    vk::DeviceSize bufferSize = sizeof(m_indices.front()) * m_indices.size();
+
+    auto [stagingBuffer, stagingBufferMemory] =
+        CreateBuffer(bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+                     vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+
+    void* data = stagingBufferMemory.mapMemory(0, bufferSize);
+    memcpy(data, m_indices.data(), static_cast<size_t>(bufferSize));
+    stagingBufferMemory.unmapMemory();
+
+    std::tie(m_indexBuffer, m_indexBufferMemory) = CreateBuffer(bufferSize,
+                                                                vk::BufferUsageFlagBits::eIndexBuffer |
+                                                                vk::BufferUsageFlagBits::eTransferDst,
+                                                                vk::MemoryPropertyFlagBits::eDeviceLocal);
+
+    CopyBuffer(stagingBuffer, m_indexBuffer, bufferSize);
+}
+
+void SandboxRenderer::CreateUniformBuffers()
+{
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vk::DeviceSize bufferSize = sizeof(MVPUniformData);
+        auto [buffer, bufferMem] = CreateBuffer(
+            bufferSize, vk::BufferUsageFlagBits::eUniformBuffer,
+            vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+        m_uniformBuffers.emplace_back(std::move(buffer));
+        m_uniformBuffersMemory.emplace_back(std::move(bufferMem));
+        m_uniformBuffersMapped.emplace_back(m_uniformBuffersMemory.back().mapMemory(0, bufferSize));
+    }
+}
+
+void SandboxRenderer::UpdateUniformBuffer(uint32_t currentImage) const
+{
+    static auto startTime = std::chrono::high_resolution_clock::now();
+
+    auto currentTime = std::chrono::high_resolution_clock::now();
+    float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+    MVPUniformData ubo{};
+    ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    ubo.proj = glm::perspective(glm::radians(45.0f),
+                                static_cast<float>(m_swapchainExtent.width) / static_cast<float>(m_swapchainExtent.
+                                    height), 0.1f,
+                                10.0f);
+    memcpy(m_uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+}
+
+void SandboxRenderer::CreateDescriptorPool()
+{
+    vk::DescriptorPoolSize poolSize = {
+        .type = vk::DescriptorType::eUniformBuffer,
+        .descriptorCount = MAX_FRAMES_IN_FLIGHT
     };
 
-    m_vertexBuffer = vk::raii::Buffer(m_device, bufferInfo);
-
-    vk::MemoryRequirements memRequirements = m_vertexBuffer.getMemoryRequirements();
-    vk::MemoryAllocateInfo memAllocateInfo{
-        .allocationSize = memRequirements.size,
-        .memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits,
-                                          vk::MemoryPropertyFlagBits::eHostVisible |
-                                          vk::MemoryPropertyFlagBits::eHostCoherent)
+    vk::DescriptorPoolCreateInfo poolInfo = {
+        .flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+        .maxSets = MAX_FRAMES_IN_FLIGHT,
+        .poolSizeCount = 1,
+        .pPoolSizes = &poolSize
     };
 
-    m_vertexBufferMemory = vk::raii::DeviceMemory(m_device, memAllocateInfo);
+    m_descriptorPool = vk::raii::DescriptorPool{m_device, poolInfo};
+}
 
-    m_vertexBuffer.bindMemory(*m_vertexBufferMemory, 0);
+void SandboxRenderer::CreateDescriptorSets()
+{
+    std::vector<vk::DescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, *m_descriptorSetLayout);
+    vk::DescriptorSetAllocateInfo allocInfo = {
+        .descriptorPool = m_descriptorPool,
+        .descriptorSetCount = static_cast<uint32_t>(layouts.size()),
+        .pSetLayouts = layouts.data()
+    };
 
-    void* data = m_vertexBufferMemory.mapMemory(0, bufferInfo.size);
-    memcpy(data, m_vertices.data(), bufferInfo.size);
-    m_vertexBufferMemory.unmapMemory();
+    m_descriptorSets = vk::raii::DescriptorSets{m_device, allocInfo};
+
+    // populate
+    for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
+        vk::DescriptorBufferInfo bufferInfo = {
+            .buffer = m_uniformBuffers[i],
+            .offset = 0,
+            .range = sizeof(MVPUniformData)
+        };
+        vk::WriteDescriptorSet descriptorWrite{
+            .dstSet = m_descriptorSets[i],
+            .dstBinding = 0,
+            .dstArrayElement = 0,
+            .descriptorCount = 1,
+            .descriptorType = vk::DescriptorType::eUniformBuffer,
+            .pBufferInfo = &bufferInfo
+        };
+        m_device.updateDescriptorSets(descriptorWrite, {});
+    }
 }
 
 uint32_t SandboxRenderer::FindMemoryType(uint32_t typeFiller, vk::MemoryPropertyFlags properties) const
