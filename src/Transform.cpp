@@ -51,8 +51,7 @@ namespace
 		return true;
 	}
 
-	bool DecomposeTransformMatrix(const mat4 &p_matrix, vec3 &p_position,
-		quat &p_rotation, vec3 &p_scale)
+	bool DecomposeTransformMatrix(const mat4 &p_matrix, vec3 &p_position, quat &p_rotation, vec3 &p_scale)
 	{
 		if (!IsFinite(p_matrix))
 		{
@@ -73,7 +72,7 @@ namespace
 			length(vec3(perspective)) > tolerance ||
 			std::abs(perspective.w - 1.0f) > tolerance)
 		{
-			return false;
+			//return false;
 		}
 
 		const float rotationLength = length(p_rotation);
