@@ -16,26 +16,8 @@ local velocity = nil
 --
 -- Member functions
 --
-
-function GetVerticalInput()
-    local vertical = 0.0
-
-    if Input:KeyHeld(Key.Space) then
-        vertical = vertical + 1.0
-    end
-
-    if Input:KeyHeld(Key.LCTRL) then
-        vertical = vertical - 1.0
-    end
-
-    if vertical ~= 0.0 then
-        print("VerticalInput: " .. vertical)
-    end
-
-    return vertical
-end
-
 function UpdateMovement(dt)
+    tracy.ZoneBeginN("Drone_movement UpdateMovement")
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
 
@@ -121,6 +103,8 @@ function UpdateMovement(dt)
     local movement = GLM.V3MulF(velocity, dt)
 
     trans:Move(movement, TransformSpace.World)
+
+    tracy.ZoneEnd()
 end
 
 
