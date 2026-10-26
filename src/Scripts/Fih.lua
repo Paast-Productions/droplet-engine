@@ -7,8 +7,8 @@ local trans = nil
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
-local targetRadius = 3.0
-local targetAcceptanceRadius = 0.2
+local targetRadius = 6.0
+local targetAcceptanceRadius = 0.5
 
 local maxMoveSpeed = 3.0
 local maxTurnSpeed = 1.0

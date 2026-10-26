@@ -1,11 +1,11 @@
 {
-    "name": "New Scene",
+    "name": "Just a scene",
     "roots": [
         {
             "active": true,
             "children": [],
             "components": [],
-            "id": 6,
+            "id": 1,
             "name": "New Node",
             "transform": {
                 "position": [

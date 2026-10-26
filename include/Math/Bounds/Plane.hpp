@@ -57,6 +57,12 @@ namespace Droplet::Math
 			return normal * distance;
 		}
 
+		/// @brief Moves the plane in the direction of its normal vector by a specified length.
+		void Slide(float p_length)
+		{
+			distance += p_length;
+		}
+
 		/// @brief Determines if a given point is beneath the plane, i.e., on the side opposite to the normal vector.
 		/// @param p_point The point to check.
 		/// @return True if the point is beneath the plane, false otherwise.
