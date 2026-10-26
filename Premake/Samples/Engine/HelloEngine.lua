@@ -13,6 +13,8 @@ project "Engine-HelloEngine"
     }
         
     local vkPath = os.getenv("VULKAN_SDK")
+
+    UseGraphicsPCH()
     
     libdirs {
         targetBuildPath .. "/Engine",
@@ -32,9 +34,11 @@ project "Engine-HelloEngine"
         "Engine",
         "ImGui",
         "Sol2",
+        "Lua",
         "tracy",
-	"PortableFileDialogs",
-	"IconFontCppHeaders"
+        "PortableFileDialogs",
+        "IconFontCppHeaders",
+        "Jolt"
     }
 
     links {
@@ -45,8 +49,9 @@ project "Engine-HelloEngine"
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-        AddQuotation("lua-5.4.7"),
+        AddQuotation("lua_static"),
         AddQuotation("vulkan-1"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
+        AddQuotation("Jolt")
     }

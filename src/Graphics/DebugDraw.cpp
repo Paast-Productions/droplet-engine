@@ -479,7 +479,7 @@ void DebugDraw::Initialize(
 		};
 
 		const vk::PipelineRasterizationLineStateCreateInfo lineRasterizer {
-			.lineRasterizationMode = vk::LineRasterizationModeEXT::eRectangularSmooth,
+			.lineRasterizationMode = vk::LineRasterizationMode::eBresenham,
 			.stippledLineEnable = vk::False
 		};
 

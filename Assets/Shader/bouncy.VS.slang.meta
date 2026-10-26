@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "BaseVS",
-            "guid": 17704871794447121608,
+            "displayName": "bouncy.VS",
+            "guid": 8588005183473398233,
             "loadFlags": 3,
             "loadSettings": {
                 "shader_type": 0
             },
-            "sourceName": "BaseVS",
+            "sourceName": "bouncy.VS",
             "type": 6
         }
     ]

@@ -1,0 +1,886 @@
+{
+    "name": "FihScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 4,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 3,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -5.4569878578186035,
+                    -4.749277114868164,
+                    -4.649274826049805
+                ],
+                "rotation": [
+                    0.048970725387334824,
+                    0.9560953378677368,
+                    -0.0147812245413661,
+                    0.2885569632053375
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 6,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 5,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -5.3170695304870605,
+                    -2.1437294483184814,
+                    3.4637863636016846
+                ],
+                "rotation": [
+                    0.04597557708621025,
+                    0.5894936919212341,
+                    -0.0627061203122139,
+                    0.804021954536438
+                ],
+                "scale": [
+                    1.000007152557373,
+                    1.0000073909759521,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 8,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 7,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -0.3700922131538391,
+                    -2.7975172996520996,
+                    3.4205162525177
+                ],
+                "rotation": [
+                    0.08467058837413788,
+                    0.9748603701591492,
+                    0.00353974848985672,
+                    0.20607182383537292
+                ],
+                "scale": [
+                    1.000004529953003,
+                    1.0000057220458984,
+                    1.000001311302185
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 10,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 9,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    4.454409599304199,
+                    4.440761089324951,
+                    -2.9515435695648193
+                ],
+                "rotation": [
+                    -0.009587601758539677,
+                    -0.4388519823551178,
+                    0.0196245014667511,
+                    -0.8982939720153809
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 12,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 11,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    1.8343470096588135,
+                    -1.9004642963409424,
+                    -4.75481653213501
+                ],
+                "rotation": [
+                    -0.47325071692466736,
+                    -0.8805755972862244,
+                    -0.01179043110460043,
+                    0.0219433456659317
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 14,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 13,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -4.6669511795043945,
+                    1.8331714868545532,
+                    2.2836647033691406
+                ],
+                "rotation": [
+                    0.24607166647911072,
+                    -0.9248862266540527,
+                    -0.07453987002372742,
+                    -0.2801394760608673
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 16,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 15,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    0.46549734473228455,
+                    2.738046407699585,
+                    -6.1008524894714355
+                ],
+                "rotation": [
+                    -0.004306296817958355,
+                    -0.04578994959592819,
+                    -0.09350892901420593,
+                    0.9945555925369263
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 18,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 17,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -0.2954995334148407,
+                    -4.445108413696289,
+                    4.324084758758545
+                ],
+                "rotation": [
+                    0.045348599553108215,
+                    0.340028315782547,
+                    0.12417533993721008,
+                    -0.9310771822929382
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 20,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 19,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    1.337746262550354,
+                    1.945762276649475,
+                    2.218388080596924
+                ],
+                "rotation": [
+                    -0.01364775188267231,
+                    0.828113317489624,
+                    -0.009234096854925156,
+                    -0.5603184700012207
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "BaseVS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 22,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 21,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    4.939382076263428,
+                    -0.8030840754508972,
+                    0.3633238971233368
+                ],
+                "rotation": [
+                    -0.36442750692367554,
+                    -0.9288240671157837,
+                    -0.0244428887963295,
+                    0.062298521399497986
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "data": {
+                                "fs": 3658838734074951198,
+                                "fsName": "BlueTint.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "id": 24,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "Fih.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 23,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    1.1346529722213745,
+                    3.4661011695861816,
+                    4.476864814758301
+                ],
+                "rotation": [
+                    0.13084475696086884,
+                    -0.7476707696914673,
+                    -0.11223465204238892,
+                    -0.6413045525550842
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

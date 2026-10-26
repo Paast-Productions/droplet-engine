@@ -40,7 +40,7 @@ void CameraComponent::StartImpl()
 {
 }
 
-void CameraComponent::UpdateImpl(float p_deltaTime)
+void CameraComponent::UpdateImpl()
 {
     if (!m_camera)
         return;
@@ -70,8 +70,8 @@ void CameraComponent::UpdateImpl(float p_deltaTime)
     }
 
     // Smooth orientation (shortest path for yaw)
-    p_deltaTime = Time::Get().GetDeltaTime();
-    const float rotT = Smooth(m_rotationLag, p_deltaTime);
+    float deltaTime = Time::Get().GetDeltaTime();
+    const float rotT = Smooth(m_rotationLag, deltaTime);
     m_smoothedYaw += WrapDegrees(targetYaw - m_smoothedYaw) * rotT;
     m_smoothedPitch += (targetPitch - m_smoothedPitch) * rotT;
 
@@ -92,7 +92,7 @@ void CameraComponent::UpdateImpl(float p_deltaTime)
         camRight * m_offset.x + camUp * m_offset.y + camForward * m_offset.z;
 
     // Smooth position too (small lag makes acceleration visible)
-    const float posT = Smooth(m_positionLag, p_deltaTime);
+    const float posT = Smooth(m_positionLag, deltaTime);
     m_smoothedPosition += (dronePos - m_smoothedPosition) * posT;
 
     m_camera->SetPosition(m_smoothedPosition + worldOffset);

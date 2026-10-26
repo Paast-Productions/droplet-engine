@@ -20,8 +20,9 @@ namespace Droplet
 
         /// @brief Meta entry data for a specific resource.
         /// @param p_guid The GUID of the resource.
-        /// @throw std::runtime_error If the resource is not registered.
-        MetaEntry GetResourceMetaData(GUID p_guid);
+        /// @param[out] p_metaEntry The meta entry result.
+        /// @return True if meta entry was found, else false.
+        bool GetResourceMetaData(const GUID p_guid, MetaEntry &p_metaEntry) const;
 
         /// @brief Fetches all metadata bodies associated with a specific asset.
         /// @param p_assetPath The path to the asset (not its .meta file)

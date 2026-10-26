@@ -61,10 +61,7 @@ namespace Droplet::Graphics
 
 		/// @brief Destructor
 		~Renderer();
-		
-		/// @brief Renders a singular frame
-		void DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-		
+				
 		/// @brief Renders a singular mesh with the data that is pushed into the function
 		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
 		void Draw(RenderTarget& p_renderTarget, const Camera& p_camera, std::vector<RenderData> p_renderData);
@@ -160,15 +157,9 @@ namespace Droplet::Graphics
 		std::uint32_t m_imGuiPoolSize;
 
 		VkFormat m_imGuiColorFormat;
-
-		//Needs one buffer per frame in flight to avoid read write issues
-		
 		
 		//Index for rendered frames
 		std::uint32_t m_frameIndex = 0;
-
-		//Latest received swapchain result
-		vk::Result m_result;
 
 		bool m_framebufferResized = false;
 		
