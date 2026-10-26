@@ -8,7 +8,7 @@
 #include <string>
 #include <math/bounds/AABB.hpp>
 #include <math/bounds/Frustum.hpp>
-#include "SceneSystem/Node.hpp"
+#include <SceneSystem/Node.hpp>
 
 namespace Droplet::Scene
 {
@@ -60,16 +60,17 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
 
-		/// @brief Generates graphviz code for visualiziong the octree from top down (xz-projected)
+		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
 		/// @return The string of graphviz code generated
 		std::string ToGraphviz();
 
-		/// @brief Generates graphviz code for visualiziong the octree as a tree
+		/// @brief Generates graphviz code for visualizing the octree as a tree
 		/// @note It is recommended to use dot graphviz engine for this
 		/// @return The string of graphviz code generated
 		std::string ToGraphvizTree();
 		
+		/// @brief Render the octree octants and nodes 
 		void Render();
 
 	private:
@@ -83,7 +84,8 @@ namespace Droplet::Scene
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_node The Node to be added to the octree
 		/// @param p_treeNode The TreeNode where the Node element should be set
-		void AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		/// @param p_placementBounds The fat bounds of the node
+		void AddToTreeNode(const std::shared_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode, const Math::AABB &p_placementBounds); // TODO: Make weak pointer
 
 		/// @brief Helper function for removing elements from the octree
 		/// @param p_node The Node to be removed
@@ -93,7 +95,7 @@ namespace Droplet::Scene
 		/// @brief Subdivides a octant into eights
 		/// @param p_parentOctant The octant to be subdivided
 		/// @param[out] p_childOctants The subdivided octants
-		void SubdivideOctant(const Math::AABB &p_parentOctant, std::vector<Math::AABB> &p_childOctants);
+		void SubdivideOctant(const Math::AABB &p_parentOctant, std::array<Math::AABB, 8> &p_childOctants);
 
 		/// @brief Helper function for getting Node instances intersecting with frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
@@ -130,6 +132,10 @@ namespace Droplet::Scene
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum 
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		
+		/// @brief Recursive function trying to merge octants
+		/// @param p_treeNode The TreeNode trying to merge
+		void TryMerge(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Recursive helper function for generating graphviz code visualizing the octree from top down
 		/// @param[in/out] p_data String of graphviz code
@@ -153,10 +159,14 @@ namespace Droplet::Scene
 		std::string BoundingBoxToGraphviz(const Math::AABB &p_aabb, const std::string &p_nodeName,
 			const std::string &p_label, const std::string &p_color);
 		
+		/// @brief Helper function for rendering every octant and node
+		/// @param p_treeNode The TreeNode to be rendered
 		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_NODES = 16;
 		static constexpr std::uint8_t C_MAX_DEPTH = 4;
+		static constexpr std::uint8_t C_MERGE_THRESHOLD = 8;
+		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
 
 		struct TreeNode
 		{
@@ -169,7 +179,8 @@ namespace Droplet::Scene
 		};
 
 		bool m_isInitialized = false;
-
 		std::unique_ptr<TreeNode> m_root;
+		
+		std::unordered_map<Node *, Math::AABB> m_placements; // Contains fat bounds
 	};
 }
