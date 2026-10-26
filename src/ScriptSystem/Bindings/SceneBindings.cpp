@@ -57,22 +57,76 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
 	p_luaState["SceneManagerInstance"] = &p_sceneManager;
 
-	LuaClassDefinition classDef;
-	classDef.name = "SceneManager";
+    LuaClassDefinition classDef;
+    classDef.name = "Scene";
 
-	classDef.functions =
-	{
-		{
-			"GetName",
-			"string",
-			{}
-		},
-		{
-			"GetTransform",
-			"Transform",
-			{}
-		}
-	};
+    classDef.functions =
+    {
+        {
+            "RaycastNode",
+            "tuple<Node, RayHit>",
+            {
+                {"ray", "Ray"}
+            }
+        },
+        {
+            "RaycastNodes",
+            "Node[]",
+            {
+                {"ray", "Ray"}
+            }
+        }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+
+
+    classDef = {};
+    classDef.name = "SceneManager";
+
+    classDef.functions =
+    {
+        {
+            "LoadScene",
+            "void",
+            {
+                {"scenePath", "string"}
+            }
+        },
+        {
+            "UnloadScene",
+            "void",
+            {
+                {"scenePath", "string"}
+            }
+        },
+        {
+            "ActivateScene",
+            "void",
+            {
+                {"scene", "Scene"}
+            }
+        },
+        {
+            "DeactivateScene",
+            "void",
+            {
+                {"scene", "Scene"}
+            }
+        },
+        {
+            "GetScene",
+            "Scene",
+            {
+                {"sceneName", "string"}
+            }
+        },
+        {
+            "GetActiveScenes",
+            "Scene[]",
+            {}
+        }
+    };
 
 	LuaBindings::PushLuaClassDefinition(classDef);
 }
