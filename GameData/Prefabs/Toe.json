@@ -21,20 +21,15 @@
             },
             "id": 1,
             "type": "MeshComponent"
-        },
-        {
-            "data": {},
-            "id": 2,
-            "type": "CameraComponent"
         }
     ],
     "id": 2,
     "name": "Toe",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            4.026532173156738,
+            0.30886805057525635,
+            1.646385669708252
         ],
         "rotation": [
             1.0,

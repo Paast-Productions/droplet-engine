@@ -15,15 +15,20 @@ void Droplet::Script::Bindings::RegisterDebugDraw(sol::state_view p_luaState)
 
 	sol::table dbgDraw = p_luaState.create_table("DebugDraw");
 
-	dbgDraw.set_function("DrawRay", &DebugDraw::DrawRay);
 	dbgDraw.set_function("DrawLine", &DebugDraw::DrawLine);
 	dbgDraw.set_function("DrawTri", &DebugDraw::DrawTri);
 	dbgDraw.set_function("DrawQuad", &DebugDraw::DrawQuad);
+
+	dbgDraw.set_function("DrawRay", 
+		[](const Math::Ray &ray, glm::vec4 col = glm::vec4(0, 0, 0, 1), bool depth = true) {
+			DebugDraw::DrawRay(ray, col, depth);
+		});
 
 	dbgDraw.set_function("DrawCurveQuadratic",
 		[](const glm::vec3 &p1, const glm::vec3 &d, const glm::vec3 &p2, glm::vec4 col = glm::vec4(0, 0, 0, 1), int seg = 12, bool depth = true) {
 			DebugDraw::DrawCurve(p1, d, p2, col, seg, depth);
 		});
+
 	dbgDraw.set_function("DrawCurveCubic",
 		[](const glm::vec3 &p1, const glm::vec3 &d1, const glm::vec3 &d2, const glm::vec3 &p2, glm::vec4 col = glm::vec4(0, 0, 0, 1), int seg = 12, bool depth = true) {
 			DebugDraw::DrawCurve(p1, d1, d2, p2, col, seg, depth);

@@ -1,0 +1,53 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 15104664662864096133,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "data": {
+                "filepath": "DroneMovement.lua"
+            },
+            "id": 2,
+            "type": "ScriptComponent"
+        }
+    ],
+    "id": 1,
+    "name": "TestDrone",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

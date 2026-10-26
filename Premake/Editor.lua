@@ -44,11 +44,16 @@ project "Editor"
         }
 
         filter { "system:windows" }
-          files 
-          { 
-             "../Editor/resources.rc", 
-             "../Editor/engine-icon.ico" 
-          }
+
+        files 
+        { 
+            "../Editor/resources.rc", 
+            "../Editor/engine-icon.ico" 
+        }
+        
+        postbuildcommands {
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+        }
 
     else
 

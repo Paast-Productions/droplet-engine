@@ -4,8 +4,9 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
-#include "Components/ScriptComponent.hpp"
-#include "Components/MeshComponent.hpp"
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+
 #include "Debug/Logger.hpp"
 
 namespace Droplet::Scene
@@ -36,7 +37,7 @@ namespace Droplet::Scene
 		void DeserializeScene(const nlohmann::json& p_json,std::shared_ptr<Scene> p_scene);
 
 
-		void DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene &p_scene);
+		void DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene &p_scene, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
 
 		/// @brief Serializes a node
