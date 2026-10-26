@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Cube",
+            "guid": 18037312760216138790,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube",
+            "type": 3
+        }
+    ]
+}
