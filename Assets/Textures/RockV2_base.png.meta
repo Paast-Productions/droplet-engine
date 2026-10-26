@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "RockV2_base",
+            "guid": 2617992142281023542,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "RockV2_base",
+            "type": 1
+        }
+    ]
+}
