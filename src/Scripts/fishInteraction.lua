@@ -1,15 +1,20 @@
 
-local ray = Ray.new()
-local scene = SceneManager:GetScene()
+--local ray = Ray.new()
 
 function OnStart()
+    print("fish interaction start")
+    local scene = SceneManagerInstance:GetScene("MainScene")
+
+    if scene then
+        print("MainScene")
+    end
     print(scene)
 end
 
 function OnUpdate(dt)
-    print(ray.pos)
+
+
 end
 
 function RenderUI()
-
 end
