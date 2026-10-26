@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "HierarchyWindow.hpp"
 #include "InteractionState.hpp"
 
@@ -16,6 +17,48 @@ using namespace Droplet::Scene;
 HierarchyWindow::HierarchyWindow(EditorContext *p_editorContext) :
  m_editorContext(p_editorContext)
 { }
+
+namespace
+{
+    /// @brief Gets the nodes a drag of p_dragged should move. If the dragged node is part of a multi-selection, all
+    /// selected nodes are moved. Nodes whose ancestor is also moved are excluded, since they follow their ancestor.
+    std::vector<std::shared_ptr<Node>> GetDraggedNodes(const InteractionState &p_state, const std::shared_ptr<Node> &p_dragged)
+    {
+        std::vector<std::shared_ptr<Node>> candidates;
+
+        if (p_state.IsNodeSelected(p_dragged))
+        {
+            candidates = p_state.GetSelectedNodes();
+        }
+        else
+        {
+            candidates.push_back(p_dragged);
+        }
+
+        std::vector<std::shared_ptr<Node>> result;
+
+        for (const auto &node : candidates)
+        {
+            bool ancestorMoved = false;
+
+            for (auto parent = node->GetParent(); parent; parent = parent->GetParent())
+            {
+                if (std::find(candidates.begin(), candidates.end(), parent) != candidates.end())
+                {
+                    ancestorMoved = true;
+                    break;
+                }
+            }
+
+            if (!ancestorMoved)
+            {
+                result.push_back(node);
+            }
+        }
+
+        return result;
+    }
+}
 
 void HierarchyWindow::InitImpl()
 {   
@@ -92,6 +135,10 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::Dummy(ImVec2(rootDropWidth, rootDropHeight));
 
+    // The node area starts at the top of the root drop strip and spans the rest of the window
+    const ImVec2 nodeAreaMin = ImGui::GetItemRectMin();
+    const ImVec2 nodeAreaMax = ImGui::GetWindowPos() + ImGui::GetWindowSize();
+
     if (ImGui::BeginDragDropTarget())
     {
         if (const ImGuiPayload *payload =
@@ -101,14 +148,15 @@ void HierarchyWindow::RenderImpl()
 
             if (draggedNode)
             {
-                auto draggedNodeShared = draggedNode->shared_from_this();
-
-                // Remove from the current parent, if any.
-                auto oldParent = draggedNodeShared->GetParent();
-
-                if (oldParent)
+                // Remove all dragged nodes from their current parents, if any.
+                for (const auto &node : GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNode->shared_from_this()))
                 {
-                    oldParent->RemoveChild(draggedNodeShared);
+                    auto oldParent = node->GetParent();
+
+                    if (oldParent)
+                    {
+                        oldParent->RemoveChild(node);
+                    }
                 }
             }
         }
@@ -123,9 +171,45 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::BeginGroup();
 
+    m_visibleNodes.clear();
+    m_visibleNodeRects.clear();
+    m_rangeSelectTarget = nullptr;
+
     for (const auto &root : scene->GetRoots())
     {
         DrawNode(root);
+    }
+
+    // Resolve a shift-click range selection now that the display order of all nodes is known
+    if (m_rangeSelectTarget)
+    {
+        InteractionState &interactionState = m_editorContext->GetInteractionState();
+        const std::shared_ptr<Node> anchor = m_selectionAnchor.lock();
+
+        const auto targetIt = std::find(m_visibleNodes.begin(), m_visibleNodes.end(), m_rangeSelectTarget);
+        auto anchorIt = anchor ? std::find(m_visibleNodes.begin(), m_visibleNodes.end(), anchor) : m_visibleNodes.end();
+
+        if (anchorIt == m_visibleNodes.end())
+        {
+            // No usable anchor, so the target becomes the anchor
+            anchorIt = targetIt;
+            m_selectionAnchor = m_rangeSelectTarget;
+        }
+
+        if (targetIt != m_visibleNodes.end())
+        {
+            if (!m_rangeSelectAdditive)
+            {
+                interactionState.ClearNodeSelection();
+            }
+
+            for (auto it = std::min(anchorIt, targetIt); it <= std::max(anchorIt, targetIt); ++it)
+            {
+                interactionState.SelectNode(*it, false);
+            }
+        }
+
+        m_rangeSelectTarget = nullptr;
     }
 
     // Create an invisible item covering the remaining content area.
@@ -142,10 +226,14 @@ void HierarchyWindow::RenderImpl()
             {
                 Node *draggedNode = *static_cast<Node **>(payload->Data);
 
-                auto oldParent = draggedNode->shared_from_this()->GetParent();
-                if (oldParent)
+                for (const auto &node : GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNode->shared_from_this()))
                 {
-                    oldParent->RemoveChild(draggedNode->shared_from_this());
+                    auto oldParent = node->GetParent();
+
+                    if (oldParent)
+                    {
+                        oldParent->RemoveChild(node);
+                    }
                 }
             }
 
@@ -155,19 +243,31 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::EndGroup();
 
-    if (m_nodeToReparent && m_newParent)
+    HandleRectSelection(nodeAreaMin, nodeAreaMax);
+
+    if (!m_nodesToReparent.empty() && m_newParent)
     {
-        auto oldParent = m_nodeToReparent->GetParent();
-
-        if (oldParent)
+        for (const auto &node : m_nodesToReparent)
         {
-            oldParent->RemoveChild(m_nodeToReparent);
-        }
+            // Skip invalid moves, such as moving a node into itself or its own descendants
+            if (node == m_newParent || m_newParent->IsDescendantOf(node))
+            {
+                continue;
+            }
 
-        m_newParent->AddChild(m_nodeToReparent);
-        m_nodeToReparent.reset();
-        m_newParent.reset();
+            auto oldParent = node->GetParent();
+
+            if (oldParent)
+            {
+                oldParent->RemoveChild(node);
+            }
+
+            m_newParent->AddChild(node);
+        }
     }
+
+    m_nodesToReparent.clear();
+    m_newParent.reset();
 
     if (m_nodeToAddChildTo)
     {
@@ -264,7 +364,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("New Scene"))
     {
         std::string name = "New Scene";
-
+        m_editorContext->GetActiveScene().get()->SetActive(false);
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
         std::strncpy(fileName, name.c_str(), sizeof(name) - 1);
@@ -300,6 +400,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
                 std::string filePath = scenesDirectory.string() + std::string(selectedScene);
 
+                m_editorContext->GetActiveScene().get()->SetActive(false);
                 m_editorContext->LoadFromFile(filePath);
                 m_editorContext->SetActiveScene(sceneName);
                 std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
@@ -336,13 +437,64 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
     const bool visible = ImGui::IsItemVisible();
 
+    m_visibleNodes.push_back(p_node);
+    m_visibleNodeRects.emplace_back(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+
 	// Only handle interactions if the item is visible to avoid unnecessary processing for off-screen items
     if (visible)
     {
-        if (ImGui::IsItemClicked())
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
         {
-            m_editorContext->GetInteractionState().ClearNodeSelection();
-            m_editorContext->GetInteractionState().SelectNode(p_node);
+            InteractionState &interactionState = m_editorContext->GetInteractionState();
+            const ImGuiIO &io = ImGui::GetIO();
+
+            if (io.KeyShift)
+            {
+                // Select the range between the anchor and this node
+                m_rangeSelectTarget = p_node;
+                m_rangeSelectAdditive = io.KeyCtrl;
+            }
+            else if (io.KeyCtrl)
+            {
+                // Toggle this node, keeping the rest of the selection
+                if (interactionState.IsNodeSelected(p_node))
+                {
+                    interactionState.DeselectNode(p_node);
+                }
+                else
+                {
+                    interactionState.SelectNode(p_node, false);
+                }
+
+                m_selectionAnchor = p_node;
+            }
+            else if (interactionState.IsNodeSelected(p_node) && interactionState.GetSelectedNodes().size() > 1)
+            {
+                // Keep the multi-selection so it can be dragged. It collapses to this node on release if no drag happened.
+                m_pendingCollapseNode = p_node;
+            }
+            else
+            {
+                interactionState.ClearNodeSelection();
+                interactionState.SelectNode(p_node);
+                m_selectionAnchor = p_node;
+            }
+        }
+
+        if (m_pendingCollapseNode == p_node && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        {
+            const ImGuiIO &io = ImGui::GetIO();
+            constexpr float c_dragThreshold = 4.0f;
+
+            if (ImGui::IsItemHovered() && io.MouseDragMaxDistanceSqr[ImGuiMouseButton_Left] < c_dragThreshold * c_dragThreshold)
+            {
+                InteractionState &interactionState = m_editorContext->GetInteractionState();
+                interactionState.ClearNodeSelection();
+                interactionState.SelectNode(p_node);
+                m_selectionAnchor = p_node;
+            }
+
+            m_pendingCollapseNode = nullptr;
         }
 
         if (ImGui::BeginDragDropSource())
@@ -351,7 +503,16 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
 
-            ImGui::Text("%s", p_node->GetName().c_str());
+            const size_t draggedCount = GetDraggedNodes(m_editorContext->GetInteractionState(), p_node).size();
+
+            if (draggedCount > 1)
+            {
+                ImGui::Text("%s (+%zu more)", p_node->GetName().c_str(), draggedCount - 1);
+            }
+            else
+            {
+                ImGui::Text("%s", p_node->GetName().c_str());
+            }
 
             ImGui::EndDragDropSource();
         }
@@ -392,7 +553,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
                 if (draggedNodeShared != p_node &&
                     !p_node->IsDescendantOf(draggedNodeShared))
                 {
-                    m_nodeToReparent = draggedNodeShared;
+                    m_nodesToReparent = GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNodeShared);
                     m_newParent = p_node;
                 }
             }
@@ -406,5 +567,91 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             DrawNode(child);
         }
         ImGui::TreePop();
+    }
+}
+
+bool HierarchyWindow::IsOverNodeRow(const ImVec2 &p_pos) const
+{
+    for (const auto &[rowMin, rowMax] : m_visibleNodeRects)
+    {
+        if (p_pos.x >= rowMin.x && p_pos.x <= rowMax.x && p_pos.y >= rowMin.y && p_pos.y <= rowMax.y)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void HierarchyWindow::HandleRectSelection(const ImVec2 &p_emptyAreaMin, const ImVec2 &p_emptyAreaMax)
+{
+    InteractionState &interactionState = m_editorContext->GetInteractionState();
+    const ImGuiIO &io = ImGui::GetIO();
+    const ImVec2 scroll = ImVec2(ImGui::GetScrollX(), ImGui::GetScrollY());
+
+    // Start the drag when pressing in the empty area below the nodes
+    if (!m_marqueeActive)
+    {
+        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)
+            && !ImGui::IsAnyItemActive() && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
+            && !IsOverNodeRow(io.MousePos))
+        {
+            m_marqueeActive = true;
+            m_marqueeStart = io.MousePos + scroll;
+        }
+
+        return;
+    }
+
+    const ImVec2 start = m_marqueeStart - scroll;
+    const ImVec2 end = io.MousePos;
+    const ImVec2 rectMin = ImVec2(std::min(start.x, end.x), std::min(start.y, end.y));
+    const ImVec2 rectMax = ImVec2(std::max(start.x, end.x), std::max(start.y, end.y));
+
+    if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+    {
+        ImDrawList *drawList = ImGui::GetWindowDrawList();
+        drawList->AddRectFilled(rectMin, rectMax, IM_COL32(60, 120, 220, 50));
+        drawList->AddRect(rectMin, rectMax, IM_COL32(60, 120, 220, 200));
+        return;
+    }
+
+    // Released: select all rows touched by the rectangle
+    m_marqueeActive = false;
+
+    const bool additive = io.KeyShift || io.KeyCtrl;
+    constexpr float c_minDragSize = 4.0f;
+    const bool isRect = (rectMax.x - rectMin.x) >= c_minDragSize || (rectMax.y - rectMin.y) >= c_minDragSize;
+
+    if (!additive)
+    {
+        interactionState.ClearNodeSelection();
+    }
+
+    if (!isRect)
+    {
+        return;
+    }
+
+    for (size_t i = 0; i < m_visibleNodes.size() && i < m_visibleNodeRects.size(); i++)
+    {
+        const auto &[rowMin, rowMax] = m_visibleNodeRects[i];
+
+        const bool overlaps = rowMin.x <= rectMax.x && rowMax.x >= rectMin.x
+            && rowMin.y <= rectMax.y && rowMax.y >= rectMin.y;
+
+        if (!overlaps)
+        {
+            continue;
+        }
+
+        if (io.KeyCtrl && interactionState.IsNodeSelected(m_visibleNodes[i]))
+        {
+            interactionState.DeselectNode(m_visibleNodes[i]);
+        }
+        else
+        {
+            interactionState.SelectNode(m_visibleNodes[i], false);
+        }
     }
 }

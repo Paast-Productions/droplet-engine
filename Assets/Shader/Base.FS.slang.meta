@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Base.FS",
+            "guid": 13680123319807966343,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 1
+            },
+            "sourceName": "Base.FS",
+            "type": 6
+        }
+    ]
+}

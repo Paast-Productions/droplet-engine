@@ -68,6 +68,44 @@ namespace
 	}
 }
 
+Frustum::Frustum(const glm::mat4x4 &p_matrix)
+{
+	// Left plane
+	planes[0].normal.x = p_matrix[0][3] + p_matrix[0][0];
+	planes[0].normal.y = p_matrix[1][3] + p_matrix[1][0];
+	planes[0].normal.z = p_matrix[2][3] + p_matrix[2][0];
+	planes[0].distance = p_matrix[3][3] + p_matrix[3][0];
+
+	// Right plane
+	planes[1].normal.x = p_matrix[0][3] - p_matrix[0][0];
+	planes[1].normal.y = p_matrix[1][3] - p_matrix[1][0];
+	planes[1].normal.z = p_matrix[2][3] - p_matrix[2][0];
+	planes[1].distance = p_matrix[3][3] - p_matrix[3][0];
+
+	// Bottom plane
+	planes[2].normal.x = p_matrix[0][3] + p_matrix[0][1];
+	planes[2].normal.y = p_matrix[1][3] + p_matrix[1][1];
+	planes[2].normal.z = p_matrix[2][3] + p_matrix[2][1];
+	planes[2].distance = p_matrix[3][3] + p_matrix[3][1];
+
+	// Top plane
+	planes[3].normal.x = p_matrix[0][3] - p_matrix[0][1];
+	planes[3].normal.y = p_matrix[1][3] - p_matrix[1][1];
+	planes[3].normal.z = p_matrix[2][3] - p_matrix[2][1];
+	planes[3].distance = p_matrix[3][3] - p_matrix[3][1];
+
+	// Near plane
+	planes[4].normal.x = p_matrix[0][2];
+	planes[4].normal.y = p_matrix[1][2];
+	planes[4].normal.z = p_matrix[2][2];
+	planes[4].distance = p_matrix[3][2];
+
+	// Far plane
+	planes[5].normal.x = p_matrix[0][3] - p_matrix[0][2];
+	planes[5].normal.y = p_matrix[1][3] - p_matrix[1][2];
+	planes[5].normal.z = p_matrix[2][3] - p_matrix[2][2];
+	planes[5].distance = p_matrix[3][3] - p_matrix[3][2];
+}
 
 Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::vec3 &p_up, float p_fov, float p_aspect, float p_near, float p_far)
 {
@@ -117,4 +155,23 @@ void Frustum::GetCorners(glm::vec3 *p_corners) const
 			p_corners[i] = glm::vec3(0.0f);
 		}
 	}
+}
+
+Frustum Frustum::Transform(const Frustum &p_frustum, const glm::mat4x4 &p_matrix)
+{
+	Frustum transformedFrustum;
+
+	glm::mat4x4 inverseTranspose = glm::transpose(glm::inverse(p_matrix));
+
+	for (int i = 0; i < 6; ++i)
+	{
+		const Plane &plane = p_frustum.GetPlane(i);
+
+		// Transform the plane's normal and distance
+		glm::vec3 transformedNormal = inverseTranspose * glm::vec4(plane.normal, 0.0f);
+		float transformedDistance = plane.distance - glm::dot(transformedNormal, glm::vec3(p_matrix[3]));
+		transformedFrustum.planes[i] = Plane(glm::normalize(transformedNormal), transformedDistance);
+	}
+
+	return transformedFrustum;
 }

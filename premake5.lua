@@ -67,24 +67,22 @@ include "Premake/External/Stb"
 include "Premake/External/IconFontCppHeaders"
 include "Premake/External/PortableFileDialogs"
 include "Premake/External/VulkanMemoryAllocator"
+include "Premake/External/bvh"
+include "Premake/External/Gli"
+include "Premake/External/Sol2"
+include "Premake/External/Lua"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
     include "Premake/External/Windows/Assimp"
     include "Premake/External/Windows/Dalia"
-    include "Premake/External/Windows/Gli"
     include "Premake/External/Windows/Jolt"
-    include "Premake/External/Windows/Sol2"
-    include "Premake/External/Windows/bvh"
 end
 
 if _TARGET_OS == 'linux' then
     include "Premake/External/Linux/GoogleTest"
     include "Premake/External/Linux/Assimp"
-    include "Premake/External/Linux/Gli"
     include "Premake/External/Linux/Jolt"
-    include "Premake/External/Linux/Sol2"
-    include "Premake/External/Windows/bvh"
 end
 
 group ""
