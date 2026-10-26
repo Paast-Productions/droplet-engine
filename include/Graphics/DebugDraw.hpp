@@ -45,6 +45,18 @@ namespace Droplet::Graphics::Debug
 			bool p_depth = true
 		);
 
+		/// @brief Draw a ray in 3D space.
+		/// @param p_pos The origin of the ray.
+		/// @param p_dir The direction of the ray.
+		/// @param p_col The color of the ray.
+		/// @param p_depth Whether to enable depth testing for the ray.
+		static void DrawRay(
+			const glm::vec3 &p_pos, 
+			const glm::vec3 &p_dir,
+			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
+			bool p_depth = true
+		);
+
 		/// @brief Draw a line segment in 3D space.
 		/// @param p_start The start point of the line segment.
 		/// @param p_end The end point of the line segment.

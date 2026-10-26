@@ -7,119 +7,9 @@
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <string>
-#include <resource/meta/MetaUtils.hpp>
+#include <Editor/ResourceSlot.hpp>
 
 // imgui helper function
-
-namespace
-{
-    bool ResourceSlot(
-        const char *p_label,
-        Droplet::GUID p_current,
-        const std::string &p_currentDisplayName,
-        Droplet::GUID &p_outGUID,
-        std::string &p_outDisplayName,
-        Droplet::ResourceType p_expectedType)
-    {
-        using namespace ImGui;
-        using namespace Droplet::Editor;
-
-        bool changed = false;
-
-        PushID(p_label);
-        TableNextRow();
-        TableNextColumn();
-        AlignTextToFramePadding();
-        TextUnformatted(p_label);
-        TableNextColumn();
-
-        const float clearW = GetFrameHeight();
-        const float gap = GetStyle().ItemSpacing.x;
-
-        const std::string text = p_current != Droplet::C_INVALID_GUID
-            ? p_currentDisplayName
-            : "None (drop resource here)";
-
-        if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
-        {
-            OpenPopup("pick");
-        }
-
-        if (BeginDragDropTarget())
-        {
-            if (const ImGuiPayload *pl =
-                AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-            {
-                if (pl->DataSize == sizeof(const Droplet::MetaEntry *))
-                {
-                    const auto *entryPtr =
-                        *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    if (entryPtr->type == p_expectedType)
-                    {
-                        // Access the complete entry.
-                        p_outGUID = entryPtr->guid;
-                        p_outDisplayName = entryPtr->displayName;
-                        changed = true;
-                    }
-                    else
-                    {
-
-                    }
-                }
-            }
-            if (const ImGuiPayload *pl =
-                AcceptDragDropPayload(PAYLOAD_ASSET.data()))
-            {
-                if (pl->DataSize % sizeof(const Droplet::MetaEntry *) == 0)
-                {
-                    const auto *entries =
-                        static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    const std::size_t count =
-                        pl->DataSize / sizeof(const Droplet::MetaEntry *);
-
-                    for (std::size_t i = 0; i < count; ++i)
-                    {
-                        const Droplet::MetaEntry *entry = entries[i];
-
-                        if (entry && entry->type == p_expectedType)
-                        {
-                            p_outGUID = entry->guid;
-                            p_outDisplayName = entry->displayName;
-                            changed = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            EndDragDropTarget();
-        }
-
-        if (p_current != Droplet::C_INVALID_GUID && IsItemHovered())
-        {
-            SetTooltip(
-                "GUID: %llu",
-                static_cast<unsigned long long>(p_current));
-        }
-
-        SameLine();
-        BeginDisabled(p_current == Droplet::C_INVALID_GUID);
-
-        if (Button("X", ImVec2(clearW, clearW)))
-        {
-            p_outGUID = Droplet::C_INVALID_GUID;
-            p_outDisplayName.clear();
-            changed = true;
-        }
-
-        EndDisabled();
-
-        PopID();
-        return changed;
-    }
-}
 
 using namespace Droplet::Scene;
 
@@ -132,7 +22,7 @@ void MeshComponent::StartImpl()
     SetRenderable();
 }
 
-void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
+void MeshComponent::UpdateImpl()
 {
     //TODO: will be inplemted later when the mesh system is implemented
 }
@@ -200,13 +90,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
             m_vsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Vertex))
         {
             SetVSGUID(newGUID);
             m_vsDisplayName = newName;
@@ -214,13 +105,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
             m_tcsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationControl))
         {
             SetTCSGUID(newGUID);
             m_tcsDisplayName = newName;
@@ -228,13 +120,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
             m_tesDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationEvaluation))
         {
             SetTESGUID(newGUID);
             m_tesDisplayName = newName;
@@ -242,13 +135,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
             m_gsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Geometry))
         {
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
@@ -256,13 +150,14 @@ void MeshComponent::RenderUIImpl()
         newGUID = C_INVALID_GUID;
         newName.clear();
 
-        if(ResourceSlot(
+        if (ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
             m_fsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Fragment))
         {
             SetFSGUID(newGUID);
             m_fsDisplayName = newName;

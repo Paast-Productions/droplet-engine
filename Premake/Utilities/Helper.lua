@@ -34,12 +34,32 @@ function UseGraphicsPCH()
     }
 end
 
+function UseEditorPCH()
+    pchheader "EditorPCH.h"
+    pchsource(rootPath .. "/Editor/src/PCH/EditorPCH.cpp")
+    
+    forceincludes { "EditorPCH.h" }
+    
+    includedirs { rootPath .. "/Editor/include/PCH" }
+    files {
+        rootPath .. "/Editor/src/PCH/EditorPCH.cpp"
+    }
+    
+    defines {
+        "GLM_FORCE_DEPTH_ZERO_TO_ONE",
+        "GLM_ENABLE_EXPERIMENTAL",
+        "VULKAN_HPP_NO_STRUCT_CONSTRUCTORS",
+        "VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS",
+        "IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING"
+    }
+end
+
 function UseCustomPCH(pchName)
 
     local headerName = pchName .. ".h"
     local sourceName = pchName .. ".cpp"
     
-    pchheader(pchheader)
+    pchheader(headerName)
     pchsource(srcPath .. "/" .. sourceName)
     
     forceincludes { headerName }

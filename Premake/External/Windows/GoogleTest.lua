@@ -12,12 +12,12 @@ project "GoogleTest"
     filter "configurations:release"
         prebuildcommands{
             "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded'",
+            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DBUILD_GMOCK=OFF",
             "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
         }
     filter "configurations:debug"
         prebuildcommands{
             "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug'",
+            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DBUILD_GMOCK=OFF",
             "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
         }

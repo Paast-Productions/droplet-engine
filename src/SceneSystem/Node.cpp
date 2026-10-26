@@ -47,7 +47,7 @@ void Node::Start()
     }
 }
 
-void Node::Update(float p_deltaTime)
+void Node::Update()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -61,13 +61,73 @@ void Node::Update(float p_deltaTime)
 
     for (const auto &component : m_components)
     {
-        component->Update(p_deltaTime);
+        component->Update();
     }
 
     for (const auto &child : m_children)
     {
-        child->Update(p_deltaTime);
+        child->Update();
     }
+}
+
+void Droplet::Scene::Node::LateUpdate()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_active)
+    {
+        return;
+    }
+
+	// TODO: Find an appropriate place to update transform if dirty. Should be done as late in the frame as possible, but before rendering.
+
+    for (const auto &component : m_components)
+    {
+        component->LateUpdate();
+    }
+
+    for (const auto &child : m_children)
+    {
+        child->LateUpdate();
+    }
+}
+
+void Node::FixedUpdate()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!m_active)
+    {
+        return;
+    }
+
+    for (const auto &component : m_components)
+    {
+        component->FixedUpdate();
+    }
+}
+
+void Node::EditorUpdate()
+{
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
+	if (!m_active)
+	{
+		return;
+	}
+
+	for (const auto &component : m_components)
+	{
+		component->EditorUpdate();
+	}
+
+	for (const auto &child : m_children)
+	{
+		child->EditorUpdate();
+	}
 }
 
 void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) 

@@ -33,7 +33,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         Droplet::Graphics::SDL::WindowConfig{
             static_cast<int>(windowSize.x),
             static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE},
+            { SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
             "Droplet Editor"
         },
         Droplet::UpdateFlags::EditorFlags
@@ -272,31 +272,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
                     {
                         showStyleEditor = !showStyleEditor;
                     }
-
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndMenu();
-            }
-
-			if (ImGui::BeginMenu("Edit"))
-			{
-				if (ImGui::BeginMenu("Manipulate"))
-				{
-					if (ImGui::BeginMenu("Space"))
-					{
-						if (ImGui::MenuItem("World"))
-						{
-							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
-						}
-
-						if (ImGui::MenuItem("Local"))
-						{
-							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
-						}
-
-						ImGui::EndMenu();
-					}
 
                     ImGui::EndMenu();
                 }

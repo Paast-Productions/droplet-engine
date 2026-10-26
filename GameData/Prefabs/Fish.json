@@ -1,0 +1,80 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 0,
+                        "fsName": "BaseFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 0,
+                        "vsName": "BaseVS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    -1.924212611470466e-08,
+                    0.0,
+                    -0.16141465306282043
+                ],
+                "rotation": [
+                    -4.5577415619391104e-08,
+                    -0.7071678042411804,
+                    -5.715653372817542e-08,
+                    0.7070457339286804
+                ],
+                "scale": [
+                    0.999984860420227,
+                    1.0000131130218506,
+                    0.9999954700469971
+                ]
+            }
+        }
+    ],
+    "components": [
+        {
+            "data": {
+                "filepath": "Fih.lua"
+            },
+            "id": 2,
+            "type": "ScriptComponent"
+        }
+    ],
+    "id": 1,
+    "name": "Fish",
+    "transform": {
+        "position": [
+            -6.968725681304932,
+            2.372130870819092,
+            -6.24688196182251
+        ],
+        "rotation": [
+            0.03854580968618393,
+            0.11752507835626602,
+            -0.30923426151275635,
+            0.9429084658622742
+        ],
+        "scale": [
+            1.0000046491622925,
+            1.0000046491622925,
+            1.0
+        ]
+    }
+}

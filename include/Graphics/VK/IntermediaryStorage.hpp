@@ -149,6 +149,10 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] const Mesh& GetMesh(RenderData p_renderData);
 
         [[nodiscard]] const std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result); //HACK: To be replace with a more robust solution
+
+        [[nodiscard]] VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid, CommandPool &p_commandPool);
+        void RemoveImGuiTexture(GUID p_guid);
+
         
     private:
         const VK::Context &m_context;
@@ -167,6 +171,14 @@ namespace Droplet::Graphics::VK
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap{};
+
+		struct ImGuiTexture
+		{
+			Image image;
+			ImageView view;
+			VkDescriptorSet descriptorSet;
+		};
+        std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};
     };
 }
 

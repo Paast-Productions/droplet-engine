@@ -37,6 +37,7 @@
 # Docs
 !/Docs
 !/Docs/Image
+!/Docs/**
 
 # Assets
 !/Assets

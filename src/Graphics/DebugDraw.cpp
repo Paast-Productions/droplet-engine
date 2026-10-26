@@ -479,7 +479,7 @@ void DebugDraw::Initialize(
 		};
 
 		const vk::PipelineRasterizationLineStateCreateInfo lineRasterizer {
-			.lineRasterizationMode = vk::LineRasterizationModeEXT::eRectangularSmooth,
+			.lineRasterizationMode = vk::LineRasterizationMode::eBresenham,
 			.stippledLineEnable = vk::False
 		};
 
@@ -884,6 +884,13 @@ void DebugDraw::DrawRay(const Ray &p_ray, glm::vec4 p_col, bool p_depth)
 	DebugDraw &dbgDraw = DebugDraw::Get();
 	InternalDrawOptions intOpt(p_col, p_depth);
 	dbgDraw.m_wireLists[intOpt].emplace_back(p_ray.pos, p_ray.pos + p_ray.dir);
+}
+
+void DebugDraw::DrawRay(const glm::vec3 &p_pos, const glm::vec3 &p_dir, glm::vec4 p_col, bool p_depth)
+{
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	InternalDrawOptions intOpt(p_col, p_depth);
+	dbgDraw.m_wireLists[intOpt].emplace_back(p_pos, p_pos + p_dir);
 }
 
 void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, glm::vec4 p_col, bool p_depth)
