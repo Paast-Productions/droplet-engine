@@ -5,6 +5,7 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 #include <Graphics/VK/ShaderModule.hpp> 
 #include <Debug/Logger.hpp>
+#include <ImGui/imgui_impl_vulkan.h>
 
 using namespace Droplet::Graphics::VK;
 
@@ -53,7 +54,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         // Vertex Shader
 
         ShaderModule vsModule{ nullptr };
-        if (vs.IsReady())
+        if (vs.IsReady() && vs.Get()->GetType() == ShaderResource::ShaderType::Vertex)
         {
             ShaderResource* vsRes = vs.Get();
             vsModule = ShaderModule{ p_device, vsRes->GetByteCode() };
@@ -65,7 +66,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule tcsModule{ nullptr };
-        if (tcs.IsReady())
+        if (tcs.IsReady() && tcs.Get()->GetType() == ShaderResource::ShaderType::TessellationControl)
         {
             ShaderResource* tcsRes = tcs.Get();
             tcsModule = ShaderModule{ p_device, tcsRes->GetByteCode() };
@@ -77,7 +78,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule tesModule{ nullptr };
-        if (tes.IsReady())
+        if (tes.IsReady() && tes.Get()->GetType() == ShaderResource::ShaderType::TessellationEvaluation)
         {
             ShaderResource* tesRes = tes.Get();
             tesModule = ShaderModule{ p_device, tesRes->GetByteCode() };
@@ -89,7 +90,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule gsModule{ nullptr };
-        if (gs.IsReady())
+        if (gs.IsReady() && gs.Get()->GetType() == ShaderResource::ShaderType::Geometry)
         {
             ShaderResource* gsRes = gs.Get();
             gsModule = ShaderModule{ p_device, gsRes->GetByteCode() };
@@ -101,7 +102,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         }
 
         ShaderModule fsModule{ nullptr };
-        if (fs.IsReady())
+        if (fs.IsReady() && fs.Get()->GetType() == ShaderResource::ShaderType::Fragment)
         {
             ShaderResource* fsRes = fs.Get();
             fsModule = ShaderModule{ p_device, fsRes->GetByteCode() };
@@ -229,4 +230,67 @@ const std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, C
         result = true;
         return m_textureGuidMap.at(guid);
     }
+}
+
+VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid, CommandPool &p_commandPool)
+{
+    ZoneScoped;
+
+    auto it = m_imGuiTexMap.find(p_guid);
+
+    if (it != m_imGuiTexMap.end())
+    {
+		return m_imGuiTexMap[p_guid].descriptorSet;
+    }
+
+    ResourceManager &RMInstance = ResourceManager::GetInstance();
+    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
+
+    if (!(texRes.IsReady() || texRes.HasFailed()))
+    {
+        return VK_NULL_HANDLE;
+    }
+
+	ImGuiTexture &imguiTex = m_imGuiTexMap[p_guid];
+
+    imguiTex.image = Image(
+        m_allocator.Get(),
+        p_commandPool,
+        m_context,
+        texRes.Get()->GetPixelData().data(),
+        texRes.Get()->GetPixelData().size(),
+        texRes.Get()->GetWidth(),
+        texRes.Get()->GetHeight(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+        vk::MemoryPropertyFlagBits::eDeviceLocal
+    );
+
+    imguiTex.view = ImageView(
+        m_context.GetDevice(),
+        imguiTex.image.Get(),
+        vk::Format::eR8G8B8A8Unorm,
+        vk::ImageAspectFlagBits::eColor
+    );
+
+	imguiTex.descriptorSet = ImGui_ImplVulkan_AddTexture(
+        *m_textureSampler.Get(),
+        *imguiTex.view.Get(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    );
+
+	return imguiTex.descriptorSet;
+}
+
+void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
+{
+	auto it = m_imGuiTexMap.find(p_guid);
+	if (it == m_imGuiTexMap.end())
+	{
+        return;
+	}
+
+	ImGui_ImplVulkan_RemoveTexture(it->second.descriptorSet);
+	m_imGuiTexMap.erase(it);
 }

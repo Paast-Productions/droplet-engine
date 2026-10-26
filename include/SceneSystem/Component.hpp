@@ -57,9 +57,20 @@ namespace Droplet::Scene
         /// @brief Updates the component.
         ///
         /// Called once per update for components attached to active Nodes.
+    	void Update();
+
+    	/// @brief Late updates the component.
+    	///
+    	/// Called once per update for components attached to active Nodes.
+    	void LateUpdate();
+
+    	/// @brief Updates the component in fixed time.
+    	void FixedUpdate();
+
+		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
         ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update([[maybe_unused]] float p_deltaTime);
+        /// Called once per update for components attached to active Nodes.
+    	void EditorUpdate();
 
         virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
@@ -136,7 +147,15 @@ namespace Droplet::Scene
 
         virtual void StartImpl() {}
 
-        virtual void UpdateImpl(float deltaTime) {}
+        virtual void UpdateImpl() {}
+    	
+    	virtual void LateUpdateImpl() {}
+    	
+    	virtual void FixedUpdateImpl() {}
+
+        virtual void EditorUpdateImpl() {}
+    	
+    	virtual void ActiveChangedImpl(const bool p_active) {}
 
 		/// @brief Internal rendering function for the component's UI.
         /// 

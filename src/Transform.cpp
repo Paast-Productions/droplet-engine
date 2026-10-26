@@ -1,16 +1,14 @@
 #include "Transform.hpp"
-
+#include <algorithm>
 #include <stdexcept>
-
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <stdexcept>
 #include <cmath>
-
 #include <SceneSystem/Node.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet::Scene;
+using namespace glm;
 
 static float Sign(float x)
 {
@@ -18,8 +16,83 @@ static float Sign(float x)
 	return (sign == 0.0f) ? 1.0f : sign;
 }
 
+namespace
+{
+	bool IsFinite(const vec3 &p_value)
+	{
+		return std::isfinite(p_value.x) && std::isfinite(p_value.y) && std::isfinite(p_value.z);
+	}
+
+	bool IsFinite(const vec4 &p_value)
+	{
+		return std::isfinite(p_value.x) && std::isfinite(p_value.y) &&
+			std::isfinite(p_value.z) && std::isfinite(p_value.w);
+	}
+
+	bool IsFinite(const quat &p_value)
+	{
+		return std::isfinite(p_value.x) && std::isfinite(p_value.y) &&
+			std::isfinite(p_value.z) && std::isfinite(p_value.w);
+	}
+
+	bool IsFinite(const mat4 &p_value)
+	{
+		for (int column = 0; column < 4; ++column)
+		{
+			for (int row = 0; row < 4; ++row)
+			{
+				if (!std::isfinite(p_value[column][row]))
+				{
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	bool DecomposeTransformMatrix(const mat4 &p_matrix, vec3 &p_position, quat &p_rotation, vec3 &p_scale)
+	{
+		if (!IsFinite(p_matrix))
+		{
+			return false;
+		}
+
+		vec3 skew{};
+		vec4 perspective{};
+		if (!decompose(p_matrix, p_scale, p_rotation, p_position, skew, perspective))
+		{
+			return false;
+		}
+
+		constexpr float tolerance = 1.0e-4f;
+		if (!IsFinite(p_position) || !IsFinite(p_rotation) || !IsFinite(p_scale) ||
+			!IsFinite(skew) || !IsFinite(perspective) ||
+			length(skew) > tolerance ||
+			length(vec3(perspective)) > tolerance ||
+			std::abs(perspective.w - 1.0f) > tolerance)
+		{
+			//return false;
+		}
+
+		const float rotationLength = length(p_rotation);
+		if (!std::isfinite(rotationLength) || rotationLength <= tolerance)
+		{
+			return false;
+		}
+
+		p_rotation = normalize(p_rotation);
+		return true;
+	}
+}
+
 Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 {
+	if (m_owner == nullptr)
+	{
+		throw std::invalid_argument("Cannot create Transform: owner Node is null.");
+	}
+
 	// Ensure that the Transform is being constructed by its owning Node.
 	if (&(m_owner->GetTransform()) != this)
 	{
@@ -27,7 +100,7 @@ Transform::Transform(Droplet::Scene::Node *p_owner) : m_owner(p_owner)
 	}
 }
 
-glm::vec3 Transform::GetPosition(Space p_space) const
+vec3 Transform::GetPosition(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -46,14 +119,14 @@ glm::vec3 Transform::GetPosition(Space p_space) const
 
 	case Space::World:
 		// Convert local position to world position using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
+		mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
 
-		glm::vec3 worldPos = parentWorldMatrix * glm::vec4(m_position, 1.0f);
+		vec3 worldPos = parentWorldMatrix * vec4(m_position, 1.0f);
 		return worldPos;
 	}
 }
 
-glm::quat Transform::GetRotation(Space p_space) const
+quat Transform::GetRotation(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -71,14 +144,11 @@ glm::quat Transform::GetRotation(Space p_space) const
 		return m_rotation;
 
 	case Space::World:
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-
-		glm::quat parentWorldRotation = glm::quat_cast(parentWorldMatrix);
-		return parentWorldRotation * m_rotation;
+		return GetParentTransform()->GetRotation(Space::World) * m_rotation;
 	}
 }
 
-glm::vec3 Transform::GetEuler(Space p_space) const
+vec3 Transform::GetEuler(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -93,19 +163,19 @@ glm::vec3 Transform::GetEuler(Space p_space) const
 	{
 	default:
 	case Space::Local:
-		return glm::eulerAngles(m_rotation);
+		return eulerAngles(m_rotation);
 
 	case Space::World:
-		return glm::eulerAngles(GetRotation(Space::World));
+		return eulerAngles(GetRotation(Space::World));
 	}
 }
 
-glm::vec3 Transform::GetScale() const
+vec3 Transform::GetScale() const
 {
 	return m_scale;
 }
 
-glm::mat4 Transform::GetMatrix(Space p_space)
+mat4 Transform::GetMatrix(Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -147,7 +217,7 @@ bool Droplet::Scene::Transform::HasBeenChanged() const
 	return m_wasChanged;
 }
 
-glm::vec3 Transform::GetUp(Space p_space) const
+vec3 Transform::GetUp(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -162,14 +232,14 @@ glm::vec3 Transform::GetUp(Space p_space) const
 	{
 	default:
 	case Space::Local:
-		return glm::normalize(m_rotation * glm::vec3(0.f, 1.f, 0.f));
+		return normalize(m_rotation * vec3(0.f, 1.f, 0.f));
 
 	case Space::World:
-		return glm::normalize(GetRotation(Space::World) * glm::vec3(0.f, 1.f, 0.f));
+		return normalize(GetRotation(Space::World) * vec3(0.f, 1.f, 0.f));
 	}
 }
 
-glm::vec3 Transform::GetRight(Space p_space) const
+vec3 Transform::GetRight(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -184,14 +254,14 @@ glm::vec3 Transform::GetRight(Space p_space) const
 	{
 	default:
 	case Space::Local:
-		return glm::normalize(m_rotation * glm::vec3(1.f, 0.f, 0.f));
+		return normalize(m_rotation * vec3(1.f, 0.f, 0.f));
 
 	case Space::World:
-		return glm::normalize(GetRotation(Space::World) * glm::vec3(1.f, 0.f, 0.f));
+		return normalize(GetRotation(Space::World) * vec3(1.f, 0.f, 0.f));
 	}
 }
 
-glm::vec3 Transform::GetForward(Space p_space) const
+vec3 Transform::GetForward(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -206,14 +276,14 @@ glm::vec3 Transform::GetForward(Space p_space) const
 	{
 	default:
 	case Space::Local:
-		return glm::normalize(m_rotation * glm::vec3(0.f, 0.f, 1.f));
+		return normalize(m_rotation * vec3(0.f, 0.f, 1.f));
 
 	case Space::World:
-		return glm::normalize(GetRotation(Space::World) * glm::vec3(0.f, 0.f, 1.f));
+		return normalize(GetRotation(Space::World) * vec3(0.f, 0.f, 1.f));
 	}
 }
 
-void Transform::SetPosition(const glm::vec3 &p_position, Space p_space)
+void Transform::SetPosition(const vec3 &p_position, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -233,8 +303,8 @@ void Transform::SetPosition(const glm::vec3 &p_position, Space p_space)
 
 	case Space::World:
 		// Convert world position to local position using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::vec3 localPos = glm::inverse(parentWorldMatrix) * glm::vec4(p_position, 1.0f);
+		mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
+		vec3 localPos = inverse(parentWorldMatrix) * vec4(p_position, 1.0f);
 		m_position = localPos;
 		break;
 	}
@@ -242,7 +312,7 @@ void Transform::SetPosition(const glm::vec3 &p_position, Space p_space)
 	MakeDirty();
 }
 
-void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
+void Transform::SetRotation(const quat &p_rotation, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -261,9 +331,8 @@ void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
 		break;
 
 	case Space::World:
-		// Convert world rotation to local rotation using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::quat localRot = glm::inverse(glm::quat_cast(parentWorldMatrix)) * p_rotation;
+		// Convert world rotation to local rotation using the parent's world rotation.
+		quat localRot = inverse(GetParentTransform()->GetRotation(Space::World)) * p_rotation;
 		m_rotation = localRot;
 		break;
 	}
@@ -273,7 +342,7 @@ void Transform::SetRotation(const glm::quat &p_rotation, Space p_space)
 	MakeDirty();
 }
 
-void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
+void Transform::SetEuler(const vec3 &p_eulerAngles, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -288,14 +357,13 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 	{
 	default:
 	case Transform::Space::Local:
-		m_rotation = glm::quat(p_eulerAngles);
+		m_rotation = quat(p_eulerAngles);
 		break;
 
 	case Transform::Space::World:
-		// Convert world Euler angles to local rotation using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::quat worldRot = glm::quat(p_eulerAngles);
-		glm::quat localRot = glm::inverse(glm::quat_cast(parentWorldMatrix)) * worldRot;
+		// Convert world Euler angles to local rotation using the parent's world rotation.
+		quat worldRot = quat(p_eulerAngles);
+		quat localRot = inverse(GetParentTransform()->GetRotation(Space::World)) * worldRot;
 		m_rotation = localRot;
 		break;
 	}
@@ -305,18 +373,18 @@ void Transform::SetEuler(const glm::vec3 &p_eulerAngles, Space p_space)
 	MakeDirty();
 }
 
-void Transform::SetScale(const glm::vec3 &p_scale)
+void Transform::SetScale(const vec3 &p_scale)
 {
 	// Sanitize scale values to avoid zero
-	constexpr float MIN_SCALE = 0.0001f;
-	m_scale.x = Sign(p_scale.x) * ((std::abs(p_scale.x) < MIN_SCALE) ? MIN_SCALE : p_scale.x);
-	m_scale.y = Sign(p_scale.y) * ((std::abs(p_scale.y) < MIN_SCALE) ? MIN_SCALE : p_scale.y);
-	m_scale.z = Sign(p_scale.z) * ((std::abs(p_scale.z) < MIN_SCALE) ? MIN_SCALE : p_scale.z);
+	constexpr float MIN_SCALE = 1.0e-6f;
+	m_scale.x = (std::abs(p_scale.x) < MIN_SCALE) ? (Sign(p_scale.x) * MIN_SCALE) : p_scale.x;
+	m_scale.y = (std::abs(p_scale.y) < MIN_SCALE) ? (Sign(p_scale.y) * MIN_SCALE) : p_scale.y;
+	m_scale.z = (std::abs(p_scale.z) < MIN_SCALE) ? (Sign(p_scale.z) * MIN_SCALE) : p_scale.z;
 
 	MakeDirty();
 }
 
-void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
+void Transform::SetMatrix(const mat4 &p_matrix, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -332,14 +400,13 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 	default:
 	case Transform::Space::Local:
 	{
-		// Decompose the matrix into position, rotation, and scale.
-		glm::vec3 position{};
-		glm::quat rotation{};
-		glm::vec3 scale{};
-		glm::vec3 skew{};
-		glm::vec4 perspective{};
-
-		glm::decompose(p_matrix, scale, rotation, position, skew, perspective);
+		vec3 position{};
+		quat rotation{};
+		vec3 scale{};
+		if (!DecomposeTransformMatrix(p_matrix, position, rotation, scale))
+		{
+			return;
+		}
 
 		m_position = position;
 		m_rotation = rotation;
@@ -350,17 +417,22 @@ void Transform::SetMatrix(const glm::mat4 &p_matrix, Space p_space)
 	case Transform::Space::World:
 	{
 		// Transform the world matrix into local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::mat4 localMatrix = glm::inverse(parentWorldMatrix) * p_matrix;
+		mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
 
-		// Decompose the local matrix into position, rotation, and scale.
-		glm::vec3 position{};
-		glm::quat rotation{};
-		glm::vec3 scale{};
-		glm::vec3 skew{};
-		glm::vec4 perspective{};
+		const float parentDeterminant = determinant(parentWorldMatrix);
+		if (!std::isfinite(parentDeterminant) || parentDeterminant == 0.0f)
+		{
+			return;
+		}
+		mat4 localMatrix = inverse(parentWorldMatrix) * p_matrix;
 
-		glm::decompose(localMatrix, scale, rotation, position, skew, perspective);
+		vec3 position{};
+		quat rotation{};
+		vec3 scale{};
+		if (!DecomposeTransformMatrix(localMatrix, position, rotation, scale))
+		{
+			return;
+		}
 
 		m_position = position;
 		m_rotation = rotation;
@@ -418,7 +490,7 @@ void Transform::RecalculateMatrices()
 	m_isDirty = false;
 }
 
-void Transform::Move(const glm::vec3 &p_delta, Space p_space)
+void Transform::Move(const vec3 &p_delta, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -438,8 +510,8 @@ void Transform::Move(const glm::vec3 &p_delta, Space p_space)
 
 	case Space::World:
 		// Convert the world delta to local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::vec3 localDelta = glm::inverse(parentWorldMatrix) * glm::vec4(p_delta, 0.0f);
+		mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
+		vec3 localDelta = inverse(parentWorldMatrix) * vec4(p_delta, 0.0f);
 		m_position += localDelta;
 		break;
 	}
@@ -447,7 +519,7 @@ void Transform::Move(const glm::vec3 &p_delta, Space p_space)
 	MakeDirty();
 }
 
-void Transform::Rotate(const glm::quat &p_delta, Space p_space)
+void Transform::Rotate(const quat &p_delta, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -466,9 +538,9 @@ void Transform::Rotate(const glm::quat &p_delta, Space p_space)
 		break;
 
 	case Space::World:
-		// Convert the world rotation delta to local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::quat localDelta = glm::inverse(glm::quat_cast(parentWorldMatrix)) * p_delta * glm::quat_cast(parentWorldMatrix);
+		// Convert the world rotation delta to local space using the parent's world rotation.
+		quat parentWorldRotation = GetParentTransform()->GetRotation(Space::World);
+		quat localDelta = inverse(parentWorldRotation) * p_delta * parentWorldRotation;
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
@@ -478,7 +550,26 @@ void Transform::Rotate(const glm::quat &p_delta, Space p_space)
 	MakeDirty();
 }
 
-void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
+void Transform::SlerpRotation(const quat &p_target, float p_t, Space p_space)
+{
+	const float targetLength = length(p_target);
+	if (!std::isfinite(p_t) || !IsFinite(p_target) || !std::isfinite(targetLength) || targetLength <= 1.0e-6f)
+	{
+		return;
+	}
+
+	const quat currentRotation = GetRotation(p_space);
+	const quat targetRotation = normalize(p_target);
+	const quat interpolated = normalize(slerp(currentRotation, targetRotation, std::clamp(p_t, 0.0f, 1.0f)));
+	if (!IsFinite(interpolated))
+	{
+		return;
+	}
+
+	SetRotation(interpolated, p_space);
+}
+
+void Transform::RotateEuler(const vec3 &p_delta, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -493,14 +584,14 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 	{
 	default:
 	case Space::Local:
-		m_rotation = glm::quat(p_delta) * m_rotation;
+		m_rotation = quat(p_delta) * m_rotation;
 		break;
 
 	case Space::World:
-		// Convert the world Euler angles to a quaternion and then to local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::quat worldDelta = glm::quat(p_delta);
-		glm::quat localDelta = glm::inverse(glm::quat_cast(parentWorldMatrix)) * worldDelta * glm::quat_cast(parentWorldMatrix);
+		// Convert the world Euler angles to a quaternion and then to local space using the parent's world rotation.
+		quat parentWorldRotation = GetParentTransform()->GetRotation(Space::World);
+		quat worldDelta = quat(p_delta);
+		quat localDelta = inverse(parentWorldRotation) * worldDelta * parentWorldRotation;
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
@@ -510,37 +601,37 @@ void Transform::RotateEuler(const glm::vec3 &p_delta, Space p_space)
 	MakeDirty();
 }
 
-void Transform::MoveRelative(const glm::vec3 &p_delta)
+void Transform::MoveRelative(const vec3 &p_delta)
 {
-	glm::vec3 right = GetRight(Space::Local);
-	glm::vec3 up = GetUp(Space::Local);
-	glm::vec3 forward = GetForward(Space::Local);
+	vec3 right = GetRight(Space::Local);
+	vec3 up = GetUp(Space::Local);
+	vec3 forward = GetForward(Space::Local);
 
-	glm::vec3 relativeDelta = right * p_delta.x + up * p_delta.y + forward * p_delta.z;
+	vec3 relativeDelta = right * p_delta.x + up * p_delta.y + forward * p_delta.z;
 
 	Move(relativeDelta, Space::Local);
 }
 
-void Transform::RotateEulerRelative(const glm::vec3 &p_delta)
+void Transform::RotateEulerRelative(const vec3 &p_delta)
 {
-	glm::vec3 right = GetRight(Space::Local);
-	glm::vec3 up = GetUp(Space::Local);
-	glm::vec3 forward = GetForward(Space::Local);
+	vec3 right = GetRight(Space::Local);
+	vec3 up = GetUp(Space::Local);
+	vec3 forward = GetForward(Space::Local);
 
-	glm::quat relativeRotation = glm::angleAxis(p_delta.x, right) *
-		glm::angleAxis(p_delta.y, up) *
-		glm::angleAxis(p_delta.z, forward);
+	quat relativeRotation = angleAxis(p_delta.x, right) *
+		angleAxis(p_delta.y, up) *
+		angleAxis(p_delta.z, forward);
 
 	Rotate(relativeRotation, Space::Local);
 }
 
-void Transform::AddScale(const glm::vec3 &p_delta)
+void Transform::AddScale(const vec3 &p_delta)
 {
 	m_scale += p_delta;
 	MakeDirty();
 }
 
-void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space)
+void Transform::RotateAxis(float p_angle, const vec3 &p_axis, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -555,13 +646,13 @@ void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space
 	{
 	default:
 	case Space::Local:
-		m_rotation = glm::angleAxis(p_angle, p_axis) * m_rotation;
+		m_rotation = angleAxis(p_angle, p_axis) * m_rotation;
 		break;
 
 	case Space::World:
-		// Convert the world rotation to local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::quat localDelta = glm::inverse(glm::quat_cast(parentWorldMatrix)) * glm::angleAxis(p_angle, p_axis) * glm::quat_cast(parentWorldMatrix);
+		// Convert the world rotation to local space using the parent's world rotation.
+		quat parentWorldRotation = GetParentTransform()->GetRotation(Space::World);
+		quat localDelta = inverse(parentWorldRotation) * angleAxis(p_angle, p_axis) * parentWorldRotation;
 		m_rotation = localDelta * m_rotation;
 		break;
 	}
@@ -571,7 +662,7 @@ void Transform::RotateAxis(float p_angle, const glm::vec3 &p_axis, Space p_space
 	MakeDirty();
 }
 
-void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p_space)
+void Transform::LookAt(const vec3 &p_target, const vec3 &p_up, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -582,28 +673,36 @@ void Transform::LookAt(const glm::vec3 &p_target, const glm::vec3 &p_up, Space p
 		}
 	}
 
-	switch (p_space)
+	vec3 direction = p_target - (p_space == Space::World ? GetPosition(Space::World) : m_position);
+	vec3 up = p_up;
+	if (p_space == Space::World)
 	{
-	default:
-	case Space::Local:
-		m_rotation = glm::quat_cast(glm::lookAt(m_position, p_target, p_up));
-		break;
-
-	case Space::World:
-		// Convert the world target position & up vector to local space using the parent's world matrix.
-		glm::mat4 parentWorldMatrix = GetParentTransform()->GetMatrix(Space::World);
-		glm::vec3 localTarget = glm::inverse(parentWorldMatrix) * glm::vec4(p_target, 1.0f);
-		glm::vec3 localUp = glm::inverse(parentWorldMatrix) * glm::vec4(p_up, 0.0f);
-		m_rotation = glm::quat_cast(glm::lookAt(m_position, localTarget, localUp));
-		break;
+		const quat inverseParentRotation = inverse(GetParentTransform()->GetRotation(Space::World));
+		direction = inverseParentRotation * direction;
+		up = inverseParentRotation * up;
 	}
+
+	const float directionLength = length(direction);
+	const float upLength = length(up);
+	if (!IsFinite(direction) || !IsFinite(up) || !std::isfinite(directionLength) ||
+		!std::isfinite(upLength) || directionLength <= 1.0e-6f || upLength <= 1.0e-6f ||
+		length(cross(direction / directionLength, up / upLength)) <= 1.0e-6f)
+	{
+		return;
+	}
+
+	direction /= directionLength;
+	up /= upLength;
+	// GLM's view matrix points along local -Z; invert it and aim along -direction
+	// so the engine's local +Z forward axis points at the target.
+	m_rotation = quat_cast(inverse(lookAt(vec3(0.0f), -direction, up)));
 
 	ValidateRotation();
 
 	MakeDirty();
 }
 
-void Transform::TransformByMatrix(const glm::mat4 &p_matrix, Space p_space)
+void Transform::TransformByMatrix(const mat4 &p_matrix, Space p_space)
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
 	if (p_space == Space::World)
@@ -622,16 +721,16 @@ void Transform::TransformByMatrix(const glm::mat4 &p_matrix, Space p_space)
 
 void Transform::ValidateRotation()
 {
-	m_rotation = glm::normalize(m_rotation);
+	m_rotation = normalize(m_rotation);
 	MakeDirty();
 }
 
 void Transform::UpdateLocalMatrix()
 {
 	m_localMatrix = 
-		glm::translate(glm::mat4(1.0f), m_position) *
-		glm::toMat4(m_rotation) *
-		glm::scale(glm::mat4(1.0f), m_scale);
+		translate(mat4(1.0f), m_position) *
+		toMat4(m_rotation) *
+		scale(mat4(1.0f), m_scale);
 }
 
 bool Transform::HasParent() const

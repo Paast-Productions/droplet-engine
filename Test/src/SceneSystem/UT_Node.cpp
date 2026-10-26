@@ -5,6 +5,7 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
+#include "Time.hpp"
 
 using namespace Droplet::Scene;
 
@@ -18,10 +19,10 @@ public:
         startCount++;
     }
 
-    void UpdateImpl(float p_deltaTime) override
+    void UpdateImpl() override
     {
         updateCount++;
-        lastDeltaTime = p_deltaTime;
+        lastDeltaTime = Droplet::Time::Get().GetDeltaTime();
     }
 
     int startCount = 0;
@@ -306,7 +307,7 @@ TEST_F(NodeTest, ComponentUpdates)
     auto component = ComponentFactory::CreateComponent("TComponent");
     root->AttachComponent(component);
 
-    root->Update(0.016f);
+    root->Update();
 
     std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
     EXPECT_EQ(components[0]->updateCount, 1);
@@ -319,9 +320,9 @@ TEST_F(NodeTest, ComponentUpdatesEveryFrame)
     auto component = ComponentFactory::CreateComponent("TComponent");
     root->AttachComponent(component);
 
-    root->Update(0.016f);
-    root->Update(0.016f);
-    root->Update(0.016f);
+    root->Update();
+    root->Update();
+    root->Update();
 
     std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
     EXPECT_EQ(components[0]->updateCount, 3);
@@ -382,7 +383,7 @@ TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
 
     root->SetActive(false);
 
-    root->Update(0.016f);
+    root->Update();
 
     std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
     EXPECT_EQ(components[0]->updateCount, 0);

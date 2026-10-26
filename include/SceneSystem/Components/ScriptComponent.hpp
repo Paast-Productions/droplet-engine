@@ -68,8 +68,7 @@ namespace Droplet::Scene
         /// @brief Updates the associated Lua script.
         /// Called during the Node's update cycle and forwards the update to
         /// the scripting system.
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void UpdateImpl(float p_deltaTime) override;
+        void UpdateImpl() override;
 
 		/// @brief Internal rendering function for the component's UI.
 		///

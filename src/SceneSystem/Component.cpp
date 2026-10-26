@@ -26,14 +26,47 @@ void Component::Start()
 	}
 }
 
-void Component::Update(float p_deltaTime)
+void Component::Update()
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
 	if (IsActive())
 	{
-		UpdateImpl(p_deltaTime);
+		UpdateImpl();
+	}
+}
+
+void Component::LateUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		LateUpdateImpl();
+	}
+}
+
+void Component::FixedUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		FixedUpdateImpl();
+	}
+}
+
+void Component::EditorUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		EditorUpdateImpl();
 	}
 }
 
@@ -89,9 +122,16 @@ void Component::SetActiveSelf(bool p_active)
 {
 	m_active = p_active;
 
-	if (m_active && !m_started)
+	if (m_started)
 	{
-		Start();
+		ActiveChangedImpl(p_active);
+	}
+	else
+	{
+		if (m_active)
+		{
+			Start();
+		}
 	}
 }
 

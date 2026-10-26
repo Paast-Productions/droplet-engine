@@ -9,6 +9,8 @@ project "Editor"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
+    UseEditorPCH()
+
     defines{ 
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
@@ -41,6 +43,18 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
+        filter { "system:windows" }
+
+        files 
+        { 
+            "../Editor/resources.rc", 
+            "../Editor/engine-icon.ico" 
+        }
+        
+        postbuildcommands {
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+        }
+
     else
 
         includedirs
@@ -69,7 +83,9 @@ project "Editor"
         "json",
         "tracy",
         "IconFontCppHeaders",
-        "PortableFileDialogs"
+        "PortableFileDialogs",
+        "Lua",
+        "Jolt"
     }
 
     files 
@@ -93,5 +109,6 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("lua_static"),
+		AddQuotation("Jolt")
     }
