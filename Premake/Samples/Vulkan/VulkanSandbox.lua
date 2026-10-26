@@ -19,6 +19,12 @@ project "Vulkan-Sandbox"
         rootPath .. "/Samples/Vulkan/Sandbox/shaders/*.slang"
     }
 
+    -- Global defines
+    defines {
+        "VULKAN_HPP_NO_STRUCT_CONSTRUCTORS",
+        "VULKAN_HPP_NO_UNION_CONSTRUCTORS"
+    }
+
     if _TARGET_OS == "windows" then
         local vkPath = os.getenv("VULKAN_SDK")
     

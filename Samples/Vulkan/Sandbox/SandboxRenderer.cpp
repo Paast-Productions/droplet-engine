@@ -110,8 +110,7 @@ SandboxRenderer::~SandboxRenderer() noexcept
 vk::raii::ShaderModule SandboxRenderer::CreateShaderModule(const std::vector<std::uint32_t>& spirv)
 {
     const vk::ShaderModuleCreateInfo createInfo{
-        .codeSize =
-        spirv.size() * sizeof(std::uint32_t),
+        .codeSize = spirv.size() * sizeof(std::uint32_t),
         .pCode = spirv.data()
     };
 

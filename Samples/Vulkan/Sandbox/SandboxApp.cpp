@@ -7,17 +7,16 @@ namespace fs = std::filesystem;
 using namespace Droplet::Sandbox;
 using namespace Droplet;
 
-SandboxApp::SandboxApp(SandboxAppConfig cfg) 
-:   m_config(std::move(cfg)),
-    m_sdl(m_config.wnd),
-    m_renderer(m_sdl.GetWindow()),
-    m_camera({0.0f, 0.0f, -5.0f})
+SandboxApp::SandboxApp(SandboxAppConfig cfg)
+    : m_config(std::move(cfg)),
+      m_sdl(m_config.wnd),
+      m_renderer(m_sdl.GetWindow())
 {
     // window callback
     m_sdl.SetResizeCallback([this]() { m_renderer.OnResize(); });
     m_sdl.SetMinimizeCallback([this]() { m_renderer.OnMinimize(); });
-    m_sdl.SetRestoreCallback([this](){m_renderer.OnRestore(); });
-    
+    m_sdl.SetRestoreCallback([this]() { m_renderer.OnRestore(); });
+
     // resource man
     const fs::path rootPath = fs::current_path() / "../../../Assets";
     ResourceManager::GetInstance().Initialize(rootPath);
@@ -57,8 +56,8 @@ void SandboxApp::LoadResources()
 void SandboxApp::InitVulkan()
 {
     SandboxShaderCompiler shaderCompiler;
-    
-    const char * shaderPath = "base_shader_wvp.slang";
+
+    const char* shaderPath = "base_shader_wvp.slang";
 
     const auto vertexSpirv = shaderCompiler.CompileSpirv(
         "base",
@@ -93,4 +92,60 @@ void SandboxApp::MainLoop()
 
 void SandboxApp::Cleanup()
 {
+}
+
+SandboxTimelineSemaphoreApp::SandboxTimelineSemaphoreApp(SandboxAppConfig cfg)
+    : m_config(std::move(cfg)),
+      m_sdl(m_config.wnd),
+      m_renderer(m_sdl.GetWindow())
+{
+    // window callback
+    m_sdl.SetResizeCallback([this]() { m_renderer.OnResize(); });
+    m_sdl.SetMinimizeCallback([this]() { m_renderer.OnMinimize(); });
+    m_sdl.SetRestoreCallback([this]() { m_renderer.OnRestore(); });
+}
+
+void SandboxTimelineSemaphoreApp::Run()
+{
+    Init();
+    MainLoop();
+    Cleanup();
+}
+
+void SandboxTimelineSemaphoreApp::Init()
+{
+}
+
+void SandboxTimelineSemaphoreApp::LoadResources()
+{
+}
+
+void SandboxTimelineSemaphoreApp::MainLoop()
+{
+}
+
+void SandboxTimelineSemaphoreApp::Cleanup()
+{
+}
+
+void SandboxTimelineSemaphoreApp::InitShaders()
+{
+    static constexpr std::array<const char*, 5> shaders = {
+        "game_of_life_init.comp.slang",
+        "game_of_life_mutate.comp.slang",
+        "game_of_life_update.comp.slang",
+    };
+
+    for (const auto& name : shaders)
+    {
+        const auto bytes = m_shaderCompiler.CompileSpirv(
+            name, name, "main");
+        
+        m_shaderModules.emplace_back(m_renderer.CreateShaderModule(bytes));
+    }
+    
+    {
+        const auto bytes = m_shaderCompiler.CompileSpirv(name, name, "main");
+    }
+
 }

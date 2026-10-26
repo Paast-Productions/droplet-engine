@@ -1,12 +1,9 @@
 ﻿#pragma once
 
-#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
-#define VULKAN_HPP_NO_UNION_CONSTRUCTORS 
-#include <thread>
 #include <vulkan/vulkan.hpp>
 #include <vulkan/vulkan_raii.hpp>
-#undef VULKAN_HPP_NO_UNION_CONSTRUCTORS
-#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
+
+#include <thread>
 
 #include <Time.hpp>
 
