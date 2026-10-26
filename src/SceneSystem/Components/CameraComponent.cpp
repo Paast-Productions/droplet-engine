@@ -38,6 +38,24 @@ Droplet::Scene::CameraComponent::CameraComponent()
 
 void CameraComponent::StartImpl()
 {
+    const auto owner = this->GetOwner();
+    if (!owner)
+        return;
+
+    const auto &transform = owner->GetTransform();
+
+    const glm::vec3 dronePos = transform.GetPosition(Transform::Space::World);
+    const glm::vec3 forward = transform.GetForward(Transform::Space::World);
+
+    constexpr float radToDeg = 180.0f / glm::pi<float>();
+    constexpr float degToRad = glm::pi<float>() / 180.0f;
+
+    const float targetYaw = std::atan2(forward.z, forward.x) * radToDeg;
+    const float targetPitch = std::asin(glm::clamp(forward.y, -1.0f, 1.0f)) * radToDeg;
+
+    m_smoothedYaw = targetYaw;
+    m_smoothedPitch = targetPitch;
+    m_smoothedPosition = dronePos;
 }
 
 void CameraComponent::UpdateImpl()
@@ -59,15 +77,6 @@ void CameraComponent::UpdateImpl()
 
     const float targetYaw = std::atan2(forward.z, forward.x) * radToDeg;
     const float targetPitch = std::asin(glm::clamp(forward.y, -1.0f, 1.0f)) * radToDeg;
-
-    // Snap on the first frame so the camera doesn't fly in from the origin
-    if (!m_initialized)
-    {
-        m_smoothedYaw = targetYaw;
-        m_smoothedPitch = targetPitch;
-        m_smoothedPosition = dronePos;
-        m_initialized = true;
-    }
 
     // Smooth orientation (shortest path for yaw)
     float deltaTime = Time::Get().GetDeltaTime();

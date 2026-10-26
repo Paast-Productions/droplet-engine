@@ -29,6 +29,8 @@ local mouseSmoothTime = 0.04   -- seconds, 0 = raw input
 local smoothDX = 0.0
 local smoothDY = 0.0
 
+local mouseLock = false
+
 --
 -- Member Functions
 --
@@ -45,16 +47,15 @@ function WrapAngle(angle)
         angle = angle + 2.0 * math.pi
     end
 
-    return angle
+    return qangle
 end
 
 function ApplyMouseLook(dt)
     local dx, dy = 0.0, 0.0
-    if (not requireRightMouse) or Input:MouseHeld(Mouse.RMB) then
+    if (mouseLock) then
         dx = Input:GetDeltaMouseX()
         dy = Input:GetDeltaMouseY()
     end
-
     -- Frame-rate independent one-pole filter. Total rotation is preserved,
     -- it's just spread over a few frames.
     local a = 1.0
@@ -103,7 +104,13 @@ function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
     ApplyMouseLook(dt)
-    
+    if Input:KeyPressed(Key.Q) then
+        if (mouseLock == false) then
+            mouseLock = true
+        else
+            mouseLock = false
+        end
+    end
 	if Input:KeyHeld(Key.W) then
         print("W pressed")
         local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), maxMoveSpeed), dt)

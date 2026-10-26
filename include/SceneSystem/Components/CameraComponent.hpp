@@ -64,7 +64,6 @@ namespace Droplet::Scene
         glm::vec3 m_smoothedPosition{ 0.0f };
         float m_smoothedYaw = 0.0f;     // degrees
         float m_smoothedPitch = 0.0f;   // degrees
-        bool  m_initialized = false;
 
         float m_rotationLag = 30.0f;     // higher = snappier, lower = laggier
         float m_positionLag = 60.0f;
