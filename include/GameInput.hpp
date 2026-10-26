@@ -83,8 +83,13 @@ namespace Droplet
 	/// @brief Customized mouse codes using ...
 	enum class Mouse : std::uint8_t
 	{
-		LMB = 0,
-		RMB = 1,
+		LMB = SDL_BUTTON_LEFT,
+		MMB = SDL_BUTTON_MIDDLE, 
+		RMB = SDL_BUTTON_RIGHT,
+		MB4 = SDL_BUTTON_X1,
+		MB5 = SDL_BUTTON_X2,
+
+		Count
 	};
 
 	/// @brief A universal singleton GameInput class
@@ -184,8 +189,8 @@ namespace Droplet
 		float m_prevMouseY = 0.0f;
 		float m_deltaMouseX = 0.0f;
 		float m_deltaMouseY = 0.0f;
-		std::array<bool, 2> m_currentMouse = { false };
-		std::array<bool, 2> m_previousMouse = { false };
+		std::array<bool, (size_t)Mouse::Count> m_currentMouse = { false };
+		std::array<bool, (size_t)Mouse::Count> m_previousMouse = { false };
 
 	};
 }

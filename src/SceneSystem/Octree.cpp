@@ -171,12 +171,16 @@ namespace Droplet::Scene
 
 		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
-			if (node == nullptr || node->GetBounds() == nullptr)
+			if (node == nullptr)
 			{
 				continue;
 			}
 
-			if (node->GetBounds()->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
+			const NodeBounds *bounds = node->GetBounds();
+
+			assert(bounds != nullptr && "Node bounds are null. This should never happen.");
+
+			if (bounds->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
 			{
 				p_nodes.push_back(node);
 			}
@@ -191,12 +195,12 @@ namespace Droplet::Scene
 		}
 	}
 
-	std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit)
+	std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 	{
 		RayHit hit{};
 		std::weak_ptr<Node> node{};
 
-		RaycastNode(node, hit, p_ray, m_root);
+		RaycastNode(node, hit, p_ray, m_root, p_ignoreNodes);
 
 		if (p_hit != nullptr)
 		{
@@ -465,7 +469,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 	{
 		if (p_treeNode == nullptr)
 		{
@@ -489,7 +493,7 @@ namespace Droplet::Scene
 					continue;
 				}
 
-				RaycastNode(p_node, p_hit, p_ray, child);
+				RaycastNode(p_node, p_hit, p_ray, child, p_ignoreNodes);
 			}
 
 			return;
@@ -503,6 +507,20 @@ namespace Droplet::Scene
 			if (node == nullptr)
 			{
 				continue;
+			}
+
+			if (p_ignoreNodes)
+			{
+				// Check if the node is in the ignore list
+				auto it = std::find_if(p_ignoreNodes->begin(), p_ignoreNodes->end(),
+					[&node](const std::weak_ptr<Node> &weakNode) {
+						return !weakNode.expired() && weakNode.lock() == node;
+					});
+
+				if (it != p_ignoreNodes->end())
+				{
+					continue; // Skip this node as it's in the ignore list
+				}
 			}
 
 			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));

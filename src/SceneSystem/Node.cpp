@@ -93,7 +93,7 @@ void Droplet::Scene::Node::LateUpdate()
     }
 }
 
-void Droplet::Scene::Node::FixedUpdate()
+void Node::FixedUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -107,6 +107,27 @@ void Droplet::Scene::Node::FixedUpdate()
     {
         component->FixedUpdate();
     }
+}
+
+void Node::EditorUpdate()
+{
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
+	if (!m_active)
+	{
+		return;
+	}
+
+	for (const auto &component : m_components)
+	{
+		component->EditorUpdate();
+	}
+
+	for (const auto &child : m_children)
+	{
+		child->EditorUpdate();
+	}
 }
 
 void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) 

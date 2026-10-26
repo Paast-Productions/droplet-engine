@@ -1,0 +1,46 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 0,
+                "fsName": "BaseFS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Fish",
+                "meshGUID": 13422515732780036519,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "WoodTexture",
+                "textureGUID": 1466059150086384494,
+                "vs": 0,
+                "vsName": "BaseVS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 6,
+    "name": "Mesh",
+    "transform": {
+        "position": [
+            -1.924212611470466e-08,
+            0.0,
+            -0.16141465306282043
+        ],
+        "rotation": [
+            -4.5577415619391104e-08,
+            -0.7071678042411804,
+            -5.715653372817542e-08,
+            0.7070457339286804
+        ],
+        "scale": [
+            0.999984860420227,
+            1.0000131130218506,
+            0.9999954700469971
+        ]
+    }
+}

@@ -52,8 +52,9 @@ namespace Droplet::Scene
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		std::weak_ptr<Node> GetNodeFromRaycast(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+		std::weak_ptr<Node> GetNodeFromRaycast(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
@@ -92,7 +93,7 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode where to check for the Node element
 		void RemoveFromTreeNode(const std::shared_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
 
-		/// @brief Subdivides a octant into eights
+		/// @brief Subdivides octants into eights
 		/// @param p_parentOctant The octant to be subdivided
 		/// @param[out] p_childOctants The subdivided octants
 		void SubdivideOctant(const Math::AABB &p_parentOctant, std::array<Math::AABB, 8> &p_childOctants);
@@ -118,8 +119,9 @@ namespace Droplet::Scene
 		/// @param[out] p_hit The RayHit struct to store hit information
 		/// @param p_ray The ray to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
+		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		void RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray,
-			const std::unique_ptr<TreeNode> &p_treeNode);
+			const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
 
 		/// @brief Helper function for raycasting all Node instances intersecting with a ray
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the ray

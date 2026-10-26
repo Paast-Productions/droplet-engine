@@ -1,6 +1,6 @@
 #include "SceneSerializer.hpp"
 #include "ComponentFactory.hpp"
-#include "SceneSystem/SerializationContext.hpp"
+#include "SceneSystem/Serialization/SerializationContext.hpp"
 
 #include <tracy/public/tracy/Tracy.hpp>
 
@@ -55,7 +55,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     context.ResolveAllReferences();
 }
 
-void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene)
+void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene, std::optional<glm::vec3> p_overridePosition)
 {
     if (!p_json.contains("name"))
     {
@@ -88,7 +88,13 @@ void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::j
     }
     auto node = p_scene.AddNode(p_json["name"]);
     SerializationContext nullContext;
+    
     DeserializeTransform(p_json["transform"], node->GetTransform());
+    if (p_overridePosition.has_value())
+    {
+        node->GetTransform().SetPosition(*p_overridePosition);
+    }
+
 
     std::shared_ptr<Droplet::Scene::Scene> scenePtr = p_scene.shared_from_this();
 

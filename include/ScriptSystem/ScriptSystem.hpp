@@ -5,6 +5,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Behaviour.hpp>
+#include <SceneSystem/SceneManager.hpp>
 
 namespace Droplet::Script
 {
@@ -36,6 +37,8 @@ namespace Droplet::Script
 			static ScriptSystem scriptSystem;
 			return scriptSystem;
 		}
+
+		void Initialize(Scene::SceneManager &p_sceneManager);
 
 		/// @brief Starts the components.
 		/// This should be called once the scene starts with the script system.
