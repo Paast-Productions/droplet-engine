@@ -115,7 +115,6 @@ namespace Droplet::Graphics
 		
 		std::uint32_t m_vpBufferIndex { INVALID_INDEX };
 		
-		vk::Result m_latestResult {};
 		bool m_framebufferResized { false };
 		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 
 		

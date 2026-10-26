@@ -45,7 +45,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 	ZoneScoped;
 	
 	VK::IntermediaryStorage::GetInstance().Initialise(m_context);
-	m_swapchain = { VK::IntermediaryStorage::GetInstance().GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	
 	// TODO: <REFACTOR>
 	
@@ -81,13 +81,13 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 
-	const VK::ViewProjectionBuffer vpb
+	constexpr VK::ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),
 		.proj = glm::mat4(1)
 	};
 	
-	m_vpBufferIndex = VK::IntermediaryStorage::GetInstance().GetInstance().CreateBufferResource<VK::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
+	m_vpBufferIndex = VK::IntermediaryStorage::GetInstance().CreateBufferResource<VK::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
 
 	CreateSyncObjects();
 
@@ -444,21 +444,24 @@ void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData
 	
 	//vk::result, std::uint32_t
 	//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
-	std::uint32_t imageIndex =m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
+	const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
 	
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
-	/*if (m_latestResult == vk::Result::eErrorOutOfDateKHR)
+	if (resVal.result == vk::Result::eErrorOutOfDateKHR)
 	{
 		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
 		{
 			SDL_WaitEvent(&Event);
 		}
 		
-		m_context.GetDevice().waitIdle();
-		m_swapchain = { VK::IntermediaryStorage::GetInstance().GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+		m_swapchain = nullptr;
+		IntermediaryStorage::GetInstance().ClearPresentTargets();
+		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 		return;
-	}*/
+	}
+	
+	std::uint32_t imageIndex = resVal.value;
 
 	VK::ViewProjectionBuffer vp
 	{
@@ -521,7 +524,7 @@ void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData
 		.pImageIndices = &imageIndex
 	};
 	
-	vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
+	const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
@@ -533,7 +536,7 @@ void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData
 		}
 		
 		m_context.GetDevice().waitIdle();
-		m_swapchain = { VK::IntermediaryStorage::GetInstance().GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	}
 	
 	// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.

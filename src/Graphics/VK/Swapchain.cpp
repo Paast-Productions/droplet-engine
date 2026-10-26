@@ -1,12 +1,12 @@
 #include <Graphics/VK/Swapchain.hpp>
 
 #include <cassert>
+#include <iostream>
+#include <print>
 
 using namespace Droplet::Graphics::VK;
 
-std::uint32_t Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore,
-                                          const vk::raii::Fence &p_fence, uint64_t
-                                          p_timeout)
+vk::ResultValue<std::uint32_t> Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, std::uint64_t p_timeout)
 {
 	vk::AcquireNextImageInfoKHR nextImageInfo 
 	{
@@ -27,7 +27,7 @@ std::uint32_t Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device,
 	}
 	
 	m_currentIndex = resVal.value;
-	return m_currentIndex;
+	return resVal;
 }
 
 vk::SurfaceFormatKHR Swapchain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &p_availableFormats)
@@ -52,8 +52,9 @@ std::uint32_t Swapchain::ChooseSwapMinImageCount(vk::SurfaceCapabilitiesKHR cons
 	return minImageCount;
 }
 
-Swapchain::Swapchain(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface)
+Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface)
 {
+	
 	vk::SurfaceCapabilitiesKHR surfaceCapabilities = p_physicalDevice.getSurfaceCapabilitiesKHR(*p_swapSurface);
 
 	std::vector<vk::SurfaceFormatKHR> availableFormats = p_physicalDevice.getSurfaceFormatsKHR(*p_swapSurface);
@@ -77,7 +78,16 @@ Swapchain::Swapchain(const vma::raii::Allocator &p_allocator, const vk::raii::De
 		.clipped = true 
 	};
 	
-	m_swapchain = vk::raii::SwapchainKHR(p_device, swapChainCreateInfo);
+	try
+	{
+		m_swapchain = vk::raii::SwapchainKHR(p_device, swapChainCreateInfo);
+	}
+	catch (const std::exception &err)
+	{
+		std::print(std::cerr, "Error: {}", err.what());
+		std::flush(std::cerr);
+		throw;
+	}
 	
 	for (const vk::Image &image : m_swapchain.getImages())
 	{

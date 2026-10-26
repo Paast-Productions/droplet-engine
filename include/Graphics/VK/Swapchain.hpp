@@ -55,12 +55,11 @@ namespace Droplet::Graphics::VK
 		}
 		
 		/// @brief Swapchain Constructor
-		/// @param p_allocator VMA Allocator
 		/// @param p_device Reference to the device
 		/// @param p_physicalDevice Reference to the hardware device
 		/// @param p_window Pointer to the window
 		/// @param p_swapSurface Reference to the swapchain surface
-		Swapchain(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
+		Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		~Swapchain() = default;
 		
@@ -77,7 +76,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_fence Vulkan fence
 		/// @param p_timeout Time in nanoseconds before swapchain stops waiting for next available image
 		/// @returns Index of the next available image
-		[[nodiscard]] std::uint32_t AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, uint64_t p_timeout);
+		[[nodiscard]] vk::ResultValue<std::uint32_t> AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, std::uint64_t p_timeout);
 		
 		/// @brief Getter function for the current image index
 		/// @returns Current image index

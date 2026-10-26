@@ -196,6 +196,8 @@ namespace Droplet::Graphics::VK
         /// @returns The present target
         [[nodiscard]] PresentTarget &GetPresentTargetAt(const std::uint32_t p_index) { return m_presentTargets.at(p_index); }
         
+        void ClearPresentTargets() { m_presentTargets.clear(); }
+        
         /// @brief Creates an ImGui texture based on a render target
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
