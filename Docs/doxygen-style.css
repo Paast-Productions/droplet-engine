@@ -1,0 +1,18 @@
+/* Just some stuff to configure Doxygen generated html as needed*/
+
+/* keep images inside the page */
+div.contents img,
+div.textblock img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* Inline code formatting */
+.contents span.tt,
+.contents code {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #e8e8e8;
+    padding: 0.12em 0.3em;
+    border-radius: 3px;
+}

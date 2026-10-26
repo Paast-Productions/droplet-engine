@@ -1,6 +1,6 @@
-# Doxygen
+# Doxygen {#generate-doxygen}
 
-Doxygen looks through the directories and subdirectories it is pointed at and generates documentation files in a location. For our project this is set to `root/include root/src` and `root/doxydocs` respectively.
+Doxygen looks through the directories and subdirectories it is pointed at and generates documentation files in a location. Finished doxygen documentation is output into `root/doxygen/html`.
 
 ## Installing Doxygen
 
@@ -34,7 +34,7 @@ To generate Doxygen documentation, ensure the Doxyfile is present in the project
 
 >`doxygen`
 
-This will generate html inside `doxydocs/html`. You can browse the documentation by opening `doxydocs/html/index.html` in a browser.
+This will generate html inside `doxygen/html`. You can browse the documentation by opening `doxygen/html/index.html` in a browser.
 
 The Doxyfile is configured to look in `src` and `include` for code/documentation. To change the location, change the value on the right side of `INPUT                  = src include` inside the file.
 
@@ -44,18 +44,12 @@ The Doxyfile is configured to look in `src` and `include` for code/documentation
 
 ## Regenerating documentation
 
-There's no *Clean and rebuild* option for Doxygen, so it is best if we between generations delete the `doxydocs` directory, then run `doxygen` from the root folder again.
+There's no *Clean and rebuild* option for Doxygen, so it is best if we between generations delete the `doxygen` directory, then run `doxygen` from the root folder again.
 
 ## Generating Doxyfile
-
 
 If the Doxyfile at any point needs to be replaced, delete the Doxyfile file and run from the repo root:
 
 `doxygen -g <name>` where `<name>` is the desired name of the config file. If no name is provided, Doxyfile will be thee default.
 
 Ideally we should avoid generating our own Doxyfile to ensure everyone has one shared file.
-
-
-
-
-
