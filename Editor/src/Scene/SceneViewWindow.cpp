@@ -149,16 +149,18 @@ void SceneViewWindow::RenderToolbar()
 		if (ImGui::BeginMenu("Operation"))
 		{
 			ImGuizmo::OPERATION currentOperation = (ImGuizmo::OPERATION)EditorConfig::LoadInt("manipulateOperation");
+
+			ImGuizmo::OPERATION noneOperation = (ImGuizmo::OPERATION)0;
 			ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
 			ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
 			ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
 			ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
-			ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
+			ImGuizmo::OPERATION universalOperation = ImGuizmo::UNIVERSAL;
 
-			if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+			if (ImGui::MenuItem("None", nullptr, currentOperation == noneOperation))
 			{
-				EditorConfig::StoreBool("manipulateBounds", true);
-				EditorConfig::StoreInt("manipulateOperation", universalOperation);
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", noneOperation);
 			}
 
 			if (ImGui::MenuItem("Translation", nullptr, currentOperation == translationOperation))
@@ -183,6 +185,12 @@ void SceneViewWindow::RenderToolbar()
 			{
 				EditorConfig::StoreBool("manipulateBounds", true);
 				EditorConfig::StoreInt("manipulateOperation", boundsOperation);
+			}
+
+			if (ImGui::MenuItem("Universal", nullptr, currentOperation == universalOperation))
+			{
+				EditorConfig::StoreBool("manipulateBounds", false);
+				EditorConfig::StoreInt("manipulateOperation", universalOperation);
 			}
 
 			ImGui::EndMenu();
@@ -322,7 +330,7 @@ void SceneViewWindow::RenderImpl()
 
 	if (m_hoveringSceneView || isWindowFocused)
 	{
-		if (input.KeyPressed(Key::KeyQ))
+		if (input.KeyPressed(Key::KeyTab))
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
 			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
@@ -361,7 +369,7 @@ void SceneViewWindow::RenderImpl()
 				std::vector<std::weak_ptr<DNode>> ignoreNodes;
 				ignoreNodes.reserve(interactionState.GetSelectionCount());
 
-				for (const auto &node : interactionState.GetSelectedNodes())
+				for (const auto &node : interactionState.GetSelectedNodesAndChildren())
 				{
 					ignoreNodes.push_back(node);
 				}

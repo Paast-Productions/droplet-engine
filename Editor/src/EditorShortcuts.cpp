@@ -11,17 +11,18 @@ using namespace Droplet;
 
 void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts()
 {
+	ImGuizmo::OPERATION noneOperation = (ImGuizmo::OPERATION)0;
 	ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
 	ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
 	ImGuizmo::OPERATION scaleOperation = ImGuizmo::SCALE;
-	ImGuizmo::OPERATION universalOperation = translationOperation | rotationOperation;
+	ImGuizmo::OPERATION boundsOperation = ImGuizmo::BOUNDS;
+	ImGuizmo::OPERATION universalOperation = ImGuizmo::UNIVERSAL;
 
-	// Will be "Q" eventually, Q is busy
-	// Full tranform manipulation
-	if (GameInput::Get().KeyPressed(Droplet::Key::Key1))
+	// None
+	if (GameInput::Get().KeyPressed(Droplet::Key::KeyQ))
 	{
-		EditorConfig::StoreBool("manipulateBounds", true);
-		EditorConfig::StoreInt("manipulateOperation", universalOperation);
+		EditorConfig::StoreBool("manipulateBounds", false);
+		EditorConfig::StoreInt("manipulateOperation", noneOperation);
 	}
 
 	// Translation
@@ -41,7 +42,21 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts()
 	// Scale
 	if (GameInput::Get().KeyPressed(Droplet::Key::KeyR))
 	{
-		EditorConfig::StoreBool("manipulateBounds", true);
+		EditorConfig::StoreBool("manipulateBounds", false);
 		EditorConfig::StoreInt("manipulateOperation", scaleOperation);
+	}
+
+	// Bounds
+	if (GameInput::Get().KeyPressed(Droplet::Key::KeyT))
+	{
+		EditorConfig::StoreBool("manipulateBounds", true);
+		EditorConfig::StoreInt("manipulateOperation", boundsOperation);
+	}
+
+	// Universal
+	if (GameInput::Get().KeyPressed(Droplet::Key::KeyY))
+	{
+		EditorConfig::StoreBool("manipulateBounds", false);
+		EditorConfig::StoreInt("manipulateOperation", universalOperation);
 	}
 }
