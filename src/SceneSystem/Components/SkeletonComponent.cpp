@@ -142,35 +142,30 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
         m_boneNodes.push_back(scene->AddNode(bone.name));
     }
 
-    // offsetMat maps mesh space to bone space, so the bone's bind pose in mesh space is its inverse.
-    // The local transform is then inverse(parentGlobal) * global, i.e. parentOffset * inverse(offset).
-    std::vector<glm::mat4> transforms(bones.size(), glm::mat4(1.0f)); // REFACTOR: matrices are not handled correctly
-    std::vector<glm::mat4> offsets(bones.size(), glm::mat4(1.0f));
-
+    // offsetMat maps mesh space to bone space, so a bone's bind-pose global transform (relative to the owner) is
+    // inverse(offsetMat). Its local transform is inverse(parentGlobal) * global. Bones are children of the owner,
+    // so root bones use their global transform directly and the owner's transform is applied on top.
+    std::vector<glm::mat4> globals(bones.size(), glm::mat4(1.0f));
     for (std::size_t i = 0; i < bones.size(); ++i)
     {
-		transforms[i] = bones[i].transformMat;
-
         if (IsInvertible(bones[i].offsetMat))
         {
-            offsets[i] = bones[i].offsetMat;
+            globals[i] = glm::inverse(bones[i].offsetMat);
         }
     }
 
-    // Parents are attached before their children are given transforms (which depend on the parent chain).
     for (std::size_t i = 0; i < bones.size(); ++i)
     {
         const int parent = parents[i];
         const std::shared_ptr<Node> &parentNode = parent >= 0 ? m_boneNodes[parent] : owner;
         parentNode->AddChild(m_boneNodes[i]);
 
-        glm::mat4 local = offsets[i];
+        glm::mat4 local = globals[i];
         if (parent >= 0)
         {
-            local = IsInvertible(offsets[parent]) ? glm::inverse(offsets[parent]) * offsets[i] : offsets[i];
+            local = glm::inverse(globals[parent]) * globals[i];
         }
 
-		// Set the bone's local transform to its bind pose in mesh space, which is the inverse of its offset matrix.
         m_boneNodes[i]->GetTransform().SetMatrix(local);
     }
 
@@ -236,11 +231,21 @@ void SkeletonComponent::StartImpl()
     SyncWithResource();
 }
 
+void SkeletonComponent::EditorUpdateImpl()
+{
+    if (m_debugDraw)
+    {
+        DrawDebugSkeleton();
+    }
+}
+
 void SkeletonComponent::RenderUIImpl()
 {
     using namespace ImGui;
 
     PushID(this);
+
+	Checkbox("Debug Draw", &m_debugDraw);
 
     if (BeginTable("SkeletonProps", 2, ImGuiTableFlags_SizingStretchProp))
     {
@@ -266,8 +271,6 @@ void SkeletonComponent::RenderUIImpl()
     }
 
     Text("Bones: %zu", m_boneNodes.size());
-
-    DrawDebugSkeleton();
 
     PopID();
 }

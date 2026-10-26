@@ -8,6 +8,9 @@
 #include <utility>
 #include <print>
 #include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <glm/glm.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -28,27 +31,33 @@ static constexpr double C_EPSILON = 0.00001;
 [[nodiscard]] static std::vector<std::byte> BuildVertexData(const aiScene *&p_meshData, const std::size_t &p_vertexByteSize)
 {
 	aiMesh *mesh = p_meshData->mMeshes[0];
-	std::vector<float> vertices{};
-	vertices.reserve(mesh->mNumVertices * p_vertexByteSize / sizeof(float));
+	std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
 	for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 	{
-		// Manually add the vertex data based of the defined vertex layout
-		vertices.push_back(mesh->mVertices[i].x);
-		vertices.push_back(mesh->mVertices[i].y);
-		vertices.push_back(mesh->mVertices[i].z);
-
-		vertices.push_back(mesh->mNormals[i].x);
-		vertices.push_back(mesh->mNormals[i].y);
-		vertices.push_back(mesh->mNormals[i].z);
-
-		vertices.push_back(mesh->mTextureCoords[0][i].x);
-		vertices.push_back(mesh->mTextureCoords[0][i].y);
+		// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
+		const float attributes[8] = {
+			mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z,
+			mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z,
+			mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y
+		};
+		std::memcpy(vertexData.data() + i * p_vertexByteSize, attributes, sizeof(attributes));
 	}
 
-	std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
-	std::memcpy(vertexData.data(), vertices.data(), mesh->mNumVertices * p_vertexByteSize);
-
 	return vertexData;
+}
+
+/// @brief Converts an Assimp matrix (row-major, a1..a4 is the first row) to a GLM matrix (column-major, m[column][row]).
+[[nodiscard]] static glm::mat4 ConvertMatrix(const aiMatrix4x4 &p_matrix)
+{
+	glm::mat4 result(1.0f);
+	for (int row = 0; row < 4; ++row)
+	{
+		for (int column = 0; column < 4; ++column)
+		{
+			result[column][row] = p_matrix[row][column];
+		}
+	}
+	return result;
 }
 
 /// @brief Helper function that constructs a index buffer.
@@ -193,64 +202,92 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 	SkinnedMeshResource skinnedMesh{};
 	aiMesh *mesh = meshData->mMeshes[0];
 
+	// Coordinate-space convention (see SkinnedMeshResource):
+	//  - Vertices are stored exactly as Assimp provides them (the mesh's own space, no node transform baked in).
+	//  - offsetMat is Assimp's mOffsetMatrix: mesh space -> bone space at bind pose.
+	//  - The bind pose of a bone in mesh space is inverse(offsetMat).
+	//  - transformMat is the bone's bind transform relative to its parent bone, accumulated over any
+	//    non-bone intermediary nodes. For root bones it is relative to the scene root.
 	std::unordered_map<std::string, int> boneMap{};
 
-	// Add all bones in the order of the mBones array. This ensures that the bone indices are consistent with the order of the bones in the mesh.
+	// Add all bones in the order of the mBones array. This ensures that the bone indices are consistent with the vertex bone indices.
 	for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
 	{
 		aiBone *bone = mesh->mBones[i];
 		boneMap[bone->mName.C_Str()] = skinnedMesh.AddBone(bone->mName.C_Str());
 	}
 
-	// Assume there is only one mesh in the scene for now. If there are multiple meshes, we will need to handle that case.
-	auto processNode = [&](aiNode *node, auto &processNodeRef) -> void {
-		// Check if the node is a bone
-		auto it = std::find_if(mesh->mBones, mesh->mBones + mesh->mNumBones, [&](aiBone *bone) {
-			return bone->mName == node->mName;
-		});
+	std::size_t boneIndicesOffset = 0, boneWeightsOffset = 0, attributeOffset = 0;
+	for (const auto &attribute : vertexLayout)
+	{
+		if (attribute.first == "BONE_INDICES") boneIndicesOffset = attributeOffset;
+		if (attribute.first == "BONE_WEIGHTS") boneWeightsOffset = attributeOffset;
+		attributeOffset += attribute.second;
+	}
 
-		int currentIndex = -1;
-		if (it != mesh->mBones + mesh->mNumBones)
+	// Fill the per-vertex bone indices and weights
+	{
+		const std::size_t maxInfluences = 4;
+		std::vector<std::size_t> influenceCount(mesh->mNumVertices, 0);
+		for (std::uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; boneIndex++)
 		{
-			aiMatrix4x4 t = node->mTransformation; // REFACTOR: matrices are not handled correctly
-			aiMatrix4x4 o = (*it)->mOffsetMatrix;
-
-			glm::mat4 tMat = {
-				t.a1, t.a2, t.a3, t.a4,
-				t.b1, t.b2, t.b3, t.b4,
-				t.c1, t.c2, t.c3, t.c4,
-				t.d1, t.d2, t.d3, t.d4,
-			};
-
-			glm::mat4 oMat = {
-				o.a1, o.a2, o.a3, o.a4,
-				o.b1, o.b2, o.b3, o.b4,
-				o.c1, o.c2, o.c3, o.c4,
-				o.d1, o.d2, o.d3, o.d4,
-			};
-
-			int parentIndex = -1;
-			if (node->mParent != nullptr)
+			const aiBone *bone = mesh->mBones[boneIndex];
+			for (std::uint32_t w = 0; w < bone->mNumWeights; w++)
 			{
-				auto parentIt = boneMap.find(node->mParent->mName.C_Str());
-				if (parentIt != boneMap.end())
+				const aiVertexWeight &weight = bone->mWeights[w];
+				if (weight.mVertexId >= mesh->mNumVertices || weight.mWeight <= 0.0f || influenceCount[weight.mVertexId] >= maxInfluences)
+				{
+					continue;
+				}
+
+				std::byte *vertexPtr = vertexData.data() + static_cast<std::size_t>(weight.mVertexId) * vertexByteSize;
+				const std::size_t slot = influenceCount[weight.mVertexId]++;
+				const int index = boneMap[bone->mName.C_Str()];
+				std::memcpy(vertexPtr + boneIndicesOffset + slot * sizeof(int), &index, sizeof(int));
+				std::memcpy(vertexPtr + boneWeightsOffset + slot * sizeof(float), &weight.mWeight, sizeof(float));
+			}
+		}
+	}
+
+	// Resolve the real parent bones from the scene node hierarchy.
+	for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
+	{
+		const aiBone *bone = mesh->mBones[i];
+		const glm::mat4 offset = ConvertMatrix(bone->mOffsetMatrix);
+		const int thisIndex = boneMap[bone->mName.C_Str()];
+
+		const aiNode *node = meshData->mRootNode ? meshData->mRootNode->FindNode(bone->mName) : nullptr;
+
+		int parentIndex = -1;
+		glm::mat4 transform(1.0f);
+
+		if (node != nullptr)
+		{
+			// Walk up to the closest ancestor that is a bone of this mesh, accumulating non-bone intermediary transforms.
+			transform = ConvertMatrix(node->mTransformation);
+			for (const aiNode *ancestor = node->mParent; ancestor != nullptr; ancestor = ancestor->mParent)
+			{
+				const auto parentIt = boneMap.find(ancestor->mName.C_Str());
+				if (parentIt != boneMap.end() && parentIt->second != thisIndex)
 				{
 					parentIndex = parentIt->second;
+					break;
 				}
+				transform = ConvertMatrix(ancestor->mTransformation) * transform;
 			}
-
-			int thisIndex = boneMap[node->mName.C_Str()];
-
-			skinnedMesh.UpdateBone(thisIndex, parentIndex, tMat, oMat);
 		}
-
-		for (std::uint32_t i = 0; i < node->mNumChildren; i++)
+		else
 		{
-			processNodeRef(node->mChildren[i], processNodeRef);
+			// Node is missing from the scene: derive the bind transform from the offset matrices instead (roots only).
+			const float det = glm::determinant(offset);
+			if (std::isfinite(det) && std::abs(det) > 1e-12f)
+			{
+				transform = glm::inverse(offset);
+			}
 		}
-	};
 
-	processNode(meshData->mRootNode, processNode);
+		skinnedMesh.UpdateBone(thisIndex, parentIndex, transform, offset);
+	}
 
 	skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 

@@ -149,3 +149,49 @@ TEST_F(SkeletonComponentTest, UnavailableResourceBuildsNothing)
     EXPECT_TRUE(node->GetChildren().empty());
     EXPECT_EQ(skeleton->GetSkinnedMeshGUID(), Droplet::C_INVALID_GUID);
 }
+
+TEST_F(SkeletonComponentTest, BindPoseGlobalsMatchInverseOffsetsWithRotationScaleAndOwnerTransform)
+{
+    const glm::mat4 rootBind = glm::translate(glm::mat4(1.0f), {1.0f, 2.0f, 3.0f}) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(40.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+    const glm::mat4 childBind = rootBind * glm::translate(glm::mat4(1.0f), {0.0f, 2.0f, 0.0f}) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(25.0f), glm::vec3(1.0f, 0.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), {2.0f, 2.0f, 2.0f});
+    const glm::mat4 otherRootBind = glm::translate(glm::mat4(1.0f), {-4.0f, 0.5f, 0.0f}) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(-70.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+    Droplet::SkinnedMeshResource mesh;
+    const int root = mesh.AddBone("Root", -1, glm::mat4(1.0f), glm::inverse(rootBind));
+    const int child = mesh.AddBone("Child", root, glm::mat4(1.0f), glm::inverse(childBind));
+    const int other = mesh.AddBone("Other", -1, glm::mat4(1.0f), glm::inverse(otherRootBind));
+
+    const glm::mat4 ownerMat = glm::translate(glm::mat4(1.0f), {10.0f, 0.0f, -5.0f}) *
+        glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    node->GetTransform().SetMatrix(ownerMat);
+
+    skeleton->BuildSkeleton(&mesh);
+
+    const glm::mat4 rootLocal = skeleton->GetBoneNode(root)->GetTransform().GetMatrix();
+    const glm::mat4 childLocal = skeleton->GetBoneNode(child)->GetTransform().GetMatrix();
+    ExpectMatNear(rootLocal, rootBind);
+    ExpectMatNear(rootLocal * childLocal, childBind);
+    ExpectMatNear(childLocal, glm::inverse(rootBind) * childBind);
+    ExpectMatNear(skeleton->GetBoneNode(other)->GetTransform().GetMatrix(), otherRootBind);
+
+    ExpectMatNear(skeleton->GetBoneNode(child)->GetTransform().GetMatrix(Transform::Space::World), ownerMat * childBind);
+    EXPECT_EQ(skeleton->GetBoneNode(other)->GetParent(), node);
+}
+
+TEST(SkinnedMeshResourceTest, BoneBoundsAreInBoneSpace)
+{
+    auto mesh = Droplet::SkinnedMeshResource::CreateFallback();
+
+    // Unit cube centered at the origin; a bone bound at (0, 5, 0) means bone-space vertices sit at y in [-5.5, -4.5]
+    const glm::mat4 bind = glm::translate(glm::mat4(1.0f), {0.0f, 5.0f, 0.0f});
+    mesh->UpdateBone(0, -1, bind, glm::inverse(bind));
+    mesh->GenerateBoneBounds();
+
+    const auto &bounds = mesh->GetBones()[0].bounds;
+    EXPECT_NEAR(bounds.center.y, -5.0f, 1e-3f);
+    EXPECT_NEAR(bounds.center.x, 0.0f, 1e-3f);
+}

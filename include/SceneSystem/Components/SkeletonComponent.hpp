@@ -60,6 +60,7 @@ namespace Droplet::Scene
 
     protected:
         void StartImpl() override;
+		void EditorUpdateImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
@@ -82,5 +83,7 @@ namespace Droplet::Scene
 
         /// @brief Generated Nodes, indexed by bone index.
         std::vector<std::shared_ptr<Node>> m_boneNodes;
+
+		bool m_debugDraw = false;
     };
 }

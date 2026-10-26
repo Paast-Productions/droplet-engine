@@ -15,6 +15,11 @@ namespace Droplet
 	/// Bone indices are expected to be stored as X ints, while bone weights are expected to be stored as X floats,
 	/// where X is the maximum number of bones that can influence a single vertex (almost always 4). 
 	/// The sum of all weights for a single vertex must equal 1.0f.
+	/// @par Coordinate-space convention
+	/// "Mesh space" is the space of the stored vertex positions. Bone offset matrices map mesh space to bone space at bind pose,
+	/// so a bone's bind-pose global transform in mesh space is inverse(offsetMat). transformMat is the bind transform relative
+	/// to the parent bone (global transform for root bones). Bone bounds are OBBs in bone space (offsetMat * vertexPosition).
+	/// All matrices are column-major GLM matrices acting on column vectors (parentGlobal * local = global).
 	class SkinnedMeshResource : public MeshResource
 	{
 	public:
