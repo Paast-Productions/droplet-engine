@@ -397,6 +397,7 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 				"': " + error.what());
 			}
 			instance->Reload(instanceLoadResult); 
+			instance->OnStart();
 		}
 	}
 
