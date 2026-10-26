@@ -12,6 +12,7 @@
 #include <cmath>
 #include <utility>
 #include <vector>
+#include <DefaultNodeBounds.hpp>
 
 using namespace Droplet::Scene;
 
@@ -156,6 +157,7 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
 
     for (std::size_t i = 0; i < bones.size(); ++i)
     {
+		const auto &bone = bones[i];
         const int parent = parents[i];
         const std::shared_ptr<Node> &parentNode = parent >= 0 ? m_boneNodes[parent] : owner;
         parentNode->AddChild(m_boneNodes[i]);
@@ -167,6 +169,10 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
         }
 
         m_boneNodes[i]->GetTransform().SetMatrix(local);
+
+		// Get the bone's bounds from the mesh resource and generate a default bounding box with it.
+        std::shared_ptr<DefaultNodeBounds> bounds = std::make_shared<DefaultNodeBounds>(bone.bounds);
+        m_boneNodes[i]->SetBounds(bounds);
     }
 
     m_builtFrom = p_mesh;
