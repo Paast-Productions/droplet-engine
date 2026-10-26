@@ -99,7 +99,7 @@ glm::mat4 Camera::GetProjectionMatrix() const
 	);
 }
 
-Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
+Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
 {
 	using namespace glm;
 
@@ -121,4 +121,57 @@ Droplet::Math::Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const
 	const vec3 direction = normalize(vec3(farPoint - nearPoint));
 
 	return Math::Ray(origin, direction);
+}
+
+Frustum Camera::ViewRectToWorldTile(const glm::vec4 &minMax) const
+{
+	using namespace glm;
+
+	glm::vec4 ndcMinMax{
+		(minMax.x - 0.5f) * 2.0f,
+		(minMax.y - 0.5f) * -2.0f,
+		(minMax.z - 0.5f) * 2.0f,
+		(minMax.w - 0.5f) * -2.0f
+	};
+
+	const mat4 invViewProj = inverse(GetProjectionMatrix() * GetViewMatrix());
+	constexpr float nearNdcZ = (GLM_CONFIG_CLIP_CONTROL & GLM_CLIP_CONTROL_ZO_BIT) ? 0.0f : -1.0f;
+	constexpr float farNdcZ = 1.0f;
+
+	const auto unproject = [&invViewProj](float x, float y, float z) {
+		vec4 point = invViewProj * vec4(x, y, z, 1.0f);
+		return vec3(point) / point.w;
+	};
+
+	const vec3 nearTopLeft =		unproject(ndcMinMax.x, ndcMinMax.w, nearNdcZ);
+	const vec3 nearTopRight =		unproject(ndcMinMax.z, ndcMinMax.w, nearNdcZ);
+	const vec3 nearBottomLeft = 	unproject(ndcMinMax.x, ndcMinMax.y, nearNdcZ);
+	const vec3 nearBottomRight =	unproject(ndcMinMax.z, ndcMinMax.y, nearNdcZ);
+	const vec3 farTopLeft =			unproject(ndcMinMax.x, ndcMinMax.w, farNdcZ);
+	const vec3 farTopRight =		unproject(ndcMinMax.z, ndcMinMax.w, farNdcZ);
+	const vec3 farBottomLeft =		unproject(ndcMinMax.x, ndcMinMax.y, farNdcZ);
+	const vec3 farBottomRight =		unproject(ndcMinMax.z, ndcMinMax.y, farNdcZ);
+	const vec3 center = (
+		nearTopLeft + nearTopRight + nearBottomLeft + nearBottomRight +
+		farTopLeft + farTopRight + farBottomLeft + farBottomRight
+		) / 8.0f;
+
+	const auto makeInwardPlane = [&center](const vec3 &a, const vec3 &b, const vec3 &c) {
+		Plane plane(a, b, c);
+		if (dot(plane.normal, center) - plane.distance < 0.0f)
+		{
+			plane.normal = -plane.normal;
+			plane.distance = -plane.distance;
+		}
+		return plane;
+	};
+
+	return Frustum(
+		makeInwardPlane(nearTopLeft, farTopLeft, farBottomLeft),
+		makeInwardPlane(farTopRight, nearTopRight, nearBottomRight),
+		makeInwardPlane(farTopRight, farTopLeft, nearTopLeft),
+		makeInwardPlane(farBottomLeft, farBottomRight, nearBottomRight),
+		makeInwardPlane(nearTopRight, nearTopLeft, nearBottomLeft),
+		makeInwardPlane(farTopLeft, farTopRight, farBottomRight)
+	);
 }

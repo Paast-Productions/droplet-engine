@@ -1,0 +1,51 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Fish",
+                "meshGUID": 13422515732780036519,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "WoodTexture",
+                "textureGUID": 1466059150086384494,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "data": null,
+            "id": 2,
+            "type": "PhysicsComponent"
+        }
+    ],
+    "id": 2,
+    "name": "gravityfish",
+    "transform": {
+        "position": [
+            -1.0616916418075562,
+            27.253847122192383,
+            2.952871799468994
+        ],
+        "rotation": [
+            0.5100550651550293,
+            0.859847903251648,
+            0.010705752298235893,
+            0.019769521430134773
+        ],
+        "scale": [
+            0.9999895691871643,
+            1.0000056028366089,
+            1.0000056028366089
+        ]
+    }
+}

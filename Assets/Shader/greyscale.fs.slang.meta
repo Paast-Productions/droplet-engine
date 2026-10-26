@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "BaseFS",
-            "guid": 3575449250532881688,
+            "displayName": "greyscale.fs",
+            "guid": 7119882261339692162,
             "loadFlags": 3,
             "loadSettings": {
                 "shader_type": 1
             },
-            "sourceName": "BaseFS",
+            "sourceName": "greyscale.fs",
             "type": 6
         }
     ]

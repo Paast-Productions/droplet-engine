@@ -144,6 +144,7 @@ void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 		"Move", [&](Transform &transform, const glm::vec3 &amount, OptSpace space) { transform.Move(amount, space.value_or(TSLocal)); },
 		"Rotate", [&](Transform &transform, const glm::quat &rotation, OptSpace space) { transform.Rotate(rotation, space.value_or(TSLocal)); },
 		"RotateEuler", [&](Transform &transform, const glm::vec3 &euler, OptSpace space) { transform.RotateEuler(euler, space.value_or(TSLocal)); },
+		"SlerpRotation", [&](Transform &transform, const glm::quat &target, float t, OptSpace space) { transform.SlerpRotation(target, t, space.value_or(TSLocal)); },
 		"MoveRelative", &Transform::MoveRelative,
 		"RotateEulerRelative", &Transform::RotateEulerRelative,
 		"AddScale", &Transform::AddScale,
@@ -277,6 +278,15 @@ void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 			"void",
 			{
 				{ "rotation", "Quat" },
+				{ "space", "TransformSpace", true }
+			}
+		},
+		{
+			"SlerpRotation",
+			"void",
+			{
+				{ "target", "Quat" },
+				{ "t", "number" },
 				{ "space", "TransformSpace", true }
 			}
 		},
