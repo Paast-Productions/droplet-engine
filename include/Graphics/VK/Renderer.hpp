@@ -60,7 +60,6 @@ namespace Droplet::Graphics
 		/// @brief Resizes the window
 		void ResizeWindow();
 		
-
 		SDL_Event				Event {};
 		inline static			SDL_InitState s_Init {};
 		
@@ -126,6 +125,5 @@ namespace Droplet::Graphics
 		std::uint32_t m_imGuiPoolSize { 0 };
 
 		VkFormat m_imGuiColorFormat {};
-
 	};
 }

@@ -1,0 +1,36 @@
+struct PushConstants
+{
+    float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
+    float32_t time;
+    uint32_t sampler;
+};
+
+[[vk::push_constant]] PushConstants pc;
+
+struct FSInput 
+{
+    float4 pos : SV_Position;
+    float4 wPos;
+    float4 fragNormal;
+    float2 fragTexCoord;
+};
+
+layout(set = 0, binding = 1) Sampler2D texture[];
+
+[shader("fragment")]
+float4 main(FSInput vertIn) : SV_TARGET 
+{
+    //Basic shading calculations
+    float3 color = texture[pc.sampler].Sample(float2(vertIn.fragTexCoord.x, -vertIn.fragTexCoord.y)).rgb;
+
+    float3 greyscale = dot(color, float3(0.299, 0.587, 0.114));
+
+    float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
+
+    float viewDotNormal = abs(dot(vertIn.fragNormal.xyz, camToFrag));
+    greyscale *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
+
+    return float4(greyscale, 1.0);
+}

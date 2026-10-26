@@ -14,8 +14,8 @@ namespace Droplet::Scene
 	public:
 		enum class Space
 		{
-			Local,
-			World
+			Local = 0,
+			World = 1
 		};
 
 		/// @brief Construct a new Transform object.

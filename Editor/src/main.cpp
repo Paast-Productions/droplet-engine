@@ -279,31 +279,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
                 ImGui::EndMenu();
             }
 
-			if (ImGui::BeginMenu("Edit"))
-			{
-				if (ImGui::BeginMenu("Manipulate"))
-				{
-					if (ImGui::BeginMenu("Space"))
-					{
-						if (ImGui::MenuItem("World"))
-						{
-							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::WORLD);
-						}
-
-						if (ImGui::MenuItem("Local"))
-						{
-							EditorConfig::StoreInt("manipulateSpace", ImGuizmo::LOCAL);
-						}
-
-						ImGui::EndMenu();
-					}
-
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndMenu();
-            }
-
             ImGui::EndMainMenuBar();
         }
 

@@ -280,7 +280,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
-
+	
 	for (const RenderData& data : p_renderData)
 	{
 
@@ -302,6 +302,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		PushConstantData pcData
 		{
 			.world = data.transform,
+			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
+			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
 			.time = Time::Get().GetRuntime(),
 			.textureID = texID
 		};
@@ -431,12 +433,17 @@ void Renderer::CreateSyncObjects()
 }
 
 void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData)
+
 {	
 	ZoneScoped;
 
+	auto &device = m_context.GetDevice();
+	auto &queue = m_context.GetQueue();
+
 	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
 	//while renderFinishedSemaphores is indexed by imageIndex
-	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
+	const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
+
 	if (fenceResult != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to wait for fence!");
@@ -527,6 +534,7 @@ void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData
 	};
 	
 	const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
+	
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
 	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)

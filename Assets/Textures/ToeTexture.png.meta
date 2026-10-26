@@ -2,7 +2,7 @@
     "resources": [
         {
             "displayName": "ToeTexture",
-            "guid": 10092509460976148419,
+            "guid": 10275265648664819601,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false

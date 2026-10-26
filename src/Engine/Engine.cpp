@@ -6,6 +6,7 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 #include <algorithm>
 
 using namespace Droplet;
