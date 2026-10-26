@@ -667,9 +667,8 @@ namespace Droplet::Scene
 		{
 			if (node != nullptr)
 			{
-				AABB aabb = node->GetBounds()->GetAABB();
-				aabb.center = node->GetTransform().GetPosition();
-				Graphics::Debug::DebugDraw::DrawBox(aabb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
+				OBB obb = node->GetBounds()->GetTransformedOBB(node->GetTransform().GetMatrix(Transform::Space::World));
+				Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
 			}
 		}
 		
