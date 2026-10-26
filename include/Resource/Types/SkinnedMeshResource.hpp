@@ -23,6 +23,7 @@ namespace Droplet
 		{
 			std::string		name = "Bone";
 			int				parentIndex = -1;	// -1: root
+			glm::mat4		transformMat{};		// Bone-space to parent-space at bind pose (default pose)
 			glm::mat4		offsetMat{};		// Mesh-space to bone-space at bind pose (default pose)
 			Math::OBB		bounds{};			// OBB in bone space at bind pose
 		};
@@ -34,18 +35,19 @@ namespace Droplet
 		/// @brief Adds a bone to the skinned mesh resource.
 		/// @param p_name The name of the bone.
 		/// @param p_parentIndex The index of the parent bone. -1 if the bone is a root bone.
-		/// @param p_offsetMat The offset matrix of the bone. This is the transformation from mesh space to bone space at bind pose.
+		/// @param p_transformMat The transformation matrix of the bone. This is the bone's transformation relative to its parent bone at bind pose (default pose).
+		/// @param p_offsetMat The offset matrix of the bone. This is the bone's transformation from mesh space to bone space at bind pose (default pose).
 		/// @return The index of the newly added bone.
 		/// @throws std::runtime_error If a bone with the same name already exists.
 		/// @throws std::out_of_range If the parent index is out of range.
-		[[nodiscard]] int AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat);
+		[[nodiscard]] int AddBone(const std::string &p_name, int p_parentIndex = -1, const glm::mat4 &p_transformMat = glm::mat4(1.0f), const glm::mat4 &p_offsetMat = glm::mat4(1.0f));
 
 		/// @brief Sets the bone data for the skinned mesh resource.
 		/// @param p_index The index of the bone to set.
-		/// @param p_name The name of the bone.
 		/// @param p_parentIndex The index of the parent bone. -1 if the bone is a root bone.
-		/// @param p_offsetMat The offset matrix of the bone. This is the transformation from mesh space to bone space at bind pose.
-		void UpdateBone(int p_index, const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat);
+		/// @param p_transformMat The transformation matrix of the bone. This is the bone's transformation relative to its parent bone at bind pose (default pose).
+		/// @param p_offsetMat The offset matrix of the bone. This is the bone's transformation from mesh space to bone space at bind pose (default pose).
+		void UpdateBone(int p_index, int p_parentIndex, const glm::mat4 &p_transformMat, const glm::mat4 &p_offsetMat);
 
 		/// @brief Validates that the vertex layout contains both bone indices and weights, and that they have the same size.
 		/// @return True if the vertex layout is valid for a skinned mesh, otherwise false.

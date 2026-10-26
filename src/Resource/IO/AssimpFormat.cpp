@@ -195,35 +195,15 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 
 	std::unordered_map<std::string, int> boneMap{};
 
-	// Old. Replace with node recursive search
-	/*for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
+	// Add all bones in the order of the mBones array. This ensures that the bone indices are consistent with the order of the bones in the mesh.
+	for (std::uint32_t i = 0; i < mesh->mNumBones; i++)
 	{
 		aiBone *bone = mesh->mBones[i];
-		aiNode *node = bone->mArmature;
-
-		int parentIndex = -1;
-		if (node->mParent != nullptr)
-		{
-			auto it = boneMap.find(node->mParent->mName.C_Str());
-			if (it != boneMap.end())
-			{
-				parentIndex = it->second;
-			}
-		}
-
-		aiMatrix4x4 o = node->mTransformation;
-		glm::mat4 offsetMat = {
-			o.a1, o.a2, o.a3, o.a4,
-			o.b1, o.b2, o.b3, o.b4,
-			o.c1, o.c2, o.c3, o.c4,
-			o.d1, o.d2, o.d3, o.d4,
-		};
-
-		boneMap[bone->mName.C_Str()] = skinnedMesh.AddBone(bone->mName.C_Str(), parentIndex, offsetMat);
-	}*/
+		boneMap[bone->mName.C_Str()] = skinnedMesh.AddBone(bone->mName.C_Str());
+	}
 
 	// Assume there is only one mesh in the scene for now. If there are multiple meshes, we will need to handle that case.
-	auto processNode = [&](aiNode *node, int parentIndex, auto &processNodeRef) -> void {
+	auto processNode = [&](aiNode *node, auto &processNodeRef) -> void {
 		// Check if the node is a bone
 		auto it = std::find_if(mesh->mBones, mesh->mBones + mesh->mNumBones, [&](aiBone *bone) {
 			return bone->mName == node->mName;
@@ -232,26 +212,45 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 		int currentIndex = -1;
 		if (it != mesh->mBones + mesh->mNumBones)
 		{
-			aiMatrix4x4 t = node->mTransformation;
+			aiMatrix4x4 t = node->mTransformation; // REFACTOR: matrices are not handled correctly
+			aiMatrix4x4 o = (*it)->mOffsetMatrix;
 
-			glm::mat4 mat = {
+			glm::mat4 tMat = {
 				t.a1, t.a2, t.a3, t.a4,
 				t.b1, t.b2, t.b3, t.b4,
 				t.c1, t.c2, t.c3, t.c4,
 				t.d1, t.d2, t.d3, t.d4,
 			};
 
-			currentIndex = skinnedMesh.AddBone(node->mName.C_Str(), parentIndex, mat);
-			boneMap[node->mName.C_Str()] = currentIndex;
+			glm::mat4 oMat = {
+				o.a1, o.a2, o.a3, o.a4,
+				o.b1, o.b2, o.b3, o.b4,
+				o.c1, o.c2, o.c3, o.c4,
+				o.d1, o.d2, o.d3, o.d4,
+			};
+
+			int parentIndex = -1;
+			if (node->mParent != nullptr)
+			{
+				auto parentIt = boneMap.find(node->mParent->mName.C_Str());
+				if (parentIt != boneMap.end())
+				{
+					parentIndex = parentIt->second;
+				}
+			}
+
+			int thisIndex = boneMap[node->mName.C_Str()];
+
+			skinnedMesh.UpdateBone(thisIndex, parentIndex, tMat, oMat);
 		}
 
 		for (std::uint32_t i = 0; i < node->mNumChildren; i++)
 		{
-			processNodeRef(node->mChildren[i], currentIndex != -1 ? currentIndex : parentIndex, processNodeRef);
+			processNodeRef(node->mChildren[i], processNodeRef);
 		}
 	};
 
-	processNode(meshData->mRootNode, -1, processNode);
+	processNode(meshData->mRootNode, processNode);
 
 	skinnedMesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 

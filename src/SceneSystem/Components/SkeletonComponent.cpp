@@ -17,6 +17,10 @@ using namespace Droplet::Scene;
 
 namespace
 {
+	/// @brief Checks if a 4x4 matrix is invertible by calculating its determinant.
+	/// This is used to determine if a bone's offset matrix is valid for computing its bind pose.
+	/// @param p_matrix The matrix to check.
+	/// @return True if the matrix is invertible, false otherwise.
     bool IsInvertible(const glm::mat4 &p_matrix)
     {
         const float det = glm::determinant(p_matrix);
@@ -140,12 +144,16 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
 
     // offsetMat maps mesh space to bone space, so the bone's bind pose in mesh space is its inverse.
     // The local transform is then inverse(parentGlobal) * global, i.e. parentOffset * inverse(offset).
-    std::vector<glm::mat4> globals(bones.size(), glm::mat4(1.0f));
+    std::vector<glm::mat4> transforms(bones.size(), glm::mat4(1.0f)); // REFACTOR: matrices are not handled correctly
+    std::vector<glm::mat4> offsets(bones.size(), glm::mat4(1.0f));
+
     for (std::size_t i = 0; i < bones.size(); ++i)
     {
+		transforms[i] = bones[i].transformMat;
+
         if (IsInvertible(bones[i].offsetMat))
         {
-            globals[i] = glm::inverse(bones[i].offsetMat);
+            offsets[i] = bones[i].offsetMat;
         }
     }
 
@@ -156,12 +164,13 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
         const std::shared_ptr<Node> &parentNode = parent >= 0 ? m_boneNodes[parent] : owner;
         parentNode->AddChild(m_boneNodes[i]);
 
-        glm::mat4 local = globals[i];
+        glm::mat4 local = offsets[i];
         if (parent >= 0)
         {
-            local = IsInvertible(globals[parent]) ? glm::inverse(globals[parent]) * globals[i] : globals[i];
+            local = IsInvertible(offsets[parent]) ? glm::inverse(offsets[parent]) * offsets[i] : offsets[i];
         }
 
+		// Set the bone's local transform to its bind pose in mesh space, which is the inverse of its offset matrix.
         m_boneNodes[i]->GetTransform().SetMatrix(local);
     }
 

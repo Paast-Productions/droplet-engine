@@ -90,7 +90,7 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     return fallback;
 }
 
-int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
+int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, const glm::mat4 &p_transformMat, const glm::mat4 &p_offsetMat)
 {
     ZoneScoped;
 
@@ -107,6 +107,7 @@ int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, c
     Bone bone {
         .name = p_name, 
         .parentIndex = p_parentIndex, 
+		.transformMat = p_transformMat,
         .offsetMat = p_offsetMat
     };
 
@@ -116,7 +117,7 @@ int SkinnedMeshResource::AddBone(const std::string &p_name, int p_parentIndex, c
     return m_boneMap[p_name];
 }
 
-void SkinnedMeshResource::UpdateBone(int p_index, const std::string &p_name, int p_parentIndex, const glm::mat4 &p_offsetMat)
+void SkinnedMeshResource::UpdateBone(int p_index, int p_parentIndex, const glm::mat4 &p_transformMat, const glm::mat4 &p_offsetMat)
 {
     ZoneScoped;
 
@@ -125,26 +126,15 @@ void SkinnedMeshResource::UpdateBone(int p_index, const std::string &p_name, int
         throw std::out_of_range("Bone index is out of range: " + std::to_string(p_index));
     }
 
-    if (m_boneMap.find(p_name) != m_boneMap.end() && m_boneMap[p_name] != p_index)
-    {
-        throw std::runtime_error("Bone with the same name already exists: " + p_name);
-    }
-
     if (p_parentIndex < -1 || p_parentIndex >= static_cast<int>(m_bones.size()))
     {
         throw std::out_of_range("Parent index is out of range: " + std::to_string(p_parentIndex));
     }
 
-    // Remove old name from map
-    m_boneMap.erase(m_bones[p_index].name);
-
     // Update bone data
-    m_bones[p_index].name = p_name;
     m_bones[p_index].parentIndex = p_parentIndex;
+	m_bones[p_index].transformMat = p_transformMat;
     m_bones[p_index].offsetMat = p_offsetMat;
-
-    // Add new name to map
-	m_boneMap[p_name] = p_index;
 }
 
 bool SkinnedMeshResource::ValidateSkinnedVertexLayout() const
