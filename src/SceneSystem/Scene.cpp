@@ -220,6 +220,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
+    m_octree.RemoveNode(p_node);
     m_roots.erase(it);
 }
 
