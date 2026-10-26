@@ -1,83 +1,108 @@
 #include <gtest/gtest.h>
-#include <chrono>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
-#include <thread>
-#include <atomic>
-
 #include "Debug/Logger.hpp"
-#include "Core/ThreadPool.hpp"
 
-using Droplet::ThreadPool;
-using Droplet::Debug::Logger;
+#include <iostream>
+#include <source_location>
+#include <string>
 
-class ThreadPoolLoggerTest : public ::testing::Test
+namespace Droplet::Debug
 {
-protected:
-    void SetUp() override
+    class LoggerTest : public ::testing::Test
     {
-        ThreadPool::GetInstance().Initialize();
-
-        Logger::GetInstance().ClearLog();
-    }
-
-    void TearDown() override
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-        ThreadPool::GetInstance().Shutdown();
-    }
-};
-
-TEST_F(ThreadPoolLoggerTest, SystemStartupLogging)
-{
-    Logger &log = Logger::GetInstance();
-	ThreadPool &pool = ThreadPool::GetInstance();
-    EXPECT_NO_THROW({
-        log.Log(Droplet::Debug::LogType::Info, "Systemet och trådpoolen är startade!");
-        log.Log(Droplet::Debug::LogType::Debug, "Testar loggning via trådpoolen");
-        });
-	log.WriteToJsonFile();
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-    EXPECT_TRUE(std::filesystem::exists("logger.json"));
-}
-
-TEST_F(ThreadPoolLoggerTest, FrameLoopSimulation)
-{
-    Logger &log = Logger::GetInstance();
-    ThreadPool &pool = ThreadPool::GetInstance();
-    constexpr int totalFrames = 50;
-    int processedFrames = 0;
-
-    for (int frameCounter = 1; frameCounter <= totalFrames; ++frameCounter)
-    {
-        processedFrames++;
-
-        log.Log(Droplet::Debug::LogType::Info, "Alexander är väldigt vacker - Frame: " + std::to_string(frameCounter));
-        if (frameCounter % 10 == 0)
+    protected:
+        void SetUp() override
         {
-			log.WriteToJsonFile();
+            testing::internal::CaptureStdout();
         }
+
+        std::string GetOutput()
+        {
+            return testing::internal::GetCapturedStdout();
+        }
+    };
+
+    TEST_F(LoggerTest, LogsErrorMessage)
+    {
+        Log(LogType::Error, "Something went wrong");
+
+        const std::string output = GetOutput();
+
+        EXPECT_NE(output.find("Status: Error"), std::string::npos);
+        EXPECT_NE(output.find("Message: Something went wrong"), std::string::npos);
     }
 
-    EXPECT_EQ(processedFrames, totalFrames);
-    EXPECT_TRUE(std::filesystem::exists("logger.json"));
-}
+    TEST_F(LoggerTest, LogsWarningMessage)
+    {
+        Log(LogType::Warning, "This is a warning");
 
-TEST_F(ThreadPoolLoggerTest, ClearLogRemovesFile)
-{
-    Logger &log = Logger::GetInstance();
-    ThreadPool &pool = ThreadPool::GetInstance();
-    log.Log(Droplet::Debug::LogType::Info, "Tillfälligt loggmeddelande");
-    log.WriteToJsonFile();
+        const std::string output = GetOutput();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        EXPECT_NE(output.find("Status: Warning"), std::string::npos);
+        EXPECT_NE(output.find("Message: This is a warning"), std::string::npos);
+    }
 
-    ASSERT_TRUE(std::filesystem::exists("logger.json"));
+    TEST_F(LoggerTest, LogsInfoMessage)
+    {
+        Log(LogType::Info, "Application started");
 
-    log.ClearLog();
+        const std::string output = GetOutput();
 
-    EXPECT_FALSE(std::filesystem::exists("logger.json"));
+        EXPECT_NE(output.find("Status: Info"), std::string::npos);
+        EXPECT_NE(output.find("Message: Application started"), std::string::npos);
+    }
+
+    TEST_F(LoggerTest, LogsDebugMessage)
+    {
+        Log(LogType::Debug, "Debugging application");
+
+        const std::string output = GetOutput();
+
+        EXPECT_NE(output.find("Status: Debug"), std::string::npos);
+        EXPECT_NE(output.find("Message: Debugging application"), std::string::npos);
+    }
+
+    TEST_F(LoggerTest, LogsFunctionName)
+    {
+        Log(LogType::Info, "Testing function name");
+
+        const std::string output = GetOutput();
+
+        EXPECT_NE(
+            output.find("LoggerTest_LogsFunctionName_Test"),
+            std::string::npos
+        );
+    }
+
+    TEST_F(LoggerTest, LogsFileName)
+    {
+        Log(LogType::Info, "Testing file name");
+
+        const std::string output = GetOutput();
+
+        EXPECT_NE(output.find(__FILE__), std::string::npos);
+    }
+
+    TEST_F(LoggerTest, LogsLineNumber)
+    {
+        const auto location = std::source_location::current();
+
+        Log(LogType::Info, "Testing line number", location);
+
+        const std::string output = GetOutput();
+
+        const std::string expected =
+            "The line number: " + std::to_string(location.line());
+
+        EXPECT_NE(output.find(expected), std::string::npos);
+    }
+
+    TEST_F(LoggerTest, LogsEmptyMessage)
+    {
+        Log(LogType::Info, "");
+
+        const std::string output = GetOutput();
+
+        EXPECT_NE(output.find("Status: Info"), std::string::npos);
+        EXPECT_NE(output.find("Message: "), std::string::npos);
+    }
 }
