@@ -99,6 +99,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Register engine components
 	RegisterComponents();
+
+	// Script Init
+	ScriptSystem::Get().Initialize(m_sceneManager);
 }
 
 Droplet::Engine::~Engine()
@@ -193,7 +196,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	
 	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
-	
 	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{

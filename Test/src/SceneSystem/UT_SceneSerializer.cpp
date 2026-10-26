@@ -2,7 +2,7 @@
 
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
-#include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/Serialization/SceneSerializer.hpp"
 #include "Core/IoManager.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
