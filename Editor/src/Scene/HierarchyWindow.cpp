@@ -364,7 +364,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("New Scene"))
     {
         std::string name = "New Scene";
-
+        m_editorContext->GetActiveScene().get()->SetActive(false);
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
         std::strncpy(fileName, name.c_str(), sizeof(name) - 1);
@@ -400,6 +400,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
                 std::string filePath = scenesDirectory.string() + std::string(selectedScene);
 
+                m_editorContext->GetActiveScene().get()->SetActive(false);
                 m_editorContext->LoadFromFile(filePath);
                 m_editorContext->SetActiveScene(sceneName);
                 std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);

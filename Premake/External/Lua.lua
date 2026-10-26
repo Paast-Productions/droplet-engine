@@ -5,7 +5,7 @@ project "Lua"
 
     warnings "Off"
 
-    local moduleDirectory = externalPath .. "/Lua"
+    local moduleDirectory = externalPath .. "/LuaExt"
     local includePath = targetBuildPath .. "/External/include"
 
     targetdir(targetBuildPath .. "/External/lib")

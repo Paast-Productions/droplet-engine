@@ -34,32 +34,27 @@ OBB MeshNodeBounds::GetTransformedOBB(const glm::mat4x4 &p_worldMat) const
 
 IntersectType MeshNodeBounds::Intersect(const Plane &p_plane, const glm::mat4x4 &p_worldMat) const
 {
-	OBB obb = GetOBB(*this, p_worldMat);
-	return Intersects(obb, p_plane);
+	return Intersects(GetTransformedOBB(p_worldMat), p_plane);
 }
 
 IntersectType MeshNodeBounds::Intersect(const AABB &p_aabb, const glm::mat4x4 &p_worldMat) const
 {
-	OBB obb = GetOBB(*this, p_worldMat);
-	return Intersects(obb, p_aabb);
+	return Intersects(p_aabb, GetTransformedOBB(p_worldMat));
 }
 
 IntersectType MeshNodeBounds::Intersect(const OBB &p_obb, const glm::mat4x4 &p_worldMat) const
 {
-	OBB obb = GetOBB(*this, p_worldMat);
-	return Intersects(obb, p_obb);
+	return Intersects(p_obb, GetTransformedOBB(p_worldMat));
 }
 
 IntersectType MeshNodeBounds::Intersect(const Sphere &p_sphere, const glm::mat4x4 &p_worldMat) const
 {
-	OBB obb = GetOBB(*this, p_worldMat);
-	return Intersects(obb, p_sphere);
+	return Intersects(p_sphere, GetTransformedOBB(p_worldMat));
 }
 
 IntersectType MeshNodeBounds::Intersect(const Frustum &p_frustum, const glm::mat4x4 &p_worldMat) const
 {
-	OBB obb = GetOBB(*this, p_worldMat);
-	return Intersects(obb, p_frustum);
+	return Intersects(p_frustum, GetTransformedOBB(p_worldMat));
 }
 
 RayHit MeshNodeBounds::Raycast(const Ray &p_ray, const glm::mat4x4 &p_worldMat) const

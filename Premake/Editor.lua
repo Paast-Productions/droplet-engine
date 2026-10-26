@@ -43,6 +43,13 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
+        filter { "system:windows" }
+          files 
+          { 
+             "../Editor/resources.rc", 
+             "../Editor/engine-icon.ico" 
+          }
+
     else
 
         includedirs

@@ -4,8 +4,8 @@
     "components": [
         {
             "data": {
-                "fs": 3575449250532881688,
-                "fsName": "BaseFS",
+                "fs": 3658838734074951198,
+                "fsName": "BlueTint.FS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "Toe.001",
@@ -16,8 +16,8 @@
                 "tesName": "",
                 "textureDisplayName": "ToeTexture",
                 "textureGUID": 10275265648664819601,
-                "vs": 17704871794447121608,
-                "vsName": "BaseVS"
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
             },
             "id": 1,
             "type": "MeshComponent"
@@ -28,7 +28,7 @@
             "type": "CameraComponent"
         }
     ],
-    "id": 1,
+    "id": 2,
     "name": "Toe",
     "transform": {
         "position": [
