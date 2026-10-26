@@ -78,3 +78,47 @@ std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const //
 
     return selectedNodes;
 }
+
+std::vector<std::weak_ptr<Droplet::Scene::Node>> Droplet::Editor::InteractionState::GetSelectedRootNodes() const
+{
+    std::vector<std::weak_ptr<Node>> result;
+
+    for (auto &node : m_selectedNodes)
+    {
+        const auto n = node.lock();
+        if (!n)
+        {
+            continue;
+        }
+
+        bool ancestorSelected = false;
+        for (auto parent = n->GetParent(); parent; parent = parent->GetParent())
+        {
+			bool found = false;
+			for (const auto &selectedNode : m_selectedNodes)
+			{
+				const auto selected = selectedNode.lock();
+				if (selected == parent)
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+			{
+				ancestorSelected = true;
+				break;
+			}
+        }
+
+        if (ancestorSelected)
+        {
+            continue;
+        }
+
+        result.push_back(node);
+    }
+
+    return result;
+}

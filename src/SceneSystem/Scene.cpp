@@ -289,9 +289,9 @@ void Scene::PrintOctreeTree()
     std::cout << m_octree.ToGraphvizTree();
 }
 
-std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit)
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 {
-	return m_octree.GetNodeFromRaycast(p_ray, p_hit);
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes);
 }
 
 std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)

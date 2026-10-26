@@ -218,6 +218,7 @@ void SceneViewWindow::RenderImpl()
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
+
 	// If mouse is released and viewSize is changed, Update the camera and renderTarget
 	if (input.MouseReleased(Mouse::LMB))
 	{	
@@ -337,6 +338,95 @@ void SceneViewWindow::RenderImpl()
 			}
 
 			input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
+		}
+
+		// If press mouse button 5 with node selected, move node to viewed surface
+		if (input.MousePressed(Mouse::MB5))
+		{
+			const ImVec2 viewSize = { camViewRectMax.x - camViewRectMin.x, camViewRectMax.y - camViewRectMin.y };
+			const ImVec2 mousePos = ImGui::GetIO().MousePos;
+
+			const glm::vec2 mousePosInView = glm::vec2(
+				(mousePos.x - camViewRectMin.x) / viewSize.x,
+				(mousePos.y - camViewRectMin.y) / viewSize.y
+			);
+
+			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+			InteractionState &interactionState = m_editorContext->GetInteractionState();
+
+			if (interactionState.HasSelection())
+			{
+				glm::vec3 putPos;
+
+				std::vector<std::weak_ptr<DNode>> ignoreNodes;
+				ignoreNodes.reserve(interactionState.GetSelectionCount());
+
+				for (const auto &node : interactionState.GetSelectedNodes())
+				{
+					ignoreNodes.push_back(node);
+				}
+
+				Math::RayHit hit{};
+				Math::Ray viewRay = camera.GetViewRay(mousePosInView);
+				auto hitNode = scene->RaycastNode(viewRay, &hit, &ignoreNodes);
+
+				if (hit.didHit)
+				{
+					putPos = hit.point;
+
+					DebugDraw::DrawRay(
+						hit.point, 
+						hit.normal * 0.5f,
+						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 
+						false
+					);
+
+					DebugDraw::DrawCircle(
+						hit.point,
+						hit.normal,
+						0.075f,
+						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+						12,
+						false,
+						true
+					);
+
+					DebugDraw::DrawCircle(
+						hit.point,
+						hit.normal,
+						0.1f,
+						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+						16,
+						false,
+						true
+					);
+
+					DebugDraw::DrawCircle(
+						hit.point,
+						hit.normal,
+						0.125f,
+						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+						18,
+						false,
+						true
+					);
+				}
+				else
+				{
+					putPos = viewRay.pos + viewRay.dir * 5.0f; // Arbitrary distance if no hit
+				}
+
+				for (const auto &node : interactionState.GetSelectedRootNodes())
+				{
+					const auto n = node.lock();
+					if (!n)
+					{
+						continue;
+					}
+
+					n->GetTransform().SetPosition(putPos, DTransform::Space::World);
+				}
+			}
 		}
 	}
 
@@ -479,7 +569,7 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-	
+		
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
 	// Render play/pause button
