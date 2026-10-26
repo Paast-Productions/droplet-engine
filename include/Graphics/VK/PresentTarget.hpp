@@ -20,7 +20,15 @@ namespace Droplet::Graphics::VK
             m_imageView(p_nullptr),
             m_depthBuffer(p_nullptr) {}
         
-        PresentTarget(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice,  vk::Image p_presentImage, vk::Format p_surfaceFormat, vk::Extent2D p_extent);
+        /// @brief Constructs a present target
+        /// @param p_allocator VMA allocator
+        /// @param p_device Vulkan device
+        /// @param p_physicalDevice Vulkan physical device
+        /// @param p_presentImage Swapchain present image
+        /// @param p_surfaceFormat Swapchain present image format
+        /// @param p_width Width of present image in pixels
+        /// @param p_height Height of present image in pixels
+        PresentTarget(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::Image p_presentImage, vk::Format p_surfaceFormat, std::uint32_t p_width, std::uint32_t p_height);
         
         PresentTarget(const PresentTarget &p_other) = delete;
         PresentTarget &operator=(const PresentTarget &p_other) = delete;
@@ -55,12 +63,24 @@ namespace Droplet::Graphics::VK
                     m_depthBuffer == p_other.m_depthBuffer);
         }
         
+        /// @brief Getter function for the depth image
+        /// @returns Depth image
         [[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthBuffer.GetImage(); }
         
+        /// @brief Getter function for the present image view
+        /// @returns Present image view
         [[nodiscard]] const vk::raii::ImageView &GetPresentImageView() const { return m_imageView.Get(); }
+        
+        /// @brief Getter function for the depth image view
+        /// @returns Depth image view
         [[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthBuffer.GetView(); }
         
+        /// @brief Getter function for the depth image format
+        /// @returns Depth image format
         [[nodiscard]] vk::Format GetDepthFormat() const { return m_depthBuffer.GetFormat(); }
+        
+        /// @brief Getter function for the image extent
+        /// @returns Image extent
         [[nodiscard]] vk::Extent2D GetExtent() const { return m_extent; }
         
     

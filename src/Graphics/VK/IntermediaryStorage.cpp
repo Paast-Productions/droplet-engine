@@ -24,16 +24,13 @@ void IntermediaryStorage::Initialise(const Context &p_context)
 
 void IntermediaryStorage::Shutdown()
 {
-    // Reverse deinit (Order matters)
-    for (const vk::DescriptorSet &p_descriptorSet : m_imguiTextures)
-    {
-        ImGui_ImplVulkan_RemoveTexture(p_descriptorSet);
-    }
-    m_imguiTextures.clear();
+    m_imGuiTextures.clear();
     
-    m_textureSampler = nullptr;
+    m_textureSampler = { nullptr };
     
     // STORAGE
+    m_presentTargets.clear();
+    m_uniformBuffers.clear();
     m_renderTargets.clear();
     m_viewMap.clear();
     m_imageMap.clear();
@@ -44,7 +41,6 @@ void IntermediaryStorage::Shutdown()
     
     // VULKAN
     m_descriptorSets.clear();
-    m_textureSampler = { nullptr };
     m_descriptorPool = { nullptr };
     m_allocator = { nullptr };
     m_context = { nullptr };
@@ -62,9 +58,23 @@ std::uint32_t IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std
     return static_cast<std::uint32_t>(m_renderTargets.size() - 1);
 }
 
+std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height)
+{
+    m_presentTargets.emplace_back(
+        m_allocator.Get(),
+        m_context->GetDevice(),
+        m_context->GetPhysicalDevice(),
+        p_presentImage,
+        p_format,
+        p_width,
+        p_height);
+    
+    return static_cast<std::uint32_t>(m_presentTargets.size() - 1);
+}
+
 std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
 {
-    m_imguiTextures.emplace_back(
+    m_imGuiTextures.emplace_back(
         ImGui_ImplVulkan_AddTexture(
             *m_textureSampler.Get(),
             *p_renderTarget.GetColorImageView(),
@@ -72,14 +82,14 @@ std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_rend
         )
     );
     
-    return static_cast<std::uint32_t>(m_imguiTextures.size() - 1);
+    return static_cast<std::uint32_t>(m_imGuiTextures.size() - 1);
 }
 
 void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
 {
     m_context->GetDevice().waitIdle();
     
-    ImGui_ImplVulkan_RemoveTexture(m_imguiTextures.at(p_textureIndex));
+    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_textureIndex));
     
     m_renderTargets.emplace(m_renderTargets.begin() + p_targetIndex,
         m_allocator.Get(),
@@ -88,7 +98,7 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, u
         p_width,
         p_height);
     
-    m_imguiTextures.emplace(m_imguiTextures.begin() + p_textureIndex,
+    m_imGuiTextures.emplace(m_imGuiTextures.begin() + p_textureIndex,
         ImGui_ImplVulkan_AddTexture(
             *m_textureSampler.Get(),
             *m_renderTargets.at(p_targetIndex).GetColorImageView(),

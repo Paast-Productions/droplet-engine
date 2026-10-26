@@ -491,7 +491,7 @@ void DebugDraw::Initialize(
 		};
 
 		const vk::PipelineRasterizationLineStateCreateInfo lineRasterizer {
-			.lineRasterizationMode = vk::LineRasterizationModeEXT::eRectangularSmooth,
+			.lineRasterizationMode = vk::LineRasterizationModeEXT::eBresenham,
 			.stippledLineEnable = vk::False
 		};
 
@@ -538,7 +538,7 @@ void DebugDraw::Initialize(
 			.dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
 			.pDynamicStates = dynamicStates.data()
 		};
-
+		
 		vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfo {
 			{
 				.stageCount = static_cast<std::uint32_t>(stages.size()),

@@ -11,7 +11,9 @@
 
 #include <SDL3/SDL.h>
 
+#include <Graphics/VK/IntermediaryStorage.hpp>
 #include <Graphics/VK/PresentTarget.hpp>
+
 
 namespace Droplet::Graphics::VK
 {
@@ -34,7 +36,7 @@ namespace Droplet::Graphics::VK
 		Swapchain(Swapchain &&p_other) noexcept
 		{
 			std::swap(m_swapchain, p_other.m_swapchain);
-			std::swap(m_targets, p_other.m_targets);
+			std::swap(m_targetIndices, p_other.m_targetIndices);
 			std::swap(m_surfaceFormat, p_other.m_surfaceFormat);
 		}
 		
@@ -46,7 +48,7 @@ namespace Droplet::Graphics::VK
 			}
 			
 			std::swap(m_swapchain, p_other.m_swapchain);
-			std::swap(m_targets, p_other.m_targets);
+			std::swap(m_targetIndices, p_other.m_targetIndices);
 			std::swap(m_surfaceFormat, p_other.m_surfaceFormat);
 			
 			return *this;
@@ -64,34 +66,58 @@ namespace Droplet::Graphics::VK
 		
 		[[nodiscard]] bool operator==(const Swapchain &p_other) const
 		{
-			return (m_swapchain == p_other.m_swapchain			&&
-					m_targets == p_other.m_targets				&&
+			return (m_swapchain == p_other.m_swapchain				&&
+					m_targetIndices == p_other.m_targetIndices		&&
 					m_surfaceFormat == p_other.m_surfaceFormat);
 		}
 		
-		void AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, uint64_t
-		                           p_timeout);
-		[[nodiscard]] std::uint32_t GetCurrentIndex() const { return m_currentIndex; }
-		[[nodiscard]] std::uint32_t GetNumImages() const { return m_targets.size(); }
+		/// @brief Acquires the image of the next available presentation image
+		/// @param p_device Vulkan device
+		/// @param p_semaphore Vulkan semaphore
+		/// @param p_fence Vulkan fence
+		/// @param p_timeout Time in nanoseconds before swapchain stops waiting for next available image
+		/// @returns Index of the next available image
+		[[nodiscard]] std::uint32_t AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, uint64_t p_timeout);
+		
+		/// @brief Getter function for the current image index
+		/// @returns Current image index
+		[[nodiscard]] std::uint32_t GetCurrentImageIndex() const { return m_currentIndex; }
+		
+		/// @brief Getter function for the total amount of swapchain images
+		/// @returns Number of swapchain images
+		[[nodiscard]] std::uint32_t GetNumImages() const { return m_targetIndices.size(); }
 		
 		/// @brief Swapchain getter
 		/// @return Reference to the swapchain
 		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const { return m_swapchain; }
 		
+		/// @brief Getter function for the current present image
+		/// @returns Present image
 		[[nodiscard]] vk::Image GetPresentImage() const { return m_swapchain.getImages().at(m_currentIndex); }
-		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_targets.at(m_currentIndex).GetDepthImage(); }
 		
-		[[nodiscard]] const vk::raii::ImageView &GetPresentImageView() const { return m_targets.at(m_currentIndex).GetPresentImageView(); }
-		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_targets.at(m_currentIndex).GetDepthImageView(); }
+		/// @brief Getter function for the current depth image
+		/// @returns Depth image
+		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthImage(); }
 		
-		[[nodiscard]] vk::Format GetDepthFormat() const { return m_targets.at(m_currentIndex).GetDepthFormat(); }
-		[[nodiscard]] vk::Extent2D GetExtent() const { return m_targets.at(m_currentIndex).GetExtent(); } 
+		/// @brief Getter function for the current present image view
+		/// @returns Present image view
+		[[nodiscard]] const vk::raii::ImageView &GetPresentImageView() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetPresentImageView(); }
+		
+		/// @brief Getter function for the current depth image view
+		/// @returns Depth image view
+		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthImageView(); }
+		
+		/// @brief Getter function for the current depth image format
+		/// @returns Depth image format
+		[[nodiscard]] vk::Format GetDepthFormat() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthFormat(); }
+		
+		/// @brief Getter function for the current present image extent
+		/// @returns Image extent
+		[[nodiscard]] vk::Extent2D GetExtent() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetExtent(); } 
 		
 		/// @brief Surface format getter
 		/// @return Reference to the swapchain surface format
 		[[nodiscard]] vk::SurfaceFormatKHR GetSurfaceFormat() const { return m_surfaceFormat; }
-		
-
 
 	private:
 
@@ -117,7 +143,7 @@ namespace Droplet::Graphics::VK
 		[[nodiscard]] vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> &p_availablePresentModes);
 
 		vk::raii::SwapchainKHR			m_swapchain { nullptr };
-		std::vector<PresentTarget>		m_targets {}; 
+		std::vector<std::uint32_t>		m_targetIndices {}; 
 		vk::SurfaceFormatKHR			m_surfaceFormat {};
 		
 		std::uint32_t m_currentIndex { 0 };

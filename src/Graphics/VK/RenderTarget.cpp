@@ -6,8 +6,8 @@ RenderTarget::RenderTarget(
 	const vma::raii::Allocator &p_allocator,
 	const vk::raii::Device &p_device,
 	const vk::raii::PhysicalDevice &p_physicalDevice,
-	uint32_t p_width,
-	uint32_t p_height) : 
+	const std::uint32_t p_width,
+	const std::uint32_t p_height) : 
 		m_extent(p_width, p_height),
 		m_colourImage(p_allocator, p_width, p_height, vk::Format::eR8G8B8A8Unorm, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled, vk::MemoryPropertyFlagBits::eDeviceLocal),
 		m_colourView(p_device, m_colourImage.Get()),

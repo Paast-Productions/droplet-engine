@@ -5,6 +5,7 @@
 #include <vulkan/vulkan.h>
 
 #include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/VK/PresentTarget.hpp>
 #include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/DescriptorPool.hpp>
@@ -143,6 +144,8 @@ namespace Droplet::Graphics::VK
     class IntermediaryStorage
     {
     public:
+        /// @brief Getter function for the global Intermediary Storage Instance
+        /// @returns IntermediaryStorage Instance
         [[nodiscard]] static IntermediaryStorage &GetInstance()
         {
             static IntermediaryStorage instance {};
@@ -154,10 +157,60 @@ namespace Droplet::Graphics::VK
         IntermediaryStorage(IntermediaryStorage &&p_other) noexcept = delete;
         IntermediaryStorage& operator=(IntermediaryStorage &&p_other) noexcept = delete;
         
-        [[nodiscard]] std::uint32_t CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
-        [[nodiscard]] RenderTarget &GetRenderTargetAt(std::uint32_t p_index) { return m_renderTargets.at(p_index); }
+        /// @brief Creates Vulkan buffer with the inputted resource type
+        /// @param p_data Data to store in the buffer
+        /// @param p_type Descriptor type of the buffer resource
+        /// @returns Index of the buffer resource
+        template <typename T>
+        [[nodiscard]] std::uint32_t CreateBufferResource(const T &p_data, vk::DescriptorType p_type);
         
+        /// @brief Updates buffer at specified index
+        /// @param p_index Index of the buffer
+        /// @param p_data Data to update with
+        /// @param p_type Descriptor type of the buffer resource
+        template <typename T>
+        void UpdateBufferResourceAt(std::uint32_t p_index, const T &p_data, vk::DescriptorType p_type);
+        
+        /// @brief Creates a render target
+        /// @param p_width Width of the render target in pixels
+        /// @param p_height Height of the render target in pixels
+        /// @returns Index to the render target
+        [[nodiscard]] std::uint32_t CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
+        
+        /// @brief Getter function for a render target at a specified index
+        /// @param p_index Index of the render target
+        /// @returns The render target
+        [[nodiscard]] RenderTarget &GetRenderTargetAt(const std::uint32_t p_index) { return m_renderTargets.at(p_index); }
+        
+        /// @brief Creates a swapchain present target
+        /// @param p_presentImage Presentation image of the swapchain
+        /// @param p_format Format of the image
+        /// @param p_width Width of the presentation image in pixels
+        /// @param p_height Height of the presentation image in pixels
+        /// @returns Index to present target
+        /// @note Should only be used when creating the swapchain
+        [[nodiscard]] std::uint32_t CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height);
+        
+        /// @brief Getter function for a present target at a specified index
+        /// @param p_index Index of the present target
+        /// @returns The present target
+        [[nodiscard]] PresentTarget &GetPresentTargetAt(const std::uint32_t p_index) { return m_presentTargets.at(p_index); }
+        
+        /// @brief Creates an ImGui texture based on a render target
+        /// @param p_renderTarget The render target to base the texture off of
+        /// @returns Index to ImGui Texture
         [[nodiscard]] std::uint32_t CreateImGuiTexture(const RenderTarget &p_renderTarget);
+        
+        /// @brief Getter function for an ImGui texture at a specified index
+        /// @param p_index Index of the ImGui texture
+        /// @returns Reference to the texture in the form of a descriptor set
+        [[nodiscard]] vk::DescriptorSet &GetImGuiTextureAt(const std::uint32_t p_index) { return m_imGuiTextures.at(p_index); }
+        
+        /// @brief Recreates render target and ImGui texture and updates them with new params
+        /// @param p_targetIndex Index of the render target
+        /// @param p_textureIndex Index of the texture
+        /// @param p_width Width of the new render target in pixels
+        /// @param p_height Height of the new render target in pixels
         void UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height);
         
     private:
@@ -167,9 +220,16 @@ namespace Droplet::Graphics::VK
         IntermediaryStorage() = default;
         ~IntermediaryStorage() = default;
         
+        /// @brief Initialise the intermediary storage layer
+        /// @param p_context Vulkan Context
         void Initialise(const Context &p_context);
+        
+        /// @brief Shutdown and clear all vulkan memory allocations
         void Shutdown();
         
+        /// @brief Getter function for the VMA allocator
+        /// @returns VMA allocator
+        /// @note Use carefully as misuse will result in memory leaks or crashes
         [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
         
         // TODO: <REFACTOR>
@@ -177,16 +237,21 @@ namespace Droplet::Graphics::VK
         //      New function for vk::raii::PipelineLayout needs to be created
         // --   Refactor Get functions to have similar handling of invalid GUIDs
         
+        /// @brief Gets (and possibly creates uncached) Vulkan pipelines 
+        /// @param p_renderData Render data with shader information
+        /// @param p_device Vulkan device
+        /// @param p_physicalDevice Vulkan physical device
+        /// @param p_surfaceFormat Vulkan surface format
+        /// @returns Vulkan Pipeline
         [[nodiscard]] const Pipeline &GetPipeline(RenderData p_renderData, const vk::raii::Device& p_device, const vk::raii::PhysicalDevice& p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
         
         // TODO: </REFACTOR>
             
+        /// TODO: Write doxygen (Lio)
         [[nodiscard]] const Mesh &GetMesh(RenderData p_renderData);
 
+        /// TODO: Write doxygen (Lio)
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result);
-        
-        // HACK: Temporary getter to be removed
-        [[nodiscard]] DescriptorSet &GetDescriptorSet(const vk::DescriptorType p_descriptorType) { return m_descriptorSets.at(m_descriptorSetIndexMap.at(p_descriptorType)); }
         
         [[nodiscard]] std::vector<vk::DescriptorSet> GetDescriptorSets() const; 
         
@@ -214,12 +279,15 @@ namespace Droplet::Graphics::VK
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
         std::vector<RenderTarget> m_renderTargets {};
+        std::vector<UniformBuffer> m_uniformBuffers {};
+        std::vector<PresentTarget> m_presentTargets {};
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
         
         // ImGui
-        std::vector<vk::DescriptorSet> m_imguiTextures {};
+        std::vector<vk::DescriptorSet> m_imGuiTextures {};
     };
 }
 
+#include "IntermediaryStorage.inl"

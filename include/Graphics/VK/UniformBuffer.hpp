@@ -72,13 +72,8 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const UniformBuffer &p_other) const
 		{
-			if (m_buffer == p_other.m_buffer				&&
-				m_bufferMaxSize == p_other.m_bufferMaxSize)
-			{
-				return true;
-			}
-			
-			return false;
+			return (m_buffer == p_other.m_buffer				&&
+				m_bufferMaxSize == p_other.m_bufferMaxSize);
 		}
 		
 		/// @brief Updates the buffer

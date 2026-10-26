@@ -225,7 +225,7 @@ void SceneViewWindow::RenderImpl()
 		EditorShortcuts::ProcessSceneViewKeyShortcuts();
 	}
 
-	ImTextureRef camViewTexture = m_textureIndex;
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));

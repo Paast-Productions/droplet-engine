@@ -113,10 +113,11 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 		
-		VK::UniformBuffer m_vpBuffer { nullptr };
-
-		vk::Result m_latestResult;
-		bool m_framebufferResized = false;
+		std::uint32_t m_vpBufferIndex { INVALID_INDEX };
+		
+		vk::Result m_latestResult {};
+		bool m_framebufferResized { false };
+		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 
 		
 		// DEBUG
 		vk::raii::DescriptorPool m_debugDescriptorPool { nullptr };

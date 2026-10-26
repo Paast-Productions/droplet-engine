@@ -4,15 +4,17 @@
 
 using namespace Droplet::Graphics::VK;
 
-void Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, uint64_t
-                                      p_timeout)
+std::uint32_t Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore,
+                                          const vk::raii::Fence &p_fence, uint64_t
+                                          p_timeout)
 {
 	vk::AcquireNextImageInfoKHR nextImageInfo 
 	{
 		.swapchain = m_swapchain,	
 		.timeout = p_timeout,
 		.semaphore = p_semaphore,
-		.fence = p_fence
+		.fence = p_fence,
+		.deviceMask = 1
 	};
 	
 	vk::ResultValue<std::uint32_t> resVal = p_device.acquireNextImage2KHR(nextImageInfo);
@@ -25,6 +27,7 @@ void Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk
 	}
 	
 	m_currentIndex = resVal.value;
+	return m_currentIndex;
 }
 
 vk::SurfaceFormatKHR Swapchain::ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &p_availableFormats)
@@ -78,7 +81,7 @@ Swapchain::Swapchain(const vma::raii::Allocator &p_allocator, const vk::raii::De
 	
 	for (const vk::Image &image : m_swapchain.getImages())
 	{
-		m_targets.emplace_back(p_allocator, p_device, p_physicalDevice, image, m_surfaceFormat.format, extent);
+		m_targetIndices.push_back(IntermediaryStorage::GetInstance().CreatePresentTarget(image, m_surfaceFormat.format, extent.width, extent.height));
 	}
 }
 
