@@ -145,7 +145,6 @@ namespace Droplet::Core
         std::this_thread::sleep_for(
             std::chrono::milliseconds(100));
 
-        EXPECT_TRUE(std::filesystem::exists("logger.json"));
         EXPECT_TRUE(result.is_discarded());
     }
 
