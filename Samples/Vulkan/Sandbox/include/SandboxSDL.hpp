@@ -42,6 +42,8 @@ namespace Droplet::Sandbox
         /// Return the stored window instance
         SDL_Window* GetWindow();
         void SetResizeCallback(const std::function<void()>& callback);
+        void SetMinimizeCallback(const std::function<void()>& callback);
+        void SetRestoreCallback(const std::function<void()>& callback);
         
         /// Poll for events and sets running to false if a quit message was caught or ESCAPE was pressed.
         void PollEvents(bool* running);
@@ -52,6 +54,8 @@ namespace Droplet::Sandbox
     private:
         SDL_Window* m_window{ nullptr };
         std::function<void()> m_resizeCallback;
+        std::function<void()> m_minimizeCallback;
+        std::function<void()> m_restoreCallback;
         Config m_cfg;
     };
 }

@@ -13,7 +13,10 @@ project "Vulkan-Sandbox"
     -- EXPLICITLY ADD WHICH FILES ARE RELEVANT
     files {
         rootPath .. "/Samples/Vulkan/Sandbox/include/*.hpp",
-        rootPath .. "/Samples/Vulkan/Sandbox/*.cpp"
+        rootPath .. "/Samples/Vulkan/Sandbox/include/Synchronization/*.hpp",
+        rootPath .. "/Samples/Vulkan/Sandbox/*.cpp",
+        rootPath .. "/Samples/Vulkan/Sandbox/Synchronization/*.cpp",
+        rootPath .. "/Samples/Vulkan/Sandbox/shaders/*.slang"
     }
 
     if _TARGET_OS == "windows" then

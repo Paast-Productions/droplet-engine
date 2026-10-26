@@ -40,7 +40,10 @@ namespace Droplet::Sandbox
         void CreateGraphicsPipeline();
 
         // sets a flag to recreate the swapchain
-        void OnResize() { m_frameBufferResized = true; };
+        void OnResize() { m_frameBufferResized = true; }
+        void OnRestore() { m_frameBufferMinimized = false; }
+        void OnMinimize() { m_frameBufferMinimized = true; }
+        
 
         std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
             vk::DeviceSize size,
@@ -183,6 +186,7 @@ namespace Droplet::Sandbox
         // keeping a reference to the window instance for convenience
         SDL_Window* m_windowRef{nullptr};
         bool m_frameBufferResized{false};
+        bool m_frameBufferMinimized{false};
 
 #ifndef NDEBUG
         vk::raii::DebugUtilsMessengerEXT m_debugMessenger{nullptr};

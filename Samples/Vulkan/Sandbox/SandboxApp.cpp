@@ -13,11 +13,14 @@ SandboxApp::SandboxApp(SandboxAppConfig cfg)
     m_renderer(m_sdl.GetWindow()),
     m_camera({0.0f, 0.0f, -5.0f})
 {
-    const fs::path rootPath = fs::current_path() / "../../../Assets";
-
-    ResourceManager::GetInstance().Initialize(rootPath);
-    
+    // window callback
     m_sdl.SetResizeCallback([this]() { m_renderer.OnResize(); });
+    m_sdl.SetMinimizeCallback([this]() { m_renderer.OnMinimize(); });
+    m_sdl.SetRestoreCallback([this](){m_renderer.OnRestore(); });
+    
+    // resource man
+    const fs::path rootPath = fs::current_path() / "../../../Assets";
+    ResourceManager::GetInstance().Initialize(rootPath);
 }
 
 void SandboxApp::Run()

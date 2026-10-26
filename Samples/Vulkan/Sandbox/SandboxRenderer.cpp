@@ -1097,8 +1097,11 @@ void SandboxRenderer::CleanupSwapchain()
 }
 
 void SandboxRenderer::RecreateSwapchain()
-{
-    // TODO: solve minimized
+{  
+    while (m_frameBufferMinimized)
+    {
+        // do nothing
+    }
     // int width = 0, height = 0;
     // SDL_GetWindowSizeInPixels(m_windowRef, &width, &height);
     // while ((width == 0 || height == 0)/* && check if window is closing*/) 

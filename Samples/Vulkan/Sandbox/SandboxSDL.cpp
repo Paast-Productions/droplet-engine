@@ -36,6 +36,16 @@ void SandboxSDL::SetResizeCallback(const std::function<void()>& callback)
     m_resizeCallback = callback;
 }
 
+void SandboxSDL::SetMinimizeCallback(const std::function<void()>& callback)
+{
+    m_minimizeCallback = callback;
+}
+
+void SandboxSDL::SetRestoreCallback(const std::function<void()>& callback)
+{
+    m_restoreCallback = callback;
+}
+
 void SandboxSDL::PollEvents(bool* running)
 {
     SDL_Event event{};
@@ -50,6 +60,14 @@ void SandboxSDL::PollEvents(bool* running)
         if (event.type == SDL_EVENT_WINDOW_RESIZED)
         {
             m_resizeCallback();
+        }
+        if (event.type == SDL_EVENT_WINDOW_MINIMIZED)
+        {
+            m_minimizeCallback();
+        }
+        if (event.type == SDL_EVENT_WINDOW_RESTORED)
+        {
+            m_restoreCallback();
         }
     }
 }
