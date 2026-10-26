@@ -289,9 +289,9 @@ void Scene::PrintOctreeTree()
     std::cout << m_octree.ToGraphvizTree();
 }
 
-std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit)
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 {
-	return m_octree.GetNodeFromRaycast(p_ray, p_hit);
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes);
 }
 
 std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
@@ -321,10 +321,10 @@ Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
     return m_physics.get();
 }
 
-void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
+void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    serializer.DeserializeLonsesomeNode(json, *this);
+    serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
 }

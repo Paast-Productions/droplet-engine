@@ -78,3 +78,95 @@ std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const //
 
     return selectedNodes;
 }
+
+std::vector<std::weak_ptr<Node>> InteractionState::GetSelectedRootNodes() const
+{
+    std::vector<std::weak_ptr<Node>> result;
+
+    for (auto &node : m_selectedNodes)
+    {
+        const auto n = node.lock();
+        if (!n)
+        {
+            continue;
+        }
+
+        bool ancestorSelected = false;
+        for (auto parent = n->GetParent(); parent; parent = parent->GetParent())
+        {
+			bool found = false;
+			for (const auto &selectedNode : m_selectedNodes)
+			{
+				const auto selected = selectedNode.lock();
+				if (selected == parent)
+				{
+					found = true;
+					break;
+				}
+			}
+
+			if (found)
+			{
+				ancestorSelected = true;
+				break;
+			}
+        }
+
+        if (ancestorSelected)
+        {
+            continue;
+        }
+
+        result.push_back(node);
+    }
+
+    return result;
+}
+
+std::vector<std::weak_ptr<Node>> InteractionState::GetSelectedNodesAndChildren() const
+{
+	std::vector<std::weak_ptr<Node>> result;
+
+	for (const auto &selectedNode : GetSelectedRootNodes())
+	{
+		if (const auto node = selectedNode.lock())
+		{
+			if (!node)
+			{
+				continue;
+			}
+
+			// Skip if the node is already in the result (to avoid duplicates)
+			if (std::find_if(result.begin(), result.end(), [&](const std::weak_ptr<Node> &n) { return n.lock() == node; }) != result.end())
+			{
+                continue;
+			}
+
+			result.push_back(node);
+
+			// Add all children of the selected node
+			std::function<void(const std::shared_ptr<Node> &)> addChildren = [&](const std::shared_ptr<Node> &parent) {
+				for (const auto &child : parent->GetChildren())
+				{
+					if (!child)
+					{
+						continue;
+					}
+
+					// Add the child if it's not already in the result
+					if (std::find_if(result.begin(), result.end(), [&](const std::weak_ptr<Node> &n) { return n.lock() == child; }) != result.end())
+					{
+                        continue;
+					}
+
+					result.push_back(child);
+                    addChildren(child);
+				}
+			};
+
+			addChildren(node);
+		}
+	}
+
+	return result;
+}
