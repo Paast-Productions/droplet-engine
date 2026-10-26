@@ -30,8 +30,17 @@ void Droplet::Scene::AudioEmitterComponent::RenderUIImpl()
 		ImGui::DragFloat3("position for 3D audio", &m_position.x, 0.1f);
 
 		ImGui::TreePop();
+
+		if (ImGui::Button("play"))
+		{
+			//TODO: Get the audio emitter from the audio system and play it
+		}
+		if (ImGui::Button("stop"))
+		{
+			//TODO: Get the audio emitter from the audio system and stop it
+		}
+		ImGui::Checkbox("Is Looping", &m_looping);
 	}
-	ImGui::Checkbox("Is Looping", &m_looping);
 }
 
 nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()

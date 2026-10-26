@@ -1,7 +1,6 @@
 #pragma once
 #include <SceneSystem/Component.hpp>
 
-
 namespace Droplet::Scene 
 {
 	/// @brief Right now just outline class to start work with later
