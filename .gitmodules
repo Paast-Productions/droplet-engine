@@ -43,6 +43,3 @@
 [submodule "External/Droplet-ImGuizmo"]
 	path = External/Droplet-ImGuizmo
 	url = git@github.com:Paast-Productions/Droplet-ImGuizmo.git
-[submodule "External/Lua"]
-	path = External/Lua
-	url = git@github.com:lua/lua.git
