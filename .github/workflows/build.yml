@@ -41,15 +41,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Cache Vulkan SDK
-        id: cache-vulkan
-        uses: actions/cache@v6
-        with:
-          path: C:\VulkanSDK\${{ env.VULKAN_SDK_VERSION }}
-          key: vulkan-${{ runner.os }}-${{ env.VULKAN_SDK_VERSION }}-v1
-
       - name: Install Vulkan SDK
-        if: steps.cache-vulkan.outputs.cache-hit != 'true'
         shell: pwsh
         run: |
           $version = "${{ env.VULKAN_SDK_VERSION }}"
@@ -75,11 +67,6 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             throw "Vulkan SDK installation failed."
           }
-          
-      - name: Configure Vulkan SDK
-        shell: pwsh
-        run: |
-          $sdkPath = "C:\VulkanSDK\${{ env.VULKAN_SDK_VERSION }}"
           
           if (-not (Test-Path "$sdkPath\Lib\SDL3.lib")) {
             throw "SDL3.lib was not found in the Vulkan SDK."
@@ -138,27 +125,7 @@ jobs:
         with:
           msbuild-architecture: 'x64'
           vs-version: '[18.0, 19.0)'
-
-      # Generate a file used to set the cache key - this has no impact on the build itself
-      - name: Generate fingerprint for external cache
-        shell: pwsh
-        run: |
-          git submodule status --recursive |
-            Out-File .submodule-status -Encoding utf8
-
-      # Generate a cache of the built externals, to reduce build times.
-      - name: Cache externals
-        uses: actions/cache@v6
-        with:
-          path: |
-            Build/Obj/Assimp
-            Build/Obj/Dalia
-            Build/Obj/GoogleTest
-            Build/Obj/Jolt
-            Build/Obj/Lua
-            Build/Target/External
-          key: externals-v1-${{ runner.os }}-debug-${{ hashFiles('.submodule-status', 'Premake/External/**') }}
-
+          
       - name: Generate Visual Studio solution
         run: premake5 vs2026
 
