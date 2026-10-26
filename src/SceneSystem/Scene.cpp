@@ -51,6 +51,14 @@ void Scene::Update()
         }
     }
 
+    if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->EditorUpdate();
+        }
+    }
+
     m_octree.Update();
 }
 

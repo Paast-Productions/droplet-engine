@@ -59,6 +59,17 @@ void Component::FixedUpdate()
 	}
 }
 
+void Component::EditorUpdate()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (IsActive())
+	{
+		EditorUpdateImpl();
+	}
+}
+
 void Component::RenderUI()
 {
 	ZoneScoped;

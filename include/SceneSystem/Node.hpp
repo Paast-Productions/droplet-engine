@@ -82,6 +82,9 @@ namespace Droplet::Scene
         /// @brief Updates the Node, its Components, and its children in fixed time.
         void FixedUpdate();
 
+		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
+		void EditorUpdate();
+
         /// @brief Renders the Node.
         ///
         /// @note Currently unused and does not perform any rendering.
