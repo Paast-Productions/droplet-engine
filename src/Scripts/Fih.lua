@@ -216,6 +216,7 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
+    local scene = SceneManagerInstance:GetScene("MainScene")
 
 	print("New Fih")
 	trans = self:GetTransform()

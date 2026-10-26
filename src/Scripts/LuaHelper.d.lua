@@ -1503,3 +1503,16 @@ end
 function DebugDraw.DrawIcon(icon, position, size, color, depth)
 end
 
+---@class SceneManager
+SceneManager = {}
+
+---@return string
+function SceneManager:GetName()
+    return ""
+end
+
+---@return Transform
+function SceneManager:GetTransform()
+    return nil
+end
+
