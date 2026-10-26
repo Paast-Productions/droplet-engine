@@ -396,7 +396,7 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 						"Failed to reload script '" + p_scriptFile +
 				"': " + error.what());
 			}
-			instance->Reload(instanceLoadResult); 
+			instance->Reload(instanceLoadResult);
 			instance->OnStart();
 		}
 	}
