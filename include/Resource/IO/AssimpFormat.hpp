@@ -23,7 +23,7 @@ namespace Droplet::IO::AssimpFormat
 	/// @param p_assetPath Path to the asset file storing the skinned mesh.
 	/// @param p_loadSettings Mesh specific import settings.
 	/// @return A unique pointer with the stored skinned mesh data.
-	/// @throw std::runtime_error If Assimp failed to read the asset file or if the asset does not contain any meshes or animations.
+	/// @throw std::runtime_error If Assimp failed to read the asset file or if the asset does not contain any meshes or if the first mesh has no bones.
 	[[nodiscard]] std::unique_ptr<SkinnedMeshResource> LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings);
 
 	/// @brief Loads an animation from an asset file.

@@ -7,8 +7,8 @@ local trans = nil
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
-local targetRadius = 3.0
-local targetAcceptanceRadius = 0.2
+local targetRadius = 6.0
+local targetAcceptanceRadius = 0.5
 
 local maxMoveSpeed = 3.0
 local maxTurnSpeed = 1.0
@@ -216,6 +216,7 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
+    local scene = SceneManagerInstance:GetScene("MainScene")
 
 	print("New Fih")
 	trans = self:GetTransform()
@@ -235,6 +236,13 @@ function OnUpdate(dt)
 	UpdateVelocity(dt)
 
 	ApplyVelocity(dt)
+
+    --local sphere = Sphere.new(targetPoint, targetAcceptanceRadius)
+    --DebugDraw.DrawSphere(sphere, Vec4.new(1.0, 1.0, 0.0, 0.3), 2, nil)
+
+    --local fishPos = trans:GetPosition(TransformSpace.World)
+    --local movement = GLM.V3MulF(trans:GetForward(TransformSpace.World), moveSpeed)
+    --DebugDraw.DrawCurveQuadratic(fishPos, movement, targetPoint, Vec4.new(1.0, 0.0, 1.0, 0.7), 32)
 
     tracy.ZoneEnd()
 end
@@ -258,6 +266,64 @@ function RenderUI()
 	ImGui.Text("Current Turn Speed: (" .. turnSpeedX .. ", " .. turnSpeedY .. ")")
 	ImGui.Text("Current Target Point: (" .. targetPoint.x .. ", " .. targetPoint.y .. ", " .. targetPoint.z .. ")")
 	ImGui.Text("Distance to Target: " .. GLM.V3Length(GLM.V3Sub(trans:GetPosition(TransformSpace.World), targetPoint)))
+
+    if trans then
+        local fishPos = trans:GetPosition(TransformSpace.World)
+        local movement = GLM.V3MulF(trans:GetForward(TransformSpace.World), moveSpeed)
+        local distToTarget = GLM.V3Length(GLM.V3Sub(targetPoint, fishPos))
+
+        DebugDraw.DrawCurveQuadratic(
+            fishPos, 
+            GLM.V3MulF(movement, distToTarget), 
+            targetPoint, 
+            Vec4.new(1.0, 0.0, 1.0, 0.7), 
+            16,
+            true
+        )
+
+        local ray = Ray.new(fishPos, movement)
+        DebugDraw.DrawRay(
+            ray, 
+            Vec4.new(1.0, 1.0, 0.0, 0.3), 
+            true
+        )
+
+        local acceptedRadiusSphere = Sphere.new(targetPoint, targetAcceptanceRadius)
+        DebugDraw.DrawSphere(
+            acceptedRadiusSphere, 
+            Vec4.new(0.0, 1.0, 0.0, 0.2), 
+            1, 
+            true
+        )
+
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(1.0, 0.0, 0.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
+            true
+        )
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(0.0, 1.0, 0.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
+            true
+        )
+        DebugDraw.DrawCircle(
+            orbitPoint,
+            Vec3.new(0.0, 0.0, 1.0),
+            targetRadius,
+            Vec4.new(1.0, 1.0, 1.0, 0.3),
+            24,
+            true,
+            true
+        )
+    end
 
     tracy.ZoneEnd()
 end
