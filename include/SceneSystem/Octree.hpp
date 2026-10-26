@@ -152,7 +152,7 @@ namespace Droplet::Scene
 			const std::string &p_label, const std::string &p_color);
 
 		static constexpr std::uint8_t C_MAX_NODES = 16;
-		static constexpr std::uint8_t C_MAX_DEPTH = 4;
+		static constexpr std::uint8_t C_MAX_DEPTH = 2; // HACK: Reduced to lower lag for now. We must optimize this octree implementation to allow for deeper trees.
 
 		struct TreeNode
 		{

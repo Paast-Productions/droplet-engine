@@ -132,12 +132,16 @@ namespace Droplet::Scene
 
 		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
 		{
-			if (node == nullptr || node->GetBounds() == nullptr)
+			if (node == nullptr)
 			{
 				continue;
 			}
 
-			if (node->GetBounds()->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
+			const NodeBounds *bounds = node->GetBounds();
+
+			assert(bounds != nullptr && "Node bounds are null. This should never happen.");
+
+			if (bounds->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
 			{
 				p_nodes.push_back(node);
 			}
