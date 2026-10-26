@@ -538,11 +538,15 @@ void Renderer::Draw(const Camera &p_camera, std::vector<RenderData> p_renderData
 		}
 		
 		m_context.GetDevice().waitIdle();
+		m_swapchain = nullptr;
+		IntermediaryStorage::GetInstance().ClearPresentTargets();
 		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	}
-	
-	// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-	assert(result == vk::Result::eSuccess);
+	else
+	{
+		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
+		assert(result == vk::Result::eSuccess);
+	}
 	
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }

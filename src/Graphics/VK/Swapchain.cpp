@@ -75,7 +75,7 @@ Swapchain::Swapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalD
 		.preTransform = surfaceCapabilities.currentTransform,
 		.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque,
 		.presentMode = ChooseSwapPresentMode(p_physicalDevice.getSurfacePresentModesKHR(*p_swapSurface)),
-		.clipped = true 
+		.clipped = true, 
 	};
 	
 	try
