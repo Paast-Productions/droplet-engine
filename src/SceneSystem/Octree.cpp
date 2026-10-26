@@ -11,6 +11,8 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <Graphics/DebugDraw.hpp>
+#include <GameInput.hpp>
 
 using namespace Droplet::Math;
 
@@ -58,6 +60,11 @@ namespace Droplet::Scene
 		{
 			RemoveNode(dirty);
 			AddNode(dirty);
+		}
+				
+		if (GameInput::Get().KeyToggle(Key::KeyB))
+		{
+			Render();
 		}
 	}
 
@@ -201,6 +208,11 @@ namespace Droplet::Scene
 		GenerateGraphvizLinksTree(toReturn, m_root, counter);
 
 		return toReturn + "}\n";
+	}
+	
+	void Octree::Render()
+	{
+		RenderOctant(m_root);
 	}
 
 	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes) // TODO: Make weak pointer
@@ -640,5 +652,30 @@ namespace Droplet::Scene
 			", pos=\"" + std::to_string(centerX * ppi) + ',' + std::to_string(centerY * ppi) + "!\"]\n";
 
 		return toReturn;
+	}
+	
+	void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode)
+	{
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+		
+		Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
+		
+		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
+		{
+			if (node != nullptr)
+			{
+				AABB aabb = node->GetBounds()->GetAABB();
+				aabb.center = node->GetTransform().GetPosition();
+				Graphics::Debug::DebugDraw::DrawBox(aabb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
+			}
+		}
+		
+		for (const std::unique_ptr<TreeNode> &treeNode : p_treeNode->children)
+		{
+			RenderOctant(treeNode);
+		}
 	}
 }

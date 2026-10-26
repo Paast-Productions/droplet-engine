@@ -69,6 +69,8 @@ namespace Droplet::Scene
 		/// @note It is recommended to use dot graphviz engine for this
 		/// @return The string of graphviz code generated
 		std::string ToGraphvizTree();
+		
+		void Render();
 
 	private:
 		struct TreeNode;
@@ -150,6 +152,8 @@ namespace Droplet::Scene
 		/// @return A string of graphviz code representing the AABB
 		std::string BoundingBoxToGraphviz(const Math::AABB &p_aabb, const std::string &p_nodeName,
 			const std::string &p_label, const std::string &p_color);
+		
+		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_NODES = 16;
 		static constexpr std::uint8_t C_MAX_DEPTH = 4;
