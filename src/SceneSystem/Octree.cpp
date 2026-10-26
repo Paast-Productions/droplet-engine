@@ -64,23 +64,21 @@ namespace Droplet::Scene
 				continue;
 			}
 			
-			const glm::mat4x4 matrix = node->GetTransform().GetMatrix(Transform::Space::World);
-			const Math::AABB worldBounds = Math::AABB::Transform(node->GetBounds()->GetAABB(), matrix);
+			Math::AABB nodeBounds = node->GetBounds()->GetAABB();
+			nodeBounds.center = node->GetTransform().GetPosition();
 			
 			// If the actual world bounds remain inside the previously inserted fat AABB,
 			// the tree's placements are still conservative and no reinsertion is needed.
 			if (m_placements.contains(node.get()))
 			{
-				continue;
+				if (Intersects(m_placements[node.get()], nodeBounds) == IntersectType::Contains)
+				{
+					continue;
+				}
 			}
-			
-			if (node->GetBounds()->Intersect(worldBounds, matrix) == IntersectType::Contains)
-			{
-				continue;
-			}
-			
+
 			RemoveFromTreeNode(node, m_root);
-			const AABB fatBounds = AABB(worldBounds.center, worldBounds.extents + C_FAT_AABB_MARGIN);
+			const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
 			m_placements[node.get()] = fatBounds;
 			AddToTreeNode(node, m_root, fatBounds);
 		}
@@ -100,10 +98,9 @@ namespace Droplet::Scene
 			return;
 		}
 		
-		const glm::mat4x4 matrix = p_node->GetTransform().GetMatrix(Transform::Space::World);
-		const Math::AABB worldBounds = Math::AABB::Transform(p_node->GetBounds()->GetAABB(), matrix);
+		Math::AABB nodeBounds = p_node->GetBounds()->GetAABB();
 
-		const AABB fatBounds = AABB(worldBounds.center, worldBounds.extents + C_FAT_AABB_MARGIN);
+		const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
 		m_placements[p_node.get()] = fatBounds;
 		AddToTreeNode(p_node, m_root, fatBounds);
 	}
@@ -796,11 +793,15 @@ namespace Droplet::Scene
 		Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
 		
 		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
-		{
-			if (node != nullptr)
+		{			if (node != nullptr)
 			{
 				OBB obb = node->GetBounds()->GetTransformedOBB(node->GetTransform().GetMatrix(Transform::Space::World));
 				Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
+				
+				if (m_placements.contains(node.get()))
+				{
+					Graphics::Debug::DebugDraw::DrawBox(m_placements[node.get()], glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				}
 			}
 		}
 		
