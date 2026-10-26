@@ -221,7 +221,7 @@ namespace Droplet::Scene
 
         [[nodiscard]] Physics *GetPhysics();
         
-        void LoadNodeFromFile( const std::string &p_filepath);
+        void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
     private:
         std::string m_name;

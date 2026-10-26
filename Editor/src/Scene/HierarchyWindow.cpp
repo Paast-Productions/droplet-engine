@@ -71,7 +71,7 @@ void HierarchyWindow::RenderImpl()
     auto scene = m_editorContext->GetActiveScene();
     if (ImGui::IsWindowFocused())
     {
-        EditorShortcuts::ProcessSceneViewKeyShortcuts();
+        EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
     }
 
     if (!scene)
@@ -94,6 +94,7 @@ void HierarchyWindow::RenderImpl()
     static std::vector < std::string> nodeFiles;
     static std::string selectedNode;
     const std::filesystem::path nodesDirectory = ROOT_PATH "/GameData/Prefabs/";
+    glm::vec3 cameraPos = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward();
 
     if (ImGui::Button("Add Node from file"))
     {

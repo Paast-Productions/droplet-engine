@@ -270,7 +270,7 @@ void SceneViewWindow::RenderImpl()
 	// Process shortcut key presses
 	if (ImGui::IsWindowFocused() && !m_cameraLookToggled)
 	{
-		EditorShortcuts::ProcessSceneViewKeyShortcuts();
+		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
 	ImTextureRef camViewTexture = m_textureDescriptorSet;
