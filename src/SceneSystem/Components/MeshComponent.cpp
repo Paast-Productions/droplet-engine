@@ -7,133 +7,22 @@
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <string>
-#include <resource/meta/MetaUtils.hpp>
+#include <Editor/ResourceSlot.hpp>
 
 // imgui helper function
-
-namespace
-{
-    bool ResourceSlot(
-        const char *p_label,
-        Droplet::GUID p_current,
-        const std::string &p_currentDisplayName,
-        Droplet::GUID &p_outGUID,
-        std::string &p_outDisplayName,
-        Droplet::ResourceType p_expectedType)
-    {
-        using namespace ImGui;
-        using namespace Droplet::Editor;
-
-        bool changed = false;
-
-        PushID(p_label);
-        TableNextRow();
-        TableNextColumn();
-        AlignTextToFramePadding();
-        TextUnformatted(p_label);
-        TableNextColumn();
-
-        const float clearW = GetFrameHeight();
-        const float gap = GetStyle().ItemSpacing.x;
-
-        const std::string text = p_current != Droplet::C_INVALID_GUID
-            ? p_currentDisplayName
-            : "None (drop resource here)";
-
-        if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
-        {
-            OpenPopup("pick");
-        }
-
-        if (BeginDragDropTarget())
-        {
-            if (const ImGuiPayload *pl =
-                AcceptDragDropPayload(PAYLOAD_RESOURCE.data()))
-            {
-                if (pl->DataSize == sizeof(const Droplet::MetaEntry *))
-                {
-                    const auto *entryPtr =
-                        *static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    if (entryPtr->type == p_expectedType)
-                    {
-                        // Access the complete entry.
-                        p_outGUID = entryPtr->guid;
-                        p_outDisplayName = entryPtr->displayName;
-                        changed = true;
-                    }
-                    else
-                    {
-
-                    }
-                }
-            }
-            if (const ImGuiPayload *pl =
-                AcceptDragDropPayload(PAYLOAD_ASSET.data()))
-            {
-                if (pl->DataSize % sizeof(const Droplet::MetaEntry *) == 0)
-                {
-                    const auto *entries =
-                        static_cast<const Droplet::MetaEntry *const *>(pl->Data);
-
-                    const std::size_t count =
-                        pl->DataSize / sizeof(const Droplet::MetaEntry *);
-
-                    for (std::size_t i = 0; i < count; ++i)
-                    {
-                        const Droplet::MetaEntry *entry = entries[i];
-
-                        if (entry && entry->type == p_expectedType)
-                        {
-                            p_outGUID = entry->guid;
-                            p_outDisplayName = entry->displayName;
-                            changed = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            EndDragDropTarget();
-        }
-
-        if (p_current != Droplet::C_INVALID_GUID && IsItemHovered())
-        {
-            SetTooltip(
-                "GUID: %llu",
-                static_cast<unsigned long long>(p_current));
-        }
-
-        SameLine();
-        BeginDisabled(p_current == Droplet::C_INVALID_GUID);
-
-        if (Button("X", ImVec2(clearW, clearW)))
-        {
-            p_outGUID = Droplet::C_INVALID_GUID;
-            p_outDisplayName.clear();
-            changed = true;
-        }
-
-        EndDisabled();
-
-        PopID();
-        return changed;
-    }
-}
 
 using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-    SetRenderable();
 }
 
 void MeshComponent::StartImpl()
 {
-
+    SetRenderable();
 }
 
-void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
+void MeshComponent::UpdateImpl()
 {
     //TODO: will be inplemted later when the mesh system is implemented
 }
@@ -141,6 +30,7 @@ void MeshComponent::UpdateImpl([[maybe_unused]] float p_deltaTime)
 void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
 {
     p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+
     p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
     p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
     p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
@@ -196,62 +86,78 @@ void MeshComponent::RenderUIImpl()
         }
         
         Separator();
-        
-        if(ResourceSlot(
+
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
+        if (ResourceSlot(
             "Vertex Shader",
             m_shaderData.vs.GetGUID(),
             m_vsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Vertex))
         {
             SetVSGUID(newGUID);
             m_vsDisplayName = newName;
         }
-        
-        if(ResourceSlot(
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
+        if (ResourceSlot(
             "Tes Control Shader",
             m_shaderData.tcs.GetGUID(),
             m_tcsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationControl))
         {
             SetTCSGUID(newGUID);
             m_tcsDisplayName = newName;
         }
-        
-        if(ResourceSlot(
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
+        if (ResourceSlot(
             "Tes Evaluation Shader",
             m_shaderData.tes.GetGUID(),
             m_tesDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationEvaluation))
         {
             SetTESGUID(newGUID);
-            m_tcsDisplayName = newName;
+            m_tesDisplayName = newName;
         }
-        
-        if(ResourceSlot(
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
+        if (ResourceSlot(
             "Geometry Shader",
             m_shaderData.gs.GetGUID(),
             m_gsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Geometry))
         {
             SetGSGUID(newGUID);
             m_gsDisplayName = newName;
         }
-        
-        if(ResourceSlot(
+        newGUID = C_INVALID_GUID;
+        newName.clear();
+
+        if (ResourceSlot(
             "Fragment Shader",
             m_shaderData.fs.GetGUID(),
             m_fsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader))
+            Droplet::ResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Fragment))
         {
             SetFSGUID(newGUID);
             m_fsDisplayName = newName;
@@ -272,10 +178,26 @@ nlohmann::json MeshComponent::SerializeImpl()
     json["meshGUID"] = GetMeshGUID();
     json["textureGUID"] = GetTextureGUID();
 
+    // Shaders GUIDS
+    json["vs"] = GetVSGUID();
+    json["tcs"] = GetTCSGUID();
+    json["tes"] = GetTESGUID();
+    json["gs"] = GetGSGUID();
+    json["fs"] = GetFSGUID();
+
 	// Names
 
 	json["meshDisplayName"] = m_meshDisplayName;
 	json["textureDisplayName"] = m_textureDisplayName;
+
+    // Shader Names 
+
+    json["vsName"] = m_vsDisplayName;
+    json["tcsName"] = m_tcsDisplayName;
+    json["tesName"] = m_tesDisplayName;
+    json["gsName"] = m_gsDisplayName;
+    json["fsName"] = m_fsDisplayName;
+
 
     return json;
 }
@@ -295,15 +217,76 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 		SetTextureGUID(p_compJson["textureGUID"].get<Droplet::GUID>());
 	}
 
+    // Shader GUIDS
+
+    if (!p_compJson.contains("vs"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'vs'");
+    }
+    if (!p_compJson.contains("tcs"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'tcs'");
+    }
+    if (!p_compJson.contains("tes"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'tes'");
+    }
+    if (!p_compJson.contains("gs"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'gs'");
+    }
+    if (!p_compJson.contains("fs"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'fs'");
+    }
+
+    SetVSGUID(p_compJson["vs"]);
+    SetTCSGUID(p_compJson["tcs"]);
+    SetTESGUID(p_compJson["tes"]);
+    SetGSGUID(p_compJson["gs"]);
+    SetFSGUID(p_compJson["fs"]);
+
 	// Names
 
-	if (p_compJson.contains("meshDisplayName"))
+	if (!p_compJson.contains("meshDisplayName"))
 	{
-		m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+        throw std::runtime_error("Meshcomponent missing required field 'meshDisplayName'");
 	}
+    m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
 
-	if (p_compJson.contains("textureDisplayName"))
+	if (!p_compJson.contains("textureDisplayName"))
 	{
-		m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
 	}
+    m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+
+
+    // Shader Names
+
+    if (!p_compJson.contains("vsName"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+    }
+    if (!p_compJson.contains("tcsName"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+    }
+    if (!p_compJson.contains("tesName"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+    }
+    if (!p_compJson.contains("gsName"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+    }
+    if (!p_compJson.contains("fsName"))
+    {
+        throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
+    }
+
+    m_vsDisplayName = p_compJson["vsName"].get<std::string>();
+    m_tcsDisplayName = p_compJson["tcsName"].get<std::string>();
+    m_tesDisplayName = p_compJson["tesName"].get<std::string>();
+    m_gsDisplayName = p_compJson["gsName"].get<std::string>();
+    m_fsDisplayName = p_compJson["fsName"].get<std::string>();
 }

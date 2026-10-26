@@ -114,14 +114,10 @@ namespace Droplet
             assert(m_isInitialized && "ResourceManager is not initialized.");
 
             MetaEntry metaEntry;
-            try
-            {
-                metaEntry = m_registry.GetResourceMetaData(p_guid);
-            }
-            catch (...)
+            if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
-                // TODO: Log this as a warning/error
+                            // TODO: Log this as a warning/error
                 return ResourceHandle<T>(C_INVALID_GUID, this);
             }
             
@@ -167,6 +163,12 @@ namespace Droplet
         /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
         /// @return A vector of pointers to the registered metadata entries.
         [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type = ResourceType::None) const;
+        
+        /// @brief Meta entry data for a specific resource.
+        /// @param p_guid The GUID of the resource.
+        /// @param[out] p_metaEntry The meta entry result.
+        /// @return True if meta entry was found, else false.
+        [[nodiscard]] bool GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const;
 
         /// @brief Retrieves the schema descriptor for the load settings of a specific resource.
         /// @param p_type The resource type to get the schema for.

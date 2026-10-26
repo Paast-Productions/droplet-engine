@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Toe.001",
+            "guid": 2719175114284423147,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Toe.001",
+            "type": 3
+        }
+    ]
+}

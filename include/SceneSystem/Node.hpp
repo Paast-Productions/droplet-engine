@@ -74,9 +74,16 @@ namespace Droplet::Scene
         ///
         /// Updates the Node's transforms, followed by its Components
         /// and child Nodes.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
+
+        /// @brief Updates the Node, its Components, and its children late.
+        void LateUpdate();
+
+        /// @brief Updates the Node, its Components, and its children in fixed time.
+        void FixedUpdate();
+
+		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
+		void EditorUpdate();
 
         /// @brief Renders the Node.
         ///
@@ -302,11 +309,6 @@ namespace Droplet::Scene
         /// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
         [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
-
-		/// @brief Checks through all components to see if the Node is renderable.
-        /// 
-        /// @return true if the Node is renderable, otherwise false.
-        [[nodiscard]] bool IsRenderable() const;
 
     private:
         std::string m_name;

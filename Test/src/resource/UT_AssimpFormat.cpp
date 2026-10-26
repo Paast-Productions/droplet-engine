@@ -94,12 +94,12 @@ TEST_F(AssimpFormatTest, LoadSkinnedMeshWithNoMeshData)
 	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings), std::runtime_error);
 }
 
-TEST_F(AssimpFormatTest, LoadSkinnedMeshWithNoAnimData)
+TEST_F(AssimpFormatTest, LoadSkinnedMeshWithNoAnimDataButWithSkeleton)
 {
 	Droplet::MetaEntry metaEntry = Droplet::MetaUtils::GenerateDefaultMetaEntry(Droplet::ResourceType::SkinnedMesh,
 		"", "CorruptedWoodFishWithNoAnim.fbx");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFishWithNoAnim.fbx";
-	EXPECT_THROW(auto temp = IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings), std::runtime_error);
+	EXPECT_TRUE(IO::AssimpFormat::LoadSkinnedMesh(filePath, metaEntry.loadSettings) != nullptr);
 }
 
 TEST_F(AssimpFormatTest, LoadSkinnedMeshFbx)
@@ -160,4 +160,21 @@ TEST_F(AssimpFormatTest, LoadAnimationGlb)
 		"ArmatureAction", "CorruptedWoodFish.glb");
 	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.glb";
 	EXPECT_TRUE(IO::AssimpFormat::LoadAnimation(filePath, metaEntry.sourceName, metaEntry.loadSettings) != nullptr);
+}
+// ===================
+// Asset scanning tests
+// ===================
+
+TEST_F(AssimpFormatTest, ScanAssetWithBonesOffersSkinnedMesh)
+{
+	fs::path filePath = fs::path(TEST_ASSET_DIR) / "Meshes" / "CorruptedWoodFish.fbx";
+	auto resources = IO::AssimpFormat::ScanAssetResources(filePath);
+	bool hasMesh = false, hasSkinned = false;
+	for (const auto &[type, name] : resources)
+	{
+		hasMesh |= type == Droplet::ResourceType::Mesh;
+		hasSkinned |= type == Droplet::ResourceType::SkinnedMesh;
+	}
+	EXPECT_TRUE(hasMesh);
+	EXPECT_TRUE(hasSkinned);
 }

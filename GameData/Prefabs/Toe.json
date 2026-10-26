@@ -1,0 +1,46 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 3658838734074951198,
+                "fsName": "BlueTint.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Toe.001",
+                "meshGUID": 2719175114284423147,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "ToeTexture",
+                "textureGUID": 10275265648664819601,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 2,
+    "name": "Toe",
+    "transform": {
+        "position": [
+            4.026532173156738,
+            0.30886805057525635,
+            1.646385669708252
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}
