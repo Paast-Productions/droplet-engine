@@ -49,6 +49,10 @@ namespace Droplet::Scene
 		// the octree during traversal (prevents iterator invalidation crashes)
 		std::vector<std::shared_ptr<Node>> dirtyNodes; // TODO: Make weak pointer
 		CollectDirtyNodes(m_root, dirtyNodes);
+		
+		// Removes duplicated nodes in dirtyNodes vector.
+		std::ranges::sort(dirtyNodes.begin(), dirtyNodes.end());
+		dirtyNodes.erase(std::ranges::unique(dirtyNodes).begin(), dirtyNodes.end());
 
 		for (const std::shared_ptr<Node> &dirty : dirtyNodes) // TODO: Make weak pointer
 		{
@@ -57,7 +61,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddNode(const std::shared_ptr<Node> p_node) // TODO: Make weak pointer
+	void Octree::AddNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -69,7 +73,7 @@ namespace Droplet::Scene
 		AddToTreeNode(p_node, m_root);
 	}
 
-	void Octree::RemoveNode(const std::shared_ptr<Node> p_node) // TODO: Make weak pointer
+	void Octree::RemoveNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -96,8 +100,8 @@ namespace Droplet::Scene
 		CollectContained(found, p_frustum, m_root);
 
 		// A node may be stored in several octants, so only keep unique ones
-		std::sort(found.begin(), found.end());
-		found.erase(std::unique(found.begin(), found.end()), found.end());
+		std::ranges::sort(found.begin(), found.end());
+		found.erase(std::ranges::unique(found).begin(), found.end());
 
 		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
 	}
@@ -250,11 +254,10 @@ namespace Droplet::Scene
 			return;
 		}
 
-		IntersectType intersection = p_node->GetBounds()->Intersect(
+		const IntersectType intersection = p_node->GetBounds()->Intersect(
 			p_treeNode->octant, 
 			p_node->GetTransform().GetMatrix(Transform::Space::World)
 		);
-
 		if (intersection == IntersectType::None)
 		{
 			return;
@@ -265,12 +268,7 @@ namespace Droplet::Scene
 		{
 			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 			{
-				if (child == nullptr)
-				{
-					continue;
-				}
-
-				if (p_node->GetBounds()->Intersect(child->octant, p_node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
+				if (child != nullptr)
 				{
 					AddToTreeNode(p_node, child);
 				}
@@ -312,7 +310,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
 	{
 		ZoneScoped;
 
@@ -322,7 +320,7 @@ namespace Droplet::Scene
 		}
 
 		// Remove target Node from local storage if present
-		auto it = std::remove(p_treeNode->nodes.begin(), p_treeNode->nodes.end(), p_node);
+		auto it = std::ranges::remove(p_treeNode->nodes, p_node).begin();
 		if (it != p_treeNode->nodes.end())
 		{
 			p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
@@ -596,7 +594,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	std::size_t Octree::GenerateGraphvizLinksTree(std::string &p_data, std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter)
+	std::size_t Octree::GenerateGraphvizLinksTree(std::string &p_data, const std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter)
 	{
 		std::size_t myID = p_nodeCounter + 1;
 
