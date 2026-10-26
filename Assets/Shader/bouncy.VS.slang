@@ -33,7 +33,8 @@ struct UniformBuffer
 layout(set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp; 
 
 [shader("vertex")]
-VSOutput main(VSInput input) {
+VSOutput main(VSInput input) 
+{
     VSOutput output;
     float4 pos = float4(input.inPosition.x, input.inPosition.y + 0.05 * sin(pc.time * 20), input.inPosition.z, 1.0);
     output.wPos = mul(pc.world, pos);

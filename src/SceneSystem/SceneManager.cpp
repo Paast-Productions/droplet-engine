@@ -243,19 +243,19 @@ std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
     //TODO: Separate renderData between scenes for modularity 
     std::vector<Droplet::Graphics::RenderData> renderData {};
 
-    for (auto it = m_scenes.begin(); it != m_scenes.end();)
+    /*for (auto it = m_scenes.begin(); it != m_scenes.end();)
     {
         it->second->GetRenderData(renderData);
 
         ++it;
-    }
+    }*/
 
     //TODO: Implement active scene logic
-    /*for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
     {
         auto scene = it->lock();
 
-        if (!scene)
+        if (!scene->IsActive())
         {
             it = m_activeScenes.erase(it);
             continue;
@@ -264,7 +264,7 @@ std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
         it->lock()->GetRenderData(renderData);
         
         ++it;
-    }*/
+    }
     
     return renderData;
 }
