@@ -10,14 +10,6 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 {
 	ZoneScoped;
 
-	p_luaState.new_usertype<Math::RayHit>(
-		"RayHit",
-		"didHit", &Math::RayHit::didHit,
-		"point", &Math::RayHit::point,
-		"normal", &Math::RayHit::normal,
-		"distance", &Math::RayHit::distance
-	);
-
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
 		"RaycastNode",
