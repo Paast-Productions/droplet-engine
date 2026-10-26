@@ -56,6 +56,7 @@ namespace Droplet
 		KeyBackspace = SDL_SCANCODE_BACKSPACE,
 		KeyTab = SDL_SCANCODE_TAB,
 		KeySpace = SDL_SCANCODE_SPACE,
+		KeyDelete = SDL_SCANCODE_DELETE,
 
 		KeyF1 = SDL_SCANCODE_F1,
 		KeyF2 = SDL_SCANCODE_F2,
