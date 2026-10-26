@@ -313,10 +313,10 @@ Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
     return m_physics.get();
 }
 
-void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath)
+void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    serializer.DeserializeLonsesomeNode(json, *this);
+    serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
 }

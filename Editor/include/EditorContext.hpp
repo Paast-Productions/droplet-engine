@@ -61,7 +61,7 @@ namespace Droplet::Editor
 
 		/// @brief Loads a node from a pre-existing file
 		/// @param filepath File
-		void LoadNodeFromFile(std::string &filepath);
+		void LoadNodeFromFile(std::string &filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
