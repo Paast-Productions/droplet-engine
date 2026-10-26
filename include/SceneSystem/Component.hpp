@@ -67,6 +67,11 @@ namespace Droplet::Scene
     	/// @brief Updates the component in fixed time.
     	void FixedUpdate();
 
+		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
+        ///
+        /// Called once per update for components attached to active Nodes.
+    	void EditorUpdate();
+
         virtual void GetRenderData([[maybe_unused]] Graphics::RenderData &p_renderData) {}
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
@@ -147,6 +152,8 @@ namespace Droplet::Scene
     	virtual void LateUpdateImpl() {}
     	
     	virtual void FixedUpdateImpl() {}
+
+        virtual void EditorUpdateImpl() {}
     	
     	virtual void ActiveChangedImpl(const bool p_active) {}
 

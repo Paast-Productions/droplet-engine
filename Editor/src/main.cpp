@@ -33,7 +33,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         Droplet::Graphics::SDL::WindowConfig{
             static_cast<int>(windowSize.x),
             static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE},
+            { SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
             "Droplet Editor"
         },
         Droplet::UpdateFlags::EditorFlags
