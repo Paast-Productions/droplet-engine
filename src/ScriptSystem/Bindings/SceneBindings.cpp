@@ -10,8 +10,32 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 {
 	ZoneScoped;
 
+	p_luaState.new_usertype<Math::RayHit>(
+		"RayHit",
+		"didHit", &Math::RayHit::didHit,
+		"point", &Math::RayHit::point,
+		"normal", &Math::RayHit::normal,
+		"distance", &Math::RayHit::distance
+	);
+
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
+		"RaycastNode",
+		[](Scene::Scene &p_scene, const Math::Ray &p_ray)
+		{
+			Math::RayHit hit{};
+
+			std::weak_ptr<Scene::Node> weakNode = p_scene.RaycastNode(p_ray, &hit);
+
+			auto node = weakNode.lock();
+
+			if (!node || !hit.didHit)
+			{
+				return std::make_tuple(std::shared_ptr<Scene::Node>{}, hit);
+			}
+
+			return std::make_tuple(node, hit);
+		},
 		"RaycastNodes",
 		[](Scene::Scene &p_scene, const Math::Ray &p_ray)
 		{

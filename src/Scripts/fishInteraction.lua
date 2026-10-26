@@ -1,29 +1,46 @@
 
 --local ray = Ray.new()
 
+local scene
+
 function OnStart()
-    local scene = SceneManagerInstance:GetScene("MainScene")
+    scene = SceneManagerInstance:GetScene("MainScene")
 
     if not scene then
         print("Scene not found")
         return
     end
 
-    -- Replace these with a ray that passes through a known mesh.
-    local origin = Vec3.new(0, 0, 0)
-    local direction = Vec3.new(0, 0, 1)
-    local ray = Ray.new(origin, direction)
+    local transform = self:GetTransform()
 
+    local origin = transform:GetPosition(TSWorld)
+    local direction = transform:GetForward(TSWorld)
+
+    local ray = Ray.new(origin, direction)
     local hits = scene:RaycastNodes(ray)
 
     print("Raycast returned " .. #hits .. " nodes")
 
     for _, node in ipairs(hits) do
-        print("Ray hit node: " .. node:GetName())
+        if node ~= self then
+            print("Ray hit node: " .. node:GetName())
+        end
     end
 end
 
 function OnUpdate(dt)
+
+    local transform = self:GetTransform()
+    local origin = transform:GetPosition(TSWorld)
+    local direction = transform:GetForward(TSWorld)
+
+    local ray = Ray(origin, direction)
+    local node, hit = scene:RaycastNode(ray)
+
+    if node and hit.didHit then
+        print("Hit: " .. node:GetName())
+        print("Distance: " .. hit.distance)
+    end
 end
 
 function RenderUI()
