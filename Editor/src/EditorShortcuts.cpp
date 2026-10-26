@@ -65,6 +65,28 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 		EditorConfig::StoreBool("manipulateBounds", false);
 		EditorConfig::StoreInt("manipulateOperation", universalOperation);
 	}
+
+	if (input.KeyPressed(Key::KeyDelete))
+	{
+		for (auto &node : p_editorContext.GetInteractionState().GetSelectedNodes())
+		{
+			if (!node)
+			{
+				continue;
+			}
+
+			auto oldParent = node->GetParent();
+
+			if (oldParent)
+			{
+				oldParent->RemoveChild(node);
+			}
+
+			p_editorContext.GetActiveScene()->RemoveRoot(node);
+		}
+
+		p_editorContext.GetInteractionState().ClearNodeSelection();
+	}
   
 	const bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
 	
