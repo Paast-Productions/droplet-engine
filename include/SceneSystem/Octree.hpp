@@ -43,6 +43,12 @@ namespace Droplet::Scene
 		/// @param[out] p_outNodes The vector with Nodes to be rendered
 		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes); // TODO: Make weak pointer
 
+		/// @brief Gets all Node instances whose world-space bounds are fully contained within a frustum
+		/// @note Nodes spanning several octants are only reported once
+		/// @param p_frustum The frustum that must fully contain the nodes
+		/// @param[out] p_outNodes The vector that nodes fully contained in the frustum are appended to
+		void GetNodesFullyInFrustum(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes); // TODO: Make weak pointer
+
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
@@ -93,6 +99,15 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
 			const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+
+		/// @brief Helper function for collecting Node instances fully contained in a frustum
+		/// @param[out] p_nodes The vector that contains all Node instances fully contained in the frustum
+		/// @param p_frustum The frustum that must fully contain the nodes
+		/// @param p_treeNode The TreeNode instance to be checked
+		/// @param p_octantContained True if an ancestor octant is already known to be fully inside the frustum, which
+		/// guarantees that this octant is too, so its octant intersection test can be skipped
+		void CollectContained(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
+			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false); // TODO: Make weak pointer
 
 		/// @brief Helper function for raycasting a single Node instance
 		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray

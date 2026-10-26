@@ -9,12 +9,14 @@ project "Engine"
 		"TRACY_FIBERS",
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
+		"IMGUI_DEFINE_MATH_OPERATORS",
         "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")
     objdir(objBuildPath .. "/%{prj.name}")
 
+    UseGraphicsPCH()
 
     if _TARGET_OS == "windows" then
 

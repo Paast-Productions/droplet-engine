@@ -169,6 +169,12 @@ end
 function Transform:Rotate(rotation, space)
 end
 
+---@param target Quat
+---@param t number
+---@param space TransformSpace|nil
+function Transform:SlerpRotation(target, t, space)
+end
+
 ---@param amount Vec3
 function Transform:MoveRelative(amount)
 end
