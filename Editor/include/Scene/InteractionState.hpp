@@ -33,6 +33,22 @@ namespace Droplet::Editor
         /// @return The currently selected nodes.
         [[nodiscard]] std::vector<std::shared_ptr<Droplet::Scene::Node>> GetSelectedNodes() const; // TODO: Make weak pointer
 
+		/// @brief Gets the currently selected root nodes (nodes that do not have a selected ancestor).
+		/// @return The currently selected root nodes.
+        [[nodiscard]] std::vector<std::weak_ptr<Droplet::Scene::Node>> GetSelectedRootNodes() const;
+
+		/// @brief Gets the currently selected nodes and their children.
+		/// @return The currently selected nodes and their children.
+        [[nodiscard]] std::vector<std::weak_ptr<Droplet::Scene::Node>> GetSelectedNodesAndChildren() const;
+
+		/// @brief Checks whether there are any selected nodes.
+		/// @return True if there are selected nodes, false otherwise.
+		[[nodiscard]] bool HasSelection() const { return !m_selectedNodes.empty(); }
+
+		/// @brief Gets the number of selected nodes.
+		/// @return The number of selected nodes.
+		[[nodiscard]] std::size_t GetSelectionCount() const { return m_selectedNodes.size(); }
+
 	private:
 
 		std::vector<std::weak_ptr<Droplet::Scene::Node>> m_selectedNodes{};

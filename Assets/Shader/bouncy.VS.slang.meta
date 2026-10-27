@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "bouncy.VS",
+            "guid": 8588005183473398233,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 0
+            },
+            "sourceName": "bouncy.VS",
+            "type": 6
+        }
+    ]
+}

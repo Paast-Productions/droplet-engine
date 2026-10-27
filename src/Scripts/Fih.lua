@@ -7,8 +7,8 @@ local trans = nil
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
-local targetRadius = 3.0
-local targetAcceptanceRadius = 0.2
+local targetRadius = 6.0
+local targetAcceptanceRadius = 0.5
 
 local maxMoveSpeed = 3.0
 local maxTurnSpeed = 1.0
@@ -216,6 +216,7 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
+    local scene = SceneManagerInstance:GetScene("MainScene")
 
 	print("New Fih")
 	trans = self:GetTransform()
@@ -300,7 +301,7 @@ function RenderUI()
             Vec3.new(1.0, 0.0, 0.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )
@@ -309,7 +310,7 @@ function RenderUI()
             Vec3.new(0.0, 1.0, 0.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )
@@ -318,7 +319,7 @@ function RenderUI()
             Vec3.new(0.0, 0.0, 1.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )

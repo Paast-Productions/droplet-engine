@@ -7,8 +7,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -19,8 +19,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -65,8 +65,8 @@
                 },
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -77,8 +77,8 @@
                         "tesName": "",
                         "textureDisplayName": "EvilToeTexture",
                         "textureGUID": 7393664924385117438,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 2,
                     "type": "MeshComponent"
@@ -111,8 +111,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -123,8 +123,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -162,8 +162,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -174,8 +174,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -213,8 +213,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -225,8 +225,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -264,8 +264,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -276,8 +276,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -315,8 +315,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -327,8 +327,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -366,8 +366,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -378,8 +378,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -417,8 +417,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -429,8 +429,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -468,8 +468,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -480,8 +480,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -519,8 +519,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -531,8 +531,8 @@
                         "tesName": "",
                         "textureDisplayName": "ToeTexture",
                         "textureGUID": 10275265648664819601,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
@@ -577,8 +577,8 @@
                 },
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -589,8 +589,8 @@
                         "tesName": "",
                         "textureDisplayName": "EvilToeTexture",
                         "textureGUID": 7393664924385117438,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 2,
                     "type": "MeshComponent"
@@ -630,8 +630,8 @@
                 },
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -642,8 +642,8 @@
                         "tesName": "",
                         "textureDisplayName": "EvilToeTexture",
                         "textureGUID": 7393664924385117438,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 2,
                     "type": "MeshComponent"
@@ -658,10 +658,10 @@
                     1.6294039487838745
                 ],
                 "rotation": [
-                    0.06131601706147194,
-                    -0.37567105889320374,
-                    -0.14895595610141754,
-                    -0.9126466512680054
+                    0.06131600961089134,
+                    -0.37567099928855896,
+                    -0.14895594120025635,
+                    -0.9126465320587158
                 ],
                 "scale": [
                     1.0,
@@ -683,8 +683,8 @@
                 },
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -695,8 +695,8 @@
                         "tesName": "",
                         "textureDisplayName": "EvilToeTexture",
                         "textureGUID": 7393664924385117438,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 2,
                     "type": "MeshComponent"
@@ -736,8 +736,8 @@
                 },
                 {
                     "data": {
-                        "fs": 3575449250532881688,
-                        "fsName": "BaseFS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -748,8 +748,8 @@
                         "tesName": "",
                         "textureDisplayName": "EvilToeTexture",
                         "textureGUID": 7393664924385117438,
-                        "vs": 17704871794447121608,
-                        "vsName": "BaseVS"
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 2,
                     "type": "MeshComponent"

@@ -169,6 +169,12 @@ end
 function Transform:Rotate(rotation, space)
 end
 
+---@param target Quat
+---@param t number
+---@param space TransformSpace|nil
+function Transform:SlerpRotation(target, t, space)
+end
+
 ---@param amount Vec3
 function Transform:MoveRelative(amount)
 end
@@ -1495,5 +1501,50 @@ end
 ---@param color Vec4|nil
 ---@param depth bool|nil
 function DebugDraw.DrawIcon(icon, position, size, color, depth)
+end
+
+---@class Scene
+Scene = {}
+
+---@param ray Ray
+---@return tuple<Node, RayHit>
+function Scene:RaycastNode(ray)
+    return nil
+end
+
+---@param ray Ray
+---@return Node[]
+function Scene:RaycastNodes(ray)
+    return nil
+end
+
+---@class SceneManager
+SceneManager = {}
+
+---@param scenePath string
+function SceneManager:LoadScene(scenePath)
+end
+
+---@param scenePath string
+function SceneManager:UnloadScene(scenePath)
+end
+
+---@param scene Scene
+function SceneManager:ActivateScene(scene)
+end
+
+---@param scene Scene
+function SceneManager:DeactivateScene(scene)
+end
+
+---@param sceneName string
+---@return Scene
+function SceneManager:GetScene(sceneName)
+    return nil
+end
+
+---@return Scene[]
+function SceneManager:GetActiveScenes()
+    return nil
 end
 

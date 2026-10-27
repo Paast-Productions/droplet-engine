@@ -20,6 +20,7 @@
 
 using namespace Droplet::Editor;
 
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
     // TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
@@ -33,7 +34,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         Droplet::Graphics::SDL::WindowConfig{
             static_cast<int>(windowSize.x),
             static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE},
+            { SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
             "Droplet Editor"
         },
         Droplet::UpdateFlags::EditorFlags

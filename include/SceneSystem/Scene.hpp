@@ -6,12 +6,14 @@
 
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
+#include <SceneSystem/Physics/Physics.hpp>
 #include <Graphics/RenderData.hpp>
 
 
 
 /// @brief Scene Object ID, used to locate a component attached to a node
-struct SceneObjectID {
+struct SceneObjectID 
+{
     std::uint64_t nodeID = 0;
     std::uint64_t componentID = 0;
 };
@@ -22,7 +24,8 @@ struct SceneObjectID {
 /// GetTarget returns the target the reference is referencing
 /// @tparam T the type of reference. Either "Component" or "Node"
 template<typename T>
-struct SceneReference {
+struct SceneReference 
+{
     SceneObjectID serializedID = {};
     std::weak_ptr<T> resolvedObject;
     
@@ -67,7 +70,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Scene.
         explicit Scene(const std::string &p_name);
 
-        ~Scene() = default;      
+        ~Scene();      
 
         /// @brief Loads the Scene.
         ///
@@ -100,9 +103,13 @@ namespace Droplet::Scene
         ///
         /// Updates all root Node hierarchies when the Scene is both
         /// loaded and active.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
+
+        /// @brief Updates the Scene but late.
+        void LateUpdate();
+        
+        /// @brief Updates the Scene in fixed time.
+        void FixedUpdate();
 
         /// @brief Stores render data of the scene in a vector
         ///
@@ -195,22 +202,34 @@ namespace Droplet::Scene
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
+        /// @brief Initialize the physics engine for this scene
+        /// @param p_initializer Struct contaning values to initialize the physics engine
+        void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
 
-        void LoadNodeFromFile( const std::string &p_filepath);
+        /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
+        /// @param p_frustum The frustum that must fully contain the nodes
+        /// @return A vector of all Node instances fully contained in the frustum
+        [[nodiscard]] std::vector<std::shared_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum); // TODO: Make weak pointer
+
+        [[nodiscard]] Physics *GetPhysics();
+        
+        void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
     private:
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
 
         Octree m_octree;
+        std::unique_ptr<Physics> m_physics;
 
         bool m_loaded = false;
         bool m_active = false;

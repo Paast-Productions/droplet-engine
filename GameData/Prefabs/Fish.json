@@ -1,27 +1,54 @@
 {
     "active": true,
-    "children": [],
-    "components": [
+    "children": [
         {
-            "data": {
-                "fs": 3575449250532881688,
-                "fsName": "BaseFS",
-                "gs": 0,
-                "gsName": "",
-                "meshDisplayName": "BaseFish",
-                "meshGUID": 6487672309164947188,
-                "tcs": 0,
-                "tcsName": "",
-                "tes": 0,
-                "tesName": "",
-                "textureDisplayName": "Test",
-                "textureGUID": 8173859370960447319,
-                "vs": 17704871794447121608,
-                "vsName": "BaseVS"
-            },
-            "id": 1,
-            "type": "MeshComponent"
-        },
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    -1.924212611470466e-08,
+                    0.0,
+                    -0.16141465306282043
+                ],
+                "rotation": [
+                    -4.5577415619391104e-08,
+                    -0.7071678042411804,
+                    -5.715653372817542e-08,
+                    0.7070457339286804
+                ],
+                "scale": [
+                    0.999984860420227,
+                    1.0000131130218506,
+                    0.9999954700469971
+                ]
+            }
+        }
+    ],
+    "components": [
         {
             "data": {
                 "filepath": "Fih.lua"
@@ -34,19 +61,19 @@
     "name": "Fish",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            -0.007440832909196615,
+            -0.9565247297286987,
+            1.5579044818878174
         ],
         "rotation": [
-            1.0,
-            0.0,
-            0.0,
-            0.0
+            -0.14064519107341766,
+            0.18854771554470062,
+            -0.5811495184898376,
+            -0.7790597677230835
         ],
         "scale": [
-            1.0,
-            1.0,
+            1.0000046491622925,
+            1.0000046491622925,
             1.0
         ]
     }

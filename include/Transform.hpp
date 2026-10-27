@@ -40,6 +40,7 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec3 GetPosition(Space p_space = Space::Local) const;
 
 		/// @brief Get the rotation of the transform in the specified space.
+		/// World rotation composes parent and local quaternions; inherited scale and shear do not affect it.
 		/// @param p_space The space in which to get the rotation. Defaults to local space.
 		/// @return The rotation of the transform in the specified space.
 		[[nodiscard]] glm::quat GetRotation(Space p_space = Space::Local) const;
@@ -47,7 +48,7 @@ namespace Droplet::Scene
 		/// @brief Get the Euler angles in radians of the transform in the specified space.
 		/// @param p_space The space in which to get the Euler angles. Defaults to local space.
 		/// @return The Euler angles of the transform in the specified space.
-		[[nodiscard]] glm::vec3 GetEuler(Space p_pspace = Space::Local) const;
+		[[nodiscard]] glm::vec3 GetEuler(Space p_space = Space::Local) const;
 
 		/// @brief Get the local scale of the transform.
 		/// @return The local scale of the transform.
@@ -136,6 +137,12 @@ namespace Droplet::Scene
 		/// @param p_delta The delta by which to rotate the transform in Euler angles.
 		/// @param p_space The space in which to perform the rotate operation. Defaults to local space.
 		void RotateEuler(const glm::vec3 &p_delta, Space p_space = Space::Local);
+
+		/// @brief Spherically interpolate the current rotation toward a target rotation.
+		/// @param p_target The target rotation, expressed in p_space.
+		/// @param p_t Interpolation factor, clamped to [0, 1]; 0 keeps the current rotation and 1 reaches the target.
+		/// @param p_space The coordinate space for both rotations. Defaults to local space.
+		void SlerpRotation(const glm::quat &p_target, float p_t, Space p_space = Space::Local);
 
 		/// @brief Move the transform by a specified delta relative to its current orientation.
 		/// @param p_delta The delta by which to move the transform.

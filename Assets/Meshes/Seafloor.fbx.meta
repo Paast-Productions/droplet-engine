@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "dependencies": [],
+            "guid": 12751091778080588892,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": false,
+                "triangulate": true
+            },
+            "name": "Plane",
+            "type": 3
+        }
+    ]
+}
