@@ -97,6 +97,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     static const ImWchar iconsRanges[] = {ICON_MIN_LC, ICON_MAX_16_LC, 0};
     io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
     
+
     for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(ROOT_PATH "/Editor/Fonts/"))
     {
         if (dirEntry.path().extension() == ".ttf" && dirEntry.path().filename().generic_string() != "lucide.ttf")
