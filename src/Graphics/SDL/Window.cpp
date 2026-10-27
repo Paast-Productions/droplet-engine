@@ -25,7 +25,9 @@ Window::Window(const WindowConfig &p_windowConfig)
     		p_windowConfig.Width, 
     		p_windowConfig.Height, 
     		p_windowConfig.Flags));
-    
+
+    SDL_SetWindowMinimumSize(m_sdlWindowHandle.get(), 640, 360);
+
     if (not m_sdlWindowHandle)
     {
         throw SDLException("Failed to create window)");
