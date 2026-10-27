@@ -121,7 +121,7 @@ namespace Droplet
             /// rendered to avoid modifying the hierarchy while it is being traversed.
             std::shared_ptr<Droplet::Scene::Node> m_nodeToAddChildTo; // TODO: Make weak pointer
 
-            std::shared_ptr<Droplet::Scene::Node> m_nodeToRemove; // TODO: Make weak pointer
+            std::vector<std::shared_ptr<Droplet::Scene::Node>> m_nodesToRemove; // TODO: Make weak pointer
         };
     }
 }
