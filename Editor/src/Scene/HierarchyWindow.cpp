@@ -121,7 +121,8 @@ void HierarchyWindow::RenderImpl()
         }
         ImGui::EndPopup();
     }
-    ImGui::Separator();
+
+    ImGui::SeparatorText(scene->GetName().c_str());
 
     // Reserve a thin strip on the left for dropping nodes as roots.
     const float rootDropWidth = 6.0f;
@@ -278,16 +279,20 @@ void HierarchyWindow::RenderImpl()
         m_nodeToAddChildTo.reset();
     }
 
-    if (m_nodeToRemove)
+    if (!m_nodesToRemove.empty())
     {
-        auto oldParent = m_nodeToRemove->GetParent();
-
-        if (oldParent)
+        for (const auto &node : m_nodesToRemove)
         {
-            oldParent->RemoveChild(m_nodeToRemove);
+            auto oldParent = node->GetParent();
+
+            if (oldParent)
+            {
+                oldParent->RemoveChild(node);
+            }
+
+            scene->RemoveRoot(node);
         }
-		scene->RemoveRoot(m_nodeToRemove);
-		m_nodeToRemove.reset();
+        m_nodesToRemove.clear();
     }
 }
 
@@ -347,6 +352,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     static std::string selectedScene;
     static bool hasScannedScenes = false;
     const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/";
+
     if (!hasScannedScenes)
     {
         RefreshLoadedScenes(sceneFiles);
@@ -422,7 +428,9 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
         return;
     }
 
-    ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+    ImGuiTreeNodeFlags flags = 
+        ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | 
+        ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
     if (p_node->GetChildren().empty())
     {
@@ -529,7 +537,18 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             if (ImGui::MenuItem("Remove Node"))
             {
-                m_nodeToRemove = p_node;
+				// If selected, remove all selected nodes. Otherwise, remove this node only.
+                if (m_editorContext->GetInteractionState().IsNodeSelected(p_node))
+                {
+                    for (const auto &selectedNode : m_editorContext->GetInteractionState().GetSelectedNodes())
+                    {
+                        m_nodesToRemove.push_back(selectedNode);
+                    }
+                }
+                else
+                {
+                    m_nodesToRemove.push_back(p_node);
+				}
             }
 
             if (ImGui::MenuItem("Serialize Node"))
@@ -538,6 +557,12 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
                 const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
                 m_editorContext->SaveNode(filePath, *p_node.get());
             }
+
+            if (ImGui::MenuItem("Duplicate Node"))
+            {
+				// TODO: Implement node duplication logic
+            }
+
             ImGui::EndPopup();
         }
 
@@ -561,6 +586,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropTarget();
         }
     }
+
     if (opened)
     {
         for (const auto &child : p_node->GetChildren())

@@ -5,6 +5,7 @@
 
 #include <SceneSystem/Node.hpp>
 #include <string>
+#include <Debug/Logger.hpp>
 
 namespace Droplet::Script
 {
@@ -107,8 +108,7 @@ namespace Droplet::Script
 		if (!function.valid())
 		{
 			//Function does not exist or is not callable
-			//TODO: Add to logger here
-			std::cerr << "Error: Lua function '" << p_functionName << "' is not valid or callable.\n";
+			Log(Debug::LogType::Error, "Lua function '" + p_functionName + "' is not valid or callable.");
 		}
 
 		sol::protected_function_result result = function(std::forward<Args>(args)...);
@@ -117,8 +117,7 @@ namespace Droplet::Script
 		if (!result.valid())
 		{
 			sol::error err = result;
-			std::string errorMessage = "Runtime Error in Lua Function '" + p_functionName + "': " + err.what() + "\n";
-			std::cerr << errorMessage; // TODO: Log
+			Log(Debug::LogType::Error, "Runtime Error in Lua Function '" + p_functionName + "': " + err.what() + "\n");
 		}
 
 		return result;
