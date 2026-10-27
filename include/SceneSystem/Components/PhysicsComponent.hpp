@@ -116,7 +116,7 @@ namespace Droplet::Scene
 		void SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		
 		/// @brief Set a convex hull collider
-		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_meshGuid The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		/// @param p_offset The offset position from the nodes position
 		void SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f,
@@ -131,7 +131,7 @@ namespace Droplet::Scene
 		/// 
 		/// A motion type defines how a body is allowed to move and interact with the physics simulation.
 		/// Motion types:
-		/// @li Static, Non movable
+		/// @li Static, Non-movable
 		/// @li Kinematic, Movable using velocities only, does not respond to forces
 		/// @li Dynamic, Responds to forces as a normal physics object
 		void SetMotionType(const JPH::EMotionType p_motionType);
@@ -177,7 +177,7 @@ namespace Droplet::Scene
 		void PullTransformFromPhysics();
 		
 		/// @brief Helper function creating convex hull shape settings
-		/// @param p_mesh The mesh resource to make a collider of
+		/// @param p_meshGuid The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
@@ -190,8 +190,18 @@ namespace Droplet::Scene
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};
+		JPH::Vec3 m_offset{};
 		
 		Droplet::GUID m_meshGuid;
 
+		// Member variables solely for (de)serialization
+		struct SerializeData
+		{
+			glm::vec3 halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
+			float r = 0.0f;
+			float h = 0.0f;
+		}m_serializeData;
+		bool m_isDeserialized = false;
+		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
 	};
 }

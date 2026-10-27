@@ -40,6 +40,9 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 	JPH::Ref<JPH::BoxShapeSettings> boxSettings = new JPH::BoxShapeSettings(p_halfExtents);
 	CreateCollider(boxSettings, p_offset);
 	m_shapeType = ShapeType::Box;
+	m_serializeData.halfExtents.x = p_halfExtents.GetX();
+	m_serializeData.halfExtents.y = p_halfExtents.GetY();
+	m_serializeData.halfExtents.x = p_halfExtents.GetZ();
 }
 
 void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset)
@@ -57,6 +60,7 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 	JPH::Ref<JPH::SphereShapeSettings> sphereSettings = new JPH::SphereShapeSettings(p_radius);
 	CreateCollider(sphereSettings, p_offset);
 	m_shapeType = ShapeType::Sphere;
+	m_serializeData.r = p_radius;
 }
 
 void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
@@ -69,6 +73,8 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
 	CreateCollider(capsuleSettings, p_offset);
 	m_shapeType = ShapeType::Capsule;
+	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.r = p_radius;
 }
 
 void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset)
@@ -96,6 +102,7 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, flo
 	CreateCollider(convexSettings, p_offset);
 	m_shapeType = ShapeType::ConvexHull;
 	m_meshGuid = p_meshGuid;
+	m_serializeData.r = p_edgeRadius;
 }
 
 void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_shapes)
@@ -219,7 +226,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 		
-			ImGui::Text(shapeType.c_str());
+			ImGui::Text(shapeType.data());
 		}
 		
 		// Display the current motion type 
@@ -326,6 +333,8 @@ void PhysicsComponent::RenderUIImpl()
 			break;
 		case NUM_LAYERS: 
 			layer = NUM_LAYERS;
+			break;
+		default:
 			break;
 		}
 		
@@ -765,7 +774,20 @@ nlohmann::json PhysicsComponent::SerializeImpl()
 {
 	nlohmann::json json;
 	
-	// TODO: Serialize
+	json["shapeType"] = m_shapeType;
+	json["motionType"] = m_motion;
+	json["layer"] = m_layer;
+	
+	json["meshGUID"] = m_meshGuid;
+	json["offsetX"] = m_offset.GetX();
+	json["offsetY"] = m_offset.GetY();
+	json["offsetZ"] = m_offset.GetZ();
+	
+	json["halfExtentsX"] = m_serializeData.halfExtents.x;
+	json["halfExtentsY"] = m_serializeData.halfExtents.y;
+	json["halfExtentsZ"] = m_serializeData.halfExtents.z;
+	json["r"] = m_serializeData.r;
+	json["h"] = m_serializeData.h;
 	
 	return json;
 }
@@ -805,6 +827,7 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 		throw std::runtime_error("Failed to create Jolt body");
 	}
 	m_bodyID = body->GetID();
+	m_offset = p_offset;
 
 	m_physics->GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
 }
