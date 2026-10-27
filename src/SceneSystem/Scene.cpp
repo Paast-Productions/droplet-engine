@@ -156,7 +156,11 @@ void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
     //TODO: Readd when editor user can toggle/change the flags in some way
     /*if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {*/
+        // TODO: Get active camera frustum data
+        // std::vector<std::shared_ptr<Node>> nodes;
+        // m_octree.GetNodesFromCulling(Math::Frustum(), nodes);
         for (const auto &root : m_roots)
+        // for (const auto &root : nodes)
         {
             root->GetRenderData(p_renderData);
         }
@@ -228,6 +232,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
+    m_octree.RemoveNode(p_node);
     m_roots.erase(it);
 }
 
