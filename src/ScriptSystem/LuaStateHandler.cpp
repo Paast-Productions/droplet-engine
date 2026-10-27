@@ -10,9 +10,15 @@ LuaStateHandler::LuaStateHandler()
 	m_luaState.open_libraries(
 		sol::lib::base,
 		sol::lib::math,
+		sol::lib::package,
 		sol::lib::string,
-		sol::lib::table
+		sol::lib::table,
+		sol::lib::jit,
+		sol::lib::ffi
 	);
+	
+	m_luaState.script("print(jit.version)");
+	std::flush(std::cout);
 }
 
 sol::state& LuaStateHandler::GetState()

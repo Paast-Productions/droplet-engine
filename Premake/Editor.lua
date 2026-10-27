@@ -84,7 +84,7 @@ project "Editor"
         "tracy",
         "IconFontCppHeaders",
         "PortableFileDialogs",
-        "Lua",
+        "LuaJIT",
         "Jolt"
     }
 
@@ -109,6 +109,7 @@ project "Editor"
         AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
         AddQuotation("assimp-mtd"),
-		AddQuotation("lua_static"),
-		AddQuotation("Jolt")
+		AddQuotation("lua51"),
+		AddQuotation("Jolt"),
+        AddQuotation("msvcrtd") -- DEBUG VERSION OF msvcrt.lib
     }

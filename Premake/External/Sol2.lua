@@ -2,6 +2,10 @@
 project "Sol2"
     kind "Utility"
     location(projectsPath)
+    dependson 
+    {
+        "LuaJIT"
+    }
 
     local moduleDirectory = externalPath .. "/%{prj.name}"
     local includePath = targetBuildPath .. "/External/include/sol"

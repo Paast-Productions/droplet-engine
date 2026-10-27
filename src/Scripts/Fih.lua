@@ -4,6 +4,24 @@
 --
 
 local trans = nil
+local ffi = require("ffi")
+jit.on()
+
+ffi.cdef[[
+double sin(double x);
+]]
+ffi.cdef[[
+double cos(double x);
+]]
+ffi.cdef[[
+double atan(double x);
+]]
+ffi.cdef[[
+double acos(double x);
+]]
+ffi.cdef[[
+double sqrt(double x);
+]]
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
@@ -53,15 +71,15 @@ function NewTargetPoint()
     
 	-- Random point on a sphere using spherical coordinates
 	local theta = math.random() * 2 * math.pi
-    local phi = math.acos(2 * math.random() - 1)
+    local phi = ffi.C.acos(2 * math.random() - 1)
 
     -- Random distance, uniform by volume
     local r = targetRadius * math.random()^(1/3)
 
 	local v = Vec3.new(0.0, 0.0, 0.0)
-    v.x = r * math.sin(phi) * math.cos(theta)
-    v.y = r * math.sin(phi) * math.sin(theta)
-    v.z = r * math.cos(phi)
+    v.x = r * ffi.C.sin(phi) * ffi.C.sin(theta)
+    v.y = r * ffi.C.sin(phi) * ffi.C.sin(theta)
+    v.z = r * ffi.C.cos(phi)
 
 	targetPoint = GLM.V3Add(orbitPoint, v)
 
@@ -70,9 +88,13 @@ end
 
 function IsWithinTarget()
     tracy.ZoneBeginN("IsWithinTarget")
-
+    
+    tracy.ZoneBeginN("GetPosition")
 	local pos = trans:GetPosition(TransformSpace.World)
+    tracy.ZoneEnd()
+    tracy.ZoneBeginN("V3Distance")
 	local dist = GLM.V3Distance(pos, targetPoint)
+    tracy.ZoneEnd()
     
     tracy.ZoneEnd()
 	return (dist <= targetAcceptanceRadius)
@@ -108,19 +130,17 @@ function UpdateVelocity(dt)
     local forward = trans:GetForward()
 
     -- Calculate yaw error around global Y.
-    local currentYaw = math.atan(forward.x, forward.z)
-    local targetYaw = math.atan(toTarget.x, toTarget.z)
+    local currentYaw = ffi.C.atan(forward.x / forward.z)
+    local targetYaw = ffi.C.atan(toTarget.x / toTarget.z)
     local yawError = WrapAngle(targetYaw - currentYaw)
 
     -- Calculate pitch error.
-    local currentPitch = math.atan(
-        forward.y,
-        math.sqrt(forward.x * forward.x + forward.z * forward.z)
+    local currentPitch = ffi.C.atan(
+        forward.y / ffi.C.sqrt(forward.x * forward.x + forward.z * forward.z)
     )
 
-    local targetPitch = math.atan(
-        toTarget.y,
-        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+    local targetPitch = ffi.C.atan(
+        toTarget.y / ffi.C.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
     )
 
     local pitchError = targetPitch - currentPitch
@@ -154,8 +174,8 @@ function UpdateVelocity(dt)
     )
 
     -- Move forward, slowing down when misaligned or close to target.
-    local yawAlignment = math.cos(yawError)
-    local pitchAlignment = math.cos(pitchError)
+    local yawAlignment = ffi.C.cos(yawError)
+    local pitchAlignment = ffi.C.cos(pitchError)
 
     local alignment = Clamp(
         yawAlignment * pitchAlignment,
@@ -197,14 +217,20 @@ end
 function ApplyVelocity(dt)
     tracy.ZoneBeginN("ApplyVelocity")
 
+    tracy.ZoneBeginN("Move")
 	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
 	trans:Move(toMove, TransformSpace.World)
+    tracy.ZoneEnd()
 
+    tracy.ZoneBeginN("RotateY")
 	local toRotateY = GLM.AngleAxis(trans:GetRight(), turnSpeedY * dt)
 	trans:Rotate(toRotateY)
+    tracy.ZoneEnd()
 
+    tracy.ZoneBeginN("RotateX")
 	local toRotateX = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeedX * dt)
 	trans:Rotate(toRotateX, TransformSpace.World)
+    tracy.ZoneEnd()
 
     tracy.ZoneEnd()
 end
@@ -228,7 +254,8 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Fih OnUpdate")
-
+    print(jit.status())
+    
 	if IsWithinTarget() then
 		NewTargetPoint()
 	end

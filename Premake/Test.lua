@@ -63,7 +63,7 @@ project "Test"
         "bvh",
         "stb",
         "Sol2",
-        "Lua",
+        "LuaJIT",
         "tracy",
         "Jolt"
     }
@@ -81,6 +81,7 @@ project "Test"
         AddQuotation("assimp-mtd"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-		AddQuotation("lua_static"),
-        AddQuotation("Jolt")
+        AddQuotation("lua51"),
+        AddQuotation("Jolt"),
+        AddQuotation("msvcrtd") -- DEBUG VERSION OF msvcrt.lib
     }

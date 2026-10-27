@@ -1,11 +1,14 @@
 #pragma once
 
 #define SOL_ALL_SAFETIES_ON 1
+#define SOL_LUAJIT 1
+#include <sol/sol.hpp>
+#undef SOL_LUAJIT 
+#undef SOL_ALL_SAFETIES
 
 #include "LuaStateHandler.hpp"
 #include "LuaApiGenerator.hpp"
 
-#include <sol/sol.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
 namespace Droplet::Script::Bindings

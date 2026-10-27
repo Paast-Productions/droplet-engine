@@ -4,8 +4,8 @@
     "components": [
         {
             "data": {
-                "fs": 0,
-                "fsName": "BaseFS",
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "Fish",
@@ -16,14 +16,14 @@
                 "tesName": "",
                 "textureDisplayName": "WoodTexture",
                 "textureGUID": 1466059150086384494,
-                "vs": 0,
-                "vsName": "BaseVS"
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
             },
             "id": 1,
             "type": "MeshComponent"
         }
     ],
-    "id": 6,
+    "id": 10,
     "name": "Mesh",
     "transform": {
         "position": [

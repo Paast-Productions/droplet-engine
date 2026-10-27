@@ -69,7 +69,8 @@ include "Premake/External/VulkanMemoryAllocator"
 include "Premake/External/bvh"
 include "Premake/External/Gli"
 include "Premake/External/Sol2"
-include "Premake/External/Lua"
+include "Premake/External/LuaJIT"
+--include "Premake/External/Lua"
 
 if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/GoogleTest"
