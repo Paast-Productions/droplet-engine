@@ -157,8 +157,6 @@ namespace Droplet::Graphics
 		VK::VertexBuffer m_vertexBuffer { nullptr };
 
 		// -- IMGUI ----------------------------------------------
-		bool m_imGuiUsing = false; ///< Set once on creation. Determines whether descriptor pools are available
-		bool m_imGuiEnabled = false; ///< Toggle imgui rendering on and off. Temp solution
 		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
 		std::uint32_t m_imGuiPoolSize;
 		VkFormat m_imGuiColorFormat;
