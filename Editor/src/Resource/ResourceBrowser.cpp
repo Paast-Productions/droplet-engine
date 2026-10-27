@@ -479,7 +479,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		{
 			if (m_previewResourceHandle.IsValid())
 			{
-				m_editorContext->GetEngine().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+				IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
 			}
 
 			m_isPreviewResourceLoaded = false;
@@ -519,11 +519,11 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
 			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			IntermediaryStorage::GetInstance().CreateImGuiTexture()
+			ImTextureRef textureRef = IntermediaryStorage::GetInstance().GetOrCreateImGuiTexture(guid);
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
-			Image(textureRef, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
+			ImGui::Image(textureRef, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
 			EndChild();
 		}
 

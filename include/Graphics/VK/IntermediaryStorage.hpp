@@ -215,6 +215,14 @@ namespace Droplet::Graphics::VK
         /// @param p_height Height of the new render target in pixels
         void UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height);
         
+        // TODO: <REFACTOR>
+        // Maybe move to separate class etc.
+        
+        [[nodiscard]] VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid);
+        void RemoveImGuiTexture(GUID p_guid);
+        
+        // TODO: </REFACTOR>
+        
     private:
         // Friend class Renderer to give it access to internals
         friend class Renderer;
@@ -224,7 +232,8 @@ namespace Droplet::Graphics::VK
         
         /// @brief Initialise the intermediary storage layer
         /// @param p_context Vulkan Context
-        void Initialise(const Context &p_context);
+        /// @param p_commandPool
+        void Initialise(const Context &p_context, const CommandPool &p_commandPool);
         
         /// @brief Shutdown and clear all vulkan memory allocations
         void Shutdown();
@@ -259,6 +268,7 @@ namespace Droplet::Graphics::VK
         
         // Vulkan Context Pointer (non-owning)
         const Context *m_context = nullptr;
+        const CommandPool *m_commandPool = nullptr;
         
         // Vulkan thingies
         Allocator m_allocator { nullptr };
@@ -281,14 +291,23 @@ namespace Droplet::Graphics::VK
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
         std::vector<RenderTarget> m_renderTargets {};
-        std::vector<UniformBuffer> m_uniformBuffers {};
         std::vector<PresentTarget> m_presentTargets {};
+        std::vector<UniformBuffer> m_uniformBuffers {};
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
         
         // ImGui
         std::vector<vk::DescriptorSet> m_imGuiTextures {};
+        
+        // TEMP
+        struct ImGuiTexture
+        {
+            Image image;
+            ImageView view;
+            VkDescriptorSet descriptorSet;
+        };
+        std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};
     };
 }
 

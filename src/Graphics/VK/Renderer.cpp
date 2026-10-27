@@ -44,7 +44,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 {
 	ZoneScoped;
 	
-	VK::IntermediaryStorage::GetInstance().Initialise(m_context);
+	VK::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
 	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	
 	// TODO: <REFACTOR>
