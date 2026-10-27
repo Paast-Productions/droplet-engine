@@ -167,10 +167,66 @@ void PhysicsComponent::StartImpl()
 		m_physics = GetOwner()->GetScene()->GetPhysics();
 	}
 	m_transform = &GetOwner()->GetTransform();
+	
+	if (!m_isDeserialized && m_physics != nullptr && m_transform != nullptr)
+	{
+		switch (m_shapeType)
+		{
+		case ShapeType::Box:
+			m_shapeType = ShapeType::None;
+			SetBoxCollider(m_serializeData.halfExtents, m_offset);
+			break;
+		case ShapeType::Sphere:
+			m_shapeType = ShapeType::None;
+			SetSphereCollider(m_serializeData.r, m_offset);
+			break;
+		case ShapeType::Capsule:
+			m_shapeType = ShapeType::None;
+			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
+			break;
+		case ShapeType::Mesh:
+			m_shapeType = ShapeType::None;
+			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
+				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+				{
+				   SetMeshCollider(p_meshGuid, p_offset);
+				});
+			break;
+		case ShapeType::ConvexHull:
+			m_shapeType = ShapeType::None;
+			
+			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
+				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+				{
+					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
+				});
+			break;
+		case ShapeType::None:
+		case ShapeType::Compound:
+			break;
+		}
+	
+		SetMotionType(m_motion);
+		SetObjectLayer(m_layer);
+	
+		JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
+		JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
+		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+	}
 }
 
 void PhysicsComponent::UpdateImpl()
 {
+	if (!m_isDeserialized && m_function != nullptr)
+	{
+		if (ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshGuid).IsReady())
+		{
+			(*m_function)(m_meshGuid, m_offset, m_serializeData.r);
+			m_isDeserialized = true;
+			m_function = nullptr;
+		}
+	}
+	
 	if (m_transform->HasBeenChanged())
 	{
 		PushTransformToPhysics();
@@ -794,7 +850,56 @@ nlohmann::json PhysicsComponent::SerializeImpl()
 
 void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
-	// TODO: Deserialize
+	if (p_compJson.contains("shapeType"))
+	{
+		m_shapeType = p_compJson["shapeType"].get<ShapeType>();
+	}
+	if (p_compJson.contains("motionType"))
+	{
+		m_motion = p_compJson["motionType"].get<JPH::EMotionType>();
+	}
+	if (p_compJson.contains("layer"))
+	{
+		m_layer = p_compJson["layer"].get<Layers>();
+	}
+	
+	if (p_compJson.contains("meshGUID"))
+	{
+		m_meshGuid = p_compJson["meshGUID"].get<Droplet::GUID>();
+	}
+	if (p_compJson.contains("offsetX"))
+	{
+		m_offset.SetX(p_compJson["offsetX"].get<float>());
+	}
+	if (p_compJson.contains("offsetY"))
+	{
+		m_offset.SetY(p_compJson["offsetY"].get<float>());
+	}
+	if (p_compJson.contains("offsetZ"))
+	{
+		m_offset.SetZ(p_compJson["offsetZ"].get<float>());
+	}
+	
+	if (p_compJson.contains("halfExtentsX"))
+	{
+		m_serializeData.halfExtents.x = p_compJson["halfExtentsX"].get<float>();
+	}
+	if (p_compJson.contains("halfExtentsY"))
+	{
+		m_serializeData.halfExtents.y = p_compJson["halfExtentsY"].get<float>();
+	}
+	if (p_compJson.contains("halfExtentsZ"))
+	{
+		m_serializeData.halfExtents.z = p_compJson["halfExtentsZ"].get<float>();
+	}
+	if (p_compJson.contains("r"))
+	{
+		m_serializeData.r = p_compJson["r"].get<float>();
+	}
+	if (p_compJson.contains("h"))
+	{
+		m_serializeData.h = p_compJson["h"].get<float>();
+	}
 }
 
 void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset)

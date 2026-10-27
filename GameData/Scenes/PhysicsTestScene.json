@@ -26,7 +26,20 @@
                     "type": "MeshComponent"
                 },
                 {
-                    "data": null,
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "meshGUID": 12751091778080588892,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 4
+                    },
                     "id": 3,
                     "type": "PhysicsComponent"
                 }
@@ -77,7 +90,20 @@
                     "type": "MeshComponent"
                 },
                 {
-                    "data": null,
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 1.0,
+                        "shapeType": 2
+                    },
                     "id": 2,
                     "type": "PhysicsComponent"
                 }
