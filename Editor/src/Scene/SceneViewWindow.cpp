@@ -114,7 +114,7 @@ namespace
 
 void SceneViewWindow::InitImpl()
 {
-	
+	EditorConfig::StoreBool("hasPlayed", false);
 	SetName("Scene View"); 
 	ToggleToolbar(true);
 	
@@ -599,8 +599,13 @@ void SceneViewWindow::RenderImpl()
 			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
 			camViewRectMin.y + 10
 		);
+		ImVec2 stopButtonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
+			camViewRectMin.y + 10
+		);
 
 		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
+		bool hasPlayed = EditorConfig::LoadBool("hasPlayed", false);
 
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (isPlaying)
@@ -629,6 +634,26 @@ void SceneViewWindow::RenderImpl()
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
+				EditorConfig::StoreBool("hasPlayed", true);
+			}
+
+			ImGui::PopStyleColor(4);
+		}
+
+		ImGui::SetCursorScreenPos(stopButtonPos);
+		if (hasPlayed)
+		{
+			// Make red
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+				EditorConfig::StoreBool("hasPlayed", false);
+				//m_editorContext->GetEngine().GetSceneManager().
 			}
 
 			ImGui::PopStyleColor(4);

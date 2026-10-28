@@ -79,6 +79,9 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
+    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
+
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Scene Selection"))
     {
         DrawSceneWindow();
@@ -177,10 +180,14 @@ void HierarchyWindow::RenderImpl()
     m_visibleNodeRects.clear();
     m_rangeSelectTarget = nullptr;
 
+    ImGui::EndDisabled();
+
     for (const auto &root : scene->GetRoots())
     {
         DrawNode(root);
     }
+
+    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (m_rangeSelectTarget)
@@ -294,6 +301,8 @@ void HierarchyWindow::RenderImpl()
         }
         m_nodesToRemove.clear();
     }
+
+    ImGui::EndDisabled();
 }
 
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
@@ -526,8 +535,9 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropSource();
         }
 
-
+        ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
  
+
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))
@@ -565,6 +575,8 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             ImGui::EndPopup();
         }
+
+        ImGui::EndDisabled();
 
         if (ImGui::BeginDragDropTarget())
         {

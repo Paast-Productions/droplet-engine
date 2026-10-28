@@ -66,6 +66,12 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 		EditorConfig::StoreInt("manipulateOperation", universalOperation);
 	}
 
+	// When you are in play-mode, keybinds below this point should be disabled
+	if (EditorConfig::LoadBool("hasPlayed", false))
+	{
+		return;
+	}
+
 	if (input.KeyPressed(Key::KeyDelete))
 	{
 		for (auto &node : p_editorContext.GetInteractionState().GetSelectedNodes())
