@@ -162,6 +162,8 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         return nullptr;
     }
+    
+    // Tessellation Control Shader
 
     ShaderModule tcsModule{ nullptr };
     if (tcs.IsReady())
@@ -174,6 +176,8 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     {
         return nullptr;
     }
+    
+    // Tessellation Evaluation Shader
 
     ShaderModule tesModule{ nullptr };
     if (tes.IsReady())
@@ -187,6 +191,8 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         return nullptr;
     }
 
+    // Geometry Shader
+    
     ShaderModule gsModule{ nullptr };
     if (gs.IsReady())
     {
@@ -199,6 +205,8 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         return nullptr;
     }
 
+    // Fragment Shader
+    
     ShaderModule fsModule{ nullptr };
     if (fs.IsReady())
     {
