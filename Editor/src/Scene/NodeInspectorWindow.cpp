@@ -49,12 +49,6 @@ void NodeInspectorWindow::RenderImpl()
 
 	// Name
 	std::string stringNodeName = m_currentNode->GetName();
-	// Remove "component" suffix from name if it exists
-	if (stringNodeName.size() >= 9 && stringNodeName.compare(stringNodeName.size() - 9, 9, "Component") == 0)
-	{
-		stringNodeName = stringNodeName.substr(0, stringNodeName.size() - 9);
-	}
-
 	if (ImGui::InputText("Node Name", &stringNodeName))
 	{
 		m_currentNode->SetName(stringNodeName);
@@ -157,6 +151,8 @@ void NodeInspectorWindow::RenderImpl()
 
 	// Button width
 	const float buttonWidth = ImGui::GetContentRegionAvail().x;
+	const float buttonHeight = ImGui::GetTextLineHeight() * 1.5f;
+	const float buttonMargin = buttonWidth * 0.2f;
 
 	// Vector of components
 	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents(); // TODO: Make weak pointer
@@ -173,7 +169,15 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::PushID(thisString.c_str());
 
 		// The actual header
-		bool isOpen = ImGui::CollapsingHeader(component->GetTypeName().data(), ImGuiTreeNodeFlags_DefaultOpen);
+		std::string headerLabel = component->GetTypeName().data();
+
+		// Remove "component" suffix from name if it exists
+		if (headerLabel.size() >= 9 && headerLabel.compare(headerLabel.size() - 9, 9, "Component") == 0)
+		{
+			headerLabel = headerLabel.substr(0, headerLabel.size() - 9);
+		}
+
+		bool isOpen = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
 
 		// The right click on header
 		if (ImGui::BeginPopupContextItem("popup"))
@@ -194,9 +198,10 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::PopID();
 	}
 
-	ImGui::Spacing();
+	ImGui::Dummy(ImVec2(0, 18));
 
-	if (ImGui::Button("+ Add Component", ImVec2(buttonWidth, 0.0f)))
+	ImGui::Indent(buttonMargin);
+	if (ImGui::Button("+ Add Component", ImVec2(buttonWidth - buttonMargin * 2.0f, buttonHeight)))
 	{
 		Scene::OpenComponentList();
 	}
