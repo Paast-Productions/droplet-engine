@@ -49,7 +49,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 {
 	ZoneScoped;
 	
-	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
+	ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
     ThreadPool::GetInstance().Initialize();
 	JPH::RegisterDefaultAllocator();
 	JPH::Trace = TraceImpl;
