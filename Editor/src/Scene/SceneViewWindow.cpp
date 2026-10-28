@@ -201,6 +201,18 @@ void SceneViewWindow::RenderToolbar()
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
+		ImGui::Separator();
+
+		// Camera movement speed
+		float movementSpeed = m_editorContext->GetEditorCameraController().GetMovementSpeed();
+		ImGui::DragFloat("Camera Movement Speed", &movementSpeed, 0.01f, 0.1f);
+		m_editorContext->GetEditorCameraController().SetMovementSpeed(movementSpeed);
+
+		// Camera FOV slider
+		float fov = m_editorContext->GetEditorCamera().GetFOV();
+		ImGui::DragFloat("Camera FOV", &fov, 0.1f, 1.0f, 179.0f);
+		m_editorContext->GetEditorCamera().SetFOV(fov);
+
 		ImGui::EndMenu();
 	}
 
