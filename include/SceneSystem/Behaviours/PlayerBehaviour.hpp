@@ -15,11 +15,6 @@ namespace Droplet::Scene
             return "PlayerBehaviour";
         }
 
-        [[nodiscard]] Droplet::Game::PlayerData &GetData()
-        {
-            return m_data;
-        }
-
         [[nodiscard]] const Droplet::Game::PlayerData &GetData() const
         {
             return m_data;
