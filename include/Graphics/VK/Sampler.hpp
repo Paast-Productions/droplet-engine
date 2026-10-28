@@ -23,6 +23,9 @@ namespace Droplet::Graphics::VK
 			m_sampler = { p_nullptr };
 		}
 
+		/// @brief Constructs a sampler
+		/// @param p_physicalDevice Vulkan Physical Device
+		/// @param p_device Vulkan Device
 		Sampler(const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::Device &p_device);
 
 		Sampler(Sampler &&p_other) noexcept
@@ -46,7 +49,9 @@ namespace Droplet::Graphics::VK
 		{
 			return m_sampler == p_other.m_sampler;
 		}
-
+		
+		/// @brief Getter function for the sampler
+		/// @returns Vulkan Sampler
 		[[nodiscard]] const vk::raii::Sampler &Get() const { return m_sampler; }
 
 	private:
