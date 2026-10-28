@@ -43,9 +43,6 @@
 [submodule "External/Droplet-ImGuizmo"]
 	path = External/Droplet-ImGuizmo
 	url = git@github.com:Paast-Productions/Droplet-ImGuizmo.git
-[submodule "External/LuaExt"]
-	path = External/LuaExt
-	url = git@github.com:lua/lua.git
 [submodule "External/LuaJIT"]
 	path = External/LuaJIT
 	url = https://luajit.org/git/luajit.git

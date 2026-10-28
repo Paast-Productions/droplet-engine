@@ -9,17 +9,9 @@ jit.on()
 
 ffi.cdef[[
 double sin(double x);
-]]
-ffi.cdef[[
 double cos(double x);
-]]
-ffi.cdef[[
 double atan(double x);
-]]
-ffi.cdef[[
 double acos(double x);
-]]
-ffi.cdef[[
 double sqrt(double x);
 ]]
 
@@ -124,23 +116,29 @@ function UpdateVelocity(dt)
         tracy.ZoneEnd()
         return
     end
-
+    
+    tracy.ZoneBeginN("V3MulF")
     toTarget = GLM.V3MulF(toTarget, 1.0 / distance)
-
+    tracy.ZoneEnd()
+    
     local forward = trans:GetForward()
-
-    -- Calculate yaw error around global Y.
-    local currentYaw = ffi.C.atan(forward.x / forward.z)
-    local targetYaw = ffi.C.atan(toTarget.x / toTarget.z)
+    
+    tracy.ZoneBeginN("Atan Calculation")
+    local currentYaw = math.atan(forward.x, forward.z)
+    local targetYaw = math.atan(toTarget.x, toTarget.z)
+    tracy.ZoneEnd()
+    
     local yawError = WrapAngle(targetYaw - currentYaw)
 
     -- Calculate pitch error.
-    local currentPitch = ffi.C.atan(
-        forward.y / ffi.C.sqrt(forward.x * forward.x + forward.z * forward.z)
+    local currentPitch = math.atan(
+        forward.y,
+        math.sqrt(forward.x * forward.x + forward.z * forward.z)
     )
 
-    local targetPitch = ffi.C.atan(
-        toTarget.y / ffi.C.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+    local targetPitch = math.atan(
+        toTarget.y,
+        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
     )
 
     local pitchError = targetPitch - currentPitch
@@ -174,8 +172,8 @@ function UpdateVelocity(dt)
     )
 
     -- Move forward, slowing down when misaligned or close to target.
-    local yawAlignment = ffi.C.cos(yawError)
-    local pitchAlignment = ffi.C.cos(pitchError)
+    local yawAlignment = math.cos(yawError)
+    local pitchAlignment = math.cos(pitchError)
 
     local alignment = Clamp(
         yawAlignment * pitchAlignment,
@@ -254,7 +252,6 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Fih OnUpdate")
-    print(jit.status())
     
 	if IsWithinTarget() then
 		NewTargetPoint()

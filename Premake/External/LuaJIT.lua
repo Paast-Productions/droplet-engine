@@ -11,20 +11,21 @@ project "LuaJIT"
     targetdir(targetBuildPath .. "/External/lib")
     objdir(objBuildPath .. "/%{prj.name}")
 
-    targetname "lua_static"
-
-    files {
-        
-    }
-
     includedirs {
         moduleDirectory
     }
 
-    prebuildcommands {
+    buildcommands {
         "{CHDIR} " .. moduleDirectory .. "/src", 
         "msvcbuild.bat debug static",
         "{CHDIR} " .. rootPath
+    }
+
+    buildoutputs {
+        targetBuildPath .. "/External/lib/minilua.lib",
+        targetBuildPath .. "/External/lib/lua51.lib",
+        targetBuildPath .. "/External/lib/luajit.lib",
+        targetBuildPath .. "/External/lib/buildvm.lib"
     }
 
     postbuildcommands {
