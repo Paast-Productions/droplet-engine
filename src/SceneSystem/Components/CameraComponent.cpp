@@ -34,6 +34,7 @@ using namespace Droplet::Scene;
 
 Droplet::Scene::CameraComponent::CameraComponent()
 {
+
 }
 
 void CameraComponent::StartImpl()

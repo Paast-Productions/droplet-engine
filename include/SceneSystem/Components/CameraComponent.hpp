@@ -54,7 +54,8 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        Droplet::Graphics::Camera *m_camera = nullptr;
+        Droplet::Graphics::Camera m_camera;
+
         // Node followed by the editor camera.
         std::weak_ptr<Node> m_target;
 
