@@ -144,7 +144,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
 
-		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			m_renderer.ResizeWindow();

@@ -67,5 +67,22 @@ namespace Droplet::Editor::Scene
 		/// @param p_width The width of the render target
 		/// @param p_height The height of the render target
 		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
+
+		/// @brief Handles the editor camera controls that operate on the current selection:
+		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
+		/// camera's forward direction, and the scroll wheel moves the camera along its forward axis.
+		/// Does nothing that depends on a selection when the selection is empty.
+		/// @param p_viewWidth Width of the camera view in pixels, used to scale panning.
+		void ProcessCameraControls(float p_viewWidth);
+
+		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void ApplyCameraPivot();
+		void DrawCameraPivot() const;
+
+		/// @brief Camera navigation drag currently in progress
+		enum class CameraDrag { None, Orbit, Pan };
+		CameraDrag m_cameraDrag = CameraDrag::None;
+		glm::vec3 m_cameraPivot = glm::vec3(0.0f);
+		float m_cameraPivotRadius = 8.0f;
 	};
 }
