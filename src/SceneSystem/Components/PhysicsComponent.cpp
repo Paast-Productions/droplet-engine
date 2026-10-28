@@ -135,7 +135,7 @@ void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, con
 	characterSettings->mShape = new JPH::CapsuleShape(p_HalfHeightOfCylinder, p_radius);
 	characterSettings->mLayer = Layers::MOVING;
 	characterSettings->mMass = 80.0f;
-	characterSettings->mFriction = 0.2f;
+	characterSettings->mFriction = 1.0f;
 	characterSettings->mMaxSlopeAngle = JPH::DegreesToRadians(50.0f);
 	m_character = new JPH::Character(
 		characterSettings,
