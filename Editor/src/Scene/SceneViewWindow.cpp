@@ -1,4 +1,6 @@
 #include "SceneViewWindow.hpp"
+
+// TODO: Clean whatever this mess is
 #include <math/bounds/Intersection.hpp>
 #include <math/bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -13,6 +15,7 @@
 #include <chrono>
 #include <iostream>
 #include <Graphics/DebugDraw.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
 
 using namespace Droplet::Editor::Scene;
@@ -150,8 +153,12 @@ void SceneViewWindow::InitImpl()
 	// TODO: 
 	//     Move this to the renderer and camera class. 
 	//     The camera should request the renderer to create a render target.
-	m_renderTarget = m_editorContext->GetEngine().CreateRenderTarget(720, 720);
-	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
+	
+	using namespace Graphics::VK;
+	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
+	
+	m_targetIndex = instance.CreateRenderTarget(720, 720);
+	m_textureIndex = instance.CreateImGuiTexture(instance.GetRenderTargetAt(m_targetIndex));
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -282,7 +289,9 @@ void SceneViewWindow::RenderImpl()
 	
 	GameInput &input = GameInput::Get();
 	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = m_renderTarget.GetExtent();
+	vk::Extent2D extent = Droplet::Graphics::VK::IntermediaryStorage::GetInstance()
+								.GetRenderTargetAt(m_targetIndex)
+								.GetExtent();
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -342,7 +351,7 @@ void SceneViewWindow::RenderImpl()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = m_textureDescriptorSet;
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1052,29 +1061,7 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
 }
 
-Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
-{
-	return m_renderTarget;
-}
-
-void SceneViewWindow::SetViewDescriptor(VkDescriptorSet p_textureDescriptor)
-{
-	m_textureDescriptorSet = p_textureDescriptor;
-}
-
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
 {
-	auto &renderer = m_editorContext->GetEngine().GetRenderer();
-	
-	renderer.WaitIdle();
-	
-	if (m_textureDescriptorSet != VK_NULL_HANDLE)
-	{
-		ImGui_ImplVulkan_RemoveTexture(m_textureDescriptorSet);
-		m_textureDescriptorSet = VK_NULL_HANDLE;
-	}
-	
-	m_renderTarget = renderer.CreateRenderTarget(width, height);
-	
-	m_textureDescriptorSet = renderer.RegisterImGuiTexture(m_renderTarget);
+	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(m_targetIndex, m_textureIndex, width, height);
 }
