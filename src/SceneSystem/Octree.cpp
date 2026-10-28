@@ -50,28 +50,51 @@ namespace Droplet::Scene
 
 		// Collect dirty nodes into a temporary list first to avoid mutating 
 		// the octree during traversal (prevents iterator invalidation crashes)
-		std::vector<std::shared_ptr<Node>> dirtyNodes; // TODO: Make weak pointer
+		std::vector<std::weak_ptr<Node>> dirtyNodes;
 		CollectDirtyNodes(m_root, dirtyNodes);
 		
 		// Removes duplicated nodes in dirtyNodes vector.
-		std::ranges::sort(dirtyNodes.begin(), dirtyNodes.end());
-		dirtyNodes.erase(std::ranges::unique(dirtyNodes).begin(), dirtyNodes.end());
-
-		for (const std::shared_ptr<Node> &node : dirtyNodes)
+		// std::ranges::sort(dirtyNodes.begin(), dirtyNodes.end());
+		// dirtyNodes.erase(std::ranges::unique(dirtyNodes).begin(), dirtyNodes.end());
+		std::vector<std::weak_ptr<Node>> uniqueNodes;
+		for (const std::weak_ptr<Node> &node : dirtyNodes)
 		{
-			if (node == nullptr || node->GetBounds() == nullptr)
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
 			{
 				continue;
 			}
 			
-			Math::AABB nodeBounds = node->GetBounds()->GetAABB();
-			nodeBounds.center = node->GetTransform().GetPosition();
+			bool exists = std::ranges::any_of(
+				uniqueNodes,
+				[&nodePtr](const std::weak_ptr<Node> &existing)
+				{
+					return existing.lock() == nodePtr;
+				});
+			
+			if (!exists)
+			{
+				uniqueNodes.push_back(node);
+			}
+		}
+		dirtyNodes = std::move(uniqueNodes);
+
+		for (const std::weak_ptr<Node> &node : dirtyNodes)
+		{
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr || nodePtr->GetBounds() == nullptr)
+			{
+				continue;
+			}
+			
+			Math::AABB nodeBounds = nodePtr->GetBounds()->GetAABB();
+			nodeBounds.center = nodePtr->GetTransform().GetPosition();
 			
 			// If the actual world bounds remain inside the previously inserted fat AABB,
 			// the tree's placements are still conservative and no reinsertion is needed.
-			if (m_placements.contains(node.get()))
+			if (m_placements.contains(nodePtr.get()))
 			{
-				if (Intersects(m_placements[node.get()], nodeBounds) == IntersectType::Contains)
+				if (Intersects(m_placements[nodePtr.get()], nodeBounds) == IntersectType::Contains)
 				{
 					continue;
 				}
@@ -79,7 +102,7 @@ namespace Droplet::Scene
 
 			RemoveFromTreeNode(node, m_root);
 			const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
-			m_placements[node.get()] = fatBounds;
+			m_placements[nodePtr.get()] = fatBounds;
 			AddToTreeNode(node, m_root, fatBounds);
 		}
 		
@@ -89,7 +112,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+	void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 	{
 		ZoneScoped;
 
@@ -98,14 +121,15 @@ namespace Droplet::Scene
 			return;
 		}
 		
-		Math::AABB nodeBounds = p_node->GetBounds()->GetAABB();
+		auto nodePtr = p_node.lock();
+		Math::AABB nodeBounds = nodePtr->GetBounds()->GetAABB();
 
 		const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
-		m_placements[p_node.get()] = fatBounds;
+		m_placements[nodePtr.get()] = fatBounds;
 		AddToTreeNode(p_node, m_root, fatBounds);
 	}
 
-	void Octree::RemoveNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+	void Octree::RemoveNode(const std::weak_ptr<Node> &p_node)
 	{
 		ZoneScoped;
 
@@ -117,29 +141,51 @@ namespace Droplet::Scene
 		RemoveFromTreeNode(p_node, m_root);
 	}
 
-	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes) // TODO: Make weak pointer
+	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
 	{
 		ZoneScoped;
 
 		CheckIntersection(p_outNodes, p_frustum, m_root);
 	}
 
-	void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes) // TODO: Make weak pointer
+	void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
 	{
 		ZoneScoped;
 
-		std::vector<std::shared_ptr<Node>> found;
+		std::vector<std::weak_ptr<Node>> found;
 		CollectContained(found, p_frustum, m_root);
 
 		// A node may be stored in several octants, so only keep unique ones
-		std::ranges::sort(found.begin(), found.end());
-		found.erase(std::ranges::unique(found).begin(), found.end());
+		// std::ranges::sort(found.begin(), found.end());
+		// found.erase(std::ranges::unique(found).begin(), found.end());
+		std::vector<std::weak_ptr<Node>> uniqueNodes;
+		for (const std::weak_ptr<Node> &node : found)
+		{
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
+			{
+				continue;
+			}
+			
+			bool exists = std::ranges::any_of(
+				uniqueNodes,
+				[&nodePtr](const std::weak_ptr<Node> &existing)
+				{
+					return existing.lock() == nodePtr;
+				});
+			
+			if (!exists)
+			{
+				uniqueNodes.push_back(node);
+			}
+		}
+		found = std::move(uniqueNodes);
 
 		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
 	}
 
-	void Octree::CollectContained(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-		const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained) // TODO: Make weak pointer
+	void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum,
+		const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained)
 	{
 		ZoneScoped;
 
@@ -166,18 +212,19 @@ namespace Droplet::Scene
 			octantContained = octantIntersection == IntersectType::Contains;
 		}
 
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			if (node == nullptr)
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
 			{
 				continue;
 			}
 
-			const NodeBounds *bounds = node->GetBounds();
+			const NodeBounds *bounds = nodePtr->GetBounds();
 
 			assert(bounds != nullptr && "Node bounds are null. This should never happen.");
 
-			if (bounds->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
+			if (bounds->Intersect(p_frustum, nodePtr->GetTransform().GetMatrix(Transform::Space::World)) == IntersectType::Contains)
 			{
 				p_nodes.push_back(node);
 			}
@@ -244,7 +291,7 @@ namespace Droplet::Scene
 		RenderOctant(m_root);
 	}
 
-	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes) // TODO: Make weak pointer
+	void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> &p_dirtyNodes)
 	{
 		ZoneScoped;
 
@@ -254,9 +301,10 @@ namespace Droplet::Scene
 		}
 
 		// Check stored Nodes in the current TreeNode
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			if (node != nullptr && node->GetTransform().HasBeenChanged())
+			auto nodePtr = node.lock();
+			if (nodePtr != nullptr && nodePtr->GetTransform().HasBeenChanged())
 			{
 				p_dirtyNodes.push_back(node);
 			}
@@ -275,12 +323,13 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddToTreeNode(const std::shared_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode, const AABB &p_placementBounds) // TODO: Make weak pointer
+	void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode, const AABB &p_placementBounds)
 	{
 		ZoneScoped;
 
 		// Early outs
-		if (p_node == nullptr)
+		auto nodePtr = p_node.lock();
+		if (nodePtr == nullptr)
 		{
 			return;
 		}
@@ -295,9 +344,9 @@ namespace Droplet::Scene
 			return;
 		}
 
-		const IntersectType intersection = p_node->GetBounds()->Intersect(
+		const IntersectType intersection = nodePtr->GetBounds()->Intersect(
 			p_treeNode->octant, 
-			p_node->GetTransform().GetMatrix(Transform::Space::World)
+			nodePtr->GetTransform().GetMatrix(Transform::Space::World)
 		);
 		if (intersection == IntersectType::None)
 		{
@@ -341,19 +390,20 @@ namespace Droplet::Scene
 			p_treeNode->isSubdivided = true;
 
 			// Re-distribute every stored node using its own cached placement bounds
-			const std::vector<std::shared_ptr<Node>> existingNodes = p_treeNode->nodes;
+			const std::vector<std::weak_ptr<Node>> existingNodes = p_treeNode->nodes;
 			p_treeNode->nodes.clear();
 			
-			for (const std::shared_ptr<Node> &node : existingNodes)
+			for (const std::weak_ptr<Node> &node : existingNodes)
 			{
-				if (node == nullptr)
+				auto existingNodePtr = node.lock();
+				if (existingNodePtr == nullptr)
 				{
 					continue;
 				}
 				
-				auto placement = m_placements.find(node.get());
+				auto placement = m_placements.find(existingNodePtr.get());
 				const AABB nodePlacement = placement != m_placements.end() ? placement->second : 
-					AABB::Transform(node->GetBounds()->GetAABB(), node->GetTransform().GetMatrix(Transform::Space::World));
+					AABB::Transform(existingNodePtr->GetBounds()->GetAABB(), existingNodePtr->GetTransform().GetMatrix(Transform::Space::World));
 				
 				for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
 				{
@@ -371,21 +421,24 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::RemoveFromTreeNode(const std::shared_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+	void Octree::RemoveFromTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
 		ZoneScoped;
 
-		if (p_node == nullptr || p_treeNode == nullptr)
+		auto nodePtr = p_node.lock();
+		if (nodePtr == nullptr || p_treeNode == nullptr)
 		{
 			return;
 		}
 
 		// Remove target Node from local storage if present
-		auto it = std::ranges::remove(p_treeNode->nodes, p_node).begin();
-		if (it != p_treeNode->nodes.end())
-		{
-			p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
-		}
+		auto it = std::ranges::remove_if(
+			p_treeNode->nodes,
+			[&p_node](const std::weak_ptr<Node> &node)
+			{
+				return node.lock() == p_node.lock();
+			}).begin();
+		p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
 
 		// Recurse down if subdivided
 		if (p_treeNode->isSubdivided)
@@ -419,8 +472,8 @@ namespace Droplet::Scene
 		p_childOctants[7] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h); // -x -y -z 
 	}
 
-	void Octree::CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-		const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+	void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum,
+		const std::unique_ptr<TreeNode> &p_treeNode)
 	{
 		ZoneScoped;
 
@@ -435,14 +488,15 @@ namespace Droplet::Scene
 			return;
 		case IntersectType::Intersects:
 			// Check individual nodes stored in this leaf
-			for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+			for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 			{
-				if (node == nullptr)
+				auto nodePtr = node.lock();
+				if (nodePtr == nullptr)
 				{
 					continue;
 				}
 
-				if (node->GetBounds()->Intersect(p_frustum, node->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
+				if (nodePtr->GetBounds()->Intersect(p_frustum, nodePtr->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 				{
 					p_nodes.push_back(node);
 				}
@@ -499,9 +553,10 @@ namespace Droplet::Scene
 		p_hit.distance = std::numeric_limits<float>::max();
 
 		// Check individual nodes stored in this leaf
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			if (node == nullptr)
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
 			{
 				continue;
 			}
@@ -510,8 +565,9 @@ namespace Droplet::Scene
 			{
 				// Check if the node is in the ignore list
 				auto it = std::find_if(p_ignoreNodes->begin(), p_ignoreNodes->end(),
-					[&node](const std::weak_ptr<Node> &weakNode) {
-						return !weakNode.expired() && weakNode.lock() == node;
+					[&nodePtr](const std::weak_ptr<Node> &weakNode) 
+					{
+						return !weakNode.expired() && weakNode.lock() == nodePtr;
 					});
 
 				if (it != p_ignoreNodes->end())
@@ -520,7 +576,7 @@ namespace Droplet::Scene
 				}
 			}
 
-			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+			RayHit nodeHit = nodePtr->GetBounds()->Raycast(p_ray, nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 
 			if (!nodeHit.didHit)
 			{
@@ -566,14 +622,15 @@ namespace Droplet::Scene
 		}
 
 		// Check individual nodes stored in this leaf
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			if (node == nullptr)
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
 			{
 				continue;
 			}
 
-			RayHit nodeHit = node->GetBounds()->Raycast(p_ray, node->GetTransform().GetMatrix(Transform::Space::World));
+			RayHit nodeHit = nodePtr->GetBounds()->Raycast(p_ray, nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 
 			if (!nodeHit.didHit)
 			{
@@ -584,7 +641,7 @@ namespace Droplet::Scene
 		}
 	}
 
-	void Octree::AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode) // TODO: Make weak pointer
+	void Octree::AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
 		ZoneScoped;
 
@@ -593,7 +650,7 @@ namespace Droplet::Scene
 			return;
 		}
 
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
 			p_nodes.push_back(node);
 		}
@@ -619,7 +676,7 @@ namespace Droplet::Scene
 			return;
 		}
 		
-		std::vector<std::shared_ptr<Node>> uniqueNodes;
+		std::vector<std::weak_ptr<Node>> uniqueNodes;
 		std::unordered_set<Node *> seenNodes;
 		
 		// We only need to know whether the count exceeds the merge threshold
@@ -632,14 +689,15 @@ namespace Droplet::Scene
 				return;
 			}
 
-			for (const std::shared_ptr<Node> &node : treeNode->nodes)
+			for (const std::weak_ptr<Node> &node : treeNode->nodes)
 			{
-				if (node == nullptr)
+				auto nodePtr = node.lock();
+				if (nodePtr == nullptr)
 				{
 					continue;
 				}
 
-				if (seenNodes.insert(node.get()).second)
+				if (seenNodes.insert(nodePtr.get()).second)
 				{
 					uniqueNodes.push_back(node);
 
@@ -710,17 +768,18 @@ namespace Droplet::Scene
 
 		if (!p_treeNode->nodes.empty())
 		{
-			for (std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+			for (std::weak_ptr<Node> &node : p_treeNode->nodes)
 			{
 				std::string nodeName = "Node" + std::to_string(p_nodeCounter++);
 
+				auto nodePtr = node.lock();
 				p_data += BoundingBoxToGraphviz(
 					AABB::Transform(
-						node->GetBounds()->GetAABB(), 
-						node->GetTransform().GetMatrix(Transform::Space::World)
+						nodePtr->GetBounds()->GetAABB(), 
+						nodePtr->GetTransform().GetMatrix(Transform::Space::World)
 					),
 					nodeName, 
-					node->GetName(), 
+					nodePtr->GetName(), 
 					"blue"
 				);
 			}
@@ -744,9 +803,10 @@ namespace Droplet::Scene
 			return myID;
 		}
 
-		for (std::shared_ptr<Node> &node : p_treeNode->nodes) // TODO: Make weak pointer
+		for (std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			p_data += std::to_string(myID) + "[label = \"" + node->GetName() + "\"]\n";
+			auto nodePtr = node.lock();
+			p_data += std::to_string(myID) + "[label = \"" + nodePtr->GetName() + "\"]\n";
 			p_data += std::to_string(p_nodeCounter) + " -> " + std::to_string(myID) + "\n";
 			myID++;
 		}
@@ -792,15 +852,17 @@ namespace Droplet::Scene
 		
 		Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
 		
-		for (const std::shared_ptr<Node> &node : p_treeNode->nodes)
-		{			if (node != nullptr)
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+		{
+			auto nodePtr = node.lock();
+			if (nodePtr != nullptr)
 			{
-				OBB obb = node->GetBounds()->GetTransformedOBB(node->GetTransform().GetMatrix(Transform::Space::World));
+				OBB obb = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 				Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
 				
-				if (m_placements.contains(node.get()))
+				if (m_placements.contains(nodePtr.get()))
 				{
-					Graphics::Debug::DebugDraw::DrawBox(m_placements[node.get()], glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+					Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()], glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
 				}
 			}
 		}

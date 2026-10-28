@@ -577,7 +577,7 @@ void SceneViewWindow::RenderImpl()
 				if (isMarquee)
 				{
 					// Only nodes fully inside the marquee are selected, found through the scene octree
-					std::vector<std::shared_ptr<Droplet::Scene::Node>> hitNodes = scene->GetNodesFullyInFrustum(selectionFrustum);
+					std::vector<std::weak_ptr<Droplet::Scene::Node>> hitNodes = scene->GetNodesFullyInFrustum(selectionFrustum);
 
 					if (!additiveSelection)
 					{
@@ -586,13 +586,14 @@ void SceneViewWindow::RenderImpl()
 
 					for (const auto &node : hitNodes)
 					{
-						if (additiveSelection && input.KeyHeld(Key::KeyLCTRL) && interactionState.IsNodeSelected(node))
+						auto nodePtr = node.lock();
+						if (additiveSelection && input.KeyHeld(Key::KeyLCTRL) && interactionState.IsNodeSelected(nodePtr))
 						{
-							interactionState.DeselectNode(node);
+							interactionState.DeselectNode(nodePtr);
 						}
 						else
 						{
-							interactionState.SelectNode(node, false);
+							interactionState.SelectNode(nodePtr, false);
 						}
 					}
 				}
