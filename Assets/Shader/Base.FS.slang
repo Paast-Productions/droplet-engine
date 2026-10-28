@@ -28,7 +28,7 @@ float4 main(FSInput vertIn) : SV_TARGET
 
     float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
 
-    float viewDotNormal = abs(dot(vertIn.fragNormal.xyz, camToFrag));
+    float viewDotNormal = (dot(vertIn.fragNormal.xyz, camToFrag));
     color.xyz *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
     return float4(color);
 }
