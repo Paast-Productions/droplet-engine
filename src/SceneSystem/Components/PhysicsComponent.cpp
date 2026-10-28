@@ -167,52 +167,6 @@ void PhysicsComponent::StartImpl()
 		m_physics = GetOwner()->GetScene()->GetPhysics();
 	}
 	m_transform = &GetOwner()->GetTransform();
-	
-	if (!m_isDeserialized && m_physics != nullptr && m_transform != nullptr)
-	{
-		switch (m_shapeType)
-		{
-		case ShapeType::Box:
-			m_shapeType = ShapeType::None;
-			SetBoxCollider(m_serializeData.halfExtents, m_offset);
-			break;
-		case ShapeType::Sphere:
-			m_shapeType = ShapeType::None;
-			SetSphereCollider(m_serializeData.r, m_offset);
-			break;
-		case ShapeType::Capsule:
-			m_shapeType = ShapeType::None;
-			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
-			break;
-		case ShapeType::Mesh:
-			m_shapeType = ShapeType::None;
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
-				{
-				   SetMeshCollider(p_meshGuid, p_offset);
-				});
-			break;
-		case ShapeType::ConvexHull:
-			m_shapeType = ShapeType::None;
-			
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
-				{
-					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
-				});
-			break;
-		case ShapeType::None:
-		case ShapeType::Compound:
-			break;
-		}
-	
-		SetMotionType(m_motion);
-		SetObjectLayer(m_layer);
-	
-		JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
-		JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
-		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
-	}
 }
 
 void PhysicsComponent::UpdateImpl()
@@ -412,6 +366,12 @@ void PhysicsComponent::RenderUIImpl()
 	}
 	
 	// ========== Collider type menu ==========
+	if (m_meshGuid != C_INVALID_GUID && m_shape == nullptr)
+	{
+		ImGui::TextWrapped("This component contains a mesh/convex hull collider which has not been loaded. Play the scene to load the collider.");
+		return;
+	}
+	
 	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull", "Compound" };
 	static int selectedColliderIdx = 0; // Here we store our selection data as an index.
 
@@ -899,6 +859,54 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	if (p_compJson.contains("h"))
 	{
 		m_serializeData.h = p_compJson["h"].get<float>();
+	}
+	
+	StartImpl();
+	
+	if (!m_isDeserialized && m_physics != nullptr && m_transform != nullptr)
+	{
+		switch (m_shapeType)
+		{
+		case ShapeType::Box:
+			m_shapeType = ShapeType::None;
+			SetBoxCollider(m_serializeData.halfExtents, m_offset);
+			break;
+		case ShapeType::Sphere:
+			m_shapeType = ShapeType::None;
+			SetSphereCollider(m_serializeData.r, m_offset);
+			break;
+		case ShapeType::Capsule:
+			m_shapeType = ShapeType::None;
+			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
+			break;
+		case ShapeType::Mesh:
+			m_shapeType = ShapeType::None;
+			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
+				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+				{
+				   SetMeshCollider(p_meshGuid, p_offset);
+				});
+			break;
+		case ShapeType::ConvexHull:
+			m_shapeType = ShapeType::None;
+			
+			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
+				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+				{
+					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
+				});
+			break;
+		case ShapeType::None:
+		case ShapeType::Compound:
+			break;
+		}
+	
+		SetMotionType(m_motion);
+		SetObjectLayer(m_layer);
+	
+		JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
+		JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
+		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
 	}
 }
 

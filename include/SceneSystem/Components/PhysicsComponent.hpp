@@ -192,7 +192,7 @@ namespace Droplet::Scene
 		JPH::ShapeRefC m_shape{};
 		JPH::Vec3 m_offset{};
 		
-		Droplet::GUID m_meshGuid;
+		Droplet::GUID m_meshGuid = C_INVALID_GUID;
 
 		// Member variables solely for (de)serialization
 		struct SerializeData
