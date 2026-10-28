@@ -110,11 +110,40 @@ namespace
 
 		return any;
 	}
+
+	/// @brief Computes the world-space center and bounding radius of the given nodes. Nodes without bounds contribute
+	/// their world position. Returns false if there are no valid nodes.
+	bool ComputeFocusSphere(const std::vector<std::shared_ptr<DNode>> &p_nodes, glm::vec3 &p_center, float &p_radius)
+	{
+		glm::vec3 boundsMin{}, boundsMax{};
+		bool any = ComputeWorldBounds(p_nodes, boundsMin, boundsMax);
+
+		for (const auto &node : p_nodes)
+		{
+			if (!node || node->GetBounds())
+			{
+				continue;
+			}
+
+			glm::vec3 position = node->GetTransform().GetMatrix(DTransform::Space::World)[3];
+			boundsMin = any ? glm::min(boundsMin, position) : position;
+			boundsMax = any ? glm::max(boundsMax, position) : position;
+			any = true;
+		}
+
+		if (!any)
+		{
+			return false;
+		}
+
+		p_center = (boundsMin + boundsMax) * 0.5f;
+		p_radius = glm::length(boundsMax - boundsMin) * 0.5f;
+		return std::isfinite(p_radius) && std::isfinite(p_center.x) && std::isfinite(p_center.y) && std::isfinite(p_center.z);
+	}
 }
 
 void SceneViewWindow::InitImpl()
 {
-	
 	SetName("Scene View"); 
 	ToggleToolbar(true);
 	
@@ -123,6 +152,11 @@ void SceneViewWindow::InitImpl()
 	//     The camera should request the renderer to create a render target.
 	m_renderTarget = m_editorContext->GetEngine().CreateRenderTarget(720, 720);
 	m_textureDescriptorSet = m_editorContext->GetEngine().RegisterImGuiTexture(m_renderTarget);
+
+	EditorCamera &camera = m_editorContext->GetEditorCamera();
+
+	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -200,6 +234,20 @@ void SceneViewWindow::RenderToolbar()
 		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("View"))
+	{
+		ImGui::Text(
+			"Controls:\n" 
+			" - F:             Focus view on selected objects\n"
+			" - MMB:           Pan along view plane\n"
+			" - Alt + LMB:     Rotate around pivot\n"
+			" - Scroll:        Move along view normal\n"
+			" - Alt + Scroll:  Zoom towards pivot\n"
+		);
 
 		ImGui::EndMenu();
 	}
@@ -450,7 +498,7 @@ void SceneViewWindow::RenderImpl()
 	if (!isDragging)
 	{
 		if (m_hoveringSceneView && !m_cameraLookToggled && !m_usingGizmo && !m_hoveringGizmo && !m_hoveringPlayButton
-			&& input.MousePressed(Mouse::LMB))
+			&& !input.KeyHeld(Key::KeyLALT) && m_cameraDrag == CameraDrag::None && input.MousePressed(Mouse::LMB))
 		{
 			isDragging = true;
 			dragStartPos = ImGui::GetIO().MousePos;
@@ -577,7 +625,17 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-		
+	
+	if (!m_cameraLookToggled && !m_usingGizmo && !m_hoveringGizmo && !m_hoveringPlayButton)
+	{
+		ProcessCameraControls(camSize.x);
+	}
+	else
+	{
+		m_cameraPivot = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * m_cameraPivotRadius;
+		m_cameraDrag = CameraDrag::None;
+	}
+
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
 	// Render play/pause button
@@ -799,7 +857,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 	// Render view manipulation gizmo in the top-right corner of the scene view
 	{
-		static float viewGizmoLength = 8.0f;
 		static float viewGizmoSize = 96.0f;
 		static float viewGizmoMargin = 8.0f;
 		static float drawPivotTimer = 0.0f;
@@ -809,7 +866,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		glm::mat4 editedView = camViewMat;
 		ImGuizmo::ViewManipulate(
 			&editedView[0][0], 
-			viewGizmoLength, 
+			m_cameraPivotRadius, 
 			viewGizmoPos, 
 			ImVec2(viewGizmoSize, viewGizmoSize), 
 			0x10101010
@@ -832,26 +889,153 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())
 		{
-			// Draw the point around which the camera rotates when using the view manipulation gizmo.
-			glm::vec3 pivot = camera.GetPosition() + camera.GetForward() * viewGizmoLength;
-			Math::Sphere pivotSphere(pivot, 0.1f);
-			DebugDraw::DrawSphere(pivotSphere, glm::vec4(1), 2, true);
-
-			// Scroll to move the camera forward/backward while keeping the pivot point in the same place.
-			float scrollDelta = -ImGui::GetIO().MouseWheel;
-			if (scrollDelta != 0.0f)
-			{
-				float lengthChange = scrollDelta * 0.05f;
-				viewGizmoLength *= 1.0f + lengthChange;
-				viewGizmoLength = std::max(viewGizmoLength, 0.2f);
-
-				camera.SetPosition(pivot - camera.GetForward() * viewGizmoLength);
-			}
+			DrawCameraPivot();
 		}
 	}
 
 	m_usingGizmo = ImGuizmo::IsUsingAny() || ImGuizmo::IsUsingViewManipulate() || didUse;
 	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds() || ImGuizmo::IsViewManipulateHovered();
+}
+
+void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
+{
+	GameInput &input = GameInput::Get();
+	ImGuiIO &io = ImGui::GetIO();
+	EditorCamera &camera = m_editorContext->GetEditorCamera();
+	InteractionState &interactionState = m_editorContext->GetInteractionState();
+	const bool active = m_hoveringSceneView || ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	bool hasSelection = interactionState.HasSelection();
+
+	// Focus: frame the selection while keeping the camera orientation
+	if (active && hasSelection && !io.WantTextInput && input.KeyPressed(Key::KeyF))
+	{
+		glm::vec3 center = glm::vec3(0.0f);
+		float selectionRadius = 0.0f;
+		ComputeFocusSphere(interactionState.GetSelectedNodes(), center, selectionRadius);
+
+		// Distance used to scale panning and zooming, so they feel the same regardless of scene scale
+		constexpr float c_defaultDistance = 8.0f;
+		float distance = hasSelection ? glm::length(center - camera.GetPosition()) : c_defaultDistance;
+		distance = std::max(distance, 0.1f);
+
+		const float halfFovH = glm::radians(camera.GetFOV()) * 0.5f;
+		const float aspect = std::max(camera.GetAspect(), 0.001f);
+		const float halfFovV = std::atan(std::tan(halfFovH) / aspect);
+		const float halfFov = std::max(std::min(halfFovH, halfFovV), 0.01f);
+
+		const float focusRadius = std::max(selectionRadius, 0.5f);
+		const float focusDistance = focusRadius / std::sin(halfFov) * 1.1f;
+
+		SetCameraPivot(center, focusDistance);
+		ApplyCameraPivot();
+
+		m_cameraDrag = CameraDrag::None;
+		return;
+	}
+
+	// Select the drag mode on press, and end it when the button is released
+	if (m_cameraDrag == CameraDrag::None)
+	{
+		if (active && m_hoveringSceneView)
+		{
+			if (input.KeyHeld(Key::KeyLALT) && input.MousePressed(Mouse::LMB))
+			{
+				m_cameraDrag = CameraDrag::Orbit;
+			}
+			else if (ImGui::IsMouseClicked(ImGuiMouseButton_Middle))
+			{
+				m_cameraDrag = CameraDrag::Pan;
+			}
+		}
+	}
+	else if ((m_cameraDrag == CameraDrag::Orbit && !input.MouseHeld(Mouse::LMB)) || 
+		(m_cameraDrag == CameraDrag::Pan && !ImGui::IsMouseDown(ImGuiMouseButton_Middle)))
+	{
+		m_cameraDrag = CameraDrag::None;
+	}
+
+	static float s_drawPivotTimer = 0.0f;
+
+	if (m_cameraDrag == CameraDrag::Orbit)
+	{
+		// Rotate around the pivot, keeping the distance to it
+		constexpr float C_ORBIT_SENSITIVITY = 0.25f; // TODO: Make configurable
+
+		camera.Rotate(
+			input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
+			-input.GetDeltaMouseY() * C_ORBIT_SENSITIVITY
+		);
+
+		ApplyCameraPivot();
+		s_drawPivotTimer = 0.5f;
+	}
+	else if (m_cameraDrag == CameraDrag::Pan)
+	{
+		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
+
+		// Pan in the plane perpendicular to the camera's forward direction
+		if (p_viewWidth > 0.0f)
+		{
+			const float worldPerPixel = 2.0f * m_cameraPivotRadius * std::tan(glm::radians(camera.GetFOV()) * 0.5f) / p_viewWidth;
+			const glm::vec3 offset = (-camera.GetRight() * io.MouseDelta.x + camera.GetUp() * io.MouseDelta.y) * (worldPerPixel * C_PAN_SENSITIVITY);
+
+			m_cameraPivot += offset;
+			ApplyCameraPivot();
+			s_drawPivotTimer = 0.5f;
+		}
+	}
+	else if (m_hoveringSceneView && io.MouseWheel != 0.0f)
+	{
+		constexpr float C_SCROLL_STEP = 0.1f; // TODO: Make configurable
+
+		if (input.KeyHeld(Key::KeyLALT))
+		{
+			// Zoom towards the pivot by changing the pivot radius
+			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
+			m_cameraPivotRadius *= step;
+			ApplyCameraPivot();
+		}
+		else
+		{
+			// Move along camera view direction, leaving the pivot radius unchanged.
+			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
+			m_cameraPivot += camera.GetForward() * step;
+			ApplyCameraPivot();
+		}
+
+		s_drawPivotTimer = 0.5f;
+	}
+
+	if (s_drawPivotTimer > 0.0f)
+	{
+		DrawCameraPivot();
+		s_drawPivotTimer -= ImGui::GetIO().DeltaTime;
+	}
+}
+
+void SceneViewWindow::SetCameraPivot(const glm::vec3 &p_pivot, float p_radius)
+{
+	m_cameraPivot = p_pivot;
+	m_cameraPivotRadius = p_radius;
+
+	// Save camera pivot radius
+	EditorConfig::StoreFloat("Editor.CameraPivotRadius", m_cameraPivotRadius);
+}
+
+void SceneViewWindow::ApplyCameraPivot()
+{
+	// Update the camera position to maintain the same distance from the pivot point
+	m_editorContext->GetEditorCamera().SetPosition(m_cameraPivot - m_editorContext->GetEditorCamera().GetForward() * m_cameraPivotRadius);
+}
+
+void SceneViewWindow::DrawCameraPivot() const
+{
+	Math::Sphere pivotSphere(m_cameraPivot, 0.03f);
+	DebugDraw::DrawSphere(pivotSphere, glm::vec4(1), 2);
+	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.1f, 0.0f, 0.0f), m_cameraPivot + glm::vec3(0.1f, 0.0f, 0.0f), glm::vec4(1, 0, 0, 1), false);
+	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.1f, 0.0f), m_cameraPivot + glm::vec3(0.0f, 0.1f, 0.0f), glm::vec4(0, 1, 0, 1), false);
+	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
 }
 
 Droplet::Graphics::RenderTarget &SceneViewWindow::GetRenderTarget()
