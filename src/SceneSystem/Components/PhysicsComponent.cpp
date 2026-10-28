@@ -935,6 +935,9 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	m_offset = p_offset;
 
 	m_physics->GetBodyInterface()->AddBody(m_bodyID, JPH::EActivation::Activate);
+	
+	SetMotionType(m_motion);
+	SetObjectLayer(m_layer);
 }
 
 void PhysicsComponent::PushTransformToPhysics()

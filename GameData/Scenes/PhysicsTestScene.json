@@ -109,12 +109,204 @@
                 }
             ],
             "id": 2,
-            "name": "Fish",
+            "name": "FishSphere",
             "transform": {
                 "position": [
                     0.0,
-                    30.0,
+                    29.89045524597168,
                     0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.5,
+                        "halfExtentsY": 0.5,
+                        "halfExtentsZ": 0.5,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 1
+                    },
+                    "id": 3,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "id": 3,
+            "name": "FishBox",
+            "transform": {
+                "position": [
+                    0.0,
+                    23.975454330444336,
+                    4.329999923706055
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "h": 0.5,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.5,
+                        "shapeType": 3
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "id": 4,
+            "name": "FishCapsule",
+            "transform": {
+                "position": [
+                    -7.574999809265137,
+                    28.39045524597168,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 13422515732780036519,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 5
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "id": 5,
+            "name": "FishConvex",
+            "transform": {
+                "position": [
+                    0.26499998569488525,
+                    24.305456161499023,
+                    -7.59499979019165
                 ],
                 "rotation": [
                     1.0,
