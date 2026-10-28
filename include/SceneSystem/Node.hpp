@@ -85,6 +85,9 @@ namespace Droplet::Scene
 		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
 		void EditorUpdate();
 
+        /// @brief Notifies the scene that the node wants to be rendered this frame.
+        void QueueRender();
+
         /// @brief Renders the Node.
         ///
         /// @note Currently unused and does not perform any rendering.
@@ -197,19 +200,6 @@ namespace Droplet::Scene
 		/// @param p_component Unique pointer to the Component to add.
         void AddComponent(std::unique_ptr<Component> &p_component);
 
-        /// @brief Adds a Component to the Node.
-        ///
-        /// Constructs the Component using the provided arguments, assigns this Node
-        /// as its owner, and stores it.
-        ///
-        /// If the Component provides a bounds override, it is registered as the
-        /// Node's bounds provider. A Node can only have one Component providing
-        /// a bounds override.
-        ///
-        /// If the Node has already been started, the Component is started immediately.
-        ///
-        /// Multiple Components of the same type can be attached to a Node.
-
         /// @brief Adds an exisiting component to the node
         /// 
         /// Attached an already created comoponent of any type
@@ -251,8 +241,6 @@ namespace Droplet::Scene
             return components;
         }
 
-
-        
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
@@ -367,5 +355,7 @@ namespace Droplet::Scene
         ///
         /// Only one Component can provide a bounds override at a time.
         std::weak_ptr<Component> m_boundsOverride{};
+
+		void ActiveChanged(bool p_active);
     };
 }

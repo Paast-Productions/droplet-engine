@@ -7,56 +7,58 @@
 
 using namespace Droplet::Scene;
 
-Component::Component()
-{
-	ZoneScoped;
-
-}
-
 void Component::Start()
 {
-	ZoneScoped;
-	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-	if (IsActive())
+	if (!IsActive())
 	{
-		StartImpl();
-
-		m_started = true;
+		return;
 	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	StartImpl();
+
+	m_started = true;
 }
 
 void Component::Update()
 {
-	ZoneScoped;
-	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-	if (IsActive())
+	if (!IsActiveSelf())
 	{
-		UpdateImpl();
+		return;
 	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	UpdateImpl();
 }
 
 void Component::LateUpdate()
 {
-	ZoneScoped;
-	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-	if (IsActive())
+	if (!IsActiveSelf())
 	{
-		LateUpdateImpl();
+		return;
 	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	LateUpdateImpl();
 }
 
 void Component::FixedUpdate()
 {
+	if (!IsActiveSelf())
+	{
+		return;
+	}
+
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
-	if (IsActive())
-	{
-		FixedUpdateImpl();
-	}
+	FixedUpdateImpl();
 }
 
 void Component::EditorUpdate()
@@ -64,18 +66,36 @@ void Component::EditorUpdate()
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
-	if (IsActive())
+	EditorUpdateImpl();
+}
+
+void Component::QueueRender()
+{
+	if (!IsActiveSelf())
 	{
-		EditorUpdateImpl();
+		return;
 	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	QueueRenderImpl();
+}
+
+void Component::GetRenderData(Graphics::RenderData &p_renderData)
+{
+	if (!IsActiveSelf())
+	{
+		return;
+	}
+
+	GetRenderDataImpl(p_renderData);
 }
 
 void Component::RenderUI()
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-    // TODO: Set active, delete
 
 	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
 	if (ImGui::BeginChild("ComponentUI", ImVec2(0,0), childFlags))
@@ -120,19 +140,26 @@ bool Component::IsActive() const
 
 void Component::SetActiveSelf(bool p_active)
 {
+	bool wasActive = IsActive();
+
 	m_active = p_active;
 
-	if (m_started)
+	bool isActive = IsActive();
+
+	if (wasActive != isActive)
 	{
-		ActiveChangedImpl(p_active);
+		ActiveChanged(isActive);
 	}
-	else
+}
+
+void Component::ActiveChanged(const bool p_active)
+{
+	if (p_active && !m_started)
 	{
-		if (m_active)
-		{
-			Start();
-		}
+		Start();
 	}
+
+	ActiveChangedImpl(p_active);
 }
 
 nlohmann::json Component::Serialize()
@@ -148,6 +175,7 @@ nlohmann::json Component::Serialize()
     compJson["type"] = GetTypeName(); 
 	compJson["id"] = GetID();
 	compJson["data"] = SerializeImpl();
+	compJson["active"] = IsActiveSelf();
 
     return compJson;
 }
@@ -156,6 +184,11 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (p_compJson.contains("active"))
+	{
+		SetActiveSelf(p_compJson["active"].get<bool>());
+	}
 
 	if (!p_compJson.contains("data"))
 	{
@@ -166,6 +199,6 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	DeserializeImpl(dataJson);
 }
 
-void Droplet::Scene::Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
+void Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
 {
 }

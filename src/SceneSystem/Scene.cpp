@@ -275,12 +275,9 @@ void Scene::SetActive(bool p_active)
 
     m_active = p_active;
 
-    if (m_active)
+    for (const auto &root : m_roots)
     {
-        for (const auto &root : m_roots)
-        {
-            root->Start();
-        }
+		root->ActiveChanged(m_active);
     }
 }
 

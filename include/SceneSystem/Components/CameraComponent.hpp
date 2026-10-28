@@ -17,13 +17,6 @@ namespace Droplet::Scene
     class CameraComponent : public Component
     {
     public:
-        CameraComponent();
-
-        void SetCamera(Droplet::Graphics::Camera *p_camera)
-        {
-            m_camera = p_camera;
-        }
-
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
         [[nodiscard]] std::string_view GetTypeName() const override
@@ -31,23 +24,10 @@ namespace Droplet::Scene
             return "CameraComponent";
         }
 
-        /// @brief Sets the camera offset relative to the target.
-        /// @param p_offset World-space position offset.
-        void SetOffset(const glm::vec3 &p_offset)
-        {
-            m_offset = p_offset;
-        }
-
-        /// @brief Gets the camera offset relative to the target.
-        /// @return The world-space position offset.
-        [[nodiscard]] const glm::vec3 &GetOffset() const
-        {
-            return m_offset;
-        }
-
     protected:
         void StartImpl() override;
-        void UpdateImpl() override;
+        void LateUpdateImpl() override;
+        void QueueRenderImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;

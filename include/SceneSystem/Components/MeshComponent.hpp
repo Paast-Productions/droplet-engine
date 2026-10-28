@@ -21,7 +21,6 @@ namespace Droplet::Scene
     {
     public:
         MeshComponent();
-        void GetRenderData(Graphics::RenderData &p_renderData) override;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
@@ -77,6 +76,7 @@ namespace Droplet::Scene
         void StartImpl() override;
         void UpdateImpl() override;
         void RenderUIImpl() override;
+        void GetRenderDataImpl(Graphics::RenderData &p_renderData) override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;

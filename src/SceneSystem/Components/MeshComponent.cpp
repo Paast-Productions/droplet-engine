@@ -27,7 +27,7 @@ void MeshComponent::UpdateImpl()
     //TODO: will be inplemted later when the mesh system is implemented
 }
 
-void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
+void MeshComponent::GetRenderDataImpl(Graphics::RenderData &p_renderData)
 {
     p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
 

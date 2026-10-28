@@ -49,6 +49,12 @@ void NodeInspectorWindow::RenderImpl()
 
 	// Name
 	std::string stringNodeName = m_currentNode->GetName();
+	// Remove "component" suffix from name if it exists
+	if (stringNodeName.size() >= 9 && stringNodeName.compare(stringNodeName.size() - 9, 9, "Component") == 0)
+	{
+		stringNodeName = stringNodeName.substr(0, stringNodeName.size() - 9);
+	}
+
 	if (ImGui::InputText("Node Name", &stringNodeName))
 	{
 		m_currentNode->SetName(stringNodeName);
@@ -199,17 +205,6 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		//HACK: SHOULD NOT DO THIS
-		if (selectedComponentName == "CameraComponent")
-		{
-			auto cameraComponent =
-				dynamic_cast<Droplet::Scene::CameraComponent *>(newComp.get());
-
-			if (cameraComponent)      
-			{
-				cameraComponent->SetCamera(&m_editorContext->GetEditorCamera());
-			}
-		}
 		m_currentNode->AttachComponent(newComp);
 	}
 
