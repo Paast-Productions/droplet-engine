@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
+#include "SavedScenesWindow.hpp"
 #include "ScriptsWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
@@ -158,15 +159,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     NodeInspectorWindow nodeInspectorWindow(&editorContext);
     BehaviourInspector behaviourInspector(&editorContext);
     ScriptsWindow scriptsWindow;
+    SavedScenesWindow savedScenesWindow;
     Resource::ResourceBrowser resourceBrowser(&editorContext);
 
     Scene::SceneViewWindow sceneViewWindow(&editorContext);
-    //sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
+    
 
     hierarchyWindow.Init();
     nodeInspectorWindow.Init();
     behaviourInspector.Init();
     scriptsWindow.Init();
+    savedScenesWindow.Init();
     resourceBrowser.Init();
     sceneViewWindow.Init();
 
@@ -368,6 +371,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         nodeInspectorWindow.Render();
         behaviourInspector.Render();
         scriptsWindow.Render();
+        savedScenesWindow.Render();
         resourceBrowser.Render();
         sceneViewWindow.Render();
 
