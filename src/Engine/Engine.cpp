@@ -53,8 +53,6 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
 	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
 
@@ -162,14 +160,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 		case SDL_EVENT_QUIT:
 			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
-
-		case SDL_EVENT_KEY_DOWN:
-			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
-			{
-				FrameMark;
-				return DROPLET_RETURNTYPE::EXIT;
-			}
-			break;
 
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_MINIMIZED:

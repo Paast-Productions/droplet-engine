@@ -22,6 +22,9 @@ namespace Droplet::Editor::Scene
 		/// @param p_active Boolean if true sets the camera to follow the cursor
 		void CameraLock(bool p_active);
 
+		void SetMovementSpeed(float p_speed) { m_movementSpeed = p_speed; }
+		float GetMovementSpeed() const { return m_movementSpeed; }
+
 	private:
 		EditorCamera &m_editorCamera;
 

@@ -10,6 +10,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Serialization/SceneSerializer.hpp>
 #include <Transform.hpp>
+#include "EditorClipboard.hpp"
 
 using namespace Droplet;
 
@@ -94,31 +95,12 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 	{
 		if (input.KeyPressed(Key::KeyC))
 		{
-			m_copiedNodes.clear();
-			for (auto selectedNode : p_editorContext.GetInteractionState().GetSelectedNodes())
-			{
-				m_copiedNodes.push_back(selectedNode);
-			}
+			CopySelectedNodes(p_editorContext);
 		}
 
 		if (input.KeyPressed(Key::KeyV))
 		{
-			for (auto node : m_copiedNodes)
-			{
-				std::println("PASTING DISABLED DUE TO ADVERSE EFFECTS");
-				return; // HACK: ABSOLUTELY DO NOT DO THIS. THIS WILL SILENTLY OVERWRITE PREFABS. Disabled for now to avoid mistakes.
-
-				//HACK very hacky fix this to be from a imGui clipboard, and we shouldn't even serialize it to a node
-				//HACK save just the nlohmann::json to a clipboard and deserialize that instead
-				const std::filesystem::path prefabDirectory = ROOT_PATH "/GameData/Prefabs";
-				std::string filePath = (prefabDirectory / (node.lock()->GetName() + ".json")).string();
-				//std::string name = node.lock()->GetName() + ".json";
-				p_editorContext.SaveNode(filePath,*node.lock());
-
-				glm::vec3 objectPos = p_editorContext.GetEditorCamera().GetPosition() + p_editorContext.GetEditorCamera().GetForward() * 5.0f;
-				
-				p_editorContext.LoadNodeFromFile(filePath,objectPos);
-			}
+			PasteNodes(p_editorContext);
 		}
 
 		if (input.KeyPressed(Key::KeyS))
@@ -132,4 +114,43 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 			}
 		}
 	}
+}
+
+void Droplet::Editor::EditorShortcuts::CopySelectedNodes(EditorContext &p_editorContext)
+{
+	Droplet::Scene::SceneSerializer serializer;
+
+	std::vector<nlohmann::json> serializedNodes;
+	serializedNodes.reserve(p_editorContext.GetInteractionState().GetSelectedNodes().size());
+
+	for (const std::shared_ptr<Droplet::Scene::Node>& node : p_editorContext.GetInteractionState().GetSelectedNodes())
+	{
+		if (!node)
+		{
+			continue;
+		}
+		nlohmann::json nodeJson = serializer.SerializeNode(*node);
+		serializedNodes.push_back(std::move(nodeJson));
+	}
+	Editor::EditorClipboard::CopyNodes(serializedNodes);
+}
+
+void Droplet::Editor::EditorShortcuts::PasteNodes(EditorContext &p_editorContext)
+{
+	Droplet::Scene::SceneSerializer serializer;
+	const std::optional<std::vector<nlohmann::json>> clipboardNodes = Editor::EditorClipboard::PasteNodes();
+
+	if (!clipboardNodes.has_value())
+	{
+		return;
+	}
+
+	auto scene = p_editorContext.GetActiveScene();
+	glm::vec3 objectPos = p_editorContext.GetEditorCamera().GetPosition() + p_editorContext.GetEditorCamera().GetForward() * 5.0f;
+
+	for (const nlohmann::json &nodeJson : *clipboardNodes)
+	{
+		serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
+	}
+
 }
