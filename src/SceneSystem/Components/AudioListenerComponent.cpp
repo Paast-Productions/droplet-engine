@@ -1,18 +1,6 @@
 #include "AudioListenerComponent.hpp"
 #include <ImGui/imgui.h>
 
-Droplet::Scene::AudioListenerComponent::AudioListenerComponent()
-{
-}
-
-void Droplet::Scene::AudioListenerComponent::StartImpl()
-{
-}
-
-void Droplet::Scene::AudioListenerComponent::UpdateImpl(float deltaTime)
-{
-}
-
 void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
 {
 }
