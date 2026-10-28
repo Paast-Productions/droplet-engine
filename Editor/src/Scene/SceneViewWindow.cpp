@@ -911,6 +911,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 {
+	ZoneScoped;
+
 	GameInput &input = GameInput::Get();
 	ImGuiIO &io = ImGui::GetIO();
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
