@@ -7,9 +7,13 @@
 #undef VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
+#include <vector>
+
 #include <SDL3/SDL.h>
 
-#include <vector>
+#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/VK/PresentTarget.hpp>
+
 
 namespace Droplet::Graphics::VK
 {
@@ -23,9 +27,7 @@ namespace Droplet::Graphics::VK
 		Swapchain(nullptr_t p_nullptr)
 		{
 			m_swapchain = { p_nullptr };
-			m_swapchainImages = {};
-			m_swapchainSurfaceFormat = vk::SurfaceFormatKHR{};
-			m_swapchainExtent = vk::Extent2D{};
+			m_surfaceFormat = vk::SurfaceFormatKHR{};
 		}
 		
 		Swapchain(const Swapchain &p_other) = delete;
@@ -34,10 +36,8 @@ namespace Droplet::Graphics::VK
 		Swapchain(Swapchain &&p_other) noexcept
 		{
 			std::swap(m_swapchain, p_other.m_swapchain);
-			std::swap(m_swapchainImages, p_other.m_swapchainImages);
-			std::swap(m_swapchainImageViews, p_other.m_swapchainImageViews);
-			std::swap(m_swapchainSurfaceFormat, p_other.m_swapchainSurfaceFormat);
-			std::swap(m_swapchainExtent, p_other.m_swapchainExtent);
+			std::swap(m_targetIndices, p_other.m_targetIndices);
+			std::swap(m_surfaceFormat, p_other.m_surfaceFormat);
 		}
 		
 		Swapchain &operator=(Swapchain &&p_other) noexcept
@@ -48,10 +48,8 @@ namespace Droplet::Graphics::VK
 			}
 			
 			std::swap(m_swapchain, p_other.m_swapchain);
-			std::swap(m_swapchainImages, p_other.m_swapchainImages);
-			std::swap(m_swapchainImageViews, p_other.m_swapchainImageViews);
-			std::swap(m_swapchainSurfaceFormat, p_other.m_swapchainSurfaceFormat);
-			std::swap(m_swapchainExtent, p_other.m_swapchainExtent);
+			std::swap(m_targetIndices, p_other.m_targetIndices);
+			std::swap(m_surfaceFormat, p_other.m_surfaceFormat);
 			
 			return *this;
 		}
@@ -67,103 +65,87 @@ namespace Droplet::Graphics::VK
 		
 		[[nodiscard]] bool operator==(const Swapchain &p_other) const
 		{
-			return (m_swapchain == p_other.m_swapchain								&&
-					m_swapchainImages == p_other.m_swapchainImages					&&
-					m_swapchainImageViews == p_other.m_swapchainImageViews			&&
-					m_swapchainSurfaceFormat == p_other.m_swapchainSurfaceFormat	&&
-					m_swapchainExtent == p_other.m_swapchainExtent);
+			return (m_swapchain == p_other.m_swapchain				&&
+					m_targetIndices == p_other.m_targetIndices		&&
+					m_surfaceFormat == p_other.m_surfaceFormat);
 		}
 		
-		/// @brief Clears the swapchain images and sets the pointer to nullptr
-		void Cleanup(const vk::raii::Device &p_device);
-
-		/// Creates a new swapchain and images just like the constructor
-		void Recreate(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_surface);
-
-		/// @brief Swapchain extent getter
-		/// @return The swapchain extent
-		[[nodiscard]] vk::Extent2D GetExtent() const;
-
-		/// @brief Surface format getter
-		/// @return Reference to the swapchain surface format
-		[[nodiscard]] const vk::SurfaceFormatKHR &GetSurfaceFormat() const;
-
-		/// @brief Swapchain imageview getter
-		/// @return Reference to the swapchain image views
-		[[nodiscard]] const std::vector<vk::raii::ImageView> &GetImageViews() const;
-
-		/// @brief Swapchain iamge getter
-		/// @return Reference to the swapchain images
-		[[nodiscard]] const std::vector<vk::Image> &GetImages() const;
-
+		/// @brief Acquires the image of the next available presentation image
+		/// @param p_device Vulkan device
+		/// @param p_semaphore Vulkan semaphore
+		/// @param p_fence Vulkan fence
+		/// @param p_timeout Time in nanoseconds before swapchain stops waiting for next available image
+		/// @returns Index of the next available image
+		[[nodiscard]] vk::ResultValue<std::uint32_t> AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, std::uint64_t p_timeout);
+		
+		/// @brief Getter function for the current image index
+		/// @returns Current image index
+		[[nodiscard]] std::uint32_t GetCurrentImageIndex() const { return m_currentIndex; }
+		
+		/// @brief Getter function for the total amount of swapchain images
+		/// @returns Number of swapchain images
+		[[nodiscard]] std::uint32_t GetNumImages() const { return m_targetIndices.size(); }
+		
 		/// @brief Swapchain getter
 		/// @return Reference to the swapchain
-		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const;
+		[[nodiscard]] const vk::raii::SwapchainKHR &Get() const { return m_swapchain; }
+		
+		/// @brief Getter function for the current present image
+		/// @returns Present image
+		[[nodiscard]] vk::Image GetPresentImage() const { return m_swapchain.getImages().at(m_currentIndex); }
+		
+		/// @brief Getter function for the current depth image
+		/// @returns Depth image
+		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthImage(); }
+		
+		/// @brief Getter function for the current present image view
+		/// @returns Present image view
+		[[nodiscard]] const vk::raii::ImageView &GetPresentImageView() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetPresentImageView(); }
+		
+		/// @brief Getter function for the current depth image view
+		/// @returns Depth image view
+		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthImageView(); }
+		
+		/// @brief Getter function for the current depth image format
+		/// @returns Depth image format
+		[[nodiscard]] vk::Format GetDepthFormat() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetDepthFormat(); }
+		
+		/// @brief Getter function for the current present image extent
+		/// @returns Image extent
+		[[nodiscard]] vk::Extent2D GetExtent() const { return IntermediaryStorage::GetInstance().GetPresentTargetAt(m_targetIndices.at(m_currentIndex)).GetExtent(); } 
+		
+		/// @brief Surface format getter
+		/// @return Reference to the swapchain surface format
+		[[nodiscard]] vk::SurfaceFormatKHR GetSurfaceFormat() const { return m_surfaceFormat; }
 
 	private:
-
-		/// @brief Class helper function for creating/recreating the swapchain
-		/// @param p_device Reference to the vulkan device
-		/// @param p_physicalDevice Reference to the hardware device
-		/// @param p_window Pointer to the SDL window
-		/// @param p_swapSurface Reference to the swapchain surface
-		void CreateSwapchain(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, SDL_Window *p_window, const vk::raii::SurfaceKHR &p_swapSurface);
 
 		/// @brief Chooses the swapchain surface format amongst the available options
 		/// @param p_availableFormats Available swapchain surface format options
 		/// @return The chosen format
-		vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &p_availableFormats);
+		[[nodiscard]] vk::SurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR> &p_availableFormats);
 
 		/// @brief Chooses the minimum amount of swapchain images dependent on surface capabilities
 		/// @param p_surfaceCapabilities Capabilities of the surface
 		/// @return Minimum amount of swapchain images
-		std::uint32_t ChooseSwapMinImageCount(const vk::SurfaceCapabilitiesKHR &p_surfaceCapabilities);
+		[[nodiscard]] std::uint32_t ChooseSwapMinImageCount(const vk::SurfaceCapabilitiesKHR &p_surfaceCapabilities);
 
 		/// @brief Choose swapchain extent depending on window size
 		/// @param p_capabilities The capabilities of the swapchain surface
 		/// @param p_window Reference to the SDL window
 		/// @return The new swapchain extent
-		vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &p_capabilities, SDL_Window *p_window);
+		[[nodiscard]] vk::Extent2D ChooseSwapExtent(vk::SurfaceCapabilitiesKHR const &p_capabilities, SDL_Window *p_window);
 
 		/// @brief Chooses a swapchain present mode from available options
 		/// @param p_availablePresentModes Available present mode options
 		/// @return The chosen present mode
-		vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> &p_availablePresentModes);
+		[[nodiscard]] vk::PresentModeKHR ChooseSwapPresentMode(const std::vector<vk::PresentModeKHR> &p_availablePresentModes);
 
-		/// @brief Creates swapchain image views
-		/// @param p_device Reference to the vulkan device
-		void CreateImageViews(const vk::raii::Device &p_device);
-
-		vk::raii::SwapchainKHR				m_swapchain = nullptr;
-		std::vector<vk::Image>				m_swapchainImages;
-		std::vector<vk::raii::ImageView>    m_swapchainImageViews;
-		vk::SurfaceFormatKHR				m_swapchainSurfaceFormat;
-		vk::Extent2D						m_swapchainExtent;
+		vk::raii::SwapchainKHR			m_swapchain { nullptr };
+		std::vector<std::uint32_t>		m_targetIndices {}; 
+		vk::SurfaceFormatKHR			m_surfaceFormat {};
+		
+		std::uint32_t m_currentIndex { 0 };
 	};
-
-	[[nodiscard]] inline vk::Extent2D Swapchain::GetExtent() const
-	{
-		return m_swapchainExtent;
-	}
-
-	[[nodiscard]] inline const vk::SurfaceFormatKHR &Swapchain::GetSurfaceFormat() const
-	{
-		return m_swapchainSurfaceFormat;
-	}
-
-	[[nodiscard]] inline const std::vector<vk::raii::ImageView> &Swapchain::GetImageViews() const
-	{
-		return m_swapchainImageViews;
-	}
-
-	[[nodiscard]] inline const std::vector<vk::Image> &Swapchain::GetImages() const
-	{
-		return m_swapchainImages;
-	}
-
-	[[nodiscard]] inline const vk::raii::SwapchainKHR &Swapchain::Get() const
-	{
-		return m_swapchain;
-	}
 }
 
