@@ -3,13 +3,47 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
-#include <SceneSystem/Components/CameraComponent.hpp>
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
 
 using namespace Droplet;
+
+// Callback for traces, connect this to your own trace function if you have one
+static void TraceImpl(const char *inFMT, ...)
+{
+	// Format the message
+	va_list list;
+	va_start(list, inFMT);
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), inFMT, list);
+	va_end(list);
+
+	// Print to the TTY
+	std::cout << buffer << std::endl;
+}
+
+#ifdef JPH_ENABLE_ASSERTS
+
+// Callback for asserts, connect this to your own assert handler if you have one
+static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, JPH::uint inLine)
+{
+	// Print to the TTY
+	std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "") << std::endl;
+
+	// Breakpoint
+	return true;
+};
+
+#endif // JPH_ENABLE_ASSERTS
 
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
 {
@@ -17,6 +51,13 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	
 	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
     ThreadPool::GetInstance().Initialize();
+	JPH::RegisterDefaultAllocator();
+	JPH::Trace = TraceImpl;
+#ifdef JPH_DEBUG
+	JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
+#endif
+	JPH::Factory::sInstance = new JPH::Factory();
+	JPH::RegisterTypes();
     
     // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
@@ -42,6 +83,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Register engine components
 	RegisterComponents();
+
+	// Script Init
+	ScriptSystem::Get().Initialize(m_sceneManager);
 }
 
 Droplet::Engine::~Engine()
@@ -101,13 +145,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 			return DROPLET_RETURNTYPE::EXIT;
 
 		case SDL_EVENT_KEY_DOWN:
-			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
-			{
-				FrameMark;
-				return DROPLET_RETURNTYPE::EXIT;
-			}
-			break;
-
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			m_renderer.ResizeWindow();
@@ -133,7 +170,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	
 	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
 
-	
 	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
@@ -178,4 +214,7 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
 }

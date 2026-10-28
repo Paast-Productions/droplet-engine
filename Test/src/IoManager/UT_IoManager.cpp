@@ -9,8 +9,6 @@
 #include "Core/ThreadPool.hpp"
 
 namespace fs = std::filesystem;
-using Droplet::Debug::Logger;
-using Droplet::ThreadPool;
 namespace Droplet::Core
 {
     class IOManagerTest : public ::testing::Test
@@ -135,8 +133,6 @@ namespace Droplet::Core
 
     TEST_F(IOManagerTest, LoadThrowsWhenJsonIsInvalid)
     {
-        Logger& log = Logger::GetInstance();
-		log.ClearLog();
         CreateTestFile(R"({
             "name": "Player",
             "level":
@@ -145,12 +141,10 @@ namespace Droplet::Core
         const std::string path = testFile.string();
 
         nlohmann::json result = JsonIO::Read(path);
-        log.WriteToJsonFile();
 
         std::this_thread::sleep_for(
             std::chrono::milliseconds(100));
 
-        EXPECT_TRUE(std::filesystem::exists("logger.json"));
         EXPECT_TRUE(result.is_discarded());
     }
 

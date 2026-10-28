@@ -47,7 +47,7 @@ namespace Droplet::Scene
 
     protected:
         void StartImpl() override;
-        void UpdateImpl(float p_deltaTime) override;
+        void UpdateImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
@@ -59,6 +59,14 @@ namespace Droplet::Scene
         std::weak_ptr<Node> m_target;
 
         // Offset from the target's world position.
-        glm::vec3 m_offset{1.5f, 0.0f, 0.0f};
+        glm::vec3 m_offset{0.0f, 3.0f, 0.3f};
+
+        glm::vec3 m_smoothedPosition{ 0.0f };
+        float m_smoothedYaw = 0.0f;     // degrees
+        float m_smoothedPitch = 0.0f;   // degrees
+
+        float m_rotationLag = 30.0f;     // higher = snappier, lower = laggier
+        float m_positionLag = 60.0f;
+
     };
 }

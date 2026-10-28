@@ -9,6 +9,7 @@
 #include <ImGui/imgui_stdlib.h>
 #include <DebugDrawBindings.hpp>
 #include <BoundsBindings.hpp>
+#include <SceneBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
 
@@ -25,7 +26,7 @@ std::vector<LuaGlobalFunctionDefinition> LuaBindings::m_luaGlobalDefinitions;
 std::vector<LuaClassDefinition> LuaBindings::m_luaClassDefinitions;
 std::vector<LuaEnumDefinition> LuaBindings::m_luaEnumDefinitions;
 
-void LuaBindings::RegisterBindings(sol::state_view p_luaState)
+void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 
@@ -38,6 +39,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState)
 	RegisterTracy(p_luaState);
     RegisterBounds(p_luaState);
     RegisterDebugDraw(p_luaState);
+	RegisterScenes(p_luaState, p_sceneManager);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -144,6 +146,7 @@ void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 		"Move", [&](Transform &transform, const glm::vec3 &amount, OptSpace space) { transform.Move(amount, space.value_or(TSLocal)); },
 		"Rotate", [&](Transform &transform, const glm::quat &rotation, OptSpace space) { transform.Rotate(rotation, space.value_or(TSLocal)); },
 		"RotateEuler", [&](Transform &transform, const glm::vec3 &euler, OptSpace space) { transform.RotateEuler(euler, space.value_or(TSLocal)); },
+		"SlerpRotation", [&](Transform &transform, const glm::quat &target, float t, OptSpace space) { transform.SlerpRotation(target, t, space.value_or(TSLocal)); },
 		"MoveRelative", &Transform::MoveRelative,
 		"RotateEulerRelative", &Transform::RotateEulerRelative,
 		"AddScale", &Transform::AddScale,
@@ -277,6 +280,15 @@ void LuaBindings::RegisterTransform(sol::state_view p_luaState)
 			"void",
 			{
 				{ "rotation", "Quat" },
+				{ "space", "TransformSpace", true }
+			}
+		},
+		{
+			"SlerpRotation",
+			"void",
+			{
+				{ "target", "Quat" },
+				{ "t", "number" },
 				{ "space", "TransformSpace", true }
 			}
 		},

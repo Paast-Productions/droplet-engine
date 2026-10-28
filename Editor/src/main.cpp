@@ -20,12 +20,14 @@
 
 using namespace Droplet::Editor;
 
+const glm::vec2 C_INITSIZE = { 1280, 720 };
+
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
     // TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
     ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-    glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", glm::vec2(1280, 720));
+    glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", C_INITSIZE);
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -33,7 +35,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         Droplet::Graphics::SDL::WindowConfig{
             static_cast<int>(windowSize.x),
             static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE},
+            { SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
             "Droplet Editor"
         },
         Droplet::UpdateFlags::EditorFlags
@@ -95,6 +97,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     static const ImWchar iconsRanges[] = {ICON_MIN_LC, ICON_MAX_16_LC, 0};
     io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
     
+
     for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(ROOT_PATH "/Editor/Fonts/"))
     {
         if (dirEntry.path().extension() == ".ttf" && dirEntry.path().filename().generic_string() != "lucide.ttf")

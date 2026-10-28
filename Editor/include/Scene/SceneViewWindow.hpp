@@ -3,6 +3,7 @@
 #include <memory>
 #include <Ray.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <EditorWindow.hpp>
 #include <EditorCamera.hpp>
 #include <EditorCameraController.hpp>
@@ -41,6 +42,12 @@ namespace Droplet::Editor::Scene
 		bool m_usingGizmo = false;
 		bool m_hoveringSceneView = false;
 		bool m_hoveringPlayButton = false;
+
+		/// @brief Gizmo matrix for a multi-node selection, kept between frames while the gizmo is in use
+		glm::mat4 m_groupGizmoMatrix = glm::mat4(1.0f);
+		/// @brief Aggregate selection bounds (min, max) relative to the group gizmo matrix
+		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
+		bool m_groupGizmoActive = false;
 		
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;

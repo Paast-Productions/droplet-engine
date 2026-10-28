@@ -30,16 +30,16 @@
             1.0
         ],
         [
-            0.11999999731779099,
-            0.12999999523162842,
-            0.15000000596046448,
+            0.15274310111999512,
+            0.16733092069625854,
+            0.1965065598487854,
             1.0
         ],
         [
             0.14000000059604645,
             0.15000000596046448,
             0.17000000178813934,
-            1.0
+            0.0
         ],
         [
             0.10000000149011612,
@@ -270,10 +270,10 @@
             0.0
         ],
         [
-            0.25999999046325684,
-            0.5899999737739563,
-            0.9800000190734863,
-            0.699999988079071
+            1.0,
+            1.0,
+            1.0,
+            0.528384268283844
         ],
         [
             0.20000000298023224,
@@ -397,15 +397,15 @@
         ]
     ],
     "ColumnsMinSpacing": 6.0,
-    "CurveTessellationTol": 1.25,
+    "CurveTessellationTol": 0.0,
     "DisabledAlpha": 0.6000000238418579,
     "DisplaySafeAreaPadding": [
-        3.0,
-        3.0
+        0.0,
+        0.0
     ],
     "DisplayWindowPadding": [
-        19.0,
-        19.0
+        20.0,
+        20.0
     ],
     "DockingNodeHasCloseButton": false,
     "DockingSeparatorSize": 4.0,
@@ -417,12 +417,12 @@
     "FontScaleDpi": 1.0,
     "FontScaleMain": 1.0,
     "FontSizeBase": 13.0,
-    "FrameBorderSize": 0.0,
+    "FrameBorderSize": 1.0,
     "FramePadding": [
         10.0,
         6.0
     ],
-    "FrameRounding": 5.0,
+    "FrameRounding": 6.0,
     "GrabMinSize": 14.0,
     "GrabRounding": 3.0,
     "HoverDelayNormal": 0.4000000059604645,
@@ -455,7 +455,7 @@
         0.0,
         0.0
     ],
-    "SeparatorSize": 2.0,
+    "SeparatorSize": 3.0,
     "SeparatorTextAlign": [
         0.0,
         0.5
@@ -465,7 +465,7 @@
         20.0,
         3.0
     ],
-    "TabBarBorderSize": 2.0,
+    "TabBarBorderSize": 1.0,
     "TabBarOverlineSize": 1.0,
     "TabBorderSize": 0.0,
     "TabCloseButtonMinWidthSelected": -1.0,

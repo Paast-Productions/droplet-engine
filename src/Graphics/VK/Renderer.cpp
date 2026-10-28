@@ -238,7 +238,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer
 	);
 
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.3f, 1.0f);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo

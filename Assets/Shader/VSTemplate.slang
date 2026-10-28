@@ -38,7 +38,8 @@ struct UniformBuffer
 layout(set = 0, binding = 0) ConstantBuffer<UniformBuffer> vp;
 
 [shader("vertex")]
-VSOutput main(VSInput input) {
+VSOutput main(VSInput input) 
+{
     VSOutput output;
 
     //Basic world view projection multiplication

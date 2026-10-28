@@ -1,11 +1,19 @@
 {
-    "name": "New Scene",
+    "name": "MainScene",
     "roots": [
         {
             "active": true,
             "children": [],
-            "components": [],
-            "id": 6,
+            "components": [
+                {
+                    "data": {
+                        "filepath": ""
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 1,
             "name": "New Node",
             "transform": {
                 "position": [
