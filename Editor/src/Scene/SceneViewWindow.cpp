@@ -315,11 +315,17 @@ void SceneViewWindow::RenderToolbar()
 	if (ImGui::BeginMenu("View"))
 	{
 		ImGui::Text(
+			"Info:\n"
+			"    Editor Camera rotates & zooms relative to a pivot point\n"
+			"    some distance in front of it. This pivot may be moved by\n"
+			"    panning or focusing a selection. The pivot can be seen \n"
+			"    while using any camera controls.\n\n"
+
 			"Controls:\n" 
-			" - F:             Focus view on selected objects\n"
+			" - F:             Focus view & pivot on selection\n"
 			" - MMB:           Pan along view plane\n"
 			" - Alt + LMB:     Rotate around pivot\n"
-			" - Scroll:        Move along view normal\n"
+			" - Scroll:        Move along view normal at constant rate\n"
 			" - Alt + Scroll:  Zoom towards pivot\n"
 		);
 
@@ -411,7 +417,7 @@ void SceneViewWindow::RenderImpl()
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 
-	m_hoveringSceneView = ImGui::IsItemHovered();
+	m_hoveringSceneView = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
 	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
@@ -1006,6 +1012,11 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	InteractionState &interactionState = m_editorContext->GetInteractionState();
 	const bool active = m_hoveringSceneView || ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
+	ImGui::SetCursorPosY(100);
+	ImGui::Indent(100);
+	ImGui::Text("Hovering: %s", m_hoveringSceneView ? "true" : "false");
+	ImGui::Text("Active: %s", active ? "true" : "false");
+
 	bool hasSelection = interactionState.HasSelection();
 
 	// Focus: frame the selection while keeping the camera orientation
@@ -1038,8 +1049,12 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	// Select the drag mode on press, and end it when the button is released
 	if (m_cameraDrag == CameraDrag::None)
 	{
+		ImGui::Text("No CameraDrag");
+
 		if (active && m_hoveringSceneView)
 		{
+			ImGui::Text("Looking for CameraDrag");
+
 			if (input.KeyHeld(Key::KeyLALT) && input.MousePressed(Mouse::LMB))
 			{
 				m_cameraDrag = CameraDrag::Orbit;
@@ -1060,6 +1075,8 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
+		ImGui::Text("Orbit");
+
 		// Rotate around the pivot, keeping the distance to it
 		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
 
@@ -1074,6 +1091,8 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
+		ImGui::Text("Pan");
+
 		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
@@ -1094,6 +1113,8 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{
+			ImGui::Text("Zoom to Pivot");
+
 			// Zoom towards the pivot by changing the pivot radius
 			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
 			m_cameraPivotRadius *= step;
@@ -1101,6 +1122,8 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 		}
 		else
 		{
+			ImGui::Text("Zoom Forward");
+
 			// Move along camera view direction, leaving the pivot radius unchanged.
 			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
 			m_cameraPivot += camera.GetForward() * step;
