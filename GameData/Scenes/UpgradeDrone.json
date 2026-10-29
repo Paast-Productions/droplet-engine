@@ -33,7 +33,7 @@
                     "type": "ScriptComponent"
                 }
             ],
-            "id": 1,
+            "id": 9,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -93,13 +93,13 @@
                     "type": "ScriptComponent"
                 }
             ],
-            "id": 2,
+            "id": 10,
             "name": "New Node",
             "transform": {
                 "position": [
-                    8.232954025268555,
+                    10.103314399719238,
                     -1.043624758720398,
-                    0.8579848408699036
+                    0.4592703580856323
                 ],
                 "rotation": [
                     1.0,
@@ -139,7 +139,7 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 3,
+            "id": 11,
             "name": "New Node",
             "transform": {
                 "position": [
