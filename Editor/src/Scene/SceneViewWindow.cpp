@@ -1102,7 +1102,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 			const float worldPerPixel = 2.0f * m_cameraPivotRadius * std::tan(glm::radians(camera.GetFOV()) * 0.5f) / p_viewWidth;
 			const glm::vec3 offset = (-camera.GetRight() * io.MouseDelta.x + camera.GetUp() * io.MouseDelta.y) * (worldPerPixel * C_PAN_SENSITIVITY);
 
-			m_cameraPivot += offset;
+			SetCameraPivot(m_cameraPivot + offset, m_cameraPivotRadius);
 			ApplyCameraPivot();
 			s_drawPivotTimer = 0.5f;
 			m_wrapMouse = true;
@@ -1118,7 +1118,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 			// Zoom towards the pivot by changing the pivot radius
 			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
-			m_cameraPivotRadius *= step;
+			SetCameraPivot(m_cameraPivot, m_cameraPivotRadius * step);
 			ApplyCameraPivot();
 		}
 		else
@@ -1127,7 +1127,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 			// Move along camera view direction, leaving the pivot radius unchanged.
 			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
-			m_cameraPivot += camera.GetForward() * step;
+			SetCameraPivot(m_cameraPivot + (camera.GetForward() * step), m_cameraPivotRadius);
 			ApplyCameraPivot();
 		}
 
