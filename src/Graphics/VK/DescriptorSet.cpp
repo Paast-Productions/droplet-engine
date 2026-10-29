@@ -1,49 +1,35 @@
 #include "DescriptorSet.hpp"
 
 #include <print>
+#include <iostream>
+#include <algorithm>
 
 using namespace Droplet::Graphics::VK;
 
-DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool) 
+DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool, vk::DescriptorType p_descriptorType) : 
+    m_descriptorType (p_descriptorType)
 {
-    constexpr std::array<vk::DescriptorBindingFlags, 2> bindingFlags
+    constexpr vk::DescriptorBindingFlags bindingFlags
     {
-        {
-            {
-               vk::DescriptorBindingFlagBits::ePartiallyBound 
-               | vk::DescriptorBindingFlagBits::eUpdateAfterBind
-               | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
-            },
-            {vk::DescriptorBindingFlagBits::ePartiallyBound 
-            | vk::DescriptorBindingFlagBits::eUpdateAfterBind
-            | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
-            }
-        }
+        vk::DescriptorBindingFlagBits::ePartiallyBound 
+        | vk::DescriptorBindingFlagBits::eUpdateAfterBind
+        | vk::DescriptorBindingFlagBits::eUpdateUnusedWhilePending
+        | vk::DescriptorBindingFlagBits::eVariableDescriptorCount
     };
     
-    constexpr std::array<vk::DescriptorSetLayoutBinding, 2> bindings 
+    const vk::DescriptorSetLayoutBinding binding 
     {
-        {
-            {
-                .binding = static_cast<std::uint32_t>(DescriptorSetBinding::eUniformBuffer),
-                .descriptorType = vk::DescriptorType::eUniformBuffer,
-                .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
-                .stageFlags = vk::ShaderStageFlagBits::eAll
-            },
-            {
-                .binding = static_cast<std::uint32_t>(DescriptorSetBinding::eCombinedImageSampler),
-                .descriptorType = vk::DescriptorType::eCombinedImageSampler,
-                .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
-                .stageFlags = vk::ShaderStageFlagBits::eAll
-            }
-        }    
+        .binding = 0,
+        .descriptorType = m_descriptorType,
+        .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
+        .stageFlags = vk::ShaderStageFlagBits::eAll
     };
     
     const vk::DescriptorSetLayoutBindingFlagsCreateInfo bindingCreateInfo
     {
         .sType = vk::StructureType::eDescriptorSetLayoutBindingFlagsCreateInfo,
-        .bindingCount = static_cast<std::uint32_t>(bindingFlags.size()),
-        .pBindingFlags = bindingFlags.data(),
+        .bindingCount = 1,
+        .pBindingFlags = &bindingFlags,
     };
     
     const vk::DescriptorSetLayoutCreateInfo createInfo 
@@ -51,8 +37,8 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
         .sType = vk::StructureType::eDescriptorSetLayoutCreateInfo,
         .pNext = &bindingCreateInfo,
         .flags = vk::DescriptorSetLayoutCreateFlagBits::eUpdateAfterBindPool,
-        .bindingCount = static_cast<std::uint32_t>(bindings.size()),
-        .pBindings = bindings.data()
+        .bindingCount = 1,
+        .pBindings = &binding
     };
 
     try
@@ -63,11 +49,24 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
     {
         std::print("[ERROR: DescriptorSetLayout]: {0}", err.what());
     }
-  
-    const vk::DescriptorSetAllocateInfo allocateInfo
+    
+    std::vector<std::uint32_t> descriptorCounts 
+    {
+        std::numeric_limits<std::uint8_t>::max()
+    };
+    
+    vk::StructureChain<vk::DescriptorSetVariableDescriptorCountAllocateInfo> descriptorInfoChain 
+    {
+         {  // vk::DescriptorSetVariableDescriptorCountAllocateInfo
+             .descriptorSetCount = 1,
+             .pDescriptorCounts = descriptorCounts.data() 
+         }
+    };
+    
+    vk::DescriptorSetAllocateInfo allocateInfo
     {
         .sType = vk::StructureType::eDescriptorSetAllocateInfo,
-        .pNext = nullptr,
+        .pNext = descriptorInfoChain.get<vk::DescriptorSetVariableDescriptorCountAllocateInfo>(),
         .descriptorPool = p_descriptorPool,
         .descriptorSetCount = 1,
         .pSetLayouts = &*m_descriptorSetLayout,
@@ -83,8 +82,13 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
     }
 }
 
-void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex)
+void DescriptorSet::WriteDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, const std::uint32_t p_dstIndex) const
 {
+    if (std::ranges::find(s_bufferTypes, m_descriptorType) == s_bufferTypes.end())
+    {
+        throw std::runtime_error("[[DescriptorSet::WriteDescriptor]] Tried to write texture to buffer descriptor set");
+    }
+    
     vk::DescriptorBufferInfo bufferInfo
     {
         .buffer = p_buffer,
@@ -95,42 +99,23 @@ void DescriptorSet::WriteUniformBufferDescriptor(const vk::raii::Device &p_devic
     const vk::WriteDescriptorSet descriptorWrite
     {
         .dstSet = m_descriptorSet,
-        .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eUniformBuffer),
-        .dstArrayElement = static_cast<std::uint32_t>(m_buffers.size()),
+        .dstBinding = 0,
+        .dstArrayElement = p_dstIndex,
         .descriptorCount = 1,
-        .descriptorType = vk::DescriptorType::eUniformBuffer,
+        .descriptorType = m_descriptorType,
         .pBufferInfo = &bufferInfo
     };
     
-    m_buffers.emplace_back(*p_buffer);
     p_device.updateDescriptorSets(descriptorWrite, {});
 }
 
-void DescriptorSet::WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex)
+void DescriptorSet::WriteDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView, const uint32_t p_dstIndex) const
 {
-    vk::DescriptorBufferInfo bufferInfo
+    if (std::ranges::find(s_textureTypes, m_descriptorType) == s_textureTypes.end())
     {
-        .buffer = p_buffer,
-        .offset = 0,
-        .range = vk::WholeSize,
-    };
-   
-    const vk::WriteDescriptorSet descriptorWrite
-    {
-        .dstSet = m_descriptorSet,
-        .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eStorageBuffer),
-        .dstArrayElement = 0,
-        .descriptorCount = 1,
-        .descriptorType = vk::DescriptorType::eStorageBuffer,
-        .pBufferInfo = &bufferInfo
-    };
+        throw std::runtime_error("[[DescriptorSet::WriteDescriptor]] Tried to write buffer to texture descriptor set");
+    }
     
-    m_buffers.emplace_back(*p_buffer);
-    p_device.updateDescriptorSets(descriptorWrite, {}); 
-}
-
-void DescriptorSet::WriteCombinedImageSamplerDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView)
-{
     vk::DescriptorImageInfo imageInfo
     {
         .sampler = p_sampler,
@@ -141,13 +126,12 @@ void DescriptorSet::WriteCombinedImageSamplerDescriptor(const vk::raii::Device &
     const vk::WriteDescriptorSet descriptorWrite
     {
         .dstSet = m_descriptorSet,
-        .dstBinding = static_cast<std::uint32_t>(DescriptorSetBinding::eCombinedImageSampler),
-        .dstArrayElement = static_cast<std::uint32_t>(m_textures.size()), 
+        .dstBinding = 0,
+        .dstArrayElement = p_dstIndex, 
         .descriptorCount = 1,
-        .descriptorType = vk::DescriptorType::eCombinedImageSampler,
+        .descriptorType = m_descriptorType,
         .pImageInfo = &imageInfo
     };
     
-    m_textures.emplace_back(p_imageView);
     p_device.updateDescriptorSets(descriptorWrite, {});
 }
