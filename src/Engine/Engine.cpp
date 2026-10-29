@@ -120,6 +120,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
+	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
