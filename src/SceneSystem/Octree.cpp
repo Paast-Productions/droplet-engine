@@ -304,9 +304,12 @@ namespace Droplet::Scene
 		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
 			auto nodePtr = node.lock();
-			if (nodePtr != nullptr && nodePtr->GetTransform().HasBeenChanged())
+			Transform &t = nodePtr->GetTransform();
+			if (nodePtr != nullptr && 
+				(t.HasBeenChanged() || t.HasPhysicsChanged()))
 			{
 				p_dirtyNodes.push_back(node);
+				t.ResetPhysicsDirty();
 			}
 		}
 
