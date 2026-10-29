@@ -219,6 +219,8 @@ namespace Droplet::Scene
         /// @param p_frustum The frustum that must fully contain the nodes
         /// @return A vector of all Node instances fully contained in the frustum
         [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
+    	
+    	[[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesInBoundingBox(const Math::OBB &p_obb); 
 
         [[nodiscard]] Physics *GetPhysics();
         

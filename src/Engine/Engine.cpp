@@ -7,6 +7,7 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/TriggerComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <Jolt/Jolt.h>
@@ -219,4 +220,5 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
 }

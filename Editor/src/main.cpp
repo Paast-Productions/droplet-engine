@@ -18,6 +18,8 @@
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
 
+#include "ComponentRegistry.hpp"
+
 using namespace Droplet::Editor;
 
 const glm::vec2 C_INITSIZE = { 1280, 720 };
@@ -47,7 +49,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     {
         return 1;
     }
-
+    
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
