@@ -8,6 +8,7 @@
 #include <Resource/Types/MeshResource.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
 #include <Transform.hpp>
+#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -30,7 +31,8 @@ namespace Droplet::Scene
 			Capsule,
 			Mesh,
 			ConvexHull,
-			Compound
+			Compound,
+			Player
 		};
 		
 		/// @brief A struct containing necessary data to create a compound shape collider
@@ -125,6 +127,8 @@ namespace Droplet::Scene
 		/// @brief Set a compound shape collider, merges multiple shapes into one shape
 		/// @param p_shapes A vector containing data for each shape
 		void SetCompoundCollider(const std::vector<CompoundShape> &p_shapes);
+		
+		void SetPlayerCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Set the motion type of a physics body
 		/// @param p_motionType The motion type to be set
@@ -190,6 +194,7 @@ namespace Droplet::Scene
 
 		JPH::BodyID m_bodyID;
 		JPH::ShapeRefC m_shape{};
+		JPH::Ref<JPH::Character> m_character;
 		JPH::Vec3 m_offset{};
 		
 		Droplet::GUID m_meshGuid = C_INVALID_GUID;
