@@ -1,12 +1,14 @@
 #pragma once
-// TODO: Change the header name...
 
 #include <cstdint>
-#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
 
 namespace Droplet::Devtools::SlugGenerator
 {
-	#define TEXTURE_WIDTH 4096 
+	#define TEXTURE_WIDTH 4096
+	
+	#define SLUG_HEADER_DATA "SLUG"
+	#define SLUG_HEADER_LEN 4
 	
 	struct Curve
 	{

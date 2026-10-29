@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <glm/vec2.hpp>
 
-#include "foo.hpp"
+#include "SlugHelper.hpp"
 
 namespace Droplet::Devtools::SlugGenerator
 {

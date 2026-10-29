@@ -2,7 +2,7 @@
 #include "Logger.hpp"
 
 std::vector<std::filesystem::path> Droplet::Devtools::SlugGenerator::GetFilesWithExtension(
-	std::filesystem::path directory, std::string extension)
+	const std::filesystem::path& directory, const std::string& extension)
 {
 	std::vector<std::filesystem::path> paths;
 	
@@ -67,6 +67,37 @@ bool Droplet::Devtools::SlugGenerator::File::ReadAll(std::vector<char>& p_dst)
 	return true;
 }
 
+bool Droplet::Devtools::SlugGenerator::File::WriteBytes(const void* p_data, const size_t p_size)
+{
+	if (!IsOpen())
+	{
+		Logger::PrintError("File at {} is not open.", m_filePath.string());
+		return false;
+	}
+	
+	if (p_size > static_cast<size_t>(std::numeric_limits<std::streamsize>::max()))
+	{
+		Logger::PrintError("Trying to write too much data ({} bytes).", p_size);
+		return false;
+	}
+	
+	if (p_size == 0)
+		return true;
+	
+	if (p_data == nullptr)
+	{
+		Logger::PrintError("Cannot write data from a null pointer.");
+		return false;
+	}
+	
+	if (!m_file.write(static_cast<const char*>(p_data), static_cast<std::streamsize>(p_size)))
+	{
+		Logger::PrintError("Failed to write data to file at {}.", m_filePath.string());
+		return false;
+	}
+	return true;
+}
+
 bool Droplet::Devtools::SlugGenerator::File::Open(const std::filesystem::path &p_path, std::fstream::openmode p_mode)
 {
 	if (IsOpen())
@@ -75,21 +106,33 @@ bool Droplet::Devtools::SlugGenerator::File::Open(const std::filesystem::path &p
 		return false;
 	}
 	
-	if (!std::filesystem::exists(p_path))
-	{
-		Logger::PrintError("Could not open file at {}. File does not exist.", m_filePath.string());
-		return false;
-	}
+	m_file.clear();
+	m_file.open(p_path, p_mode);
 	
-	m_file.open(m_filePath, p_mode);
 	if (!IsOpen())
 	{
-		Logger::PrintError("Could not open file at {}.", m_filePath.string());
+		Logger::PrintError("Could not open file at {}.", p_path.string());
 		return false;
 	}
 	
 	m_filePath = p_path;
-	m_fileSize = std::filesystem::file_size(m_filePath); // Cache the file size to reduce filesystem calls
+	m_fileSize = 0;
+	
+	if (p_mode & std::ios::in)
+	{
+		std::error_code ec;
+		const auto size = std::filesystem::file_size(p_path, ec);
+		
+		if (ec)
+		{
+			Logger::PrintError("Could not get file size at {}: {}", p_path.string(), ec.message());
+			m_file.close();
+			return false;
+		}
+		
+		m_fileSize = static_cast<size_t>(size);
+	}
+	
 	return true;
 }
 

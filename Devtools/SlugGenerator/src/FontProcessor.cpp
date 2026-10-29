@@ -5,7 +5,7 @@
 
 #include <Stb/stb_truetype.h>
 
-#include "foo.hpp"
+#include "SlugHelper.hpp"
 
 Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
 	: m_path(p_path), m_bandCount(p_bandCount)
@@ -42,7 +42,10 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	if (successfullyProcessed != totalCount)
 		Logger::PrintWarning("Missing characters - {}", foo);
 	
-	if (SaveData())
+	
+	std::filesystem::path outpath = p_path;
+	outpath.replace_extension(".slug");
+	if (SaveData(outpath))
 	{
 		Logger::PrintInfo("Successfully saved font data to {}.", "fooPath");
 	}
@@ -390,7 +393,39 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		m_bandsTextureBandOffsets[i+1] = static_cast<uint16_t>(adjustedOffset);
 	}
 	
-	File
+	File outFile(p_outPath, std::ios::binary | std::ios::out);
+	if (!outFile.IsOpen())
+	{
+		Logger::PrintError("Could not create or open output file at {}.", p_outPath.string());
+		return false;
+	}
+	
+	outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN);
+	
+	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());
+	outFile.WriteBytes(&codePointCount, sizeof(codePointCount));
+	outFile.WriteBytes(m_codePoints.data(), codePointCount * sizeof(SlugCodePoint));
+	
+	const uint32_t curvesTexTexels = m_curvesTexture.size() / 4;
+	const uint32_t curvesTexBytes = m_curvesTexture.size() * sizeof(m_curvesTexture.front());
+	const uint16_t curvesTexWidth = TEXTURE_WIDTH;
+	const uint16_t curvesTexHeight = (curvesTexTexels + curvesTexWidth - 1) / curvesTexWidth;
+	
+	outFile.WriteBytes(&curvesTexWidth, sizeof(curvesTexWidth));
+	outFile.WriteBytes(&curvesTexHeight, sizeof(curvesTexWidth));
+	outFile.WriteBytes(&curvesTexBytes, sizeof(curvesTexBytes));
+	outFile.WriteBytes(m_curvesTexture.data(), curvesTexBytes);
+	
+	const uint16_t bandsTexWidth = TEXTURE_WIDTH;
+	const uint16_t bandsTexHeight = (bandsTexTexels + bandsTexWidth - 1) / bandsTexWidth;
+	const uint32_t bandsTexBytes = bandsTexTexels * sizeof(uint16_t) * 2;
+	
+	outFile.WriteBytes(&bandsTexWidth, sizeof(bandsTexWidth));
+	outFile.WriteBytes(&bandsTexHeight, sizeof(bandsTexHeight));
+	outFile.WriteBytes(&bandsTexBytes, sizeof(bandsTexBytes));
+	
+	outFile.WriteBytes(m_bandsTextureBandOffsets.data(), m_bandsTextureBandOffsets.size() * sizeof(m_bandsTextureBandOffsets.front()));
+	outFile.WriteBytes(m_bandsTextureCurveOffsets.data(), m_bandsTextureCurveOffsets.size() * sizeof(m_bandsTextureCurveOffsets.front()));
 	
 	return true;
 }
