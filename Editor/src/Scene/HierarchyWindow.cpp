@@ -88,6 +88,8 @@ void HierarchyWindow::RenderImpl()
         ImGui::TreePop();
     }
 
+    ImGui::EndDisabled();
+
     if (ImGui::Button("Add Node"))
     {
         scene->AddNode("New Node");
@@ -124,6 +126,8 @@ void HierarchyWindow::RenderImpl()
         }
         ImGui::EndPopup();
     }
+
+    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
@@ -535,7 +539,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropSource();
         }
 
-        ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
+        //ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
  
 
         if (ImGui::BeginPopupContextItem())
@@ -576,7 +580,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndPopup();
         }
 
-        ImGui::EndDisabled();
+        //ImGui::EndDisabled();
 
         if (ImGui::BeginDragDropTarget())
         {

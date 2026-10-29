@@ -33,13 +33,13 @@
                     "type": "ScriptComponent"
                 }
             ],
-            "id": 1,
+            "id": 15,
             "name": "TestDrone",
             "transform": {
                 "position": [
-                    -1.0511209264096877e-10,
                     0.0,
-                    -6.081826015025271e-11
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -84,7 +84,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 2,
+            "id": 16,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -135,7 +135,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 3,
+            "id": 17,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -186,7 +186,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 4,
+            "id": 18,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -237,7 +237,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 5,
+            "id": 19,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -288,7 +288,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 6,
+            "id": 20,
             "name": "Toe",
             "transform": {
                 "position": [
@@ -339,7 +339,7 @@
                     "type": "CameraComponent"
                 }
             ],
-            "id": 7,
+            "id": 21,
             "name": "Toe",
             "transform": {
                 "position": [

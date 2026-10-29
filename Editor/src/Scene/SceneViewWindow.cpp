@@ -756,11 +756,11 @@ void SceneViewWindow::RenderImpl()
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (isPlaying)
 		{
-			// Make red
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+			// Make orange
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
@@ -781,6 +781,18 @@ void SceneViewWindow::RenderImpl()
 			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
 				EditorConfig::StoreBool("hasPlayed", true);
+
+				// Save scene before playing
+				if (!hasPlayed)
+				{
+					auto scene = m_editorContext->GetActiveScene();
+
+					if (scene)
+					{
+						std::string path = ROOT_PATH "/GameData/Scenes/" + scene->GetName() + ".json";
+						m_editorContext->SaveScene(path);
+					}
+				}
 			}
 
 			ImGui::PopStyleColor(4);
@@ -793,13 +805,22 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 			{
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
 				EditorConfig::StoreBool("hasPlayed", false);
-				//m_editorContext->GetEngine().GetSceneManager().
+
+				// Reset the scene
+				std::shared_ptr<Droplet::Scene::Scene> currentScene = m_editorContext->GetActiveScene();
+				const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/";
+				std::string sceneName = currentScene->GetName();
+				std::string filePath = (scenesDirectory).string() + std::string(sceneName) + ".json";
+
+				m_editorContext->GetActiveScene().get()->SetActive(false);
+				m_editorContext->LoadFromFile(filePath);
+				m_editorContext->SetActiveScene(sceneName);
 			}
 
 			ImGui::PopStyleColor(4);
