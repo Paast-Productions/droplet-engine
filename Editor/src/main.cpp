@@ -371,7 +371,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         resourceBrowser.Render();
         sceneViewWindow.Render();
 
-        switch (engine.Update(sceneViewWindow.GetRenderTarget(), editorContext.GetEditorCamera()))
+        switch (engine.Update(editorContext.GetEditorCamera()))
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
             break;
