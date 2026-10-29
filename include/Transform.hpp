@@ -65,8 +65,14 @@ namespace Droplet::Scene
 		/// @return True if the transform is dirty, false otherwise.
 		[[nodiscard]] bool IsDirty() const;
 
-		/// TODO: Edvin
+		/// @brief Check if the transform was ever changed in the current frame.
+		/// @return True if the transform was ever changed, else false.
+		// TODO: Edvin
 		[[nodiscard]] bool HasBeenChanged() const;
+		
+		/// @brief Check if the transform was changed by physics.
+		/// @return True if the transform was changed by physics, else false.
+		[[nodiscard]] bool HasPhysicsChanged() const;
 
 		/// @brief Get the up direction of the transform in the specified space.
 		/// @param p_space The space in which to get the up direction. Defaults to local space.
@@ -111,10 +117,16 @@ namespace Droplet::Scene
 
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
+		
+		/// @brief Mark the transform as dirty, indicating that it has been modified by physics.
+		void MakePhysicsDirty();
 
 		/// @brief Runs at the end of scene update and resets the transform's "was changed" state for the next frame. 
 		/// This is used to track if the transform was ever modified during the frame.
 		void ResetFrame();
+		
+		/// @brief Sets the physics dirty boolean to false. Only used by the octree.
+		void ResetPhysicsDirty();
 
 		// ================================ Utility ================================
 
@@ -177,6 +189,7 @@ namespace Droplet::Scene
 		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
 		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.
 		bool			m_wasChanged{ true }; // Tracks whether the transform was ever changed during the frame.
+		bool			m_physicsDirty{ false }; // Tracks whether the transform was changed by physics.
 
 		glm::vec3		m_position{ 0.f, 0.f, 0.f };
 		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };

@@ -1054,6 +1054,7 @@ void PhysicsComponent::PullTransformFromPhysics()
 
 	m_transform->SetPosition(pos);
 	m_transform->SetRotation(rot);
+	m_transform->MakePhysicsDirty();
 }
 
 JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)

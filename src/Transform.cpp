@@ -217,6 +217,11 @@ bool Droplet::Scene::Transform::HasBeenChanged() const
 	return m_wasChanged;
 }
 
+bool Transform::HasPhysicsChanged() const
+{
+	return m_physicsDirty;
+}
+
 vec3 Transform::GetUp(Space p_space) const
 {
 	// If the requested space is world space, but the transform has no parent, treat it as local space.
@@ -458,6 +463,17 @@ void Transform::MakeDirty()
 	}
 }
 
+void Transform::MakePhysicsDirty()
+{
+	m_physicsDirty = true;
+	
+	// Recursively mark children as dirty
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().MakePhysicsDirty();
+	}
+}
+
 void Transform::ResetFrame()
 {
 	ZoneScoped;
@@ -468,6 +484,19 @@ void Transform::ResetFrame()
 	for (const auto &child : m_owner->GetChildren())
 	{
 		child->GetTransform().ResetFrame();
+	}
+}
+
+void Transform::ResetPhysicsDirty()
+{
+	ZoneScoped;
+
+	m_physicsDirty = false;
+
+	// Recursively reset children
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().ResetPhysicsDirty();
 	}
 }
 
