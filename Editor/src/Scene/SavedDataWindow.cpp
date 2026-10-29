@@ -147,6 +147,14 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
             }
             ImGui::EndPopup();
         }
+
+        if (ImGui::BeginDragDropSource())
+        {
+            ImGui::SetDragDropPayload("PREFAB_PATH", path.c_str(), path.size() + 1);
+            ImGui::TextUnformatted(p_node.name.c_str());
+            ImGui::EndDragDropSource();
+        }
+
     }
     ImGui::PopID();
 }

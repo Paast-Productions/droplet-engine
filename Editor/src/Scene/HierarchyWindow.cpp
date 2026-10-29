@@ -166,6 +166,21 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndDragDropTarget();
     }
 
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * 5.0f;
+
+                scene->LoadNodeFromFile(droppedData,position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
+    }
     ImGui::EndGroup();
 
     // Put the root nodes to the right of the drop target.
@@ -241,6 +256,21 @@ void HierarchyWindow::RenderImpl()
 
             ImGui::EndDragDropTarget();
         }
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward()*5.0f;
+                scene->LoadNodeFromFile(droppedData, position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
     }
 
     ImGui::EndGroup();
