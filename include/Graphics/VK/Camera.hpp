@@ -12,15 +12,15 @@ namespace Droplet::Graphics
 	{
 	public:
 		/// @brief Camera Constructor
-		/// @param p_position Position of the Camera
+		/// @param p_pos Position of the Camera
+		/// @param p_fwd Forward vector of the Camera
 		/// @param p_up Up-vector of the Camera
-		/// @param p_yaw The yaw of the Camera
-		/// @param p_pitch The pitch of the Camera
+		/// @param p_fov Horizontal field of view in degrees
+		/// @param p_aspect Aspect ratio of the camera (width / height)
 		Camera(
 			glm::vec3 p_position = glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3 p_fwd = glm::vec3(0.0f, 0.0f, 1.0f),
 			glm::vec3 p_up = glm::vec3(0.0f, 1.0f, 0.0f),
-			float p_yaw = -90.0f, 
-			float p_pitch = 0.0f,
 			float p_fov = 45.0f, 
 			float p_aspect = 1.0f
 		);
@@ -33,8 +33,9 @@ namespace Droplet::Graphics
 		/// @brief Apply mouse rotation on the camera
 		/// @param p_xOffset Horizontal rotation offset
 		/// @param p_yOffset Vertical rotation offset
+		/// @param p_up World up
 		/// @param p_constrainPitch Bool that determines if the camera can rotate upwards indefinetely
-		void Rotate(float p_xOffset, float p_yOffset, bool p_constrainPitch = true);
+		void Rotate(float p_xOffset, float p_yOffset, glm::vec3 p_up = glm::vec3(0,1,0), bool p_constrainPitch = true);
 
 		/// @brief Get the camera position
 		/// @returns glm::vec3 camera position
@@ -73,17 +74,12 @@ namespace Droplet::Graphics
 		/// @brief Gets the near and far clipping planes of the camera. 
 		[[nodiscard]] glm::vec2 GetPlanes() const { return m_planes; }
 
-		/// @brief Gets the yaw (horizontal rotation) of the camera in degrees.
-		[[nodiscard]] float GetYaw() const { return m_yaw; }
-
-		/// @brief Gets the pitch (vertical rotation) of the camera in degrees.
-		[[nodiscard]] float GetPitch() const { return m_pitch; }
-
 		/// @brief Sets the position of the camera in world space.
 		void SetPosition(const glm::vec3 &p_position) { m_position = p_position; }
 
 		/// @brief Sets the orientation of the camera using yaw and pitch angles in degrees.
-		void SetOrientation(float p_yaw, float p_pitch) { m_yaw = p_yaw; m_pitch = p_pitch; UpdateCameraVectors(); }
+		void SetOrientation(glm::vec3 p_fwd, glm::vec3 p_up) { m_forward = p_fwd; m_up = p_up; UpdateCameraVectors(); }
+		void SetOrientation(glm::quat p_orientation);
 
 		/// @brief Sets the horizontal field of view (FOV) of the camera in degrees.
 		void SetFOV(float p_fov) { m_fov = p_fov; }
@@ -109,11 +105,8 @@ namespace Droplet::Graphics
 		glm::vec3 m_forward {};
 		glm::vec3 m_up {};
 		glm::vec3 m_right {};
-		glm::vec3 m_worldUp {};
 		glm::vec2 m_planes = glm::vec2(0.1f, 100.0f); // near and far planes
 
-		float m_yaw {};
-		float m_pitch {};
 		float m_fov = 45.0f;		// horizontal field of view in degrees
 		float m_aspect = 1.0f;		// width / height
 

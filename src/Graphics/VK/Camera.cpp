@@ -1,22 +1,20 @@
 #include "Camera.hpp"
 
 #include <algorithm>
+#include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Graphics;
 using namespace Droplet::Math;
 
 Camera::Camera(
-	glm::vec3 p_position,
+	glm::vec3 p_pos,
+	glm::vec3 p_fwd,
 	glm::vec3 p_up,
-	float p_yaw,
-	float p_pitch,
 	float p_fov, 
 	float p_aspect) : 
-	m_position(p_position),
+	m_position(p_pos),
+	m_forward(p_fwd),
 	m_up(p_up),
-	m_worldUp(p_up),
-	m_yaw(p_yaw),
-	m_pitch(p_pitch),
 	m_fov(p_fov),
 	m_aspect(p_aspect)
 {
@@ -29,28 +27,52 @@ void Camera::Move(glm::vec3 p_direction, float p_velocity)
 	m_position += p_direction * p_velocity;
 }
 
-void Camera::Rotate(float p_xOffset, float p_yOffset, bool p_constrainPitch)
+void Camera::Rotate(float p_xOffset, float p_yOffset, glm::vec3 p_up, bool p_constrainPitch)
 {
-	m_yaw += p_xOffset;
-	m_pitch += p_yOffset;
+	glm::quat yawQuat =
+		glm::angleAxis(glm::radians(p_xOffset), glm::normalize(p_up));
+
+	glm::quat pitchQuat =
+		glm::angleAxis(glm::radians(p_yOffset), glm::normalize(m_right));
+
+	// Apply yaw first
+	m_forward = glm::normalize(yawQuat * m_forward);
+	m_up = glm::normalize(yawQuat * m_up);
+
+	// Check pitch constraint before applying pitch
 	if (p_constrainPitch)
 	{
-		m_pitch = std::clamp(m_pitch, -89.0f, 89.0f);
+		glm::vec3 proposedForward =
+			glm::normalize(pitchQuat * m_forward);
+
+		float dot = glm::clamp(
+			glm::dot(proposedForward, glm::normalize(p_up)),
+			-1.0f, 1.0f
+		);
+
+		float angle = glm::degrees(glm::acos(dot));
+
+		// Prevent the forward vector from crossing world up
+		if (angle > 89.0f)
+		{
+			// Reject the pitch rotation
+			UpdateCameraVectors();
+			return;
+		}
 	}
+
+	// Apply pitch if valid
+	m_forward = glm::normalize(pitchQuat * m_forward);
+	m_up = glm::normalize(pitchQuat * m_up);
 
 	UpdateCameraVectors();
 }
 
 void Camera::UpdateCameraVectors()
 {
-	glm::vec3 newForward;
-	newForward.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-	newForward.y = sin(glm::radians(m_pitch));
-	newForward.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
-	m_forward = glm::normalize(newForward);
-
-	m_right = glm::normalize(glm::cross(m_forward, m_worldUp));
-	m_up = glm::normalize(glm::cross(m_right, m_forward));
+	m_forward = glm::normalize(m_forward);
+	m_up = glm::normalize(m_up);
+	m_right = glm::normalize(glm::cross(m_forward, m_up));
 }
 
 glm::vec3 Camera::GetPosition() const
@@ -97,6 +119,10 @@ glm::mat4 Camera::GetProjectionMatrix() const
 		m_planes.x,
 		m_planes.y
 	);
+}
+
+void Camera::SetOrientation(glm::quat p_orientation)
+{
 }
 
 Ray Camera::GetViewRay(const glm::vec2 &p_viewPos) const

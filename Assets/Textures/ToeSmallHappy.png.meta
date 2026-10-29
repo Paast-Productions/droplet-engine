@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "ToeSmallHappy",
+            "guid": 2136349719162809811,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "ToeSmallHappy",
+            "type": 1
+        }
+    ]
+}

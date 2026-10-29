@@ -41,6 +41,8 @@ void CameraComponent::StartImpl()
 void CameraComponent::LateUpdateImpl()
 {
 	Transform &t = GetOwner()->GetTransform();
+
+	m_camera.SetPosition(t.GetPosition(Transform::Space::World));
 }
 
 void CameraComponent::QueueRenderImpl()
