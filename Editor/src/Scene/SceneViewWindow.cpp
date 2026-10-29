@@ -987,13 +987,12 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			// The view matrix is the inverse of the camera's world matrix, so the camera's basis and position are in its inverse
 			glm::mat4 world = glm::inverse(editedView);
 			glm::vec3 forward = glm::normalize(-glm::vec3(world[2]));
-
-			float pitch = glm::degrees(glm::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
-			float yaw = glm::degrees(std::atan2(forward.z, forward.x));
-			pitch = glm::clamp(pitch, -89.0f, 89.0f);
+			glm::vec3 up = glm::vec3(0,1,0);
+			glm::vec3 right = glm::normalize(glm::cross(up, forward));
+			up = glm::normalize(glm::cross(forward, right));
 
 			camera.SetPosition(glm::vec3(world[3]));
-			camera.SetOrientation(yaw, pitch);
+			camera.SetOrientation(forward, up);
 		}
 
 		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())

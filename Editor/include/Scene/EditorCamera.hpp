@@ -14,11 +14,6 @@ namespace Droplet::Editor::Scene
 		EditorCamera();
 		~EditorCamera();
 
-		/// @brief Updates the camera's state based on user input and other factors.
-		/// @param hovered Indicates whether the mouse is currently hovering over the camera's view area. This can be used to determine if the camera should respond to input events.
-		/// @param mousePos Mouse position normalized to the camera view rect, where (0, 0) is the top-left corner and (1, 1) is the bottom-right corner.
-		void Update(bool p_hovered, ImVec2 p_mousePos);
-
 	private:
 	};
 }

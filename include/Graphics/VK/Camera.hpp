@@ -18,9 +18,9 @@ namespace Droplet::Graphics
 		/// @param p_fov Horizontal field of view in degrees
 		/// @param p_aspect Aspect ratio of the camera (width / height)
 		Camera(
-			glm::vec3 p_position = glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3 p_fwd = glm::vec3(0.0f, 0.0f, 1.0f),
-			glm::vec3 p_up = glm::vec3(0.0f, 1.0f, 0.0f),
+			glm::vec3 p_position = glm::vec3(0, 0, 0),
+			glm::vec3 p_fwd = glm::vec3(0, 0, -1),
+			glm::vec3 p_up = glm::vec3(0, 1, 0),
 			float p_fov = 45.0f, 
 			float p_aspect = 1.0f
 		);
@@ -78,7 +78,10 @@ namespace Droplet::Graphics
 		void SetPosition(const glm::vec3 &p_position) { m_position = p_position; }
 
 		/// @brief Sets the orientation of the camera using yaw and pitch angles in degrees.
+		void SetOrientation(float p_yaw, float p_pitch, glm::vec3 p_up = glm::vec3(0,1,0));
+
 		void SetOrientation(glm::vec3 p_fwd, glm::vec3 p_up) { m_forward = p_fwd; m_up = p_up; UpdateCameraVectors(); }
+
 		void SetOrientation(glm::quat p_orientation);
 
 		/// @brief Sets the horizontal field of view (FOV) of the camera in degrees.
