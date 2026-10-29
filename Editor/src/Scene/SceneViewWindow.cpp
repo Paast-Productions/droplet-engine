@@ -789,7 +789,7 @@ void SceneViewWindow::RenderImpl()
 
 					if (scene)
 					{
-						std::string path = ROOT_PATH "/GameData/Scenes/" + scene->GetName() + ".json";
+						std::string path = ROOT_PATH "/GameData/Scenes/Temp/temp.json";
 						m_editorContext->SaveScene(path);
 					}
 				}
@@ -814,9 +814,9 @@ void SceneViewWindow::RenderImpl()
 
 				// Reset the scene
 				std::shared_ptr<Droplet::Scene::Scene> currentScene = m_editorContext->GetActiveScene();
-				const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/";
+				const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/Temp/temp.json";
 				std::string sceneName = currentScene->GetName();
-				std::string filePath = (scenesDirectory).string() + std::string(sceneName) + ".json";
+				std::string filePath = (scenesDirectory).string();
 
 				m_editorContext->GetActiveScene().get()->SetActive(false);
 				m_editorContext->LoadFromFile(filePath);
