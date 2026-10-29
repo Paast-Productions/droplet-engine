@@ -84,5 +84,8 @@ namespace Droplet::Editor::Scene
 		CameraDrag m_cameraDrag = CameraDrag::None;
 		glm::vec3 m_cameraPivot = glm::vec3(0.0f);
 		float m_cameraPivotRadius = 8.0f;
+
+		bool m_wrapMouse = false;
+		int m_skipMouseDeltas = 0;
 	};
 }

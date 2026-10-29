@@ -18,6 +18,8 @@
 #include <Graphics/VK/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
 
+using namespace Droplet;
+using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
 using namespace Droplet::Graphics::Debug;
 
@@ -142,6 +144,59 @@ namespace
 		p_center = (boundsMin + boundsMax) * 0.5f;
 		p_radius = glm::length(boundsMax - boundsMin) * 0.5f;
 		return std::isfinite(p_radius) && std::isfinite(p_center.x) && std::isfinite(p_center.y) && std::isfinite(p_center.z);
+	}
+
+	/// @brief Wraps the mouse cursor within the given rectangle. Returns true if the cursor was wrapped.
+	bool WrapMouseWithinRect(ImVec4 p_sceneViewRect)
+	{
+		GameInput &input = GameInput::Get();
+
+		ImVec2 cursorPos = ImGui::GetIO().MousePos;
+
+		float margin = 1.0f; // Margin to prevent the cursor from being exactly on the edge
+
+		bool isCursorOutsideLeft =		cursorPos.x < (p_sceneViewRect.x + margin);
+		bool isCursorOutsideRight =		cursorPos.x > (p_sceneViewRect.z - margin);
+		bool isCursorOutsideTop =		cursorPos.y < (p_sceneViewRect.y + margin);
+		bool isCursorOutsideBottom =	cursorPos.y > (p_sceneViewRect.w - margin);
+
+		if (!isCursorOutsideLeft && !isCursorOutsideRight && !isCursorOutsideTop && !isCursorOutsideBottom)
+		{
+			return false; // Cursor is inside the rectangle, no wrapping needed
+		}
+
+		float wrappedX = cursorPos.x;
+		float wrappedY = cursorPos.y;
+
+		if (isCursorOutsideLeft)
+		{
+			wrappedX = p_sceneViewRect.z - margin * 2;
+		}
+		else if (isCursorOutsideRight)
+		{
+			wrappedX = p_sceneViewRect.x + margin * 2;
+		}
+
+		if (isCursorOutsideTop)
+		{
+			wrappedY = p_sceneViewRect.w - margin * 2;
+		}
+		else if (isCursorOutsideBottom)
+		{
+			wrappedY = p_sceneViewRect.y + margin * 2;
+		}
+		
+		ImGuiViewport *viewport = ImGui::GetWindowViewport();
+		SDL_Window *sceneWindow = nullptr;
+
+		if (viewport)
+		{
+			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+			sceneWindow = SDL_GetWindowFromID(windowID);
+		}
+
+		input.SetCursorPosition(sceneWindow, false, wrappedX, wrappedY);
+		return true;
 	}
 }
 
@@ -322,7 +377,7 @@ void SceneViewWindow::RenderImpl()
 	};
 	
 	ImVec2 camViewRectMax = {
-		camViewRectMin.x  + camSize.x,
+		camViewRectMin.x + camSize.x,
 		camViewRectMin.y + camSize.y
 	};
 
@@ -648,7 +703,7 @@ void SceneViewWindow::RenderImpl()
 		}
 	}
 	
-	if (!m_cameraLookToggled && !m_usingGizmo && !m_hoveringGizmo && !m_hoveringPlayButton)
+	if (!m_cameraLookToggled && !m_usingGizmo)
 	{
 		ProcessCameraControls(camSize.x);
 	}
@@ -656,6 +711,29 @@ void SceneViewWindow::RenderImpl()
 	{
 		m_cameraPivot = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * m_cameraPivotRadius;
 		m_cameraDrag = CameraDrag::None;
+	}
+
+	if (m_skipMouseDeltas > 0)
+	{
+		m_skipMouseDeltas--;
+		m_wrapMouse = true;
+	}
+
+	if (m_wrapMouse)
+	{
+		m_wrapMouse = false;
+
+		ImVec4 sceneViewRect = ImVec4(
+			camViewRectMin.x,
+			camViewRectMin.y,
+			camViewRectMax.x,
+			camViewRectMax.y
+		);
+
+		if (WrapMouseWithinRect(sceneViewRect))
+		{
+			m_skipMouseDeltas = 5;
+		}
 	}
 
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
@@ -981,10 +1059,10 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 	static float s_drawPivotTimer = 0.0f;
 
-	if (m_cameraDrag == CameraDrag::Orbit)
+	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
 		// Rotate around the pivot, keeping the distance to it
-		constexpr float C_ORBIT_SENSITIVITY = 0.25f; // TODO: Make configurable
+		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
 
 		camera.Rotate(
 			input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
@@ -993,13 +1071,14 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 		ApplyCameraPivot();
 		s_drawPivotTimer = 0.5f;
+		m_wrapMouse = true;
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
 		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
-		if (p_viewWidth > 0.0f)
+		if (p_viewWidth > 0.0f && m_skipMouseDeltas == 0)
 		{
 			const float worldPerPixel = 2.0f * m_cameraPivotRadius * std::tan(glm::radians(camera.GetFOV()) * 0.5f) / p_viewWidth;
 			const glm::vec3 offset = (-camera.GetRight() * io.MouseDelta.x + camera.GetUp() * io.MouseDelta.y) * (worldPerPixel * C_PAN_SENSITIVITY);
@@ -1007,6 +1086,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 			m_cameraPivot += offset;
 			ApplyCameraPivot();
 			s_drawPivotTimer = 0.5f;
+			m_wrapMouse = true;
 		}
 	}
 	else if (m_hoveringSceneView && io.MouseWheel != 0.0f)
