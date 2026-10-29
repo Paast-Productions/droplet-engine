@@ -1,4 +1,5 @@
 #include "SceneViewWindow.hpp"
+#include <Editor/ViewOverlayUI.hpp>
 
 // TODO: Clean whatever this mess is
 #include <math/bounds/Intersection.hpp>
@@ -788,6 +789,8 @@ void SceneViewWindow::RenderImpl()
 
 		m_hoveringPlayButton = ImGui::IsItemHovered();
 	}
+
+	RenderOverlayQueue();
 	
 	ImGui::EndChild();
 }
@@ -1003,6 +1006,35 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds() || ImGuizmo::IsViewManipulateHovered();
 }
 
+void SceneViewWindow::RenderOverlayQueue()
+{
+	auto cPos = ImGui::GetCursorPos();
+
+	constexpr float c_overlayIndent = 100.0f;
+
+	ImGui::SetCursorPos(ImVec2(0, c_overlayIndent));
+	ImGui::Indent(c_overlayIndent);
+
+	ImGui::PushID("SceneViewOverlay");
+	ImGui::BeginGroup();
+
+	auto &overlay = ViewOverlayUI::Get();
+	auto &queue = overlay.GetQueue();
+
+	for (const auto &item : queue)
+	{
+		item();
+	}
+
+	overlay.ClearQueue();
+
+	ImGui::EndGroup();
+	ImGui::PopID();
+
+	ImGui::Unindent(c_overlayIndent);
+	ImGui::SetCursorPos(cPos);
+}
+
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 {
 	ZoneScoped;
@@ -1012,11 +1044,6 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 	InteractionState &interactionState = m_editorContext->GetInteractionState();
 	const bool active = m_hoveringSceneView || ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
-
-	ImGui::SetCursorPosY(100);
-	ImGui::Indent(100);
-	ImGui::Text("Hovering: %s", m_hoveringSceneView ? "true" : "false");
-	ImGui::Text("Active: %s", active ? "true" : "false");
 
 	bool hasSelection = interactionState.HasSelection();
 
@@ -1050,12 +1077,8 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	// Select the drag mode on press, and end it when the button is released
 	if (m_cameraDrag == CameraDrag::None)
 	{
-		ImGui::Text("No CameraDrag");
-
 		if (active && m_hoveringSceneView)
 		{
-			ImGui::Text("Looking for CameraDrag");
-
 			if (input.KeyHeld(Key::KeyLALT) && input.MousePressed(Mouse::LMB))
 			{
 				m_cameraDrag = CameraDrag::Orbit;
@@ -1076,8 +1099,6 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
-		ImGui::Text("Orbit");
-
 		// Rotate around the pivot, keeping the distance to it
 		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
 
@@ -1092,8 +1113,6 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
-		ImGui::Text("Pan");
-
 		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
@@ -1114,8 +1133,6 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{
-			ImGui::Text("Zoom to Pivot");
-
 			// Zoom towards the pivot by changing the pivot radius
 			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
 			SetCameraPivot(m_cameraPivot, m_cameraPivotRadius * step);
@@ -1123,8 +1140,6 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 		}
 		else
 		{
-			ImGui::Text("Zoom Forward");
-
 			// Move along camera view direction, leaving the pivot radius unchanged.
 			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
 			SetCameraPivot(m_cameraPivot + (camera.GetForward() * step), m_cameraPivotRadius);
@@ -1165,7 +1180,7 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
 }
 
-void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
+void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
 	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(m_targetIndex, m_textureIndex, width, height);
 }

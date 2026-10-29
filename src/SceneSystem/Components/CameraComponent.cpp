@@ -31,6 +31,7 @@ namespace
 }
 
 using namespace Droplet::Scene;
+using namespace Droplet::Graphics;
 
 void CameraComponent::StartImpl()
 {
@@ -54,6 +55,8 @@ void CameraComponent::RenderUIImpl()
 	// fov, 
 	// near/far planes
 	// Render target view
+
+	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayers);
 }
 
 nlohmann::json CameraComponent::SerializeImpl()

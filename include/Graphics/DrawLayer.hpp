@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <string>
 
 namespace Droplet::Graphics
@@ -8,6 +8,9 @@ namespace Droplet::Graphics
 	/// @brief Enum mask representing different draw layers for rendering.
 	enum class DrawLayer : uint16_t
 	{
+		None = 0,
+		All = 0xFFFF,
+
 		Layer1	= 1 << 0,
 		Layer2	= 1 << 1,
 		Layer3	= 1 << 2,
@@ -23,7 +26,7 @@ namespace Droplet::Graphics
 		Layer13 = 1 << 12,
 		Layer14 = 1 << 13,
 		Layer15 = 1 << 14,
-		Layer16 = 1 << 15
+		Layer16 = 1 << 15,
 	};
 
 	/// @brief Utility class for managing draw layers.
@@ -33,19 +36,19 @@ namespace Droplet::Graphics
 
 		// Layer Helpers
 
-		static inline bool IsLayerEnabled(DrawLayer p_layer, uint16_t p_layerMask)
+		static inline bool IsLayerEnabled(DrawLayer p_layer, DrawLayer p_layerMask)
 		{
-			return (static_cast<uint16_t>(p_layer) & p_layerMask) != 0;
+			return (static_cast<uint16_t>(p_layer) & static_cast<uint16_t>(p_layerMask)) != 0;
 		}
-		static inline void EnableLayer(DrawLayer p_layer, uint16_t &p_layerMask)
+		static inline void EnableLayer(DrawLayer p_layer, DrawLayer &p_layerMask)
 		{
-			p_layerMask |= static_cast<uint16_t>(p_layer);
+			p_layerMask = static_cast<DrawLayer>(static_cast<uint16_t>(p_layerMask) | static_cast<uint16_t>(p_layer));
 		}
-		static inline void DisableLayer(DrawLayer p_layer, uint16_t &p_layerMask)
+		static inline void DisableLayer(DrawLayer p_layer, DrawLayer &p_layerMask)
 		{
-			p_layerMask &= ~static_cast<uint16_t>(p_layer);
+			p_layerMask = static_cast<DrawLayer>(static_cast<uint16_t>(p_layerMask) & ~static_cast<uint16_t>(p_layer));
 		}
-		static inline void SetLayer(DrawLayer p_layer, uint16_t &p_layerMask, bool p_enabled)
+		static inline void SetLayer(DrawLayer p_layer, DrawLayer &p_layerMask, bool p_enabled)
 		{
 			if (p_enabled)
 			{
@@ -56,9 +59,13 @@ namespace Droplet::Graphics
 				DisableLayer(p_layer, p_layerMask);
 			}
 		}
-		static inline void ToggleLayer(DrawLayer p_layer, uint16_t &p_layerMask)
+		static inline void ToggleLayer(DrawLayer p_layer, DrawLayer &p_layerMask)
 		{
-			p_layerMask ^= static_cast<uint16_t>(p_layer);
+			p_layerMask = static_cast<DrawLayer>(static_cast<uint16_t>(p_layerMask) ^ static_cast<uint16_t>(p_layer));
+		}
+		static inline bool IsSingleLayer(DrawLayer p_layer)
+		{
+			return (static_cast<uint16_t>(p_layer) & (static_cast<uint16_t>(p_layer) - 1)) == 0;
 		}
 
 
@@ -67,13 +74,13 @@ namespace Droplet::Graphics
 		static inline const std::string &GetLayerName(DrawLayer p_layer)
 		{
 			// Ensure only one flag is set in the layer enum value
-			static_assert(
-				(static_cast<uint16_t>(DrawLayer::Layer1) & (static_cast<uint16_t>(DrawLayer::Layer1) - 1)) == 0, 
-				"layer"
+			assert(
+				IsSingleLayer(p_layer),
+				"p_layer must be a single layer flag, not a layer mask."
 			);
 
 			auto &instance = Get();
-			auto it = instance.m_layerNames.find(layer);
+			auto it = instance.m_layerNames.find(p_layer);
 			if (it != instance.m_layerNames.end())
 			{
 				return it->second;
@@ -83,16 +90,20 @@ namespace Droplet::Graphics
 
 		static inline void SetLayerName(DrawLayer p_layer, const std::string &p_name)
 		{
+			// Ensure only one flag is set in the layer enum value
+			assert(
+				IsSingleLayer(p_layer),
+				"p_layer must be a single layer flag, not a layer mask."
+			);
+
 			auto &instance = Get();
 			instance.m_layerNames[p_layer] = p_name;
 		}
 
-		static inline std::vector<std::string> &GetLayerNames(DrawLayer p_layerMask)
+		static inline std::vector<std::string> GetLayerNames(DrawLayer p_layerMask)
 		{
 			auto &instance = Get();
-			static std::vector<std::string> layerNames;
-			layerNames.clear();
-
+			std::vector<std::string> layerNames;
 			for (const auto &pair : instance.m_layerNames)
 			{
 				if (IsLayerEnabled(pair.first, p_layerMask))
@@ -140,6 +151,8 @@ namespace Droplet::Graphics
 			return result;
 		}
 
+		static bool EditLayerNamesPopup(bool p_doOpen);
+
 
 		// General Utilities
 
@@ -148,20 +161,20 @@ namespace Droplet::Graphics
 			return sizeof(DrawLayer) * 8ull;
 		}
 
-		static inline void SerializeLayerNames(const std::string &p_path);
-		static inline void DeserializeLayerNames(const std::string &p_path);
+		static void SerializeLayerNames(const std::string &p_path)
+		{
+			Get().InternalSerializeLayerNames(p_path);
+		}
+		static void DeserializeLayerNames(const std::string &p_path)
+		{
+			Get().InternalDeserializeLayerNames(p_path);
+		}
+
+		static bool SetLayerMaskUI(const char *label, DrawLayer &p_layerMask);
 
 
 	private:
-		DrawLayerUtility() = default;
-
-		static DrawLayerUtility &Get()
-		{
-			static DrawLayerUtility instance;
-			return instance;
-		}
-
-		std::unordered_map<DrawLayer, std::string> m_layerNames{
+		std::map<DrawLayer, std::string> m_layerNames{
 			{ DrawLayer::Layer1,	"Layer 1" },
 			{ DrawLayer::Layer2,	"Layer 2" },
 			{ DrawLayer::Layer3,	"Layer 3" },
@@ -179,5 +192,23 @@ namespace Droplet::Graphics
 			{ DrawLayer::Layer15,	"Layer 15" },
 			{ DrawLayer::Layer16,	"Layer 16" },
 		};
+
+		DrawLayerUtility()
+		{
+			InternalDeserializeLayerNames(ROOT_PATH "/GameData/DrawLayers.json");
+		}
+		~DrawLayerUtility()
+		{
+			InternalSerializeLayerNames(ROOT_PATH "/GameData/DrawLayers.json");
+		}
+
+		static DrawLayerUtility &Get()
+		{
+			static DrawLayerUtility instance;
+			return instance;
+		}
+
+		void InternalSerializeLayerNames(const std::string &p_path) const;
+		void InternalDeserializeLayerNames(const std::string &p_path);
 	};
 }

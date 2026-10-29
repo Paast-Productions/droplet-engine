@@ -1,8 +1,8 @@
-
 #pragma once
 
 #include <SceneSystem/Component.hpp>
 #include <Graphics/VK/Camera.hpp>
+#include <Graphics/DrawLayer.hpp>
 #include <glm/glm.hpp>
 #include <memory>
 #include <string_view>
@@ -34,20 +34,9 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        Droplet::Graphics::Camera m_camera;
+        Graphics::Camera m_camera{ };
+		Graphics::DrawLayer m_drawLayers{ Graphics::DrawLayer::All };
 
-        // Node followed by the editor camera.
-        std::weak_ptr<Node> m_target;
-
-        // Offset from the target's world position.
-        glm::vec3 m_offset{0.0f, 3.0f, 0.3f};
-
-        glm::vec3 m_smoothedPosition{ 0.0f };
-        float m_smoothedYaw = 0.0f;     // degrees
-        float m_smoothedPitch = 0.0f;   // degrees
-
-        float m_rotationLag = 30.0f;     // higher = snappier, lower = laggier
-        float m_positionLag = 60.0f;
-
+        // TODO: Internal Draw List
     };
 }

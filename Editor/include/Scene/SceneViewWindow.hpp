@@ -62,11 +62,15 @@ namespace Droplet::Editor::Scene
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
 		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
+
+		/// @brief Renders the overlay queue for the scene view, which may include UI elements or debug information.
+		/// @note Any part of the editor may queue overlay elements to be drawn on top of the scene view, and this function handles their rendering.
+		void RenderOverlayQueue();
 		
 		/// @brief Updates the SceneViews render target to match the cameraSize
 		/// @param p_width The width of the render target
 		/// @param p_height The height of the render target
-		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
+		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
 
 		/// @brief Handles the editor camera controls that operate on the current selection:
 		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
