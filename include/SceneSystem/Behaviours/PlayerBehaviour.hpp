@@ -42,7 +42,19 @@ namespace Droplet::Scene
             return m_data.maxHealth;
 		}
 
+        [[nodiscard]] float GetHeatRestistance()
+        {
+            return m_data.heatResistance;
+        }
+
+        void SetHeatRestistance(float p_heatRestitance) { m_data.heatResistance = p_heatRestitance; }
+        void SetMaxHealth(float p_maxHealth) { m_data.maxHealth = p_maxHealth; }
+
     protected:
+        /// @brief Internal rendering function for the component's UI.
+        /// Overloaded by derived components to implement their own UI rendering logic.
+        void RenderUIImpl() override;
+
         [[nodiscard]] nlohmann::json SerializeImpl() override;
 
         void DeserializeImpl(const nlohmann::json p_behJson) override;

@@ -15,6 +15,7 @@ namespace Droplet::Game
     struct PlayerData
     {
         std::vector<ItemStack> inventory;
-		std::uint32_t maxHealth = 3;
+	    float maxHealth = 100;
+        float heatResistance = 50;
     };
 }

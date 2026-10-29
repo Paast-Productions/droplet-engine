@@ -16,7 +16,7 @@
 #include <HealthComponent.hpp>
 #include <PlayerComponent.hpp>
 #include <Behaviour.hpp>
-#include <PlayerBehaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 
 #include <print>
 #include <filesystem>
