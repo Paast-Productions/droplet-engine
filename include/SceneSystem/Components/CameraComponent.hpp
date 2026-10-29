@@ -24,10 +24,19 @@ namespace Droplet::Scene
             return "CameraComponent";
         }
 
+        [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
+        [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }
+
+        [[nodiscard]] Math::Frustum &GetFrustum() { return m_frustum; }
+        [[nodiscard]] const Math::Frustum &GetFrustum() const { return m_frustum; }
+
+		[[nodiscard]] Graphics::DrawLayer GetDrawLayerMask() const { return m_drawLayerMask; }
+
     protected:
         void StartImpl() override;
         void LateUpdateImpl() override;
         void QueueRenderImpl() override;
+		void EditorUpdateImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
@@ -35,7 +44,10 @@ namespace Droplet::Scene
 
     private:
         Graphics::Camera m_camera{ };
-		Graphics::DrawLayer m_drawLayers{ Graphics::DrawLayer::All };
+		Math::Frustum m_frustum{ };
+		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
+
+		bool m_debugDraw{ false };
 
         // TODO: Internal Draw List
     };

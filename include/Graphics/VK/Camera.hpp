@@ -80,8 +80,10 @@ namespace Droplet::Graphics
 		/// @brief Sets the orientation of the camera using yaw and pitch angles in degrees.
 		void SetOrientation(float p_yaw, float p_pitch, glm::vec3 p_up = glm::vec3(0,1,0));
 
+		/// @brief Sets the orientation of the camera using forward and up vectors.
 		void SetOrientation(glm::vec3 p_fwd, glm::vec3 p_up) { m_forward = p_fwd; m_up = p_up; UpdateCameraVectors(); }
 
+		/// @brief Sets the orientation of the camera using a quaternion.
 		void SetOrientation(glm::quat p_orientation);
 
 		/// @brief Sets the horizontal field of view (FOV) of the camera in degrees.

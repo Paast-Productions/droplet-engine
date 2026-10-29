@@ -1102,7 +1102,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
 
 		camera.Rotate(
-			input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
+			-input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
 			-input.GetDeltaMouseY() * C_ORBIT_SENSITIVITY
 		);
 

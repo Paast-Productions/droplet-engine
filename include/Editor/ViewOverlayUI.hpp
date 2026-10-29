@@ -9,23 +9,27 @@ namespace Droplet::Editor
 	class ViewOverlayUI
 	{
 	public:
+		/// @brief Gets the singleton instance of the ViewOverlayUI.
 		static ViewOverlayUI &Get()
 		{
 			static ViewOverlayUI instance;
 			return instance;
 		}
 
-		static void QueueOverlay(const std::function<void()> &p_overlayFunc)
+		/// @brief Queues an overlay function to be drawn on top of the scene view.
+		static inline void QueueOverlay(const std::function<void()> &p_overlayFunc)
 		{
 			Get().m_overlayQueue.push_back(p_overlayFunc);
 		}
 
-		const std::vector<std::function<void()>> &GetQueue() const
+		/// @brief Gets the queue of overlay functions to be drawn on top of the scene view.
+		const inline std::vector<std::function<void()>> &GetQueue() const
 		{
 			return m_overlayQueue;
 		}
 
-		void ClearQueue()
+		/// @brief Clears the queue of overlay functions.
+		void inline ClearQueue()
 		{
 			m_overlayQueue.clear();
 		}
