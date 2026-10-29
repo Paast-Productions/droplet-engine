@@ -14,6 +14,7 @@
 Droplet::Editor::SavedScenesWindow::SavedScenesWindow()
 {
     m_scenePath = ROOT_PATH "/GameData/Scenes/";
+    m_prefabPath = ROOT_PATH "GameData/Prefabs/";
     RefreshScannedFiles(m_sceneFiles);
 }
 
@@ -150,10 +151,6 @@ void Droplet::Editor::SavedScenesWindow::OpenSceneJson(const std::filesystem::pa
 #else
     //can only open on windows
 #endif
-}
-
-void Droplet::Editor::SavedScenesWindow::RenameScene()
-{
 }
 
 void Droplet::Editor::SavedScenesWindow::RefreshScannedFiles(std::vector<std::string> &p_sceneFiles)

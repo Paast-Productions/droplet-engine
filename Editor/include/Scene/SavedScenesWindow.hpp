@@ -40,8 +40,6 @@ namespace Droplet::Editor
 
 		void OpenSceneJson(const std::filesystem::path &p_path);
 
-		void RenameScene();
-
 		void RefreshScannedFiles(std::vector < std::string> &p_sceneFiles);
 
 		bool m_openDelete = false;
@@ -50,8 +48,12 @@ namespace Droplet::Editor
 
 		std::vector<SceneTreeNode> m_sceneTree;
 
+		std::vector<SceneTreeNode> m_prefabTree;
+
 		std::string m_selectedJsonScene;
 		/// @brief Directory containing the scenes
 		std::filesystem::path m_scenePath;
+
+		std::filesystem::path m_prefabPath;
 	};
 }
