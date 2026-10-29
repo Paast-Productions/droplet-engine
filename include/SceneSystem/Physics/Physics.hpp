@@ -49,6 +49,8 @@ namespace Droplet
 		/// @param p_gravityVector The gravity acceleration vector
 		void SetGravity(const glm::vec3 p_gravityVector);
 
+		JPH::PhysicsSystem *GetPhyscisSystem();
+		
 		/// @brief Getter for the body interface
 		/// @return Pointer to the body interface
 		[[nodiscard]] JPH::BodyInterface *GetBodyInterface();
