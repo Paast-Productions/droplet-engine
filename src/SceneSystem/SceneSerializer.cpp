@@ -40,17 +40,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
 
     for (const auto &rootJson : p_json["roots"])
     {
-        auto root = p_scene->AddNode(rootJson["name"]);
-        context.RegisterNode(rootJson["id"], root);
-        DeserializeTransform(rootJson["transform"], root->GetTransform());
-        for (const auto componentJson : rootJson["components"])
-        {
-            DeserializeComponent(componentJson, root, rootJson["id"], context);
-        }
-        for (const auto childJson : rootJson["children"])
-        {
-            DeserializeNode(childJson, root, p_scene,context);
-        }
+		DeserializeNode(rootJson, nullptr, p_scene, context);
     }
     context.ResolveAllReferences();
 }
@@ -167,9 +157,12 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
         throw std::runtime_error("Node is missing required field 'active'");
     }
 
-    
+    std::shared_ptr<Node> node = p_scene->AddNode(p_json["name"]);
+    if (p_parentNode)
+    {
+        p_parentNode->AddChild(node);
+    }
 
-    auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
     p_context.RegisterNode(p_json["id"], node);
     node->SetActive(p_json["active"]);
 
