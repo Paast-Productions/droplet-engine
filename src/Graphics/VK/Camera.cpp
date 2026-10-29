@@ -67,24 +67,6 @@ void Camera::UpdateCameraVectors()
 	m_right = glm::normalize(glm::cross(m_forward, m_up));
 }
 
-glm::vec3 Camera::GetPosition() const
-{
-	return m_position;
-}
-glm::vec3 Camera::GetForward() const
-{
-	return m_forward;
-}
-
-glm::vec3 Camera::GetRight() const
-{
-	return m_right;
-}
-glm::vec3 Camera::GetUp() const
-{
-	return m_up;
-}
-
 Frustum Camera::GetFrustum() const
 {
 	return Frustum(
@@ -119,14 +101,13 @@ glm::mat4 Camera::GetProjectionMatrix() const
 
 void Camera::SetOrientation(float p_yaw, float p_pitch, glm::vec3 p_up)
 {
+	// Apply yaw
 	glm::quat yawQuat = glm::angleAxis(glm::radians(p_yaw), glm::normalize(p_up));
-	glm::quat pitchQuat = glm::angleAxis(glm::radians(p_pitch), glm::normalize(m_right));
-
-	// Apply yaw first
 	m_forward = glm::normalize(yawQuat * m_forward);
 	m_up = glm::normalize(yawQuat * m_up);
 
 	// Apply pitch
+	glm::quat pitchQuat = glm::angleAxis(glm::radians(p_pitch), glm::normalize(m_right));
 	m_forward = glm::normalize(pitchQuat * m_forward);
 	m_up = glm::normalize(pitchQuat * m_up);
 

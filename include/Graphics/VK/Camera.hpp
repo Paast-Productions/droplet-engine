@@ -39,19 +39,19 @@ namespace Droplet::Graphics
 
 		/// @brief Get the camera position
 		/// @returns glm::vec3 camera position
-		[[nodiscard]] glm::vec3 GetPosition() const;
+		[[nodiscard]] glm::vec3 GetPosition() const { return m_position; }
 		
 		/// @brief Get the vector of the direction the camera is facing
 		/// @returns glm::vec3 Vector of which the camera is facing 
-		[[nodiscard]] glm::vec3 GetForward() const;
+		[[nodiscard]] glm::vec3 GetForward() const { return m_forward; }
 		
 		/// @brief Get the value of the direction to the right of the camera
 		/// @returns glm::vec3 Vector to the right of the camera
-		[[nodiscard]] glm::vec3 GetRight() const;
+		[[nodiscard]] glm::vec3 GetRight() const { return m_right; }
 		
 		/// @brief Get the value of the direction above the camera
 		/// @returns glm::vec3 Vector above the camera
-		[[nodiscard]] glm::vec3 GetUp() const;
+		[[nodiscard]] glm::vec3 GetUp() const { return m_up; }
 
 		/// @brief Get the frustum of the camera
 		/// @returns A frustum of the camera
