@@ -172,7 +172,7 @@ namespace Droplet
 		/// @param p_x The new cursor x position.
 		/// @param p_y The new cursor y position.
 		/// @note SDL3 only wants this to be called in the main thread.
-		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse = true, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
 
 		/// @brief Function to hide or show cursor
 		/// @param p_active Bool that when true hide cursor and show when false
