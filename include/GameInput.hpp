@@ -56,6 +56,7 @@ namespace Droplet
 		KeyBackspace = SDL_SCANCODE_BACKSPACE,
 		KeyTab = SDL_SCANCODE_TAB,
 		KeySpace = SDL_SCANCODE_SPACE,
+		KeyDelete = SDL_SCANCODE_DELETE,
 
 		KeyF1 = SDL_SCANCODE_F1,
 		KeyF2 = SDL_SCANCODE_F2,
@@ -73,6 +74,7 @@ namespace Droplet
 		KeyLCTRL = SDL_SCANCODE_LCTRL,
 		KeyRCTRL = SDL_SCANCODE_RCTRL,
 		KeyShift = SDL_SCANCODE_LSHIFT,
+		KeyLALT = SDL_SCANCODE_LALT,
 
 		KeyArrowUP = SDL_SCANCODE_UP,
 		KeyArrowRight = SDL_SCANCODE_RIGHT,
@@ -170,7 +172,7 @@ namespace Droplet
 		/// @param p_x The new cursor x position.
 		/// @param p_y The new cursor y position.
 		/// @note SDL3 only wants this to be called in the main thread.
-		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
+		void SetCursorPosition(SDL_Window* &p_window, bool p_relativeMouse = true, float p_x = 0.0f, float p_y = 0.0f); // Assuming (0.0, 0.0) is center of window
 
 		/// @brief Function to hide or show cursor
 		/// @param p_active Bool that when true hide cursor and show when false
