@@ -6,11 +6,11 @@
 namespace Droplet::Editor
 {
 
-	class SavedScenesWindow : public EditorWindow
+	class SavedDataWindow : public EditorWindow
 	{
 	public:
-		SavedScenesWindow();
-		~SavedScenesWindow() = default;
+		SavedDataWindow();
+		~SavedDataWindow() = default;
 
 
 	protected:
@@ -36,9 +36,9 @@ namespace Droplet::Editor
 
 		void RenderTreeHelper(const SceneTreeNode &node);
 
-		void DeleteSelectedScene();
+		void DeleteSelectedFile();
 
-		void OpenSceneJson(const std::filesystem::path &p_path);
+		void OpenJson(const std::filesystem::path &p_path);
 
 		void RefreshScannedFiles(std::vector < std::string> &p_sceneFiles);
 
@@ -55,5 +55,7 @@ namespace Droplet::Editor
 		std::filesystem::path m_scenePath;
 
 		std::filesystem::path m_prefabPath;
+
+		bool m_needsRefresh = false;
 	};
 }
