@@ -36,7 +36,7 @@ void Droplet::Editor::SavedDataWindow::RenderImpl()
     {
         for (const SceneTreeNode &node : m_sceneTree)
         {
-            RenderTreeHelper(node);
+            RenderTreeHelper(node, SavedDataType::Scene);
         }
     }
 
@@ -51,7 +51,7 @@ void Droplet::Editor::SavedDataWindow::RenderImpl()
 
     for (const SceneTreeNode &node : m_prefabTree)
     {
-        RenderTreeHelper(node);
+        RenderTreeHelper(node, SavedDataType::Prefab);
     }
 
     if (m_needsRefresh)
@@ -75,7 +75,7 @@ void Droplet::Editor::SavedDataWindow::RenderToolbar()
     
 }
 
-void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node)
+void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataType p_type)
 {
     const std::string id = p_node.relativePath.generic_string();
     ImGui::PushID(id.c_str());
@@ -86,7 +86,7 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
         {
             for (const SceneTreeNode &child : p_node.children)
             {
-                RenderTreeHelper(child);
+                RenderTreeHelper(child,p_type);
             }
             ImGui::TreePop();
         }
@@ -148,12 +148,34 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
             ImGui::EndPopup();
         }
 
-        if (ImGui::BeginDragDropSource())
+        if (p_type == SavedDataType::Scene)
         {
-            ImGui::SetDragDropPayload("PREFAB_PATH", path.c_str(), path.size() + 1);
-            ImGui::TextUnformatted(p_node.name.c_str());
-            ImGui::EndDragDropSource();
+            if (ImGui::BeginDragDropSource())
+            {
+                SceneDragDropData data{};
+
+                const std::string fullPath = p_node.relativePath.string();
+                const std::string sceneName = std::filesystem::path(p_node.name).stem().string();
+
+                strcpy_s(data.path, fullPath.c_str());
+                strcpy_s(data.name, sceneName.c_str());
+
+                ImGui::SetDragDropPayload("SCENE_PATH", &data, sizeof(data));
+                ImGui::TextUnformatted(sceneName.c_str());
+                ImGui::EndDragDropSource();
+            }
         }
+
+        if (p_type == SavedDataType::Prefab)
+        {
+            if (ImGui::BeginDragDropSource())
+            {
+                ImGui::SetDragDropPayload("PREFAB_PATH", path.c_str(), path.size() + 1);
+                ImGui::TextUnformatted(p_node.name.c_str());
+                ImGui::EndDragDropSource();
+            }
+        }
+
 
     }
     ImGui::PopID();

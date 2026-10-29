@@ -11,6 +11,14 @@
 
 namespace Droplet
 {
+    /// @brief This is the drop data received from the scene window
+    /// needed for drag and drop to load scenes from the saved gamedata window
+    struct SceneDragDropData
+    {
+        char path[256];
+        char name[128];
+    };
+
     namespace Scene
     {
 		// Forward declarations

@@ -5,6 +5,17 @@
 #include <filesystem>
 namespace Droplet::Editor
 {
+	enum class SavedDataType
+	{
+		Prefab = 0,
+		Scene = 1
+	};
+
+	struct SceneDragDropData
+	{
+		char path[256];
+		char name[128];
+	};
 
 	class SavedDataWindow : public EditorWindow
 	{
@@ -34,7 +45,7 @@ namespace Droplet::Editor
 			std::vector<SceneTreeNode> children;
 		};
 
-		void RenderTreeHelper(const SceneTreeNode &node);
+		void RenderTreeHelper(const SceneTreeNode &node, SavedDataType type);
 
 		void DeleteSelectedFile();
 
