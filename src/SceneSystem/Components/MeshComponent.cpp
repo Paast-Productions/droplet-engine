@@ -6,15 +6,48 @@
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
+#include <Engine/EngineFlags.hpp>
 #include <string>
 #include <Editor/ResourceSlot.hpp>
 
 // imgui helper function
 
+using namespace Droplet;
 using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
+    if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::EditorFlags))
+    {
+        // Set default resources
+
+		ResourceManager &rsMan = ResourceManager::GetInstance();
+        MetaEntry entry; 
+
+        // Mesh
+        if (rsMan.GetResourceMetaEntry("Cube", entry))
+        {
+			SetMeshGUID(entry.guid);
+        }
+
+		// Texture
+        if (rsMan.GetResourceMetaEntry("White", entry))
+        {
+			SetTextureGUID(entry.guid);
+        }
+
+		// Vertex Shader
+        if (rsMan.GetResourceMetaEntry("Base.VS", entry))
+        {
+			SetVSGUID(entry.guid);
+        }
+
+		// Fragment Shader
+        if (rsMan.GetResourceMetaEntry("Base.FS", entry))
+        {
+            SetFSGUID(entry.guid);
+        }
+    }
 }
 
 void MeshComponent::StartImpl()

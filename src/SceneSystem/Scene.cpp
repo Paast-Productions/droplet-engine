@@ -62,7 +62,7 @@ void Scene::Update()
     m_octree.Update();
 }
 
-void Droplet::Scene::Scene::LateUpdate()
+void Scene::LateUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -86,7 +86,7 @@ void Droplet::Scene::Scene::LateUpdate()
     }
 }
 
-void Droplet::Scene::Scene::FixedUpdate()
+void Scene::FixedUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -311,7 +311,7 @@ std::vector<std::shared_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Fru
     return nodes;
 }
 
-void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initializer)
+void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 {
     if (m_physics != nullptr)
     {
@@ -321,12 +321,12 @@ void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initi
     m_physics = std::make_unique<Physics>(p_initializer);
 }
 
-Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
+Droplet::Physics *Scene::GetPhysics()
 {
     return m_physics.get();
 }
 
-void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
+void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);

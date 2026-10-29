@@ -202,6 +202,11 @@ namespace Droplet
         return m_registry.GetResourceMetaData(p_guid, p_metaEntry);
     }
 
+    bool ResourceManager::GetResourceMetaEntry(const std::string &p_resourceName, MetaEntry &p_metaEntry) const
+    {
+		return m_registry.GetResourceMetaData(p_resourceName, p_metaEntry);
+    }
+
     std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(ResourceType p_type) const
     {
         return MetaUtils::GetSettingsSchema(p_type);

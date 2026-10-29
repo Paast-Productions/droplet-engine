@@ -1503,16 +1503,48 @@ end
 function DebugDraw.DrawIcon(icon, position, size, color, depth)
 end
 
+---@class Scene
+Scene = {}
+
+---@param ray Ray
+---@return tuple<Node, RayHit>
+function Scene:RaycastNode(ray)
+    return nil
+end
+
+---@param ray Ray
+---@return Node[]
+function Scene:RaycastNodes(ray)
+    return nil
+end
+
 ---@class SceneManager
 SceneManager = {}
 
----@return string
-function SceneManager:GetName()
-    return ""
+---@param scenePath string
+function SceneManager:LoadScene(scenePath)
 end
 
----@return Transform
-function SceneManager:GetTransform()
+---@param scenePath string
+function SceneManager:UnloadScene(scenePath)
+end
+
+---@param scene Scene
+function SceneManager:ActivateScene(scene)
+end
+
+---@param scene Scene
+function SceneManager:DeactivateScene(scene)
+end
+
+---@param sceneName string
+---@return Scene
+function SceneManager:GetScene(sceneName)
+    return nil
+end
+
+---@return Scene[]
+function SceneManager:GetActiveScenes()
     return nil
 end
 
