@@ -81,6 +81,11 @@ namespace Droplet::Scene
 		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
 		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
+		
+		/// @brief Helper function finding unique weak pointers in a vector.
+		/// @param[in] p_inNodes The in vector containing all weak pointers of Node
+		/// @param[out] p_outNodes The out vector containing only unique weak pointers of Node
+		void FindUniqueNodes(const std::vector<std::weak_ptr<Node>> &p_inNodes, std::vector<std::weak_ptr<Node>> &p_outNodes);
 
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_node The Node to be added to the octree

@@ -54,29 +54,8 @@ namespace Droplet::Scene
 		CollectDirtyNodes(m_root, dirtyNodes);
 		
 		// Removes duplicated nodes in dirtyNodes vector.
-		// std::ranges::sort(dirtyNodes.begin(), dirtyNodes.end());
-		// dirtyNodes.erase(std::ranges::unique(dirtyNodes).begin(), dirtyNodes.end());
 		std::vector<std::weak_ptr<Node>> uniqueNodes;
-		for (const std::weak_ptr<Node> &node : dirtyNodes)
-		{
-			auto nodePtr = node.lock();
-			if (nodePtr == nullptr)
-			{
-				continue;
-			}
-			
-			bool exists = std::ranges::any_of(
-				uniqueNodes,
-				[&nodePtr](const std::weak_ptr<Node> &existing)
-				{
-					return existing.lock() == nodePtr;
-				});
-			
-			if (!exists)
-			{
-				uniqueNodes.push_back(node);
-			}
-		}
+		FindUniqueNodes(dirtyNodes, uniqueNodes);
 		dirtyNodes = std::move(uniqueNodes);
 
 		for (const std::weak_ptr<Node> &node : dirtyNodes)
@@ -156,29 +135,8 @@ namespace Droplet::Scene
 		CollectContained(found, p_frustum, m_root);
 
 		// A node may be stored in several octants, so only keep unique ones
-		// std::ranges::sort(found.begin(), found.end());
-		// found.erase(std::ranges::unique(found).begin(), found.end());
 		std::vector<std::weak_ptr<Node>> uniqueNodes;
-		for (const std::weak_ptr<Node> &node : found)
-		{
-			auto nodePtr = node.lock();
-			if (nodePtr == nullptr)
-			{
-				continue;
-			}
-			
-			bool exists = std::ranges::any_of(
-				uniqueNodes,
-				[&nodePtr](const std::weak_ptr<Node> &existing)
-				{
-					return existing.lock() == nodePtr;
-				});
-			
-			if (!exists)
-			{
-				uniqueNodes.push_back(node);
-			}
-		}
+		FindUniqueNodes(found, uniqueNodes);
 		found = std::move(uniqueNodes);
 
 		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
@@ -322,6 +280,33 @@ namespace Droplet::Scene
 				{
 					CollectDirtyNodes(child, p_dirtyNodes);
 				}
+			}
+		}
+	}
+
+	void Octree::FindUniqueNodes(const std::vector<std::weak_ptr<Node>> &p_inNodes, std::vector<std::weak_ptr<Node>> &p_outNodes)
+	{
+		// std::ranges::sort(p_inNodes.begin(), p_inNodes.end());
+		// p_inNodes.erase(std::ranges::unique(p_inNodes).begin(), p_inNodes.end());
+		// This for loop does the same thing as the commented code above, except this works for weak_ptr.
+		for (const std::weak_ptr<Node> &node : p_inNodes)
+		{
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
+			{
+				continue;
+			}
+			
+			bool exists = std::ranges::any_of(
+				p_outNodes,
+				[&nodePtr](const std::weak_ptr<Node> &existing)
+				{
+					return existing.lock() == nodePtr;
+				});
+			
+			if (!exists)
+			{
+				p_outNodes.push_back(node);
 			}
 		}
 	}
