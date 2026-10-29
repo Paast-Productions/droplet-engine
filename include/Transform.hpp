@@ -125,7 +125,7 @@ namespace Droplet::Scene
 		/// This is used to track if the transform was ever modified during the frame.
 		void ResetFrame();
 		
-		/// @brief 
+		/// @brief Sets the physics dirty boolean to false. Only used by the octree.
 		void ResetPhysicsDirty();
 
 		// ================================ Utility ================================
