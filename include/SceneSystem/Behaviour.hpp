@@ -61,6 +61,11 @@ namespace Droplet::Scene
         /// @param sceneManager SceneManager associated with the game.
         void SetSceneManager(SceneManager *sceneManager);
 
+		/// @brief Gets the SceneManager associated with the Behaviour.
+        ///
+		/// @return Pointer to the SceneManager associated with the Behaviour.
+		[[nodiscard]] SceneManager *GetSceneManager() const { return m_sceneManager; }
+
         /// @brief Serializes the behaviour to a JSON object.
         /// @return A JSON object representing the behaviour's state.
         [[nodiscard]] nlohmann::json Serialize();

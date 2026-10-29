@@ -3,6 +3,7 @@
 
 namespace Droplet::Scene
 {
+
     nlohmann::json PlayerBehaviour::SerializeImpl()
     {
         nlohmann::json inventory = nlohmann::json::array();
