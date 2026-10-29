@@ -218,7 +218,7 @@ namespace Droplet::Scene
         /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
         /// @param p_frustum The frustum that must fully contain the nodes
         /// @return A vector of all Node instances fully contained in the frustum
-        [[nodiscard]] std::vector<std::shared_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum); // TODO: Make weak pointer
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
 
         [[nodiscard]] Physics *GetPhysics();
         
