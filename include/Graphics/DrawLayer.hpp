@@ -172,6 +172,8 @@ namespace Droplet::Graphics
 
 		static bool SetLayerMaskUI(const char *label, DrawLayer &p_layerMask);
 
+		static bool SetLayerUI(const char *label, DrawLayer &p_layer);
+
 
 	private:
 		std::map<DrawLayer, std::string> m_layerNames{

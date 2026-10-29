@@ -47,18 +47,31 @@ void NodeInspectorWindow::RenderImpl()
 	std::string nodeString = std::to_string(nodeNumber);
 	ImGui::PushID(nodeString.c_str());
 
+	float availWidth = ImGui::GetContentRegionAvail().x;
+	float iconButtonWidth = ImGui::GetFrameHeight();
+
+	ImGui::SetNextItemWidth(availWidth - iconButtonWidth - ImGui::GetStyle().ItemSpacing.x);
+
 	// Name
 	std::string stringNodeName = m_currentNode->GetName();
-	if (ImGui::InputText("Node Name", &stringNodeName))
+	if (ImGui::InputText("##Node Name", &stringNodeName))
 	{
 		m_currentNode->SetName(stringNodeName);
 	}
 
+	ImGui::SameLine();
+
 	// Active
 	bool active = m_currentNode->IsActiveSelf();
-	if (ImGui::Checkbox("Active", &active))
+	if (ImGui::Checkbox("##Active", &active))
 	{
 		m_currentNode->SetActive(active);
+	}
+
+	Graphics::DrawLayer drawLayer = m_currentNode->GetDrawLayer();
+	if (Graphics::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
+	{
+		m_currentNode->SetDrawLayer(drawLayer);
 	}
 
 	// Transform

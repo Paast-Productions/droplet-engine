@@ -98,7 +98,7 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 	PushID(label);
 	BeginGroup();
 
-	Text("%s:", label);
+	Text("%s", label);
 
 	std::string comboDisplay = "";
 	bool isAllSelected = (p_layerMask == DrawLayer::All);
@@ -125,7 +125,7 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 
 	bool changed = false;
 
-	// Set the max width of the combo box to avail  region minus an icon button width
+	// Set the max width of the combo box to avail region minus an icon button width
 
 	float availWidth = GetContentRegionAvail().x;
 	float iconButtonWidth = GetFrameHeight(); // Assuming square button
@@ -176,3 +176,52 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 	return changed;
 }
 
+bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
+{
+	using namespace ImGui;
+	auto &instance = Get();
+
+	// Ensure that p_layer is a single layer flag
+	assert(
+		IsSingleLayer(p_layer),
+		"p_layer must be a single layer flag, not a layer mask."
+	);
+
+	PushID(label);
+	BeginGroup();
+
+	Text("%s", label);
+
+	SameLine();
+
+	bool changed = false;
+
+	// Set the max width of the combo box to avail region minus an icon button width
+
+	float availWidth = GetContentRegionAvail().x;
+	float iconButtonWidth = GetFrameHeight(); // Assuming square button
+
+	SetNextItemWidth(availWidth - iconButtonWidth - GetStyle().ItemSpacing.x);
+
+	// Dropdown for selecting layers
+	if (BeginCombo("##LayerCombo", GetLayerName(p_layer).c_str(), ImGuiComboFlags_HeightLarge))
+	{
+		for (const auto &[layer, name] : instance.m_layerNames)
+		{
+			if (Selectable(name.c_str(), p_layer == layer))
+			{
+				p_layer = layer;
+				changed = true;
+			}
+		}
+		EndCombo();
+	}
+
+	SameLine();
+	EditLayerNamesPopup(Button(ICON_LC_SETTINGS));
+
+	EndGroup();
+	PopID();
+
+	return changed;
+}

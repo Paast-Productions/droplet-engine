@@ -16,6 +16,7 @@
 #include <Transform.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
+#include <Graphics/DrawLayer.hpp>
 
 namespace Droplet::Scene
 {
@@ -96,6 +97,28 @@ namespace Droplet::Scene
 
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();
+
+		/// @brief Gets the Node's draw layer.
+		///
+		/// The draw layer determines which draw layer the Node and its
+		/// Components will be rendered in.
+		///
+		/// @return The draw layer the Node belongs to.
+		[[nodiscard]] Graphics::DrawLayer GetDrawLayer() const
+		{
+			return m_drawLayer;
+		}
+
+		/// @brief Sets the Node's draw layer.
+		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
+        {
+			assert(
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer),
+                "p_drawLayer must be a single layer"
+            );
+
+			m_drawLayer = p_drawLayer;
+		}
 
         /// @brief Sets whether the Node is active.
         ///
@@ -307,6 +330,12 @@ namespace Droplet::Scene
         std::uint64_t m_nextComponentID = 1;
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
+
+        /// @brief Draw layer mask for the Node.
+        ///
+        /// The draw layer mask determines which draw layers the Node and its
+        /// Components will be rendered in.
+        Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
         /// @brief Indicates whether the Node has been started.
         bool m_started = false;

@@ -116,6 +116,7 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     json["name"] = p_node.GetName();
     json["id"] = p_node.GetID();
     json["active"] = p_node.IsActive();
+	json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
     json["transform"] = SerializeTransform(p_node.GetTransform());
     json["components"] = nlohmann::json::array();
     
@@ -171,6 +172,12 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
     auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
     p_context.RegisterNode(p_json["id"], node);
     node->SetActive(p_json["active"]);
+
+    if (p_json.contains("drawLayer"))
+    {
+		uint16_t drawLayerValue = p_json["drawLayer"];
+		node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+    }
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 
