@@ -1,4 +1,5 @@
 #pragma once
+#include <json/json.hpp>
 
 namespace Droplet::Audio
 {
