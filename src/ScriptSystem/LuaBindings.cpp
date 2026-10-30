@@ -42,8 +42,8 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
 	RegisterTracy(p_luaState);
-    RegisterBounds(p_luaState);
-    RegisterDebugDraw(p_luaState);
+	RegisterBounds(p_luaState);
+	RegisterDebugDraw(p_luaState);
 	RegisterScenes(p_luaState, p_sceneManager);
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
@@ -1985,20 +1985,20 @@ void LuaBindings::RegisterInput(sol::state_view p_luaState)
 		}
 	);
 
-    p_luaState.new_usertype<GameInput>(
-        "Input",
-        "KeyPressed", &GameInput::KeyPressed,
-        "KeyHeld", &GameInput::KeyHeld,
-        "KeyReleased", &GameInput::KeyReleased,
-        "KeyToggle", &GameInput::KeyToggle,
-        "MousePressed", &GameInput::MousePressed,
-        "MouseHeld", &GameInput::MouseHeld,
-        "MouseReleased", &GameInput::MouseReleased,
-        "GetCursorX", &GameInput::GetCursorX,
-        "GetCursorY", &GameInput::GetCursorY,
-        "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
-        "GetDeltaMouseY", &GameInput::GetDeltaMouseY
-    );
+	p_luaState.new_usertype<GameInput>(
+		"Input",
+		"KeyPressed", &GameInput::KeyPressed,
+		"KeyHeld", &GameInput::KeyHeld,
+		"KeyReleased", &GameInput::KeyReleased,
+		"KeyToggle", &GameInput::KeyToggle,
+		"MousePressed", &GameInput::MousePressed,
+		"MouseHeld", &GameInput::MouseHeld,
+		"MouseReleased", &GameInput::MouseReleased,
+		"GetCursorX", &GameInput::GetCursorX,
+		"GetCursorY", &GameInput::GetCursorY,
+		"GetDeltaMouseX", &GameInput::GetDeltaMouseX,
+		"GetDeltaMouseY", &GameInput::GetDeltaMouseY
+	);
 
 	LuaClassDefinition keyDef;
 	keyDef.name = "Key";
@@ -2778,7 +2778,11 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
-		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth
+		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatRestistance,
+		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
+		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
 	);
 
 	LuaClassDefinition classDef;
@@ -2786,7 +2790,11 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{ "GetMaxHealth", "MaxHealth", {} },
+		{ "GetMaxHealth", "float", {} },
+		{ "GetHeatRestistance", "float", {} },
+		{ "GetHeatLevel", "float", {} },
+		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+		{ "SetHeatLevel", "HeatRestistance", { { "amount", "number" } } },
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);

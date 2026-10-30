@@ -140,9 +140,16 @@ function OnUpdate(dt)
         -- trans:Move(toMove, TransformSpace.World)
     end
 
-    if Input:KeyPressed(Key.K) then
-        print("damage taken :()")
-        healthComp:TakeDamage(1)
+    if Input:KeyHeld(Key.K) then
+        print("heat increased :()")
+        pb:IncreaseHeatLevel(1)
+        if pb:GetHeatLevel() > pb:GetHeatResistance() then
+            print("taking damage:==)")
+            healthComp:TakeDamage(1)
+            if healthComp:GetHealth() <= 0 then
+                print("DEAD :P")
+            end
+        end
     end
 
     tracy.ZoneEnd()

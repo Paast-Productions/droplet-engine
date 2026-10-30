@@ -1598,8 +1598,28 @@ end
 ---@class PlayerBehaviour
 PlayerBehaviour = {}
 
----@return MaxHealth
+---@return float
 function PlayerBehaviour:GetMaxHealth()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatRestistance()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatLevel()
+    return nil
+end
+
+---@param amount number
+function PlayerBehaviour:IncreaseHeatLevel(amount)
+end
+
+---@param amount number
+---@return HeatRestistance
+function PlayerBehaviour:SetHeatLevel(amount)
     return nil
 end
 
