@@ -74,6 +74,9 @@ function Node:GetTransform()
     return nil
 end
 
+function Node:Destroy()
+end
+
 ---@class Transform
 Transform = {}
 

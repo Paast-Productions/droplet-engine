@@ -18,10 +18,11 @@ function RenderUI()
     ImGui.Text("Table distance: " .. string.format("%.2f", distance))
 
     if distance <= interactionRadius then
-        print("cube is near!")
+        -- print("cube is near!")
         
         if Input:KeyPressed(Key.E) then
             print("intergrade with table!")
+            cubeTrans = self:Destroy();
         end
     end
 end

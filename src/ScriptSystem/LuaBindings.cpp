@@ -12,6 +12,7 @@
 #include <SceneBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <Scene.hpp>
 
 #include <print>
 #include <filesystem>
@@ -74,7 +75,15 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Droplet::Scene::Node::GetName,
-		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform)
+		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform),
+		"Destroy", [](Scene::Node& node)
+		{
+			auto scene = node.GetScene();
+			if (scene)
+			{
+				scene->RemoveRoot(node.shared_from_this());
+			}
+		}
 	);
 
 	LuaClassDefinition classDef;
@@ -90,6 +99,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"GetTransform",
 			"Transform",
+			{}
+		},
+		{
+			"Destroy",
+			"void",
 			{}
 		}
 	};
