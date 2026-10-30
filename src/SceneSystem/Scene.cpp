@@ -1,7 +1,7 @@
 #include "Scene.hpp"
-#include "Node.hpp"
-#include "SceneSerializer.hpp"
-#include "IoManager.hpp"
+#include <Node.hpp>
+#include <SceneSerializer.hpp>
+#include <IoManager.hpp>
 
 #include <utility>
 #include <stdexcept>
@@ -10,6 +10,7 @@
 #include <EngineFlags.hpp>
 #include <Time.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -169,6 +170,15 @@ void Scene::PostRender()
     ZoneText(m_name.c_str(), m_name.size());
 
     m_renderables.clear();
+
+    for (const auto &renderer : m_renderers)
+    {
+        if (renderer)
+        {
+            renderer->ClearRenderData();
+        }
+    }
+
     m_renderers.clear();
 }
 
@@ -334,4 +344,24 @@ void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::v
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
     serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
+}
+
+void Scene::QueueRenderable(std::shared_ptr<Component> p_comp)
+{
+	if (!p_comp)
+	{
+		throw std::invalid_argument("Cannot queue null Component for rendering.");
+	}
+
+	m_renderables.emplace_back(p_comp->GetOwner(), p_comp);
+}
+
+void Scene::QueueRenderer(std::shared_ptr<CameraComponent> p_node)
+{
+	if (!p_node)
+	{
+		throw std::invalid_argument("Cannot queue null CameraComponent for rendering.");
+	}
+
+	m_renderers.push_back(p_node);
 }

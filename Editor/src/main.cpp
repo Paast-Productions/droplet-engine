@@ -371,7 +371,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         resourceBrowser.Render();
         sceneViewWindow.Render();
 
-        switch (engine.Update(editorContext.GetEditorCamera()))
+        switch (engine.Update())
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
             break;
@@ -386,7 +386,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
             break;
         }
 
-        //engine->Endframe
+        switch (engine.Render(editorContext.GetEditorCamera()))
+        {
+        case Droplet::DROPLET_RETURNTYPE::OK:
+            break;
+        
+        case Droplet::DROPLET_RETURNTYPE::EXIT:
+            run = false;
+            break;
+
+        default:
+        case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+            run = false;
+            break;
+        }
     }
 
     return 0;

@@ -8,8 +8,7 @@
 
 namespace Droplet::Graphics
 {
-	class Camera;
-	class RenderData;
+	struct CameraRenderData;
 }
 
 namespace Droplet::Scene
@@ -17,6 +16,7 @@ namespace Droplet::Scene
     class Scene;
     class Behaviour;
     class Node;
+
     /// @brief Manages the Scenes used by the application.
     ///
     /// SceneManager is responsible for loading, unloading, activating,
@@ -97,15 +97,10 @@ namespace Droplet::Scene
         const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
 
         /// @brief Updates all active Scenes.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
-
-		/// @brief Prepares all active Scenes for rendering.
-		void PrepareRender();
+        void Update();
 
         /// @brief Returns Renderdata for all active scenes
-        [[nodiscard]] std::vector<std::pair<Graphics::Camera, std::vector<Graphics::RenderData>>> GetRenderData();
+        [[nodiscard]] std::vector<Droplet::Graphics::CameraRenderData> GetRenderData();
 
 		/// @brief Performs post-rendering operations for all active Scenes.
 		void PostRender();
@@ -117,12 +112,12 @@ namespace Droplet::Scene
 
         /// @brief Loads a scene from a file
         /// @param p_filePath The name of the file the scene is serialized in
-        void LoadFromFile(const std::string& p_filePath);
+        void LoadFromFile(const std::string &p_filePath);
 
         /// @brief Serializes a lonesome node to a josn file
         /// @param p_node the node to be serialized
         /// @param p_filePath the filepath
-        void SerializeNodeToFile(const Droplet::Scene::Node &p_node, const std::string &p_filePath);
+        void SerializeNodeToFile(const Node &p_node, const std::string &p_filePath);
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
@@ -143,5 +138,8 @@ namespace Droplet::Scene
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
+
+        /// @brief Prepares all active Scenes for rendering.
+        void PrepareRender();
     };
 }

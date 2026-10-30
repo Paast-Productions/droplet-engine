@@ -4,6 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <math/bounds/Frustum.hpp>
 #include <math/bounds/Ray.hpp>
+#include <RenderData.hpp>
 
 namespace Droplet::Graphics
 {
@@ -117,5 +118,12 @@ namespace Droplet::Graphics
 
 		/// @brief Updates the cameras direction vectors
 		void UpdateCameraVectors();
+	};
+
+	struct CameraRenderData
+	{
+		Camera camera;
+		// TODO: Render Target
+		std::vector<RenderData> renderData;
 	};
 }

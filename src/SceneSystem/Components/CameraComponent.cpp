@@ -9,18 +9,6 @@ using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
-void CameraComponent::SetResolution(glm::ivec2 p_resolution)
-{
-	if (p_resolution.x <= 0 || p_resolution.y <= 0)
-	{
-		throw std::invalid_argument("Resolution must be greater than zero.");
-	}
-
-	m_resolution = p_resolution;
-	m_camera.SetAspect(static_cast<float>(p_resolution.x) / static_cast<float>(p_resolution.y));
-	m_dirty = true;
-}
-
 void CameraComponent::StartImpl()
 {
 	// TODO: Construct camera and create render target
@@ -56,9 +44,9 @@ void CameraComponent::QueueRenderImpl()
 	m_manualRender = false;
 
 	std::weak_ptr<Scene> scene = GetOwner()->GetScene();
-
 	std::shared_ptr<Component> comp = shared_from_this();
 	std::shared_ptr<CameraComponent> cameraComp = std::dynamic_pointer_cast<CameraComponent>(comp);
+
 	scene.lock()->QueueRenderer(cameraComp);
 }
 
@@ -119,6 +107,27 @@ void CameraComponent::RenderUIImpl()
 
 	Checkbox("Debug Draw", &m_debugDraw);
 
+}
+
+void CameraComponent::SetResolution(glm::ivec2 p_resolution)
+{
+	if (p_resolution.x <= 0 || p_resolution.y <= 0)
+	{
+		throw std::invalid_argument("Resolution must be greater than zero.");
+	}
+
+	m_resolution = p_resolution;
+	m_camera.SetAspect(static_cast<float>(p_resolution.x) / static_cast<float>(p_resolution.y));
+	m_dirty = true;
+}
+
+CameraRenderData Droplet::Scene::CameraComponent::GetRenderData() const
+{
+	CameraRenderData renderData{ };
+	renderData.camera = m_camera;
+	renderData.renderData = m_renderData;
+
+	return renderData;
 }
 
 nlohmann::json CameraComponent::SerializeImpl()

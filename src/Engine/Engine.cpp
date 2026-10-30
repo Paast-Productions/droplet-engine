@@ -110,7 +110,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
 	ZoneScoped;
 
@@ -168,10 +168,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	}
 
 	// Scenesystem
-	m_sceneManager.Update(Time::Get().GetDeltaTime());
+	m_sceneManager.Update();
 	
-	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
-
 	// Script Behaviours
 	for (const auto &behaviour : m_sceneManager.GetBehaviours())
 	{
@@ -186,8 +184,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	ResourceManager::Get().Update();
 
 	// Rendering
-	m_renderer.Draw(p_camera, renderDataVec);
-	//m_renderer.DrawFrame(p_camera, p_renderTarget);
+	m_renderer.Draw(m_sceneManager.GetRenderData()); 
+
+	m_sceneManager.PostRender();
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

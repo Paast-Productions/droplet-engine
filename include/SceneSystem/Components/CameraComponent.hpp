@@ -23,9 +23,6 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
         [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }
 
-		[[nodiscard]] std::vector<Graphics::RenderData> &GetRenderData() { return m_renderData; }
-		[[nodiscard]] const std::vector<Graphics::RenderData> &GetRenderData() const { return m_renderData; }
-
         [[nodiscard]] Math::Frustum &GetFrustum() { return m_frustum; }
         [[nodiscard]] const Math::Frustum &GetFrustum() const { return m_frustum; }
 
@@ -40,6 +37,9 @@ namespace Droplet::Scene
 		[[nodiscard]] bool IsAutoRenderEnabled() const { return m_autoRender; }
 		void SetAutoRender(bool p_enabled) { m_autoRender = p_enabled; }
 		void TriggerRender() { m_manualRender = true; }
+
+        [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
+		void ClearRenderData() { m_renderData.clear(); }
 
     protected:
         void StartImpl() override;

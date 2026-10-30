@@ -11,11 +11,9 @@
 #include <EngineFlags.hpp>
 #include <Time.hpp>
 #include <Graphics/VK/Camera.hpp>
-#include <Graphics/RenderData.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
-using namespace Droplet::Graphics;
 
 void SceneManager::LoadScene(const std::string &p_name)
 {
@@ -150,7 +148,7 @@ const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
     return m_activeScenes;
 }
 
-void SceneManager::Update(float p_deltaTime)
+void SceneManager::Update()
 {
     ZoneScoped;
 
@@ -238,6 +236,8 @@ void SceneManager::Update(float p_deltaTime)
 
         ++it;
     }
+
+    PrepareRender();
 }
 
 void SceneManager::PrepareRender()
@@ -259,13 +259,37 @@ void SceneManager::PrepareRender()
 
         ++it;
     }
+
+	// Sort render cameras by their priority, ensuring that higher priority cameras are rendered first
+	std::sort(m_activeScenes.begin(), m_activeScenes.end(), [](const std::weak_ptr<Scene> &a, const std::weak_ptr<Scene> &b) {
+		auto sceneA = a.lock();
+		auto sceneB = b.lock();
+		if (!sceneA || !sceneB)
+		{
+			return false;
+		}
+
+		auto &renderersA = sceneA->m_renderers;
+		auto &renderersB = sceneB->m_renderers;
+		if (renderersA.empty() || renderersB.empty())
+		{
+			return false;
+		}
+
+		int32_t priorityA = renderersA.front()->GetPriority();
+		int32_t priorityB = renderersB.front()->GetPriority();
+
+		return priorityA > priorityB;
+	});
 }
 
-std::vector<std::pair<Camera, std::vector<RenderData>>> SceneManager::GetRenderData()
+std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
 
-    std::vector<std::pair<Camera, std::vector<RenderData>>> renderViews;
+	using namespace Droplet::Graphics;
+
+    std::vector<CameraRenderData> renderViews{};
     
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
@@ -286,10 +310,7 @@ std::vector<std::pair<Camera, std::vector<RenderData>>> SceneManager::GetRenderD
 				continue;
 			}
 
-			Camera &camera = renderer->GetCamera();
-            std::vector<RenderData> &renderData = renderer->GetRenderData();
-
-			renderViews.emplace_back(camera, renderData);
+			renderViews.emplace_back(renderer->GetRenderData());
 		}
         
         ++it;
@@ -318,6 +339,7 @@ void SceneManager::PostRender()
         ++it;
     }
 }
+
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
 {
     ZoneScoped;
