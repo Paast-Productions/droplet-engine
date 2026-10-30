@@ -1,5 +1,6 @@
 #include "CameraComponent.hpp"
 
+#include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
@@ -7,6 +8,18 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
+
+void CameraComponent::SetResolution(glm::ivec2 p_resolution)
+{
+	if (p_resolution.x <= 0 || p_resolution.y <= 0)
+	{
+		throw std::invalid_argument("Resolution must be greater than zero.");
+	}
+
+	m_resolution = p_resolution;
+	m_camera.SetAspect(static_cast<float>(p_resolution.x) / static_cast<float>(p_resolution.y));
+	m_dirty = true;
+}
 
 void CameraComponent::StartImpl()
 {
@@ -25,7 +38,28 @@ void CameraComponent::LateUpdateImpl()
 
 void CameraComponent::QueueRenderImpl()
 {
-	// TODO
+	if (m_dirty)
+	{
+		// TODO
+
+		m_dirty = false;
+	}
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
+	{
+		if (!m_manualRender)
+		{
+			return;
+		}
+	}
+
+	m_manualRender = false;
+
+	std::weak_ptr<Scene> scene = GetOwner()->GetScene();
+
+	std::shared_ptr<Component> comp = shared_from_this();
+	std::shared_ptr<CameraComponent> cameraComp = std::dynamic_pointer_cast<CameraComponent>(comp);
+	scene.lock()->QueueRenderer(cameraComp);
 }
 
 void CameraComponent::EditorUpdateImpl()
@@ -59,16 +93,19 @@ void CameraComponent::RenderUIImpl()
 
 	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
 
+	InputInt("Priority", &m_priority);
+
 	float fov = m_camera.GetFOV();
 	if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
 	{
 		m_camera.SetFOV(fov);
 	}
 
-	float aspect = m_camera.GetAspect();
-	if (DragFloat("Aspect Ratio", &aspect, 0.01f))
+	glm::ivec2 res = m_resolution;
+	if (DragInt2("Resolution", &res.x, 0.25f))
 	{
-		m_camera.SetAspect(std::max(0.0001f, aspect));
+		res = glm::max(res, glm::ivec2(1, 1));
+		SetResolution(res);
 	}
 
 	glm::vec2 planes = m_camera.GetPlanes();

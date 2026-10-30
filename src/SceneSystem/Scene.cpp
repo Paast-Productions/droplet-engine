@@ -33,83 +33,6 @@ Scene::~Scene()
     }
 }
 
-void Scene::Update()
-{
-	ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    if (!m_loaded || !m_active)
-    {
-        return;
-    }
-
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
-    {
-        for (const auto &root : m_roots)
-        {
-            root->Update();
-        }
-    }
-
-    if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
-    {
-        for (const auto &root : m_roots)
-        {
-            root->EditorUpdate();
-        }
-    }
-
-    m_octree.Update();
-}
-
-void Scene::LateUpdate()
-{
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    if (!m_loaded || !m_active)
-    {
-        return;
-    }
-
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
-    {
-        for (const auto &root : m_roots)
-        {
-            root->LateUpdate();
-        }
-    }
-
-    for (const auto &root : m_roots)
-    {
-        root->GetTransform().ResetFrame();
-    }
-}
-
-void Scene::FixedUpdate()
-{
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    if (!m_loaded || !m_active)
-    {
-        return;
-    }
-
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
-    {
-        for (const auto &root : m_roots)
-        {
-            root->FixedUpdate();
-        }
-        
-        if (m_physics != nullptr)
-        {
-            m_physics->FixedUpdate();
-        }
-    }
-}
-
 void Scene::Load()
 {
     ZoneScoped;
@@ -142,29 +65,111 @@ void Scene::Unload()
     m_loaded = false;
 }
 
-void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
+void Scene::Update()
 {
-    ZoneScoped;
-    ZoneText(m_name.c_str(), m_name.size());
-
-    //TODO: Add rendering conditions
-    if (!m_loaded /*|| !m_active*/)
+    if (!m_loaded || !m_active)
     {
         return;
     }
 
-    //TODO: Readd when editor user can toggle/change the flags in some way
-    /*if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
-    {*/
-        // TODO: Get active camera frustum data
-        // std::vector<std::shared_ptr<Node>> nodes;
-        // m_octree.GetNodesFromCulling(Math::Frustum(), nodes);
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
         for (const auto &root : m_roots)
-        // for (const auto &root : nodes)
         {
-            root->GetRenderData(p_renderData);
+            root->Update();
         }
-    /*}*/
+    }
+
+    if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->EditorUpdate();
+        }
+    }
+
+    m_octree.Update();
+}
+
+void Scene::LateUpdate()
+{
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->LateUpdate();
+        }
+    }
+
+    for (const auto &root : m_roots)
+    {
+        root->GetTransform().ResetFrame();
+    }
+}
+
+void Scene::FixedUpdate()
+{
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+        for (const auto &root : m_roots)
+        {
+            root->FixedUpdate();
+        }
+        
+        if (m_physics != nullptr)
+        {
+            m_physics->FixedUpdate();
+        }
+    }
+}
+
+void Scene::PrepareRender()
+{
+    if (!m_loaded || !m_active)
+    {
+        return;
+    }
+
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    m_renderables.clear();
+    m_renderers.clear();
+
+    for (const auto &root : m_roots)
+    {
+        root->QueueRender();
+    }
+
+    // TODO: Frustum Culling, etc.
+}
+
+void Scene::PostRender()
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    m_renderables.clear();
+    m_renderers.clear();
 }
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make weak pointer

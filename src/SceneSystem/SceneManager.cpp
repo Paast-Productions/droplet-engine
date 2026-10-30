@@ -1,8 +1,8 @@
 #include "SceneManager.hpp"
-#include "SceneFactory.hpp"
-#include "SceneSerializer.hpp"
-#include "Scene.hpp"
-#include "Behaviour.hpp"
+#include <SceneFactory.hpp>
+#include <SceneSerializer.hpp>
+#include <Scene.hpp>
+#include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
 #include <algorithm>
@@ -10,8 +10,12 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
+#include <Graphics/VK/Camera.hpp>
+#include <Graphics/RenderData.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Graphics;
 
 void SceneManager::LoadScene(const std::string &p_name)
 {
@@ -236,22 +240,34 @@ void SceneManager::Update(float p_deltaTime)
     }
 }
 
-std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
+void SceneManager::PrepareRender()
 {
     ZoneScoped;
-    
-    //TODO: Separate renderData between scenes for modularity 
-    std::vector<Droplet::Graphics::RenderData> renderData {};
 
-    /*for (auto it = m_scenes.begin(); it != m_scenes.end();)
+    // Prepare all active Scenes for rendering
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
-        it->second->GetRenderData(renderData);
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        scene->PrepareRender();
 
         ++it;
-    }*/
+    }
+}
 
-    //TODO: Implement active scene logic
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+std::vector<std::pair<Camera, std::vector<RenderData>>> SceneManager::GetRenderData()
+{
+    ZoneScoped;
+
+    std::vector<std::pair<Camera, std::vector<RenderData>>> renderViews;
+    
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
 
@@ -260,15 +276,48 @@ std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
             it = m_activeScenes.erase(it);
             continue;
         }
-        
-        it->lock()->GetRenderData(renderData);
+
+        auto &renderers = scene->m_renderers;
+
+		for (std::shared_ptr<CameraComponent> &renderer : renderers)
+		{
+			if (!renderer)
+			{
+				continue;
+			}
+
+			Camera &camera = renderer->GetCamera();
+            std::vector<RenderData> &renderData = renderer->GetRenderData();
+
+			renderViews.emplace_back(camera, renderData);
+		}
         
         ++it;
     }
     
-    return renderData;
+    return renderViews;
 }
 
+void SceneManager::PostRender()
+{
+    ZoneScoped;
+
+	// Perform post-rendering operations for all active Scenes
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+    {
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        scene->PostRender();
+
+        ++it;
+    }
+}
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
 {
     ZoneScoped;

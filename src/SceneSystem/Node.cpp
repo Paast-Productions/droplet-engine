@@ -132,7 +132,7 @@ void Node::EditorUpdate()
 
 void Node::QueueRender()
 {
-	if (!m_active)
+	if (!m_started || !m_active)
 	{
 		return;
 	}
@@ -147,7 +147,7 @@ void Node::QueueRender()
 
 	for (const auto &child : m_children)
 	{
-		child->EditorUpdate();
+		child->QueueRender();
 	}
 }
 

@@ -9,12 +9,8 @@
 
 namespace Droplet::Scene
 {
-    /// @brief Component representing a camera attached to a scene Node.
-    ///
-    /// Temporarily controls the editor camera by attaching to a Node.
-    /// The editor camera is borrowed and is not owned by this component.
-    /// TODO: Should handle multiple cameras and scene cameras not the editor camera like it is now.
-    class CameraComponent : public Component
+    /// @brief Component representing a camera attached to a scene Node.e
+	class CameraComponent : public Component
     {
     public:
         /// @brief Gets the type name of the component.
@@ -27,10 +23,23 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
         [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }
 
+		[[nodiscard]] std::vector<Graphics::RenderData> &GetRenderData() { return m_renderData; }
+		[[nodiscard]] const std::vector<Graphics::RenderData> &GetRenderData() const { return m_renderData; }
+
         [[nodiscard]] Math::Frustum &GetFrustum() { return m_frustum; }
         [[nodiscard]] const Math::Frustum &GetFrustum() const { return m_frustum; }
 
 		[[nodiscard]] Graphics::DrawLayer GetDrawLayerMask() const { return m_drawLayerMask; }
+
+		[[nodiscard]] int32_t GetPriority() const { return m_priority; }
+		void SetPriority(int32_t p_priority) { m_priority = p_priority; }
+
+		[[nodiscard]] glm::ivec2 GetResolution() const { return m_resolution; }
+        void SetResolution(glm::ivec2 p_resolution);
+
+		[[nodiscard]] bool IsAutoRenderEnabled() const { return m_autoRender; }
+		void SetAutoRender(bool p_enabled) { m_autoRender = p_enabled; }
+		void TriggerRender() { m_manualRender = true; }
 
     protected:
         void StartImpl() override;
@@ -45,10 +54,19 @@ namespace Droplet::Scene
     private:
         Graphics::Camera m_camera{ };
 		Math::Frustum m_frustum{ };
+
 		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
+		int32_t m_priority{ 0 };
+
+		// TODO: Add render target reference
+		glm::ivec2 m_resolution{ 0, 0 };
+		bool m_dirty{ true };
+
+		bool m_autoRender{ true };
+		bool m_manualRender{ false };
 
 		bool m_debugDraw{ false };
 
-        // TODO: Internal Draw List
+		std::vector<Graphics::RenderData> m_renderData{ };
     };
 }

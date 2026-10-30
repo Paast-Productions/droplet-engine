@@ -52,6 +52,8 @@ namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency
     class Node;
+    class CameraComponent;
+    class SceneManager;
 
 	/// @brief Represents a Scene containing a Node hierarchy.
     ///
@@ -111,15 +113,11 @@ namespace Droplet::Scene
         /// @brief Updates the Scene in fixed time.
         void FixedUpdate();
 
-        /// @brief Stores render data of the scene in a vector
-        ///
-        /// Stores all root Node hierarchies when the Scene is both
-        /// loaded and active.
-        /// 
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved to a separate rendering
-        /// system in the future.
-    	void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
+		/// @brief Prepares the Scene for rendering.
+        void PrepareRender();
+
+		/// @brief Performs post-rendering operations for the Scene.
+		void PostRender();
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///
@@ -224,12 +222,25 @@ namespace Droplet::Scene
         
         void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
+		/// @brief Queues a component to be rendered in the next render pass
+		/// @param p_comp The component to be rendered
+		void QueueRenderable(std::shared_ptr<Component> p_comp);
+
+		/// @brief Queues a camera component to be used for rendering in the next render pass
+		/// @param p_node The camera component to be used for rendering
+		void QueueRenderer(std::shared_ptr<CameraComponent> p_node);
+
     private:
+		friend class SceneManager;
+
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
 
         Octree m_octree;
         std::unique_ptr<Physics> m_physics;
+
+        std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> m_renderables;
+        std::vector<std::shared_ptr<CameraComponent>> m_renderers;
 
         bool m_loaded = false;
         bool m_active = false;
