@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Behaviour.hpp>
 #include "PlayerData.hpp"
-
+#include <SceneSystem/Items/ItemDatabase.hpp>
 #include <memory>
 
 namespace Droplet::Scene
@@ -68,6 +68,13 @@ namespace Droplet::Scene
         /// @return The player's current heat level.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
 
+        [[nodiscard]] const Droplet::Game::ItemDatabase &GetItemDatabase() const
+        {
+            return m_itemDatabase;
+        }
+
+
+
     protected:
         /// @brief Renders the behaviour's properties in the editor.
         void RenderUIImpl() override;
@@ -83,5 +90,10 @@ namespace Droplet::Scene
     private:
         std::weak_ptr<Node> m_player; /// Weak reference to the Node representing the player.
         Droplet::Game::PlayerData m_data; /// Persistent data associated with the player.
+
+        Droplet::Game::ItemDatabase m_itemDatabase;
+
+        bool m_itemDatabaseLoadAttempted = false;
+        bool m_itemDatabaseLoaded = false;
     };
 }
