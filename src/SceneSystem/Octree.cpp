@@ -47,7 +47,6 @@ namespace Droplet::Scene
 		{
 			return;
 		}
-
 		// Collect dirty nodes into a temporary list first to avoid mutating 
 		// the octree during traversal (prevents iterator invalidation crashes)
 		std::vector<std::weak_ptr<Node>> dirtyNodes;
@@ -217,6 +216,71 @@ namespace Droplet::Scene
 		std::vector<std::weak_ptr<Node>> nodes{};
 		RaycastNodes(nodes, p_ray, m_root);
 		return nodes;
+	}
+	
+	std::vector<std::weak_ptr<Node>> Octree::GetNodesFromOBB(const OBB &p_obb)
+	{
+		ZoneScoped;
+		
+		std::vector<std::weak_ptr<Node>> found;
+		
+		CheckIntersecting(found, p_obb, m_root);
+		
+		std::vector<std::weak_ptr<Node>> uniqueNodes;
+		FindUniqueNodes(found, uniqueNodes);
+		
+		return uniqueNodes;
+	}
+	
+	void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const OBB &p_obb, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		ZoneScoped;
+		
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+		
+		const IntersectType octantIntersection = Intersects(p_obb, p_treeNode->octant);
+		
+		if (octantIntersection == IntersectType::None)
+		{
+			return;
+		}
+		
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+		{
+			auto nodePtr = node.lock();
+			
+			if (!nodePtr)
+			{
+				continue;
+			}
+			
+			const NodeBounds *bounds = nodePtr->GetBounds();
+			
+			if (!bounds)
+			{
+				continue;
+			}
+			
+			glm::mat4 worldMatrix = nodePtr->GetTransform().GetMatrix(Transform::Space::World);
+			
+			const IntersectType result = bounds->Intersect(p_obb, worldMatrix);
+			
+			if (result != IntersectType::None)
+			{
+				p_nodes.push_back(node);
+			}
+			
+		}
+		if (p_treeNode->isSubdivided)
+		{
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				CheckIntersecting(p_nodes, p_obb, child);
+			}
+		}
 	}
 
 	std::string Octree::ToGraphviz()
