@@ -1,7 +1,9 @@
 ﻿#include "TriggerComponent.hpp"
 #include <Node.hpp>
 #include <Transform.hpp>
+#include <Components/ScriptComponent.hpp>
 #include <iostream>
+#include <Time.hpp>
 
 #include "Scene.hpp"
 using namespace Droplet::Scene;
@@ -35,26 +37,15 @@ void TriggerComponent::FixedUpdateImpl()
         
         if (!otherNode || otherNode == node)
         {
-            std::cout << "no ";
             continue;
         }
-        std::cout << "I AM TRIGGERED!" << std::endl;
+        std::vector<std::shared_ptr<ScriptComponent>> scripts = node->GetComponents<ScriptComponent>(); 
+        
+        for (const auto &script : scripts)
+        {
+            ScriptSystem::Get().TriggerComponentScript(script.get(), Droplet::Time::Get().GetDeltaTime());
+        }
+        std::cout << scripts.size() << std::endl;
+    
     }
-    
-    // if (!insideNodes.empty())
-    // {
-    //     std::cout << "I AM TRIGGERED!" << std::endl;
-    // }
-    // else
-    // {
-    //     std::cout << "I AM NOT TRIGGERED!" << std::endl;
-    // }
-    // std::cout << "x: " << bounds->GetTransformedOBB(worldMatrix).center.x << 
-    //     "y: " << bounds->GetTransformedOBB(worldMatrix).center.y << 
-    //     "z: " << bounds->GetTransformedOBB(worldMatrix).center.z << std::endl;
-    // Get bounds
-    // Check bounds with another bounds
-    // Get other components
-    // Trigger script component
-    
 }

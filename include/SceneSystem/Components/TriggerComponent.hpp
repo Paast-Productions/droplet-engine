@@ -18,11 +18,14 @@ namespace Droplet::Scene
         /// @brief Starts the component.
         void StartImpl() override;
 		
-        /// @brief Updates the component.
+        /// @brief Checks every fixed frame when to call trigger functions.
         void FixedUpdateImpl() override;
 		
-        //void ActiveChangedImpl(const bool p_active) override;
-		
+        /// @brief Internal rendering function for the component's UI.
+        ///
+        /// Overloaded to provide a default UI for the ScriptComponent that
+        /// displays the script path. Derived components can override this
+        /// function to implement their own UI rendering logic.
         void RenderUIImpl() override;
     
     };

@@ -220,6 +220,9 @@ namespace Droplet::Scene
         /// @return A vector of all Node instances fully contained in the frustum
         [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
     	
+    	/// @brief Finds all Node instances whose world-space bounds are fully contained within a OBB
+    	/// @param p_obb The OBB that contain the nodes
+    	/// @return A vector of all Node instances fully contained in the frustum
     	[[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesInBoundingBox(const Math::OBB &p_obb); 
 
         [[nodiscard]] Physics *GetPhysics();
