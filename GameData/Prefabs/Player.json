@@ -1,0 +1,56 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "filepath": "PlayerController.lua"
+            },
+            "id": 1,
+            "type": "ScriptComponent"
+        },
+        {
+            "data": {
+                "h": 0.5,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 0,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 0.5,
+                "shapeType": 7
+            },
+            "id": 2,
+            "type": "PhysicsComponent"
+        },
+        {
+            "data": {},
+            "id": 4,
+            "type": "CameraComponent"
+        }
+    ],
+    "id": 2,
+    "name": "Player",
+    "transform": {
+        "position": [
+            0.0,
+            10.768192291259766,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}
