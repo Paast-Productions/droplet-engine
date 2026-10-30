@@ -91,7 +91,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			{
 				scene->RemoveRoot(node.shared_from_this());
 			}
-		}
+		},
 		"GetName", &Scene::Node::GetName,
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
@@ -118,6 +118,9 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"Destroy",
 			"void",
+			{}
+		},
+		{
 			"GetHealthComponent",
 			"HealthComponent",
 			{}

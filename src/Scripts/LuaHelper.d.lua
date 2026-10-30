@@ -75,6 +75,8 @@ function Node:GetTransform()
 end
 
 function Node:Destroy()
+end
+
 ---@return HealthComponent
 function Node:GetHealthComponent()
     return nil
