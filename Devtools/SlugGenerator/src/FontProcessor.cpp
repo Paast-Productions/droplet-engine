@@ -22,12 +22,12 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	// The range of ascii characters to process (inclusive)
 	// TODO: Support for extended ascii codes, such as the Swedish alphabet. This will require some change in how we loop below.
 	int successfullyProcessed = 0;
-	std::string foo = "";
+	std::string missingChars{};
 	for (int codePoint = p_asciiRangeStart; codePoint <= p_asciiRangeEnd; ++codePoint)
 	{
 		if (!ProcessCodePoint(codePoint))
 		{
-			foo += (char)codePoint;
+			missingChars += static_cast<char>(codePoint);
 			continue;
 		}
 		
@@ -40,7 +40,7 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	Logger::PrintInfo("{} / {} code points successfully processed. ", successfullyProcessed, totalCount);
 	
 	if (successfullyProcessed != totalCount)
-		Logger::PrintWarning("Missing characters - {}", foo);
+		Logger::PrintWarning("Missing characters {}", missingChars);
 	
 	
 	std::filesystem::path outpath = p_path;
@@ -108,14 +108,15 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		}
 	}
 	
-	GlyphBounds bounds = GetGlyphBounds(glyphIdx);
+	GlyphBounds glyphBounds = GetGlyphBounds(glyphIdx);
 	
 	std::vector<Curve> curves;
 	curves.reserve(static_cast<size_t>(vertexCount));
 	
-	// Local lambda function to calculate glyph offset
-	const glm::vec2 glyphOffset = { bounds.GetMinX(), bounds.GetMinY() };
+	// This, in combination with ToGlyphLocal, allows us to calculate the band boundaries with only positive numbers.
+	const glm::vec2 glyphOffset = { glyphBounds.GetMinX(), glyphBounds.GetMinY() };
 	
+	// Scoped, since we want to reuse the "curve" variable name later
 	{
 		Curve curve{};
 		for (int v = 0; v < vertexCount; ++v)
@@ -123,6 +124,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			const stbtt_vertex& vertex = vertices.get()[v];
 			if (vertex.type == STBTT_vmove) // This vertex defines the starting point of a contour
 			{
+				// The starting point of a contour cannot share it's starting point with a previous contour.
+				// Setting curve.first allows us to account for this when packing the data.
 				curve.first = true;
 				curve.p3 = ToGlyphLocal(glyphOffset, vertex.x, vertex.y);
 				continue;
@@ -151,6 +154,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		}
 	}
 	
+	// TODO: Evaluate whether bandDelta should be non-zero.
+	// bandDelta adds a margin to the curve selection, which may prove useful in some cases. Setting this to non-zero should be followed by thorough testing.
 	const float bandDelta = 0.0f;
 	const uint32_t bandsTexelIndex = static_cast<uint32_t>(m_bandsTextureBandOffsets.size()) / 2;
 
@@ -167,6 +172,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	// Write the curve texture
 	for (Curve& curve : curves)
 	{
+		// The first curve of each contour must start on a texel boundary.
+		// Pad the unused components with -1.
 		if (curve.first && m_curvesTexture.size() % 4 != 0)
 		{
 			const size_t toAdd = 4 - (m_curvesTexture.size() % 4);
@@ -176,6 +183,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			}
 		}
 		
+		// We don't currently support two texels in separate rows.
+		// A curve is later decoded	using two adjacent texels on the same row. Thus, if this curve's first texel is the
+		// last one on this row, pad with -1 to start on a new row.
 		const bool newRow = (m_curvesTexture.size() / 4) % TEXTURE_WIDTH == TEXTURE_WIDTH - 1;
 		if (newRow)
 		{
@@ -186,6 +196,12 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			}
 		}
 		
+		// Connected curves share endpoints to reduce storage.
+		// Each bracket below represents one RGBA texel, and each point is a vec2
+		// 
+		// [P1 P2] [P3=(P1 of the next curve) P2] [P3=(P1 of the third curve) P2] ...
+		//
+		// curve.texelIndex represents the first texel to be used to decode the curve
 		if (curve.first || newRow)
 		{
 			curve.texelIndex = static_cast<uint32_t>(m_curvesTexture.size()) / 4;
@@ -207,8 +223,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		m_curvesTexture.push_back(curve.p3.y);
 	}
 	
-	uint32_t sizeX = 1 + static_cast<uint32_t>(bounds.x2 - bounds.x1);
-	uint32_t sizeY = 1 + static_cast<uint32_t>(bounds.y2 - bounds.y1);
+	// Calculate the glyph's dimensions
+	uint32_t sizeX = 1 + static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
+	uint32_t sizeY = 1 + static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
 	
 	uint32_t bandCount = m_bandCount;
 	if (sizeX < bandCount || sizeY < bandCount)
@@ -220,8 +237,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		return false;
 	}
 	
-	// Sort the curves based on their largest x-value
-	// This is done to stop testing curves once suitable
+	// Sort the curves based on their largest x-value, descending
+	// The renderer can then use this fact to stop testing curves once the remaining curves cannot contribute to the
+	// current sample.
 	std::ranges::stable_sort(
 		std::begin(curves),
 		std::end(curves),
@@ -254,6 +272,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			if (curveMinY > bandMaxY || curveMaxY < bandMinY)
 				continue;
 			
+			// Store the curve's offset in the texture
 			const uint32_t texelIndex = curve.texelIndex;
 			const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % TEXTURE_WIDTH);
 			const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / TEXTURE_WIDTH);
@@ -278,7 +297,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		}
 	}
 	
-	// Sort the curves based on their largest y-value
+	// Sort the curves based on their largest y-value, descending
+	// This allows the renderer to stop intersection tests early.
 	std::ranges::stable_sort(
 		std::begin(curves),
 		std::end(curves),
@@ -300,7 +320,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		
 		for (const Curve& curve : curves)
 		{
-			// Reject perfectly horizontal curves.
+			// Reject perfectly vertical curves.
 			if (curve.p1.x == curve.p2.x && curve.p2.x == curve.p3.x)
 				continue;
 			
@@ -337,8 +357,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	// Save the code point
 	SlugCodePoint cp;
 	cp.codePoint = p_codePoint;
-	cp.width = static_cast<uint32_t>(bounds.x2 - bounds.x1);
-	cp.height = static_cast<uint32_t>(bounds.y2 - bounds.y1);
+	cp.width = static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
+	cp.height = static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
 	cp.bandCount = bandCount;
 	cp.bandDimX = bandDimX;
 	cp.bandDimY = bandDimY;
@@ -357,8 +377,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	// rows, this assumption will fail.
 	for (const Curve& c : curves)
 	{
-		const bool sameRow = c.texelIndex / TEXTURE_WIDTH == (c.texelIndex + 1) / TEXTURE_WIDTH;
-		if (!sameRow)
+		if (c.texelIndex / TEXTURE_WIDTH
+			!=
+			(c.texelIndex + 1) / TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
 			Logger::PrintError("Encoding failed! Texel indices {} and {} are not in the same row.", c.texelIndex, c.texelIndex + 1);
 	}
 	
@@ -375,6 +396,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
+	// Adjust the offsets to account for...
 	const uint32_t bandsTexTexels = static_cast<uint32_t>(m_bandsTextureBandOffsets.size() + m_bandsTextureCurveOffsets.size() / 2);
 	const uint16_t bandHeaderTexels = static_cast<uint16_t>(m_bandsTextureBandOffsets.size() / 2);
 	for (size_t i = 0; i < m_bandsTextureBandOffsets.size(); i += 2)
@@ -393,6 +415,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		m_bandsTextureBandOffsets[i+1] = static_cast<uint16_t>(adjustedOffset);
 	}
 	
+	
+	// Write the font data to the file
 	File outFile(p_outPath, std::ios::binary | std::ios::out);
 	if (!outFile.IsOpen())
 	{
@@ -444,6 +468,16 @@ Droplet::Devtools::SlugGenerator::GlyphBounds Droplet::Devtools::SlugGenerator::
 	return bounds;
 }
 
+
+/// @brief Translates a point from font coordinates to glyph-local coordinates.
+///
+/// Subtracts the glyph's minimum bounding-box coordinates from the given point,
+/// placing the glyph's bounding-box origin at (0, 0).
+///
+/// @param p_glyphOffset The minimum X and Y coordinates of the glyph's bounding box.
+/// @param p_x The original X coordinate.
+/// @param p_y The original Y coordinate.
+/// @return The translated point in glyph-local coordinates.
 glm::vec2 Droplet::Devtools::SlugGenerator::FontProcessor::ToGlyphLocal(const glm::vec2 &p_glyphOffset, const float p_x,
 	const float p_y)
 {
