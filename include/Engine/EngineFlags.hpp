@@ -17,7 +17,7 @@ namespace Droplet
 		InEditor = 1 << 5,				// Run in editor mode
 		// Add more flags as needed
 
-		EditorFlags = InEditor | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic | SkipAutoRender,
+		EditorFlags = InEditor | SkipAutoRender | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic,
 		PlayModeFlags = InEditor | SkipAutoRender,
 		GameFlags = SkipHotReloadScripts,
 		DefaultFlags = None
