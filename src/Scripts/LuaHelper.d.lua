@@ -1604,7 +1604,7 @@ function PlayerBehaviour:GetMaxHealth()
 end
 
 ---@return float
-function PlayerBehaviour:GetHeatRestistance()
+function PlayerBehaviour:GetHeatResistance()
     return nil
 end
 
@@ -1618,7 +1618,7 @@ function PlayerBehaviour:IncreaseHeatLevel(amount)
 end
 
 ---@param amount number
----@return HeatRestistance
+---@return HeatResistance
 function PlayerBehaviour:SetHeatLevel(amount)
     return nil
 end

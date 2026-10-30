@@ -2779,7 +2779,7 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
-		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatRestistance,
+		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
 		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
@@ -2791,10 +2791,10 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	classDef.functions =
 	{
 		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatRestistance", "float", {} },
+		{ "GetHeatResistance", "float", {} },
 		{ "GetHeatLevel", "float", {} },
 		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatRestistance", { { "amount", "number" } } },
+		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);

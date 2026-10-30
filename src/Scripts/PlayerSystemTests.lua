@@ -4,6 +4,12 @@
 --
 
 local trans = nil
+local healthComp = nil
+local playerComp = nil
+local pb = nil
+
+local hasHealthComponent = false
+local hasPlayerComponent = false
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
@@ -30,6 +36,7 @@ local smoothDX = 0.0
 local smoothDY = 0.0
 
 local mouseLock = false
+
 
 --
 -- Member Functions
@@ -94,14 +101,37 @@ function OnStart()
     tracy.ZoneBeginN("Drone_movement OnStart")
 
     print("New Drone_movement")
-	trans = self:GetTransform()
+
+    trans = self:GetTransform()
+
+    -- Check for HealthComponent
     healthComp = self:GetHealthComponent()
+    hasHealthComponent = healthComp ~= nil
+
+    if not hasHealthComponent then
+        print("[Drone_movement] Warning: HealthComponent not found.")
+    end
+
+    -- Check for PlayerComponent
     playerComp = self:GetPlayerComponent()
-    pb = playerComp:GetPlayerBehaviour()
-    healthComp:SetMaxHealth(pb:GetMaxHealth())
+    hasPlayerComponent = playerComp ~= nil
+
+    if not hasPlayerComponent then
+        print("[Drone_movement] Warning: PlayerComponent not found.")
+    else
+        -- Check for PlayerBehaviour
+        pb = playerComp:GetPlayerBehaviour()
+
+        if pb == nil then
+            print("[Drone_movement] Warning: PlayerBehaviour not found.")
+        elseif hasHealthComponent then
+            healthComp:SetMaxHealth(pb:GetMaxHealth())
+        end
+    end
 
     moveSpeed = 2.5
     mouseSmoothTime = 0.050
+
     tracy.ZoneEnd()
 end
 
@@ -141,16 +171,22 @@ function OnUpdate(dt)
     end
 
     if Input:KeyHeld(Key.K) then
+    if pb ~= nil and healthComp ~= nil then
         print("heat increased :()")
+
         pb:IncreaseHeatLevel(1)
+
         if pb:GetHeatLevel() > pb:GetHeatResistance() then
             print("taking damage:==)")
+
             healthComp:TakeDamage(1)
+
             if healthComp:GetHealth() <= 0 then
                 print("DEAD :P")
             end
         end
     end
+end
 
     tracy.ZoneEnd()
 end
