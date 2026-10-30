@@ -54,7 +54,8 @@ project "ResourceManager-ResourceLoading"
     }
 
     defines {
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     postbuildcommands {
