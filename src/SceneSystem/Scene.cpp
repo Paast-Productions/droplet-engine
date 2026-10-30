@@ -365,6 +365,13 @@ std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frust
     return nodes;
 }
 
+std::vector<std::weak_ptr<Node>> Scene::GetNodesInBoundingBox(const Math::OBB &p_obb)
+{
+    std::vector<std::weak_ptr<Node>> nodes;
+    nodes = m_octree.GetNodesFromOBB(p_obb);
+    return nodes;
+}
+
 void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 {
     if (m_physics != nullptr)

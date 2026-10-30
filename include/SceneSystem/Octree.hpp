@@ -61,7 +61,9 @@ namespace Droplet::Scene
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
-
+		
+		std::vector<std::weak_ptr<Node>> GetNodesFromOBB(const Math::OBB &p_obb);
+		
 		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
 		/// @return The string of graphviz code generated
@@ -112,6 +114,12 @@ namespace Droplet::Scene
 		void CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
 			const std::unique_ptr<TreeNode> &p_treeNode);
 
+		/// @brief Helper function for getting Node instances intersecting with OBB
+		/// @param[out] p_nodes The Vector that contains all Node instances intersecting the OBB
+		/// @param p_obb The OBB to check for intersections
+		/// @oaram p_treeNode The TreeNode instance to be chedked for intersection
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::OBB &p_obb, const std::unique_ptr<TreeNode> &p_treeNode);
+		
 		/// @brief Helper function for collecting Node instances intersecting with a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
 		/// @param p_frustum The frustum to check for intersections
@@ -129,7 +137,7 @@ namespace Droplet::Scene
 		/// guarantees that this octant is too, so its octant intersection test can be skipped
 		void CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
 			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false);
-
+		
 		/// @brief Helper function for raycasting a single Node instance
 		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray
 		/// @param[out] p_hit The RayHit struct to store hit information

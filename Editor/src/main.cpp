@@ -1,7 +1,7 @@
 #include <Engine/Engine.hpp>
-#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
+#include "SavedDataWindow.hpp"
 #include "ScriptsWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
@@ -16,7 +16,6 @@
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
-#include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
 
@@ -49,7 +48,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	{
 		return 1;
 	}
-
+    
 	// Set the script path for where the engine will look for scripts.
 	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
@@ -160,15 +159,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	NodeInspectorWindow nodeInspectorWindow(&editorContext);
 	BehaviourInspector behaviourInspector(&editorContext);
 	ScriptsWindow scriptsWindow;
+    SavedDataWindow savedDataWindow;
 	Resource::ResourceBrowser resourceBrowser(&editorContext);
 
 	Scene::SceneViewWindow sceneViewWindow(&editorContext);
-	//sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
+	
 
 	hierarchyWindow.Init();
 	nodeInspectorWindow.Init();
 	behaviourInspector.Init();
 	scriptsWindow.Init();
+    savedDataWindow.Init();
 	resourceBrowser.Init();
 	sceneViewWindow.Init();
 
@@ -370,6 +371,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		nodeInspectorWindow.Render();
 		behaviourInspector.Render();
 		scriptsWindow.Render();
+        savedDataWindow.Render();
 		resourceBrowser.Render();
 		sceneViewWindow.Render();
 

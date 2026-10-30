@@ -37,9 +37,9 @@
             "name": "TestDrone",
             "transform": {
                 "position": [
-                    -1.0511209264096877e-10,
                     0.0,
-                    -6.081826015025271e-11
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -60,8 +60,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -111,8 +111,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -162,8 +162,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -213,8 +213,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -264,8 +264,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",
@@ -315,8 +315,8 @@
             "components": [
                 {
                     "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Toe.001",

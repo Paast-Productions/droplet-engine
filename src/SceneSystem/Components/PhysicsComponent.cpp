@@ -33,7 +33,7 @@ void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 
 void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -53,7 +53,7 @@ void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::
 
 void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -66,7 +66,7 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 
 void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -80,7 +80,7 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 
 void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -94,7 +94,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 
 void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -108,7 +108,7 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, flo
 
 void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_shapes)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -126,7 +126,7 @@ void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_s
 void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, const float p_radius,
 	const JPH::Vec3& p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -196,6 +196,7 @@ void PhysicsComponent::RemoveCollider()
 			JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
 			bodyInterface->RemoveBody(m_bodyID);
 			bodyInterface->DestroyBody(m_bodyID);
+			m_bodyID = JPH::BodyID();
 		}
 		
 		m_shapeType = ShapeType::None;
@@ -228,7 +229,6 @@ void PhysicsComponent::UpdateImpl()
 	if (m_transform->HasBeenChanged())
 	{
 		PushTransformToPhysics();
-		m_physics->GetBodyInterface()->SetLinearVelocity(m_bodyID, JPH::Vec3(0.0f, 0.0f, 0.0f));
 	}
 }
 
@@ -927,19 +927,15 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 		switch (m_shapeType)
 		{
 		case ShapeType::Box:
-			m_shapeType = ShapeType::None;
 			SetBoxCollider(m_serializeData.halfExtents, m_offset);
 			break;
 		case ShapeType::Sphere:
-			m_shapeType = ShapeType::None;
 			SetSphereCollider(m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Capsule:
-			m_shapeType = ShapeType::None;
 			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Mesh:
-			m_shapeType = ShapeType::None;
 			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
 				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
@@ -947,8 +943,6 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 				});
 			break;
 		case ShapeType::ConvexHull:
-			m_shapeType = ShapeType::None;
-			
 			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
 				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
@@ -956,7 +950,6 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 				});
 			break;
 		case ShapeType::Player:
-			m_shapeType = ShapeType::None;
 			SetPlayerCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::None:
@@ -1024,6 +1017,7 @@ void PhysicsComponent::PushTransformToPhysics()
 	if (m_character != nullptr)
 	{
 		m_character->SetPosition(pos);
+		m_character->SetRotation(rot);
 	}
 	else
 	{

@@ -777,17 +777,22 @@ void SceneViewWindow::RenderImpl()
 			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
 			camViewRectMin.y + 10
 		);
+		ImVec2 stopButtonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
+			camViewRectMin.y + 10
+		);
 
 		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
+		bool hasPlayed = m_editorContext->GetIsPlayMode();
 
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (isPlaying)
 		{
-			// Make red
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+			// Make orange
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
@@ -807,6 +812,38 @@ void SceneViewWindow::RenderImpl()
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
+				m_editorContext->SetIsPlayMode(true);
+
+				// Save scene before playing
+				if (!hasPlayed)
+				{
+					m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
+				}
+			}
+
+			ImGui::PopStyleColor(4);
+		}
+
+		ImGui::SetCursorScreenPos(stopButtonPos);
+		if (hasPlayed)
+		{
+			// Make red
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
+			{
+				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+				m_editorContext->SetIsPlayMode(false);
+
+				// Reset the scene
+				std::string sceneName = m_editorContext->GetActiveScene()->GetName();
+				m_editorContext->GetActiveScene()->SetActive(false);
+				m_editorContext->CreateNewScene(sceneName);
+				m_editorContext->SetActiveScene(sceneName);
+				serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
 			}
 
 			ImGui::PopStyleColor(4);

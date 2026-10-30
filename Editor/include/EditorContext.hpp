@@ -53,7 +53,7 @@ namespace Droplet::Editor
 
 		/// @brief Loads a scene from a file
 		/// @param p_filepath Filepath
-		void LoadFromFile( std::string &p_filepath);
+		void LoadFromFile(const std::string &p_filepath);
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
@@ -62,11 +62,19 @@ namespace Droplet::Editor
 		/// @brief Loads a node from a pre-existing file
 		/// @param filepath File
 		void LoadNodeFromFile(std::string &filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+
+		/// @brief Get if the editor is currently in play mode or not
+		/// @return isPlayMode
+		bool GetIsPlayMode();
+
+		/// @brief Set the editor to play mode or not
+		void SetIsPlayMode(bool p_playMode);
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
 		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+		bool m_isPlayMode = false;
 	};
 }

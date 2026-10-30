@@ -1,0 +1,83 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "filepath": "printTrigger.lua"
+            },
+            "id": 1,
+            "type": "ScriptComponent"
+        },
+        {
+            "data": {
+                "h": 0.0,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 0,
+                "meshGUID": 0,
+                "motionType": 0,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 0.0,
+                "shapeType": 0
+            },
+            "id": 2,
+            "type": "PhysicsComponent"
+        },
+        {
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube.004",
+                "meshGUID": 12885130674664679680,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Drone",
+                "textureGUID": 1365390299680718017,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 3,
+            "type": "MeshComponent"
+        },
+        {
+            "data": {
+                "filepath": ""
+            },
+            "id": 4,
+            "type": "ScriptComponent"
+        },
+        {
+            "data": null,
+            "id": 5,
+            "type": "TriggerComponent"
+        }
+    ],
+    "id": 1,
+    "name": "TriggerNode",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            0.19228589534759521,
+            0.1689557135105133,
+            0.2355162501335144
+        ]
+    }
+}

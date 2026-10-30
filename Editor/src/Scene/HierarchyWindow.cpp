@@ -79,11 +79,16 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
+
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Scene Selection"))
     {
         DrawSceneWindow();
         ImGui::TreePop();
     }
+
+    ImGui::EndDisabled();
 
     if (ImGui::Button("Add Node"))
     {
@@ -121,6 +126,8 @@ void HierarchyWindow::RenderImpl()
         }
         ImGui::EndPopup();
     }
+
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
@@ -166,6 +173,21 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndDragDropTarget();
     }
 
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * 5.0f;
+
+                scene->LoadNodeFromFile(droppedData,position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
+    }
     ImGui::EndGroup();
 
     // Put the root nodes to the right of the drop target.
@@ -177,10 +199,14 @@ void HierarchyWindow::RenderImpl()
     m_visibleNodeRects.clear();
     m_rangeSelectTarget = nullptr;
 
+    ImGui::EndDisabled();
+
     for (const auto &root : scene->GetRoots())
     {
         DrawNode(root);
     }
+
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (m_rangeSelectTarget)
@@ -243,6 +269,21 @@ void HierarchyWindow::RenderImpl()
         }
     }
 
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward()*5.0f;
+                scene->LoadNodeFromFile(droppedData, position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
+    }
+
     ImGui::EndGroup();
 
     HandleRectSelection(nodeAreaMin, nodeAreaMax);
@@ -294,6 +335,8 @@ void HierarchyWindow::RenderImpl()
         }
         m_nodesToRemove.clear();
     }
+
+    ImGui::EndDisabled();
 }
 
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
@@ -415,8 +458,28 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
                 ImGui::CloseCurrentPopup();
             }
         }
-
         ImGui::EndPopup();
+    }
+
+    ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
+                const std::string scenePath(droppedData->path);
+                const std::string sceneName(droppedData->name);
+                m_editorContext->GetActiveScene().get()->SetActive(false);
+                m_editorContext->LoadFromFile(scenePath);
+                m_editorContext->SetActiveScene(sceneName);
+                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                fileName[sizeof(fileName) - 1] = '\0';
+            }
+        }
+        ImGui::EndDragDropTarget();
     }
 }
 
@@ -527,7 +590,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
         }
 
 
- 
+
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))

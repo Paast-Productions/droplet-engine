@@ -11,6 +11,7 @@
 #include <EditorContext.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 #include <Engine.hpp>
+#include <SceneSerializer.hpp>
 
 namespace Droplet::Editor::Scene
 {
@@ -85,5 +86,12 @@ namespace Droplet::Editor::Scene
 		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
+
+		/// @brief Serializer is needed to store temporary scene data in memory
+		Droplet::Scene::SceneSerializer serializer;
+
+		/// @brief Contains a json object that hold temporary scene data in memory
+		/// It is useful for when you have unsaved changes and want to enter play-mode
+		nlohmann::json m_json;
 	};
 }

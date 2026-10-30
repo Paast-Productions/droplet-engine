@@ -6,6 +6,9 @@ function OnStart() end
 ---@param dt number
 function OnUpdate(dt) end
 
+---@param dt number
+function OnTrigger(dt) end
+
 ---@enum TransformSpace
 TransformSpace = {
 	Local = 0,
@@ -71,6 +74,16 @@ end
 
 ---@return Transform
 function Node:GetTransform()
+    return nil
+end
+
+---@return HealthComponent
+function Node:GetHealthComponent()
+    return nil
+end
+
+---@return PlayerComponent
+function Node:GetPlayerComponent()
     return nil
 end
 
@@ -1545,6 +1558,71 @@ end
 
 ---@return Scene[]
 function SceneManager:GetActiveScenes()
+    return nil
+end
+
+---@class HealthComponent
+HealthComponent = {}
+
+---@return float
+function HealthComponent:GetHealth()
+    return nil
+end
+
+---@return float
+function HealthComponent:GetMaxHealth()
+    return nil
+end
+
+---@param amount number
+function HealthComponent:TakeDamage(amount)
+end
+
+---@param amount number
+function HealthComponent:Heal(amount)
+end
+
+---@param amount number
+function HealthComponent:SetHealth(amount)
+end
+
+---@param amount number
+function HealthComponent:SetMaxHealth(amount)
+end
+
+---@class PlayerComponent
+PlayerComponent = {}
+
+---@return PlayerBehaviour
+function PlayerComponent:GetPlayerBehaviour()
+    return nil
+end
+
+---@class PlayerBehaviour
+PlayerBehaviour = {}
+
+---@return float
+function PlayerBehaviour:GetMaxHealth()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatResistance()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatLevel()
+    return nil
+end
+
+---@param amount number
+function PlayerBehaviour:IncreaseHeatLevel(amount)
+end
+
+---@param amount number
+---@return HeatResistance
+function PlayerBehaviour:SetHeatLevel(amount)
     return nil
 end
 
