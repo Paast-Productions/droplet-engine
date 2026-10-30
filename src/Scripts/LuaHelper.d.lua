@@ -6,6 +6,9 @@ function OnStart() end
 ---@param dt number
 function OnUpdate(dt) end
 
+---@param dt number
+function OnTrigger(dt) end
+
 ---@enum TransformSpace
 TransformSpace = {
 	Local = 0,
