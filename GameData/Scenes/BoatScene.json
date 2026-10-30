@@ -1,0 +1,126 @@
+{
+    "name": "BoatScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Boat",
+                        "meshGUID": 1951864560061615958,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "meshGUID": 1951864560061615958,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "id": 1,
+            "name": "Boat",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "filepath": "PlayerController.lua"
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "data": {
+                        "h": 0.5,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.5,
+                        "shapeType": 7
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                },
+                {
+                    "data": {},
+                    "id": 3,
+                    "type": "CameraComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Player",
+            "transform": {
+                "position": [
+                    0.0,
+                    10.768192291259766,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

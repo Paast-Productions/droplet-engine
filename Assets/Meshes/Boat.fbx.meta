@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Boat",
+            "guid": 1951864560061615958,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube",
+            "type": 3
+        }
+    ]
+}
