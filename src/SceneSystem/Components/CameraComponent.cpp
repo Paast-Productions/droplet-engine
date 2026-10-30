@@ -4,6 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
+#include <IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
@@ -12,6 +13,17 @@ using namespace Droplet::Graphics::Debug;
 void CameraComponent::StartImpl()
 {
 	// TODO: Construct camera and create render target
+
+	using namespace Graphics::VK;
+	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
+	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		m_textureIndex = instance.CreateImGuiTexture(
+			instance.GetRenderTargetAt(m_targetIndex)
+		);
+	}
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -29,6 +41,11 @@ void CameraComponent::QueueRenderImpl()
 	if (m_dirty)
 	{
 		// TODO
+
+		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+			m_targetIndex, m_textureIndex,
+			m_resolution.x, m_resolution.y
+		);
 
 		m_dirty = false;
 	}
@@ -76,9 +93,6 @@ void CameraComponent::RenderUIImpl()
 {
 	using namespace ImGui;
 
-	// TODO
-	// Render target view
-
 	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
 
 	InputInt("Priority", &m_priority);
@@ -107,6 +121,22 @@ void CameraComponent::RenderUIImpl()
 
 	Checkbox("Debug Draw", &m_debugDraw);
 
+	if (Button("Trigger Render"))
+	{
+		TriggerRender();
+	}
+
+	// TODO
+	// Render target view
+
+	Separator();
+
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
+	);
+
+	// Render the camera view texture to the scene view window
+	ImGui::Image(camViewTexture, ImVec2(static_cast<float>(m_resolution.x), static_cast<float>(m_resolution.y)), ImVec2(0, 0), ImVec2(1, 1));
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)
@@ -133,6 +163,11 @@ void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_pt
 			continue;
 		}
 
+		if (!DrawLayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
+		{
+			continue;
+		}
+
 		// Check if the node is in the list of visible components
 		auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
 			[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
@@ -145,14 +180,13 @@ void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_pt
 			m_renderData.push_back(component->GetRenderData());
 		}
 	}
-
-
 }
 
-CameraRenderData Droplet::Scene::CameraComponent::GetRenderData() const
+CameraRenderData CameraComponent::GetRenderData() const
 {
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
+	renderData.renderTarget = &IntermediaryStorage::GetInstance().GetRenderTargetAt(m_targetIndex);
 	renderData.renderData = m_renderData;
 
 	return renderData;

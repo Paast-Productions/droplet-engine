@@ -37,6 +37,7 @@ namespace Droplet::Scene
 		/// @brief Removes a Node element from the octree
 		/// @param p_node The Node element to be removed
 		void RemoveNode(const std::weak_ptr<Node> &p_node);
+		void RemoveNode(const Node *p_node);
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
@@ -97,6 +98,7 @@ namespace Droplet::Scene
 		/// @param p_node The Node to be removed
 		/// @param p_treeNode The TreeNode where to check for the Node element
 		void RemoveFromTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode);
+		void RemoveFromTreeNode(const Node *p_node, const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Subdivides octants into eights
 		/// @param p_parentOctant The octant to be subdivided
@@ -109,6 +111,15 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
 			const std::unique_ptr<TreeNode> &p_treeNode);
+
+		/// @brief Helper function for collecting Node instances intersecting with a frustum
+		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
+		/// @param p_frustum The frustum to check for intersections
+		/// @param p_treeNode The TreeNode instance to be checked for intersection
+		/// @param p_octantContained True if an ancestor octant is already known to be fully inside the frustum, 
+		/// which guarantees that this octant and all contained Nodes are too, so their octant intersection tests can be skipped
+		void CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
+			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false);
 
 		/// @brief Helper function for collecting Node instances fully contained in a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances fully contained in the frustum

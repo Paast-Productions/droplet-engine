@@ -624,11 +624,32 @@ void SceneViewWindow::RenderImpl()
 		{
 			selectionFrustum = camera.ViewRectToWorldTile(rectNormalized);
 
-			Math::Frustum drawFrustum = selectionFrustum;
-			drawFrustum.GetNear().Slide(2.0f);
+			glm::vec3 corners[8];
+			selectionFrustum.GetCorners(corners);
 
-			DebugDraw::DrawFrustum(drawFrustum, glm::vec4(0.0f, 1.0f, 1.0f, 0.1f), false);
-			DebugDraw::DrawFrustum(drawFrustum, glm::vec4(0.0f, 0.0f, 1.0f, 0.65f), false, true);
+			glm::vec3 center = glm::vec3(0.0f);
+			for (int i = 0; i < 4; ++i)
+			{
+				corners[i] += corners[i + 4];
+				corners[i] *= 0.5f;
+				center += corners[i];
+			}
+			center *= 0.25f;
+
+			glm::vec3 up = (corners[0] - corners[2]) * 0.5f;
+			glm::vec3 right = (corners[1] - corners[0]) * 0.5f;
+
+			DebugDraw::DrawQuad(
+				center, up, right,
+				glm::vec4(0.0f, 1.0f, 1.0f, 0.1f),
+				false
+			);
+
+			DebugDraw::DrawQuad(
+				center, up, right,
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.65f),
+				false, true
+			);
 		}
 
 		if (input.MouseReleased(Mouse::LMB) || !input.MouseHeld(Mouse::LMB))

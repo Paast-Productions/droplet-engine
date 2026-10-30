@@ -146,6 +146,10 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if the Node is not a root of this Scene.
         void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
 
+		/// @brief Notifies the Scene that a Node is being destructed.
+		/// @param p_node The Node being destructed.
+		void OnDestructNode(const Node *p_node);
+
         /// @brief Gets the root Nodes of the Scene.
         ///
         /// Root Nodes are Nodes that do not have a parent Node and serve as

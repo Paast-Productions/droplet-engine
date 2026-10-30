@@ -119,17 +119,31 @@ namespace Droplet::Scene
 
 		RemoveFromTreeNode(p_node, m_root);
 	}
+	void Octree::RemoveNode(const Node *p_node)
+	{
+		ZoneScoped;
+
+		if (!m_isInitialized)
+		{
+			return;
+		}
+
+		RemoveFromTreeNode(p_node, m_root);
+	}
 
 	void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
 	{
 		ZoneScoped;
 
-		CheckIntersection(p_outNodes, p_frustum, m_root);
+		std::vector<std::weak_ptr<Node>> found;
+		CollectIntersected(found, p_frustum, m_root);
 
 		// A node may be stored in several octants, so only keep unique ones
 		std::vector<std::weak_ptr<Node>> uniqueNodes;
-		FindUniqueNodes(p_outNodes, uniqueNodes);
-		p_outNodes = std::move(uniqueNodes);
+		FindUniqueNodes(found, uniqueNodes);
+		found = std::move(uniqueNodes);
+
+		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
 	}
 
 	void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
@@ -145,6 +159,66 @@ namespace Droplet::Scene
 		found = std::move(uniqueNodes);
 
 		p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
+	}
+
+	void Octree::CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
+		const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained)
+	{
+		ZoneScoped;
+
+		if (p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		// Child octants lie within their parent, so if the parent is fully inside the frustum, so are they and
+		// the octant test can be skipped for the whole subtree.
+		bool octantContained = p_octantContained;
+
+		if (!octantContained)
+		{
+			const IntersectType octantIntersection = Intersects(p_frustum, p_treeNode->octant);
+
+			if (octantIntersection == IntersectType::None)
+			{
+				return;
+			}
+
+			octantContained = octantIntersection == IntersectType::Contains;
+		}
+
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+		{
+			auto nodePtr = node.lock();
+			if (nodePtr == nullptr)
+			{
+				continue;
+			}
+
+			if (octantContained)
+			{
+				p_nodes.push_back(node);
+			}
+			else
+			{
+				const NodeBounds *bounds = nodePtr->GetBounds();
+
+				assert(bounds != nullptr && "Node bounds are null. This should never happen.");
+
+				if (bounds->Intersect(p_frustum, nodePtr->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
+				{
+					p_nodes.push_back(node);
+				}
+			}
+		}
+
+		if (p_treeNode->isSubdivided)
+		{
+			for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				CollectIntersected(p_nodes, p_frustum, child, octantContained);
+			}
+		}
 	}
 
 	void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum,
@@ -430,6 +504,38 @@ namespace Droplet::Scene
 			[&p_node](const std::weak_ptr<Node> &node)
 			{
 				return node.lock() == p_node.lock();
+			}).begin();
+		p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
+
+		// Recurse down if subdivided
+		if (p_treeNode->isSubdivided)
+		{
+			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
+			{
+				if (child != nullptr)
+				{
+					RemoveFromTreeNode(p_node, child);
+				}
+			}
+
+			TryMerge(p_treeNode);
+		}
+	}
+	void Octree::RemoveFromTreeNode(const Node *p_node, const std::unique_ptr<TreeNode> &p_treeNode)
+	{
+		ZoneScoped;
+
+		if (p_node == nullptr || p_treeNode == nullptr)
+		{
+			return;
+		}
+
+		// Remove target Node from local storage if present
+		auto it = std::ranges::remove_if(
+			p_treeNode->nodes,
+			[&p_node](const std::weak_ptr<Node> &node)
+			{
+				return node.lock().get() == p_node;
 			}).begin();
 		p_treeNode->nodes.erase(it, p_treeNode->nodes.end());
 

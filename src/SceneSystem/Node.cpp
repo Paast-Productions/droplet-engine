@@ -20,6 +20,15 @@ Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // 
 	m_bounds = std::make_shared<DefaultNodeBounds>(glm::vec3(0.0f), glm::vec3(0.5f));
 }
 
+Node::~Node()
+{
+	// Notify the Scene that this Node is being destructed
+	if (auto scene = m_scene.lock())
+	{
+		scene->OnDestructNode(this);
+	}
+}
+
 void Node::Start()
 {
 	if (!m_active || m_started)
@@ -212,7 +221,7 @@ bool Node::IsActiveSelf() const
 	return m_active;
 }
 
-std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child) // TODO: Make weak pointer
+std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos) // TODO: Make weak pointer
 {
 	if (!p_child)
 	{
@@ -222,6 +231,14 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child) // TODO: Mak
 	if (p_child.get() == this)
 	{
 		throw std::runtime_error("Cannot add Node '" + m_name + "' as a child of itself.");
+	}
+
+	bool wasActive = p_child->IsActive();
+
+	glm::mat4 wMat{};
+	if (p_keepWorldPos)
+	{
+		wMat = p_child->GetTransform().GetMatrix(Transform::Space::World);
 	}
 
 	// Check for cycles in the hierarchy
@@ -262,16 +279,27 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child) // TODO: Mak
 
 	m_children.push_back(p_child);
 
+	p_child->GetTransform().MakeDirty();
+	if (p_keepWorldPos)
+	{
+		p_child->GetTransform().SetMatrix(wMat, Transform::Space::World);
+	}
+
 	// TODO: Consider if start should be called here or ex. in the Nodes constructor
 	if (m_started)
 	{
 		p_child->Start();
 	}
 
+	if (wasActive != p_child->IsActive())
+	{
+		p_child->ActiveChanged(!wasActive);
+	}
+
 	return p_child;
 }
 
-void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak pointer
+void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos) // TODO: Make weak pointer
 {
 	if (!p_child)
 	{
@@ -298,12 +326,32 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child) // TODO: Make weak 
 		throw std::runtime_error("Cannot remove Node '" + p_child->GetName() + "': Node is not a child of '" + m_name + "'.");
 	}
 
+	bool wasActive = p_child->IsActive();
+
+	glm::mat4 wMat{};
+	if (p_keepWorldPos)
+	{
+		wMat = p_child->GetTransform().GetMatrix(Transform::Space::World);
+	}
+
 	p_child->m_parent.reset();
 
 	m_children.erase(it);
 
 	// Add the removed child to the scene's root nodes
 	m_scene.lock()->SetRoot(p_child, true);
+
+	p_child->GetTransform().MakeDirty();
+
+	if (p_keepWorldPos)
+	{
+		p_child->GetTransform().SetMatrix(wMat, Transform::Space::World);
+	}
+
+	if (wasActive != p_child->IsActive())
+	{
+		p_child->ActiveChanged(!wasActive);
+	}
 }
 
 void Node::AttachComponent(std::unique_ptr<Component> &p_component)

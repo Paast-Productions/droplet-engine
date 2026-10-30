@@ -50,7 +50,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node.
         explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
 
-        ~Node() = default;
+        ~Node();
 
 		Node() = delete;                        // Default constructor
         Node(const Node &) = delete;			// Copy constructor
@@ -151,25 +151,22 @@ namespace Droplet::Scene
         ///
         /// Sets this Node as the parent of the specified child and adds
         /// the child to the Node hierarchy.
-        ///
         /// @param p_child Node to add as a child.
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @return A shared pointer to the added child Node.
-        ///
         /// @throws std::invalid_argument if p_child is nullptr.
-        /// @throws std::runtime_error if the Node already has a parent
         /// or belongs to a Scene.
-        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child); // TODO: Make weak pointer
+        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Removes a child Node.
         ///
         /// Removes the specified Node from the hierarchy and clears its
         /// parent reference.
-        ///
         /// @param p_child Node to remove.
-        ///
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
-        void RemoveChild(const std::shared_ptr<Node> &p_child); // TODO: Make weak pointer
+        void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Gets the parent Node.
         ///

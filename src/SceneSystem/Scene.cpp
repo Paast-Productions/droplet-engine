@@ -258,8 +258,32 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
-    m_octree.RemoveNode(p_node);
     m_roots.erase(it);
+}
+
+void Scene::OnDestructNode(const Node *p_node)
+{
+    ZoneScoped;
+    ZoneText(m_name.c_str(), m_name.size());
+
+    if (!p_node)
+    {
+        return;
+    }
+
+    m_octree.RemoveNode(p_node);
+
+	if (p_node->GetParent() == nullptr)
+    {
+        auto it = std::find_if(m_roots.begin(), m_roots.end(), [p_node](const std::shared_ptr<Node> &node) {
+            return node.get() == p_node;
+		});
+
+        if (it != m_roots.end())
+        {
+            m_roots.erase(it);
+        }
+	}
 }
 
 const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const // TODO: Make weak pointer

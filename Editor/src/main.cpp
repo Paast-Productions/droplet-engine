@@ -424,8 +424,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						return sharedNode && sharedNode == node;
 					});
 
-				// HACK: Disable frustum culling for editor camera
-				//if (it != visibleComponents.end())
+				if (it != visibleComponents.end())
 				{
 					componentsToRender.emplace_back(component);
 				}

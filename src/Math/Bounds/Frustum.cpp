@@ -6,7 +6,7 @@ using namespace Droplet::Math;
 
 namespace
 {
-	constexpr float EPSILON = 1e-5f;
+	constexpr float EPSILON = 1e-4f;
 
 	[[nodiscard]] float SignedDistanceToPlane(const Plane &p_plane, const glm::vec3 &p_point)
 	{
@@ -138,12 +138,12 @@ Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::v
 	glm::vec3 farBottomRight = farCenter - (p_up * (farHeight * 0.5f)) + (right * (farWidth * 0.5f));
 
 	// Create the planes using the corners
-	planes[0] = Plane(nearTopLeft, farTopLeft, farBottomLeft);			// Left
-	planes[1] = Plane(farTopRight, nearTopRight, nearBottomRight);		// Right
-	planes[2] = Plane(farTopRight, farTopLeft, nearTopLeft);			// Top
-	planes[3] = Plane(farBottomLeft, farBottomRight, nearBottomRight);	// Bottom
-	planes[4] = Plane(nearTopRight, nearTopLeft, nearBottomLeft);		// Near
-	planes[5] = Plane(farTopLeft, farTopRight, farBottomRight);			// Far
+	planes[0] = Plane(farTopLeft, nearTopLeft, farBottomLeft);			// Left
+	planes[1] = Plane(nearTopRight, farTopRight, nearBottomRight);		// Right
+	planes[2] = Plane(farTopLeft, farTopRight, nearTopLeft);			// Top
+	planes[3] = Plane(farBottomRight, farBottomLeft, nearBottomRight);	// Bottom
+	planes[4] = Plane(nearTopLeft, nearTopRight, nearBottomLeft);		// Near
+	planes[5] = Plane(farTopRight, farTopLeft, farBottomRight);			// Far
 }
 
 void Frustum::GetCorners(glm::vec3 *p_corners) const
@@ -174,4 +174,45 @@ Frustum Frustum::Transform(const Frustum &p_frustum, const glm::mat4x4 &p_matrix
 	}
 
 	return transformedFrustum;
+}
+
+bool Frustum::ValidateNormals() const
+{
+	glm::vec3 corners[8];
+
+	if (!GetFrustumCorners(*this, corners))
+	{
+		return false;
+	}
+
+	glm::vec3 center(0.0f);
+
+	for (const glm::vec3 &corner : corners)
+	{
+		center += corner;
+	}
+	center /= 8.0f;
+	
+	for (int i = 0; i < 6; ++i)
+	{
+		const Plane & plane = planes[i];
+		float normalLengthSquared = glm::dot(plane.normal, plane.normal);
+		if (!std::isfinite(plane.normal.x) || !std::isfinite(plane.normal.y) ||
+			!std::isfinite(plane.normal.z) || !std::isfinite(plane.distance) ||
+			!std::isfinite(normalLengthSquared) || normalLengthSquared <= EPSILON * EPSILON)
+		{
+			return false;
+		}
+
+		float tolerance = EPSILON * std::sqrt(normalLengthSquared);
+
+		float signedDistance = SignedDistanceToPlane(plane, center);
+		if (!std::isfinite(center.x) || !std::isfinite(center.y) || !std::isfinite(center.z) ||
+			!std::isfinite(signedDistance) || signedDistance < tolerance)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }

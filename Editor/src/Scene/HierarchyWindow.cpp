@@ -157,7 +157,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -234,7 +234,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -261,10 +261,10 @@ void HierarchyWindow::RenderImpl()
 
             if (oldParent)
             {
-                oldParent->RemoveChild(node);
+                oldParent->RemoveChild(node, true);
             }
 
-            m_newParent->AddChild(node);
+            m_newParent->AddChild(node, true);
         }
     }
 
