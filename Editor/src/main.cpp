@@ -399,7 +399,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			auto activeScene = editorContext.GetActiveScene();
 
 			camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-			camRenderData.renderTarget = &instance.GetRenderTargetAt(editorCamera.GetTargetIndex());
+			camRenderData.renderTarget = editorCamera.GetTargetIndex();
 
 			auto &renderables = activeScene->GetRenderables();
 

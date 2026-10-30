@@ -439,42 +439,41 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	auto &device = m_context.GetDevice();
 	auto &queue = m_context.GetQueue();
 
-	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-	//while renderFinishedSemaphores is indexed by imageIndex
-	const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
-
-	if (fenceResult != vk::Result::eSuccess)
-	{
-		throw std::runtime_error("failed to wait for fence!");
-	}
-
-	//vk::result, std::uint32_t
-	//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
-	const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
-
-	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-	// here and does not need to be caught by an exception.
-	if (resVal.result == vk::Result::eErrorOutOfDateKHR)
-	{
-		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
-		{
-			SDL_WaitEvent(&Event);
-		}
-
-		m_context.GetDevice().waitIdle();
-
-		m_swapchain = nullptr;
-		IntermediaryStorage::GetInstance().ClearPresentTargets();
-		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
-		return;
-	}
-
 	// Render all cameras
 	for (auto &camRenderData : p_renderData)
 	{
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
-		// TODO: Fetch rendertarget from camRenderData instead of hardcoding to 0
+
+		// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
+		//while renderFinishedSemaphores is indexed by imageIndex
+		const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
+
+		if (fenceResult != vk::Result::eSuccess)
+		{
+			throw std::runtime_error("failed to wait for fence!");
+		}
+
+		//vk::result, std::uint32_t
+		//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
+		const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
+
+		// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+		// here and does not need to be caught by an exception.
+		if (resVal.result == vk::Result::eErrorOutOfDateKHR)
+		{
+			while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+			{
+				SDL_WaitEvent(&Event);
+			}
+
+			m_context.GetDevice().waitIdle();
+
+			m_swapchain = nullptr;
+			IntermediaryStorage::GetInstance().ClearPresentTargets();
+			m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+			return;
+		}
 
 		std::uint32_t imageIndex = resVal.value;
 
@@ -501,7 +500,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		RecordRenderTargetCommandBuffer(
 			commandBuffer,
-			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(0), // TODO: <REFACTOR/> 0 is a magic number and will not always be SceneViewWindows render targets if we make more render targets
+			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(camRenderData.renderTarget),
 			cam,
 			drawList
 		);
@@ -561,9 +560,9 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 			// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
 			assert(result == vk::Result::eSuccess);
 		}
-	}
 
-	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+		m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
+	}
 }
 
 static void CheckVkResult(VkResult p_err)

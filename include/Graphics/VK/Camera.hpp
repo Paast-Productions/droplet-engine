@@ -124,7 +124,7 @@ namespace Droplet::Graphics
 	struct CameraRenderData
 	{
 		Camera camera;
-		RenderTarget *renderTarget;
+		std::uint32_t renderTarget;
 		std::vector<RenderData> renderData;
 	};
 }

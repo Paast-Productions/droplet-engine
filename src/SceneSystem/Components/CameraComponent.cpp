@@ -183,7 +183,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 {
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
-	renderData.renderTarget = &IntermediaryStorage::GetInstance().GetRenderTargetAt(m_targetIndex);
+	renderData.renderTarget = m_targetIndex;
 	renderData.renderData = m_renderData;
 
 	return renderData;
