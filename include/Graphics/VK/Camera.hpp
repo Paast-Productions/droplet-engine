@@ -2,9 +2,10 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <math/bounds/Frustum.hpp>
-#include <math/bounds/Ray.hpp>
-#include <RenderData.hpp>
+#include <Math/Bounds/Frustum.hpp>
+#include <Math/Bounds/Ray.hpp>
+#include <Graphics/RenderData.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
 
 namespace Droplet::Graphics
 {
@@ -123,7 +124,7 @@ namespace Droplet::Graphics
 	struct CameraRenderData
 	{
 		Camera camera;
-		// TODO: Render Target
+		RenderTarget *renderTarget;
 		std::vector<RenderData> renderData;
 	};
 }

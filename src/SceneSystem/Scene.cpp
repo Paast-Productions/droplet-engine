@@ -162,6 +162,17 @@ void Scene::PrepareRender()
     }
 
     // TODO: Frustum Culling, etc.
+
+	// for each renderer
+	for (auto &renderer : m_renderers)
+	{
+		if (!renderer)
+		{
+			continue;
+		}
+
+		renderer->CullRenderables(m_renderables);
+	}
 }
 
 void Scene::PostRender()
@@ -316,6 +327,13 @@ std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
     return m_octree.GetNodesFromRaycast(p_ray);
 }
 
+std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum)
+{
+    std::vector<std::weak_ptr<Node>> nodes;
+    m_octree.GetNodesFromCulling(p_frustum, nodes);
+    return nodes;
+}
+
 std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
 {
     std::vector<std::weak_ptr<Node>> nodes;
@@ -332,6 +350,7 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 
     m_physics = std::make_unique<Physics>(p_initializer);
 }
+
 
 Droplet::Physics *Scene::GetPhysics()
 {

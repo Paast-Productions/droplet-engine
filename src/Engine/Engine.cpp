@@ -183,8 +183,22 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	ResourceManager::Get().Update();
 
+	return DROPLET_RETURNTYPE::OK;
+}
+
+DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+{
+	ZoneScoped;
+
+	auto renderData = m_sceneManager.GetRenderData();
+
+	if (camRenderData)
+	{
+		renderData.push_back(*camRenderData);
+	}
+
 	// Rendering
-	m_renderer.Draw(m_sceneManager.GetRenderData()); 
+	m_renderer.Draw(renderData);
 
 	m_sceneManager.PostRender();
 
@@ -195,9 +209,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
-	
 	// Other system that need updating go here.
-    ResourceManager::GetInstance().Update();
+	ResourceManager::GetInstance().Update();
 
 	FrameMark;
 

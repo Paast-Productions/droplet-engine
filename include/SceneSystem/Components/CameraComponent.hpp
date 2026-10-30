@@ -38,6 +38,8 @@ namespace Droplet::Scene
 		void SetAutoRender(bool p_enabled) { m_autoRender = p_enabled; }
 		void TriggerRender() { m_manualRender = true; }
 
+        void CullRenderables(const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &p_renderables);
+
         [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
 		void ClearRenderData() { m_renderData.clear(); }
 

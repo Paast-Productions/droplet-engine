@@ -151,44 +151,6 @@ void Node::QueueRender()
 	}
 }
 
-void Node::GetRenderData(std::vector<Graphics::RenderData> &p_renderData) // TODO: Make non-recursive.
-{
-	if (!m_active)
-	{
-		return;
-	}
-
-	ZoneScoped;
-	ZoneText(m_name.c_str(), m_name.size());
-
-	Graphics::RenderData rData
-	{
-		.transform = m_transform.GetMatrix(Transform::Space::World)
-	};
-
-	bool render = false;
-
-	for (const auto &component : m_components)
-	{
-		component->GetRenderData(rData);
-
-		if (component->m_renderable)
-		{
-			render = true;
-		}
-	}
-
-	if (render)
-	{
-		p_renderData.push_back(rData);
-	}
-
-	for (const std::shared_ptr<Node>& child : m_children)
-	{
-		child->GetRenderData(p_renderData);
-	}
-}
-
 void Node::RenderUI()
 {
 	// Recursively call RenderUI on components

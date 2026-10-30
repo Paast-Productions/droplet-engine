@@ -89,12 +89,6 @@ namespace Droplet::Scene
         /// @brief Notifies the scene that the node wants to be rendered this frame.
         void QueueRender();
 
-        /// @brief Renders the Node.
-        ///
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved.
-        void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
-
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();
 

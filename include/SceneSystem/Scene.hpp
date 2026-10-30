@@ -213,6 +213,11 @@ namespace Droplet::Scene
         /// @param p_initializer Struct contaning values to initialize the physics engine
         void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
 
+        /// @brief Finds all Node instances whose world-space bounds intersect a frustum
+        /// @param p_frustum The frustum that must intersect the nodes
+        /// @return A vector of all Node instances intersecting the frustum
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesIntersectingFrustum(const Math::Frustum &p_frustum);
+
         /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
         /// @param p_frustum The frustum that must fully contain the nodes
         /// @return A vector of all Node instances fully contained in the frustum
@@ -229,6 +234,8 @@ namespace Droplet::Scene
 		/// @brief Queues a camera component to be used for rendering in the next render pass
 		/// @param p_node The camera component to be used for rendering
 		void QueueRenderer(std::shared_ptr<CameraComponent> p_node);
+
+		const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &GetRenderables() { return m_renderables; }
 
     private:
 		friend class SceneManager;

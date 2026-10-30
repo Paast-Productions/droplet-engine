@@ -121,6 +121,34 @@ void CameraComponent::SetResolution(glm::ivec2 p_resolution)
 	m_dirty = true;
 }
 
+void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &p_renderables)
+{
+	auto visibleComponents = GetOwner()->GetScene()->GetNodesIntersectingFrustum(m_frustum);
+
+	// Filter the renderables to only include those that are visible in the camera's frustum
+	for (const auto &[node, component] : p_renderables)
+	{
+		if (!node || !component)
+		{
+			continue;
+		}
+
+		// Check if the node is in the list of visible components
+		auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+			[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+				auto sharedNode = weakNode.lock();
+				return sharedNode && sharedNode == node;
+			});
+
+		if (it != visibleComponents.end())
+		{
+			m_renderData.push_back(component->GetRenderData());
+		}
+	}
+
+
+}
+
 CameraRenderData Droplet::Scene::CameraComponent::GetRenderData() const
 {
 	CameraRenderData renderData{ };

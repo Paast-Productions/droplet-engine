@@ -74,8 +74,9 @@ namespace Droplet::Scene
     protected:
         void StartImpl() override;
         void UpdateImpl() override;
+		void QueueRenderImpl() override;
         void RenderUIImpl() override;
-        void GetRenderDataImpl(Graphics::RenderData &p_renderData) override;
+        [[nodiscard]] Droplet::Graphics::RenderData GetRenderDataImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;

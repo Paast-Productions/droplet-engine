@@ -56,7 +56,7 @@ namespace Droplet
 		
 		/// @brief Will render the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render();
+		[[nodiscard]] DROPLET_RETURNTYPE Render(Graphics::CameraRenderData *camRenderData = nullptr);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.

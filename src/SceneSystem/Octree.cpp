@@ -125,6 +125,11 @@ namespace Droplet::Scene
 		ZoneScoped;
 
 		CheckIntersection(p_outNodes, p_frustum, m_root);
+
+		// A node may be stored in several octants, so only keep unique ones
+		std::vector<std::weak_ptr<Node>> uniqueNodes;
+		FindUniqueNodes(p_outNodes, uniqueNodes);
+		p_outNodes = std::move(uniqueNodes);
 	}
 
 	void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
@@ -460,8 +465,7 @@ namespace Droplet::Scene
 		p_childOctants[7] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h); // -x -y -z 
 	}
 
-	void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-		const std::unique_ptr<TreeNode> &p_treeNode)
+	void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum, const std::unique_ptr<TreeNode> &p_treeNode)
 	{
 		ZoneScoped;
 

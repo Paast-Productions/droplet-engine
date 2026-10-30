@@ -3,14 +3,8 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-
-//#include <SceneSystem/SerializationContext.hpp> 
 #include <SceneSystem/bounds/NodeBounds.hpp>
-
-namespace Droplet::Graphics
-{
-	struct RenderData;
-}
+#include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene
 {
@@ -78,8 +72,8 @@ namespace Droplet::Scene
         void QueueRender();
 
 		/// @brief Retrieves any resources needed for rendering the component.
-		/// @param p_renderData A reference to a RenderData object that will be populated with the component's rendering data.
-        void GetRenderData(Graphics::RenderData &p_renderData);
+		/// @return A RenderData object containing the component's rendering data.
+        [[nodiscard]] Droplet::Graphics::RenderData GetRenderData();
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -172,7 +166,7 @@ namespace Droplet::Scene
 
         virtual void QueueRenderImpl() {}
 
-        virtual void GetRenderDataImpl(Graphics::RenderData &p_renderData) {}
+        [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
 
 		/// @brief Internal rendering function for the component's UI.
         /// 
