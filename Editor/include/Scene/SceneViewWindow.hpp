@@ -25,14 +25,6 @@ namespace Droplet::Editor::Scene
 
 		~SceneViewWindow() = default;
 
-		// TODO: Possible <REFACTOR>
-		/// @brief Get the ScenViewWindow rendertarget
-		/// @returns custom RenderTarget class
-		Droplet::Graphics::RenderTarget &GetRenderTarget();
-		
-		void SetViewDescriptor(VkDescriptorSet p_textureDescriptor);
-		// TODO: Possible </REFACTOR> 
-
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -60,11 +52,11 @@ namespace Droplet::Editor::Scene
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
 
-		/// @brief The texture that the renderer will render to
-		Graphics::RenderTarget m_renderTarget { nullptr };
+		/// @brief The index of the texture that the renderer will render to
+		std::uint32_t m_targetIndex { Graphics::VK::INVALID_INDEX };
 
-		/// @brief The texture that ImGui uses to render the scene in a ImGui window
-		VkDescriptorSet m_textureDescriptorSet = VK_NULL_HANDLE;
+		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
+		std::uint32_t m_textureIndex { Graphics::VK::INVALID_INDEX };
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
@@ -75,5 +67,25 @@ namespace Droplet::Editor::Scene
 		/// @param p_width The width of the render target
 		/// @param p_height The height of the render target
 		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
+
+		/// @brief Handles the editor camera controls that operate on the current selection:
+		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
+		/// camera's forward direction, and the scroll wheel moves the camera along its forward axis.
+		/// Does nothing that depends on a selection when the selection is empty.
+		/// @param p_viewWidth Width of the camera view in pixels, used to scale panning.
+		void ProcessCameraControls(float p_viewWidth);
+
+		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void ApplyCameraPivot();
+		void DrawCameraPivot() const;
+
+		/// @brief Camera navigation drag currently in progress
+		enum class CameraDrag { None, Orbit, Pan };
+		CameraDrag m_cameraDrag = CameraDrag::None;
+		glm::vec3 m_cameraPivot = glm::vec3(0.0f);
+		float m_cameraPivotRadius = 8.0f;
+
+		bool m_wrapMouse = false;
+		int m_skipMouseDeltas = 0;
 	};
 }

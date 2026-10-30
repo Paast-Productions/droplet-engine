@@ -312,6 +312,11 @@ end
 function OnUpdate(dt)
 
 end
+
+-- Called to render variables in the script
+function RenderUI()
+
+end
 )lua";
 
 		if (ImGui::IsWindowAppearing()) 

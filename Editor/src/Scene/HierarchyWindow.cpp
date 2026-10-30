@@ -166,6 +166,21 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndDragDropTarget();
     }
 
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * 5.0f;
+
+                scene->LoadNodeFromFile(droppedData,position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
+    }
     ImGui::EndGroup();
 
     // Put the root nodes to the right of the drop target.
@@ -241,6 +256,21 @@ void HierarchyWindow::RenderImpl()
 
             ImGui::EndDragDropTarget();
         }
+    }
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const char *droppedData = static_cast<const char *>(payload->Data);
+                glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward()*5.0f;
+                scene->LoadNodeFromFile(droppedData, position);
+            }
+        }
+        ImGui::EndDragDropTarget();
+
     }
 
     ImGui::EndGroup();
@@ -415,8 +445,28 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
                 ImGui::CloseCurrentPopup();
             }
         }
-
         ImGui::EndPopup();
+    }
+
+    ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
+
+    if (ImGui::BeginDragDropTarget())
+    {
+        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
+        {
+            if (payload->Data != nullptr && payload->DataSize > 0)
+            {
+                const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
+                const std::string scenePath(droppedData->path);
+                const std::string sceneName(droppedData->name);
+                m_editorContext->GetActiveScene().get()->SetActive(false);
+                m_editorContext->LoadFromFile(scenePath);
+                m_editorContext->SetActiveScene(sceneName);
+                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                fileName[sizeof(fileName) - 1] = '\0';
+            }
+        }
+        ImGui::EndDragDropTarget();
     }
 }
 

@@ -2,6 +2,7 @@
 #include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
+#include "SavedDataWindow.hpp"
 #include "ScriptsWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
@@ -158,15 +159,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     NodeInspectorWindow nodeInspectorWindow(&editorContext);
     BehaviourInspector behaviourInspector(&editorContext);
     ScriptsWindow scriptsWindow;
+    SavedDataWindow savedDataWindow;
     Resource::ResourceBrowser resourceBrowser(&editorContext);
 
     Scene::SceneViewWindow sceneViewWindow(&editorContext);
-    //sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
+    
 
     hierarchyWindow.Init();
     nodeInspectorWindow.Init();
     behaviourInspector.Init();
     scriptsWindow.Init();
+    savedDataWindow.Init();
     resourceBrowser.Init();
     sceneViewWindow.Init();
 
@@ -368,10 +371,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         nodeInspectorWindow.Render();
         behaviourInspector.Render();
         scriptsWindow.Render();
+        savedDataWindow.Render();
         resourceBrowser.Render();
         sceneViewWindow.Render();
 
-        switch (engine.Update(sceneViewWindow.GetRenderTarget(), editorContext.GetEditorCamera()))
+        switch (engine.Update(editorContext.GetEditorCamera()))
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
             break;

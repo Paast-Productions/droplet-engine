@@ -8,6 +8,7 @@
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
 #include <Graphics/RenderData.hpp>
+#include <SceneSystem/SceneManager.hpp>
 
 
 
@@ -218,11 +219,33 @@ namespace Droplet::Scene
         /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
         /// @param p_frustum The frustum that must fully contain the nodes
         /// @return A vector of all Node instances fully contained in the frustum
-        [[nodiscard]] std::vector<std::shared_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum); // TODO: Make weak pointer
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
 
         [[nodiscard]] Physics *GetPhysics();
         
         void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+
+		void SetSceneManager(SceneManager *p_sceneManager) { m_sceneManager = p_sceneManager; }
+
+        template<typename T>
+        std::shared_ptr<T> GetBehaviour() const
+        {
+            for (const auto &behaviour : m_sceneManager->GetBehaviours())
+            {
+                if (auto result = std::dynamic_pointer_cast<T>(behaviour))
+                {
+                    return result;
+                }
+            }
+
+            return nullptr;
+        }
+
+        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: Make weak pointer
+
+        std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
+
+        void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
 
     private:
         std::string m_name;
@@ -233,5 +256,7 @@ namespace Droplet::Scene
 
         bool m_loaded = false;
         bool m_active = false;
+
+		SceneManager *m_sceneManager = nullptr;
     };     
 }
