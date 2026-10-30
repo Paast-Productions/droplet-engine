@@ -126,9 +126,6 @@ void CameraComponent::RenderUIImpl()
 		TriggerRender();
 	}
 
-	// TODO
-	// Render target view
-
 	Separator();
 
 	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(

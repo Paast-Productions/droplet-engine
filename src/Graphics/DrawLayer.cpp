@@ -157,6 +157,11 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 
 		for (const auto &[layer, name] : instance.m_layerNames)
 		{
+			if (name.empty())
+			{
+				continue; // Skip empty names
+			}
+
 			bool isSelected = IsLayerEnabled(layer, p_layerMask);
 			if (Selectable(name.c_str(), isSelected, ImGuiSelectableFlags_NoAutoClosePopups))
 			{
@@ -208,6 +213,11 @@ bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
 	{
 		for (const auto &[layer, name] : instance.m_layerNames)
 		{
+			if (name.empty())
+			{
+				continue; // Skip empty names
+			}
+
 			if (Selectable(name.c_str(), p_layer == layer))
 			{
 				p_layer = layer;
