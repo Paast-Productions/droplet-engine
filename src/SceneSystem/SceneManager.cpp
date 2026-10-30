@@ -25,6 +25,7 @@ void SceneManager::LoadScene(const std::string &p_name)
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_name);
+	scene->SetSceneManager(this);
 
     if (!scene)
     {
@@ -299,7 +300,7 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     }
 
     std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
-
+    scene->SetSceneManager(this);
     if (!scene)
     {
         throw std::runtime_error("Cannot load Scene "+ json["name"]);

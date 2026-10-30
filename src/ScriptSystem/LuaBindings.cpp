@@ -12,6 +12,11 @@
 #include <SceneBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <Component.hpp>
+#include <HealthComponent.hpp>
+#include <PlayerComponent.hpp>
+#include <Behaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 
 #include <print>
 #include <filesystem>
@@ -37,9 +42,12 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
 	RegisterTracy(p_luaState);
-    RegisterBounds(p_luaState);
-    RegisterDebugDraw(p_luaState);
+	RegisterBounds(p_luaState);
+	RegisterDebugDraw(p_luaState);
 	RegisterScenes(p_luaState, p_sceneManager);
+	RegisterHealthComponent(p_luaState);
+	RegisterPlayerComponent(p_luaState);
+	RegisterPlayerBehaviour(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -80,8 +88,12 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
-		"GetName", &Droplet::Scene::Node::GetName,
-		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform)
+		"GetName", &Scene::Node::GetName,
+		"GetTransform",
+		static_cast<Scene::Transform & (Scene::Node:: *)()>(
+			&Scene::Node::GetTransform),
+		"GetHealthComponent", &Scene::Node::GetHealthComponent,
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
 	);
 
 	LuaClassDefinition classDef;
@@ -97,6 +109,16 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"GetTransform",
 			"Transform",
+			{}
+		},
+		{
+			"GetHealthComponent",
+			"HealthComponent",
+			{}
+		},
+		{
+			"GetPlayerComponent",
+			"PlayerComponent",
 			{}
 		}
 	};
@@ -1970,20 +1992,20 @@ void LuaBindings::RegisterInput(sol::state_view p_luaState)
 		}
 	);
 
-    p_luaState.new_usertype<GameInput>(
-        "Input",
-        "KeyPressed", &GameInput::KeyPressed,
-        "KeyHeld", &GameInput::KeyHeld,
-        "KeyReleased", &GameInput::KeyReleased,
-        "KeyToggle", &GameInput::KeyToggle,
-        "MousePressed", &GameInput::MousePressed,
-        "MouseHeld", &GameInput::MouseHeld,
-        "MouseReleased", &GameInput::MouseReleased,
-        "GetCursorX", &GameInput::GetCursorX,
-        "GetCursorY", &GameInput::GetCursorY,
-        "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
-        "GetDeltaMouseY", &GameInput::GetDeltaMouseY
-    );
+	p_luaState.new_usertype<GameInput>(
+		"Input",
+		"KeyPressed", &GameInput::KeyPressed,
+		"KeyHeld", &GameInput::KeyHeld,
+		"KeyReleased", &GameInput::KeyReleased,
+		"KeyToggle", &GameInput::KeyToggle,
+		"MousePressed", &GameInput::MousePressed,
+		"MouseHeld", &GameInput::MouseHeld,
+		"MouseReleased", &GameInput::MouseReleased,
+		"GetCursorX", &GameInput::GetCursorX,
+		"GetCursorY", &GameInput::GetCursorY,
+		"GetDeltaMouseX", &GameInput::GetDeltaMouseX,
+		"GetDeltaMouseY", &GameInput::GetDeltaMouseY
+	);
 
 	LuaClassDefinition keyDef;
 	keyDef.name = "Key";
@@ -2711,4 +2733,76 @@ void LuaBindings::RegisterTracy(sol::state_view p_luaState)
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(tracyDef);
+}
+
+void LuaBindings::RegisterHealthComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::HealthComponent>(
+		"HealthComponent",
+		"GetHealth", &Scene::HealthComponent::GetHealth,
+		"GetMaxHealth", &Scene::HealthComponent::GetMaxHealth,
+		"TakeDamage", &Scene::HealthComponent::TakeDamage,
+		"Heal", &Scene::HealthComponent::Heal,
+		"SetHealth", &Scene::HealthComponent::SetHealth,
+		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "HealthComponent";
+
+	classDef.functions =
+	{
+		{ "GetHealth", "float", {} },
+		{ "GetMaxHealth", "float", {} },
+		{ "TakeDamage", "void", { { "amount", "number" } } },
+		{ "Heal", "void", { { "amount", "number" } } },
+		{ "SetHealth", "void", { { "amount", "number" } } },
+		{ "SetMaxHealth", "void", { { "amount", "number" } } }
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(classDef);
+}
+
+void LuaBindings::RegisterPlayerComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::PlayerComponent>(
+		"PlayerComponent",
+		"GetPlayerBehaviour", &Scene::PlayerComponent::GetPlayerBehaviourLua
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "PlayerComponent";
+
+	classDef.functions =
+	{
+		{ "GetPlayerBehaviour", "PlayerBehaviour", {} },
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(classDef);
+}
+
+void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::PlayerBehaviour>(
+		"PlayerBehaviour",
+		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
+		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
+		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "PlayerBehaviour";
+
+	classDef.functions =
+	{
+		{ "GetMaxHealth", "float", {} },
+		{ "GetHeatResistance", "float", {} },
+		{ "GetHeatLevel", "float", {} },
+		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }
