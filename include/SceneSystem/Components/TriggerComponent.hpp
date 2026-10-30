@@ -11,8 +11,7 @@ namespace Droplet::Scene
     public:
         TriggerComponent() = default;
         
-        std::string_view GetTypeName() const override { return "PhysicsComponent"; }
-    private:
+        std::string_view GetTypeName() const override { return "TriggerComponent"; }
         
     protected:
         /// @brief Starts the component.
