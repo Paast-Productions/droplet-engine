@@ -1,0 +1,65 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "filepath": "printTrigger.lua"
+            },
+            "id": 1,
+            "type": "ScriptComponent"
+        },
+        {
+            "data": null,
+            "id": 2,
+            "type": "PhysicsComponent"
+        },
+        {
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube.004",
+                "meshGUID": 12885130674664679680,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Drone",
+                "textureGUID": 1365390299680718017,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 3,
+            "type": "MeshComponent"
+        },
+        {
+            "data": {
+                "filepath": ""
+            },
+            "id": 4,
+            "type": "ScriptComponent"
+        }
+    ],
+    "id": 4,
+    "name": "TriggerNode",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}
