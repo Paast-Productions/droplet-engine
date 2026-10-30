@@ -128,3 +128,8 @@ void ResourceRegistry::RegisterMetaEntry(const std::string &p_relAssetPath, cons
 		guidList.push_back(p_metaEntry.guid);
 	} 
 }
+
+void ResourceRegistry::RemoveMetaEntry(const GUID p_guid)
+{
+	m_guidToEntryMap.erase(p_guid);
+}

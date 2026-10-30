@@ -245,6 +245,8 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 	}
 
 	// Draw files and their resources
+	static BrowserNode *removeNode = nullptr;
+	static std::string removeNodeName;
 	for (auto &[childName, childNode] : p_currentNode->children)
 	{
 		if (!childNode.isDirectory)
@@ -252,6 +254,15 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 			// --- Asset ---
 			std::string fileLabel = ICON_LC_FILE " " + childName;
 			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+			
+			// Right click to remove
+			if (IsItemClicked(ImGuiMouseButton_Right))
+			{
+				OpenPopup("RemovePopup");
+				removeNodeName = childName;
+				removeNode = &childNode;
+				// Removal of the asset happens below this for-loop
+			}
 			
 			// Asset drag source
 			if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
@@ -317,6 +328,40 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 				TreePop();
 			}
 		}
+	}
+	
+	// Actual removal of asset
+	if (BeginPopup("RemovePopup"))
+	{
+		if (MenuItem("Remove Asset"))
+		{
+			if (removeNode != nullptr)
+			{
+				// Check if the asset can be removed.
+				// This check is needed to prevent serializing used resources and then
+				// removing said resources, and then deserializing removed resources.
+				bool canRemove = true;
+				for (const MetaEntry *resource : removeNode->resources)
+				{
+					if (resManInstance.GetRef(resource->guid) > 0)
+					{
+						canRemove = false;
+						break;
+					}
+				}
+				
+				if (canRemove)
+				{
+					for (const MetaEntry *resource : removeNode->resources)
+					{
+						resManInstance.RemoveResourceMeta(resource->guid, true);
+					}
+					auto it = p_currentNode->children.find(removeNodeName);
+					p_currentNode->children.erase(it);
+				}
+			}
+		}
+		EndPopup();
 	}
 }
 
