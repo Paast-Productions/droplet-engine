@@ -202,7 +202,6 @@ namespace
 
 void SceneViewWindow::InitImpl()
 {
-	EditorConfig::StoreBool("hasPlayed", false);
 	SetName("Scene View"); 
 	ToggleToolbar(true);
 	
@@ -752,7 +751,7 @@ void SceneViewWindow::RenderImpl()
 		);
 
 		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
-		bool hasPlayed = EditorConfig::LoadBool("hasPlayed", false);
+		bool hasPlayed = m_editorContext->GetIsPlayMode();
 
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (isPlaying)
@@ -781,18 +780,12 @@ void SceneViewWindow::RenderImpl()
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 			{	
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
-				EditorConfig::StoreBool("hasPlayed", true);
+				m_editorContext->SetIsPlayMode(true);
 
 				// Save scene before playing
 				if (!hasPlayed)
 				{
-					auto scene = m_editorContext->GetActiveScene();
-
-					if (scene)
-					{
-						std::string path = ROOT_PATH "/GameData/Scenes/Temp/temp.json";
-						m_editorContext->SaveScene(path);
-					}
+					m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
 				}
 			}
 
@@ -811,17 +804,14 @@ void SceneViewWindow::RenderImpl()
 			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 			{
 				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
-				EditorConfig::StoreBool("hasPlayed", false);
+				m_editorContext->SetIsPlayMode(false);
 
 				// Reset the scene
-				std::shared_ptr<Droplet::Scene::Scene> currentScene = m_editorContext->GetActiveScene();
-				const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/Temp/temp.json";
-				std::string sceneName = currentScene->GetName();
-				std::string filePath = (scenesDirectory).string();
-
-				m_editorContext->GetActiveScene().get()->SetActive(false);
-				m_editorContext->LoadFromFile(filePath);
+				std::string sceneName = m_editorContext->GetActiveScene()->GetName();
+				m_editorContext->GetActiveScene()->SetActive(false);
+				m_editorContext->CreateNewScene(sceneName);
 				m_editorContext->SetActiveScene(sceneName);
+				serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
 			}
 
 			ImGui::PopStyleColor(4);

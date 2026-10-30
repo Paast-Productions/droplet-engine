@@ -79,7 +79,7 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
-    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
 
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Scene Selection"))
@@ -127,7 +127,7 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndPopup();
     }
 
-    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
@@ -191,7 +191,7 @@ void HierarchyWindow::RenderImpl()
         DrawNode(root);
     }
 
-    ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
+    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (m_rangeSelectTarget)
@@ -539,8 +539,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             ImGui::EndDragDropSource();
         }
 
-        //ImGui::BeginDisabled(EditorConfig::LoadBool("hasPlayed", false));
- 
+
 
         if (ImGui::BeginPopupContextItem())
         {
@@ -579,8 +578,6 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             ImGui::EndPopup();
         }
-
-        //ImGui::EndDisabled();
 
         if (ImGui::BeginDragDropTarget())
         {
