@@ -62,7 +62,7 @@ void Scene::Update()
     m_octree.Update();
 }
 
-void Droplet::Scene::Scene::LateUpdate()
+void Scene::LateUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -86,7 +86,7 @@ void Droplet::Scene::Scene::LateUpdate()
     }
 }
 
-void Droplet::Scene::Scene::FixedUpdate()
+void Scene::FixedUpdate()
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -156,7 +156,11 @@ void Scene::GetRenderData(std::vector<Graphics::RenderData> &p_renderData)
     //TODO: Readd when editor user can toggle/change the flags in some way
     /*if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender))
     {*/
+        // TODO: Get active camera frustum data
+        // std::vector<std::shared_ptr<Node>> nodes;
+        // m_octree.GetNodesFromCulling(Math::Frustum(), nodes);
         for (const auto &root : m_roots)
+        // for (const auto &root : nodes)
         {
             root->GetRenderData(p_renderData);
         }
@@ -228,6 +232,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
+    m_octree.RemoveNode(p_node);
     m_roots.erase(it);
 }
 
@@ -299,14 +304,14 @@ std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
     return m_octree.GetNodesFromRaycast(p_ray);
 }
 
-std::vector<std::shared_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
+std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
 {
-    std::vector<std::shared_ptr<Node>> nodes;
+    std::vector<std::weak_ptr<Node>> nodes;
     m_octree.GetNodesFullyInFrustum(p_frustum, nodes);
     return nodes;
 }
 
-void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initializer)
+void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 {
     if (m_physics != nullptr)
     {
@@ -316,12 +321,12 @@ void Droplet::Scene::Scene::InitializePhysics(const Physics::Initializer p_initi
     m_physics = std::make_unique<Physics>(p_initializer);
 }
 
-Droplet::Physics *Droplet::Scene::Scene::GetPhysics()
+Droplet::Physics *Scene::GetPhysics()
 {
     return m_physics.get();
 }
 
-void Droplet::Scene::Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
+void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);

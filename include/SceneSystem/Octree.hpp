@@ -8,7 +8,7 @@
 #include <string>
 #include <math/bounds/AABB.hpp>
 #include <math/bounds/Frustum.hpp>
-#include "SceneSystem/Node.hpp"
+#include <SceneSystem/Node.hpp>
 
 namespace Droplet::Scene
 {
@@ -32,22 +32,22 @@ namespace Droplet::Scene
 
 		/// @brief Adds a Node element to the octree
 		/// @param p_node The Node element to be added to the octree
-		void AddNode(const std::shared_ptr<Node> p_node); // TODO: Make weak pointer
+		void AddNode(const std::weak_ptr<Node> &p_node);
 
 		/// @brief Removes a Node element from the octree
 		/// @param p_node The Node element to be removed
-		void RemoveNode(const std::shared_ptr<Node> p_node); // TODO: Make weak pointer
+		void RemoveNode(const std::weak_ptr<Node> &p_node);
 
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param[out] p_outNodes The vector with Nodes to be rendered
-		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes); // TODO: Make weak pointer
+		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes);
 
 		/// @brief Gets all Node instances whose world-space bounds are fully contained within a frustum
 		/// @note Nodes spanning several octants are only reported once
 		/// @param p_frustum The frustum that must fully contain the nodes
 		/// @param[out] p_outNodes The vector that nodes fully contained in the frustum are appended to
-		void GetNodesFullyInFrustum(const Math::Frustum &p_frustum, std::vector<std::shared_ptr<Node>> &p_outNodes); // TODO: Make weak pointer
+		void GetNodesFullyInFrustum(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes);
 
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
@@ -61,15 +61,18 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
 
-		/// @brief Generates graphviz code for visualiziong the octree from top down (xz-projected)
+		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
 		/// @return The string of graphviz code generated
 		std::string ToGraphviz();
 
-		/// @brief Generates graphviz code for visualiziong the octree as a tree
+		/// @brief Generates graphviz code for visualizing the octree as a tree
 		/// @note It is recommended to use dot graphviz engine for this
 		/// @return The string of graphviz code generated
 		std::string ToGraphvizTree();
+		
+		/// @brief Render the octree octants and nodes 
+		void Render();
 
 	private:
 		struct TreeNode;
@@ -77,29 +80,35 @@ namespace Droplet::Scene
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
 		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
-		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::shared_ptr<Node>> &p_dirtyNodes); // TODO: Make weak pointer
+		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
+		
+		/// @brief Helper function finding unique weak pointers in a vector.
+		/// @param[in] p_inNodes The in vector containing all weak pointers of Node
+		/// @param[out] p_outNodes The out vector containing only unique weak pointers of Node
+		void FindUniqueNodes(const std::vector<std::weak_ptr<Node>> &p_inNodes, std::vector<std::weak_ptr<Node>> &p_outNodes);
 
 		/// @brief Helper function for adding elements to the octree
 		/// @param p_node The Node to be added to the octree
 		/// @param p_treeNode The TreeNode where the Node element should be set
-		void AddToTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		/// @param p_placementBounds The fat bounds of the node
+		void AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode, const Math::AABB &p_placementBounds);
 
 		/// @brief Helper function for removing elements from the octree
 		/// @param p_node The Node to be removed
 		/// @param p_treeNode The TreeNode where to check for the Node element
-		void RemoveFromTreeNode(const std::shared_ptr<Node> p_node, std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		void RemoveFromTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode);
 
-		/// @brief Subdivides a octant into eights
+		/// @brief Subdivides octants into eights
 		/// @param p_parentOctant The octant to be subdivided
 		/// @param[out] p_childOctants The subdivided octants
-		void SubdivideOctant(const Math::AABB &p_parentOctant, std::vector<Math::AABB> &p_childOctants);
+		void SubdivideOctant(const Math::AABB &p_parentOctant, std::array<Math::AABB, 8> &p_childOctants);
 
 		/// @brief Helper function for getting Node instances intersecting with frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void CheckIntersection(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
-			const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		void CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
+			const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Helper function for collecting Node instances fully contained in a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances fully contained in the frustum
@@ -107,8 +116,8 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode instance to be checked
 		/// @param p_octantContained True if an ancestor octant is already known to be fully inside the frustum, which
 		/// guarantees that this octant is too, so its octant intersection test can be skipped
-		void CollectContained(std::vector<std::shared_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
-			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false); // TODO: Make weak pointer
+		void CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
+			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false);
 
 		/// @brief Helper function for raycasting a single Node instance
 		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray
@@ -129,7 +138,11 @@ namespace Droplet::Scene
 		/// @brief Helper function for checking frustum culling
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum 
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void AddAllNodeElements(std::vector<std::shared_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode); // TODO: Make weak pointer
+		void AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode);
+		
+		/// @brief Recursive function trying to merge octants
+		/// @param p_treeNode The TreeNode trying to merge
+		void TryMerge(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Recursive helper function for generating graphviz code visualizing the octree from top down
 		/// @param[in/out] p_data String of graphviz code
@@ -142,7 +155,7 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode to generate graphviz code for
 		/// @param[in/out] p_nodeCounter A counter to name the graphviz elements
 		/// @return The ID of the child node of the current p_treeNode
-		std::size_t GenerateGraphvizLinksTree(std::string &p_data, std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter);
+		std::size_t GenerateGraphvizLinksTree(std::string &p_data, const std::unique_ptr<TreeNode> &p_treeNode, std::size_t &p_nodeCounter);
 
 		/// @brief Helper function for generating graphvis code of an AABB
 		/// @param p_aabb The AABB to turn into graphviz code
@@ -152,22 +165,29 @@ namespace Droplet::Scene
 		/// @return A string of graphviz code representing the AABB
 		std::string BoundingBoxToGraphviz(const Math::AABB &p_aabb, const std::string &p_nodeName,
 			const std::string &p_label, const std::string &p_color);
+		
+		/// @brief Helper function for rendering every octant and node
+		/// @param p_treeNode The TreeNode to be rendered
+		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_NODES = 16;
-		static constexpr std::uint8_t C_MAX_DEPTH = 2; // HACK: Reduced to lower lag for now. We must optimize this octree implementation to allow for deeper trees.
+		static constexpr std::uint8_t C_MAX_DEPTH = 4;
+		static constexpr std::uint8_t C_MERGE_THRESHOLD = 8;
+		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
 
 		struct TreeNode
 		{
 			Math::AABB octant;
 			std::uint8_t level = 0;
 
-			std::vector<std::shared_ptr<Node>> nodes; // TODO: Make weak pointer
+			std::vector<std::weak_ptr<Node>> nodes;
 			std::array<std::unique_ptr<TreeNode>, 8> children;
 			bool isSubdivided = false;
 		};
 
 		bool m_isInitialized = false;
-
 		std::unique_ptr<TreeNode> m_root;
+		
+		std::unordered_map<Node *, Math::AABB> m_placements; // Contains fat bounds
 	};
 }

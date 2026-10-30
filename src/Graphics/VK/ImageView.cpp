@@ -2,9 +2,9 @@
 
 using namespace Droplet::Graphics::VK;
 
-ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p_image)
+ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image)
 {
-    vk::ImageViewCreateInfo viewInfo
+    const vk::ImageViewCreateInfo viewInfo
     {
         .image = p_image,
         .viewType = vk::ImageViewType::e2D,
@@ -22,9 +22,9 @@ ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p
     m_imageView = vk::raii::ImageView { p_device, viewInfo };
 }
 
-ImageView::ImageView(const vk::raii::Device &p_device, const vma::raii::Image &p_image, const vk::Format p_format, const vk::ImageAspectFlagBits p_aspectFlagBits)
+ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image, const vk::Format p_format, const vk::ImageAspectFlagBits p_aspectFlagBits)
 {
-    vk::ImageViewCreateInfo viewInfo 
+    const vk::ImageViewCreateInfo viewInfo 
     {
         .image = p_image,
         .viewType = vk::ImageViewType::e2D,
