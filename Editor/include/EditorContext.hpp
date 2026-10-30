@@ -53,7 +53,7 @@ namespace Droplet::Editor
 
 		/// @brief Loads a scene from a file
 		/// @param p_filepath Filepath
-		void LoadFromFile( std::string &p_filepath);
+		void LoadFromFile(const std::string &p_filepath);
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
