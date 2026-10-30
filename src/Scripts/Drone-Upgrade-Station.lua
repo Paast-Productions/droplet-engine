@@ -2,7 +2,6 @@ local itemToCraft = "woodfish"
 local amountOfFish = 10
 local amountOfMaterial
 local trans = nil
-local cam = nil
 --local interactionRadius = 3.0 
 
 --function DroneIsNear()
@@ -72,6 +71,4 @@ function RenderUI()
         local tablePos = trans:GetPosition(TransformSpace.World)
         ImGui.Text("Table Pos: " .. string.format("%.2f, %.2f, %.2f", tablePos.x, tablePos.y, tablePos.z))
     end
-        local camPos = GetCameraPosition()
-        ImGui.Text("cam Pos: " .. string.format("%.2f, %.2f, %.2f", camPos.x, camPos.y, camPos.z))
 end
