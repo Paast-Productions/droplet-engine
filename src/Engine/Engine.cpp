@@ -51,23 +51,9 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
 {
 	ZoneScoped;
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-
-	ResourceManager::GetInstance().Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
-
-	ImGui_ImplSDL3_InitForVulkan(m_window.Get());
-	m_initInfo = {};
-	m_renderer.GetImGuiInitInfo(m_initInfo);
-	ImGui_ImplVulkan_Init(&m_initInfo);
 	
-	ThreadPool::GetInstance().Initialize();
-	
+	ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
+    ThreadPool::GetInstance().Initialize();
 	JPH::RegisterDefaultAllocator();
 	JPH::Trace = TraceImpl;
 #ifdef JPH_DEBUG
@@ -118,9 +104,6 @@ Droplet::Engine::~Engine()
 		}
 	}
 
-	m_renderer.WaitIdle();
-	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
 
 	Shutdown();
 }
@@ -130,7 +113,7 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 {
 	ZoneScoped;
 
@@ -139,6 +122,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 
 	// Inputs
 	Droplet::GameInput::Get().Update();
+
+	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
@@ -164,7 +150,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
 
-		case SDL_EVENT_KEY_DOWN:
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			m_renderer.ResizeWindow();
@@ -204,7 +189,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	ResourceManager::Get().Update();
 
 	// Rendering
-	m_renderer.Draw(p_renderTarget, p_camera, renderDataVec);
+	m_renderer.Draw(p_camera, renderDataVec);
 	//m_renderer.DrawFrame(p_camera, p_renderTarget);
 
 	// ImGui
@@ -217,8 +202,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::RenderTarget &p_re
 	
 	// Other system that need updating go here.
     ResourceManager::GetInstance().Update();
-
-
 
 	FrameMark;
 
@@ -242,24 +225,4 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
-}
-
-Graphics::RenderTarget Engine::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
-{
-	return m_renderer.CreateRenderTarget(p_width, p_height);
-}
-
-VkDescriptorSet Engine::RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget)
-{
-	return m_renderer.RegisterImGuiTexture(p_renderTarget);
-}
-
-VkDescriptorSet Engine::GetOrCreateImGuiTexture(GUID p_guid)
-{
-	return m_renderer.GetOrCreateImGuiTexture(p_guid);
-}
-
-void Engine::RemoveImGuiTexture(GUID p_guid)
-{
-	m_renderer.RemoveImGuiTexture(p_guid);
 }
