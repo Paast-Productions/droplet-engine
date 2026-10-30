@@ -224,12 +224,9 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 	// Draw go back item
 	if (!m_currentBrowserPath.empty())
 	{
-		if (Selectable(ICON_LC_CORNER_LEFT_UP "..", false, ImGuiSelectableFlags_AllowDoubleClick))
+		if (Selectable(ICON_LC_CORNER_LEFT_UP "..", false))
 		{
-			if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				m_currentBrowserPath = m_currentBrowserPath.parent_path();
-			}
+			m_currentBrowserPath = m_currentBrowserPath.parent_path();
 		}
 		Separator();
 	}
@@ -240,12 +237,9 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 		if (childNode.isDirectory)
 		{
 			std::string label = ICON_LC_FOLDER " " + childName;
-			if (Selectable(label.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick))
+			if (Selectable(label.c_str(), false))
 			{
-				if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
-				{
-					m_currentBrowserPath /= childName;
-				}
+				m_currentBrowserPath /= childName;
 			}
 		}
 	}
@@ -257,9 +251,8 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 		{
 			// --- Asset ---
 			std::string fileLabel = ICON_LC_FILE " " + childName;
-			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
-
-			// Asset drag source
+			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+			
 			// Asset drag source
 			if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
