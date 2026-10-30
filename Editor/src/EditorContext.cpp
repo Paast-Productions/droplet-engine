@@ -37,7 +37,7 @@ void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
 	m_engine.GetSceneManager().SerializeToFile(GetActiveScene(), p_filepath);
 }
 
-void Droplet::Editor::EditorContext::LoadFromFile( std::string &p_filepath)
+void Droplet::Editor::EditorContext::LoadFromFile( const std::string &p_filepath)
 {
 	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
