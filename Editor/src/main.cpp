@@ -1,5 +1,4 @@
 #include <Engine/Engine.hpp>
-#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "SavedDataWindow.hpp"
@@ -15,11 +14,8 @@
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
-#include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
-
-#include "ComponentRegistry.hpp"
 
 using namespace Droplet::Editor;
 
