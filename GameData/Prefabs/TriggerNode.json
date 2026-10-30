@@ -10,7 +10,20 @@
             "type": "ScriptComponent"
         },
         {
-            "data": null,
+            "data": {
+                "h": 0.0,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 0,
+                "meshGUID": 0,
+                "motionType": 0,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 0.0,
+                "shapeType": 0
+            },
             "id": 2,
             "type": "PhysicsComponent"
         },
@@ -40,9 +53,14 @@
             },
             "id": 4,
             "type": "ScriptComponent"
+        },
+        {
+            "data": null,
+            "id": 5,
+            "type": "TriggerComponent"
         }
     ],
-    "id": 4,
+    "id": 1,
     "name": "TriggerNode",
     "transform": {
         "position": [
@@ -57,9 +75,9 @@
             0.0
         ],
         "scale": [
-            1.0,
-            1.0,
-            1.0
+            0.19228589534759521,
+            0.1689557135105133,
+            0.2355162501335144
         ]
     }
 }

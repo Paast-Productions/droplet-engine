@@ -19,6 +19,9 @@ namespace Droplet::Scene
 		
         /// @brief Checks every fixed frame when to call trigger functions.
         void FixedUpdateImpl() override;
+        
+        /// @brief Update function that is mainly used for drawcalls
+        void UpdateImpl() override;
 		
         /// @brief Internal rendering function for the component's UI.
         ///
@@ -27,5 +30,8 @@ namespace Droplet::Scene
         /// function to implement their own UI rendering logic.
         void RenderUIImpl() override;
     
+    private:
+        bool m_isColliding = false;
+        std::vector<std::weak_ptr<Node>> m_collidingNodes;
     };
 } 
