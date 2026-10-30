@@ -2,9 +2,9 @@
 
 using namespace Droplet::Graphics::VK;
 
-Sampler::Sampler(const Context &p_context)
+Sampler::Sampler(const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::Device &p_device)
 {
-	vk::PhysicalDeviceProperties properties = p_context.GetPhysicalDevice().getProperties();
+	vk::PhysicalDeviceProperties properties = p_physicalDevice.getProperties();
 	vk::SamplerCreateInfo        samplerInfo
 	{
 		.magFilter = vk::Filter::eLinear,
@@ -19,5 +19,5 @@ Sampler::Sampler(const Context &p_context)
 		.compareEnable = vk::False,
 		.compareOp = vk::CompareOp::eAlways
 	};
-	m_sampler = vk::raii::Sampler(p_context.GetDevice(), samplerInfo);
+	m_sampler = vk::raii::Sampler(p_device, samplerInfo);
 }

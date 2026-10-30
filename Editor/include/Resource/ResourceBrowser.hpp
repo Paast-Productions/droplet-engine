@@ -57,19 +57,21 @@ namespace Droplet::Editor::Resource
         /// @return String representing the resource type.
         std::string ResourceTypeToString(ResourceType p_type);
 
-	    EditorContext *m_editorContext;
+	    EditorContext *m_editorContext { nullptr };
 	    
-	    BrowserNode m_rootBrowserNode; // The root node in the resource browser hierarchy
+	    BrowserNode m_rootBrowserNode {}; // The root node in the resource browser hierarchy
 	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser
 	    
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
-	    MetaEntry m_inspectedEntry; // The current entry being inspected
+	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
-		ResourceHandle<IResource> m_previewResourceHandle; // The handle of the resource currently being inspected
+		ResourceHandle<IResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
 	    
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
-	    std::string m_unsupportedFilesList; // A list of unsupported assets in the latest registering attempt
-	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue; // Queued popups upon successful resource registration
+	    std::string m_unsupportedFilesList {}; // A list of unsupported assets in the latest registering attempt
+	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue {}; // Queued popups upon successful resource registration
+		
+		std::unordered_map<std::uint64_t, std::uint32_t> m_imGuiTexMap {};
 	};
 }

@@ -43,6 +43,11 @@ void Droplet::Physics::SetGravity(const glm::vec3 p_gravityVector)
 	m_physicsSystem.SetGravity(GLMtoJPH(p_gravityVector));
 }
 
+JPH::PhysicsSystem *Droplet::Physics::GetPhyscisSystem()
+{
+	return &m_physicsSystem;
+}
+
 JPH::BodyInterface *Droplet::Physics::GetBodyInterface()
 {
 	return m_bodyInterface;
