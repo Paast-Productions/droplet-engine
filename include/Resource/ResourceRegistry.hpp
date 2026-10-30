@@ -46,6 +46,10 @@ namespace Droplet
 		/// @param p_metaEntry The meta entry to be registered.
 		void RegisterMetaEntry(const std::string &p_relAssetPath, const MetaEntry &p_metaEntry);
 		
+		/// @brief Remove a meta entry of resource
+		/// @param p_guid The GUID of the resource
+		void RemoveMetaEntry(const GUID p_guid);
+		
 	private:
 		std::unordered_map<GUID, MetaEntry> m_guidToEntryMap;
 		std::unordered_map<std::string, std::vector<GUID>> m_assetToResourcesMap;
