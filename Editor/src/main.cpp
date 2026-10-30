@@ -1,5 +1,4 @@
 #include <Engine/Engine.hpp>
-#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
 #include "SavedDataWindow.hpp"
@@ -15,7 +14,6 @@
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
-#include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
 
@@ -48,7 +46,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     {
         return 1;
     }
-
+    
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
