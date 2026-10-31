@@ -132,8 +132,14 @@ void CameraComponent::RenderUIImpl()
 		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
 	);
 
+	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+
+	float availWidth = GetContentRegionAvail().x;
+	float imageWidth = availWidth * m_uiScale;
+	float imageHeight = imageWidth / m_camera.GetAspect();
+
 	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, ImVec2(static_cast<float>(m_resolution.x), static_cast<float>(m_resolution.y)), ImVec2(0, 0), ImVec2(1, 1));
+	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)

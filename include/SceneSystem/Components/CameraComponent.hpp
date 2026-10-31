@@ -76,6 +76,7 @@ namespace Droplet::Scene
 		bool m_manualRender{ false };
 
 		bool m_debugDraw{ false };
+		float m_uiScale{ 1.0f };
 
 		std::vector<Graphics::RenderData> m_renderData{ };
     };
