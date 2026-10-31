@@ -7,27 +7,18 @@ EditorCamera::EditorCamera()
 {
 	// Reinstate the camera's position, orientation, and other properties
 	glm::vec3 position = EditorConfig::LoadVec3("Editor.Camera.Pos", glm::vec3(0, 0, 0));
-	float yaw = EditorConfig::LoadFloat("Editor.Camera.Yaw", 0.0f);
-	float pitch = EditorConfig::LoadFloat("Editor.Camera.Pitch", 0.0f);
+	glm::vec3 fwd = EditorConfig::LoadVec3("Editor.Camera.Fwd", glm::vec3(0, 0, -1));
+	glm::vec3 up = glm::vec3(0, 1, 0); // Default up vector
+	glm::vec3 right = glm::normalize(glm::cross(fwd, up));
+	up = glm::normalize(glm::cross(right, fwd)); // Recalculate up vector to ensure orthogonality
 
 	Camera::SetPosition(position);
-	Camera::SetOrientation(yaw, pitch);
+	Camera::SetOrientation(fwd, up);
 }
 
 EditorCamera::~EditorCamera()
 {
 	// Store the camera's position, orientation, and other properties
-	glm::vec3 position = Camera::GetPosition();
-	float yaw = Camera::GetYaw();
-	float pitch = Camera::GetPitch();
-
-	EditorConfig::StoreVec3("Editor.Camera.Pos", position);
-	EditorConfig::StoreFloat("Editor.Camera.Yaw", yaw);
-	EditorConfig::StoreFloat("Editor.Camera.Pitch", pitch);
-}
-
-void EditorCamera::Update([[maybe_unused]] bool p_hovered, [[maybe_unused]] ImVec2 p_mousePos)
-{
-	// TODO: Implement camera update logic
-
+	EditorConfig::StoreVec3("Editor.Camera.Pos", GetPosition());
+	EditorConfig::StoreVec3("Editor.Camera.Fwd", GetForward());
 }

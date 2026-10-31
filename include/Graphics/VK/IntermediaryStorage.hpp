@@ -17,6 +17,7 @@
 #include <Graphics/VK/IndexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/RenderData.hpp>
+#include <Graphics/GraphicsTypes.hpp>
 #include <Resource/ResourceManager.hpp>
 
 namespace Droplet::Graphics
@@ -28,11 +29,6 @@ namespace Droplet::Graphics
 
 namespace Droplet::Graphics::VK
 {
-    // TODO: <REFACTOR>
-    // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something
-    constexpr std::uint32_t INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
-    // TODO: </REFACTOR>
-    
     struct PipelineKey
     {
         std::uint64_t vsGuid{ 0 };

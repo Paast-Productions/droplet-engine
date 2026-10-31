@@ -16,6 +16,7 @@
 #include <Transform.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
+#include <Graphics/DrawLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
@@ -52,7 +53,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node.
         explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
 
-        ~Node() = default;
+        ~Node();
 
 		Node() = delete;                        // Default constructor
         Node(const Node &) = delete;			// Copy constructor
@@ -88,14 +89,33 @@ namespace Droplet::Scene
 		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
 		void EditorUpdate();
 
-        /// @brief Renders the Node.
-        ///
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved.
-        void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
+        /// @brief Notifies the scene that the node wants to be rendered this frame.
+        void QueueRender();
 
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();
+
+		/// @brief Gets the Node's draw layer.
+		///
+		/// The draw layer determines which draw layer the Node and its
+		/// Components will be rendered in.
+		///
+		/// @return The draw layer the Node belongs to.
+		[[nodiscard]] Graphics::DrawLayer GetDrawLayer() const
+		{
+			return m_drawLayer;
+		}
+
+		/// @brief Sets the Node's draw layer.
+		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
+        {
+			assert(
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer),
+                "p_drawLayer must be a single layer"
+            );
+
+			m_drawLayer = p_drawLayer;
+		}
 
         /// @brief Sets whether the Node is active.
         ///
@@ -134,25 +154,22 @@ namespace Droplet::Scene
         ///
         /// Sets this Node as the parent of the specified child and adds
         /// the child to the Node hierarchy.
-        ///
         /// @param p_child Node to add as a child.
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @return A shared pointer to the added child Node.
-        ///
         /// @throws std::invalid_argument if p_child is nullptr.
-        /// @throws std::runtime_error if the Node already has a parent
         /// or belongs to a Scene.
-        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child); // TODO: Make weak pointer
+        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Removes a child Node.
         ///
         /// Removes the specified Node from the hierarchy and clears its
         /// parent reference.
-        ///
         /// @param p_child Node to remove.
-        ///
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
-        void RemoveChild(const std::shared_ptr<Node> &p_child); // TODO: Make weak pointer
+        void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Gets the parent Node.
         ///
@@ -200,19 +217,6 @@ namespace Droplet::Scene
 		/// @param p_component Unique pointer to the Component to add.
         void AddComponent(std::unique_ptr<Component> &p_component);
 
-        /// @brief Adds a Component to the Node.
-        ///
-        /// Constructs the Component using the provided arguments, assigns this Node
-        /// as its owner, and stores it.
-        ///
-        /// If the Component provides a bounds override, it is registered as the
-        /// Node's bounds provider. A Node can only have one Component providing
-        /// a bounds override.
-        ///
-        /// If the Node has already been started, the Component is started immediately.
-        ///
-        /// Multiple Components of the same type can be attached to a Node.
-
         /// @brief Adds an exisiting component to the node
         /// 
         /// Attached an already created comoponent of any type
@@ -254,8 +258,6 @@ namespace Droplet::Scene
             return components;
         }
 
-
-        
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
@@ -339,6 +341,12 @@ namespace Droplet::Scene
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 
+        /// @brief Draw layer mask for the Node.
+        ///
+        /// The draw layer mask determines which draw layers the Node and its
+        /// Components will be rendered in.
+        Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
+
         /// @brief Indicates whether the Node has been started.
         bool m_started = false;
 
@@ -386,5 +394,7 @@ namespace Droplet::Scene
         ///
         /// Only one Component can provide a bounds override at a time.
         std::weak_ptr<Component> m_boundsOverride{};
+
+		void ActiveChanged(bool p_active);
     };
 }

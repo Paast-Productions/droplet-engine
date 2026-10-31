@@ -1,127 +1,207 @@
-
 #include "CameraComponent.hpp"
 
+#include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
-
-#include <glm/gtc/constants.hpp>
-#include <glm/common.hpp>
+#include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Time.hpp>
-#include <cmath>
-
-namespace
-{
-    float WrapDegrees(float a)
-    {
-        while (a > 180.0f)  a -= 360.0f;
-        while (a < -180.0f) a += 360.0f;
-        return a;
-    }
-
-    
-    // Rate: higher = snappier. At or above kInstantRate there is no smoothing.
-    constexpr float kInstantRate = 500.0f;
-
-    float Smooth(float rate, float dt)
-    {
-        if (rate >= kInstantRate)
-            return 1.0f;                        // no delay
-        return 1.0f - std::exp(-rate * dt);
-    }
-}
+#include <IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
-
-Droplet::Scene::CameraComponent::CameraComponent()
-{
-}
+using namespace Droplet::Graphics;
+using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-    const auto owner = this->GetOwner();
-    if (!owner)
-        return;
+	// TODO: Construct camera and create render target
 
-    const auto &transform = owner->GetTransform();
+	using namespace Graphics::VK;
+	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
+	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
 
-    const glm::vec3 dronePos = transform.GetPosition(Transform::Space::World);
-    const glm::vec3 forward = transform.GetForward(Transform::Space::World);
-
-    constexpr float radToDeg = 180.0f / glm::pi<float>();
-    constexpr float degToRad = glm::pi<float>() / 180.0f;
-
-    const float targetYaw = std::atan2(forward.z, forward.x) * radToDeg;
-    const float targetPitch = std::asin(glm::clamp(forward.y, -1.0f, 1.0f)) * radToDeg;
-
-    m_smoothedYaw = targetYaw;
-    m_smoothedPitch = targetPitch;
-    m_smoothedPosition = dronePos;
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		m_textureIndex = instance.CreateImGuiTexture(
+			instance.GetRenderTargetAt(m_targetIndex)
+		);
+	}
 }
 
-void CameraComponent::UpdateImpl()
+void CameraComponent::LateUpdateImpl()
 {
-    if (!m_camera)
-        return;
+	Transform &t = GetOwner()->GetTransform();
 
-    const auto owner = this->GetOwner();
-    if (!owner)
-        return;
+	m_camera.SetPosition(t.GetPosition(Transform::Space::World));
+	m_camera.SetOrientation(t.GetRotation(Transform::Space::World));
 
-    const auto &transform = owner->GetTransform();
+	m_frustum = m_camera.GetFrustum();
+}
 
-    const glm::vec3 dronePos = transform.GetPosition(Transform::Space::World);
-    const glm::vec3 forward = transform.GetForward(Transform::Space::World);
+void CameraComponent::QueueRenderImpl()
+{
+	if (m_dirty)
+	{
+		// TODO
 
-    constexpr float radToDeg = 180.0f / glm::pi<float>();
-    constexpr float degToRad = glm::pi<float>() / 180.0f;
+		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+			m_targetIndex, m_textureIndex,
+			m_resolution.x, m_resolution.y
+		);
 
-    const float targetYaw = std::atan2(forward.z, forward.x) * radToDeg;
-    const float targetPitch = std::asin(glm::clamp(forward.y, -1.0f, 1.0f)) * radToDeg;
+		m_dirty = false;
+	}
 
-    // Smooth orientation (shortest path for yaw)
-    float deltaTime = Time::Get().GetDeltaTime();
-    const float rotT = Smooth(m_rotationLag, deltaTime);
-    m_smoothedYaw += WrapDegrees(targetYaw - m_smoothedYaw) * rotT;
-    m_smoothedPitch += (targetPitch - m_smoothedPitch) * rotT;
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
+	{
+		if (!m_manualRender)
+		{
+			return;
+		}
+	}
 
-    // Build the camera's frame from the SMOOTHED orientation
-    const float yawR = m_smoothedYaw * degToRad;
-    const float pitchR = m_smoothedPitch * degToRad;
+	m_manualRender = false;
 
-    const glm::vec3 camForward{
-        std::cos(pitchR) * std::cos(yawR),
-        std::sin(pitchR),
-        std::cos(pitchR) * std::sin(yawR) };
+	std::weak_ptr<Scene> scene = GetOwner()->GetScene();
+	std::shared_ptr<Component> comp = shared_from_this();
+	std::shared_ptr<CameraComponent> cameraComp = std::dynamic_pointer_cast<CameraComponent>(comp);
 
-    const glm::vec3 camRight = glm::normalize(glm::cross(camForward, glm::vec3(0, 1, 0)));
-    const glm::vec3 camUp = glm::cross(camRight, camForward);
+	scene.lock()->QueueRenderer(cameraComp);
+}
 
-    // Offset lives in the smoothed frame, so the drone swings within the view
-    const glm::vec3 worldOffset =
-        camRight * m_offset.x + camUp * m_offset.y + camForward * m_offset.z;
+void CameraComponent::EditorUpdateImpl()
+{
+	if (!m_debugDraw)
+	{
+		return;
+	}
 
-    // Smooth position too (small lag makes acceleration visible)
-    const float posT = Smooth(m_positionLag, deltaTime);
-    m_smoothedPosition += (dronePos - m_smoothedPosition) * posT;
+	Transform &t = GetOwner()->GetTransform();
 
-    m_camera->SetPosition(m_smoothedPosition + worldOffset);
-    m_camera->SetOrientation(m_smoothedYaw, m_smoothedPitch);
+	m_camera.SetPosition(t.GetPosition(Transform::Space::World));
+	m_camera.SetOrientation(t.GetRotation(Transform::Space::World));
+
+	m_frustum = m_camera.GetFrustum();
+
+	DebugDraw::DrawFrustum(
+		m_frustum, 
+		glm::vec4(0.5f, 0.5f, 0.5f, 0.7f),
+		false,
+		true
+	);
 }
 
 void CameraComponent::RenderUIImpl()
 {
+	using namespace ImGui;
 
-    ImGui::DragFloat3("Offset", &m_offset.x, 0.1f);
-    ImGui::DragFloat("Rotation Lag", &m_rotationLag, 1.0f, 0.5f, 500.0f);
-    ImGui::DragFloat("Position Lag", &m_positionLag, 1.0f, 0.5f, 500.0f);
+	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
+
+	InputInt("Priority", &m_priority);
+
+	float fov = m_camera.GetFOV();
+	if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
+	{
+		m_camera.SetFOV(fov);
+	}
+
+	glm::ivec2 res = m_resolution;
+	if (DragInt2("Resolution", &res.x, 0.25f))
+	{
+		res = glm::max(res, glm::ivec2(1, 1));
+		SetResolution(res);
+	}
+
+	glm::vec2 planes = m_camera.GetPlanes();
+	bool planesChanged = false;
+	planesChanged |= DragFloat("Near", &planes.x, 0.001f);
+	planesChanged |= DragFloat("Far", &planes.y, 0.1f);
+	if (planesChanged)
+	{
+		m_camera.SetPlanes(std::max(0.01f, planes.x), std::max(0.01f, planes.y));	
+	}
+
+	Checkbox("Debug Draw", &m_debugDraw);
+
+	if (Button("Trigger Render"))
+	{
+		TriggerRender();
+	}
+
+	Separator();
+
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
+	);
+
+	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+
+	float availWidth = GetContentRegionAvail().x;
+	float imageWidth = availWidth * m_uiScale;
+	float imageHeight = imageWidth / m_camera.GetAspect();
+
+	// Render the camera view texture to the scene view window
+	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+}
+
+void CameraComponent::SetResolution(glm::ivec2 p_resolution)
+{
+	if (p_resolution.x <= 0 || p_resolution.y <= 0)
+	{
+		throw std::invalid_argument("Resolution must be greater than zero.");
+	}
+
+	m_resolution = p_resolution;
+	m_camera.SetAspect(static_cast<float>(p_resolution.x) / static_cast<float>(p_resolution.y));
+	m_dirty = true;
+}
+
+void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &p_renderables)
+{
+	auto visibleComponents = GetOwner()->GetScene()->GetNodesIntersectingFrustum(m_frustum);
+
+	// Filter the renderables to only include those that are visible in the camera's frustum
+	for (const auto &[node, component] : p_renderables)
+	{
+		if (!node || !component)
+		{
+			continue;
+		}
+
+		if (!DrawLayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
+		{
+			continue;
+		}
+
+		// Check if the node is in the list of visible components
+		auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+			[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+				auto sharedNode = weakNode.lock();
+				return sharedNode && sharedNode == node;
+			});
+
+		if (it != visibleComponents.end())
+		{
+			m_renderData.push_back(component->GetRenderData());
+		}
+	}
+}
+
+CameraRenderData CameraComponent::GetRenderData() const
+{
+	CameraRenderData renderData{ };
+	renderData.camera = m_camera;
+	renderData.renderTarget = m_targetIndex;
+	renderData.renderData = m_renderData;
+
+	return renderData;
 }
 
 nlohmann::json CameraComponent::SerializeImpl()
 {
-    return nlohmann::json::object();
+	// TODO
+	return nlohmann::json::object();
 }
 
-void CameraComponent::DeserializeImpl(
-    [[maybe_unused]] nlohmann::json p_compJson)
+void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
+	// TODO
 }

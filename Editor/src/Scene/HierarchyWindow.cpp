@@ -164,7 +164,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -260,7 +260,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -302,10 +302,10 @@ void HierarchyWindow::RenderImpl()
 
             if (oldParent)
             {
-                oldParent->RemoveChild(node);
+                oldParent->RemoveChild(node, true);
             }
 
-            m_newParent->AddChild(node);
+            m_newParent->AddChild(node, true);
         }
     }
 
@@ -682,9 +682,13 @@ void HierarchyWindow::HandleRectSelection(const ImVec2 &p_emptyAreaMin, const Im
     // Start the drag when pressing in the empty area below the nodes
     if (!m_marqueeActive)
     {
-        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)
-            && !ImGui::IsAnyItemActive() && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
-            && !IsOverNodeRow(io.MousePos))
+		ImGuiHoveredFlags hoverFlags = 
+            ImGuiHoveredFlags_AllowWhenBlockedByPopup | 
+            ImGuiHoveredFlags_AllowWhenBlockedByActiveItem;
+
+        if (ImGui::IsWindowHovered(hoverFlags) && ImGui::IsMouseClicked(ImGuiMouseButton_Left) 
+            && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
+            && !ImGui::IsAnyItemActive() && !IsOverNodeRow(io.MousePos))
         {
             m_marqueeActive = true;
             m_marqueeStart = io.MousePos + scroll;

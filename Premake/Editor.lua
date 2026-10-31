@@ -18,7 +18,7 @@ project "Editor"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "ROOT_PATH=" .. AddQuotation("../../..")
 	}
 
     if _TARGET_OS == "windows" then

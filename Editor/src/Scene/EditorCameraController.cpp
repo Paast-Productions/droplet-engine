@@ -41,7 +41,7 @@ void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float
 		float dy = input.GetDeltaMouseY();
 
 		m_editorCamera.Rotate(
-			dx * m_mouseSensitivity,
+			-dx * m_mouseSensitivity,
 			-dy * m_mouseSensitivity
 		);
 		input.SetCursorPosition(p_window, true, p_centerX, p_centerY);

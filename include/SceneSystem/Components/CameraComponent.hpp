@@ -1,29 +1,19 @@
-
 #pragma once
 
 #include <SceneSystem/Component.hpp>
 #include <Graphics/VK/Camera.hpp>
+#include <Graphics/GraphicsTypes.hpp>
+#include <Graphics/DrawLayer.hpp>
 #include <glm/glm.hpp>
 #include <memory>
 #include <string_view>
 
 namespace Droplet::Scene
 {
-    /// @brief Component representing a camera attached to a scene Node.
-    ///
-    /// Temporarily controls the editor camera by attaching to a Node.
-    /// The editor camera is borrowed and is not owned by this component.
-    /// TODO: Should handle multiple cameras and scene cameras not the editor camera like it is now.
-    class CameraComponent : public Component
+    /// @brief Component representing a camera attached to a scene Node.e
+	class CameraComponent : public Component
     {
     public:
-        CameraComponent();
-
-        void SetCamera(Droplet::Graphics::Camera *p_camera)
-        {
-            m_camera = p_camera;
-        }
-
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
         [[nodiscard]] std::string_view GetTypeName() const override
@@ -31,42 +21,63 @@ namespace Droplet::Scene
             return "CameraComponent";
         }
 
-        /// @brief Sets the camera offset relative to the target.
-        /// @param p_offset World-space position offset.
-        void SetOffset(const glm::vec3 &p_offset)
-        {
-            m_offset = p_offset;
-        }
+        [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
+        [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }
 
-        /// @brief Gets the camera offset relative to the target.
-        /// @return The world-space position offset.
-        [[nodiscard]] const glm::vec3 &GetOffset() const
-        {
-            return m_offset;
-        }
+        [[nodiscard]] Math::Frustum &GetFrustum() { return m_frustum; }
+        [[nodiscard]] const Math::Frustum &GetFrustum() const { return m_frustum; }
+
+		[[nodiscard]] Graphics::DrawLayer GetDrawLayerMask() const { return m_drawLayerMask; }
+
+		[[nodiscard]] int32_t GetPriority() const { return m_priority; }
+		void SetPriority(int32_t p_priority) { m_priority = p_priority; }
+
+		[[nodiscard]] glm::ivec2 GetResolution() const { return m_resolution; }
+        void SetResolution(glm::ivec2 p_resolution);
+
+		[[nodiscard]] bool IsAutoRenderEnabled() const { return m_autoRender; }
+		void SetAutoRender(bool p_enabled) { m_autoRender = p_enabled; }
+		void TriggerRender() { m_manualRender = true; }
+
+        void CullRenderables(const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &p_renderables);
+
+        [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
+		void ClearRenderData() { m_renderData.clear(); }
+
+        [[nodiscard]] std::uint32_t GetTargetIndex() const { return m_targetIndex; }
+        void SetTargetIndex(std::uint32_t p_renderTarget) { m_targetIndex = p_renderTarget; }
+
+        [[nodiscard]] std::uint32_t GetTextureIndex() const { return m_textureIndex; }
+        void SetTextureIndex(std::uint32_t p_textureIndex) { m_textureIndex = p_textureIndex; }
 
     protected:
         void StartImpl() override;
-        void UpdateImpl() override;
+        void LateUpdateImpl() override;
+        void QueueRenderImpl() override;
+		void EditorUpdateImpl() override;
         void RenderUIImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
-        Droplet::Graphics::Camera *m_camera = nullptr;
-        // Node followed by the editor camera.
-        std::weak_ptr<Node> m_target;
+        Graphics::Camera m_camera{ };
+		Math::Frustum m_frustum{ };
 
-        // Offset from the target's world position.
-        glm::vec3 m_offset{0.0f, 3.0f, 0.3f};
+		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
+		int32_t m_priority{ 0 };
 
-        glm::vec3 m_smoothedPosition{ 0.0f };
-        float m_smoothedYaw = 0.0f;     // degrees
-        float m_smoothedPitch = 0.0f;   // degrees
+        std::uint32_t m_targetIndex{ Graphics::VK::INVALID_INDEX }; // The index of the texture that the camera will render to
+        std::uint32_t m_textureIndex{ Graphics::VK::INVALID_INDEX }; // The index of the texture that ImGui uses to render the camera view
+		glm::ivec2 m_resolution{ 256, 256 };
+		bool m_dirty{ true };
 
-        float m_rotationLag = 30.0f;     // higher = snappier, lower = laggier
-        float m_positionLag = 60.0f;
+		bool m_autoRender{ true };
+		bool m_manualRender{ false };
 
+		bool m_debugDraw{ false };
+		float m_uiScale{ 1.0f };
+
+		std::vector<Graphics::RenderData> m_renderData{ };
     };
 }

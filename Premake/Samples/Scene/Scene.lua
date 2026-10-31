@@ -11,7 +11,7 @@ project "SceneSystem"
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation(rootPath)
+        "ROOT_PATH=" .. AddQuotation("../../..")
 	}
     
     local vkPath = os.getenv("VULKAN_SDK")
