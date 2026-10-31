@@ -23,7 +23,7 @@ namespace Droplet::Math
 	{
 		glm::vec3	point = glm::vec3(0.0f);
 		glm::vec3	normal = glm::vec3(0.0f);
-		float		distance = 0.0f;
+		float		distance = std::numeric_limits<float>::max();
 		bool		didHit = false;
 	};
 
