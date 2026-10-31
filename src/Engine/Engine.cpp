@@ -116,7 +116,7 @@ void Droplet::Engine::Shutdown()
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
-	ZoneScoped;
+	ZoneScopedC(tracy::Color::PaleTurquoise1);
 
 	// Time
 	Time::Get().Update();
@@ -131,7 +131,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
 #ifdef TRACY_ENABLE
-		ZoneNamedN(eventZone, "Event", true);
+		ZoneNamedNC(eventZone, "Event", tracy::Color::MistyRose1, true);
 
 		constexpr int eventStrMaxLen = 256;
 		char eventStrBuf[eventStrMaxLen]{};
@@ -163,25 +163,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PreUpdate();
-		}
-	}
-
 	// Scenesystem
 	m_sceneManager.Update();
-	
-	// Script Behaviours
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PostUpdate();
-		}
-	}
 
 	// ResourceManager
 
@@ -192,7 +175,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
 {
-	ZoneScoped;
+	ZoneScopedC(tracy::Color::SkyBlue1);
 
 	auto renderData = m_sceneManager.GetRenderData();
 

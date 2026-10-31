@@ -126,20 +126,22 @@ void Scene::FixedUpdate()
         return;
     }
 
+    if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    {
+		return;
+    }
+
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipNodeLogic))
+    for (const auto &root : m_roots)
     {
-        for (const auto &root : m_roots)
-        {
-            root->FixedUpdate();
-        }
+        root->FixedUpdate();
+    }
         
-        if (m_physics != nullptr)
-        {
-            m_physics->FixedUpdate();
-        }
+    if (m_physics != nullptr)
+    {
+        m_physics->FixedUpdate();
     }
 }
 

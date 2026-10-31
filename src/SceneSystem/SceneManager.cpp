@@ -154,40 +154,52 @@ void SceneManager::Update()
     ZoneScoped;
 
 	// Pre-Update all active Behaviours
-    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
-        auto &behaviour = *it;
+		ZoneNamedNC(behaviourPreUpdateZone, "Behaviour Pre-Update", tracy::Color::Green, true);
 
-        if (behaviour->IsActive())
+        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
         {
-			ZoneNamedN(behaviourPreUpdateZone, "Behaviour Pre-Update", true);
-            ZoneTextV(behaviourPreUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+            auto &behaviour = *it;
 
-            behaviour->PreUpdate();
-		}
+            if (behaviour->IsActive())
+            {
+                ZoneNamedN(preUpdateZone, "Pre-Update", true);
+                ZoneTextV(preUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
 
-        ++it;
-	}
+                behaviour->PreUpdate();
+            }
 
-	// Update all active Scenes
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
-    {
-        auto scene = it->lock();
-
-        if (!scene)
-        {
-            it = m_activeScenes.erase(it);
-            continue;
+            ++it;
         }
-
-        scene->Update();
-
-        ++it;
     }
 
+	// Update all active Scenes
+    {
+        ZoneNamedNC(sceneUpdateZone, "Scene Update", tracy::Color::DarkSeaGreen1, true);
+
+        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        {
+            auto scene = it->lock();
+
+            if (!scene)
+            {
+                it = m_activeScenes.erase(it);
+                continue;
+            }
+
+            scene->Update();
+
+            ++it;
+        }
+    }
+
+	// Fixed-Update all active Scenes
     Droplet::Time &time = Droplet::Time::Get();
     while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
     {
+        ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
+
         // Update all active Scenes
         for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
         {
@@ -207,35 +219,45 @@ void SceneManager::Update()
         time.ConsumeFixedTime();
     }
 
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+	// Late-Update all active Scenes
     {
-        auto scene = it->lock();
+		ZoneNamedNC(sceneLateUpdateZone, "Scene Late Update", tracy::Color::Blue, true);
 
-        if (!scene)
+        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
         {
-            it = m_activeScenes.erase(it);
-            continue;
+            auto scene = it->lock();
+
+            if (!scene)
+            {
+                it = m_activeScenes.erase(it);
+                continue;
+            }
+
+            scene->LateUpdate();
+
+            ++it;
         }
-
-        scene->LateUpdate();
-
-        ++it;
     }
 
     // Post-Update all active Behaviours
-    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
-        auto &behaviour = *it;
+		ZoneNamedNC(behaviourPostUpdateZone, "Behaviour Post-Update", tracy::Color::Red, true);
 
-        if (behaviour->IsActive())
+        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
         {
-            ZoneNamedN(behaviourPostUpdateZone, "Behaviour Posy-Update", true);
-            ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+            auto &behaviour = *it;
 
-            behaviour->PostUpdate();
+            if (behaviour->IsActive())
+            {
+                ZoneNamedN(behaviourPostUpdateZone, "Post-Update", true);
+                ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+                behaviour->PostUpdate();
+            }
+
+            ++it;
         }
-
-        ++it;
     }
 
     PrepareRender();
