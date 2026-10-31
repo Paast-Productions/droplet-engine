@@ -345,6 +345,7 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 				{
 					if (resManInstance.GetRef(resource->guid) > 0)
 					{
+						Debug::Log(Debug::LogType::Info, "Resource could not be removed, still in use.");
 						canRemove = false;
 						break;
 					}
