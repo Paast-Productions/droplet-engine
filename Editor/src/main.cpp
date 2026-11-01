@@ -14,6 +14,8 @@
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
+#include <Editor/ImGuiCurve.hpp>
+#include <Math/Curves.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
 
@@ -215,136 +217,95 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         bool openLayoutPopup = false;
 
         // Main toolbar
-        if (ImGui::BeginMainMenuBar())
         {
-            if (ImGui::BeginMenu("File"))
+            if (ImGui::BeginMainMenuBar())
             {
-                if (ImGui::BeginMenu("Layout"))
+                if (ImGui::BeginMenu("File"))
                 {
-                    if (ImGui::BeginMenu("Set Layout"))
+                    if (ImGui::BeginMenu("Layout"))
                     {
-                        std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
-
-                        std::vector<std::string> layouts;
-                        UIStyle::GetLayoutNames(layouts);
-
-                        for (const auto &layoutName : layouts)
+                        if (ImGui::BeginMenu("Set Layout"))
                         {
-                            bool isSelected = (layoutName == currLayout);
-                            if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
+                            std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
+
+                            std::vector<std::string> layouts;
+                            UIStyle::GetLayoutNames(layouts);
+
+                            for (const auto &layoutName : layouts)
                             {
-                                if (layoutName != currLayout)
+                                bool isSelected = (layoutName == currLayout);
+                                if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
                                 {
-                                    pendingLayoutChange = layoutName;
+                                    if (layoutName != currLayout)
+                                    {
+                                        pendingLayoutChange = layoutName;
+                                    }
                                 }
                             }
+
+                            ImGui::EndMenu();
+                        }
+
+                        openLayoutPopup = ImGui::MenuItem("Save Layout");
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::BeginMenu("Style"))
+                    {
+                        if (ImGui::BeginMenu("Set Style"))
+                        {
+                            std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+                            std::vector<std::string> styles;
+                            UIStyle::GetStyleNames(styles);
+
+                            for (const auto &styleName : styles)
+                            {
+                                bool isSelected = (styleName == currStyle);
+                                if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
+                                {
+                                    if (styleName != currStyle)
+                                    {
+                                        UIStyle::LoadStyle(styleName);
+                                    }
+                                }
+                            }
+
+                            ImGui::EndMenu();
+                        }
+
+                        if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
+                        {
+                            showStyleEditor = !showStyleEditor;
                         }
 
                         ImGui::EndMenu();
                     }
 
-                    openLayoutPopup = ImGui::MenuItem("Save Layout");
-
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Style"))
-                {
-                    if (ImGui::BeginMenu("Set Style"))
-                    {
-                        std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-                        std::vector<std::string> styles;
-                        UIStyle::GetStyleNames(styles);
-
-                        for (const auto &styleName : styles)
-                        {
-                            bool isSelected = (styleName == currStyle);
-                            if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
-                            {
-                                if (styleName != currStyle)
-                                {
-                                    UIStyle::LoadStyle(styleName);
-                                }
-                            }
-                        }
-
-                        ImGui::EndMenu();
-                    }
-
-                    if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
-                    {
-                        showStyleEditor = !showStyleEditor;
-                    }
-
-                    ImGui::EndMenu();
-                }
-
-                ImGui::EndMenu();
+                ImGui::EndMainMenuBar();
             }
 
-            ImGui::EndMainMenuBar();
-        }
-
-        if (openLayoutPopup)
-        {
-            ImGui::OpenPopup("Save Layout");
-        }
-
-        if (ImGui::BeginPopup("Save Layout"))
-        {
-            static std::string layoutName = "";
-
-            ImGui::InputText("Layout Name", &layoutName);
-
-            // Disable if the layout name is empty
-            ImGui::BeginDisabled(layoutName.empty());
-
-            if (ImGui::Button("Confirm"))
+            if (openLayoutPopup)
             {
-                UIStyle::SaveLayout(layoutName);
-                ImGui::CloseCurrentPopup();
+                ImGui::OpenPopup("Save Layout");
             }
 
-            ImGui::EndDisabled();
-
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
+            if (ImGui::BeginPopup("Save Layout"))
             {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
+                static std::string layoutName = "";
 
-        if (showStyleEditor)
-        {
-            ImGui::Begin("Style Editor", &showStyleEditor);
+                ImGui::InputText("Layout Name", &layoutName);
 
-            if (ImGui::Button("Save Style"))
-            {
-                ImGui::OpenPopup("Save Style");
-            }
-
-            ImGui::SameLine();
-            if (ImGui::Button("Reset Style"))
-            {
-                std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-                UIStyle::LoadStyle(currStyle);
-            }
-
-            if (ImGui::BeginPopup("Save Style"))
-            {
-                static std::string styleName = "";
-
-                ImGui::InputText("Style Name", &styleName);
-
-                // Disable if the style name is empty
-                ImGui::BeginDisabled(styleName.empty());
+                // Disable if the layout name is empty
+                ImGui::BeginDisabled(layoutName.empty());
 
                 if (ImGui::Button("Confirm"))
                 {
-                    UIStyle::SaveStyle(styleName);
+                    UIStyle::SaveLayout(layoutName);
                     ImGui::CloseCurrentPopup();
                 }
 
@@ -355,14 +316,57 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
                 {
                     ImGui::CloseCurrentPopup();
                 }
-
                 ImGui::EndPopup();
             }
 
-            ImGui::Separator();
+            if (showStyleEditor)
+            {
+                ImGui::Begin("Style Editor", &showStyleEditor);
 
-            ImGui::ShowStyleEditor(nullptr);
-            ImGui::End();
+                if (ImGui::Button("Save Style"))
+                {
+                    ImGui::OpenPopup("Save Style");
+                }
+
+                ImGui::SameLine();
+                if (ImGui::Button("Reset Style"))
+                {
+                    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+                    UIStyle::LoadStyle(currStyle);
+                }
+
+                if (ImGui::BeginPopup("Save Style"))
+                {
+                    static std::string styleName = "";
+
+                    ImGui::InputText("Style Name", &styleName);
+
+                    // Disable if the style name is empty
+                    ImGui::BeginDisabled(styleName.empty());
+
+                    if (ImGui::Button("Confirm"))
+                    {
+                        UIStyle::SaveStyle(styleName);
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::EndDisabled();
+
+                    ImGui::SameLine();
+                    if (ImGui::Button("Cancel"))
+                    {
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::EndPopup();
+                }
+
+                ImGui::Separator();
+
+                ImGui::ShowStyleEditor(nullptr);
+                ImGui::End();
+            }
         }
 
         hierarchyWindow.Render();
@@ -372,6 +376,116 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         savedDataWindow.Render();
         resourceBrowser.Render();
         sceneViewWindow.Render();
+
+        // HACK: Temp window for testing ImGuiCurveEdit
+        {
+            if (ImGui::Begin("Curve Editor Test"))
+            {
+				using namespace ImGui;
+
+                // Use custom curve editor
+                static std::vector<BezierPoint> points = {
+                    { { 0.0f, 0.0f }, { 0.5f, 0.0f }, { 0.5f, 0.0f } },
+                    { { 1.0f, 1.0f }, { 0.5f, 1.0f }, { 0.5f, 1.0f } }
+                };
+
+                static ImGuiCurveEditFlags flags = ImGuiCurveEditFlags_None;
+
+                static ImVec2 curveSize(350, 350);
+                static ImRect padding(48, 24, 20, 24);
+                static ImRect curveRect(0, 0, 1, 1);
+                static ImVec2i gridLines(4, 4);
+                static float thickness = 3.0f;
+
+                if (TreeNode("Flags"))
+                {
+                    std::vector<std::string> flagNames = {
+                        "Linear", "Quadratic", "Jointed", "Force Span Width", "Force Injective",
+                        "Read Only", "No Labels", "No Points", "Clamp X", "Clamp Y"
+                    };
+
+                    // Flag checkboxes
+                    for (int i = 0; i < flagNames.size(); i++)
+                    {
+                        bool flagSet = (flags & (1 << i)) != 0;
+                        if (Checkbox(flagNames[i].c_str(), &flagSet))
+                        {
+                            if (flagSet)
+                                flags |= (1 << i);
+                            else
+                                flags &= ~(1 << i);
+                        }
+                    }
+
+                    TreePop();
+                }
+
+                SliderFloat("Thickness##CurveEditor", &thickness, 0.1f, 10.0f);
+                DragFloat2("Size##CurveEditor", &curveSize.x, 1.0f, 1.0f, 0.0f, "%.0f");
+
+                if (DragInt2("Grid Lines##CurveEditor", &gridLines.x, 0.05f))
+                {
+                    gridLines.x = std::max(gridLines.x, 0);
+                    gridLines.y = std::max(gridLines.y, 0);
+                }
+
+                DragFloat4("Padding##CurveEditor", &padding.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
+
+                DragFloat4("Bounds##CurveEditor", &curveRect.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
+
+
+                Separator();
+                CurveEdit("##CurveEditor", &points, curveSize, curveRect, thickness, padding, gridLines, flags);
+
+                // Test sampling using Curves.h
+                if (TreeNode("Sampling"))
+                {
+                    using namespace Droplet::Math::Curves;
+
+                    Curve<glm::vec2> curve;
+                    curve.type = (flags & ImGuiCurveEditFlags_Linear) ? CurveType::Linear : ((flags & ImGuiCurveEditFlags_Quadratic) ? CurveType::BezierQuadratic : CurveType::BezierCubic);
+
+                    curve.points.resize(points.size());
+                    std::memcpy(curve.points.data(), points.data(), points.size() * sizeof(BezierPoint));
+
+                    static bool injective = false;
+                    static float sampleT = 0.5f;
+
+                    BeginChild("Curve Sampling", curveSize, true);
+                    {
+                        glm::vec2 sampleValue{};
+
+                        if (injective)
+                        {
+                            float sampleY = curve.SampleInjective(sampleT);
+                            sampleValue = { sampleT, sampleY };
+                        }
+                        else
+                        {
+                            sampleValue = curve.SamplePoint(sampleT);
+                        }
+
+                        ImVec2 windowPos = ImGui::GetWindowPos();
+                        ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+                        ImVec2 samplePos = { sampleValue.x, 1.0f - sampleValue.y };
+                        samplePos *= curveSize;
+
+                        drawList->AddCircleFilled(windowPos + samplePos, thickness * 1.6f, IM_COL32(255, 255, 255, 255));
+                    }
+                    EndChild();
+
+                    // Sample slider, same width as child window
+                    SetNextItemWidth(curveSize.x);
+                    SliderFloat("##Sample T", &sampleT, 0.0f, 1.0f);
+                    Checkbox("Injective Sampling##CurveSampling", &injective);
+
+                    TreePop();
+                }
+
+			}
+			ImGui::End();
+		}
 
         switch (engine.Update(editorContext.GetEditorCamera()))
         {
