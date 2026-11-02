@@ -5,10 +5,9 @@
 
 namespace Droplet::Devtools::SlugGenerator
 {
-	#define TEXTURE_WIDTH 4096
-	
-	#define SLUG_HEADER_DATA "SLUG"
-	#define SLUG_HEADER_LEN 4
+	inline constexpr uint32_t TEXTURE_WIDTH = 4096;
+	inline constexpr char SLUG_HEADER_DATA[] = "SLUG";
+	inline constexpr size_t SLUG_HEADER_LEN = 4;
 	
 	struct Curve
 	{
@@ -46,4 +45,6 @@ namespace Droplet::Devtools::SlugGenerator
 		uint16_t bandsTexCoordY;
 	};
 #pragma pack(pop)
+	
+	static_assert(sizeof(SlugCodePoint) == 28, "Unexpected SlugCodePoint binary layout.");
 }
