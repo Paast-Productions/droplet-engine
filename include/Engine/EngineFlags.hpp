@@ -15,10 +15,11 @@ namespace Droplet
 		SkipAutoRender = 1 << 3,		// Skip implicitly rendering cameras in active scenes. Cameras must be submitted to the renderer manually.
 		SkipHotReloadScripts = 1 << 4,	// Skip hot reloading scripts
 		InEditor = 1 << 5,				// Run in editor mode
+		InPlayMode = 1 << 6,			// Running play mode
 		// Add more flags as needed
 
 		EditorFlags = InEditor | SkipAutoRender | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic,
-		PlayModeFlags = InEditor | SkipAutoRender,
+		PlayModeFlags = InEditor | InPlayMode | SkipAutoRender,
 		GameFlags = SkipHotReloadScripts,
 		DefaultFlags = None
 	};

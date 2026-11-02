@@ -4,12 +4,20 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SerializationContext.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
 
 using namespace Droplet::Scene;
 
 void Component::Start()
 {
-	if (!IsActive())
+	[[unlikely]]
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		assert(ComponentRegistry::HasComponent(GetTypeName()), "Cannot construct a component that has not been registered.");
+	}
+
+	if (!IsActive() || m_started)
 	{
 		return;
 	}
@@ -24,7 +32,7 @@ void Component::Start()
 
 void Component::Update()
 {
-	if (!IsActiveSelf())
+	if (!IsActiveSelf() || !m_started)
 	{
 		return;
 	}
@@ -37,7 +45,7 @@ void Component::Update()
 
 void Component::LateUpdate()
 {
-	if (!IsActiveSelf())
+	if (!IsActiveSelf() || !m_started)
 	{
 		return;
 	}
@@ -50,7 +58,7 @@ void Component::LateUpdate()
 
 void Component::FixedUpdate()
 {
-	if (!IsActiveSelf())
+	if (!IsActiveSelf() || !m_started)
 	{
 		return;
 	}
@@ -63,6 +71,11 @@ void Component::FixedUpdate()
 
 void Component::EditorUpdate()
 {
+	if (!m_started)
+	{
+		return;
+	}
+
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
@@ -71,7 +84,7 @@ void Component::EditorUpdate()
 
 void Component::QueueRender()
 {
-	if (!IsActiveSelf())
+	if (!IsActiveSelf() || !m_started)
 	{
 		return;
 	}
@@ -84,7 +97,7 @@ void Component::QueueRender()
 
 Droplet::Graphics::RenderData Component::GetRenderData()
 {
-	if (!IsActiveSelf())
+	if (!IsActiveSelf() || !m_started)
 	{
 		return {};
 	}
@@ -202,6 +215,6 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	DeserializeImpl(dataJson);
 }
 
-void Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
+void Component::ResolveReferences([[maybe_unused]] SerializationContext &p_context)
 {
 }

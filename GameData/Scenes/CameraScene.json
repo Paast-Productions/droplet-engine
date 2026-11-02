@@ -1,0 +1,150 @@
+{
+    "name": "CameraScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "ToeLust",
+                        "textureGUID": 14693253610216067968,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "Default Node",
+            "transform": {
+                "position": [
+                    -1.179435133934021,
+                    0.6967812776565552,
+                    2.9596242904663086
+                ],
+                "rotation": [
+                    -0.00906169880181551,
+                    -0.15455153584480286,
+                    0.052477240562438965,
+                    0.9865484237670898
+                ],
+                "scale": [
+                    1.0000091791152954,
+                    1.000003457069397,
+                    0.9999998807907104
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "EvilToeTexture",
+                        "textureGUID": 7393664924385117438,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 8,
+            "id": 2,
+            "name": "UI Node",
+            "transform": {
+                "position": [
+                    1.865877389907837,
+                    0.6778231859207153,
+                    3.050271511077881
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 61.09600067138672,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 1,
+                        "priority": 0,
+                        "resolution": [
+                            512,
+                            512
+                        ]
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 3,
+            "name": "Camera",
+            "transform": {
+                "position": [
+                    -2.384185791015625e-07,
+                    2.2795042991638184,
+                    10.533526420593262
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

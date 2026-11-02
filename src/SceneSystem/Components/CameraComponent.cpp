@@ -69,10 +69,12 @@ void CameraComponent::QueueRenderImpl()
 
 void CameraComponent::EditorUpdateImpl()
 {
-	if (!m_debugDraw)
+	if (!m_debugDraw && !m_uiSelected)
 	{
 		return;
 	}
+
+	m_uiSelected = false;
 
 	Transform &t = GetOwner()->GetTransform();
 
@@ -93,9 +95,13 @@ void CameraComponent::RenderUIImpl()
 {
 	using namespace ImGui;
 
+	m_uiSelected = true;
+
 	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
 
 	InputInt("Priority", &m_priority);
+
+	Checkbox("Auto Render", &m_autoRender);
 
 	float fov = m_camera.GetFOV();
 	if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
@@ -197,11 +203,75 @@ CameraRenderData CameraComponent::GetRenderData() const
 
 nlohmann::json CameraComponent::SerializeImpl()
 {
-	// TODO
-	return nlohmann::json::object();
+	using namespace nlohmann;
+
+	json compJson = json::object();
+
+	json cameraJson = json::object();
+	{
+		cameraJson["fov"] = m_camera.GetFOV();
+		cameraJson["planes"] = { m_camera.GetPlanes().x, m_camera.GetPlanes().y };
+
+	}
+	compJson["camera"] = cameraJson;
+
+	compJson["drawLayerMask"] = m_drawLayerMask;
+	compJson["priority"] = m_priority;
+	compJson["autoRender"] = m_autoRender;
+	compJson["resolution"] = { m_resolution.x, m_resolution.y };
+
+	return compJson;
 }
 
 void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
-	// TODO
+	using namespace nlohmann;
+
+	if (p_compJson.contains("camera"))
+	{
+		json cameraJson = p_compJson["camera"];
+		if (cameraJson.contains("fov"))
+		{
+			m_camera.SetFOV(cameraJson["fov"].get<float>());
+		}
+
+		if (cameraJson.contains("planes"))
+		{
+			auto &planes = cameraJson["planes"];
+			if (planes.is_array() && planes.size() == 2)
+			{
+				float nearPlane = planes[0].get<float>();
+				float farPlane = planes[1].get<float>();
+				m_camera.SetPlanes(nearPlane, farPlane);
+			}
+		}
+	}
+
+	if (p_compJson.contains("drawLayerMask"))
+	{
+		m_drawLayerMask = static_cast<Graphics::DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
+	}
+
+	if (p_compJson.contains("priority"))
+	{
+		m_priority = p_compJson["priority"].get<int32_t>();
+	}
+
+	if (p_compJson.contains("autoRender"))
+	{
+		m_autoRender = p_compJson["autoRender"].get<bool>();
+	}
+
+	if (p_compJson.contains("resolution"))
+	{
+		auto &res = p_compJson["resolution"];
+		if (res.is_array() && res.size() == 2)
+		{
+			int width = res[0].get<int>();
+			int height = res[1].get<int>();
+			SetResolution(glm::ivec2(width, height));
+		}
+	}
+
+	m_dirty = true;
 }
