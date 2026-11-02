@@ -34,7 +34,7 @@ namespace Droplet
 
     void ResourceManager::Update()
     {
-        ZoneScoped;
+		ZoneScopedC(tracy::Color::PaleGreen1);
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         

@@ -4,7 +4,9 @@
 
 namespace Droplet::Math
 {
-	/// @brief A frustum is a geometric shape that represents the visible area of a camera in 3D space. It is defined by six planes: left, right, top, bottom, near, and far.
+	/// @brief A frustum is a geometric shape that represents the visible area of a camera in 3D space. 
+	/// It is defined by six planes: left, right, top, bottom, near, and far.
+	/// The planes must be defined in a way that their normals point inward, towards the inside of the frustum.
 	struct Frustum
 	{
 		Plane planes[6];
@@ -149,5 +151,10 @@ namespace Droplet::Math
 		/// @param p_matrix The transformation matrix to apply to the frustum.
 		/// @return A new frustum that is the result of transforming the input frustum by the given matrix.
 		static Frustum Transform(const Frustum &p_frustum, const glm::mat4x4 &p_matrix);
+
+		/// @brief Validates that all frustum planes have inward-facing normals. 
+		/// This is important for correct frustum culling and intersection tests.
+		/// @return True if all frustum planes have inward-facing normals, false otherwise.
+		bool ValidateNormals() const;
 	};
 }

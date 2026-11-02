@@ -81,7 +81,7 @@ namespace Droplet::Scene
 		
 		PhysicsComponent() = default;
 		/// @brief Destructs the physics component by removing and destroying the physics body
-		~PhysicsComponent() override;
+		~PhysicsComponent();
 
 		/// @brief Initializes the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
