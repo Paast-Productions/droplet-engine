@@ -153,356 +153,202 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         }
     }
 
-    EditorContext editorContext(engine);
-
-    HierarchyWindow hierarchyWindow(&editorContext);
-    NodeInspectorWindow nodeInspectorWindow(&editorContext);
-    BehaviourInspector behaviourInspector(&editorContext);
-    ScriptsWindow scriptsWindow;
-    SavedDataWindow savedDataWindow;
-    Resource::ResourceBrowser resourceBrowser(&editorContext);
-
-    Scene::SceneViewWindow sceneViewWindow(&editorContext);
-    
-
-    hierarchyWindow.Init();
-    nodeInspectorWindow.Init();
-    behaviourInspector.Init();
-    scriptsWindow.Init();
-    savedDataWindow.Init();
-    resourceBrowser.Init();
-    sceneViewWindow.Init();
-
-    FrameMark;
-
-    bool showStyleEditor = false;
-
-    std::string pendingLayoutChange = "";
-
-    ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
-
-    // Run main loop
-    bool run = true;
-    while (run)
+    // Editor Scope
     {
-        ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
+        EditorContext editorContext(engine);
 
-        EditorConfig::Update();
+        HierarchyWindow hierarchyWindow(&editorContext);
+        NodeInspectorWindow nodeInspectorWindow(&editorContext);
+        BehaviourInspector behaviourInspector(&editorContext);
+        Resource::ResourceBrowser resourceBrowser(&editorContext);
+        Scene::SceneViewWindow sceneViewWindow(&editorContext);
+        ScriptsWindow scriptsWindow;
+        SavedDataWindow savedDataWindow;
 
-        if (pendingLayoutChange != "")
+        hierarchyWindow.Init();
+        nodeInspectorWindow.Init();
+        behaviourInspector.Init();
+        scriptsWindow.Init();
+        savedDataWindow.Init();
+        resourceBrowser.Init();
+        sceneViewWindow.Init();
+
+        FrameMark;
+
+        bool showStyleEditor = false;
+
+        std::string pendingLayoutChange = "";
+
+        ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
+
+        // Run main loop
+        bool run = true;
+        while (run)
         {
-            try
+            ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
+
+            EditorConfig::Update();
+
+            if (pendingLayoutChange != "")
             {
-                UIStyle::LoadLayout(pendingLayoutChange);
-            }
-            catch (...)
-            {
-                if (pendingLayoutChange != "Default")
+                try
                 {
-                    UIStyle::LoadLayout("Default");
+                    UIStyle::LoadLayout(pendingLayoutChange);
                 }
-            }
-
-            pendingLayoutChange = "";
-        }
-
-        // ImGui
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        ImGui::DockSpaceOverViewport();
-        ImGuizmo::BeginFrame();
-
-        bool openLayoutPopup = false;
-
-        // Main toolbar
-        {
-            if (ImGui::BeginMainMenuBar())
-            {
-                if (ImGui::BeginMenu("File"))
+                catch (...)
                 {
-                    if (ImGui::BeginMenu("Layout"))
+                    if (pendingLayoutChange != "Default")
                     {
-                        if (ImGui::BeginMenu("Set Layout"))
-                        {
-                            std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
-
-                            std::vector<std::string> layouts;
-                            UIStyle::GetLayoutNames(layouts);
-
-                            for (const auto &layoutName : layouts)
-                            {
-                                bool isSelected = (layoutName == currLayout);
-                                if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
-                                {
-                                    if (layoutName != currLayout)
-                                    {
-                                        pendingLayoutChange = layoutName;
-                                    }
-                                }
-                            }
-
-                            ImGui::EndMenu();
-                        }
-
-                        openLayoutPopup = ImGui::MenuItem("Save Layout");
-
-                        ImGui::EndMenu();
+                        UIStyle::LoadLayout("Default");
                     }
-
-                    if (ImGui::BeginMenu("Style"))
-                    {
-                        if (ImGui::BeginMenu("Set Style"))
-                        {
-                            std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-                            std::vector<std::string> styles;
-                            UIStyle::GetStyleNames(styles);
-
-                            for (const auto &styleName : styles)
-                            {
-                                bool isSelected = (styleName == currStyle);
-                                if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
-                                {
-                                    if (styleName != currStyle)
-                                    {
-                                        UIStyle::LoadStyle(styleName);
-                                    }
-                                }
-                            }
-
-                            ImGui::EndMenu();
-                        }
-
-                        if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
-                        {
-                            showStyleEditor = !showStyleEditor;
-                        }
-
-                        ImGui::EndMenu();
-                    }
-
-                    ImGui::EndMenu();
                 }
 
-                ImGui::EndMainMenuBar();
+                pendingLayoutChange = "";
             }
 
-            if (openLayoutPopup)
+            // ImGui
+            ImGui_ImplVulkan_NewFrame();
+            ImGui_ImplSDL3_NewFrame();
+            ImGui::NewFrame();
+            ImGui::DockSpaceOverViewport();
+            ImGuizmo::BeginFrame();
+
+            bool openLayoutPopup = false;
+
+            hierarchyWindow.Render();
+            nodeInspectorWindow.Render();
+            behaviourInspector.Render();
+            scriptsWindow.Render();
+            savedDataWindow.Render();
+            resourceBrowser.Render();
+            sceneViewWindow.Render();
+
+            // HACK: Temp window for testing ImGuiCurveEdit
             {
-                ImGui::OpenPopup("Save Layout");
-            }
-
-            if (ImGui::BeginPopup("Save Layout"))
-            {
-                static std::string layoutName = "";
-
-                ImGui::InputText("Layout Name", &layoutName);
-
-                // Disable if the layout name is empty
-                ImGui::BeginDisabled(layoutName.empty());
-
-                if (ImGui::Button("Confirm"))
+                if (ImGui::Begin("Curve Editor Test"))
                 {
-                    UIStyle::SaveLayout(layoutName);
-                    ImGui::CloseCurrentPopup();
-                }
+                    using namespace ImGui;
 
-                ImGui::EndDisabled();
-
-                ImGui::SameLine();
-                if (ImGui::Button("Cancel"))
-                {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
-
-            if (showStyleEditor)
-            {
-                ImGui::Begin("Style Editor", &showStyleEditor);
-
-                if (ImGui::Button("Save Style"))
-                {
-                    ImGui::OpenPopup("Save Style");
-                }
-
-                ImGui::SameLine();
-                if (ImGui::Button("Reset Style"))
-                {
-                    std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-                    UIStyle::LoadStyle(currStyle);
-                }
-
-                if (ImGui::BeginPopup("Save Style"))
-                {
-                    static std::string styleName = "";
-
-                    ImGui::InputText("Style Name", &styleName);
-
-                    // Disable if the style name is empty
-                    ImGui::BeginDisabled(styleName.empty());
-
-                    if (ImGui::Button("Confirm"))
-                    {
-                        UIStyle::SaveStyle(styleName);
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                    ImGui::EndDisabled();
-
-                    ImGui::SameLine();
-                    if (ImGui::Button("Cancel"))
-                    {
-                        ImGui::CloseCurrentPopup();
-                    }
-
-                    ImGui::EndPopup();
-                }
-
-                ImGui::Separator();
-
-                ImGui::ShowStyleEditor(nullptr);
-                ImGui::End();
-            }
-        }
-
-        hierarchyWindow.Render();
-        nodeInspectorWindow.Render();
-        behaviourInspector.Render();
-        scriptsWindow.Render();
-        savedDataWindow.Render();
-        resourceBrowser.Render();
-        sceneViewWindow.Render();
-
-        // HACK: Temp window for testing ImGuiCurveEdit
-        {
-            if (ImGui::Begin("Curve Editor Test"))
-            {
-				using namespace ImGui;
-
-                // Use custom curve editor
-                static std::vector<BezierPoint> points = {
-                    { { 0.0f, 0.0f }, { 0.5f, 0.0f }, { 0.5f, 0.0f } },
-                    { { 1.0f, 1.0f }, { 0.5f, 1.0f }, { 0.5f, 1.0f } }
-                };
-
-                static ImGuiCurveEditFlags flags = ImGuiCurveEditFlags_None;
-
-                static ImVec2 curveSize(350, 350);
-                static ImRect padding(48, 24, 20, 24);
-                static ImRect curveRect(0, 0, 1, 1);
-                static ImVec2i gridLines(4, 4);
-                static float thickness = 3.0f;
-
-                if (TreeNode("Flags"))
-                {
-                    std::vector<std::string> flagNames = {
-                        "Linear", "Quadratic", "Jointed", "Force Span Width", "Force Injective",
-                        "Read Only", "No Labels", "No Points", "Clamp X", "Clamp Y"
+                    // Use custom curve editor
+                    static std::vector<BezierPoint> points = {
+                        { { 0.0f, 0.0f }, { 0.5f, 0.0f }, { 0.5f, 0.0f } },
+                        { { 1.0f, 1.0f }, { 0.5f, 1.0f }, { 0.5f, 1.0f } }
                     };
 
-                    // Flag checkboxes
-                    for (int i = 0; i < flagNames.size(); i++)
+                    static ImGuiCurveEditFlags flags = ImGuiCurveEditFlags_None;
+
+                    static ImVec2 curveSize(350, 350);
+                    static ImRect padding(48, 24, 20, 24);
+                    static ImRect curveRect(0, 0, 1, 1);
+                    static ImVec2i gridLines(4, 4);
+                    static float thickness = 3.0f;
+
+                    if (TreeNode("Flags"))
                     {
-                        bool flagSet = (flags & (1 << i)) != 0;
-                        if (Checkbox(flagNames[i].c_str(), &flagSet))
+                        std::vector<std::string> flagNames = {
+                            "Linear", "Quadratic", "Jointed", "Force Span Width", "Force Injective",
+                            "Read Only", "No Labels", "No Points", "Clamp X", "Clamp Y"
+                        };
+
+                        // Flag checkboxes
+                        for (int i = 0; i < flagNames.size(); i++)
                         {
-                            if (flagSet)
-                                flags |= (1 << i);
+                            bool flagSet = (flags & (1 << i)) != 0;
+                            if (Checkbox(flagNames[i].c_str(), &flagSet))
+                            {
+                                if (flagSet)
+                                    flags |= (1 << i);
+                                else
+                                    flags &= ~(1 << i);
+                            }
+                        }
+
+                        TreePop();
+                    }
+
+                    SliderFloat("Thickness##CurveEditor", &thickness, 0.1f, 10.0f);
+                    DragFloat2("Size##CurveEditor", &curveSize.x, 1.0f, 1.0f, 0.0f, "%.0f");
+
+                    if (DragInt2("Grid Lines##CurveEditor", &gridLines.x, 0.05f))
+                    {
+                        gridLines.x = std::max(gridLines.x, 0);
+                        gridLines.y = std::max(gridLines.y, 0);
+                    }
+
+                    DragFloat4("Padding##CurveEditor", &padding.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
+
+                    DragFloat4("Bounds##CurveEditor", &curveRect.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
+
+
+                    Separator();
+                    CurveEdit("##CurveEditor", &points, curveSize, curveRect, thickness, padding, gridLines, flags);
+
+                    // Test sampling using Curves.h
+                    if (TreeNode("Sampling"))
+                    {
+                        using namespace Droplet::Math::Curves;
+
+                        Curve<glm::vec2> curve;
+                        curve.type = (flags & ImGuiCurveEditFlags_Linear) ? CurveType::Linear : ((flags & ImGuiCurveEditFlags_Quadratic) ? CurveType::BezierQuadratic : CurveType::BezierCubic);
+
+                        curve.points.resize(points.size());
+                        std::memcpy(curve.points.data(), points.data(), points.size() * sizeof(BezierPoint));
+
+                        static bool injective = false;
+                        static float sampleT = 0.5f;
+
+                        BeginChild("Curve Sampling", curveSize, true);
+                        {
+                            glm::vec2 sampleValue{};
+
+                            if (injective)
+                            {
+                                float sampleY = curve.SampleInjective(sampleT);
+                                sampleValue = { sampleT, sampleY };
+                            }
                             else
-                                flags &= ~(1 << i);
+                            {
+                                sampleValue = curve.SamplePoint(sampleT);
+                            }
+
+                            ImVec2 windowPos = ImGui::GetWindowPos();
+                            ImDrawList *drawList = ImGui::GetWindowDrawList();
+
+                            ImVec2 samplePos = { sampleValue.x, 1.0f - sampleValue.y };
+                            samplePos *= curveSize;
+
+                            drawList->AddCircleFilled(windowPos + samplePos, thickness * 1.6f, IM_COL32(255, 255, 255, 255));
                         }
+                        EndChild();
+
+                        // Sample slider, same width as child window
+                        SetNextItemWidth(curveSize.x);
+                        SliderFloat("##Sample T", &sampleT, 0.0f, 1.0f);
+                        Checkbox("Injective Sampling##CurveSampling", &injective);
+
+                        TreePop();
                     }
 
-                    TreePop();
                 }
+                ImGui::End();
+            }
 
-                SliderFloat("Thickness##CurveEditor", &thickness, 0.1f, 10.0f);
-                DragFloat2("Size##CurveEditor", &curveSize.x, 1.0f, 1.0f, 0.0f, "%.0f");
+            switch (engine.Update(editorContext.GetEditorCamera()))
+            {
+            case Droplet::DROPLET_RETURNTYPE::OK:
+                break;
 
-                if (DragInt2("Grid Lines##CurveEditor", &gridLines.x, 0.05f))
-                {
-                    gridLines.x = std::max(gridLines.x, 0);
-                    gridLines.y = std::max(gridLines.y, 0);
-                }
+            case Droplet::DROPLET_RETURNTYPE::EXIT:
+                run = false;
+                break;
 
-                DragFloat4("Padding##CurveEditor", &padding.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
-
-                DragFloat4("Bounds##CurveEditor", &curveRect.Min.x, 0.01f, 0.0f, 0.0f, "%.2f");
-
-
-                Separator();
-                CurveEdit("##CurveEditor", &points, curveSize, curveRect, thickness, padding, gridLines, flags);
-
-                // Test sampling using Curves.h
-                if (TreeNode("Sampling"))
-                {
-                    using namespace Droplet::Math::Curves;
-
-                    Curve<glm::vec2> curve;
-                    curve.type = (flags & ImGuiCurveEditFlags_Linear) ? CurveType::Linear : ((flags & ImGuiCurveEditFlags_Quadratic) ? CurveType::BezierQuadratic : CurveType::BezierCubic);
-
-                    curve.points.resize(points.size());
-                    std::memcpy(curve.points.data(), points.data(), points.size() * sizeof(BezierPoint));
-
-                    static bool injective = false;
-                    static float sampleT = 0.5f;
-
-                    BeginChild("Curve Sampling", curveSize, true);
-                    {
-                        glm::vec2 sampleValue{};
-
-                        if (injective)
-                        {
-                            float sampleY = curve.SampleInjective(sampleT);
-                            sampleValue = { sampleT, sampleY };
-                        }
-                        else
-                        {
-                            sampleValue = curve.SamplePoint(sampleT);
-                        }
-
-                        ImVec2 windowPos = ImGui::GetWindowPos();
-                        ImDrawList *drawList = ImGui::GetWindowDrawList();
-
-                        ImVec2 samplePos = { sampleValue.x, 1.0f - sampleValue.y };
-                        samplePos *= curveSize;
-
-                        drawList->AddCircleFilled(windowPos + samplePos, thickness * 1.6f, IM_COL32(255, 255, 255, 255));
-                    }
-                    EndChild();
-
-                    // Sample slider, same width as child window
-                    SetNextItemWidth(curveSize.x);
-                    SliderFloat("##Sample T", &sampleT, 0.0f, 1.0f);
-                    Checkbox("Injective Sampling##CurveSampling", &injective);
-
-                    TreePop();
-                }
-
-			}
-			ImGui::End();
-		}
-
-        switch (engine.Update(editorContext.GetEditorCamera()))
-        {
-        case Droplet::DROPLET_RETURNTYPE::OK:
-            break;
-        
-        case Droplet::DROPLET_RETURNTYPE::EXIT:
-            run = false;
-            break;
-
-        default:
-        case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
-            run = false;
-            break;
+            default:
+            case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+                run = false;
+                break;
+            }
         }
-
-        //engine->Endframe
     }
 
     return 0;
