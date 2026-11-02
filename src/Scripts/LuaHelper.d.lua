@@ -80,6 +80,11 @@ end
 function Node:Destroy()
 end
 
+---@return PlayerData
+function Node:GetPlayerData()
+    return nil
+end
+
 ---@return HealthComponent
 function Node:GetHealthComponent()
     return nil

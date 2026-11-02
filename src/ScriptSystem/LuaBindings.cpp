@@ -91,7 +91,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"Node",
 		"GetName", &Droplet::Scene::Node::GetName,
 		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform),
-		"Destroy", [](Scene::Node& node)
+		"RemoveNode", [](Scene::Node& node)
 		{
 			auto scene = node.GetScene();
 			if (scene)
@@ -99,10 +99,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 				scene->RemoveRoot(node.shared_from_this());
 			}
 		},
-		"GetName", &Scene::Node::GetName,
-		"GetTransform",
-		static_cast<Scene::Transform & (Scene::Node:: *)()>(
-			&Scene::Node::GetTransform),
+		"GetplayerData", static_cast<Scene::PlayerBehaviour &(Scene::Node:: *)()>(&Scene::Node::GetPlayerData),
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
 	);
@@ -125,6 +122,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"Destroy",
 			"void",
+			{}
+		},
+		{
+			"GetPlayerData",
+			"PlayerData",
 			{}
 		},
 		{

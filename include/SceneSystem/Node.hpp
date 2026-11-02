@@ -127,6 +127,16 @@ namespace Droplet::Scene
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; } // TODO: Make weak pointer
 
         // --------------------------------------------------
+		// player data
+        // --------------------------------------------------
+        
+        /// @brief Gets the Node's playerData.
+        /// @return A reference to the Node's playerData.
+        [[nodiscard]] PlayerBehaviour &GetPlayerData() { return m_playerBehaviour; } // TODO: Make weak pointer
+        [[nodiscard]] const PlayerBehaviour &GetPlayerData() const { return m_playerBehaviour; } // TODO: Make weak pointer
+
+
+        // --------------------------------------------------
         // Children 
         // --------------------------------------------------
 
@@ -345,6 +355,9 @@ namespace Droplet::Scene
 		// Transform
 
         Transform m_transform;
+
+		//player data
+		PlayerBehaviour m_playerBehaviour;
 
 		// Hierarchy
 

@@ -2,6 +2,9 @@ local itemToCraft = "woodfish"
 local amountOfFish = 10
 local amountOfMaterial
 local trans = nil
+local touchedTheMesh = false
+local player = nil
+--local inventory = nil   
 --local interactionRadius = 3.0 
 
 --function DroneIsNear()
@@ -57,18 +60,24 @@ end
  
 function OnStart()
     print("Drone Upgrade Station")
-
     trans = self:GetTransform()
+    player = self:GetplayerData()
+    if player then
+        local inventory = player:GetData()
+    end
 end
 
 function RenderUI()
-    -- Render the UI for the crafting table
-    if Input:KeyPressed(Key.E) then
-        Crafting()
-    end
+end
 
-    if trans then 
-        local tablePos = trans:GetPosition(TransformSpace.World)
-        ImGui.Text("Table Pos: " .. string.format("%.2f, %.2f, %.2f", tablePos.x, tablePos.y, tablePos.z))
+function OnTrigger()
+    touchedTheMesh = true
+end
+
+function OnUpdate()
+    if touchedTheMesh then
+        if Input:KeyPressed(Key.E) then
+            Crafting()
+        end
     end
 end

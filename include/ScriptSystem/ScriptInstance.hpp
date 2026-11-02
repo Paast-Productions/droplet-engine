@@ -75,7 +75,7 @@ namespace Droplet::Script
 		/// @return The path to the associated Lua script.
 		[[nodiscard]] std::string GetScriptPath();
 
-	private:
+	private: 
 		/// @brief ScriptComponent associated with this script instance.
 		Droplet::Scene::Node *m_owner = nullptr;
 
