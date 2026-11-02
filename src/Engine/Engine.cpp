@@ -9,6 +9,10 @@
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/TriggerComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
@@ -110,9 +114,9 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
-	ZoneScoped;
+	ZoneScopedC(tracy::Color::PaleTurquoise1);
 
 	// Time
 	Time::Get().Update();
@@ -120,11 +124,14 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
+	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
 #ifdef TRACY_ENABLE
-		ZoneNamedN(eventZone, "Event", true);
+		ZoneNamedNC(eventZone, "Event", tracy::Color::MistyRose1, true);
 
 		constexpr int eventStrMaxLen = 256;
 		char eventStrBuf[eventStrMaxLen]{};
@@ -156,35 +163,31 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PreUpdate();
-		}
-	}
-
 	// Scenesystem
-	m_sceneManager.Update(Time::Get().GetDeltaTime());
-	
-	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
-
-	// Script Behaviours
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PostUpdate();
-		}
-	}
+	m_sceneManager.Update();
 
 	// ResourceManager
 
 	ResourceManager::Get().Update();
 
+	return DROPLET_RETURNTYPE::OK;
+}
+
+DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+{
+	ZoneScopedC(tracy::Color::SkyBlue1);
+
+	auto renderData = m_sceneManager.GetRenderData();
+
+	if (camRenderData)
+	{
+		renderData.push_back(*camRenderData);
+	}
+
 	// Rendering
-	m_renderer.Draw(p_camera, renderDataVec);
-	//m_renderer.DrawFrame(p_camera, p_renderTarget);
+	m_renderer.Draw(renderData);
+
+	m_sceneManager.PostRender();
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -193,9 +196,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
-	
 	// Other system that need updating go here.
-    ResourceManager::GetInstance().Update();
+	ResourceManager::GetInstance().Update();
 
 	FrameMark;
 
@@ -206,6 +208,7 @@ void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
 	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Scene::PlayerBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
@@ -216,4 +219,7 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
 }

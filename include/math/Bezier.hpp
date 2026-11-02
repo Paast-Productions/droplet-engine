@@ -30,8 +30,8 @@ namespace Droplet::Math::Bezier
 	template<typename T>
 	inline T QuadraticInterpolate(T const& p1, T const& p2, T const& p3, float t) noexcept
 	{
-		return p1 * (1 - t) * (1 - t) +
-			p2 * 2 * t * (1 - t) +
+		return p1 * (1.0f - t) * (1.0f - t) +
+			p2 * 2.0f * t * (1.0f - t) +
 			p3 * t * t;
 	}
 
@@ -44,7 +44,7 @@ namespace Droplet::Math::Bezier
 	template<>
 	inline glm::vec3 QuadraticInterpolate(glm::vec3 const& p1, glm::vec3 const& p2, glm::vec3 const& p3, float t) noexcept
 	{
-		const glm::vec3 t0 = glm::vec3((1 - t) * (1 - t));
+		const glm::vec3 t0 = glm::vec3((1.0f - t) * (1.0f - t));
 		const glm::vec3 t1 = glm::vec3(2 * t * (1 - t));
 		const glm::vec3 t2 = glm::vec3(t * t);
 
@@ -68,9 +68,9 @@ namespace Droplet::Math::Bezier
 	template<typename T>
 	inline T CubicInterpolate(T const& p1, T const& p2, T const& p3, T const& p4, float t) noexcept
 	{
-		return p1 * (1 - t) * (1 - t) * (1 - t) +
-			p2 * 3 * t * (1 - t) * (1 - t) +
-			p3 * 3 * t * t * (1 - t) +
+		return p1 * (1.0f - t) * (1.0f - t) * (1.0f - t) +
+			p2 * 3.0f * t * (1.0f - t) * (1.0f - t) +
+			p3 * 3.0f * t * t * (1.0f - t) +
 			p4 * t * t * t;
 	}
 	
@@ -84,9 +84,9 @@ namespace Droplet::Math::Bezier
 	template<>
 	inline glm::vec3 CubicInterpolate(glm::vec3 const& p1, glm::vec3 const& p2, glm::vec3 const& p3, glm::vec3 const& p4, float t) noexcept
 	{
-		const glm::vec3 t0 = glm::vec3((1 - t) * (1 - t) * (1 - t));
-		const glm::vec3 t1 = glm::vec3(3 * t * (1 - t) * (1 - t));
-		const glm::vec3 t2 = glm::vec3(3 * t * t * (1 - t));
+		const glm::vec3 t0 = glm::vec3((1.0f - t) * (1.0f - t) * (1.0f - t));
+		const glm::vec3 t1 = glm::vec3(3.0f * t * (1.0f - t) * (1.0f - t));
+		const glm::vec3 t2 = glm::vec3(3.0f * t * t * (1.0f - t));
 		const glm::vec3 t3 = glm::vec3(t * t * t);
 
 		glm::vec3 result = p1 * t0;
@@ -109,9 +109,9 @@ namespace Droplet::Math::Bezier
 	template<typename T>
 	inline T CubicTangent(T const& p1, T const& p2, T const& p3, T const& p4, float t) noexcept
 	{
-		return p1 * (-1 + 2 * t - t * t) +
-			p2 * (1 - 4 * t + 3 * t * t) +
-			p3 * (2 * t - 3 * t * t) +
+		return p1 * (-1.0f + 2.0f * t - t * t) +
+			p2 * (1.0f - 4.0f * t + 3.0f * t * t) +
+			p3 * (2.0f * t - 3.0f * t * t) +
 			p4 * (t * t);
 	}
 
@@ -125,9 +125,9 @@ namespace Droplet::Math::Bezier
 	template<>
 	inline glm::vec3 CubicTangent(glm::vec3 const& p1, glm::vec3 const& p2, glm::vec3 const& p3, glm::vec3 const& p4, float t) noexcept
 	{
-		const glm::vec3 t0 = glm::vec3(-1 + 2 * t - t * t);
-		const glm::vec3 t1 = glm::vec3(1 - 4 * t + 3 * t * t);
-		const glm::vec3 t2 = glm::vec3(2 * t - 3 * t * t);
+		const glm::vec3 t0 = glm::vec3(-1.0f + 2.0f * t - t * t);
+		const glm::vec3 t1 = glm::vec3(1.0f - 4.0f * t + 3.0f * t * t);
+		const glm::vec3 t2 = glm::vec3(2.0f * t - 3.0f * t * t);
 		const glm::vec3 t3 = glm::vec3(t * t);
 
 		glm::vec3 result = p1 * t0;

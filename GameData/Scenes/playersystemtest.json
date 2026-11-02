@@ -1,0 +1,52 @@
+{
+    "name": "playersystemtest",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {},
+                    "id": 1,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "data": {
+                        "health": 0.0,
+                        "maxHealth": 100.0
+                    },
+                    "id": 2,
+                    "type": "HealthComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "PlayerSystemTests.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 1,
+            "name": "New Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
