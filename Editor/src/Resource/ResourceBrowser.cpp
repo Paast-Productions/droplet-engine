@@ -12,8 +12,20 @@
 
 using namespace Droplet::Editor::Resource;
 
-ResourceBrowser::ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
-{}
+namespace
+{
+	static bool s_isPreviewingResource = false;
+}
+
+
+ResourceBrowser::~ResourceBrowser()
+{
+	if (m_previewResourceHandle.IsValid())
+	{
+		IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+		m_previewResourceHandle = {};
+	}
+}
 
 void ResourceBrowser::InitImpl()
 {
@@ -26,6 +38,7 @@ void ResourceBrowser::RenderImpl()
 	using namespace ImGui;
 	
 	bool updatedRegistry = false;
+	s_isPreviewingResource = false;
 
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 	
@@ -173,6 +186,12 @@ void ResourceBrowser::RenderImpl()
 		}
 	}
 	EndChild();
+
+	if (!s_isPreviewingResource && m_previewResourceHandle.IsValid())
+	{
+		IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+		m_previewResourceHandle = {};
+	}
 }
 
 void ResourceBrowser::BuildBrowserTree(const std::vector<const MetaEntry *> &p_resources)
@@ -503,6 +522,8 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 {
 	using namespace ImGui;
+
+	s_isPreviewingResource = true;
 
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 
