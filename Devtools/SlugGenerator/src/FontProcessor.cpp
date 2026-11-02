@@ -73,7 +73,6 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::OpenFont()
 	
 	file.Close(); // The file is no longer needed.
 		
-	// Get the font info
 	if (!stbtt_InitFont(&m_fontInfo, reinterpret_cast<const unsigned char *>(m_fontData.data()), 0))
 		return Error("Could not get font information.");
 	
@@ -82,6 +81,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::OpenFont()
 
 bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int p_codePoint)
 {
+	// TODO: Evaluate storing curve control points as 16-bit floats instead of 32-bit floats.
+	// This is recommended by Slug, but is not done now for simplicity. Evaluate performance and accuracy before switching.
+	
 	const int glyphIdx = stbtt_FindGlyphIndex(&m_fontInfo, p_codePoint);
 	if (glyphIdx == 0)
 	{
@@ -102,18 +104,16 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	
 	for (int v = 0; v < vertexCount; ++v)
 	{
-		// TODO: Add bicubic curve support
+		// TODO: Add bicubic Bézier curve support
 		if (vertices.get()[v].type == STBTT_vcubic)
 		{
-			Logger::PrintError("Code point {} uses bicubic curves, which are not supported currently.", p_codePoint);
+			Logger::PrintError("Code point {} uses bicubic Bézier curves, which are not supported currently.", p_codePoint);
 			return false;
 		}
 	}
 	
 	GlyphBounds glyphBounds = GetGlyphBounds(glyphIdx);
 	
-	
-	// This, in combination with ToGlyphLocal, allows us to calculate the band boundaries with only positive numbers.
 	const glm::vec2 glyphOffset = { glyphBounds.GetMinX(), glyphBounds.GetMinY() };
 	std::vector<Curve> curves = ExtractCurves(vertices.get(), vertexCount, glyphOffset);
 	
@@ -162,7 +162,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		if (curve.first || newRow)
 		{
 			curve.texelIndex = static_cast<uint32_t>(m_curvesTexture.size()) / 4;
-			assert(m_curvesTexture.size() % 4 == 0); // TODO: Check possible improvement here
+			
+			assert(m_curvesTexture.size() % 4 == 0);
+			
 			m_curvesTexture.push_back(curve.p1.x);
 			m_curvesTexture.push_back(curve.p1.y);
 		}
@@ -245,6 +247,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			++curveCount;
 		}
 		
+		// There is an optimization possible here. If this band is the same as the previous one, we can skip adding the
+		// data to the list and simply reuse the reference index. This could save some space.
+		// TODO: Optimize to remove duplicate data entries in the band texture.
 		
 		if (curveCount > UINT16_MAX)
 		{
@@ -333,7 +338,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		}
 	}
 	
-	// Save the code point
+	// Store glyph metadata
 	SlugCodePoint cp;
 	cp.codePoint = p_codePoint;
 	cp.width = static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
@@ -379,7 +384,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
-	// Adjust the offsets to account for...
+	// In the final band texture, band headers precede the curve references.
+	// Thus, we should adjust each band's reference offset to account for this.
+	// TODO: Move this adjustment to a once-per-font execution - if SaveData() is called again on the same font, the offsets will break.
 	const size_t bandsTexTexels = (m_bandsTextureBandOffsets.size() + m_bandsTextureCurveOffsets.size()) / 2;
 	const size_t bandHeaderTexels = m_bandsTextureBandOffsets.size() / 2;
 	for (size_t i = 0; i < m_bandsTextureBandOffsets.size(); i += 2)
@@ -387,6 +394,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		const size_t curveCount = m_bandsTextureBandOffsets[i];
 		const size_t adjustedOffset = m_bandsTextureBandOffsets[i+1] + bandHeaderTexels;
 		
+		// Validate the curve-reference range.
+		// An empty band may point one past the final texel
 		if (adjustedOffset > UINT16_MAX ||
 			adjustedOffset > bandsTexTexels ||
 			curveCount > bandsTexTexels - adjustedOffset)
@@ -406,6 +415,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		Logger::PrintError("Could not create or open output file at {}.", p_outPath.string());
 		return false;
 	}
+	
+	// TODO: Store glyph advances and bearings for runtime text layout. The current metadata is primarily intended for rendering individually positioned glyphs.
 	
 	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
 	
