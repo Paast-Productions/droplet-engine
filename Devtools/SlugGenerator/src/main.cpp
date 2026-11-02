@@ -1,4 +1,3 @@
-#include <Stb/stb_truetype.h>
 #include <filesystem>
 #include <vector>
 
@@ -17,15 +16,14 @@ int main()
 
 	// This is only done for clarity, and may be changed if a different destination is desired.
 	// TODO: Add command-line option to define a different destination.
-	std::filesystem::path destinationPath = fontPath;
+	std::filesystem::path destinationDir = fontPath;
 	
 	for (const auto& sourceFile : sourceFiles)
 	{
-		FontProcessor font(sourceFile);
+		FontProcessor font(sourceFile, destinationDir);
 		if (!font.IsValid())
 		{
 			Logger::PrintError("Failed to process font at {} - {}", sourceFile.string(), font.GetError());
-			// continue;
 		}
 	}
 	

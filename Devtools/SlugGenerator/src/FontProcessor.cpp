@@ -7,7 +7,7 @@
 
 #include "SlugHelper.hpp"
 
-Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
+Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const std::filesystem::path &p_destination, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
 	: m_path(p_path), m_bandCount(p_bandCount)
 {
 	if (p_bandCount == 0)
@@ -46,16 +46,18 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	if (successfullyProcessed != totalCount)
 		Logger::PrintWarning("Missing characters {}", missingChars);
 	
+	// The file will be output in the p_destination directory. The file name will match the input .ttf, and the extension will be .slug
+	std::filesystem::path outname = p_path.filename();
+	outname.replace_extension(".slug");
+	std::filesystem::path dest = p_destination / outname;
 	
-	std::filesystem::path outpath = p_path;
-	outpath.replace_extension(".slug");
-	if (!SaveData(outpath))
+	if (!SaveData(dest))
 	{
 		Error("Could not save font data.");
 		return;
 	}
 	
-	Logger::PrintInfo("Successfully saved font data to {}.", outpath.string());
+	Logger::PrintInfo("Successfully saved font data to {}.", dest.string());
 	Logger::PrintEmpty();
 	m_isValid = true;
 }

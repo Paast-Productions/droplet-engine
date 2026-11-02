@@ -25,6 +25,7 @@ namespace Droplet::Devtools::SlugGenerator
 		/// @brief Constructs a font processor and generates Slug data.
 		///
 		/// @param p_path Path to the source TrueType font.
+		/// @param p_destination Path to the directory in which to output .slug files.
 		/// @param p_bandCount Requested number of horizontal and
 		///        vertical bands per glyph. May be reduced for small glyphs.
 		/// @param p_asciiRangeStart First code point to process (inclusive).
@@ -33,7 +34,7 @@ namespace Droplet::Devtools::SlugGenerator
 		/// @note Construction performs the complete generation process.
 		///       Initialization failures are reported through IsValid()
 		///       and GetError().
-		explicit FontProcessor(const std::filesystem::path& p_path, uint32_t p_bandCount = 16, int p_asciiRangeStart = 33, int p_asciiRangeEnd = 126);
+		explicit FontProcessor(const std::filesystem::path& p_path, const std::filesystem::path& p_destination, uint32_t p_bandCount = 16, int p_asciiRangeStart = 33, int p_asciiRangeEnd = 126);
 		
 		FontProcessor(const FontProcessor&) = delete;
 		FontProcessor& operator=(const FontProcessor&) = delete;
