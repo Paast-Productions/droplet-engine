@@ -6,22 +6,21 @@
 namespace Droplet::Devtools::SlugGenerator::Logger
 {
 	template<typename... Args>
-	static void PrintInfo(std::format_string<Args...> fmt, Args &&... args)
+	void PrintInfo(std::format_string<Args...> fmt, Args &&... args)
 	{
 		std::print(std::cout, "\033[34mINFO: \033[0m");
 		std::println(std::cout, fmt, std::forward<Args>(args)...);
 	}
 
 	template<typename... Args>
-	static void PrintWarning(std::format_string<Args...> fmt, Args &&... args)
+	void PrintWarning(std::format_string<Args...> fmt, Args &&... args)
 	{
-		std::print(std::cout, "\033[33mWARNING: ");
+		std::print(std::cout, "\033[33mWARNING: \033[0m");
 		std::println(std::cout, fmt, std::forward<Args>(args)...);
-		std::print(std::cerr, "\033[0m");
 	}
 
 	template<typename... Args>
-	static void PrintError(std::format_string<Args...> fmt, Args &&... args)
+	void PrintError(std::format_string<Args...> fmt, Args &&... args)
 	{
 		std::print(std::cerr, "\033[31mERROR: ");
 		std::println(std::cerr, fmt, std::forward<Args>(args)...);
@@ -29,15 +28,14 @@ namespace Droplet::Devtools::SlugGenerator::Logger
 	}
 
 	template<typename... Args>
-	static void FatalError(std::format_string<Args...> fmt, Args &&... args)
+	[[noreturn]] void FatalError(std::format_string<Args...> fmt, Args &&... args)
 	{
-		std::print(std::cerr, "\033[31mFATAL ERROR: ");
-		std::println(std::cerr, fmt, std::forward<Args>(args)...);
-		std::print(std::cerr, "\033[0m");
-		throw(std::runtime_error("Fatal error occurred in SlugGenerator."));
+		const std::string message = std::format(fmt, std::forward<Args>(args)... );
+		std::println(std::cerr, "\033[31mFATAL ERROR: \033[0m{}", message);
+		throw std::runtime_error(message);
 	}
 	
-	static void PrintEmpty()
+	inline void PrintEmpty()
 	{
 		std::println("");
 	}
