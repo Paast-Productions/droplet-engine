@@ -63,12 +63,12 @@ void Droplet::Script::ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p
 	}
 }
 
-void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode )
 {
 	//if(p_component.AlreadyTriggered) return
 	ZoneScoped;
 	
-	m_scriptManager.TriggerComponent(p_scriptComponent, p_deltaTime);
+	m_scriptManager.TriggerComponentScript(p_scriptComponent, p_deltaTime, p_otherNode);
 	
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
 	{
