@@ -110,61 +110,16 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	
 	GlyphBounds glyphBounds = GetGlyphBounds(glyphIdx);
 	
-	std::vector<Curve> curves;
-	curves.reserve(static_cast<size_t>(vertexCount));
 	
 	// This, in combination with ToGlyphLocal, allows us to calculate the band boundaries with only positive numbers.
 	const glm::vec2 glyphOffset = { glyphBounds.GetMinX(), glyphBounds.GetMinY() };
-	
-	// Scoped, since we want to reuse the "curve" variable name later
-	{
-		Curve curve{};
-		for (int v = 0; v < vertexCount; ++v)
-		{
-			const stbtt_vertex& vertex = vertices.get()[v];
-			if (vertex.type == STBTT_vmove) // This vertex defines the starting point of a contour
-			{
-				// The starting point of a contour cannot share it's starting point with a previous contour.
-				// Setting curve.first allows us to account for this when packing the data.
-				curve.first = true;
-				curve.p3 = ToGlyphLocal(glyphOffset, vertex.x, vertex.y);
-				continue;
-			}
-		
-			// Should not occur, but early out to be safe
-			if (vertex.type != STBTT_vcurve && vertex.type != STBTT_vline)
-			{
-				Logger::PrintWarning("Encountered unexpected vertex type on U+{:04X}.", p_codePoint);
-				continue;
-			}
-	
-			// The end of the previous curve makes out the start of the new one
-			curve.p1 = curve.p3;
-		
-			// Translate the end point
-			curve.p3 = ToGlyphLocal(glyphOffset, vertex.x, vertex.y);
-		
-			if (vertex.type == STBTT_vcurve) // For a curve, translate the second point to the glyph bounds
-				curve.p2 = ToGlyphLocal(glyphOffset, vertex.cx, vertex.cy);
-			else // For a straight line (STBTT_vline), the second point is in-between the start and end points
-				curve.p2 = (curve.p1 + curve.p3) * 0.5f;
-		
-			curves.push_back(curve);
-			curve.first = false;
-		}
-	}
+	std::vector<Curve> curves = ExtractCurves(vertices.get(), vertexCount, glyphOffset);
 	
 	// TODO: Evaluate whether bandDelta should be non-zero.
 	// bandDelta adds a margin to the curve selection, which may prove useful in some cases. Setting this to non-zero should be followed by thorough testing.
 	const float bandDelta = 0.0f;
 	const uint32_t bandsTexelIndex = static_cast<uint32_t>(m_bandsTextureBandOffsets.size()) / 2;
 
-	// Fix curves where the control point (p2) is one of the end points (p1 or p3).
-	for (Curve& curve : curves)
-	{
-		if (curve.p1 == curve.p2 || curve.p2 == curve.p3)
-			curve.p2 = (curve.p1 + curve.p3) * 0.5f;
-	}
 	
 	// Start a transaction to rollback texture data in the case of a failure
 	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_codePoints);
@@ -482,4 +437,54 @@ glm::vec2 Droplet::Devtools::SlugGenerator::FontProcessor::ToGlyphLocal(const gl
 	const float p_y)
 {
 	return {p_x - p_glyphOffset.x, p_y - p_glyphOffset.y};
+}
+
+std::vector<Droplet::Devtools::SlugGenerator::Curve> Droplet::Devtools::SlugGenerator::FontProcessor::ExtractCurves(
+	const stbtt_vertex *p_vertices, const int p_numVerts, const glm::vec2 p_glyphOffset)
+{
+	std::vector<Curve> curves;
+	curves.reserve(static_cast<size_t>(p_numVerts));
+	
+	Curve curve{};
+	for (int v = 0; v < p_numVerts; ++v)
+	{
+		const stbtt_vertex& vertex = p_vertices[v];
+		if (vertex.type == STBTT_vmove) // This vertex defines the starting point of a contour
+		{
+			// The starting point of a contour cannot share it's starting point with a previous contour.
+			// Setting curve.first allows us to account for this when packing the data.
+			curve.first = true;
+			curve.p3 = ToGlyphLocal(p_glyphOffset, vertex.x, vertex.y);
+			continue;
+		}
+	
+		// Should not occur, but early out to be safe
+		if (vertex.type != STBTT_vcurve && vertex.type != STBTT_vline)
+		{
+			Logger::PrintWarning("Encountered unexpected vertex type.");
+			continue;
+		}
+
+		// The end of the previous curve makes out the start of the new one
+		curve.p1 = curve.p3;
+	
+		curve.p3 = ToGlyphLocal(p_glyphOffset, vertex.x, vertex.y);
+	
+		if (vertex.type == STBTT_vcurve) // For a curve, translate the second point to the glyph bounds
+			curve.p2 = ToGlyphLocal(p_glyphOffset, vertex.cx, vertex.cy);
+		else // For a straight line (STBTT_vline), the second point is in-between the start and end points
+			curve.p2 = (curve.p1 + curve.p3) * 0.5f;
+	
+		curves.push_back(curve);
+		curve.first = false;
+	}
+	
+	// Fix curves where the control point (p2) is one of the end points (p1 or p3).
+	for (Curve& c : curves)
+	{
+		if (c.p1 == c.p2 || c.p2 == c.p3)
+			c.p2 = (c.p1 + c.p3) * 0.5f;
+	}
+	
+	return curves;
 }

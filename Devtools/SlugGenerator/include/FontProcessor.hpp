@@ -27,6 +27,7 @@ namespace Droplet::Devtools::SlugGenerator
 		
 		GlyphBounds GetGlyphBounds(int p_glyphIndex) const;
 		static glm::vec2 ToGlyphLocal(const glm::vec2& p_glyphOffset, const float p_x, const float p_y);
+		std::vector<Curve> ExtractCurves(const stbtt_vertex* p_vertices, int p_numVerts, glm::vec2 p_glyphOffset);
 		
 		bool m_isValid = true;
 		std::string m_err;
