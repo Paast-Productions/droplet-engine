@@ -53,33 +53,6 @@ namespace Droplet::Editor::Scene
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
 
-		/// @brief The index of the texture that the renderer will render to
-		std::uint32_t m_targetIndex { Graphics::VK::INVALID_INDEX };
-
-		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		std::uint32_t m_textureIndex { Graphics::VK::INVALID_INDEX };
-
-		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
-		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
-		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
-		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
-		
-		/// @brief Updates the SceneViews render target to match the cameraSize
-		/// @param p_width The width of the render target
-		/// @param p_height The height of the render target
-		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
-
-		/// @brief Handles the editor camera controls that operate on the current selection:
-		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
-		/// camera's forward direction, and the scroll wheel moves the camera along its forward axis.
-		/// Does nothing that depends on a selection when the selection is empty.
-		/// @param p_viewWidth Width of the camera view in pixels, used to scale panning.
-		void ProcessCameraControls(float p_viewWidth);
-
-		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
-		void ApplyCameraPivot();
-		void DrawCameraPivot() const;
-
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };
 		CameraDrag m_cameraDrag = CameraDrag::None;
@@ -88,6 +61,31 @@ namespace Droplet::Editor::Scene
 
 		bool m_wrapMouse = false;
 		int m_skipMouseDeltas = 0;
+
+		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
+		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
+		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
+		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
+
+		/// @brief Renders the overlay queue for the scene view, which may include UI elements or debug information.
+		/// @note Any part of the editor may queue overlay elements to be drawn on top of the scene view, and this function handles their rendering.
+		void RenderOverlayQueue();
+
+		/// @brief Handles the editor camera controls that operate on the current selection:
+		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
+		/// camera's forward direction, and the scroll wheel moves the camera along its forward axis.
+		/// Does nothing that depends on a selection when the selection is empty.
+		/// @param p_viewWidth Width of the camera view in pixels, used to scale panning.
+		void ProcessCameraControls(float p_viewWidth);
+		
+		/// @brief Updates the SceneViews render target to match the cameraSize
+		/// @param p_width The width of the render target
+		/// @param p_height The height of the render target
+		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
+
+		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void ApplyCameraPivot();
+		void DrawCameraPivot() const;
 
 		/// @brief Serializer is needed to store temporary scene data in memory
 		Droplet::Scene::SceneSerializer serializer;
