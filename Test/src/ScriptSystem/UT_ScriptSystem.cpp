@@ -28,34 +28,3 @@ TEST(ScriptSystem, CreateComponentScript)
 	ScriptComponent component;
 	EXPECT_NO_THROW(system.CreateComponentScript(&component, "testScript.lua"));
 }
-
-TEST(ScriptSystem, ActivateComponentScript)
-{
-	ScriptSystem system;
-	system.SetScriptPath("../src/Scripts"); 
-	ScriptComponent component;
-	
-	system.CreateComponentScript(&component, "testScript3.lua");
-	system.ActivateComponentScript(&component);
-	
-	system.Update(1);
-	float result = system.Call(&component, "GetDT");
-
-	EXPECT_EQ(result, 1);
-}
-
-TEST(ScriptSystem, DeactivateComponentScript)
-{
-	ScriptSystem system;
-	system.SetScriptPath("../src/Scripts");
-	ScriptComponent component;
-
-	system.CreateComponentScript(&component, "testScript3.lua");
-	system.ActivateComponentScript(&component);
-	system.Update(1);
-	system.DeactivateComponentScript(&component);
-	system.Update(1);
-	auto result = system.Call(&component, "GetDT");
-
-	EXPECT_FALSE(result.valid());
-}

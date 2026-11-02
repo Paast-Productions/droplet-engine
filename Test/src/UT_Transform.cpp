@@ -3,6 +3,8 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <cmath>
+#include <limits>
+#include <stdexcept>
 #include <glm/gtx/quaternion.hpp>
 
 using namespace Droplet::Scene;
@@ -68,6 +70,11 @@ namespace
 TEST_F(TransformTest, Construct)
 {
 	EXPECT_NE(m_node, nullptr);
+}
+
+TEST(TransformConstructionTest, RejectsNullOwner)
+{
+	EXPECT_THROW(Transform(nullptr), std::invalid_argument);
 }
 
 // Getters Local
@@ -167,6 +174,41 @@ TEST_F(TransformTest, SetMatrixLocal)
 	ExpectMat4Near(m_node->GetTransform().GetMatrix(), matrix);
 }
 
+TEST_F(TransformTest, SetMatrixRejectsInvalidOrShearedInputWithoutChangingState)
+{
+	auto &transform = m_node->GetTransform();
+	const glm::vec3 position(1.f, 2.f, 3.f);
+	const glm::quat rotation = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+	const glm::vec3 scale(2.f, 3.f, 4.f);
+	transform.SetPosition(position);
+	transform.SetRotation(rotation);
+	transform.SetScale(scale);
+	transform.RecalculateMatrices();
+
+	glm::mat4 invalidMatrix(1.f);
+	invalidMatrix[0][0] = 0.f; 
+	transform.SetMatrix(invalidMatrix);
+	ExpectVec3Near(transform.GetPosition(), position);
+	ExpectQuatNear(transform.GetRotation(), rotation);
+	ExpectVec3Near(transform.GetScale(), scale);
+	EXPECT_FALSE(transform.IsDirty());
+
+	invalidMatrix[0][0] = std::numeric_limits<float>::quiet_NaN();
+	transform.SetMatrix(invalidMatrix);
+	ExpectVec3Near(transform.GetPosition(), position);
+	ExpectQuatNear(transform.GetRotation(), rotation);
+	ExpectVec3Near(transform.GetScale(), scale);
+	EXPECT_FALSE(transform.IsDirty());
+
+	glm::mat4 shearedMatrix(1.f);
+	shearedMatrix[1][0] = 0.5f;
+	transform.SetMatrix(shearedMatrix);
+	ExpectVec3Near(transform.GetPosition(), position);
+	ExpectQuatNear(transform.GetRotation(), rotation);
+	ExpectVec3Near(transform.GetScale(), scale);
+	EXPECT_FALSE(transform.IsDirty());
+}
+
 TEST_F(TransformTest, SettersCombinedLocal)
 {
 	const glm::vec3 pos(-3.f, 2.f, 1.f);
@@ -229,7 +271,23 @@ TEST_F(TransformTest, LookAtLocal)
 	const glm::vec3 target(1.f, 0.f, 0.f);
 
 	m_node->GetTransform().LookAt(target);
-	ExpectQuatNear(m_node->GetTransform().GetRotation(), glm::quat_cast(glm::lookAt(glm::vec3(0.f), target, glm::vec3(0.f, 1.f, 0.f))));
+	ExpectQuatNear(
+		m_node->GetTransform().GetRotation(),
+		glm::quat_cast(glm::inverse(glm::lookAt(glm::vec3(0.f), -target, glm::vec3(0.f, 1.f, 0.f)))));
+	ExpectVec3Near(m_node->GetTransform().GetForward(), glm::normalize(target));
+}
+
+TEST_F(TransformTest, LookAtDegenerateInputsPreserveRotation)
+{
+	auto &transform = m_node->GetTransform();
+	const glm::quat initialRotation = glm::angleAxis(0.7f, glm::normalize(glm::vec3(1.f, 2.f, 3.f)));
+	transform.SetRotation(initialRotation);
+
+	transform.LookAt(transform.GetPosition());
+	ExpectQuatNear(transform.GetRotation(), initialRotation);
+
+	transform.LookAt(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 0.f, 2.f));
+	ExpectQuatNear(transform.GetRotation(), initialRotation);
 }
 
 // Parenting
@@ -304,6 +362,46 @@ TEST_F(TransformTest, GetRotationWorld)
 
 	m_node->GetTransform().SetRotation(localRot);
 	ExpectQuatNear(m_node->GetTransform().GetRotation(Transform::Space::World), parentRot * localRot);
+}
+
+TEST_F(TransformTest, WorldRotationIgnoresParentScale)
+{
+	auto parentNode = m_scene->AddNode("Parent");
+	parentNode->AddChild(m_node);
+
+	const glm::quat parentRotation = glm::angleAxis(0.6f, glm::normalize(glm::vec3(1.f, 2.f, 0.5f)));
+	const glm::quat localRotation = glm::angleAxis(-0.4f, glm::vec3(0.f, 1.f, 0.f));
+	const glm::quat desiredWorldRotation = glm::angleAxis(0.9f, glm::vec3(1.f, 0.f, 0.f));
+	parentNode->GetTransform().SetRotation(parentRotation);
+	parentNode->GetTransform().SetScale(glm::vec3(2.f, 0.5f, 3.f));
+	parentNode->GetTransform().RecalculateMatrices();
+
+	auto &transform = m_node->GetTransform();
+	transform.SetRotation(localRotation);
+	ExpectQuatNear(transform.GetRotation(Transform::Space::World), parentRotation * localRotation);
+
+	transform.SetRotation(desiredWorldRotation, Transform::Space::World);
+	ExpectQuatNear(transform.GetRotation(Transform::Space::World), desiredWorldRotation);
+
+	const glm::quat worldDelta = glm::angleAxis(0.3f, glm::vec3(0.f, 0.f, 1.f));
+	transform.Rotate(worldDelta, Transform::Space::World);
+	ExpectQuatNear(transform.GetRotation(Transform::Space::World), worldDelta * desiredWorldRotation);
+
+	const glm::vec3 worldEuler(0.2f, -0.4f, 0.7f);
+	transform.SetEuler(worldEuler, Transform::Space::World);
+	ExpectQuatNear(transform.GetRotation(Transform::Space::World), glm::quat(worldEuler));
+
+	const glm::vec3 eulerDelta(-0.1f, 0.3f, 0.2f);
+	transform.RotateEuler(eulerDelta, Transform::Space::World);
+	ExpectQuatNear(
+		transform.GetRotation(Transform::Space::World),
+		glm::quat(eulerDelta) * glm::quat(worldEuler));
+
+	const glm::quat axisDelta = glm::angleAxis(-0.2f, glm::vec3(0.f, 1.f, 0.f));
+	transform.RotateAxis(-0.2f, glm::vec3(0.f, 1.f, 0.f), Transform::Space::World);
+	ExpectQuatNear(
+		transform.GetRotation(Transform::Space::World),
+		axisDelta * glm::quat(eulerDelta) * glm::quat(worldEuler));
 }
 
 TEST_F(TransformTest, GetEulerWorld)
@@ -421,6 +519,20 @@ TEST_F(TransformTest, SetMatrixWorld)
 	ExpectMat4Near(m_node->GetTransform().GetMatrix(Transform::Space::World), worldMatrix);
 }
 
+TEST_F(TransformTest, SetWorldMatrixRejectsUnrepresentableParentShear)
+{
+	auto parentNode = m_scene->AddNode("Parent");
+	parentNode->AddChild(m_node);
+	parentNode->GetTransform().SetRotation(glm::angleAxis(0.5f, glm::vec3(0.f, 0.f, 1.f)));
+	parentNode->GetTransform().SetScale(glm::vec3(2.f, 1.f, 1.f));
+	parentNode->GetTransform().RecalculateMatrices();
+	m_node->GetTransform().RecalculateMatrices();
+
+	m_node->GetTransform().SetMatrix(glm::mat4(1.f), Transform::Space::World);
+
+	EXPECT_FALSE(m_node->GetTransform().IsDirty());
+}
+
 TEST_F(TransformTest, SettersCombinedWorld)
 {
 	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
@@ -467,6 +579,61 @@ TEST_F(TransformTest, RotateWorld)
 	ExpectQuatNear(m_node->GetTransform().GetRotation(Transform::Space::World), delta * parentRot);
 }
 
+TEST_F(TransformTest, SlerpRotationClampsEndpointsAndTakesShortestPath)
+{
+	auto &transform = m_node->GetTransform();
+	const glm::quat initial = glm::angleAxis(0.3f, glm::vec3(1.f, 0.f, 0.f));
+	const glm::quat target = glm::angleAxis(kHalfPi, glm::vec3(0.f, 1.f, 0.f));
+
+	transform.SetRotation(initial);
+	transform.SlerpRotation(target, 0.f);
+	ExpectQuatNear(transform.GetRotation(), initial);
+
+	transform.SlerpRotation(target, 2.f);
+	ExpectQuatNear(transform.GetRotation(), target);
+
+	transform.SetRotation(glm::quat(1.f, 0.f, 0.f, 0.f));
+	transform.SlerpRotation(-glm::quat(1.f, 0.f, 0.f, 0.f), 0.5f);
+	ExpectQuatNear(transform.GetRotation(), glm::quat(1.f, 0.f, 0.f, 0.f));
+}
+
+TEST_F(TransformTest, SlerpRotationUsesWorldSpaceWithScaledParent)
+{
+	auto parentNode = m_scene->AddNode("Parent");
+	parentNode->AddChild(m_node);
+
+	const glm::quat parentRotation = glm::angleAxis(0.6f, glm::vec3(0.f, 1.f, 0.f));
+	const glm::quat initialWorldRotation = glm::angleAxis(-0.3f, glm::vec3(1.f, 0.f, 0.f));
+	const glm::quat targetWorldRotation = glm::angleAxis(0.8f, glm::vec3(0.f, 0.f, 1.f));
+	parentNode->GetTransform().SetRotation(parentRotation);
+	parentNode->GetTransform().SetScale(glm::vec3(2.f, 0.5f, 3.f));
+	parentNode->GetTransform().RecalculateMatrices();
+
+	auto &transform = m_node->GetTransform();
+	transform.SetRotation(initialWorldRotation, Transform::Space::World);
+	transform.SlerpRotation(targetWorldRotation, 0.5f, Transform::Space::World);
+
+	ExpectQuatNear(
+		transform.GetRotation(Transform::Space::World),
+		glm::normalize(glm::slerp(initialWorldRotation, targetWorldRotation, 0.5f)));
+}
+
+TEST_F(TransformTest, SlerpRotationRejectsInvalidInputsWithoutChangingState)
+{
+	auto &transform = m_node->GetTransform();
+	const glm::quat initial = glm::angleAxis(0.3f, glm::vec3(1.f, 0.f, 0.f));
+	transform.SetRotation(initial);
+	transform.RecalculateMatrices();
+
+	transform.SlerpRotation(glm::quat(0.f, 0.f, 0.f, 0.f), 0.5f);
+	ExpectQuatNear(transform.GetRotation(), initial);
+	EXPECT_FALSE(transform.IsDirty());
+
+	transform.SlerpRotation(glm::quat(1.f, 0.f, 0.f, 0.f), std::numeric_limits<float>::quiet_NaN());
+	ExpectQuatNear(transform.GetRotation(), initial);
+	EXPECT_FALSE(transform.IsDirty());
+}
+
 TEST_F(TransformTest, RotateEulerWorld)
 {
 	std::shared_ptr<Node> parentNode = m_scene->AddNode("Node");
@@ -509,6 +676,25 @@ TEST_F(TransformTest, LookAtWorld)
 
 	const glm::vec3 expectedDirection = glm::normalize(targetWorld - m_node->GetTransform().GetPosition(Transform::Space::World));
 	ExpectVec3Near(m_node->GetTransform().GetForward(Transform::Space::World), expectedDirection);
+}
+
+TEST_F(TransformTest, LookAtWorldIgnoresParentScaleForOrientation)
+{
+	auto parentNode = m_scene->AddNode("Parent");
+	parentNode->AddChild(m_node);
+	const glm::quat parentRotation = glm::angleAxis(0.6f, glm::normalize(glm::vec3(1.f, 2.f, 0.5f)));
+	parentNode->GetTransform().SetPosition(glm::vec3(2.f, -1.f, 3.f));
+	parentNode->GetTransform().SetRotation(parentRotation);
+	parentNode->GetTransform().SetScale(glm::vec3(2.f, 0.5f, 3.f));
+	parentNode->GetTransform().RecalculateMatrices();
+
+	const glm::vec3 target = m_node->GetTransform().GetPosition(Transform::Space::World) +
+		glm::normalize(glm::vec3(-1.f, 2.f, 3.f)) * 5.f;
+	m_node->GetTransform().LookAt(target, glm::vec3(0.f, 1.f, 0.f), Transform::Space::World);
+
+	ExpectVec3Near(
+		m_node->GetTransform().GetForward(Transform::Space::World),
+		glm::normalize(target - m_node->GetTransform().GetPosition(Transform::Space::World)));
 }
 
 // Dirty Tracking

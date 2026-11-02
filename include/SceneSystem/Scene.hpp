@@ -1,16 +1,60 @@
 #pragma once
 
-#include <math/bounds/Intersection.hpp>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
+#include <SceneSystem/Physics/Physics.hpp>
+#include <Graphics/RenderData.hpp>
+#include <SceneSystem/SceneManager.hpp>
+
+
+
+/// @brief Scene Object ID, used to locate a component attached to a node
+struct SceneObjectID 
+{
+    std::uint64_t nodeID = 0;
+    std::uint64_t componentID = 0;
+};
+
+/// @brief Struct to be used by components to reference nodes and components in the scene
+/// SetTarget makes the reference that object
+/// SetSerializedID used by the serializer to save the reference
+/// GetTarget returns the target the reference is referencing
+/// @tparam T the type of reference. Either "Component" or "Node"
+template<typename T>
+struct SceneReference 
+{
+    SceneObjectID serializedID = {};
+    std::weak_ptr<T> resolvedObject;
+    
+
+    void SetTarget(const std::shared_ptr<T>& p_target)
+    {
+        resolvedObject = p_target;
+        serializedID = {};
+    } 
+    
+    std::shared_ptr<T> GetTarget() const
+    {
+        return resolvedObject.lock();
+    }
+
+    void SetSerializedID(SceneObjectID p_id)
+    {
+        serializedID = p_id;
+        resolvedObject.reset();
+    }
+};
 
 namespace Droplet::Scene
 {
     // forward declaration of Node to avoid circular dependency
     class Node;
+    class CameraComponent;
+    class SceneManager;
 
 	/// @brief Represents a Scene containing a Node hierarchy.
     ///
@@ -29,7 +73,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Scene.
         explicit Scene(const std::string &p_name);
 
-        ~Scene() = default;      
+        ~Scene();      
 
         /// @brief Loads the Scene.
         ///
@@ -62,19 +106,19 @@ namespace Droplet::Scene
         ///
         /// Updates all root Node hierarchies when the Scene is both
         /// loaded and active.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
 
-        /// @brief Renders the Scene.
-        ///
-        /// Renders all root Node hierarchies when the Scene is both
-        /// loaded and active.
-        /// 
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved to a separate rendering
-        /// system in the future.
-        void Render();
+        /// @brief Updates the Scene but late.
+        void LateUpdate();
+        
+        /// @brief Updates the Scene in fixed time.
+        void FixedUpdate();
+
+		/// @brief Prepares the Scene for rendering.
+        void PrepareRender();
+
+		/// @brief Performs post-rendering operations for the Scene.
+		void PostRender();
 
         /// @brief Creates a Node as a root Node of the Scene.
         ///
@@ -103,6 +147,10 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if the Node is not a root of this Scene.
         void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
 
+		/// @brief Notifies the Scene that a Node is being destructed.
+		/// @param p_node The Node being destructed.
+		void OnDestructNode(const Node *p_node);
+
         /// @brief Gets the root Nodes of the Scene.
         ///
         /// Root Nodes are Nodes that do not have a parent Node and serve as
@@ -116,6 +164,9 @@ namespace Droplet::Scene
         ///
         /// @return A constant reference to the Scene's name.
         const std::string &GetName() const;
+
+        /// @brief Sets the Scene's name.
+        void SetName(const std::string &p_name) { m_name = p_name; }
 
         /// @brief Checks whether the Scene is loaded.
         ///
@@ -154,21 +205,85 @@ namespace Droplet::Scene
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
+		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr);
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
 
+        /// @brief Initialize the physics engine for this scene
+        /// @param p_initializer Struct contaning values to initialize the physics engine
+        void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
+
+        /// @brief Finds all Node instances whose world-space bounds intersect a frustum
+        /// @param p_frustum The frustum that must intersect the nodes
+        /// @return A vector of all Node instances intersecting the frustum
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesIntersectingFrustum(const Math::Frustum &p_frustum);
+
+        /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
+        /// @param p_frustum The frustum that must fully contain the nodes
+        /// @return A vector of all Node instances fully contained in the frustum
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
+    	
+    	/// @brief Finds all Node instances whose world-space bounds are fully contained within a OBB
+    	/// @param p_obb The OBB that contain the nodes
+    	/// @return A vector of all Node instances fully contained in the frustum
+    	[[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesInBoundingBox(const Math::OBB &p_obb); 
+
+        [[nodiscard]] Physics *GetPhysics();
+        
+        void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+
+		/// @brief Queues a component to be rendered in the next render pass
+		/// @param p_comp The component to be rendered
+		void QueueRenderable(std::shared_ptr<Component> p_comp);
+
+		/// @brief Queues a camera component to be used for rendering in the next render pass
+		/// @param p_node The camera component to be used for rendering
+		void QueueRenderer(std::shared_ptr<CameraComponent> p_node);
+
+		const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &GetRenderables() { return m_renderables; }
+
+		void SetSceneManager(SceneManager *p_sceneManager) { m_sceneManager = p_sceneManager; }
+
+        template<typename T>
+        std::shared_ptr<T> GetBehaviour() const
+        {
+            for (const auto &behaviour : m_sceneManager->GetBehaviours())
+            {
+                if (auto result = std::dynamic_pointer_cast<T>(behaviour))
+                {
+                    return result;
+                }
+            }
+
+            return nullptr;
+        }
+
+        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: Make weak pointer
+
+        std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
+
+        void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
+
     private:
+		friend class SceneManager;
+
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
 
         Octree m_octree;
+        std::unique_ptr<Physics> m_physics;
+
+        std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> m_renderables;
+        std::vector<std::shared_ptr<CameraComponent>> m_renderers;
 
         bool m_loaded = false;
         bool m_active = false;
+
+		SceneManager *m_sceneManager = nullptr;
     };     
 }

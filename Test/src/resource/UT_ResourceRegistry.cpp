@@ -19,12 +19,13 @@ TEST(ResourceRegistryTest, RegisterAndGetByGUID)
     registry.RegisterMetaEntry("Assets/Tex.png", texEntry);
     
     // Valid GUID should return the entry
-    MetaEntry retrieved = registry.GetResourceMetaData(100);
+    MetaEntry retrieved;
+    EXPECT_TRUE(registry.GetResourceMetaData(100, retrieved));
     EXPECT_EQ(retrieved.type, ResourceType::Texture2D);
     EXPECT_EQ(retrieved.sourceName, "MyTexture");
     
     // Invalid GUID should throw
-    EXPECT_THROW(registry.GetResourceMetaData(999), std::runtime_error);
+    EXPECT_THROW(registry.GetResourceMetaData(999, retrieved), std::runtime_error);
 }
 
 TEST(ResourceRegistryTest, RegisterAndGetByAssetPath)
@@ -103,16 +104,19 @@ TEST_F(ResourceRegistryScanTest, ScanDirectoryValid)
     ASSERT_NO_THROW(registry.ScanDirectory(m_scanDir));
     
     // Verify the registry found and parsed your specific hardcoded files
-    EXPECT_NO_THROW(registry.GetResourceMetaData(500));
-    EXPECT_NO_THROW(registry.GetResourceMetaData(600));
+    MetaEntry dummyEntry;
+    EXPECT_NO_THROW(registry.GetResourceMetaData(500, dummyEntry));
+    EXPECT_NO_THROW(registry.GetResourceMetaData(600, dummyEntry));
 
     // Ensure it parsed your JSON correctly
-    MetaEntry texEntry = registry.GetResourceMetaData(500);
+    MetaEntry texEntry;
+    EXPECT_TRUE(registry.GetResourceMetaData(500, texEntry));
     EXPECT_EQ(texEntry.relAssetPath, "Textures/Test_BlackPixel.png");
     EXPECT_EQ(static_cast<uint8_t>(texEntry.type), static_cast<uint8_t>(ResourceType::Texture2D)); 
     EXPECT_EQ(texEntry.loadSettings["generate_mipmaps"], false);
 
-    MetaEntry shaderEntry = registry.GetResourceMetaData(600);
+    MetaEntry shaderEntry;
+    EXPECT_TRUE(registry.GetResourceMetaData(600, shaderEntry));
     EXPECT_EQ(shaderEntry.relAssetPath, "Shaders/Test_Valid.slang");
     EXPECT_EQ(static_cast<uint8_t>(shaderEntry.type), static_cast<uint8_t>(ResourceType::Shader));
 }

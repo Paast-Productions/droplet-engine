@@ -2,8 +2,11 @@
 
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
-#include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/Serialization/SceneSerializer.hpp"
 #include "Core/IoManager.hpp"
+#include "SceneSystem/ComponentRegistry.hpp"
+#include "SceneSystem/ComponentFactory.hpp"
+#include "Time.hpp"
 using namespace Droplet::Scene;
 
 
@@ -15,32 +18,6 @@ protected:
     SceneManager sceneManager;
 
 
-};
-
-class PlayerComponent : public Component
-{
-public:
-    std::string_view GetTypeName() const override { return "PlayerComponent"; }
-
-    void Start() override
-    {
-        std::cout << "PlayerComponent started\n";
-    }
-
-    void Update(float p_deltaTime) override
-    {
-        std::cout
-            << "PlayerComponent updating: "
-            << p_deltaTime
-            << " seconds\n";
-    }
-
-    nlohmann::json SerializeImpl() override
-    {
-        nlohmann::json json;
-        json["type"] = "PlayerComponent";
-        return json;
-    }
 };
 
 TEST_F(SceneSerializerTest, SerializeScene)
@@ -91,8 +68,9 @@ TEST_F(SceneSerializerTest, SerializeNode)
     glm::vec3 position = glm::vec3(1.0f, 2.0f, 3.0f);
     testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
 
-    testNode->AddComponent<PlayerComponent>();
-
+    ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<PlayerComponent>(); });
+    auto component = ComponentFactory::CreateComponent("PlayerComponent");
+    testNode->AttachComponent(component);
     
     nlohmann::json json = serializer.SerializeScene(testScene);
     Droplet::Core::JsonIO::Write("testNodeJson", json);
@@ -125,7 +103,9 @@ TEST_F(SceneSerializerTest, DeserializeNode)
     glm::vec3 position = glm::vec3(1.0f, 2.0f, 3.0f);
     testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
 
-    testNode->AddComponent<PlayerComponent>();
+	auto component = ComponentFactory::CreateComponent("PlayerComponent");
+    testNode->AttachComponent(component);
+   
 
 
     nlohmann::json json = serializer.SerializeScene(testScene);

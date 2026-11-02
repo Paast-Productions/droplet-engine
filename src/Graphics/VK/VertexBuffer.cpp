@@ -2,9 +2,9 @@
 
 using namespace Droplet::Graphics::VK;
 
-VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<Vertex> &p_vertices)
+VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<std::byte> &p_vertices)
 {
-	const vk::DeviceSize bufferSize { sizeof(p_vertices[0]) * p_vertices.size() };
+	const vk::DeviceSize bufferSize { sizeof(std::byte) * p_vertices.size() };
 	
 	const vk::BufferCreateInfo bufferCreateInfo
 	{

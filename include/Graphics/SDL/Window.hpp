@@ -26,22 +26,47 @@ namespace Droplet::Graphics::SDL
     class Window
     {
     public:
-        Window() = delete;
+        Window() { m_sdlWindowHandle = nullptr; }
+
+        Window(nullptr_t p_nullptr)
+        {
+            m_sdlWindowHandle = { p_nullptr };
+        }
         
         /// @brief SDL-window constructor 
         /// @param p_windowConfig SDL-Window Configuration Struct
         Window(const WindowConfig &p_windowConfig);
         
-        Window(const Window& p_sdlWindow) = delete;
-        Window& operator=(const Window& p_sdlWindow) = delete;
-        Window(Window&& p_sdlWindow) = delete;
-        Window& operator=(Window&& p_sdlWindow) = delete;
-        
         ~Window();
+
+        Window(const Window &p_other) = delete;
+        Window &operator=(const Window &p_other) = delete;
+
+        Window(Window &&p_other) noexcept
+        {
+            std::swap(m_sdlWindowHandle, p_other.m_sdlWindowHandle);
+        };
+
+        Window &operator=(Window &&p_other) noexcept
+        {
+            if (*this == p_other)
+            {
+                return *this;
+            }
+
+            std::swap(m_sdlWindowHandle, p_other.m_sdlWindowHandle);
+
+            return *this;
+        };
+
+        bool operator==(const Window &p_other) const
+        {
+            return (m_sdlWindowHandle == p_other.m_sdlWindowHandle);
+        }
         
         /// @brief Getter-function for a raw SDL_Window pointer
         /// @returns Non-owning SDL_Window pointer
-        [[nodiscard]] SDL_Window* Get() const;
+        [[nodiscard]] SDL_Window *Get() const;
 
     private:
         /// @brief Custom deleter function for SDL_Window*. This enables the usage of std::unique_ptr<>

@@ -39,6 +39,16 @@
 !/Devtools
 !/Devtools/**
 
+# Docs
+!/Docs
+!/Docs/Image
+!/Docs/**
+
+# Assets
+!/Assets
+!/Assets/Shader
+!/Assets/Shader/**
+
 # ////////////////////////////
 # |         SAMPLES          |
 # ////////////////////////////
@@ -46,3 +56,6 @@
 !/Samples
 !/Samples/**
 src/Graphics/VK/Shaders/slang.spv
+
+!/GameData
+!/GameData/**

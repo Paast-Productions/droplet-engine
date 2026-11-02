@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "textureScroll.FS",
+            "guid": 14077269834390845499,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 1
+            },
+            "sourceName": "textureScroll.FS",
+            "type": 6
+        }
+    ]
+}

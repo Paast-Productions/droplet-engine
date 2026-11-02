@@ -14,8 +14,8 @@ namespace Droplet::Scene
 	public:
 		enum class Space
 		{
-			Local,
-			World
+			Local = 0,
+			World = 1
 		};
 
 		/// @brief Construct a new Transform object.
@@ -40,6 +40,7 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec3 GetPosition(Space p_space = Space::Local) const;
 
 		/// @brief Get the rotation of the transform in the specified space.
+		/// World rotation composes parent and local quaternions; inherited scale and shear do not affect it.
 		/// @param p_space The space in which to get the rotation. Defaults to local space.
 		/// @return The rotation of the transform in the specified space.
 		[[nodiscard]] glm::quat GetRotation(Space p_space = Space::Local) const;
@@ -47,7 +48,7 @@ namespace Droplet::Scene
 		/// @brief Get the Euler angles in radians of the transform in the specified space.
 		/// @param p_space The space in which to get the Euler angles. Defaults to local space.
 		/// @return The Euler angles of the transform in the specified space.
-		[[nodiscard]] glm::vec3 GetEuler(Space p_pspace = Space::Local) const;
+		[[nodiscard]] glm::vec3 GetEuler(Space p_space = Space::Local) const;
 
 		/// @brief Get the local scale of the transform.
 		/// @return The local scale of the transform.
@@ -64,8 +65,14 @@ namespace Droplet::Scene
 		/// @return True if the transform is dirty, false otherwise.
 		[[nodiscard]] bool IsDirty() const;
 
-		/// TODO: Edvin
+		/// @brief Check if the transform was ever changed in the current frame.
+		/// @return True if the transform was ever changed, else false.
+		// TODO: Edvin
 		[[nodiscard]] bool HasBeenChanged() const;
+		
+		/// @brief Check if the transform was changed by physics.
+		/// @return True if the transform was changed by physics, else false.
+		[[nodiscard]] bool HasPhysicsChanged() const;
 
 		/// @brief Get the up direction of the transform in the specified space.
 		/// @param p_space The space in which to get the up direction. Defaults to local space.
@@ -110,10 +117,16 @@ namespace Droplet::Scene
 
 		/// @brief Mark the transform as dirty, indicating that it has been modified and needs to be updated.
 		void MakeDirty();
+		
+		/// @brief Mark the transform as dirty, indicating that it has been modified by physics.
+		void MakePhysicsDirty();
 
 		/// @brief Runs at the end of scene update and resets the transform's "was changed" state for the next frame. 
 		/// This is used to track if the transform was ever modified during the frame.
 		void ResetFrame();
+		
+		/// @brief Sets the physics dirty boolean to false. Only used by the octree.
+		void ResetPhysicsDirty();
 
 		// ================================ Utility ================================
 
@@ -136,6 +149,12 @@ namespace Droplet::Scene
 		/// @param p_delta The delta by which to rotate the transform in Euler angles.
 		/// @param p_space The space in which to perform the rotate operation. Defaults to local space.
 		void RotateEuler(const glm::vec3 &p_delta, Space p_space = Space::Local);
+
+		/// @brief Spherically interpolate the current rotation toward a target rotation.
+		/// @param p_target The target rotation, expressed in p_space.
+		/// @param p_t Interpolation factor, clamped to [0, 1]; 0 keeps the current rotation and 1 reaches the target.
+		/// @param p_space The coordinate space for both rotations. Defaults to local space.
+		void SlerpRotation(const glm::quat &p_target, float p_t, Space p_space = Space::Local);
 
 		/// @brief Move the transform by a specified delta relative to its current orientation.
 		/// @param p_delta The delta by which to move the transform.
@@ -170,6 +189,7 @@ namespace Droplet::Scene
 		Node			*m_owner{ nullptr };  // Raw pointer because it is guaranteed to be valid as long as the Transform exists.
 		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.
 		bool			m_wasChanged{ true }; // Tracks whether the transform was ever changed during the frame.
+		bool			m_physicsDirty{ false }; // Tracks whether the transform was changed by physics.
 
 		glm::vec3		m_position{ 0.f, 0.f, 0.f };
 		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };

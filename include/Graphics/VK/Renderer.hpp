@@ -20,23 +20,15 @@
 #include <shader-slang/slang-com-ptr.h>
 #endif
 
-#include <Graphics/SDL/Window.hpp>
-#include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/IndexBuffer.hpp>
-#include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/UniformBuffer.hpp>
-#include <Graphics/VK/StorageBuffer.hpp>
-#include <Graphics/VK/DepthBuffer.hpp>
-#include <Graphics/VK/DescriptorSet.hpp>
-#include <Graphics/VK/DescriptorPool.hpp>
-#include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
-#include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/CameraController.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/RenderData.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
@@ -47,18 +39,7 @@ namespace Droplet{class Engine;}
 // HACK: Implementation subject to change
 
 namespace Droplet::Graphics
-{
-	namespace VK
-	{
-		struct UniformBufferObject
-		{
-			glm::mat4 model {};
-			glm::mat4 view {};
-			glm::mat4 proj {};
-		};
-	}
-	
-	
+{	
 	class Renderer
 	{
 	public:
@@ -67,74 +48,30 @@ namespace Droplet::Graphics
 
 		/// @brief Renderer Constructor
 		/// @param p_window Requested SDL Window Configuration
-		Renderer(SDL::Window &p_window);
+		Renderer(SDL_Window* p_window);
 
 		/// @brief Destructor
 		~Renderer();
 		
-		/// @brief Renders a singular frame
-		void	DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget);
-
-		void RenderToTarget(RenderTarget &p_target, const Camera &p_camera);
+		/// @brief Draws a list of cameras and their corresponding render data
+		void Draw(std::vector<CameraRenderData> p_renderData);
 		
 		/// @brief Resizes the window
-		void	ResizeWindow();
+		void ResizeWindow();
 		
-		/// @brief Getter-function for an SDL_Window pointer
-		/// @returns An SDL Window
-		[[nodiscard]] SDL_Window *GetWindow();
-
-	/// @brief Fills and returns initInfo for ImGui
-	/// @return ImGui init info
-	void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
-
-		/// @brief Wait for the Vulkan device to be idle
-		void WaitIdle();
-
-		/// @brief Public function to apply mouse movements on the camera
-		/// @param p_xOffset position on the screen along the x-axis
-		/// @param p_yOffset position on the screen along the y-axis
-		void ProcessMouseMovement(float p_xOffset, float p_yOffset);
-
-		std::unique_ptr<RenderTarget> CreateRenderTarget(uint32_t p_width, uint32_t p_height);
-
-		VkDescriptorSet RegisterImGuiTexture(RenderTarget &p_renderTarget);
-
-		SDL_Event				Event;
+		SDL_Event				Event {};
 		inline static			SDL_InitState s_Init {};
 		
 	private:
 		
-		/// @brief Creates a graphics pipeline
-		void					CreateGraphicsPipeline();
-
-		/// @brief Creates a graphics pipeline based on a shader
-		/// @param p_shaderBlob shader to be used
-		void					CreateGraphicsPipeline(const Slang::ComPtr<slang::IBlob> &p_shaderBlob);
-
-		/// @brief Creates a shader module from a vector containing raw code
-		/// @param p_device Pointer to the vulkan device
-		/// @param code Vector containing raw code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const std::vector<char> &p_code) const;
-
-		/// @brief Creates a shader module from a blob containing code
-		/// @param p_device Pointer to the vulkan device
-		/// @param p_shaderBlob Blob containing code
-		/// @returns A vulkan shader module
-		vk::raii::ShaderModule  CreateShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob) const;
-		
 		/// @brief Records a command buffer for rendering an image
-		/// @param p_imageIndex which image to render to
-		void					RecordCommandBuffer(uint32_t p_imageIndex);
-		void					RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera);
-		void					RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
-
-		/// @brief Creates the texture sampler
-		void					CreateTextureSampler();
-
+		/// @param p_renderData Vector of RenderData
+		/// @param p_imageIndex Which image to render to
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
+		
 		/// @brief Creates sync objects for preventing race conditions etc
-		void					CreateSyncObjects();
+		void CreateSyncObjects();
 
 		/// @brief Changes the layout of an image from one to another
 		/// @param p_image The image to be translated
@@ -145,6 +82,7 @@ namespace Droplet::Graphics
 		/// @param p_src_stage_mask Source stage mask
 		/// @param p_dst_stage_mask Destination stage mask
 		/// @param p_image_aspect_flags Image aspect flags and/or bits
+		/// @param p_commandBuffer Vulkan Command Buffer
 		void TransitionImageLayout(
 			vk::Image				p_image,
 			vk::ImageLayout         p_old_layout,
@@ -154,60 +92,37 @@ namespace Droplet::Graphics
 			vk::PipelineStageFlags2 p_src_stage_mask,
 			vk::PipelineStageFlags2 p_dst_stage_mask,
 			vk::ImageAspectFlags    p_image_aspect_flags,
-			vk::raii::CommandBuffer &p_commandBuffer);
+			const vk::raii::CommandBuffer &p_commandBuffer);
+		
+		/// @brief Fills and returns initInfo for ImGui
+		/// @return ImGui init info
+		void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
 
+		// MAIN RENDERER
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-		const SDL::Window *m_window;
+		SDL_Window* m_window { nullptr };
 		vk::raii::Context m_vkContext;
 		VK::Context m_context { nullptr };
-		VK::Allocator m_allocator { nullptr };
-
-		SDL_Event m_event {};
-
-		VK::Swapchain m_swapchain { nullptr };
-
 		VK::CommandPool m_commandPool { nullptr };
-		//std::vector<std::size_t> m_commandBufferIds;
-		VK::Pipeline m_graphicsPipeline { nullptr };
+		VK::Swapchain m_swapchain { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
-
-		VK::DescriptorPool						m_descriptorPool { nullptr };
-		VK::DescriptorSet						m_globalDescriptorSet { nullptr };
-		vk::raii::Sampler						m_textureSampler = nullptr;
-
-		VK::Image		m_image			{ nullptr };
-		VK::ImageView	m_textureView	{ nullptr };
-		VK::StorageBuffer m_storageBuffer { nullptr };
-		VK::UniformBuffer m_uniformBuffer { nullptr };
 		
-		VK::DepthBuffer	m_depthBuffer	{ nullptr };
-		VK::IndexBuffer	m_indexBuffer	{ nullptr };
-		VK::VertexBuffer m_vertexBuffer { nullptr };
-
-		vk::raii::DescriptorPool m_imGuiDescriptorPool = nullptr;
-		std::uint32_t m_imGuiPoolSize;
-
-		VkFormat m_imGuiColorFormat;
-
-		//Needs one buffer per frame in flight to avoid read write issues
+		std::uint32_t m_vpBufferIndex { INVALID_INDEX };
 		
+		bool m_framebufferResized { false };
+		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 
 		
-		//Index for rendered frames
-		std::uint32_t							 m_frameIndex = 0;
-
-		//Latest received swapchain result
-		vk::Result m_result;
-		std::uint32_t m_imageIndex;
-
-		bool								 m_framebufferResized = false;
+		// DEBUG
+		vk::raii::DescriptorPool m_debugDescriptorPool { nullptr };
 		
-		Camera m_camera;
-		CameraController m_cameraController;
+		// IMGUI 
+		vk::raii::DescriptorPool m_imGuiDescriptorPool { nullptr };
+		std::uint32_t m_imGuiPoolSize { 0 };
 
-		//std::vector<const char*>			 m_requiredDeviceExtension = { vk::KHRSwapchainExtensionName, vk::EXTDescriptorIndexingExtensionName };
+		VkFormat m_imGuiColorFormat {};
 	};
 }

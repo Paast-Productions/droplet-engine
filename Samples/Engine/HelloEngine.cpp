@@ -1,16 +1,26 @@
 #include <Engine/Engine.hpp>
 #include <iostream>
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char *argv[])
+// do something snippet example
+// [do-something]
+// This is written directly in the C++ file, see HelloEngine.cpp
+int DoSomething()
 {
-	Droplet::Engine engine({
-		Droplet::Graphics::SDL::WindowConfig {
-			640, 480, {}
-		}
-	});
+    return 1 + 1;
+}
+// [do-something]
 
-	/*while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
-	{
-		
-	}*/
+int main([[maybe_unused]] int argc, [[maybe_unused]] char* argv[])
+{
+    Droplet::Engine engine({
+        Droplet::Graphics::SDL::WindowConfig{
+            640, 480, {}
+        }
+    });
+
+
+    /*while (engine.Update() == Droplet::DROPLET_RETURNTYPE::OK)
+    {
+        
+    }*/
 }

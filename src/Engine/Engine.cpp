@@ -3,49 +3,83 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/TriggerComponent.hpp>
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
-
 
 using namespace Droplet;
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window)
+// Callback for traces, connect this to your own trace function if you have one
+static void TraceImpl(const char *inFMT, ...)
+{
+	// Format the message
+	va_list list;
+	va_start(list, inFMT);
+	char buffer[1024];
+	vsnprintf(buffer, sizeof(buffer), inFMT, list);
+	va_end(list);
+
+	// Print to the TTY
+	std::cout << buffer << std::endl;
+}
+
+#ifdef JPH_ENABLE_ASSERTS
+
+// Callback for asserts, connect this to your own assert handler if you have one
+static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, JPH::uint inLine)
+{
+	// Print to the TTY
+	std::cout << inFile << ":" << inLine << ": (" << inExpression << ") " << (inMessage != nullptr ? inMessage : "") << std::endl;
+
+	// Breakpoint
+	return true;
+};
+
+#endif // JPH_ENABLE_ASSERTS
+
+Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
 {
 	ZoneScoped;
-
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO &io = ImGui::GetIO();
-
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
-	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
-
-	m_resourceManager.Initialize(std::filesystem::absolute(ROOT_PATH "/Assets"));
-
-	ImGui_ImplSDL3_InitForVulkan(m_renderer.GetWindow());
-	m_initInfo = {};
-	m_renderer.GetImGuiInitInfo(m_initInfo);
-	ImGui_ImplVulkan_Init(&m_initInfo);
-    
+	
+	ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
     ThreadPool::GetInstance().Initialize();
+	JPH::RegisterDefaultAllocator();
+	JPH::Trace = TraceImpl;
+#ifdef JPH_DEBUG
+	JPH::JPH_IF_ENABLE_ASSERTS(AssertFailed = AssertFailedImpl;)
+#endif
+	JPH::Factory::sInstance = new JPH::Factory();
+	JPH::RegisterTypes();
     
     // --- Setup Resource Manager ---
-    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/assets");
-    m_resourceManager.Initialize(assetDir);
+    std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
+	// HACK: DON'T DO THIS
+    ResourceManager &resManInstance = ResourceManager::GetInstance();
+	resManInstance.Initialize(assetDir);
     // Register scanners
-    m_resourceManager.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
-    m_resourceManager.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
-    m_resourceManager.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    // TODO: Don't hardcode accepted extensions in Engine constructor
+    resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+	
     // Register resources
-    m_resourceManager.RegisterResourceType<Texture2DResource>();
-    m_resourceManager.RegisterResourceType<MeshResource>();
-    m_resourceManager.RegisterResourceType<SkinnedMeshResource>();
-    m_resourceManager.RegisterResourceType<AnimationResource>();
-    m_resourceManager.RegisterResourceType<ShaderResource>();
+    resManInstance.RegisterResourceType<Texture2DResource>();
+    resManInstance.RegisterResourceType<MeshResource>();
+    resManInstance.RegisterResourceType<SkinnedMeshResource>();
+	resManInstance.RegisterResourceType<AnimationResource>();
+    resManInstance.RegisterResourceType<ShaderResource>();
     // ------
 
 	// Register engine behaviours
@@ -53,6 +87,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Register engine components
 	RegisterComponents();
+
+	// Script Init
+	ScriptSystem::Get().Initialize(m_sceneManager);
 }
 
 Droplet::Engine::~Engine()
@@ -68,9 +105,6 @@ Droplet::Engine::~Engine()
 		}
 	}
 
-	m_renderer.WaitIdle();
-	ImGui_ImplVulkan_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
 
 	Shutdown();
 }
@@ -80,9 +114,9 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics::RenderTarget &p_renderTarget)
+DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
-	ZoneScoped;
+	ZoneScopedC(tracy::Color::PaleTurquoise1);
 
 	// Time
 	Time::Get().Update();
@@ -90,11 +124,14 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 	// Inputs
 	Droplet::GameInput::Get().Update();
 
+	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
 #ifdef TRACY_ENABLE
-		ZoneNamedN(eventZone, "Event", true);
+		ZoneNamedNC(eventZone, "Event", tracy::Color::MistyRose1, true);
 
 		constexpr int eventStrMaxLen = 256;
 		char eventStrBuf[eventStrMaxLen]{};
@@ -114,14 +151,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 			FrameMark;
 			return DROPLET_RETURNTYPE::EXIT;
 
-		case SDL_EVENT_KEY_DOWN:
-			if (m_renderer.Event.key.key == SDLK_ESCAPE) 
-			{
-				FrameMark;
-				return DROPLET_RETURNTYPE::EXIT;
-			}
-			break;
-
 		case SDL_EVENT_WINDOW_RESIZED:
 		case SDL_EVENT_WINDOW_MINIMIZED:
 			m_renderer.ResizeWindow();
@@ -134,38 +163,31 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PreUpdate();
-		}
-	}
-
 	// Scenesystem
-	m_sceneManager.Update(Time::Get().GetDeltaTime());
-
-	// Scriptsystem
-
-	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipScriptLogic))
-	{
-		Script::ScriptSystem::Get().Update(Time::Get().GetDeltaTime());
-	}
-
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PostUpdate();
-		}
-	}
+	m_sceneManager.Update();
 
 	// ResourceManager
 
 	ResourceManager::Get().Update();
 
+	return DROPLET_RETURNTYPE::OK;
+}
+
+DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+{
+	ZoneScopedC(tracy::Color::SkyBlue1);
+
+	auto renderData = m_sceneManager.GetRenderData();
+
+	if (camRenderData)
+	{
+		renderData.push_back(*camRenderData);
+	}
+
 	// Rendering
-	m_renderer.DrawFrame(p_camera, p_renderTarget);
+	m_renderer.Draw(renderData);
+
+	m_sceneManager.PostRender();
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -174,42 +196,19 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Graphics::Camera &p_camera, Graphics:
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
-	
 	// Other system that need updating go here.
-
-
+	ResourceManager::GetInstance().Update();
 
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
 }
 
-SDL_Window *Droplet::Engine::GetWindow()
-{
-	// TODO: insert return statement here
-	return m_renderer.GetWindow();
-}
-
-Scene::SceneManager &Droplet::Engine::GetSceneManager()
-{
-	return m_sceneManager;
-}
-
-ResourceManager &Droplet::Engine::GetResourceManager()
-{
-	return m_resourceManager;
-}
-
-void Droplet::Engine::AddEventListener(EventListener p_listener)
-{
-	ZoneScoped;
-
-	m_eventListeners.push_back(p_listener);
-}
 void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
 	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Scene::PlayerBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
@@ -217,9 +216,10 @@ void Engine::RegisterComponents()
 	// Register engine components
 	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
-}
-
-Graphics::Renderer &Engine::GetRenderer()
-{
-	return m_renderer;
+	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
 }

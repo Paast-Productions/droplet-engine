@@ -28,6 +28,31 @@ namespace Droplet::Graphics::VK
 		/// @returns Vulkan Descriptor Pool
 		[[nodiscard]] const vk::raii::DescriptorPool &Get() const { return m_descriptorPool; }
 
+        DescriptorPool(const DescriptorPool &p_other) = delete;
+        DescriptorPool &operator=(const DescriptorPool &p_other) = delete;
+        
+        DescriptorPool(DescriptorPool &&p_other) noexcept
+        {
+            std::swap(m_descriptorPool, p_other.m_descriptorPool);
+        };
+        
+        DescriptorPool &operator=(DescriptorPool &&p_other) noexcept
+        {
+            if (*this == p_other)
+            {
+                return *this;
+            }
+            
+            std::swap(m_descriptorPool, p_other.m_descriptorPool);
+            
+            return *this;
+        };
+        
+        bool operator==(const DescriptorPool &p_other) const
+        {
+            return (m_descriptorPool == p_other.m_descriptorPool);
+        }
+
 	private:
 		vk::raii::DescriptorPool m_descriptorPool = nullptr;
 

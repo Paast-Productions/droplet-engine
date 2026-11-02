@@ -1,7 +1,8 @@
 #pragma once
 #include <ImGui/imgui.h>
 #include <string>
-#include "resource/GuidUtils.hpp"
+#include <Resource/GuidUtils.hpp>
+#include <Resource/IResource.hpp>
 
 namespace Droplet::Editor
 {
@@ -10,5 +11,13 @@ namespace Droplet::Editor
 	constexpr std::string_view PAYLOAD_NODE			= "DROPLET_NODE";
 	constexpr std::string_view PAYLOAD_COMPONENT	= "DROPLET_COMPONENT";
 	constexpr std::string_view PAYLOAD_RESOURCE		= "DROPLET_RESOURCE";
-    constexpr std::string_view PAYLOAD_ASSET        = "DROPLET_ASSET";
+    constexpr std::string_view PAYLOAD_ASSET		= "DROPLET_ASSET";
+    // Add more...
+    
+    struct ResourcePayload
+    {
+        GUID guid;
+        ResourceType type;
+        char name[256];
+    };
 }

@@ -9,31 +9,67 @@ using namespace Droplet::Script;
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 {
-	ZoneScoped;
-
-	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
 ScriptSystem::~ScriptSystem()
 {
 	ZoneScoped;
-
 }
 
-void ScriptSystem::Start()
+void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 
-	m_scriptManager.Start();
+	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState(), p_sceneManager);
 }
 
-void ScriptSystem::Update(float p_deltaTime)
+void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
 
-	m_scriptManager.Update(p_deltaTime);
+	m_scriptManager.StartComponent(p_scriptComponent);
+}
+
+void Droplet::Script::ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	ZoneScoped;
+
+	m_scriptManager.StartBehaviour(p_scriptBehaviour);
+}
+
+void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+{
+	ZoneScoped;
+
+	m_scriptManager.UpdateComponent(p_scriptComponent, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		m_scriptManager.CheckForFileChanges();
+	}
+}
+
+void Droplet::Script::ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
+{
+	ZoneScoped;
+
+	m_scriptManager.UpdateBehaviour(p_scriptBehaviour, p_deltaTime);
+
+	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		m_scriptManager.CheckForFileChanges();
+	}
+}
+
+void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode )
+{
+	//if(p_component.AlreadyTriggered) return
+	ZoneScoped;
+	
+	m_scriptManager.TriggerComponentScript(p_scriptComponent, p_deltaTime, p_otherNode);
+	
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
 	{
 		m_scriptManager.CheckForFileChanges();
@@ -80,34 +116,6 @@ void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
 	m_scriptManager.UnloadScript(p_scriptFile);
-}
-
-void ScriptSystem::ActivateComponentScript(Scene::Component *p_scriptComponent)
-{
-	ZoneScoped;
-
-	m_scriptManager.ActivateComponentScript(p_scriptComponent);
-}
-
-void ScriptSystem::ActivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
-{
-	ZoneScoped;
-
-	m_scriptManager.ActivateBehaviourScript(p_scriptBehaviour);
-}
-
-void ScriptSystem::DeactivateComponentScript(Scene::Component *p_scriptComponent)
-{
-	ZoneScoped;
-
-	m_scriptManager.DeactivateComponentScript(p_scriptComponent);
-}
-
-void ScriptSystem::DeactivateBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
-{
-	ZoneScoped;
-
-	m_scriptManager.DeactivateBehaviourScript(p_scriptBehaviour);
 }
 
 void ScriptSystem::DetachComponentScript(Scene::Component *p_scriptComponent)

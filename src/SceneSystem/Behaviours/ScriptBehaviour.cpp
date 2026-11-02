@@ -1,8 +1,15 @@
 #include "ScriptBehaviour.hpp"
 #include "ImGui/imgui.h"
+#include "Time.hpp"
 #include <print>
 
 using namespace Droplet::Scene;
+
+void Droplet::Scene::ScriptBehaviour::PostUpdate()
+{
+	float deltaTime = Time::Get().GetDeltaTime();
+	ScriptSystem::Get().UpdateBehaviour(this, deltaTime);
+}
 
 const std::string &ScriptBehaviour::GetScriptPath() const
 {
@@ -19,16 +26,6 @@ void ScriptBehaviour::DetachScript()
 	ScriptSystem::Get().DetachBehaviourScript(this);
 }
 
-void ScriptBehaviour::ActivateScript()
-{
-	ScriptSystem::Get().ActivateBehaviourScript(this);
-}
-
-void ScriptBehaviour::DeactivateScript()
-{
-	ScriptSystem::Get().DeactivateBehaviourScript(this);
-}
-
 void ScriptBehaviour::RenderUIImpl()
 {
 	const std::string preview = m_scriptPath.empty()
@@ -36,6 +33,7 @@ void ScriptBehaviour::RenderUIImpl()
 		: m_scriptPath;
 
 	ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
+
 	if (ImGui::BeginDragDropTarget())
 	{
 		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCRIPT_PATH"))
@@ -82,5 +80,6 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
     }
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-	ScriptSystem::Get().ActivateBehaviourScript(this);
+
+	ScriptSystem::Get().StartBehaviour(this);
 }

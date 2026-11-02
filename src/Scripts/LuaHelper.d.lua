@@ -6,6 +6,9 @@ function OnStart() end
 ---@param dt number
 function OnUpdate(dt) end
 
+---@param dt number
+function OnTrigger(dt) end
+
 ---@enum TransformSpace
 TransformSpace = {
 	Local = 0,
@@ -71,6 +74,16 @@ end
 
 ---@return Transform
 function Node:GetTransform()
+    return nil
+end
+
+---@return HealthComponent
+function Node:GetHealthComponent()
+    return nil
+end
+
+---@return PlayerComponent
+function Node:GetPlayerComponent()
     return nil
 end
 
@@ -167,6 +180,12 @@ end
 ---@param rotation Quat
 ---@param space TransformSpace|nil
 function Transform:Rotate(rotation, space)
+end
+
+---@param target Quat
+---@param t number
+---@param space TransformSpace|nil
+function Transform:SlerpRotation(target, t, space)
 end
 
 ---@param amount Vec3
@@ -1495,5 +1514,115 @@ end
 ---@param color Vec4|nil
 ---@param depth bool|nil
 function DebugDraw.DrawIcon(icon, position, size, color, depth)
+end
+
+---@class Scene
+Scene = {}
+
+---@param ray Ray
+---@return tuple<Node, RayHit>
+function Scene:RaycastNode(ray)
+    return nil
+end
+
+---@param ray Ray
+---@return Node[]
+function Scene:RaycastNodes(ray)
+    return nil
+end
+
+---@class SceneManager
+SceneManager = {}
+
+---@param scenePath string
+function SceneManager:LoadScene(scenePath)
+end
+
+---@param scenePath string
+function SceneManager:UnloadScene(scenePath)
+end
+
+---@param scene Scene
+function SceneManager:ActivateScene(scene)
+end
+
+---@param scene Scene
+function SceneManager:DeactivateScene(scene)
+end
+
+---@param sceneName string
+---@return Scene
+function SceneManager:GetScene(sceneName)
+    return nil
+end
+
+---@return Scene[]
+function SceneManager:GetActiveScenes()
+    return nil
+end
+
+---@class HealthComponent
+HealthComponent = {}
+
+---@return float
+function HealthComponent:GetHealth()
+    return nil
+end
+
+---@return float
+function HealthComponent:GetMaxHealth()
+    return nil
+end
+
+---@param amount number
+function HealthComponent:TakeDamage(amount)
+end
+
+---@param amount number
+function HealthComponent:Heal(amount)
+end
+
+---@param amount number
+function HealthComponent:SetHealth(amount)
+end
+
+---@param amount number
+function HealthComponent:SetMaxHealth(amount)
+end
+
+---@class PlayerComponent
+PlayerComponent = {}
+
+---@return PlayerBehaviour
+function PlayerComponent:GetPlayerBehaviour()
+    return nil
+end
+
+---@class PlayerBehaviour
+PlayerBehaviour = {}
+
+---@return float
+function PlayerBehaviour:GetMaxHealth()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatResistance()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatLevel()
+    return nil
+end
+
+---@param amount number
+function PlayerBehaviour:IncreaseHeatLevel(amount)
+end
+
+---@param amount number
+---@return HeatResistance
+function PlayerBehaviour:SetHeatLevel(amount)
+    return nil
 end
 

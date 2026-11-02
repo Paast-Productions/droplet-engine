@@ -6,6 +6,7 @@
 #include "LuaApiGenerator.hpp"
 
 #include <sol/sol.hpp>
+#include <SceneSystem/SceneManager.hpp>
 
 namespace Droplet::Script::Bindings
 {
@@ -22,7 +23,7 @@ namespace Droplet::Script::Bindings
 		/// functionality that should be exposed to the Lua scripting environment.
 		/// @param p_luaState Lua state in which the engine bindings should be
 		/// registered.
-		static void RegisterBindings(sol::state_view p_luaState);
+		static void RegisterBindings(sol::state_view p_luaState, Droplet::Scene::SceneManager &p_sceneManager);
 
 		/// @brief Pushes a LuaGlobalFunctionDefinition to the internal vector.
 		/// This function is used to add a new global function definition to the
@@ -95,6 +96,12 @@ namespace Droplet::Script::Bindings
 		/// @param p_luaState Lua state in which the Tracy bindings should be registered.
 		static void RegisterTracy([[maybe_unused]] sol::state_view p_luaState);
 
+		static void RegisterHealthComponent(sol::state_view p_luaState);
+
+		static void RegisterPlayerComponent(sol::state_view p_luaState);
+
+		static void RegisterPlayerBehaviour(sol::state_view p_luaState);
+		
 		// TODO: Implement additional engine bindings as functionality is added.
 	};
 }

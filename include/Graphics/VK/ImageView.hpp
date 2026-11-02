@@ -11,7 +11,10 @@ namespace Droplet::Graphics::VK
     class ImageView
     {
     public:
-        ImageView() = delete;
+        ImageView()
+        {
+            m_imageView = nullptr;
+        }
     
         /// @brief Image View Nullptr Constructor
         ImageView(nullptr_t p_nullptr)
@@ -27,7 +30,7 @@ namespace Droplet::Graphics::VK
         /// @param p_device Vulkan Device
         /// @param p_image Vulkan Image
         ImageView(const vk::raii::Device &p_device, 
-            const vma::raii::Image &p_image);
+            vk::Image p_image);
         
         /// @brief Image View Constructor
         /// @param p_device Vulkan Device
@@ -35,7 +38,7 @@ namespace Droplet::Graphics::VK
         /// @param p_format Vulkan Image Format
         /// @param p_aspectFlagBits Image Aspect Flags
         ImageView(const vk::raii::Device &p_device, 
-            const vma::raii::Image &p_image, 
+            vk::Image p_image, 
             vk::Format p_format,
             vk::ImageAspectFlagBits p_aspectFlagBits);
         

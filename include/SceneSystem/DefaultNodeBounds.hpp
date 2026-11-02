@@ -11,14 +11,15 @@ namespace Droplet::Scene
     class DefaultNodeBounds : public NodeBounds
     {
     public:
-        DefaultNodeBounds(glm::vec3 p_pos, glm::vec3 p_ext) : m_aabb(p_pos, p_ext) {}
+        DefaultNodeBounds(Math::OBB p_obb) : m_obb(p_obb) {}
+        DefaultNodeBounds(glm::vec3 p_pos, glm::vec3 p_ext, glm::mat3 p_orientation = glm::mat3(1.0f)) : m_obb(p_pos, p_ext, p_orientation) {}
         ~DefaultNodeBounds() = default;
 
         /// @brief Gets the axis-aligned bounding box (AABB) representation of the node bounds in local-space.
         /// @return The AABB of the node bounds in local-space.
         [[nodiscard]] Math::AABB GetAABB() const override
         {
-            return m_aabb;
+            return Math::OBBToAABB(m_obb);
         }
 
 		/// @brief Returns a transformed OBB of the default node bounds using the provided world matrix.
@@ -26,7 +27,7 @@ namespace Droplet::Scene
 		/// @return A transformed OBB representing the default node bounds in world space.
         [[nodiscard]] Math::OBB GetTransformedOBB(const glm::mat4x4 &p_worldMat) const
         {
-            return Math::OBB::Transform(Math::AABBToOBB(m_aabb), p_worldMat);
+            return Math::OBB::Transform(m_obb, p_worldMat);
         }
 
         /// @brief Determines whether the default node bounds intersects with a plane.
@@ -78,6 +79,6 @@ namespace Droplet::Scene
         }
 
     private:
-        Math::AABB m_aabb;
+        Math::OBB m_obb;
     };
 }

@@ -3,13 +3,109 @@
 #include <ImGui/imgui.h>
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <SerializationContext.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
 
 using namespace Droplet::Scene;
 
-Component::Component()
+void Component::Start()
 {
-	ZoneScoped;
+	[[unlikely]]
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		assert(ComponentRegistry::HasComponent(GetTypeName()), "Cannot construct a component that has not been registered.");
+	}
 
+	if (!IsActive() || m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	StartImpl();
+
+	m_started = true;
+}
+
+void Component::Update()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	UpdateImpl();
+}
+
+void Component::LateUpdate()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	LateUpdateImpl();
+}
+
+void Component::FixedUpdate()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	FixedUpdateImpl();
+}
+
+void Component::EditorUpdate()
+{
+	if (!m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	EditorUpdateImpl();
+}
+
+void Component::QueueRender()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	QueueRenderImpl();
+}
+
+Droplet::Graphics::RenderData Component::GetRenderData()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return {};
+	}
+
+	Droplet::Graphics::RenderData rData = GetRenderDataImpl();
+	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
+
+	return rData;
 }
 
 void Component::RenderUI()
@@ -17,14 +113,13 @@ void Component::RenderUI()
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
-    // TODO: Set active, delete
-
 	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
 	if (ImGui::BeginChild("ComponentUI", ImVec2(0,0), childFlags))
 	{
-		if (ImGui::Button("Remove Component"))
+		bool active = IsActiveSelf();
+		if (ImGui::Checkbox("Active", &active))
 		{
-			m_owner.lock()->RemoveComponent(this);
+			SetActiveSelf(active);
 		}
 
 		ImGui::Dummy(ImVec2(0, 8.0f));
@@ -61,7 +156,26 @@ bool Component::IsActive() const
 
 void Component::SetActiveSelf(bool p_active)
 {
+	bool wasActive = IsActive();
+
 	m_active = p_active;
+
+	bool isActive = IsActive();
+
+	if (wasActive != isActive)
+	{
+		ActiveChanged(isActive);
+	}
+}
+
+void Component::ActiveChanged(const bool p_active)
+{
+	if (p_active && !m_started)
+	{
+		Start();
+	}
+
+	ActiveChangedImpl(p_active);
 }
 
 nlohmann::json Component::Serialize()
@@ -74,11 +188,12 @@ nlohmann::json Component::Serialize()
     // TODO: Insert component type name.
 	// This is how we know what type of component to create when deserializing.
     // Must be an exact match to the type name used in the ComponentRegistry.
-    compJson["type"] = ""; 
-
+    compJson["type"] = GetTypeName(); 
+	compJson["id"] = GetID();
 	compJson["data"] = SerializeImpl();
+	compJson["active"] = IsActiveSelf();
 
-    return SerializeImpl();
+    return compJson;
 }
 
 void Component::Deserialize(const nlohmann::json p_compJson)
@@ -86,8 +201,20 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
+	if (p_compJson.contains("active"))
+	{
+		SetActiveSelf(p_compJson["active"].get<bool>());
+	}
+
+	if (!p_compJson.contains("data"))
+	{
+		throw std::runtime_error("Component is missing field 'data'");
+	}
 	nlohmann::json dataJson = p_compJson["data"];
-    //const nlohmann::json dataJson = p_compJson["data"];
 
 	DeserializeImpl(dataJson);
+}
+
+void Component::ResolveReferences([[maybe_unused]] SerializationContext &p_context)
+{
 }

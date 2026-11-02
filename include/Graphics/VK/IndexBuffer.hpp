@@ -13,8 +13,10 @@ namespace Droplet::Graphics::VK
 	class IndexBuffer
 	{
 	public:
-		/// @brief Deleted constructor
-		IndexBuffer() = delete;
+		IndexBuffer()
+		{
+			m_indexBuffer = nullptr;
+		}
 		
 		IndexBuffer(nullptr_t p_nullptr)
 		{
@@ -25,13 +27,14 @@ namespace Droplet::Graphics::VK
 		/// @param p_allocator VMA RAII Allocator
 		/// @param p_indices Vector containing index data
 		IndexBuffer(const vma::raii::Allocator &p_allocator,
-			const std::vector<std::uint16_t> &p_indices);
+			const std::vector<std::uint32_t> &p_indices);
 		
 		IndexBuffer(const IndexBuffer &) = delete;
 		IndexBuffer &operator=(const IndexBuffer &) = delete;
 		
 		IndexBuffer(IndexBuffer &&p_other) noexcept
 		{
+			m_indexCount = p_other.m_indexCount;
 			m_indexBuffer = std::move(p_other.m_indexBuffer);
 		}
 		
@@ -41,7 +44,7 @@ namespace Droplet::Graphics::VK
 			{
 				return *this;
 			}
-			
+			m_indexCount = p_other.m_indexCount;
 			m_indexBuffer = std::move(p_other.m_indexBuffer);
 			
 			return *this;
@@ -52,15 +55,19 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const IndexBuffer &p_other) const
 		{
-			return m_indexBuffer == p_other.m_indexBuffer;
+			return m_indexBuffer == p_other.m_indexBuffer && m_indexCount == p_other.m_indexCount;
 		}
 		
 		/// @brief Getter-function for the index buffer
 		/// @returns Vulkan Buffer Pointer
 		[[nodiscard]] const vk::raii::Buffer &Get() const { return m_indexBuffer; }
+
+		/// @brief Getter function for number of indices in index buffer
+		/// @return Number of indices
+		[[nodiscard]] std::uint32_t GetIndexCount() { return m_indexCount; }
 		
 	private:
 		vma::raii::Buffer m_indexBuffer { nullptr };
-		
+		std::uint32_t m_indexCount = 0;
 	};
 }

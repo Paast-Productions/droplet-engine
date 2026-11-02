@@ -5,8 +5,6 @@
 #include <fstream>
 #include <tracy/public/tracy/Tracy.hpp>
 
-using Droplet::Debug::Logger;
-
 namespace Droplet::Core::JsonIO
 {
 	nlohmann::json Read(const std::string &p_path)
@@ -26,8 +24,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger& log = Logger::GetInstance();
-			log.Log(Logger::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		return j;
@@ -49,15 +46,14 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger &log = Logger::GetInstance();
-			log.Log(Logger::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 		}
 	}
 
 	nlohmann::json ModifyWithAction(const std::string &p_path, const nlohmann::json &p_data, ModifyAction p_modifyAction)
 	{
 		
-		nlohmann::json j;
+		nlohmann::json j {};
 		std::ifstream fileRead(p_path);
 		if (!fileRead.is_open())
 		{
@@ -69,8 +65,7 @@ namespace Droplet::Core::JsonIO
 		}
 		catch (nlohmann::json::parse_error &e)
 		{
-			Logger &log = Logger::GetInstance();
-			log.Log(Logger::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
+			Log(Droplet::Debug::LogType::Error, "Error reading JSON from file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		fileRead.close();
@@ -96,9 +91,8 @@ namespace Droplet::Core::JsonIO
 			fileWrite << j.dump(indentation) << "\n";
 		}
 		catch (nlohmann::json::parse_error &e)
-		{
-			Logger& log = Logger::GetInstance();
-			log.Log(Logger::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
+		{	
+			Log(Droplet::Debug::LogType::Error, "Error writing JSON to file: " + p_path + ": " + e.what());
 			return nlohmann::json::value_t::discarded;
 		}
 		fileWrite.close();
@@ -107,7 +101,7 @@ namespace Droplet::Core::JsonIO
 
 	void DeleteFile(const std::string &path)
 	{
-		std::remove(path.c_str());
+		static_cast<void>(std::remove(path.c_str()));
 	}
 
 	void CreateFile(const std::string &path)

@@ -1,0 +1,29 @@
+{
+    "resources": [
+        {
+            "displayName": "TestRigNoSkin",
+            "guid": 1512957641427530198,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "TestRig.001",
+            "type": 3
+        },
+        {
+            "displayName": "TestRig",
+            "guid": 13196416801257446397,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "TestRig.001",
+            "type": 4
+        }
+    ]
+}]
+}

@@ -3,12 +3,14 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-
 #include <SceneSystem/bounds/NodeBounds.hpp>
+#include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene
 {
-    class Node; // Forward declaration
+    // Forward declaration
+    class Node;
+    class SerializationContext;
 
     /// @brief Base class for components that can be attached to a Node.
     ///
@@ -21,11 +23,8 @@ namespace Droplet::Scene
     class Component : public std::enable_shared_from_this<Component>
     {
     public:
-        /// @brief Constructs an empty Component.
-        Component();
-
-        /// @brief Virtual destructor.
-        virtual ~Component() = default;
+		Component() = default;
+		virtual ~Component() = default;
 
         Component(const Component &) = delete;			    // Copy constructor
         Component(Component &&) = delete;					// Move constructor
@@ -46,14 +45,35 @@ namespace Droplet::Scene
         /// Called when the owning Node starts participating in an active Scene.
         /// This function is called at most once for each Component.
         /// Derived classes can override this function to perform startup logic.
-        virtual void Start() {}
+        void Start();
 
         /// @brief Updates the component.
         ///
         /// Called once per update for components attached to active Nodes.
+    	void Update();
+
+    	/// @brief Late updates the component.
+    	///
+    	/// Called once per update for components attached to active Nodes.
+    	void LateUpdate();
+
+    	/// @brief Updates the component in fixed time.
+    	void FixedUpdate();
+
+		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
         ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void Update([[maybe_unused]] float p_deltaTime) {}
+        /// Called once per update for components attached to active Nodes.
+    	void EditorUpdate();
+
+		/// @brief Notifies the scene that the component wants to be rendered this frame.
+		/// 
+        /// Cameras use this to request a render pass for their view. 
+		/// Renderable components use this to notify cameras that they should be rendered.
+        void QueueRender();
+
+		/// @brief Retrieves any resources needed for rendering the component.
+		/// @return A RenderData object containing the component's rendering data.
+        [[nodiscard]] Droplet::Graphics::RenderData GetRenderData();
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -100,22 +120,54 @@ namespace Droplet::Scene
 		/// @throws std::runtime_error if the component has no owner.
         [[nodiscard]] bool IsActive() const;
 
-		/// @brief Check if the component itself is avtive.
+		/// @brief Check if the component itself is active.
 		/// @return A shared pointer to the owning Node, or nullptr if the
         [[nodiscard]] bool IsActiveSelf() const { return m_active; }
 
 		/// @brief Sets whether the component itself is active.
 		/// @param p_active true to activate the component, false to deactivate it.
         void SetActiveSelf(bool p_active);
+
+		/// @brief Called when the component becomes active or inactive. 
+        /// 
+		/// Note: This is called the active stack changes, not just it's internal active state. 
+		/// For example, if the owning node is already inactive, setting this component to active or inactive 
+		/// will not trigger this function, as the effective active state of the component has not changed.
+		/// @param p_active true if the component is now active, false if it is now inactive.
+		void ActiveChanged(const bool p_active);
         
-		/// @brief Determines whether the component makes the Node renderable, components that are renderable should override this function and return true.
-		/// @return true if the component is renderable, otherwise false.
-        [[nodiscard]] virtual bool IsRenderable() const
-        {
-            return false;
-        }
+        /// @brief Retrieves the components ID
+        /// @return std::uint64_t m_id
+        std::uint32_t GetID() const { return m_id; }
+
+
+        /// @brief Finds the correct node for the component with it's serializedID
+        /// 
+        /// This functions is used by components when they are deserialized,
+        /// after all nodes and components are created we lookup what id they had so the newly 
+        /// created node/component can be set as a target and more easily referenced
+        /// 
+        /// @param p_context The context that holds the mapping of newly deserialized nodes and components
+        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
 
     protected:
+
+        virtual void StartImpl() {}
+
+        virtual void UpdateImpl() {}
+    	
+    	virtual void LateUpdateImpl() {}
+    	
+    	virtual void FixedUpdateImpl() {}
+
+        virtual void EditorUpdateImpl() {}
+    	
+    	virtual void ActiveChangedImpl(const bool p_active) {}
+
+        virtual void QueueRenderImpl() {}
+
+        [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
+
 		/// @brief Internal rendering function for the component's UI.
         /// 
 		/// Overloaded by derived components to implement their own UI rendering logic.
@@ -133,13 +185,18 @@ namespace Droplet::Scene
 		/// @param p_compJson A JSON object containing the component's state.
         virtual void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) { }
 
+        /// @brief Sets the component to be renderable
+        [[nodiscard]] void SetRenderable() { m_renderable = true; }
+
     private:
         friend class Node;
 
+		bool m_started = false;
 		bool m_active = true;
+        bool m_renderable = false;
 
         std::weak_ptr<Node> m_owner{};
-
+        std::uint64_t m_id = 0;
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when

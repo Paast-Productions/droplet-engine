@@ -23,6 +23,8 @@ namespace Droplet::Scene
     public:
         ScriptBehaviour() = default;
 
+        void PostUpdate() override;
+
         /// @brief Gets the type name of the behaviour.
         /// @return The type name of the behaviour.
         std::string_view GetTypeName() override { return "ScriptBehaviour"; }
@@ -41,18 +43,6 @@ namespace Droplet::Scene
         /// Removes the relationship between this component and its associated
         /// script instance.
         void DetachScript();
-
-        /// @brief Activates the script associated with this component.
-        ///
-        /// An activated script participates in the scripting system's update
-        /// cycle.
-        void ActivateScript();
-
-        /// @brief Deactivates the script associated with this component.
-        ///
-        /// A deactivated script no longer participates in the scripting
-        /// system's update cycle.
-        void DeactivateScript();
 
 	protected:
 		/// @brief Internal rendering function for the component's UI.

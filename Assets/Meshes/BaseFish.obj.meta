@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "BaseFish",
+            "guid": 6487672309164947188,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "BaseFish",
+            "type": 3
+        }
+    ]
+}

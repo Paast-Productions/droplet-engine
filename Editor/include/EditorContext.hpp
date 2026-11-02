@@ -5,8 +5,12 @@
 #include <Scene/EditorCameraController.hpp>
 #include <Graphics/VK/Renderer.hpp>
 #include <Engine/Engine.hpp>
+#include <SceneSystem/Node.hpp>
 namespace Droplet::Editor
 {
+
+	
+
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext 
 	{
@@ -19,15 +23,7 @@ namespace Droplet::Editor
 		/// @return A reference to the engine that this context is associated with.
 		[[nodiscard]] Droplet::Engine &GetEngine();
 		
-		/// @breif Get the renderer
-		/// @returns A custom renderer class
-		[[nodiscard]] Droplet::Graphics::Renderer &GetRenderer();
-		
-		/// @brief Get the resource manager.
-		/// @return A reference to the resource manager that this context is associated with.
-		[[nodiscard]] Droplet::ResourceManager &GetResourceManager();
-
-		/// @breif Get the EditorCamera
+		/// @brief Get the EditorCamera
 		/// @returns The Camera of the sceneView
 		[[nodiscard]] Scene::EditorCamera &GetEditorCamera();
 
@@ -47,11 +43,38 @@ namespace Droplet::Editor
 		/// @param p_sceneName The name of the scene to set as active
 		void SetActiveScene(std::string p_sceneName);
 
+		/// @brief Creates a fresh new scene
+		/// @param p_sceneName scene name
+		void CreateNewScene(std::string p_sceneName);
+		
+		/// @brief Serializes the scene
+		/// @param filepath filepath
+		void SaveScene(const std::string &filepath);
+
+		/// @brief Loads a scene from a file
+		/// @param p_filepath Filepath
+		void LoadFromFile(const std::string &p_filepath);
+		/// @brief Serializes a node
+		/// @param filepath Filepath to save node to
+		/// @param p_node The node to serialize
+		void SaveNode(const std::string &filepath, const Droplet::Scene::Node &p_node);
+
+		/// @brief Loads a node from a pre-existing file
+		/// @param filepath File
+		void LoadNodeFromFile(std::string &filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+
+		/// @brief Get if the editor is currently in play mode or not
+		/// @return isPlayMode
+		bool GetIsPlayMode();
+
+		/// @brief Set the editor to play mode or not
+		void SetIsPlayMode(bool p_playMode);
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
 		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+		bool m_isPlayMode = false;
 	};
 }
