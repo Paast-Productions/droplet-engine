@@ -84,6 +84,7 @@ namespace Droplet::Editor::Scene
 		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
 
 		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void SetCameraPivotPoint(const glm::vec3 &p_pivot); // Is it even needed?
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
 

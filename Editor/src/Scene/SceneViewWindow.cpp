@@ -461,6 +461,20 @@ void SceneViewWindow::RenderImpl()
 			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
+		// Camera snaping
+		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
+		if (input.KeyPressed(Key::KeyZ) && !ctrlPressed)
+		{
+			// Something along this. But make sure you actually get a selected node i guess
+			// m_editorContext->GetInteractionState().GetSelectedNodes()[0]->GetTransform().GetPosition();
+
+			// Position can be changed using imgui?
+			glm::vec3 v3 = glm::vec3(0.0f, 0.0f, 0.0f);
+
+			// Radius can be a slider for camera control right?
+			SetCameraPivot(v3, 2.0f);
+			ApplyCameraPivot();
+		}
 	}
 
 	if (m_hoveringSceneView || isWindowFocused)
@@ -1224,6 +1238,11 @@ void SceneViewWindow::SetCameraPivot(const glm::vec3 &p_pivot, float p_radius)
 
 	// Save camera pivot radius
 	EditorConfig::StoreFloat("Editor.CameraPivotRadius", m_cameraPivotRadius);
+}
+
+void SceneViewWindow::SetCameraPivotPoint(const glm::vec3 &p_pivot)
+{
+	SetCameraPivot(p_pivot, m_cameraPivotRadius);
 }
 
 void SceneViewWindow::ApplyCameraPivot()
