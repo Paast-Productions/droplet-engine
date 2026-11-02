@@ -29,6 +29,7 @@ namespace Droplet::Devtools::SlugGenerator
 				m_curves->resize(m_curvesSize);
 				m_bandOffsets->resize(m_bandOffsetsSize);
 				m_curveOffsets->resize(m_curveOffsetsSize);
+				m_codePoints->resize(m_codePointsSize);
 			}
 		}
 		

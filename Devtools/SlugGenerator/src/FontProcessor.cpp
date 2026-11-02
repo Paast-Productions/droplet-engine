@@ -10,7 +10,11 @@
 Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
 	: m_path(p_path), m_bandCount(p_bandCount)
 {
-	assert(p_bandCount > 0); // We must have a number of bands.
+	if (p_bandCount == 0)
+	{
+		Error("Band count must be greater than zero.");
+		return;
+	}
 	
 	// TODO: Check over the failure cases. When should we fatally fail etc?
 	m_isValid = false;
@@ -45,15 +49,13 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	
 	std::filesystem::path outpath = p_path;
 	outpath.replace_extension(".slug");
-	if (SaveData(outpath))
-	{
-		Logger::PrintInfo("Successfully saved font data to {}.", "fooPath");
-	}
-	else
+	if (!SaveData(outpath))
 	{
 		Logger::PrintError("Could not save font data.");
+		return;
 	}
 	
+	Logger::PrintInfo("Successfully saved font data to {}.", "fooPath");
 	Logger::PrintEmpty();
 	m_isValid = true;
 }
@@ -212,8 +214,14 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	// Generate the horizontal bands
 	for (uint32_t b = 0; b < bandCount; ++b)
 	{
-		uint16_t bandTexelOffset = static_cast<uint16_t>(m_bandsTextureCurveOffsets.size()) / 2;
-		uint16_t curveCount = 0; 
+		size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
+		if (bandTexelOffset > UINT16_MAX)
+		{
+			Logger::PrintError("Band reference offset exceeds 16-bit range.");
+			return false;
+		}
+		
+		size_t curveCount = 0;
 		
 		for (const Curve& curve : curves)
 		{
@@ -237,8 +245,16 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			++curveCount;
 		}
 		
-		m_bandsTextureBandOffsets.push_back(curveCount);
-		m_bandsTextureBandOffsets.push_back(bandTexelOffset);
+		
+		if (curveCount > UINT16_MAX)
+		{
+			Logger::PrintError("Curve count exceeds 16-bit range.");
+			return false;
+		}
+		m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
+		
+		const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
+		m_bandsTextureBandOffsets.push_back(storedOffset);
 		
 		// Advance the band boundaries
 		bandMinY += static_cast<float>(bandDimY);
@@ -335,7 +351,11 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		if (c.texelIndex / TEXTURE_WIDTH
 			!=
 			(c.texelIndex + 1) / TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
+		{
 			Logger::PrintError("Encoding failed! Texel indices {} and {} are not in the same row.", c.texelIndex, c.texelIndex + 1);
+			return false;
+		}
+		
 	}
 	
 	transaction.Commit();
@@ -352,12 +372,12 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	}
 	
 	// Adjust the offsets to account for...
-	const uint32_t bandsTexTexels = static_cast<uint32_t>(m_bandsTextureBandOffsets.size() + m_bandsTextureCurveOffsets.size() / 2);
-	const uint16_t bandHeaderTexels = static_cast<uint16_t>(m_bandsTextureBandOffsets.size() / 2);
+	const size_t bandsTexTexels = (m_bandsTextureBandOffsets.size() + m_bandsTextureCurveOffsets.size()) / 2;
+	const size_t bandHeaderTexels = m_bandsTextureBandOffsets.size() / 2;
 	for (size_t i = 0; i < m_bandsTextureBandOffsets.size(); i += 2)
 	{
-		const uint32_t curveCount = m_bandsTextureBandOffsets[i];
-		const uint16_t adjustedOffset = m_bandsTextureBandOffsets[i+1] + bandHeaderTexels;
+		const size_t curveCount = m_bandsTextureBandOffsets[i];
+		const size_t adjustedOffset = m_bandsTextureBandOffsets[i+1] + bandHeaderTexels;
 		
 		if (adjustedOffset > UINT16_MAX ||
 			adjustedOffset > bandsTexTexels ||
@@ -379,32 +399,32 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
-	outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN);
+	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
 	
 	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());
-	outFile.WriteBytes(&codePointCount, sizeof(codePointCount));
-	outFile.WriteBytes(m_codePoints.data(), codePointCount * sizeof(SlugCodePoint));
+	if (!outFile.WriteBytes(&codePointCount, sizeof(codePointCount))) return false;
+	if (!outFile.WriteBytes(m_codePoints.data(), codePointCount * sizeof(SlugCodePoint))) return false;
 	
 	const uint32_t curvesTexTexels = m_curvesTexture.size() / 4;
 	const uint32_t curvesTexBytes = m_curvesTexture.size() * sizeof(m_curvesTexture.front());
 	const uint16_t curvesTexWidth = TEXTURE_WIDTH;
 	const uint16_t curvesTexHeight = (curvesTexTexels + curvesTexWidth - 1) / curvesTexWidth;
 	
-	outFile.WriteBytes(&curvesTexWidth, sizeof(curvesTexWidth));
-	outFile.WriteBytes(&curvesTexHeight, sizeof(curvesTexWidth));
-	outFile.WriteBytes(&curvesTexBytes, sizeof(curvesTexBytes));
-	outFile.WriteBytes(m_curvesTexture.data(), curvesTexBytes);
+	if (!outFile.WriteBytes(&curvesTexWidth, sizeof(curvesTexWidth))) return false;
+	if (!outFile.WriteBytes(&curvesTexHeight, sizeof(curvesTexWidth))) return false;
+	if (!outFile.WriteBytes(&curvesTexBytes, sizeof(curvesTexBytes))) return false;
+	if (!outFile.WriteBytes(m_curvesTexture.data(), curvesTexBytes)) return false;
 	
 	const uint16_t bandsTexWidth = TEXTURE_WIDTH;
 	const uint16_t bandsTexHeight = (bandsTexTexels + bandsTexWidth - 1) / bandsTexWidth;
 	const uint32_t bandsTexBytes = bandsTexTexels * sizeof(uint16_t) * 2;
 	
-	outFile.WriteBytes(&bandsTexWidth, sizeof(bandsTexWidth));
-	outFile.WriteBytes(&bandsTexHeight, sizeof(bandsTexHeight));
-	outFile.WriteBytes(&bandsTexBytes, sizeof(bandsTexBytes));
+	if (!outFile.WriteBytes(&bandsTexWidth, sizeof(bandsTexWidth))) return false;
+	if (!outFile.WriteBytes(&bandsTexHeight, sizeof(bandsTexHeight))) return false;
+	if (!outFile.WriteBytes(&bandsTexBytes, sizeof(bandsTexBytes))) return false;
 	
-	outFile.WriteBytes(m_bandsTextureBandOffsets.data(), m_bandsTextureBandOffsets.size() * sizeof(m_bandsTextureBandOffsets.front()));
-	outFile.WriteBytes(m_bandsTextureCurveOffsets.data(), m_bandsTextureCurveOffsets.size() * sizeof(m_bandsTextureCurveOffsets.front()));
+	if (!outFile.WriteBytes(m_bandsTextureBandOffsets.data(), m_bandsTextureBandOffsets.size() * sizeof(m_bandsTextureBandOffsets.front()))) return false;
+	if (!outFile.WriteBytes(m_bandsTextureCurveOffsets.data(), m_bandsTextureCurveOffsets.size() * sizeof(m_bandsTextureCurveOffsets.front()))) return false;
 	
 	return true;
 }
