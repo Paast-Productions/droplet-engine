@@ -4,45 +4,114 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SerializationContext.hpp>
+#include <Engine/EngineFlags.hpp>
+#include <SceneSystem/ComponentRegistry.hpp>
 
 using namespace Droplet::Scene;
 
-Component::Component()
-{
-	ZoneScoped;
-
-}
-
 void Component::Start()
 {
-	ZoneScoped;
-	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-	if (IsActive())
+	[[unlikely]]
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
 	{
-		StartImpl();
-
-		m_started = true;
+		assert(ComponentRegistry::HasComponent(GetTypeName()), "Cannot construct a component that has not been registered.");
 	}
+
+	if (!IsActive() || m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	StartImpl();
+
+	m_started = true;
 }
 
-void Component::Update(float p_deltaTime)
+void Component::Update()
 {
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	UpdateImpl();
+}
+
+void Component::LateUpdate()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size()); 
+	
+	LateUpdateImpl();
+}
+
+void Component::FixedUpdate()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
-	if (IsActive())
+	FixedUpdateImpl();
+}
+
+void Component::EditorUpdate()
+{
+	if (!m_started)
 	{
-		UpdateImpl(p_deltaTime);
+		return;
 	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	EditorUpdateImpl();
+}
+
+void Component::QueueRender()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	QueueRenderImpl();
+}
+
+Droplet::Graphics::RenderData Component::GetRenderData()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return {};
+	}
+
+	Droplet::Graphics::RenderData rData = GetRenderDataImpl();
+	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
+
+	return rData;
 }
 
 void Component::RenderUI()
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
-
-    // TODO: Set active, delete
 
 	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
 	if (ImGui::BeginChild("ComponentUI", ImVec2(0,0), childFlags))
@@ -87,12 +156,26 @@ bool Component::IsActive() const
 
 void Component::SetActiveSelf(bool p_active)
 {
+	bool wasActive = IsActive();
+
 	m_active = p_active;
 
-	if (m_active && !m_started)
+	bool isActive = IsActive();
+
+	if (wasActive != isActive)
+	{
+		ActiveChanged(isActive);
+	}
+}
+
+void Component::ActiveChanged(const bool p_active)
+{
+	if (p_active && !m_started)
 	{
 		Start();
 	}
+
+	ActiveChangedImpl(p_active);
 }
 
 nlohmann::json Component::Serialize()
@@ -108,6 +191,7 @@ nlohmann::json Component::Serialize()
     compJson["type"] = GetTypeName(); 
 	compJson["id"] = GetID();
 	compJson["data"] = SerializeImpl();
+	compJson["active"] = IsActiveSelf();
 
     return compJson;
 }
@@ -116,6 +200,11 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 {
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	if (p_compJson.contains("active"))
+	{
+		SetActiveSelf(p_compJson["active"].get<bool>());
+	}
 
 	if (!p_compJson.contains("data"))
 	{
@@ -126,6 +215,6 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	DeserializeImpl(dataJson);
 }
 
-void Droplet::Scene::Component::ResolveReferences([[maybe_unused]]SerializationContext &p_context)
+void Component::ResolveReferences([[maybe_unused]] SerializationContext &p_context)
 {
 }

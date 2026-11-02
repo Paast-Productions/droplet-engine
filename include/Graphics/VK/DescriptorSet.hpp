@@ -7,13 +7,13 @@
 
 namespace Droplet::Graphics::VK
 {
-    /// @enum DescriptorSetBinding
+    /// @enum DescriptorSetIndex
     /// @brief Enum that describes the binding index for each type of descriptor
-    enum class DescriptorSetBinding : std::uint32_t
+    enum class DescriptorSetIndex : std::uint32_t
     {
         eUniformBuffer = 0,
-        eStorageBuffer = 0, // Temporary
-        eCombinedImageSampler = 1
+        eStorageBuffer = 1,
+        eCombinedImageSampler = 2
     };
     
     /// @class DescriptorSet
@@ -34,7 +34,8 @@ namespace Droplet::Graphics::VK
         /// @brief DescriptorSet RAII Constructor
         /// @param p_device Vulkan Device
         /// @param p_descriptorPool Vulkan Descriptor Pool
-        DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool);
+        /// @param p_descriptorType Vulkan Descriptor Type
+        DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool, vk::DescriptorType p_descriptorType);
         
         DescriptorSet(const DescriptorSet &p_other) = delete;
         DescriptorSet &operator=(const DescriptorSet &p_other) = delete;
@@ -43,6 +44,7 @@ namespace Droplet::Graphics::VK
         {
             std::swap(m_descriptorSet, p_other.m_descriptorSet);
             std::swap(m_descriptorSetLayout, p_other.m_descriptorSetLayout);
+            m_descriptorType = p_other.m_descriptorType;
         };
         
         DescriptorSet &operator=(DescriptorSet &&p_other) noexcept
@@ -54,6 +56,7 @@ namespace Droplet::Graphics::VK
             
             std::swap(m_descriptorSet, p_other.m_descriptorSet);
             std::swap(m_descriptorSetLayout, p_other.m_descriptorSetLayout);
+            m_descriptorType = p_other.m_descriptorType;
             
             return *this;
         };
@@ -63,26 +66,25 @@ namespace Droplet::Graphics::VK
         bool operator==(const DescriptorSet &p_other) const
         {
             return (m_descriptorSet == p_other.m_descriptorSet              &&
-                    m_descriptorSetLayout == p_other.m_descriptorSetLayout);
+                    m_descriptorSetLayout == p_other.m_descriptorSetLayout  &&
+                    m_descriptorType == p_other.m_descriptorType);
         }
         
-        /// @brief Writes a uniform buffer descriptor to the uniform buffer binding in the descriptor set
+        /// @brief Writes a buffer descriptor to the descriptor set
         /// @param p_device Vulkan Device
         /// @param p_buffer VMA Buffer
         /// @param p_dstIndex Destination index of descriptor set
-        void WriteUniformBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex);
+        /// @throws std::runtime_error If descriptor type of descriptor set is not a buffer
+        void WriteDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex) const;
         
-        /// @brief Writes a storage buffer descriptor to the storage buffer binding in the descriptor set
-        /// @param p_device Vulkan Device
-        /// @param p_buffer VMA Buffer
-        /// @param p_dstIndex Destination index of descriptor set
-        void WriteStorageBufferDescriptor(const vk::raii::Device &p_device, const vma::raii::Buffer &p_buffer, std::uint32_t p_dstIndex);
-        
-        /// @brief Writes a combined image sampler descriptor to the combined image sampler binding in the descriptor set
+        /// @brief Writes a texture descriptor to the descriptor set 
         /// @param p_device Vulkan Device
         /// @param p_sampler Vulkan Sampler
         /// @param p_imageView Vulkan ImageView
-        void WriteCombinedImageSamplerDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView);
+        /// @param p_dstIndex Destination index of descriptor set
+        /// @throws std::runtime_error If descriptor type of descriptor set is not a texture
+        void WriteDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView, uint32_t
+                             p_dstIndex) const;
         
         /// @brief Getter-function for the descriptor set
         /// @return Vulkan DescriptorSet
@@ -95,8 +97,18 @@ namespace Droplet::Graphics::VK
     private:
         vk::raii::DescriptorSet m_descriptorSet { nullptr };
         vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
+        vk::DescriptorType m_descriptorType {};
         
-        std::vector<vk::ImageView> m_textures {};
-        std::vector<vk::Buffer> m_buffers {};
+        inline const static std::vector<vk::DescriptorType> s_bufferTypes 
+        {
+            vk::DescriptorType::eUniformBuffer,
+            vk::DescriptorType::eStorageBuffer
+        };
+        
+        inline const static std::vector<vk::DescriptorType> s_textureTypes 
+        {
+            vk::DescriptorType::eCombinedImageSampler  
+        };
+        
     };
 }

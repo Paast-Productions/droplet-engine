@@ -9,15 +9,18 @@ using namespace Droplet::Script;
 
 ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHandler)
 {
-	ZoneScoped;
-
-	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState());
 }
 
 ScriptSystem::~ScriptSystem()
 {
 	ZoneScoped;
+}
 
+void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
+{
+	ZoneScoped;
+
+	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState(), p_sceneManager);
 }
 
 void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
@@ -54,6 +57,19 @@ void Droplet::Script::ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p
 	m_scriptManager.UpdateBehaviour(p_scriptBehaviour, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		m_scriptManager.CheckForFileChanges();
+	}
+}
+
+void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+{
+	//if(p_component.AlreadyTriggered) return
+	ZoneScoped;
+	
+	m_scriptManager.TriggerComponent(p_scriptComponent, p_deltaTime);
+	
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
 	{
 		m_scriptManager.CheckForFileChanges();

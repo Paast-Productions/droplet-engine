@@ -3,6 +3,7 @@
 #include <ScriptSystem/ScriptInstance.hpp>
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSystem/SceneManager.hpp>
 #include "GameInput.hpp"
  
  using namespace Droplet::Script;
@@ -40,9 +41,10 @@
 
 TEST(ScriptInstance, OnStart)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
@@ -80,9 +82,10 @@ TEST(ScriptInstance, OnStart)
 
 TEST(ScriptInstance, OnStartUndefined)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
@@ -116,9 +119,10 @@ TEST(ScriptInstance, OnStartUndefined)
 
 TEST(ScriptInstance, onUpdate)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -160,9 +164,10 @@ TEST(ScriptInstance, onUpdate)
 
 TEST(ScriptInstance, OnUpdateUndefined)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -200,9 +205,10 @@ TEST(ScriptInstance, OnUpdateUndefined)
 
 TEST(ScriptInstance, Call)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -244,9 +250,10 @@ TEST(ScriptInstance, Call)
 
 TEST(ScriptInstance, CallUndefinedFunction)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -275,9 +282,10 @@ TEST(ScriptInstance, CallUndefinedFunction)
 
 TEST(ScriptInstance, callTooManyArguments)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -318,9 +326,10 @@ TEST(ScriptInstance, callTooManyArguments)
 
 TEST(ScriptInstance, callTooFewArguments)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 
@@ -361,9 +370,10 @@ TEST(ScriptInstance, callTooFewArguments)
 
 TEST(ScriptInstance, callError)
 {
+	Droplet::Scene::SceneManager sceneManager;
 	//Lua state initialization
 	LuaStateHandler stateHandler;
-	LuaBindings::RegisterBindings(stateHandler.GetState());
+	LuaBindings::RegisterBindings(stateHandler.GetState(), sceneManager);
 	auto scene = std::make_shared<Scene>("Scene1");
 	Node testNode(scene, "TestNode");
 

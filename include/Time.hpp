@@ -37,6 +37,13 @@ namespace Droplet
 		/// @returns The fixed delta time.
 		[[nodiscard]] float GetFixedDeltaTime() const;
 
+		/// @brief Get the fixed time accumulator and zeros it.
+		/// @return The fixed time accumulator.
+		[[nodiscard]] float GetFixedTimeAccumulator() const;
+
+		/// @brief Consumes the accumulator by the value of fixed delta time
+		void ConsumeFixedTime();
+
 		/// @brief Set the fixed delta time in seconds.
 		/// @param p_fixedDeltaTime The new fixed delta time.
 		void SetFixedDeltaTime(const float p_fixedDeltaTime);
@@ -45,7 +52,7 @@ namespace Droplet
 		std::chrono::high_resolution_clock::time_point m_startTime{};
 		std::chrono::high_resolution_clock::time_point m_lastTime{};
 		float m_deltaTime = 0.0f;
-		float m_fixedDeltaTime = 1.0f / 20.0f;
+		float m_fixedDeltaTime = 1.0f / 50.0f;
 		float m_accumulator = 0.0f;
 
 		/// @brief Get the current time.

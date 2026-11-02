@@ -34,7 +34,7 @@ namespace Droplet
 
     void ResourceManager::Update()
     {
-        ZoneScoped;
+		ZoneScopedC(tracy::Color::PaleGreen1);
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         
@@ -197,6 +197,16 @@ namespace Droplet
         return m_registry.GetEntries(p_type);
     }
 
+    bool ResourceManager::GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const
+    {
+        return m_registry.GetResourceMetaData(p_guid, p_metaEntry);
+    }
+
+    bool ResourceManager::GetResourceMetaEntry(const std::string &p_resourceName, MetaEntry &p_metaEntry) const
+    {
+		return m_registry.GetResourceMetaData(p_resourceName, p_metaEntry);
+    }
+
     std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(ResourceType p_type) const
     {
         return MetaUtils::GetSettingsSchema(p_type);
@@ -218,15 +228,11 @@ namespace Droplet
         
         // Sanitize entry
         MetaEntry originalEntry;
-        try
+        if (!m_registry.GetResourceMetaData(p_guid, originalEntry))
         {
-            originalEntry = m_registry.GetResourceMetaData(p_guid);
-        }
-        catch (...)
-        {
-            // TODO: Log warning
             return false;
         }
+        
         MetaEntry sanitizedEntry = p_updatedEntry;
         sanitizedEntry.guid = originalEntry.guid;
         sanitizedEntry.type = originalEntry.type;
@@ -366,7 +372,11 @@ namespace Droplet
         live.resource.reset(); // Clear RAM
         live.state = ResourceState::LoadingAsync;
         
-        MetaEntry metaEntry = m_registry.GetResourceMetaData(p_guid);
+        MetaEntry metaEntry; 
+        if (m_registry.GetResourceMetaData(p_guid, metaEntry))
+        {
+            // TODO: Log error (resource with p_guid was not found)
+        }
         
         // Look up the load dispatcher for the resource type and call it
         auto dispatcherIt = m_loadDispatchers.find(metaEntry.type);
@@ -378,6 +388,29 @@ namespace Droplet
         {
             // TODO: Log error (type is not registered)
         }
+    }
+
+    void ResourceManager::RemoveResourceMeta(const GUID p_guid, bool p_forceRemove)
+    {
+        if (!p_forceRemove)
+        {
+            if (GetRef(p_guid) > 0)
+            {
+                throw std::runtime_error("Cannot remove resource because it is in use");
+            }
+        }
+        
+        MetaEntry metaEntry;
+        m_registry.GetResourceMetaData(p_guid, metaEntry);
+        
+        const std::filesystem::path path = m_rootDirectory / (metaEntry.relAssetPath + ".meta");
+        if (!std::filesystem::remove(path))
+        {
+            Debug::Log(Debug::LogType::Warning, "Could not remove resource " + path.generic_string());
+            return;
+        }
+        m_registry.RemoveMetaEntry(p_guid);
+        m_liveResources.erase(p_guid);
     }
 
     std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,

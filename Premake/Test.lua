@@ -63,7 +63,9 @@ project "Test"
         "bvh",
         "stb",
         "Sol2",
-        "tracy"
+        "Lua",
+        "tracy",
+        "Jolt"
     }
 
     links
@@ -79,5 +81,6 @@ project "Test"
         AddQuotation("assimp-mtd"),
         AddQuotation("Shaderc"),
         AddQuotation("Slangd"),
-		AddQuotation("lua-5.4.7")
+		AddQuotation("lua_static"),
+        AddQuotation("Jolt")
     }

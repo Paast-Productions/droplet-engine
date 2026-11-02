@@ -911,7 +911,7 @@ IntersectType Droplet::Math::Intersects(const Frustum &p_this, const OBB &p_othe
 
 		for (const glm::vec3 &corner : obbCorners)
 		{
-			if (SignedDistanceToPlane(plane, corner) <= EPSILON)
+			if (SignedDistanceToPlane(plane, corner) >= -EPSILON)
 			{
 				allOutside = false;
 				break;

@@ -16,6 +16,8 @@
 #include <string>
 #include <chrono>
 
+#include <ImGui/imgui_impl_vulkan.h>
+#include <ImGui/imgui_impl_sdl3.h>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
@@ -38,43 +40,62 @@ using namespace Droplet::Graphics;
 Renderer::Renderer(SDL_Window *p_window) :
 	m_window							{ p_window },
 	m_context							{ m_window, m_vkContext},
-	m_swapchain							{ m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() },
-	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT },
-	m_descriptorPool					{ m_context.GetDevice() },
-	m_globalDescriptorSet				{ m_context.GetDevice(), m_descriptorPool.Get() },
-	m_interStorage						{ m_context, m_globalDescriptorSet },
-	m_depthBuffer						{ m_interStorage.GetAllocator(), m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetExtent() }
+	m_commandPool						{ m_context.GetDevice(), m_context.GetQueueIndex(), vk::CommandPoolCreateFlagBits::eResetCommandBuffer, MAX_FRAMES_IN_FLIGHT}
 {
 	ZoneScoped;
-
+	
+	VK::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
+	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+	
 	// TODO: <REFACTOR>
+	
+	// - - - - - - - - - - //
+	//         Debug       //
+	// - - - - - - - - - - //
+	
+	vk::DescriptorPoolSize poolSize
+	{
+		.type = vk::DescriptorType::eUniformBuffer,
+		.descriptorCount = 2
+	};
+	
+	vk::DescriptorPoolCreateInfo debugPoolInfo
+	{ 
+		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+		.maxSets = 3,
+		.poolSizeCount = 1,
+		.pPoolSizes = &poolSize 
+	};
+	
+	m_debugDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), debugPoolInfo);
 	
 	Debug::DebugDraw::Get().Initialize(
 		m_context.GetInstance(),
 		m_context.GetPhysicalDevice(),
 		m_context.GetDevice(),
-		m_interStorage.GetAllocator(),
+		VK::IntermediaryStorage::GetInstance().GetAllocator(),
 		m_context.GetQueue(),
 		m_commandPool.Get(),
-		m_descriptorPool.Get(),
+		m_debugDescriptorPool,
 		m_swapchain.GetSurfaceFormat().format,
-		m_depthBuffer.GetFormat(),
+		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 
-	const VK::ViewProjectionBuffer vpb
+	constexpr VK::ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),
 		.proj = glm::mat4(1)
 	};
 	
-	m_vpBuffer = { m_interStorage.GetAllocator(), vpb };
-
-	m_graphicsPipeline = {};
-	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
+	m_vpBufferIndex = VK::IntermediaryStorage::GetInstance().CreateBufferResource<VK::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
 
 	CreateSyncObjects();
 
-	std::array<vk::DescriptorPoolSize, 2> poolSizes
+	// - - - - - - - - - - //
+	//         ImGui       //
+	// - - - - - - - - - - //
+	
+	std::array<vk::DescriptorPoolSize, 2> imGuiPoolSizes
 	{
 		{
 			{ 
@@ -88,56 +109,53 @@ Renderer::Renderer(SDL_Window *p_window) :
 		}
 	};
 
-	vk::DescriptorPoolCreateInfo poolInfo
+	vk::DescriptorPoolCreateInfo imGuiPoolInfo
 	{
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
 		.maxSets = 0,
-		.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
-		.pPoolSizes = poolSizes.data()
+		.poolSizeCount = static_cast<std::uint32_t>(imGuiPoolSizes.size()),
+		.pPoolSizes = imGuiPoolSizes.data()
 	};
 
-	for (vk::DescriptorPoolSize &poolSize : poolSizes)
+	for (vk::DescriptorPoolSize &imGuiPoolSize : imGuiPoolSizes)
 	{
-		poolInfo.maxSets += poolSize.descriptorCount;
+		imGuiPoolInfo.maxSets += imGuiPoolSize.descriptorCount;
 	}
-	m_imGuiPoolSize = poolInfo.maxSets;
-	m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), poolInfo);
+	
+	m_imGuiPoolSize = imGuiPoolInfo.maxSets;
+	m_imGuiDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), imGuiPoolInfo);
+	
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Docking Branch
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+	ImGui_ImplSDL3_InitForVulkan(m_window);
+	ImGui_ImplVulkan_InitInfo initInfo {};
+	GetImGuiInitInfo(initInfo);
+	ImGui_ImplVulkan_Init(&initInfo);
 }
 
 //Idle the device to allow for cleanup of swapchain and destroy window
 Renderer::~Renderer()
 {
 	ZoneScoped;
-
-	Debug::DebugDraw::Get().Shutdown();
+	
 	m_context.GetDevice().waitIdle();
-	m_swapchain.Cleanup(m_context.GetDevice());
+	Debug::DebugDraw::Get().Shutdown();
+	VK::IntermediaryStorage::GetInstance().Shutdown();
+	ImGui_ImplVulkan_Shutdown();
+	ImGui_ImplSDL3_Shutdown();
 }
 
 //Called to notify the renderer of a window resizing event
 void Renderer::ResizeWindow()
 {
 	m_framebufferResized = true;
-}
-
-RenderTarget Renderer::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
-{
-	return RenderTarget(
-		m_interStorage.GetAllocator(),
-		m_context.GetDevice(),
-		m_context.GetPhysicalDevice(),
-		p_width,
-		p_height
-	);
-}
-
-VkDescriptorSet Renderer::RegisterImGuiTexture(RenderTarget &p_renderTarget)
-{
-	return ImGui_ImplVulkan_AddTexture(
-		*m_textureSampler,
-		*p_renderTarget.GetColorImageView(),
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-	);
 }
 
 //Change data layout of image
@@ -220,7 +238,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer
 	);
 
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.0f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.3f, 1.0f);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
@@ -262,28 +280,30 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
-
+	
 	for (const RenderData& data : p_renderData)
 	{
 
-		const VK::Pipeline& pipeline = m_interStorage.GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
+		const VK::Pipeline& pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
 		if (pipeline == nullptr) { continue; }
 
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
-		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0, *m_globalDescriptorSet.Get(), nullptr);
+		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
 
-		const VK::Mesh mesh = m_interStorage.GetMesh(data);
+		const VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(data);
 
 		if (!mesh.valid) { continue; }
 
 		bool result = false;
-		std::uint32_t texID = m_interStorage.GetTextureID(data, m_commandPool, result);
+		std::uint32_t texID = VK::IntermediaryStorage::GetInstance().GetTextureID(data, m_commandPool, result);
 
 		if (!result) { continue; }
 
 		PushConstantData pcData
 		{
 			.world = data.transform,
+			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
+			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
 			.time = Time::Get().GetRuntime(),
 			.textureID = texID
 		};
@@ -333,7 +353,7 @@ void Renderer::RecordImGuiCommandBuffer(
 
 	auto &commandBuffer = p_commandBuffer;
 	TransitionImageLayout(
-		m_swapchain.GetImages().at(p_imageIndex),
+		m_swapchain.GetPresentImage(),
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -348,7 +368,7 @@ void Renderer::RecordImGuiCommandBuffer(
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-		.imageView = m_swapchain.GetImageViews().at(p_imageIndex),
+		.imageView = m_swapchain.GetPresentImageView(),
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -380,7 +400,7 @@ void Renderer::RecordImGuiCommandBuffer(
 	commandBuffer.endRendering();
 
 	TransitionImageLayout(
-		m_swapchain.GetImages().at(p_imageIndex),
+		m_swapchain.GetPresentImage(),
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::ePresentSrcKHR,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
@@ -400,7 +420,7 @@ void Renderer::CreateSyncObjects()
 
 	assert(m_presentCompleteSemaphores.empty() && m_renderFinishedSemaphores.empty() && m_inFlightFences.empty());
 
-	for (size_t i = m_swapchain.GetImages().size(); i > 0; i--)
+	for (size_t i = m_swapchain.GetNumImages(); i > 0; i--)
 	{
 		m_renderFinishedSemaphores.emplace_back(m_context.GetDevice(), vk::SemaphoreCreateInfo());
 	}
@@ -412,314 +432,137 @@ void Renderer::CreateSyncObjects()
 	}
 }
 
-//The part that is called in main and handles presenting of frames and swapchain recreation when window is resized 
-//void Renderer::DrawFrame(const Camera &p_camera, RenderTarget &p_renderTarget)
-//{
-//	ZoneScoped;
-//
-//	// Create temporary deltaTime that Update's will use
-//	typedef std::chrono::time_point<std::chrono::steady_clock> TimePoint;
-//
-//	static TimePoint s_lastFrameTime{ std::chrono::high_resolution_clock::now() };
-//	const TimePoint  currentTime{ std::chrono::high_resolution_clock::now() };
-//	const float deltaTime = { std::chrono::duration<float>(currentTime - s_lastFrameTime).count() };
-//	s_lastFrameTime = currentTime;
-//	
-//	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-//	//while renderFinishedSemaphores is indexed by imageIndex
-//	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
-//	if (fenceResult != vk::Result::eSuccess)
-//	{
-//		throw std::runtime_error("failed to wait for fence!");
-//	}
-//
-//	auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_frameIndex], nullptr);
-//
-//	m_result = result;
-//	m_imageIndex = imageIndex;
-//
-//	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-//	// here and does not need to be caught by an exception.
-//	if (m_result == vk::Result::eErrorOutOfDateKHR)
-//	{
-//		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
-//		{
-//			SDL_WaitEvent(&m_event);
-//		}
-//
-//		m_swapchain.Cleanup(m_context.GetDevice());
-//		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
-//		m_depthBuffer = {
-//			m_interStorage.GetAllocator(),
-//			m_context.GetDevice(),
-//			m_context.GetPhysicalDevice(),
-//			m_swapchain.GetExtent()
-//		};
-//
-//		return;
-//	}
-//	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
-//	// On any error code, aquireNextImage already threw an exception.
-//	if (m_result != vk::Result::eSuccess && m_result != vk::Result::eSuboptimalKHR)
-//	{
-//		assert(m_result == vk::Result::eTimeout || m_result == vk::Result::eNotReady);
-//		throw std::runtime_error("failed to acquire swap chain image!");
-//	}
-//
-//	// HACK: old code
-//	m_cameraController.UpdateCamera(m_camera, deltaTime);
-//	
-//	const auto extent = p_renderTarget.GetExtent();
-//
-//	float aspectRatio =
-//		static_cast<float>(extent.width) /
-//		static_cast<float>(extent.height);
-//
-//	VK::ViewProjectionBuffer vp
-//	{
-//		.view = m_camera.GetViewMatrix(),
-//		.proj = m_camera.GetProjectionMatrix()
-//	};
-//	
-//	m_vpBuffer.UpdateBuffer(vp);
-//	m_globalDescriptorSet.WriteUniformBufferDescriptor(m_context.GetDevice(), m_vpBuffer.Get(), 0);
-//	
-//	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
-//
-//	// Only reset the fence if we are submitting work
-//	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
-//
-//	ImGui::EndFrame();
-//	ImGui::Render();
-//
-//	m_commandPool.GetBufferAt(m_frameIndex).reset();
-//
-//	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-//	commandBuffer.begin({});
-//	//RecordCommandBuffer(imageIndex);
-//	
-//	RecordRenderTargetCommandBuffer(
-//		commandBuffer,
-//		p_renderTarget,
-//		p_camera,
-//		p_renderData
-//	);
-//
-//	RecordImGuiCommandBuffer(
-//		commandBuffer,
-//		imageIndex
-//	);
-//	
-//	Debug::DebugDraw::Get().ClearDrawCommands();
-//
-//	commandBuffer.end();
-//	
-//	//vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput);
-//	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
-//	
-//	const vk::SubmitInfo submitInfo
-//	{ 
-//		.waitSemaphoreCount = 1,
-//		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
-//		.pWaitDstStageMask = &waitDestinationStageMask,
-//		.commandBufferCount = 1,
-//		.pCommandBuffers = &*commandBuffer,
-//		.signalSemaphoreCount = 1,
-//		.pSignalSemaphores = &*m_renderFinishedSemaphores[m_imageIndex]
-//	};
-//	
-//	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
-//
-//	const vk::PresentInfoKHR presentInfoKHR
-//	{
-//		.waitSemaphoreCount = 1,
-//		.pWaitSemaphores = &*m_renderFinishedSemaphores[m_imageIndex],
-//		.swapchainCount = 1,
-//		.pSwapchains = &*m_swapchain.Get(),
-//		.pImageIndices = &m_imageIndex
-//	};
-//	
-//	m_result = m_context.GetQueue().presentKHR(presentInfoKHR);
-//	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-//	// here and does not need to be caught by an exception.
-//	if ((m_result == vk::Result::eSuboptimalKHR) || (m_result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
-//	{
-//		m_framebufferResized = false;
-//		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
-//		{
-//			SDL_WaitEvent(&m_event);
-//		}
-//		m_swapchain.Cleanup(m_context.GetDevice());
-//		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
-//		m_depthBuffer = {
-//			m_interStorage.GetAllocator(),
-//			m_context.GetDevice(),
-//			m_context.GetPhysicalDevice(),
-//			m_swapchain.GetExtent()
-//		};
-//	}
-//	else
-//	{
-//		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-//		assert(m_result == vk::Result::eSuccess);
-//	}
-//	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-//}
-
-void Renderer::Draw(RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> p_renderData)
+void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 {	
 	ZoneScoped;
 
-	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-	//while renderFinishedSemaphores is indexed by imageIndex
-	auto fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences[m_frameIndex], vk::True, std::numeric_limits<std::uint64_t>::max());
-	if (fenceResult != vk::Result::eSuccess)
+	auto &device = m_context.GetDevice();
+	auto &queue = m_context.GetQueue();
+
+	// Render all cameras
+	for (auto &camRenderData : p_renderData)
 	{
-		throw std::runtime_error("failed to wait for fence!");
-	}
-	
-	//vk::result, std::uint32_t
-	auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_frameIndex], nullptr);
-	
-	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-	// here and does not need to be caught by an exception.
-	if (m_result == vk::Result::eErrorOutOfDateKHR)
-	{
-		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+		Camera &cam = camRenderData.camera;
+		std::vector<RenderData> &drawList = camRenderData.renderData;
+
+		// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
+		//while renderFinishedSemaphores is indexed by imageIndex
+		const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
+
+		if (fenceResult != vk::Result::eSuccess)
 		{
-			SDL_WaitEvent(&m_event);
+			throw std::runtime_error("failed to wait for fence!");
 		}
 
-		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
-		m_depthBuffer = {
-			m_interStorage.GetAllocator(),
-			m_context.GetDevice(),
-			m_context.GetPhysicalDevice(),
-			m_swapchain.GetExtent()
-		};
+		//vk::result, std::uint32_t
+		//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
+		const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
 
-		return;
-	}
-	// On other success codes than eSuccess and eSuboptimalKHR we just throw an exception.
-	// On any error code, aquireNextImage already threw an exception.
-	if (result != vk::Result::eSuccess && result != vk::Result::eSuboptimalKHR)
-	{
-		assert(result == vk::Result::eTimeout || result == vk::Result::eNotReady);
-		throw std::runtime_error("failed to acquire swap chain image!");
-	}
-	//m_cameraController.UpdateCamera(m_camera, Time::Get().GetDeltaTime());
-
-	VK::ViewProjectionBuffer vp
-	{
-		.view = p_camera.GetViewMatrix(),
-		.proj = p_camera.GetProjectionMatrix()
-	};
-
-	m_vpBuffer.UpdateBuffer(vp);
-
-	Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
-	
-	// Only reset the fence if we are submitting work
-	m_context.GetDevice().resetFences(*m_inFlightFences[m_frameIndex]);
-
-	ImGui::EndFrame();
-	ImGui::Render();
-	
-	m_commandPool.GetBufferAt(m_frameIndex).reset();
-
-	auto& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-	commandBuffer.begin({});
-
-	RecordRenderTargetCommandBuffer(
-		commandBuffer,
-		p_renderTarget,
-		p_camera,
-		p_renderData
-	);
-
-	RecordImGuiCommandBuffer(
-		commandBuffer,
-		imageIndex
-	);
-
-	Debug::DebugDraw::Get().ClearDrawCommands();
-
-	commandBuffer.end();
-
-	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
-	
-	const vk::SubmitInfo   submitInfo
-	{ 
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &*m_presentCompleteSemaphores[m_frameIndex],
-		.pWaitDstStageMask = &waitDestinationStageMask,
-		.commandBufferCount = 1,
-		.pCommandBuffers = &*commandBuffer,
-		.signalSemaphoreCount = 1,
-		.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex]
-	};
-	
-	m_context.GetQueue().submit(submitInfo, *m_inFlightFences[m_frameIndex]);
-
-	const vk::PresentInfoKHR presentInfoKHR
-	{
-		.waitSemaphoreCount = 1,
-		.pWaitSemaphores = &*m_renderFinishedSemaphores[imageIndex],
-		.swapchainCount = 1,
-		.pSwapchains = &*m_swapchain.Get(),
-		.pImageIndices = &imageIndex
-	};
-	
-	result = m_context.GetQueue().presentKHR(presentInfoKHR);
-	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-	// here and does not need to be caught by an exception.
-	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
-	{
-		m_framebufferResized = false;
-		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+		// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+		// here and does not need to be caught by an exception.
+		if (resVal.result == vk::Result::eErrorOutOfDateKHR)
 		{
-			SDL_WaitEvent(&m_event);
+			while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+			{
+				SDL_WaitEvent(&Event);
+			}
+
+			m_context.GetDevice().waitIdle();
+
+			m_swapchain = nullptr;
+			IntermediaryStorage::GetInstance().ClearPresentTargets();
+			m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+			return;
 		}
-		m_swapchain.Cleanup(m_context.GetDevice());
-		m_swapchain.Recreate(m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface());
-		m_depthBuffer = {
-			m_interStorage.GetAllocator(),
-			m_context.GetDevice(),
-			m_context.GetPhysicalDevice(),
-			m_swapchain.GetExtent()
+
+		std::uint32_t imageIndex = resVal.value;
+
+		VK::ViewProjectionBuffer vp
+		{
+			.view = cam.GetViewMatrix(),
+			.proj = cam.GetProjectionMatrix()
 		};
+
+		VK::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
+
+		Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
+
+		// Only reset the fence if we are submitting work
+		m_context.GetDevice().resetFences(*m_inFlightFences.at(m_frameIndex));
+
+		ImGui::EndFrame();
+		ImGui::Render();
+
+		m_commandPool.GetBufferAt(m_frameIndex).reset();
+
+		auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+		commandBuffer.begin({});
+
+		RecordRenderTargetCommandBuffer(
+			commandBuffer,
+			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(camRenderData.renderTarget),
+			cam,
+			drawList
+		);
+
+		RecordImGuiCommandBuffer(
+			commandBuffer,
+			imageIndex
+		);
+
+		Debug::DebugDraw::Get().ClearDrawCommands();
+
+		commandBuffer.end();
+
+		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
+
+		const vk::SubmitInfo   submitInfo
+		{
+			.waitSemaphoreCount = 1,
+			.pWaitSemaphores = &*m_presentCompleteSemaphores.at(m_frameIndex),
+			.pWaitDstStageMask = &waitDestinationStageMask,
+			.commandBufferCount = 1,
+			.pCommandBuffers = &*commandBuffer,
+			.signalSemaphoreCount = 1,
+			.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex]
+		};
+
+		m_context.GetQueue().submit(submitInfo, *m_inFlightFences.at(m_frameIndex));
+
+		const vk::PresentInfoKHR presentInfoKHR
+		{
+			.waitSemaphoreCount = 1,
+			.pWaitSemaphores = &*m_renderFinishedSemaphores.at(imageIndex),
+			.swapchainCount = 1,
+			.pSwapchains = &*m_swapchain.Get(),
+			.pImageIndices = &imageIndex
+		};
+
+		const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
+
+		// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+		// here and does not need to be caught by an exception.
+		if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
+		{
+			m_framebufferResized = false;
+			while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+			{
+				SDL_WaitEvent(&Event);
+			}
+
+			m_context.GetDevice().waitIdle();
+			m_swapchain = nullptr;
+			IntermediaryStorage::GetInstance().ClearPresentTargets();
+			m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+		}
+		else
+		{
+			// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
+			assert(result == vk::Result::eSuccess);
+		}
+
+		m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
-	else
-	{
-		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-		assert(result == vk::Result::eSuccess);
-	}
-	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
-}
-
-//Descriptors and samplers
-
-void Renderer::CreateTextureSampler()
-{
-	ZoneScoped;
-
-	vk::PhysicalDeviceProperties properties = m_context.GetPhysicalDevice().getProperties();
-	vk::SamplerCreateInfo        samplerInfo
-	{
-		.magFilter = vk::Filter::eLinear,
-		.minFilter = vk::Filter::eLinear,
-		.mipmapMode = vk::SamplerMipmapMode::eLinear,
-		.addressModeU = vk::SamplerAddressMode::eRepeat,
-		.addressModeV = vk::SamplerAddressMode::eRepeat,
-		.addressModeW = vk::SamplerAddressMode::eRepeat,
-		.mipLodBias = 0.0f,
-		.anisotropyEnable = vk::False,
-		.maxAnisotropy = properties.limits.maxSamplerAnisotropy,
-		.compareEnable = vk::False,
-		.compareOp = vk::CompareOp::eAlways 
-	};
-	m_textureSampler = vk::raii::Sampler(m_context.GetDevice(), samplerInfo);
 }
 
 static void CheckVkResult(VkResult p_err)
@@ -734,26 +577,25 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 	ZoneScoped;
 
 	//TODO: CREATE PIPELINE CACHE
-	//TODO: REWRITE IN VK::RAII
 	p_initInfo.Instance = *m_context.GetInstance();
 	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
 	p_initInfo.Device = *m_context.GetDevice();
 	p_initInfo.QueueFamily = m_context.GetQueueIndex();
 	p_initInfo.Queue = *m_context.GetQueue();
-	p_initInfo.PipelineCache = VK_NULL_HANDLE;
+	p_initInfo.PipelineCache = nullptr;
 	p_initInfo.DescriptorPool = *m_imGuiDescriptorPool;
 	p_initInfo.MinImageCount = 2;
 	p_initInfo.ImageCount = 2;
 	p_initInfo.Allocator = nullptr;
-	p_initInfo.PipelineInfoMain.RenderPass = VK_NULL_HANDLE;
+	p_initInfo.PipelineInfoMain.RenderPass = nullptr;
 	p_initInfo.PipelineInfoMain.Subpass = 0;
 	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 	p_initInfo.CheckVkResultFn = CheckVkResult;
 
-	p_initInfo.UseDynamicRendering = VK_TRUE;
+	p_initInfo.UseDynamicRendering = vk::True;
 
 	m_imGuiColorFormat = static_cast<VkFormat>(m_swapchain.GetSurfaceFormat().format);
-	VkFormat depthFormat = static_cast<VkFormat>(m_depthBuffer.GetFormat());
+	VkFormat depthFormat = static_cast<VkFormat>(m_swapchain.GetDepthFormat());
 
 	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
 	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
@@ -766,11 +608,4 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
 	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
 	p_initInfo.PipelineInfoForViewports.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-}
-
-void Renderer::WaitIdle()
-{
-	ZoneScoped;
-
-	m_context.GetDevice().waitIdle();
 }

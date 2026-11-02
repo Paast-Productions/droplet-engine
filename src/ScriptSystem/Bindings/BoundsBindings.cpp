@@ -224,14 +224,14 @@ void Droplet::Script::Bindings::RegisterBounds(sol::state_view p_luaState)
 			sol::constructors<
 				Frustum(const Plane &, const Plane &, const Plane &, const Plane &, const Plane &, const Plane &),
 				Frustum(const glm::vec3 &, const glm::vec3 &, const glm::vec3 &, float, float, float, float)>(),
-			"planes", &Frustum::planes,
-			"GetPlane", &Frustum::GetPlane,
-			"GetLeft", &Frustum::GetLeft,
-			"GetRight", &Frustum::GetRight,
-			"GetTop", &Frustum::GetTop,
-			"GetBottom", &Frustum::GetBottom,
-			"GetNear", &Frustum::GetNear,
-			"GetFar", &Frustum::GetFar
+			"planes",		&Frustum::planes,
+			"GetPlane",		[](const Frustum &frustum, int index) { return frustum.GetPlane(index); },
+			"GetLeft",		[](const Frustum &frustum) { return frustum.GetLeft(); },
+			"GetRight",		[](const Frustum &frustum) { return frustum.GetRight(); },
+			"GetTop",		[](const Frustum &frustum) { return frustum.GetTop(); },
+			"GetBottom",	[](const Frustum &frustum) { return frustum.GetBottom(); },
+			"GetNear",		[](const Frustum &frustum) { return frustum.GetNear(); },
+			"GetFar",		[](const Frustum &frustum) { return frustum.GetFar(); }
 		);
 
 		LuaClassDefinition def;

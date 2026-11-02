@@ -6,7 +6,7 @@ using namespace Droplet::Math;
 
 namespace
 {
-	constexpr float EPSILON = 1e-5f;
+	constexpr float EPSILON = 1e-4f;
 
 	[[nodiscard]] float SignedDistanceToPlane(const Plane &p_plane, const glm::vec3 &p_point)
 	{
@@ -68,6 +68,44 @@ namespace
 	}
 }
 
+Frustum::Frustum(const glm::mat4x4 &p_matrix)
+{
+	// Left plane
+	planes[0].normal.x = p_matrix[0][3] + p_matrix[0][0];
+	planes[0].normal.y = p_matrix[1][3] + p_matrix[1][0];
+	planes[0].normal.z = p_matrix[2][3] + p_matrix[2][0];
+	planes[0].distance = p_matrix[3][3] + p_matrix[3][0];
+
+	// Right plane
+	planes[1].normal.x = p_matrix[0][3] - p_matrix[0][0];
+	planes[1].normal.y = p_matrix[1][3] - p_matrix[1][0];
+	planes[1].normal.z = p_matrix[2][3] - p_matrix[2][0];
+	planes[1].distance = p_matrix[3][3] - p_matrix[3][0];
+
+	// Bottom plane
+	planes[2].normal.x = p_matrix[0][3] + p_matrix[0][1];
+	planes[2].normal.y = p_matrix[1][3] + p_matrix[1][1];
+	planes[2].normal.z = p_matrix[2][3] + p_matrix[2][1];
+	planes[2].distance = p_matrix[3][3] + p_matrix[3][1];
+
+	// Top plane
+	planes[3].normal.x = p_matrix[0][3] - p_matrix[0][1];
+	planes[3].normal.y = p_matrix[1][3] - p_matrix[1][1];
+	planes[3].normal.z = p_matrix[2][3] - p_matrix[2][1];
+	planes[3].distance = p_matrix[3][3] - p_matrix[3][1];
+
+	// Near plane
+	planes[4].normal.x = p_matrix[0][2];
+	planes[4].normal.y = p_matrix[1][2];
+	planes[4].normal.z = p_matrix[2][2];
+	planes[4].distance = p_matrix[3][2];
+
+	// Far plane
+	planes[5].normal.x = p_matrix[0][3] - p_matrix[0][2];
+	planes[5].normal.y = p_matrix[1][3] - p_matrix[1][2];
+	planes[5].normal.z = p_matrix[2][3] - p_matrix[2][2];
+	planes[5].distance = p_matrix[3][3] - p_matrix[3][2];
+}
 
 Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::vec3 &p_up, float p_fov, float p_aspect, float p_near, float p_far)
 {
@@ -77,10 +115,10 @@ Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::v
 	glm::vec3 right = glm::normalize(glm::cross(p_fwd, p_up));
 
 	// Calculate the half dimensions of the near and far planes
-	float nearHeight = 2.0f * tan(p_fov / 2.0f) * p_near;
+	float nearHeight = 2.0f * tan(p_fov * 0.5f) * p_near;
 	float nearWidth = nearHeight * p_aspect;
 
-	float farHeight = 2.0f * tan(p_fov / 2.0f) * p_far;
+	float farHeight = 2.0f * tan(p_fov * 0.5f) * p_far;
 	float farWidth = farHeight * p_aspect;
 
 	// Calculate the centers of the near and far planes
@@ -88,24 +126,24 @@ Frustum::Frustum(const glm::vec3 &p_origin, const glm::vec3 &p_fwd, const glm::v
 	glm::vec3 farCenter = p_origin + p_fwd * p_far;
 
 	// Calculate the corners of the near plane
-	glm::vec3 nearTopLeft = nearCenter + (p_up * (nearHeight / 2.0f)) - (right * (nearWidth / 2.0f));
-	glm::vec3 nearTopRight = nearCenter + (p_up * (nearHeight / 2.0f)) + (right * (nearWidth / 2.0f));
-	glm::vec3 nearBottomLeft = nearCenter - (p_up * (nearHeight / 2.0f)) - (right * (nearWidth / 2.0f));
-	glm::vec3 nearBottomRight = nearCenter - (p_up * (nearHeight / 2.0f)) + (right * (nearWidth / 2.0f));
+	glm::vec3 nearTopLeft = nearCenter + (p_up * (nearHeight * 0.5f)) - (right * (nearWidth * 0.5f));
+	glm::vec3 nearTopRight = nearCenter + (p_up * (nearHeight * 0.5f)) + (right * (nearWidth * 0.5f));
+	glm::vec3 nearBottomLeft = nearCenter - (p_up * (nearHeight * 0.5f)) - (right * (nearWidth * 0.5f));
+	glm::vec3 nearBottomRight = nearCenter - (p_up * (nearHeight * 0.5f)) + (right * (nearWidth * 0.5f));
 
 	// Calculate the corners of the far plane
-	glm::vec3 farTopLeft = farCenter + (p_up * (farHeight / 2.0f)) - (right * (farWidth / 2.0f));
-	glm::vec3 farTopRight = farCenter + (p_up * (farHeight / 2.0f)) + (right * (farWidth / 2.0f));
-	glm::vec3 farBottomLeft = farCenter - (p_up * (farHeight / 2.0f)) - (right * (farWidth / 2.0f));
-	glm::vec3 farBottomRight = farCenter - (p_up * (farHeight / 2.0f)) + (right * (farWidth / 2.0f));
+	glm::vec3 farTopLeft = farCenter + (p_up * (farHeight * 0.5f)) - (right * (farWidth * 0.5f));
+	glm::vec3 farTopRight = farCenter + (p_up * (farHeight * 0.5f)) + (right * (farWidth * 0.5f));
+	glm::vec3 farBottomLeft = farCenter - (p_up * (farHeight * 0.5f)) - (right * (farWidth * 0.5f));
+	glm::vec3 farBottomRight = farCenter - (p_up * (farHeight * 0.5f)) + (right * (farWidth * 0.5f));
 
 	// Create the planes using the corners
-	planes[0] = Plane(nearTopLeft, farTopLeft, farBottomLeft);			// Left
-	planes[1] = Plane(farTopRight, nearTopRight, nearBottomRight);		// Right
-	planes[2] = Plane(farTopRight, farTopLeft, nearTopLeft);			// Top
-	planes[3] = Plane(farBottomLeft, farBottomRight, nearBottomRight);	// Bottom
-	planes[4] = Plane(nearTopRight, nearTopLeft, nearBottomLeft);		// Near
-	planes[5] = Plane(farTopLeft, farTopRight, farBottomRight);			// Far
+	planes[0] = Plane(farTopLeft, nearTopLeft, farBottomLeft);			// Left
+	planes[1] = Plane(nearTopRight, farTopRight, nearBottomRight);		// Right
+	planes[2] = Plane(farTopLeft, farTopRight, nearTopLeft);			// Top
+	planes[3] = Plane(farBottomRight, farBottomLeft, nearBottomRight);	// Bottom
+	planes[4] = Plane(nearTopLeft, nearTopRight, nearBottomLeft);		// Near
+	planes[5] = Plane(farTopRight, farTopLeft, farBottomRight);			// Far
 }
 
 void Frustum::GetCorners(glm::vec3 *p_corners) const
@@ -117,4 +155,64 @@ void Frustum::GetCorners(glm::vec3 *p_corners) const
 			p_corners[i] = glm::vec3(0.0f);
 		}
 	}
+}
+
+Frustum Frustum::Transform(const Frustum &p_frustum, const glm::mat4x4 &p_matrix)
+{
+	Frustum transformedFrustum;
+
+	glm::mat4x4 inverseTranspose = glm::transpose(glm::inverse(p_matrix));
+
+	for (int i = 0; i < 6; ++i)
+	{
+		const Plane &plane = p_frustum.GetPlane(i);
+
+		// Transform the plane's normal and distance
+		glm::vec3 transformedNormal = inverseTranspose * glm::vec4(plane.normal, 0.0f);
+		float transformedDistance = plane.distance - glm::dot(transformedNormal, glm::vec3(p_matrix[3]));
+		transformedFrustum.planes[i] = Plane(glm::normalize(transformedNormal), transformedDistance);
+	}
+
+	return transformedFrustum;
+}
+
+bool Frustum::ValidateNormals() const
+{
+	glm::vec3 corners[8];
+
+	if (!GetFrustumCorners(*this, corners))
+	{
+		return false;
+	}
+
+	glm::vec3 center(0.0f);
+
+	for (const glm::vec3 &corner : corners)
+	{
+		center += corner;
+	}
+	center /= 8.0f;
+	
+	for (int i = 0; i < 6; ++i)
+	{
+		const Plane & plane = planes[i];
+		float normalLengthSquared = glm::dot(plane.normal, plane.normal);
+		if (!std::isfinite(plane.normal.x) || !std::isfinite(plane.normal.y) ||
+			!std::isfinite(plane.normal.z) || !std::isfinite(plane.distance) ||
+			!std::isfinite(normalLengthSquared) || normalLengthSquared <= EPSILON * EPSILON)
+		{
+			return false;
+		}
+
+		float tolerance = EPSILON * std::sqrt(normalLengthSquared);
+
+		float signedDistance = SignedDistanceToPlane(plane, center);
+		if (!std::isfinite(center.x) || !std::isfinite(center.y) || !std::isfinite(center.z) ||
+			!std::isfinite(signedDistance) || signedDistance < tolerance)
+		{
+			return false;
+		}
+	}
+
+	return true;
 }

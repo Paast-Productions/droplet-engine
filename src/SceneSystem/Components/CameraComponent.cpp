@@ -1,0 +1,277 @@
+#include "CameraComponent.hpp"
+
+#include <SceneSystem/Scene.hpp>
+#include <SceneSystem/Node.hpp>
+#include <Graphics/DebugDraw.hpp>
+#include <ImGui/imgui.h>
+#include <IntermediaryStorage.hpp>
+
+using namespace Droplet::Scene;
+using namespace Droplet::Graphics;
+using namespace Droplet::Graphics::Debug;
+
+void CameraComponent::StartImpl()
+{
+	// TODO: Construct camera and create render target
+
+	using namespace Graphics::VK;
+	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
+	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		m_textureIndex = instance.CreateImGuiTexture(
+			instance.GetRenderTargetAt(m_targetIndex)
+		);
+	}
+}
+
+void CameraComponent::LateUpdateImpl()
+{
+	Transform &t = GetOwner()->GetTransform();
+
+	m_camera.SetPosition(t.GetPosition(Transform::Space::World));
+	m_camera.SetOrientation(t.GetRotation(Transform::Space::World));
+
+	m_frustum = m_camera.GetFrustum();
+}
+
+void CameraComponent::QueueRenderImpl()
+{
+	if (m_dirty)
+	{
+		// TODO
+
+		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+			m_targetIndex, m_textureIndex,
+			m_resolution.x, m_resolution.y
+		);
+
+		m_dirty = false;
+	}
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
+	{
+		if (!m_manualRender)
+		{
+			return;
+		}
+	}
+
+	m_manualRender = false;
+
+	std::weak_ptr<Scene> scene = GetOwner()->GetScene();
+	std::shared_ptr<Component> comp = shared_from_this();
+	std::shared_ptr<CameraComponent> cameraComp = std::dynamic_pointer_cast<CameraComponent>(comp);
+
+	scene.lock()->QueueRenderer(cameraComp);
+}
+
+void CameraComponent::EditorUpdateImpl()
+{
+	if (!m_debugDraw && !m_uiSelected)
+	{
+		return;
+	}
+
+	m_uiSelected = false;
+
+	Transform &t = GetOwner()->GetTransform();
+
+	m_camera.SetPosition(t.GetPosition(Transform::Space::World));
+	m_camera.SetOrientation(t.GetRotation(Transform::Space::World));
+
+	m_frustum = m_camera.GetFrustum();
+
+	DebugDraw::DrawFrustum(
+		m_frustum, 
+		glm::vec4(0.5f, 0.5f, 0.5f, 0.7f),
+		false,
+		true
+	);
+}
+
+void CameraComponent::RenderUIImpl()
+{
+	using namespace ImGui;
+
+	m_uiSelected = true;
+
+	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
+
+	InputInt("Priority", &m_priority);
+
+	Checkbox("Auto Render", &m_autoRender);
+
+	float fov = m_camera.GetFOV();
+	if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
+	{
+		m_camera.SetFOV(fov);
+	}
+
+	glm::ivec2 res = m_resolution;
+	if (DragInt2("Resolution", &res.x, 0.25f))
+	{
+		res = glm::max(res, glm::ivec2(1, 1));
+		SetResolution(res);
+	}
+
+	glm::vec2 planes = m_camera.GetPlanes();
+	bool planesChanged = false;
+	planesChanged |= DragFloat("Near", &planes.x, 0.001f);
+	planesChanged |= DragFloat("Far", &planes.y, 0.1f);
+	if (planesChanged)
+	{
+		m_camera.SetPlanes(std::max(0.01f, planes.x), std::max(0.01f, planes.y));	
+	}
+
+	Checkbox("Debug Draw", &m_debugDraw);
+
+	if (Button("Trigger Render"))
+	{
+		TriggerRender();
+	}
+
+	Separator();
+
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
+	);
+
+	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+
+	float availWidth = GetContentRegionAvail().x;
+	float imageWidth = availWidth * m_uiScale;
+	float imageHeight = imageWidth / m_camera.GetAspect();
+
+	// Render the camera view texture to the scene view window
+	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+}
+
+void CameraComponent::SetResolution(glm::ivec2 p_resolution)
+{
+	if (p_resolution.x <= 0 || p_resolution.y <= 0)
+	{
+		throw std::invalid_argument("Resolution must be greater than zero.");
+	}
+
+	m_resolution = p_resolution;
+	m_camera.SetAspect(static_cast<float>(p_resolution.x) / static_cast<float>(p_resolution.y));
+	m_dirty = true;
+}
+
+void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &p_renderables)
+{
+	auto visibleComponents = GetOwner()->GetScene()->GetNodesIntersectingFrustum(m_frustum);
+
+	// Filter the renderables to only include those that are visible in the camera's frustum
+	for (const auto &[node, component] : p_renderables)
+	{
+		if (!node || !component)
+		{
+			continue;
+		}
+
+		if (!DrawLayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
+		{
+			continue;
+		}
+
+		// Check if the node is in the list of visible components
+		auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+			[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+				auto sharedNode = weakNode.lock();
+				return sharedNode && sharedNode == node;
+			});
+
+		if (it != visibleComponents.end())
+		{
+			m_renderData.push_back(component->GetRenderData());
+		}
+	}
+}
+
+CameraRenderData CameraComponent::GetRenderData() const
+{
+	CameraRenderData renderData{ };
+	renderData.camera = m_camera;
+	renderData.renderTarget = m_targetIndex;
+	renderData.renderData = m_renderData;
+
+	return renderData;
+}
+
+nlohmann::json CameraComponent::SerializeImpl()
+{
+	using namespace nlohmann;
+
+	json compJson = json::object();
+
+	json cameraJson = json::object();
+	{
+		cameraJson["fov"] = m_camera.GetFOV();
+		cameraJson["planes"] = { m_camera.GetPlanes().x, m_camera.GetPlanes().y };
+
+	}
+	compJson["camera"] = cameraJson;
+
+	compJson["drawLayerMask"] = m_drawLayerMask;
+	compJson["priority"] = m_priority;
+	compJson["autoRender"] = m_autoRender;
+	compJson["resolution"] = { m_resolution.x, m_resolution.y };
+
+	return compJson;
+}
+
+void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
+{
+	using namespace nlohmann;
+
+	if (p_compJson.contains("camera"))
+	{
+		json cameraJson = p_compJson["camera"];
+		if (cameraJson.contains("fov"))
+		{
+			m_camera.SetFOV(cameraJson["fov"].get<float>());
+		}
+
+		if (cameraJson.contains("planes"))
+		{
+			auto &planes = cameraJson["planes"];
+			if (planes.is_array() && planes.size() == 2)
+			{
+				float nearPlane = planes[0].get<float>();
+				float farPlane = planes[1].get<float>();
+				m_camera.SetPlanes(nearPlane, farPlane);
+			}
+		}
+	}
+
+	if (p_compJson.contains("drawLayerMask"))
+	{
+		m_drawLayerMask = static_cast<Graphics::DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
+	}
+
+	if (p_compJson.contains("priority"))
+	{
+		m_priority = p_compJson["priority"].get<int32_t>();
+	}
+
+	if (p_compJson.contains("autoRender"))
+	{
+		m_autoRender = p_compJson["autoRender"].get<bool>();
+	}
+
+	if (p_compJson.contains("resolution"))
+	{
+		auto &res = p_compJson["resolution"];
+		if (res.is_array() && res.size() == 2)
+		{
+			int width = res[0].get<int>();
+			int height = res[1].get<int>();
+			SetResolution(glm::ivec2(width, height));
+		}
+	}
+
+	m_dirty = true;
+}

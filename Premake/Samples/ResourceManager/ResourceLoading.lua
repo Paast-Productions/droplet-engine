@@ -18,6 +18,8 @@ project "ResourceManager-ResourceLoading"
     }
     local vkPath = os.getenv("VULKAN_SDK")
 
+    UseGraphicsPCH()
+
     libdirs {
         targetBuildPath .. "/Engine",
         targetBuildPath .. "/External/lib",
@@ -52,7 +54,8 @@ project "ResourceManager-ResourceLoading"
     }
 
     defines {
-        "GLM_ENABLE_EXPERIMENTAL"
+        "GLM_ENABLE_EXPERIMENTAL",
+        "ROOT_PATH=" .. AddQuotation("../../..")
     }
 
     postbuildcommands {

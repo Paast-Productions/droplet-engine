@@ -1,13 +1,14 @@
 #include <Scene/EditorCameraController.hpp>
 #include <iostream>
+#include <Time.hpp>
 
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(float p_deltaTime, SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
+void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	GameInput &input = GameInput::Get();
-	float velocity = p_deltaTime * m_movementSpeed;
+	float velocity = Time::Get().GetDeltaTime() * m_movementSpeed;
 
 	if (input.KeyHeld(Key::KeyW)) 
 	{
@@ -40,7 +41,7 @@ void EditorCameraController::Update(float p_deltaTime, SDL_Window* p_window, [[m
 		float dy = input.GetDeltaMouseY();
 
 		m_editorCamera.Rotate(
-			dx * m_mouseSensitivity,
+			-dx * m_mouseSensitivity,
 			-dy * m_mouseSensitivity
 		);
 		input.SetCursorPosition(p_window, true, p_centerX, p_centerY);

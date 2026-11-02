@@ -35,10 +35,14 @@ namespace Droplet
             {
                 m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
             }
+
+            return;
         }
         else if (p_event.type == SDL_EVENT_KEY_UP)
         {
             m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
+
+            return;
         }
 
         // Mouse events
@@ -47,29 +51,20 @@ namespace Droplet
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
 
+            return;
         }
 
         if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
         {
-            if (p_event.button.button == SDL_BUTTON_LEFT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = true;
-            }
-            if (p_event.button.button == SDL_BUTTON_RIGHT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = true;
-            }
+            m_currentMouse[static_cast<std::size_t>(p_event.button.button)] = true;
+
+            return;
         }
         else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
         {
-            if (p_event.button.button == SDL_BUTTON_LEFT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::LMB)] = false;
-            }
-            if (p_event.button.button == SDL_BUTTON_RIGHT)
-            {
-                m_currentMouse[static_cast<std::size_t>(Mouse::RMB)] = false;
-            }
+            m_currentMouse[static_cast<std::size_t>(p_event.button.button)] = false;
+
+            return;
         }
     }
 
@@ -148,19 +143,27 @@ namespace Droplet
         }
     }
 
-    void GameInput::SetCursorPosition(SDL_Window* &p_window, [[maybe_unused]] bool p_relativeMouse, float p_x, float p_y)
-    {        
-        // calculate mousepos in SDL window
-        int windowX, windowY;
-        SDL_GetWindowPosition(p_window, &windowX, &windowY);
-        float localX = p_x - static_cast<float>(windowX);
-        float localY = p_y - static_cast<float>(windowY);
+    void GameInput::SetCursorPosition(SDL_Window *&p_window, bool p_relativeMouse, float p_x, float p_y)
+    {
+        float localX{}, localY{};
+
+        if (p_relativeMouse)
+        {
+            // calculate mousepos in SDL window
+            int windowX, windowY;
+            SDL_GetWindowPosition(p_window, &windowX, &windowY);
+            localX = p_x - static_cast<float>(windowX);
+            localY = p_y - static_cast<float>(windowY);
+        }
  
         // Set mousepos in global space (faster than local)
         SDL_WarpMouseGlobal(p_x, p_y);
 
-        // reset the mouse to center position in SDL window
-        m_mouseX = localX;
-        m_mouseY = localY;
+        if (p_relativeMouse)
+        {
+            // reset the mouse to center position in SDL window
+            m_mouseX = localX;
+            m_mouseY = localY;
+        }
     }
 }

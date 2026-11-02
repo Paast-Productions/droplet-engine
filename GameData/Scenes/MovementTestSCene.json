@@ -1,0 +1,222 @@
+{
+    "name": "MovementTestSCene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [],
+            "id": 1,
+            "name": "New Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Toe.001",
+                        "meshGUID": 2719175114284423147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "ToeTexture",
+                        "textureGUID": 10275265648664819601,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 2,
+            "name": "Toe",
+            "transform": {
+                "position": [
+                    5.822238445281982,
+                    0.30886805057525635,
+                    6.112284183502197
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.004",
+                        "meshGUID": 12885130674664679680,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Test",
+                        "textureGUID": 8173859370960447319,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "data": {
+                        "filepath": "DroneControl2.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "id": 3,
+            "name": "Drone",
+            "transform": {
+                "position": [
+                    3.330012321472168,
+                    -3.292239189147949,
+                    -3.606381416320801
+                ],
+                "rotation": [
+                    -0.1535392701625824,
+                    0.9756666421890259,
+                    0.024332646280527115,
+                    0.15462292730808258
+                ],
+                "scale": [
+                    1.0,
+                    0.9999992251396179,
+                    0.9999992251396179
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Toe.001",
+                        "meshGUID": 2719175114284423147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "ToeTexture",
+                        "textureGUID": 10275265648664819601,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 4,
+            "name": "Toe",
+            "transform": {
+                "position": [
+                    4.026532173156738,
+                    0.30886805057525635,
+                    -6.776248931884766
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "data": {
+                        "fs": 3658838734074951198,
+                        "fsName": "BlueTint.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Toe.001",
+                        "meshGUID": 2719175114284423147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "ToeTexture",
+                        "textureGUID": 10275265648664819601,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "id": 5,
+            "name": "Toe",
+            "transform": {
+                "position": [
+                    6.4550676345825195,
+                    -2.953967571258545,
+                    0.23831146955490112
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

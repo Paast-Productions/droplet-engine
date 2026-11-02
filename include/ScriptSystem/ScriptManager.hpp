@@ -89,7 +89,13 @@ namespace Droplet::Script
 			Droplet::Scene::Behaviour *p_scriptBehaviour,
 			const std::string &p_functionName,
 			Args&&... p_args);
-
+		/// @brief Updates component script instance
+		/// This should be called once per frame to allow active scripts to perform
+		/// their update logic.
+		/// @param ScriptComponent to call its script instance
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void TriggerComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+		
 		/// @brief Creates a script instance and associates it with a component.
 		/// The created ScriptInstance establishes the relationship between the
 		/// specified component and the requested Lua script.

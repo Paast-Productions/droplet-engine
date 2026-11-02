@@ -11,6 +11,6 @@ project "GoogleTest"
 
     buildcommands{
         "{MKDIR} %{prj.objdir}",
-        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} ",
+        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DBUILD_GMOCK=OFF",
         "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
     }

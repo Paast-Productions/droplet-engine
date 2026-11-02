@@ -1,12 +1,16 @@
-# To reduce the tun time of this action, it might be relevant to cache externals. This is not done currently.
-# Linux is not currently being tested.defaults: 
-# Release configuration is not currently being tested.
+# TODO: Linux build
+# TODO: Release build on Windows and Linux
+# TODO: Implement sccache - this would allow CMake to fully utilize the externals cache
+#       This would require Ninja as the generator, though. We'll hold off on this for now, since that introduces
+#       unnecessary complexity.
+
 name: Build
 
 on:
-  #push:
-  #  branches:
-  #    - 
+# Uncommenting the lines below will allow for testing of the build system on push - just add the branch name.
+#  push:
+#    branches:
+#      - 
     
   pull_request: 
     branches:
@@ -121,7 +125,7 @@ jobs:
         with:
           msbuild-architecture: 'x64'
           vs-version: '[18.0, 19.0)'
-
+          
       - name: Generate Visual Studio solution
         run: premake5 vs2026
 

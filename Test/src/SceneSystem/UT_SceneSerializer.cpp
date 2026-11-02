@@ -2,10 +2,11 @@
 
 #include "SceneSystem/Scene.hpp"
 #include "SceneSystem/Node.hpp"
-#include "SceneSystem/SceneSerializer.hpp"
+#include "SceneSystem/Serialization/SceneSerializer.hpp"
 #include "Core/IoManager.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
+#include "Time.hpp"
 using namespace Droplet::Scene;
 
 
@@ -17,32 +18,6 @@ protected:
     SceneManager sceneManager;
 
 
-};
-
-class PlayerComponent : public Component
-{
-public:
-    std::string_view GetTypeName() const override { return "PlayerComponent"; }
-
-    void StartImpl() override
-    {
-        std::cout << "PlayerComponent started\n";
-    }
-
-    void UpdateImpl(float p_deltaTime) override
-    {
-        std::cout
-            << "PlayerComponent updating: "
-            << p_deltaTime
-            << " seconds\n";
-    }
-
-    nlohmann::json SerializeImpl() override
-    {
-        nlohmann::json json;
-        json["type"] = "PlayerComponent";
-        return json;
-    }
 };
 
 TEST_F(SceneSerializerTest, SerializeScene)

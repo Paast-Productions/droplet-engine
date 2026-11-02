@@ -1,7 +1,11 @@
+// Any files that are not frequently changed and are used across multiple source files can be included in a precompiled header (PCH) to speed up compilation times. 
+// This file serves as a precompiled header for the project, including commonly used headers and external libraries.
+
 #pragma once
 
-// Droplet
+// ALWAYS FIRST INCLUDE
 #include <Debug/TracyTrackedAlloc.hpp>
+#include <Core/GlobalDefs.hpp>
 
 // C++ library headers
 #include <algorithm>
@@ -127,3 +131,13 @@
 #include <json/json.hpp>
 #include <glm/glm.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+
+// Engine
+#include <Core/IoManager.hpp>
+#include <Core/StringUtils.hpp>
+#include <Core/ThreadPool.hpp>
+#include <Core/ThreadSafeQueue.hpp>
+#include <Debug/Logger.hpp>
+#include <Editor/DragDropFields.hpp>
+#include <Editor/ImGuiUtils.hpp>
+#include <Engine/EngineFlags.hpp>

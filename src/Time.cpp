@@ -36,6 +36,16 @@ namespace Droplet
 		return m_fixedDeltaTime;
 	}
 
+	float Time::GetFixedTimeAccumulator() const
+	{
+		return m_accumulator;
+	}
+
+	void Time::ConsumeFixedTime()
+	{
+		m_accumulator -= m_fixedDeltaTime;
+	}
+
 	void Time::SetFixedDeltaTime(const float p_fixedDeltaTime)
 	{
 		m_fixedDeltaTime = p_fixedDeltaTime;

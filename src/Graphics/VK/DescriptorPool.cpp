@@ -1,13 +1,16 @@
-#include <Graphics/VK/DescriptorPool.hpp>
-#include <Graphics/VK/UniformBuffer.hpp>
+#include "DescriptorPool.hpp"
 
 using namespace Droplet::Graphics::VK;
 
 DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 {
-	std::array<vk::DescriptorPoolSize, 3> poolSize
+	std::vector<vk::DescriptorPoolSize> poolSize
 	{
 		{
+			{
+				.type = vk::DescriptorType::eUniformBuffer,
+				.descriptorCount = std::numeric_limits<std::uint8_t>::max()
+			},
 			{
 				.type = vk::DescriptorType::eStorageBuffer,
 				.descriptorCount = std::numeric_limits<std::uint8_t>::max()  
@@ -16,10 +19,6 @@ DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 				.type = vk::DescriptorType::eCombinedImageSampler,
 				.descriptorCount = std::numeric_limits<std::uint8_t>::max()
 			},
-			{
-				.type = vk::DescriptorType::eUniformBuffer,
-				.descriptorCount = std::numeric_limits<std::uint8_t>::max()
-			}
 		} 
 	};
 	

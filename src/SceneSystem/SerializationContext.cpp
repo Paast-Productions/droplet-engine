@@ -1,4 +1,4 @@
-#include "SceneSystem/SerializationContext.hpp"
+#include "SceneSystem/Serialization/SerializationContext.hpp"
 #include "SceneSystem/Node.hpp"
 #include "SceneSystem/Component.hpp"
 
