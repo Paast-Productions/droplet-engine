@@ -448,6 +448,19 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 		throw std::invalid_argument("ScriptDirectory can't be found or doesn't exists");
 	}
 	m_scriptDirectoryPath = scriptDirectory;
+
+	std::print("Script directory: {}\n", m_scriptDirectoryPath.string());
+
+	sol::table package = m_StateHandler.GetState()["package"];
+	std::string currentPath = package["path"];
+
+	package["path"] =
+		m_scriptDirectoryPath.generic_string() + "/?.lua;" +
+		m_scriptDirectoryPath.generic_string() + "/?/init.lua;" +
+		currentPath;
+
+	std::print("Updated package.path: {}\n",
+		package["path"].get<std::string>());
 }
 
 std::string Droplet::Script::ScriptManager::GetScriptDirectory()
