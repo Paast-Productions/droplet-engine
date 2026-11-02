@@ -12,8 +12,20 @@
 
 using namespace Droplet::Editor::Resource;
 
-ResourceBrowser::ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
-{}
+namespace
+{
+	static bool s_isPreviewingResource = false;
+}
+
+
+ResourceBrowser::~ResourceBrowser()
+{
+	if (m_previewResourceHandle.IsValid())
+	{
+		IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+		m_previewResourceHandle = {};
+	}
+}
 
 void ResourceBrowser::InitImpl()
 {
@@ -26,6 +38,7 @@ void ResourceBrowser::RenderImpl()
 	using namespace ImGui;
 	
 	bool updatedRegistry = false;
+	s_isPreviewingResource = false;
 
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 	
@@ -173,6 +186,12 @@ void ResourceBrowser::RenderImpl()
 		}
 	}
 	EndChild();
+
+	if (!s_isPreviewingResource && m_previewResourceHandle.IsValid())
+	{
+		IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+		m_previewResourceHandle = {};
+	}
 }
 
 void ResourceBrowser::BuildBrowserTree(const std::vector<const MetaEntry *> &p_resources)
@@ -224,12 +243,9 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 	// Draw go back item
 	if (!m_currentBrowserPath.empty())
 	{
-		if (Selectable(ICON_LC_CORNER_LEFT_UP "..", false, ImGuiSelectableFlags_AllowDoubleClick))
+		if (Selectable(ICON_LC_CORNER_LEFT_UP "..", false))
 		{
-			if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				m_currentBrowserPath = m_currentBrowserPath.parent_path();
-			}
+			m_currentBrowserPath = m_currentBrowserPath.parent_path();
 		}
 		Separator();
 	}
@@ -240,26 +256,33 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 		if (childNode.isDirectory)
 		{
 			std::string label = ICON_LC_FOLDER " " + childName;
-			if (Selectable(label.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick))
+			if (Selectable(label.c_str(), false))
 			{
-				if (IsMouseDoubleClicked(ImGuiMouseButton_Left))
-				{
-					m_currentBrowserPath /= childName;
-				}
+				m_currentBrowserPath /= childName;
 			}
 		}
 	}
 
 	// Draw files and their resources
+	static BrowserNode *removeNode = nullptr;
+	static std::string removeNodeName;
 	for (auto &[childName, childNode] : p_currentNode->children)
 	{
 		if (!childNode.isDirectory)
 		{
 			// --- Asset ---
 			std::string fileLabel = ICON_LC_FILE " " + childName;
-			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick);
-
-			// Asset drag source
+			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
+			
+			// Right click to remove
+			if (IsItemClicked(ImGuiMouseButton_Right))
+			{
+				OpenPopup("RemovePopup");
+				removeNodeName = childName;
+				removeNode = &childNode;
+				// Removal of the asset happens below this for-loop
+			}
+			
 			// Asset drag source
 			if (BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
 			{
@@ -324,6 +347,41 @@ void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_r
 				TreePop();
 			}
 		}
+	}
+	
+	// Actual removal of asset
+	if (BeginPopup("RemovePopup"))
+	{
+		if (MenuItem("Remove Asset"))
+		{
+			if (removeNode != nullptr)
+			{
+				// Check if the asset can be removed.
+				// This check is needed to prevent serializing used resources and then
+				// removing said resources, and then deserializing removed resources.
+				bool canRemove = true;
+				for (const MetaEntry *resource : removeNode->resources)
+				{
+					if (resManInstance.GetRef(resource->guid) > 0)
+					{
+						Debug::Log(Debug::LogType::Info, "Resource could not be removed, still in use.");
+						canRemove = false;
+						break;
+					}
+				}
+				
+				if (canRemove)
+				{
+					for (const MetaEntry *resource : removeNode->resources)
+					{
+						resManInstance.RemoveResourceMeta(resource->guid, true);
+					}
+					auto it = p_currentNode->children.find(removeNodeName);
+					p_currentNode->children.erase(it);
+				}
+			}
+		}
+		EndPopup();
 	}
 }
 
@@ -465,6 +523,8 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 {
 	using namespace ImGui;
 
+	s_isPreviewingResource = true;
+
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 
 	ImVec2 regionSize = GetContentRegionAvail();
@@ -479,7 +539,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		{
 			if (m_previewResourceHandle.IsValid())
 			{
-				m_editorContext->GetEngine().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+				IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
 			}
 
 			m_isPreviewResourceLoaded = false;
@@ -518,11 +578,12 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = imageSize * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-
+			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
+			ImTextureRef textureRef = IntermediaryStorage::GetInstance().GetOrCreateImGuiTexture(guid);
+			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
-			Image(textureRef, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
+			ImGui::Image(textureRef, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
 			EndChild();
 		}
 

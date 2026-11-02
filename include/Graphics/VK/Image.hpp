@@ -72,6 +72,8 @@ namespace Droplet::Graphics::VK
 	
 		// TODO: </REFACTOR>
 		
+		Image(vma::raii::Image &&p_image) { m_image = std::move(p_image); }
+		
 		Image(const Image &p_other) = delete;
 		Image &operator=(const Image &p_other) = delete;
 		

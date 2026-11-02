@@ -41,6 +41,17 @@ namespace Droplet::Scene
 			registry.registry[name] = constructFunc;
 		}
 
+		[[nodiscard]] static bool HasComponent(const std::string &name)
+		{
+			const auto &registry = GetRegistry();
+			return registry.find(name) != registry.end();
+		}
+
+		[[nodiscard]] static bool HasComponent(const std::string_view name)
+		{
+			return HasComponent(std::string(name));
+		}
+
 	private:
 		/// @brief Retrieves the singleton instance of the ComponentRegistry.
 		/// @return A reference to the singleton instance of the ComponentRegistry.

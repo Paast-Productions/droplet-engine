@@ -19,15 +19,16 @@ namespace Droplet::Editor
 
 		/// @brief Processes key shortcuts for the scene view window.
 		void ProcessSceneViewKeyShortcuts(EditorContext &p_editorContext);
-
 	private:
 		EditorShortcuts() = default;
 
 		EditorShortcuts(const EditorShortcuts &) = delete;
 		EditorShortcuts &operator=(const EditorShortcuts &) = delete;
-
-
-		// HACK Make into a imgui clipboard instead HACK
-		std::vector<std::weak_ptr<Droplet::Scene::Node>> m_copiedNodes = {};
+		/// @brief Copies all the selected nodes
+		/// @param p_editorContext 
+		void CopySelectedNodes(EditorContext &p_editorContext);
+		/// @brief Pastes all the nodes that is in the clipboard
+		/// @param p_editorContext 
+		void PasteNodes(EditorContext &p_editorContext);
 	};
 }
