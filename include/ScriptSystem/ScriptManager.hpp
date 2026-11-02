@@ -94,7 +94,7 @@ namespace Droplet::Script
 		/// their update logic.
 		/// @param ScriptComponent to call its script instance
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void TriggerComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+		void TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode);
 		
 		/// @brief Creates a script instance and associates it with a component.
 		/// The created ScriptInstance establishes the relationship between the

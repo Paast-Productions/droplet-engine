@@ -1,5 +1,7 @@
 #pragma once
 
+#include <bvh/v2/node.h>
+
 #include "ScriptManager.hpp"
 #include "LuaStateHandler.hpp"
 
@@ -80,7 +82,7 @@ namespace Droplet::Script
 		/// their onTrigger update logic.
 		/// @param ScriptComponent to call its script instance
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
-		void TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+		void TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode);
 		
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.
