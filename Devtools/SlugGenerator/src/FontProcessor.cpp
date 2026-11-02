@@ -51,11 +51,11 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	outpath.replace_extension(".slug");
 	if (!SaveData(outpath))
 	{
-		Logger::PrintError("Could not save font data.");
+		Error("Could not save font data.");
 		return;
 	}
 	
-	Logger::PrintInfo("Successfully saved font data to {}.", "fooPath");
+	Logger::PrintInfo("Successfully saved font data to {}.", outpath.string());
 	Logger::PrintEmpty();
 	m_isValid = true;
 }
@@ -286,8 +286,14 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	
 	for (uint32_t b = 0; b < bandCount; ++b)
 	{
-		uint16_t bandTexelOffset = static_cast<uint16_t>(m_bandsTextureCurveOffsets.size()) / 2;
-		uint16_t curveCount = 0; 
+		size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
+		if (bandTexelOffset > UINT16_MAX)
+		{
+			Logger::PrintError("Band reference offset exceeds 16-bit range.");
+			return false;
+		}
+		
+		size_t curveCount = 0;
 		
 		for (const Curve& curve : curves)
 		{
@@ -310,8 +316,10 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			++curveCount;
 		}
 		
-		m_bandsTextureBandOffsets.push_back(curveCount);
-		m_bandsTextureBandOffsets.push_back(bandTexelOffset);
+		m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
+		
+		const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
+		m_bandsTextureBandOffsets.push_back(storedOffset);
 		
 		// Advance the band boundaries
 		bandMinX += static_cast<float>(bandDimX);
@@ -426,6 +434,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	if (!outFile.WriteBytes(m_bandsTextureBandOffsets.data(), m_bandsTextureBandOffsets.size() * sizeof(m_bandsTextureBandOffsets.front()))) return false;
 	if (!outFile.WriteBytes(m_bandsTextureCurveOffsets.data(), m_bandsTextureCurveOffsets.size() * sizeof(m_bandsTextureCurveOffsets.front()))) return false;
 	
+	outFile.Close();
 	return true;
 }
 

@@ -29,11 +29,11 @@ namespace Droplet::Devtools::SlugGenerator
 		static glm::vec2 ToGlyphLocal(const glm::vec2& p_glyphOffset, const float p_x, const float p_y);
 		std::vector<Curve> ExtractCurves(const stbtt_vertex* p_vertices, int p_numVerts, glm::vec2 p_glyphOffset);
 		
-		bool m_isValid = true;
+		bool m_isValid = false;
 		std::string m_err;
 		uint32_t m_bandCount = 16;
 		
-		stbtt_fontinfo m_fontInfo;
+		stbtt_fontinfo m_fontInfo{};
 		std::filesystem::path m_path;
 		
 		std::vector<char> m_fontData;
