@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "SlugHelper.hpp"
 
 namespace Droplet::Devtools::SlugGenerator
 {
@@ -41,7 +42,7 @@ namespace Droplet::Devtools::SlugGenerator
 		GlyphTransaction(const GlyphTransaction&) = delete;
 		GlyphTransaction& operator=(const GlyphTransaction&) = delete;
 		GlyphTransaction(GlyphTransaction&&) = delete;
-		GlyphTransaction& operator=(const GlyphTransaction&&) = delete;
+		GlyphTransaction& operator=(GlyphTransaction&&) = delete;
 			
 	private:
 		std::vector<float>* m_curves;
