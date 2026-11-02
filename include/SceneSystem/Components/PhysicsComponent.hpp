@@ -179,6 +179,8 @@ namespace Droplet::Scene
 
 		/// @brief Applies the simulated Jolt transform to the Node Transform
 		void PullTransformFromPhysics();
+
+		void DebugDrawShape();
 		
 		/// @brief Helper function creating convex hull shape settings
 		/// @param p_meshGuid The mesh resource to make a collider of
@@ -205,7 +207,7 @@ namespace Droplet::Scene
 			glm::vec3 halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
 			float r = 0.0f;
 			float h = 0.0f;
-		}m_serializeData;
+		} m_serializeData;
 		bool m_isDeserialized = false;
 		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
 	};
