@@ -1,3 +1,13 @@
+// FontProcessor.cppo - Droplet Engine
+//
+// Based on the Sluggish font generator by mightycow:
+// https://github.com/mightycow/Sluggish
+//
+// Original code released under Unlicense.
+// Modified for use with the Droplet Engine.
+// 
+// See ../THIRD_PARTY_NOTICES.md for additional information
+
 #include "FontProcessor.hpp"
 #include "Logger.hpp"
 #include "File.hpp"
