@@ -192,7 +192,7 @@ namespace Droplet::Scene
 		Physics *m_physics;
 		Transform *m_transform;
 
-		JPH::BodyID m_bodyID;
+		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};
 		JPH::ShapeRefC m_shape{};
 		JPH::Ref<JPH::Character> m_character;
 		JPH::Vec3 m_offset{};
