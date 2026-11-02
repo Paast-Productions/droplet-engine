@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <string>
 #include <fstream>
-#include <span>
 #include <vector>
 
 namespace Droplet::Devtools::SlugGenerator
@@ -15,13 +14,13 @@ namespace Droplet::Devtools::SlugGenerator
 		explicit File(const std::filesystem::path& p_path, std::fstream::openmode p_mode = std::fstream::in | std::fstream::binary);
 		~File() = default; // fstream auto-closes when destroyed
 		
-		bool IsOpen() const { return m_file.is_open(); }
-		size_t GetSize() const;
+		[[nodiscard]] bool IsOpen() const { return m_file.is_open(); }
+		[[nodiscard]] size_t GetSize() const { return m_fileSize; };
 		bool ReadAll(std::vector<char>& p_dst);
 		bool WriteBytes(const void* p_data, const size_t p_size);
 		
 		bool Open(const std::filesystem::path &p_path, std::fstream::openmode p_mode = std::fstream::in | std::fstream::binary);
-		void Close();
+		bool Close();
 		
 	private:
 		std::fstream m_file;

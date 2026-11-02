@@ -29,14 +29,9 @@ Droplet::Devtools::SlugGenerator::File::File(const std::filesystem::path &p_path
 	Open(p_path, p_mode); // Open() handles error logging, so we don't care about the result of the open here.
 }
 
-size_t Droplet::Devtools::SlugGenerator::File::GetSize() const
-{
-	return m_fileSize;
-}
-
 bool Droplet::Devtools::SlugGenerator::File::ReadAll(std::vector<char>& p_dst)
 {
-	// Don't open a new file if we already have one open.
+	// Ensure the file is open before attempting to read
 	if (!IsOpen())
 	{
 		Logger::PrintError("Could not read file data. File at {} is not open.", m_filePath.string());
@@ -46,7 +41,7 @@ bool Droplet::Devtools::SlugGenerator::File::ReadAll(std::vector<char>& p_dst)
 	// Don't try to read more than what is possible with fstream.
 	if (m_fileSize > std::numeric_limits<std::streamsize>::max())
 	{
-		Logger::PrintError("Trying to read more data than fstream can handle ({}).", p_dst.size());
+		Logger::PrintError("File is too large to read ({} bytes).", m_fileSize);
 		return false;
 	}
 	
@@ -56,6 +51,12 @@ bool Droplet::Devtools::SlugGenerator::File::ReadAll(std::vector<char>& p_dst)
 	// Reset the file state
 	m_file.clear();
 	m_file.seekg(0, std::fstream::beg);
+	
+	if (!m_file)
+	{
+		Logger::PrintError("Failed seeking to the beginning of file at {}.", m_filePath.string());
+		return false;
+	}
 	
 	// Read the file.
 	if (!m_file.read(p_dst.data(), static_cast<std::streamsize>(p_dst.size())))
@@ -136,8 +137,18 @@ bool Droplet::Devtools::SlugGenerator::File::Open(const std::filesystem::path &p
 	return true;
 }
 
-void Droplet::Devtools::SlugGenerator::File::Close()
+bool Droplet::Devtools::SlugGenerator::File::Close()
 {
-	if (IsOpen())
-		m_file.close();
+	if (!IsOpen())
+		return true;
+	
+	m_file.close();
+	
+	if (m_file.fail())
+	{
+		Logger::PrintError("Failed to close file at {}.", m_filePath.string());
+		return false;
+	}
+	
+	return true;
 }

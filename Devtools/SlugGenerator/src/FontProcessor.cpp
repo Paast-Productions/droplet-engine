@@ -445,8 +445,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	if (!outFile.WriteBytes(m_bandsTextureBandOffsets.data(), m_bandsTextureBandOffsets.size() * sizeof(m_bandsTextureBandOffsets.front()))) return false;
 	if (!outFile.WriteBytes(m_bandsTextureCurveOffsets.data(), m_bandsTextureCurveOffsets.size() * sizeof(m_bandsTextureCurveOffsets.front()))) return false;
 	
-	outFile.Close();
-	return true;
+	return outFile.Close();
 }
 
 bool Droplet::Devtools::SlugGenerator::FontProcessor::Error(const std::string &p_err)
