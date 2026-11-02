@@ -4,9 +4,27 @@
 
 namespace Droplet::Devtools::SlugGenerator
 {
+	/// @brief Provides automatic rollback of glyph data during processing.
+	///
+	/// Records the initial sizes of the shared curve texture, band texture
+	/// arrays, and code-point metadata. If processing ends without calling
+	/// Commit(), all appended data is discarded.
+	///
+	/// @note Only appended data is restored. Modifications to existing
+	///       elements cannot be rolled back.
+	/// @note The referenced vectors must outlive the transaction.
 	class GlyphTransaction
 	{
 	public:
+		/// @brief Begins a transaction for the shared glyph data.
+		///
+		/// Records the current sizes of all supplied vectors without
+		/// copying their contents.
+		///
+		/// @param p_curves Packed Bézier curve texture data.
+		/// @param p_bandOffsets Band headers containing curve counts and offsets.
+		/// @param p_curveOffsets Curve references within the band texture.
+		/// @param p_codePoints Metadata for processed code points.
 		GlyphTransaction(
 			std::vector<float>& p_curves,
 			std::vector<uint16_t>& p_bandOffsets,
@@ -22,6 +40,10 @@ namespace Droplet::Devtools::SlugGenerator
 					m_codePointsSize(p_codePoints.size())
 		{}
 		
+		/// @brief Rolls back appended data unless the transaction was committed.
+		///
+		/// Restores all vector sizes recorded during construction,
+		/// discarding any elements appended during the transaction.
 		~GlyphTransaction()
 		{
 			// Discard added data in case we exit without committing (e.g. in case of a failure)
@@ -34,6 +56,9 @@ namespace Droplet::Devtools::SlugGenerator
 			}
 		}
 		
+		/// @brief Commits the transaction, retaining all appended data.
+		///
+		/// Prevents the destructor from restoring the original vector sizes.
 		void Commit() noexcept
 		{
 			m_committed = true;
