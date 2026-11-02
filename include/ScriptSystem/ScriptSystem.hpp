@@ -74,7 +74,14 @@ namespace Droplet::Script
 		/// @param p_scirptBehaviour Behaviour that will connect to the script instance.
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
 		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
-
+		
+		/// @brief Runs the script components onTrigger function 
+		/// This should be called once per fixed frame to allow active scripts to perform
+		/// their onTrigger update logic.
+		/// @param ScriptComponent to call its script instance
+		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
+		void TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime);
+		
 		/// @brief Loads a Lua script from a file.
 		/// @param p_scriptFile Path to the Lua script file.
 		void LoadScript(const std::string &p_scriptFile);
@@ -84,11 +91,11 @@ namespace Droplet::Script
 		void UnloadScript(const std::string &p_scriptFile);
 		
 		/// @brief Detach Script from Component
-		/// @param p_scriptComponent 
+		/// @param p_scriptComponent to call its script instance
 		void DetachComponentScript(Droplet::Scene::Component *p_scriptComponent);
 
 		/// @brief Detach Script from Behaviour
-		/// @param p_scriptBehaviour
+		/// @param p_scriptBehaviour to call its scripts instance
 		void DetachBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour);
 
 		/// @brief Detaches components to a certain script

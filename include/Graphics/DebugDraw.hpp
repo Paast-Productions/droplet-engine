@@ -407,7 +407,7 @@ namespace Droplet::Graphics::Debug
 		const vk::raii::CommandPool *m_commandPool = nullptr;
 		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
 		vk::Format m_colorFormat {};
-		vk::Format m_depthFormat {};
+		vk::Format m_depthFormat {}; 
 		std::vector<FrameResources> m_frameResources {};
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };

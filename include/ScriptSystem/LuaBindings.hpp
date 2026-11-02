@@ -96,6 +96,12 @@ namespace Droplet::Script::Bindings
 		/// @param p_luaState Lua state in which the Tracy bindings should be registered.
 		static void RegisterTracy([[maybe_unused]] sol::state_view p_luaState);
 
+		static void RegisterHealthComponent(sol::state_view p_luaState);
+
+		static void RegisterPlayerComponent(sol::state_view p_luaState);
+
+		static void RegisterPlayerBehaviour(sol::state_view p_luaState);
+		
 		// TODO: Implement additional engine bindings as functionality is added.
 	};
 }

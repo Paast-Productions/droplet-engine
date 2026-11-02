@@ -34,8 +34,9 @@ namespace Droplet::Graphics::VK
 		
 		DepthBuffer(DepthBuffer &&p_other) noexcept
 		{
-			m_image = std::move(p_other.m_image);
-			m_imageView = std::move(p_other.m_imageView);
+			std::swap(m_image, p_other.m_image);
+			std::swap(m_imageView, p_other.m_imageView);
+			m_format = p_other.m_format;
 		}
 		
 		DepthBuffer &operator=(DepthBuffer &&p_other) noexcept
@@ -45,8 +46,9 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_image = std::move(p_other.m_image);
-			m_imageView = std::move(p_other.m_imageView);
+			std::swap(m_image, p_other.m_image);
+			std::swap(m_imageView, p_other.m_imageView);
+			m_format = p_other.m_format;
 			
 			return *this;
 		}
@@ -55,8 +57,9 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const DepthBuffer &p_other) const
 		{
-			return (m_image == p_other.m_image &&
-					m_imageView == p_other.m_imageView);
+			return (m_image == p_other.m_image			&&
+					m_imageView == p_other.m_imageView	&&
+					m_format == p_other.m_format);
 		}
 		
 		/// @brief Image getter

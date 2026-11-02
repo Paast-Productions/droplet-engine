@@ -28,7 +28,7 @@ float4 main(FSInput vertIn) : SV_TARGET
 
     float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
 
-    float viewDotNormal = abs(dot(vertIn.fragNormal.xyz, camToFrag));
+    float viewDotNormal = (dot(vertIn.fragNormal.xyz, camToFrag));
     color.xyz *= saturate((viewDotNormal + 1.0.rrr) / 2.0);
 
     float4 blueTintColour = lerp(color, float4(0.00f, 0.00f, 0.3f, 1.0), saturate(length(pc.cameraPos.xyz - vertIn.wPos.xyz) / 50));

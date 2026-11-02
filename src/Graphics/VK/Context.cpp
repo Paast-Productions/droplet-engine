@@ -103,7 +103,8 @@ void Context::CreateLogicalDevice()
 		vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>
 		featureChain = {
 			{	// vk::PhysicalDeviceFeatures2
-				.features {
+				.features 
+				{
 					.fillModeNonSolid = true,
 					.wideLines = true,
 				}
@@ -119,15 +120,16 @@ void Context::CreateLogicalDevice()
 				.descriptorBindingStorageBufferUpdateAfterBind = true,
 				.descriptorBindingUpdateUnusedWhilePending = true,
 				.descriptorBindingPartiallyBound = true,
-				.runtimeDescriptorArray = true, 
+				.descriptorBindingVariableDescriptorCount = true,
+				.runtimeDescriptorArray = true
 			},	
 			{	// vk::PhysicalDeviceVulkan13Features
 				.synchronization2 = true, // Fixes sync2 warnings
 				.dynamicRendering = true
 			},	
-			{
+			{	// vk::PhysicalDeviceVulkan14Features
 				.bresenhamLines = true
-			},	// vk::PhysicalDeviceVulkan14Features
+			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
 				.extendedDynamicState = true
 			}							
@@ -150,7 +152,7 @@ void Context::CreateLogicalDevice()
 bool Context::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
 {
 	// Check if the physicalDevice supports the Vulkan 1.3 API version
-	bool supportsVulkan1_3 = p_physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_3;
+	bool supportsVulkan1_4 = p_physicalDevice.getProperties().apiVersion >= VK_API_VERSION_1_4;
 
 	// Check if any of the queue families support both graphics and presentation to our surface
 	auto     queueFamilies = p_physicalDevice.getQueueFamilyProperties();
@@ -182,7 +184,7 @@ bool Context::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
 		features.template get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState;
 
 	// Return true if the physicalDevice meets all the criteria
-	return supportsVulkan1_3 && supportsGraphicsAndPresent && supportsAllRequiredExtensions && supportsRequiredFeatures;
+	return supportsVulkan1_4 && supportsGraphicsAndPresent && supportsAllRequiredExtensions && supportsRequiredFeatures;
 }
 
 //Fetches required SDL instance extensions

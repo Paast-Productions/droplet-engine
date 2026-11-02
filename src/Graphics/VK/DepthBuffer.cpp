@@ -20,28 +20,24 @@ DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii
 		vk::ImageTiling::eOptimal,
 		vk::FormatFeatureFlagBits::eDepthStencilAttachment);
 	
-	try
+	m_image = 
 	{
-		m_image = {p_allocator, p_swapchainExtent.width, p_swapchainExtent.height,
-			m_format, vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eDepthStencilAttachment,
-			vk::MemoryPropertyFlagBits::eDeviceLocal};
-	} catch (const vk::Error &err)
-	{
-		std::print(std::cerr, "DepthBuffer-Image Error: {0}", err.what());
-		std::flush(std::cerr);
-		exit(-1);
-	}
+		p_allocator,
+		p_swapchainExtent.width,
+		p_swapchainExtent.height,
+		m_format, 
+		vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eDepthStencilAttachment,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+		};
 	
-	try
+	m_imageView = 
 	{
-		m_imageView = {p_device, m_image.Get(), m_format, vk::ImageAspectFlagBits::eDepth};
-	} catch (const vk::Error &err)
-	{
-		std::print(std::cerr, "DepthBuffer-ImageView Error: {0}", err.what());
-		std::flush(std::cerr);
-		exit(-1);
-	}
-	
+		p_device,
+		m_image.Get(),
+		m_format,
+		vk::ImageAspectFlagBits::eDepth
+	};
 }
 
 //Check what formats the hardware supports

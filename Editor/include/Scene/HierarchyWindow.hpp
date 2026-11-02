@@ -11,6 +11,14 @@
 
 namespace Droplet
 {
+    /// @brief This is the drop data received from the scene window
+    /// needed for drag and drop to load scenes from the saved gamedata window
+    struct SceneDragDropData
+    {
+        char path[256];
+        char name[128];
+    };
+
     namespace Scene
     {
 		// Forward declarations
@@ -121,7 +129,7 @@ namespace Droplet
             /// rendered to avoid modifying the hierarchy while it is being traversed.
             std::shared_ptr<Droplet::Scene::Node> m_nodeToAddChildTo; // TODO: Make weak pointer
 
-            std::shared_ptr<Droplet::Scene::Node> m_nodeToRemove; // TODO: Make weak pointer
+            std::vector<std::shared_ptr<Droplet::Scene::Node>> m_nodesToRemove; // TODO: Make weak pointer
         };
     }
 }

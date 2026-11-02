@@ -20,7 +20,7 @@ vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice,
 	throw std::runtime_error("failed to find supported format!");
 }
 
-Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::DescriptorSetLayout &p_descriptorSetLayout, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, vk::SurfaceFormatKHR p_surfaceFormat)
+Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const std::vector<vk::DescriptorSetLayout> &p_descriptorSetLayouts, std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules, vk::SurfaceFormatKHR p_surfaceFormat)
 {
 	vk::PushConstantRange pushConstantRange
 	{
@@ -29,15 +29,10 @@ Pipeline::Pipeline(const vk::raii::Device &p_device, const vk::raii::PhysicalDev
 		.size = sizeof(PushConstantData)
 	};
 	
-	std::vector<vk::DescriptorSetLayout> descriptorSetLayouts 
-	{
-		p_descriptorSetLayout
-	};
-	
 	vk::PipelineLayoutCreateInfo pipelineLayoutInfo
 	{
-		.setLayoutCount = static_cast<std::uint32_t>(descriptorSetLayouts.size()),
-		.pSetLayouts = descriptorSetLayouts.data(), 
+		.setLayoutCount = static_cast<std::uint32_t>(p_descriptorSetLayouts.size()),
+		.pSetLayouts = p_descriptorSetLayouts.data(), 
 		.pushConstantRangeCount = 1,
 		.pPushConstantRanges = &pushConstantRange
 	};	

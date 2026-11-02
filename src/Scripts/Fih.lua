@@ -301,7 +301,7 @@ function RenderUI()
             Vec3.new(1.0, 0.0, 0.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )
@@ -310,7 +310,7 @@ function RenderUI()
             Vec3.new(0.0, 1.0, 0.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )
@@ -319,7 +319,7 @@ function RenderUI()
             Vec3.new(0.0, 0.0, 1.0),
             targetRadius,
             Vec4.new(1.0, 1.0, 1.0, 0.3),
-            24,
+            32,
             true,
             true
         )

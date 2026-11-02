@@ -8,6 +8,7 @@
 
 #include <Graphics/VK/DepthBuffer.hpp>
 #include <Graphics/VK/ImageView.hpp>
+
 namespace Droplet::Graphics
 {
 	/// @brief A class that represent the endpoints of what the renderer need
@@ -35,6 +36,14 @@ namespace Droplet::Graphics
 			const vk::raii::PhysicalDevice &p_physicalDevice,
 			std::uint32_t p_width,
 			std::uint32_t p_height);
+		
+		bool operator==(const RenderTarget &p_other) const
+		{
+			return	(m_extent == p_other.m_extent			&&
+					m_colourImage == p_other.m_colourImage	&&
+					m_colourView == p_other.m_colourView	&&
+					m_depthBuffer == p_other.m_depthBuffer);
+		}
 
 		/// @brief Get the texture
 		/// returns A custom Image

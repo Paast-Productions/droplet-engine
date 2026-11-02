@@ -57,6 +57,16 @@ void Droplet::Script::ScriptManager::UpdateBehaviour(Droplet::Scene::Behaviour *
 	}
 }
 
+void Droplet::Script::ScriptManager::TriggerComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+{
+	ZoneScoped;
+	
+	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
+	{
+		instance->OnTrigger(p_deltaTime);
+	}
+}
+
 void ScriptManager::CreateComponentScript(
 	Scene::Component *p_scriptComponent,
 	const std::string &p_scriptFile)
