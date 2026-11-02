@@ -7,6 +7,8 @@ namespace Droplet::Audio
 	class AudioBus
 	{
 	public:
+
+		
 		AudioBus() = default;
 		~AudioBus() = default;
 
@@ -16,6 +18,13 @@ namespace Droplet::Audio
 
 		void SetActive(bool p_active);
 		[[nodiscard]] bool IsActive() const;
+
+		float GetVolume() const { return m_volume; }
+		void SetVolume(float p_volume);
+
+		AudioBusID GetID() const { return m_id; }
+		void SetID(AudioBusID p_id) { m_id = p_id; }
+
 		//---------------------------------------
 		// Name
 		//---------------------------------------
@@ -27,21 +36,20 @@ namespace Droplet::Audio
 		// --------------------------------------
 		// Children and parent AudioBuses
 		//---------------------------------------
-		void SetParent(std::weak_ptr<AudioBus> p_audioBus);
-		std::weak_ptr<AudioBus> GetParent() const;
+		void SetParent(AudioBus* p_audioBus);
+		AudioBus* GetParent() const;
 
-		std::weak_ptr<AudioBus> AddChildBus(std::shared_ptr<AudioBus> p_audioBus);
+		AudioBus* AddChildBus(AudioBus* p_audioBus);
 
-		void RemoveChildBus(const std::weak_ptr<AudioBus> p_audioBus);
+		void RemoveChildBus(const AudioBus* p_audioBus);
 
-		[[nodiscard]] bool IsDecendantOf(const std::weak_ptr<AudioBus> &p_audioBus) const;
+		[[nodiscard]] bool IsDecendantOf(const AudioBus* p_audioBus) const;
 
 		//---------------------------------------
 		// Render UI
 		//---------------------------------------
+
 		void RenderUI();
-
-
 
 		//---------------------------------------
 		// Serialization
@@ -52,12 +60,18 @@ namespace Droplet::Audio
 		
 
 	private:
+
+		friend class AudioMixer;
+		AudioBusID m_id;
+
 		std::string m_name;
 
 		bool m_active = false;
 
-		std::weak_ptr<AudioBus> m_parent;
-		std::vector<std::shared_ptr<AudioBus>> m_children;
+		//Family
+		AudioBus* m_parent = nullptr;
+		std::vector<AudioBus*> m_children;
 
+		float m_volume;
 	};
 }
