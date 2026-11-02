@@ -68,6 +68,13 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
     classDef.functions =
     {
         {
+            "FindNodeById",
+            "Node | nil",
+            {
+                {"id", "integer"}
+            }
+        },
+        {
             "RaycastNode",
             "tuple<Node, RayHit>",
             {
