@@ -9,13 +9,16 @@ namespace Droplet::Devtools::SlugGenerator
 		GlyphTransaction(
 			std::vector<float>& p_curves,
 			std::vector<uint16_t>& p_bandOffsets,
-			std::vector<uint16_t>& p_curveOffsets)
+			std::vector<uint16_t>& p_curveOffsets,
+			std::vector<SlugCodePoint>& p_codePoints)
 				:	m_curves(&p_curves),
 					m_bandOffsets(&p_bandOffsets),
 					m_curveOffsets(&p_curveOffsets),
+					m_codePoints(&p_codePoints),
 					m_curvesSize(p_curves.size()),
 					m_bandOffsetsSize(p_bandOffsets.size()),
-					m_curveOffsetsSize(p_curveOffsets.size())
+					m_curveOffsetsSize(p_curveOffsets.size()),
+					m_codePointsSize(p_codePoints.size())
 		{}
 		
 		~GlyphTransaction()
@@ -43,10 +46,12 @@ namespace Droplet::Devtools::SlugGenerator
 		std::vector<float>* m_curves;
 		std::vector<uint16_t>* m_bandOffsets;
 		std::vector<uint16_t>* m_curveOffsets;
+		std::vector<SlugCodePoint>* m_codePoints;
 
 		size_t m_curvesSize;
 		size_t m_bandOffsetsSize;
 		size_t m_curveOffsetsSize;
+		size_t m_codePointsSize;
 
 		bool m_committed = false;
 	};

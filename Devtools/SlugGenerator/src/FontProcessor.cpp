@@ -167,7 +167,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	}
 	
 	// Start a transaction to rollback texture data in the case of a failure
-	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets);
+	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_codePoints);
 	
 	// Write the curve texture
 	for (Curve& curve : curves)
