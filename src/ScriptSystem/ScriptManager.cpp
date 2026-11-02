@@ -449,8 +449,6 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 	}
 	m_scriptDirectoryPath = scriptDirectory;
 
-	std::print("Script directory: {}\n", m_scriptDirectoryPath.string());
-
 	sol::table package = m_StateHandler.GetState()["package"];
 	std::string currentPath = package["path"];
 
