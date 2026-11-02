@@ -194,6 +194,8 @@ namespace Droplet::Scene
         /// that has not been loaded.
         void SetActive(bool p_active);
 
+        [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
+
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
 

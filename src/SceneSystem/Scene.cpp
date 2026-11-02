@@ -284,6 +284,32 @@ void Scene::SetActive(bool p_active)
     }
 }
 
+std::weak_ptr<Node> Scene::FindNodeById(std::uint64_t p_id) const 
+{
+    std::vector<std::shared_ptr<Node>> pendingNodes(m_roots.begin(), m_roots.end());
+
+    while (!pendingNodes.empty())
+    {
+        std::shared_ptr<Node> node = std::move(pendingNodes.back());
+        pendingNodes.pop_back();
+
+        if (!node)
+        {
+            continue;
+        }
+
+        if (node->GetID() == p_id)
+        {
+            return node;
+        }
+
+        const auto &children = node->GetChildren();
+        pendingNodes.insert(pendingNodes.end(), children.begin(), children.end());
+    }
+
+    return {};
+}
+
 void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
