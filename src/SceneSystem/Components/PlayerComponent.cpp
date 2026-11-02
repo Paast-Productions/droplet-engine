@@ -4,6 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include "PlayerComponent.hpp"
+#include <SceneSystem/Items/BaseItems.hpp>
 
 
 namespace Droplet::Scene
@@ -32,6 +33,7 @@ namespace Droplet::Scene
 
         m_playerBehaviour = playerBehaviour;
         playerBehaviour->SetPlayer(owner);
+		playerBehaviour->AddItem(InventoryType::Player, Droplet::Game::Items::Wood, 10);
     }
 
     void PlayerComponent::UpdateImpl()

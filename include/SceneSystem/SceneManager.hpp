@@ -8,6 +8,9 @@
 
 #include <Graphics/RenderData.hpp>
 
+namespace Droplet::Game { class ItemRegistry; }
+
+
 namespace Droplet::Scene
 {
     class Scene;
@@ -131,9 +134,14 @@ namespace Droplet::Scene
 		/// @param p_behaviour A weak pointer to the behaviour to shut down.
 		void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour);
 
+        void SetItemRegistry(const Droplet::Game::ItemRegistry *p_reg) { m_itemRegistry = p_reg; }
+
+        [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
+
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
+        const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
     };

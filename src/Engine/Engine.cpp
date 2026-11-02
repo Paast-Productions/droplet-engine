@@ -17,6 +17,7 @@
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
+#include <SceneSystem/Items/BaseItems.hpp>
 
 using namespace Droplet;
 
@@ -80,6 +81,10 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
     // ------
+
+	Droplet::Game::RegisterBaseItems(m_itemRegistry);
+	m_sceneManager.SetItemRegistry(&m_itemRegistry);
+
 
 	// Register engine behaviours
 	RegisterBehaviours();
