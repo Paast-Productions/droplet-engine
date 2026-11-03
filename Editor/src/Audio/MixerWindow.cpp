@@ -118,14 +118,7 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 		ImGui::EndPopup();
 	}
 
-	if (nodeOpen && hasChildren)
-	{
-		for (Audio::AudioBus *child : p_bus->GetChildren())
-		{
-			DrawBus(child);
-		}
-		ImGui::TreePop();
-	}
+
 
 	if (ImGui::BeginDragDropSource())
 	{
@@ -143,10 +136,27 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 	{
 		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS"))
 		{
-			
+			Audio::AudioBus *draggedBus = *static_cast<Audio::AudioBus **>(payload->Data);
+
+			if (draggedBus != p_bus && !p_bus->IsDecendantOf(draggedBus))
+			{
+				m_pendingReparent = PendingReparent
+				{
+					draggedBus->GetID(),
+					p_bus->GetID()
+				};
+			}
 		}
+		ImGui::EndDragDropTarget();
 	}
 
-
+	if (nodeOpen && hasChildren)
+	{
+		for (Audio::AudioBus *child : p_bus->GetChildren())
+		{
+			DrawBus(child);
+		}
+		ImGui::TreePop();
+	}
 	ImGui::PopID();
 }
