@@ -26,6 +26,8 @@ namespace Droplet::Editor::Scene
 
 		~SceneViewWindow() = default;
 
+		bool IsRenderingGameView() const { return m_renderingGameView; }
+
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -37,6 +39,8 @@ namespace Droplet::Editor::Scene
 		void RenderImpl() override;
 
 	private:
+		bool m_renderingGameView = false;
+
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 		bool m_hoveringGizmo = false;
@@ -62,6 +66,10 @@ namespace Droplet::Editor::Scene
 		bool m_wrapMouse = false;
 		int m_skipMouseDeltas = 0;
 
+		void RenderEditorView();
+
+		void RenderGameView();
+
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
 		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
@@ -84,6 +92,7 @@ namespace Droplet::Editor::Scene
 		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
 
 		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void SetCameraPivotPoint(const glm::vec3 &p_pivot); // Is it even needed?
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
 
@@ -93,5 +102,10 @@ namespace Droplet::Editor::Scene
 		/// @brief Contains a json object that hold temporary scene data in memory
 		/// It is useful for when you have unsaved changes and want to enter play-mode
 		nlohmann::json m_json;
+
+		/// @brief Camera snapping
+		glm::vec3 m_cameraSnapPos = glm::vec3(0.0f);
+		glm::vec3 m_cameraSnapDir = glm::vec3(0.0f, 0.0f, 1.0f);
+		float m_cameraSnapRadius = 8.0f;
 	};
 }

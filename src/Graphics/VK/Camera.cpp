@@ -60,6 +60,14 @@ void Camera::Rotate(float p_xOffset, float p_yOffset, glm::vec3 p_up, bool p_con
 	m_up = glm::normalize(glm::cross(m_right, m_forward));
 }
 
+void Camera::SetOrientation(glm::vec3 p_fwd, glm::vec3 p_up) 
+{ 
+	m_forward = glm::normalize(p_fwd);
+	m_right = glm::normalize(glm::cross(m_forward, p_up));
+	m_up = glm::normalize(glm::cross(m_right, m_forward));
+	UpdateCameraVectors();
+}
+
 void Camera::UpdateCameraVectors()
 {
 	m_forward = glm::normalize(m_forward);
