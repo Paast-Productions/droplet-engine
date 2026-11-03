@@ -79,7 +79,7 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
-    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Scene Selection"))
@@ -127,7 +127,7 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndPopup();
     }
 
-    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
@@ -206,7 +206,7 @@ void HierarchyWindow::RenderImpl()
         DrawNode(root);
     }
 
-    ImGui::BeginDisabled(m_editorContext->GetIsPlayMode());
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (m_rangeSelectTarget)
@@ -463,7 +463,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
 
-    if (!m_editorContext->GetIsPlayMode())
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
     {
         if (ImGui::BeginDragDropTarget())
         {

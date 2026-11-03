@@ -22,6 +22,8 @@
 #include <PhysicsComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Items/Item.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
 
 #include <print>
 #include <filesystem>

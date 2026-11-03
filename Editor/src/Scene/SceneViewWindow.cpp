@@ -1,7 +1,5 @@
 #include "SceneViewWindow.hpp"
-#include <Editor/ViewOverlayUI.hpp>
-
-// TODO: Clean whatever this mess is
+#include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
 #include <math/bounds/Intersection.hpp>
 #include <math/bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -18,10 +16,12 @@
 #include <Graphics/DebugDraw.hpp>
 #include <Graphics/VK/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
+using namespace Droplet::Graphics::VK;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -55,6 +55,7 @@ namespace
 		return s_lastFPSAvg;
 	}
 
+	using DScene = Droplet::Scene::Scene;
 	using DNode = Droplet::Scene::Node;
 	using DTransform = Droplet::Scene::Transform;
 
@@ -203,7 +204,7 @@ namespace
 
 void SceneViewWindow::InitImpl()
 {
-	SetName("Scene View"); 
+	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
 	// TODO: 
@@ -300,7 +301,24 @@ void SceneViewWindow::RenderToolbar()
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
-		ImGui::Separator();
+		ImGui::SeparatorText("Camera");
+
+		if (ImGui::BeginMenu("Camera Snap"))
+		{
+			ImGui::SeparatorText("Camera Snapping");
+			ImGui::DragFloat3("Position", &m_cameraSnapPos.x, 0.02f, -FLT_MAX, FLT_MAX);
+
+			if (ImGui::Button("Save Snap"))
+			{
+				m_cameraSnapDir = m_editorContext->GetEditorCamera().GetForward();
+				m_cameraSnapPos = m_cameraPivot;
+				m_cameraSnapRadius = m_cameraPivotRadius;
+				EditorConfig::StoreVec3("CameraSnap.Position", m_cameraSnapPos);
+				EditorConfig::StoreVec3("CameraSnap.Direction", m_cameraSnapDir);
+				EditorConfig::StoreFloat("CameraSnap.Radius", m_cameraSnapRadius);
+			}
+			ImGui::EndMenu();
+		}
 
 		// Camera movement speed
 		float movementSpeed = m_editorContext->GetEditorCameraController().GetMovementSpeed();
@@ -345,24 +363,71 @@ void SceneViewWindow::RenderToolbar()
 
 void SceneViewWindow::RenderImpl()
 {
-	ImDrawList *drawList = ImGui::GetWindowDrawList();
-		
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
-	
-	GameInput &input = GameInput::Get();
-	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = Droplet::Graphics::VK::IntermediaryStorage::GetInstance()
-								.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
-								.GetExtent();
 
-	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
+	ImVec2 camSize = contentRegion;
+
+	ImVec2 camViewRectMin = {
+		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+	};
+	
+	m_renderingGameView = false;
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	{
+		RenderGameView();
+	}
+	else
+	{
+		RenderEditorView();
+	}
+}
+
+void SceneViewWindow::RenderEditorView()
+{
+	ImDrawList *drawList = ImGui::GetWindowDrawList();
+	GameInput &input = GameInput::Get();
+
+	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
+	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+
+	ImVec2 camSize = contentRegion;
+
+	ImVec2 camViewRectMin = {
+		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+	};
+
+	ImVec2 camViewRectMax = {
+		camViewRectMin.x + camSize.x,
+		camViewRectMin.y + camSize.y
+	};
+
+	ImVec2 camViewPos = {
+		camViewRectMin.x - windowPos.x,
+		camViewRectMin.y - windowPos.y
+	};
+
+	ImVec2 viewCenter = {
+		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+		(camViewRectMin.y + camViewRectMax.y) * 0.5f
+	};
+
+	float contentAspect = contentRegion.x / contentRegion.y;
+	vk::Extent2D extent = IntermediaryStorage::GetInstance()
+		.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
+		.GetExtent();
+
+	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
 
 	// If mouse is released and viewSize is changed, Update the camera and renderTarget
 	if (input.MouseReleased(Mouse::LMB))
-	{	
+	{
 		if (width != extent.width || height != extent.height)
 		{
 			if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
@@ -377,28 +442,6 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-	
-	ImVec2 camSize = contentRegion;
-	
-	ImVec2 camViewRectMin = {
-		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
-		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
-	};
-	
-	ImVec2 camViewRectMax = {
-		camViewRectMin.x + camSize.x,
-		camViewRectMin.y + camSize.y
-	};
-
-	ImVec2 camViewPos = { 
-		camViewRectMin.x - windowPos.x, 
-		camViewRectMin.y - windowPos.y 
-	};
-	
-	ImVec2 viewCenter = {
-		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
-		(camViewRectMin.y + camViewRectMax.y) * 0.5f
-	};
 
 	if (m_cameraLookToggled)
 	{
@@ -429,7 +472,7 @@ void SceneViewWindow::RenderImpl()
 	ImVec2 imageMin = ImGui::GetItemRectMin();
 	ImVec2 imageMax = ImGui::GetItemRectMax();
 
-	const EditorCamera &camera = m_editorContext->GetEditorCamera();
+	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
 	if (isWindowFocused)
 	{
@@ -461,6 +504,16 @@ void SceneViewWindow::RenderImpl()
 			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
+		// Camera snaping
+		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
+		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed)
+		{
+			camera.SetOrientation(EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec3 cameraSnapPos = EditorConfig::LoadVec3("CameraSnap.Position", glm::vec3(0.0f));
+			float cameraSnapRadius = EditorConfig::LoadFloat("CameraSnap.Radius", 8.0f);
+			SetCameraPivot(m_cameraSnapPos, m_cameraSnapRadius);
+			ApplyCameraPivot();
+		}
 	}
 
 	if (m_hoveringSceneView || isWindowFocused)
@@ -518,9 +571,9 @@ void SceneViewWindow::RenderImpl()
 					putPos = hit.point;
 
 					DebugDraw::DrawRay(
-						hit.point, 
+						hit.point,
 						hit.normal * 0.5f,
-						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 
+						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
 						false
 					);
 
@@ -734,7 +787,7 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-	
+
 	if (!m_cameraLookToggled && !m_usingGizmo)
 	{
 		ProcessCameraControls(camSize.x);
@@ -770,7 +823,7 @@ void SceneViewWindow::RenderImpl()
 
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
-	// Render play/pause button
+	// Render play button
 	{
 		ImVec2 buttonSize = ImVec2(30, 30);
 		ImVec2 buttonPos = ImVec2(
@@ -782,11 +835,178 @@ void SceneViewWindow::RenderImpl()
 			camViewRectMin.y + 10
 		);
 
-		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
-		bool hasPlayed = m_editorContext->GetIsPlayMode();
+		// Make green
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		ImGui::SetCursorScreenPos(buttonPos);
-		if (isPlaying)
+		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+		{
+			// Save scene before playing
+			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
+
+			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+		}
+
+		ImGui::PopStyleColor(4);
+
+		m_hoveringPlayButton = ImGui::IsItemHovered();
+	}
+
+	RenderOverlayQueue();
+
+	ImGui::EndChild();
+}
+
+void SceneViewWindow::RenderGameView()
+{
+	typedef Droplet::Scene::CameraComponent DCamera;
+
+	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
+	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	GameInput &input = GameInput::Get();
+
+	ImVec2 camSize, camViewPos, camViewRectMin;
+
+	std::shared_ptr<DCamera> camera = m_editorContext->GetGameCamera().lock();
+
+	if (m_cameraLookToggled)
+	{
+		ImGui::SetNextWindowFocus();
+	}
+
+	if (!camera)
+	{
+		camSize = contentRegion;
+
+		camViewRectMin = {
+			cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+		};
+
+		camViewPos = {
+			camViewRectMin.x - windowPos.x,
+			camViewRectMin.y - windowPos.y
+		};
+
+		ImGui::SetCursorPos(camViewPos);
+		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+
+		std::string text = "No Game Camera found in the scene.";
+		ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+
+		ImVec2 textPos = {
+			cursorScreenPos.x + (contentRegion.x - textSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - textSize.y) * 0.5f
+		};
+
+		ImGui::SetCursorScreenPos(textPos);
+		ImGui::Text(text.c_str());
+	}
+	else
+	{
+		m_renderingGameView = true;
+
+		ImVec2 camRawSize = ImVec2((float)camera->GetResolution().x, (float)camera->GetResolution().y);
+		ImVec2 camAspect = ImVec2(camRawSize.x / camRawSize.y, 1.0f);
+
+		camSize = camRawSize;
+
+		// Scale the camera view to fit within the available content region while maintaining aspect ratio
+		if (contentRegion.x / contentRegion.y > camAspect.x)
+		{
+			camSize.y = contentRegion.y;
+			camSize.x = camSize.y * camAspect.x;
+		}
+		else
+		{
+			camSize.x = contentRegion.x;
+			camSize.y = camSize.x / camAspect.x;
+		}
+
+		camViewRectMin = {
+			cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+		};
+
+		ImVec2 camViewRectMax = {
+			camViewRectMin.x + camSize.x,
+			camViewRectMin.y + camSize.y
+		};
+
+		camViewPos = {
+			camViewRectMin.x - windowPos.x,
+			camViewRectMin.y - windowPos.y
+		};
+
+		// Begin the child window that encompasses the camera view.
+		ImGui::SetCursorPos(camViewPos);
+		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+		{
+			ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+				Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(camera->GetTextureIndex())
+				);
+
+			// Render the camera view texture to the scene view window
+			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
+		}
+	}
+
+	ImVec2 camViewRectMax = {
+		camViewRectMin.x + camSize.x,
+		camViewRectMin.y + camSize.y
+	};
+
+	ImVec2 viewCenter = {
+		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+		(camViewRectMin.y + camViewRectMax.y) * 0.5f
+	};
+
+	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	m_hoveringSceneView = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+	if (m_hoveringSceneView || isWindowFocused)
+	{
+		if (input.KeyPressed(Key::KeyTab))
+		{
+			m_cameraLookToggled = !m_cameraLookToggled;
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+		}
+	}
+
+	if (isWindowFocused && m_cameraLookToggled)
+	{
+		ImGuiViewport *viewport = ImGui::GetWindowViewport();
+		SDL_Window *sceneWindow = nullptr;
+
+		if (viewport)
+		{
+			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+			sceneWindow = SDL_GetWindowFromID(windowID);
+		}
+
+		input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
+	}
+
+	// Render pause/stop buttons
+	{
+		ImVec2 buttonSize = ImVec2(30, 30);
+		ImVec2 buttonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
+			camViewRectMin.y + 10
+		);
+		ImVec2 stopButtonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
+			camViewRectMin.y + 10
+		);
+
+		ImGui::BeginGroup();
+
+		if (EngineFlagsOwner::GetUpdateFlags() == UpdateFlags::PlayModeFlags)
 		{
 			// Make orange
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
@@ -794,9 +1014,14 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
+			ImGui::SetCursorScreenPos(buttonPos);
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+				auto flags = UpdateFlags::EditorFlags;
+				flags |= UpdateFlags::InPlayMode;		// Enable InPlayMode flag so that the game state is preserved when paused
+				flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
+
+				EngineFlagsOwner::SetUpdateFlags(flags);
 			}
 
 			ImGui::PopStyleColor(4);
@@ -809,51 +1034,43 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
+			ImGui::SetCursorScreenPos(buttonPos);
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-			{	
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
-				m_editorContext->SetIsPlayMode(true);
-
-				// Save scene before playing
-				if (!hasPlayed)
-				{
-					m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
-				}
+			{
+				EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
 			}
 
 			ImGui::PopStyleColor(4);
 		}
+
+		// Make red
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		ImGui::SetCursorScreenPos(stopButtonPos);
-		if (hasPlayed)
+		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 		{
-			// Make red
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
 
-			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
-			{
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
-				m_editorContext->SetIsPlayMode(false);
-
-				// Reset the scene
-				std::string sceneName = m_editorContext->GetActiveScene()->GetName();
-				m_editorContext->GetActiveScene()->SetActive(false);
-				m_editorContext->CreateNewScene(sceneName);
-				m_editorContext->SetActiveScene(sceneName);
-				serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
-			}
-
-			ImGui::PopStyleColor(4);
+			// Reset the scene
+			std::string sceneName = m_editorContext->GetActiveScene()->GetName();
+			m_editorContext->GetActiveScene()->SetActive(false);
+			m_editorContext->CreateNewScene(sceneName);
+			m_editorContext->SetActiveScene(sceneName);
+			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
 		}
+
+		ImGui::PopStyleColor(4);
+
+		ImGui::EndGroup();
 
 		m_hoveringPlayButton = ImGui::IsItemHovered();
 	}
 
 	RenderOverlayQueue();
-	
+
 	ImGui::EndChild();
 }
 
@@ -1093,7 +1310,7 @@ void SceneViewWindow::RenderOverlayQueue()
 	ImGui::PopID();
 
 	ImGui::Unindent(c_overlayIndent);
-	ImGui::SetCursorPos(cPos);
+	//ImGui::SetCursorPos(cPos);
 }
 
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
@@ -1224,6 +1441,11 @@ void SceneViewWindow::SetCameraPivot(const glm::vec3 &p_pivot, float p_radius)
 
 	// Save camera pivot radius
 	EditorConfig::StoreFloat("Editor.CameraPivotRadius", m_cameraPivotRadius);
+}
+
+void SceneViewWindow::SetCameraPivotPoint(const glm::vec3 &p_pivot)
+{
+	SetCameraPivot(p_pivot, m_cameraPivotRadius);
 }
 
 void SceneViewWindow::ApplyCameraPivot()
