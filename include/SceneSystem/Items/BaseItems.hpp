@@ -14,5 +14,5 @@ namespace Droplet::Game
     };
 
     /// Registers the built-in items and fills the Items:: cache. Call once at startup.
-    void RegisterBaseItems(ItemRegistry &reg);
+    void RegisterBaseItems(ItemRegistry &p_registry);
 }

@@ -6,91 +6,122 @@
 
 namespace Droplet::Game
 {
-    std::uint32_t CountItem(const std::vector<ItemStack> &inv, ItemId id)
+    std::uint32_t CountItem(
+        const std::vector<ItemStack> &p_inventory,
+        ItemId p_id)
     {
         std::uint32_t total = 0;
-        for (const ItemStack &s : inv)
-            if (s.item == id)
-                total += s.count;
+
+        for (const ItemStack &stack : p_inventory)
+        {
+            if (stack.item == p_id)
+                total += stack.count;
+        }
+
         return total;
     }
 
-    std::uint32_t AddItem(const ItemRegistry &reg,
-        std::vector<ItemStack> &inv,
-        ItemId id,
-        std::uint32_t count,
-        std::size_t maxSlots)
+    std::uint32_t AddItem(
+        const ItemRegistry &p_registry,
+        std::vector<ItemStack> &p_inventory,
+        ItemId p_id,
+        std::uint32_t p_count,
+        std::size_t p_maxSlots)
     {
-        const ItemDef *def = reg.Get(id);
-        if (!def || count == 0)
-            return count;
+        const ItemDef *def = p_registry.Get(p_id);
+        if (!def || p_count == 0)
+            return p_count;
 
         const std::uint32_t maxStack = std::max<std::uint32_t>(1, def->maxStack);
 
-        for (ItemStack &s : inv)
+        for (ItemStack &stack : p_inventory)
         {
-            if (s.item != id || s.count >= maxStack)
+            if (stack.item != p_id || stack.count >= maxStack)
                 continue;
-            const std::uint32_t moved = std::min(maxStack - s.count, count);
-            s.count += moved;
-            count -= moved;
-            if (count == 0)
+
+            const std::uint32_t moved = std::min(maxStack - stack.count, p_count);
+            stack.count += moved;
+            p_count -= moved;
+
+            if (p_count == 0)
                 return 0;
         }
 
-        while (count > 0 && inv.size() < maxSlots)
+        while (p_count > 0 && p_inventory.size() < p_maxSlots)
         {
-            const std::uint32_t moved = std::min(maxStack, count);
-            inv.push_back(ItemStack{ id, moved });
-            count -= moved;
+            const std::uint32_t moved = std::min(maxStack, p_count);
+            p_inventory.push_back(ItemStack{ p_id, moved });
+            p_count -= moved;
         }
-        return count;
+
+        return p_count;
     }
 
-    bool RemoveItem(std::vector<ItemStack> &inv, ItemId id, std::uint32_t count)
+    bool RemoveItem(
+        std::vector<ItemStack> &p_inventory,
+        ItemId p_id,
+        std::uint32_t p_count)
     {
-        if (CountItem(inv, id) < count)
+        if (CountItem(p_inventory, p_id) < p_count)
             return false;
 
-        for (auto it = inv.rbegin(); it != inv.rend() && count > 0; ++it)
+        for (auto it = p_inventory.rbegin(); it != p_inventory.rend() && p_count > 0; ++it)
         {
-            if (it->item != id)
+            if (it->item != p_id)
                 continue;
-            const std::uint32_t taken = std::min(it->count, count);
+
+            const std::uint32_t taken = std::min(it->count, p_count);
             it->count -= taken;
-            count -= taken;
+            p_count -= taken;
         }
 
-        inv.erase(std::remove_if(inv.begin(), inv.end(),
-            [](const ItemStack &s) { return s.count == 0; }),
-            inv.end());
+        p_inventory.erase(
+            std::remove_if(
+                p_inventory.begin(),
+                p_inventory.end(),
+                [](const ItemStack &stack)
+                {
+                    return stack.count == 0;
+                }),
+            p_inventory.end());
+
         return true;
     }
 
-    std::vector<SavedStack> ToSaved(const ItemRegistry &reg, const std::vector<ItemStack> &inv)
+    std::vector<SavedStack> ToSaved(
+        const ItemRegistry &p_registry,
+        const std::vector<ItemStack> &p_inventory)
     {
-        std::vector<SavedStack> out;
-        out.reserve(inv.size());
-        for (const ItemStack &s : inv)
-            if (reg.Get(s.item))
-                out.push_back({ reg.NameOf(s.item), s.count });
-        return out;
+        std::vector<SavedStack> saved;
+        saved.reserve(p_inventory.size());
+
+        for (const ItemStack &stack : p_inventory)
+        {
+            if (p_registry.Get(stack.item))
+                saved.push_back({ p_registry.NameOf(stack.item), stack.count });
+        }
+
+        return saved;
     }
 
-    std::vector<ItemStack> FromSaved(const ItemRegistry &reg,
-        const std::vector<SavedStack> &saved,
-        std::size_t *skipped)
+    std::vector<ItemStack> FromSaved(
+        const ItemRegistry &p_registry,
+        const std::vector<SavedStack> &p_saved,
+        std::size_t *p_skipped)
     {
-        std::vector<ItemStack> out;
-        out.reserve(saved.size());
-        for (const SavedStack &s : saved)
+        std::vector<ItemStack> inventory;
+        inventory.reserve(p_saved.size());
+
+        for (const SavedStack &stack : p_saved)
         {
-            const ItemId id = reg.Find(s.name);
+            const ItemId id = p_registry.Find(stack.name);
+
             if (id.IsValid())
-                out.push_back({ id, s.count });
-            else if (skipped)
-                ++*skipped;
+                inventory.push_back({ id, stack.count });
+            else if (p_skipped)
+                ++*p_skipped;
         }
-        return out;
+
+        return inventory;
     }
 }

@@ -20,9 +20,9 @@ namespace Droplet::Game
         constexpr bool IsValid() const { return value != 0; }
         constexpr explicit operator bool() const { return value != 0; }
 
-        friend constexpr bool operator==(ItemId a, ItemId b) { return a.value == b.value; }
-        friend constexpr bool operator!=(ItemId a, ItemId b) { return a.value != b.value; }
-        friend constexpr bool operator<(ItemId a, ItemId b) { return a.value < b.value; }
+        friend constexpr bool operator==(ItemId p_a, ItemId p_b) { return p_a.value == p_b.value; }
+        friend constexpr bool operator!=(ItemId p_a, ItemId p_b) { return p_a.value != p_b.value; }
+        friend constexpr bool operator<(ItemId p_a, ItemId p_b) { return p_a.value < p_b.value; }
     };
 
     inline constexpr ItemId InvalidItemId{};
@@ -48,9 +48,9 @@ namespace std
     template <>
     struct hash<Droplet::Game::ItemId>
     {
-        size_t operator()(Droplet::Game::ItemId id) const noexcept
+        size_t operator()(Droplet::Game::ItemId p_id) const noexcept
         {
-            return std::hash<std::uint32_t>{}(id.value);
+            return std::hash<std::uint32_t>{}(p_id.value);
         }
     };
 }
