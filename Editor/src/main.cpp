@@ -6,7 +6,6 @@
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
-#include <Scene/GameViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/TestData.hpp>
@@ -167,7 +166,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ScriptsWindow scriptsWindow;
 		SavedDataWindow savedDataWindow;
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
-		Scene::GameViewWindow gameViewWindow(&editorContext);
 
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
@@ -176,7 +174,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		savedDataWindow.Init();
 		resourceBrowser.Init();
 		sceneViewWindow.Init();
-		gameViewWindow.Init();
 
 		FrameMark;
 
@@ -299,12 +296,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						if (ImGui::MenuItem("Editor View", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowEditorView", !currState);
-						}
-
-						currState = EditorConfig::LoadBool("Editor.ShowGameView", true);
-						if (ImGui::MenuItem("Game View", nullptr, currState))
-						{
-							EditorConfig::StoreBool("Editor.ShowGameView", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true);
@@ -464,11 +455,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				sceneViewWindow.Render();
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowGameView", true))
-			{
-				gameViewWindow.Render();
-			}
-
 			switch (engine.Update())
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
@@ -484,7 +470,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				break;
 			}
 
+			// Set the game camera to the last camera in the active scene's camera stack before rendering
+			editorContext.SetGameCamera(engine.GetSceneManager().GetMainCamera());
+
+			bool renderEditorView = 
+				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
+				!sceneViewWindow.IsRenderingGameView();
+
 			Droplet::Graphics::CameraRenderData camRenderData{ };
+			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
@@ -539,7 +533,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				}
 			}
 
-			switch (engine.Render(&camRenderData))
+			// Render the engine
+			switch (engine.Render(renderEditorView ? &camRenderData : nullptr))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;

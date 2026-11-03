@@ -10,6 +10,14 @@ using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
+CameraComponent::~CameraComponent()
+{
+	if (m_textureIndex != Graphics::VK::INVALID_INDEX)
+	{
+		Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+	}
+}
+
 void CameraComponent::StartImpl()
 {
 	// TODO: Construct camera and create render target
@@ -49,6 +57,13 @@ void CameraComponent::QueueRenderImpl()
 
 		m_dirty = false;
 	}
+	/*else if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+			m_targetIndex, m_textureIndex,
+			m_resolution.x, m_resolution.y
+		);
+	}*/
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
 	{
@@ -195,6 +210,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 {
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
+	renderData.priority = m_priority;
 	renderData.renderTarget = m_targetIndex;
 	renderData.renderData = m_renderData;
 

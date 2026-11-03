@@ -269,6 +269,10 @@ namespace Droplet::Scene
 
         void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
 
+		/// @brief Gets the camera stack for the scene.
+		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
+        const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
+
     private:
 		friend class SceneManager;
 
