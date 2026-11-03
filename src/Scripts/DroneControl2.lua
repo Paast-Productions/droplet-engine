@@ -155,6 +155,11 @@ function UpdateMovement(dt)
 
     trans:Move(movement, TransformSpace.World)
 
+    -- Check movementspeed amplifiers with health component for now
+
+    local health = self:GetHealthComponent()
+    health:Heal(dt)
+
     tracy.ZoneEnd()
 end
 --

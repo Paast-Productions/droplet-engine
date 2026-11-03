@@ -1,7 +1,9 @@
+local MovementModifiers = require("MovementModifiers")
 
+local damage = 10.0
 -- Called when script starts
 function OnStart()
-
+    
 end
 
 -- Called every frame
@@ -12,10 +14,15 @@ end
 function OnTrigger(dt, node)
     local health = node:GetHealthComponent()
 
-    if health then
-    print("player health", health:GetHealth())
-    health:TakeDamage(1)
+    if not health then
+        return
     end
+    
+    health:TakeDamage(damage * dt)
+    print("player health", health:GetHealth())
+
+    MovementModifiers.ApplyFreeze()
+
 end
 
 -- Called to render variables in the script
