@@ -97,7 +97,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
 		"GetName", &Droplet::Scene::Node::GetName,
-		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform),
 		"RemoveNode", [](Scene::Node& node)
 		{
 			auto scene = node.GetScene();
@@ -106,7 +105,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 				scene->RemoveRoot(node.shared_from_this());
 			}
 		},
-		"GetplayerData", static_cast<Scene::PlayerBehaviour &(Scene::Node:: *)()>(&Scene::Node::GetPlayerData),
+		"GetPlayerData", static_cast<Scene::PlayerBehaviour &(Scene::Node:: *)()>(&Scene::Node::GetPlayerData),
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
 	);

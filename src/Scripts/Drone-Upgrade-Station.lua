@@ -43,16 +43,18 @@ function OnStart()
     print("Drone Upgrade Station")
     trans = self:GetTransform()
     player = self:GetPlayerData()
-
-    if player then
-        local size = player:InventorySize()
-        for i = 0, size - 1 do
-            local ItemId = player:InventoryItemId(i)
-            local count = player:InventoryCount(i)
-            print("ItemId [" .. i .. "]: " .. ItemId)
-            print("count [" .. i .. "]: " .. tostring(count))
-        end
-    end
+    local ItemRegistry = player:GetItemRegistry()
+    local ironId = ItemRegistry:Find("iron")
+    print(ironId)
+    --if player then
+        --local size = player:InventorySize()
+        --for i = 0, size - 1 do
+           -- local ItemId = player:InventoryItemId(i)
+            --local count = player:InventoryCount(i)
+            --print("ItemId [" .. i .. "]: " .. ItemId)
+            --("count [" .. i .. "]: " .. tostring(count))
+        --end
+    --end
 end
 
 function RenderUI()

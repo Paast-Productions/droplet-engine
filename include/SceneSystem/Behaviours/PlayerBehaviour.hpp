@@ -148,14 +148,15 @@ namespace Droplet::Scene
             InventoryType p_inv,
             Droplet::Game::ItemId p_id) const;
 
-        //Inventory
-        [[nodiscard]] std::string GetItemId() const
+        ////Inventory
+        [[nodiscard]] uint32_t GetItemValue() const
         { 
             for (int x = 0; x < m_data.playerInventory.size(); x++)
             {
-                return m_data.playerInventory[x].itemId;
+                return m_data.playerInventory[x].item.value;
             }
         }
+
         [[nodiscard]] std::uint32_t GetCount() const 
         { 
             for (int x = 0; x < m_data.playerInventory.size(); x++)
@@ -163,6 +164,7 @@ namespace Droplet::Scene
                 return m_data.playerInventory[x].count;
             };
         }
+
         [[nodiscard]] std::uint32_t GetPlayerInventorySize() const
         {
             return m_data.playerInventory.size();

@@ -10,7 +10,6 @@
 
 namespace Droplet::Scene
 {
-
     namespace
     {
         using Droplet::Game::ItemDef;
@@ -67,17 +66,20 @@ namespace Droplet::Scene
 
                 ImGui::TableSetColumnIndex(0);
                 if (def)
+                    //name
                     ImGui::TextUnformatted(def->displayName.c_str());
                 else
                     ImGui::TextDisabled("<unknown #%u>", stack.item.value);
 
                 ImGui::TableSetColumnIndex(1);
                 if (def)
+                    //item
                     ImGui::TextUnformatted(def->name.c_str());
                 else
                     ImGui::TextDisabled("-");
 
                 ImGui::TableSetColumnIndex(2);
+                //count
                 ImGui::Text("%u", stack.count);
             }
 
