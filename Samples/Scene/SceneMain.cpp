@@ -118,7 +118,7 @@ static void OctreeTest()
             s->PrintOctreeTree();
         }
 
-        sm.Update(1.0f / 60.0f);
+        sm.Update();
     }
 }
 
@@ -285,7 +285,7 @@ static void PhysicsTest()
             player->GetTransform().SetPosition(glm::vec3(0.0f, 100.0f, 0.0f), Transform::Space::World);
         }
 
-        sm.Update(time.GetDeltaTime());
+        sm.Update();
 
         glm::vec3 p = player->GetTransform().GetPosition();
         glm::vec3 f = seafloor->GetTransform().GetPosition();

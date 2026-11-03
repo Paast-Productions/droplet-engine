@@ -99,7 +99,7 @@ void TriggerComponent::FixedUpdateImpl()
         
         for (const auto &script : scripts)
         {
-            ScriptSystem::Get().TriggerComponentScript(script.get(), Droplet::Time::Get().GetDeltaTime());
+            ScriptSystem::Get().TriggerComponentScript(script.get(), Droplet::Time::Get().GetFixedDeltaTime(), otherNode);
         }
     }
 }

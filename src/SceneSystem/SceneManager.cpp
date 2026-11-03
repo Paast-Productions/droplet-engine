@@ -1,8 +1,8 @@
 #include "SceneManager.hpp"
-#include "SceneFactory.hpp"
-#include "SceneSerializer.hpp"
-#include "Scene.hpp"
-#include "Behaviour.hpp"
+#include <SceneFactory.hpp>
+#include <SceneSerializer.hpp>
+#include <Scene.hpp>
+#include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
 #include <algorithm>
@@ -10,6 +10,8 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
+#include <Graphics/VK/Camera.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -147,45 +149,57 @@ const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
     return m_activeScenes;
 }
 
-void SceneManager::Update(float p_deltaTime)
+void SceneManager::Update()
 {
     ZoneScoped;
 
 	// Pre-Update all active Behaviours
-    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
-        auto &behaviour = *it;
+		ZoneNamedNC(behaviourPreUpdateZone, "Behaviour Pre-Update", tracy::Color::Green, true);
 
-        if (behaviour->IsActive())
+        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
         {
-			ZoneNamedN(behaviourPreUpdateZone, "Behaviour Pre-Update", true);
-            ZoneTextV(behaviourPreUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+            auto &behaviour = *it;
 
-            behaviour->PreUpdate();
-		}
+            if (behaviour->IsActive())
+            {
+                ZoneNamedN(preUpdateZone, "Pre-Update", true);
+                ZoneTextV(preUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
 
-        ++it;
-	}
+                behaviour->PreUpdate();
+            }
 
-	// Update all active Scenes
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
-    {
-        auto scene = it->lock();
-
-        if (!scene)
-        {
-            it = m_activeScenes.erase(it);
-            continue;
+            ++it;
         }
-
-        scene->Update();
-
-        ++it;
     }
 
+	// Update all active Scenes
+    {
+        ZoneNamedNC(sceneUpdateZone, "Scene Update", tracy::Color::DarkSeaGreen1, true);
+
+        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        {
+            auto scene = it->lock();
+
+            if (!scene)
+            {
+                it = m_activeScenes.erase(it);
+                continue;
+            }
+
+            scene->Update();
+
+            ++it;
+        }
+    }
+
+	// Fixed-Update all active Scenes
     Droplet::Time &time = Droplet::Time::Get();
     while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
     {
+        ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
+
         // Update all active Scenes
         for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
         {
@@ -205,6 +219,55 @@ void SceneManager::Update(float p_deltaTime)
         time.ConsumeFixedTime();
     }
 
+	// Late-Update all active Scenes
+    {
+		ZoneNamedNC(sceneLateUpdateZone, "Scene Late Update", tracy::Color::Blue, true);
+
+        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        {
+            auto scene = it->lock();
+
+            if (!scene)
+            {
+                it = m_activeScenes.erase(it);
+                continue;
+            }
+
+            scene->LateUpdate();
+
+            ++it;
+        }
+    }
+
+    // Post-Update all active Behaviours
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
+    {
+		ZoneNamedNC(behaviourPostUpdateZone, "Behaviour Post-Update", tracy::Color::Red, true);
+
+        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+        {
+            auto &behaviour = *it;
+
+            if (behaviour->IsActive())
+            {
+                ZoneNamedN(behaviourPostUpdateZone, "Post-Update", true);
+                ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+
+                behaviour->PostUpdate();
+            }
+
+            ++it;
+        }
+    }
+
+    PrepareRender();
+}
+
+void SceneManager::PrepareRender()
+{
+    ZoneScoped;
+
+    // Prepare all active Scenes for rendering
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
@@ -215,44 +278,43 @@ void SceneManager::Update(float p_deltaTime)
             continue;
         }
 
-        scene->LateUpdate();
+        scene->PrepareRender();
 
         ++it;
     }
 
-    // Post-Update all active Behaviours
-    for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
-    {
-        auto &behaviour = *it;
+	// Sort render cameras by their priority, ensuring that higher priority cameras are rendered first
+	std::sort(m_activeScenes.begin(), m_activeScenes.end(), [](const std::weak_ptr<Scene> &a, const std::weak_ptr<Scene> &b) {
+		auto sceneA = a.lock();
+		auto sceneB = b.lock();
+		if (!sceneA || !sceneB)
+		{
+			return false;
+		}
 
-        if (behaviour->IsActive())
-        {
-            ZoneNamedN(behaviourPostUpdateZone, "Behaviour Posy-Update", true);
-            ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+		auto &renderersA = sceneA->m_renderers;
+		auto &renderersB = sceneB->m_renderers;
+		if (renderersA.empty() || renderersB.empty())
+		{
+			return false;
+		}
 
-            behaviour->PostUpdate();
-        }
+		int32_t priorityA = renderersA.front()->GetPriority();
+		int32_t priorityB = renderersB.front()->GetPriority();
 
-        ++it;
-    }
+		return priorityA > priorityB;
+	});
 }
 
-std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
+std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
+
+	using namespace Droplet::Graphics;
+
+    std::vector<CameraRenderData> renderViews{};
     
-    //TODO: Separate renderData between scenes for modularity 
-    std::vector<Droplet::Graphics::RenderData> renderData {};
-
-    /*for (auto it = m_scenes.begin(); it != m_scenes.end();)
-    {
-        it->second->GetRenderData(renderData);
-
-        ++it;
-    }*/
-
-    //TODO: Implement active scene logic
-    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
 
@@ -261,13 +323,44 @@ std::vector<Droplet::Graphics::RenderData> SceneManager::GetRenderData()
             it = m_activeScenes.erase(it);
             continue;
         }
-        
-        it->lock()->GetRenderData(renderData);
+
+        auto &renderers = scene->m_renderers;
+
+		for (std::shared_ptr<CameraComponent> &renderer : renderers)
+		{
+			if (!renderer)
+			{
+				continue;
+			}
+
+			renderViews.emplace_back(renderer->GetRenderData());
+		}
         
         ++it;
     }
     
-    return renderData;
+    return renderViews;
+}
+
+void SceneManager::PostRender()
+{
+    ZoneScoped;
+
+	// Perform post-rendering operations for all active Scenes
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+    {
+        auto scene = it->lock();
+
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        scene->PostRender();
+
+        ++it;
+    }
 }
 
 void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)

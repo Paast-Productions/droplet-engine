@@ -1,4 +1,5 @@
 #include "SceneViewWindow.hpp"
+#include <Editor/ViewOverlayUI.hpp>
 
 // TODO: Clean whatever this mess is
 #include <math/bounds/Intersection.hpp>
@@ -212,8 +213,10 @@ void SceneViewWindow::InitImpl()
 	using namespace Graphics::VK;
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
-	m_targetIndex = instance.CreateRenderTarget(720, 720);
-	m_textureIndex = instance.CreateImGuiTexture(instance.GetRenderTargetAt(m_targetIndex));
+	m_editorContext->GetEditorCamera().SetTargetIndex(instance.CreateRenderTarget(720, 720));
+	m_editorContext->GetEditorCamera().SetTextureIndex(instance.CreateImGuiTexture(
+		instance.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex()))
+	);
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -315,11 +318,17 @@ void SceneViewWindow::RenderToolbar()
 	if (ImGui::BeginMenu("View"))
 	{
 		ImGui::Text(
+			"Info:\n"
+			"    Editor Camera rotates & zooms relative to a pivot point\n"
+			"    some distance in front of it. This pivot may be moved by\n"
+			"    panning or focusing a selection. The pivot can be seen \n"
+			"    while using any camera controls.\n\n"
+
 			"Controls:\n" 
-			" - F:             Focus view on selected objects\n"
+			" - F:             Focus view & pivot on selection\n"
 			" - MMB:           Pan along view plane\n"
 			" - Alt + LMB:     Rotate around pivot\n"
-			" - Scroll:        Move along view normal\n"
+			" - Scroll:        Move along view normal at constant rate\n"
 			" - Alt + Scroll:  Zoom towards pivot\n"
 		);
 
@@ -345,7 +354,7 @@ void SceneViewWindow::RenderImpl()
 	GameInput &input = GameInput::Get();
 	float contentAspect = contentRegion.x / contentRegion.y;
 	vk::Extent2D extent = Droplet::Graphics::VK::IntermediaryStorage::GetInstance()
-								.GetRenderTargetAt(m_targetIndex)
+								.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
 								.GetExtent();
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
@@ -406,12 +415,14 @@ void SceneViewWindow::RenderImpl()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex));
+	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_editorContext->GetEditorCamera().GetTextureIndex())
+	);
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
 
-	m_hoveringSceneView = ImGui::IsItemHovered();
+	m_hoveringSceneView = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
 	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
@@ -613,11 +624,32 @@ void SceneViewWindow::RenderImpl()
 		{
 			selectionFrustum = camera.ViewRectToWorldTile(rectNormalized);
 
-			Math::Frustum drawFrustum = selectionFrustum;
-			drawFrustum.GetNear().Slide(2.0f);
+			glm::vec3 corners[8];
+			selectionFrustum.GetCorners(corners);
 
-			DebugDraw::DrawFrustum(drawFrustum, glm::vec4(0.0f, 1.0f, 1.0f, 0.1f), false);
-			DebugDraw::DrawFrustum(drawFrustum, glm::vec4(0.0f, 0.0f, 1.0f, 0.65f), false, true);
+			glm::vec3 center = glm::vec3(0.0f);
+			for (int i = 0; i < 4; ++i)
+			{
+				corners[i] += corners[i + 4];
+				corners[i] *= 0.5f;
+				center += corners[i];
+			}
+			center *= 0.25f;
+
+			glm::vec3 up = (corners[0] - corners[2]) * 0.5f;
+			glm::vec3 right = (corners[1] - corners[0]) * 0.5f;
+
+			DebugDraw::DrawQuad(
+				center, up, right,
+				glm::vec4(0.0f, 1.0f, 1.0f, 0.1f),
+				false
+			);
+
+			DebugDraw::DrawQuad(
+				center, up, right,
+				glm::vec4(0.0f, 0.0f, 1.0f, 0.65f),
+				false, true
+			);
 		}
 
 		if (input.MouseReleased(Mouse::LMB) || !input.MouseHeld(Mouse::LMB))
@@ -819,6 +851,8 @@ void SceneViewWindow::RenderImpl()
 
 		m_hoveringPlayButton = ImGui::IsItemHovered();
 	}
+
+	RenderOverlayQueue();
 	
 	ImGui::EndChild();
 }
@@ -1015,13 +1049,12 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			// The view matrix is the inverse of the camera's world matrix, so the camera's basis and position are in its inverse
 			glm::mat4 world = glm::inverse(editedView);
 			glm::vec3 forward = glm::normalize(-glm::vec3(world[2]));
-
-			float pitch = glm::degrees(glm::asin(glm::clamp(forward.y, -1.0f, 1.0f)));
-			float yaw = glm::degrees(std::atan2(forward.z, forward.x));
-			pitch = glm::clamp(pitch, -89.0f, 89.0f);
+			glm::vec3 up = glm::vec3(0,1,0);
+			glm::vec3 right = glm::normalize(glm::cross(up, forward));
+			up = glm::normalize(glm::cross(forward, right));
 
 			camera.SetPosition(glm::vec3(world[3]));
-			camera.SetOrientation(yaw, pitch);
+			camera.SetOrientation(forward, up);
 		}
 
 		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())
@@ -1032,6 +1065,35 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 	m_usingGizmo = ImGuizmo::IsUsingAny() || ImGuizmo::IsUsingViewManipulate() || didUse;
 	m_hoveringGizmo = ImGuizmo::IsOver() || ImGuizmo::IsOverBounds() || ImGuizmo::IsViewManipulateHovered();
+}
+
+void SceneViewWindow::RenderOverlayQueue()
+{
+	auto cPos = ImGui::GetCursorPos();
+
+	constexpr float c_overlayIndent = 100.0f;
+
+	ImGui::SetCursorPos(ImVec2(0, c_overlayIndent));
+	ImGui::Indent(c_overlayIndent);
+
+	ImGui::PushID("SceneViewOverlay");
+	ImGui::BeginGroup();
+
+	auto &overlay = ViewOverlayUI::Get();
+	auto &queue = overlay.GetQueue();
+
+	for (const auto &item : queue)
+	{
+		item();
+	}
+
+	overlay.ClearQueue();
+
+	ImGui::EndGroup();
+	ImGui::PopID();
+
+	ImGui::Unindent(c_overlayIndent);
+	ImGui::SetCursorPos(cPos);
 }
 
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
@@ -1102,7 +1164,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
 
 		camera.Rotate(
-			input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
+			-input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
 			-input.GetDeltaMouseY() * C_ORBIT_SENSITIVITY
 		);
 
@@ -1120,7 +1182,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 			const float worldPerPixel = 2.0f * m_cameraPivotRadius * std::tan(glm::radians(camera.GetFOV()) * 0.5f) / p_viewWidth;
 			const glm::vec3 offset = (-camera.GetRight() * io.MouseDelta.x + camera.GetUp() * io.MouseDelta.y) * (worldPerPixel * C_PAN_SENSITIVITY);
 
-			m_cameraPivot += offset;
+			SetCameraPivot(m_cameraPivot + offset, m_cameraPivotRadius);
 			ApplyCameraPivot();
 			s_drawPivotTimer = 0.5f;
 			m_wrapMouse = true;
@@ -1134,14 +1196,14 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 		{
 			// Zoom towards the pivot by changing the pivot radius
 			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
-			m_cameraPivotRadius *= step;
+			SetCameraPivot(m_cameraPivot, m_cameraPivotRadius * step);
 			ApplyCameraPivot();
 		}
 		else
 		{
 			// Move along camera view direction, leaving the pivot radius unchanged.
 			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
-			m_cameraPivot += camera.GetForward() * step;
+			SetCameraPivot(m_cameraPivot + (camera.GetForward() * step), m_cameraPivotRadius);
 			ApplyCameraPivot();
 		}
 
@@ -1179,7 +1241,11 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
 }
 
-void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
+void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(m_targetIndex, m_textureIndex, width, height);
+	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+		m_editorContext->GetEditorCamera().GetTargetIndex(), 
+		m_editorContext->GetEditorCamera().GetTextureIndex(), 
+		width, height
+	);
 }
