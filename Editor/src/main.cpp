@@ -296,49 +296,49 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						bool currState;
 
 						currState = EditorConfig::LoadBool("Editor.ShowEditorView", true);
-						if (ImGui::MenuItem("Editor View", nullptr, false, currState))
+						if (ImGui::MenuItem("Editor View", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowEditorView", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowGameView", true);
-						if (ImGui::MenuItem("Game View", nullptr, false, currState))
+						if (ImGui::MenuItem("Game View", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowGameView", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true);
-						if (ImGui::MenuItem("Node Hierarchy", nullptr, false, currState))
+						if (ImGui::MenuItem("Node Hierarchy", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowNodeHierarchy", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowNodeInspector", true);
-						if (ImGui::MenuItem("Node Inspector", nullptr, false, currState))
+						if (ImGui::MenuItem("Node Inspector", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowNodeInspector", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true);
-						if (ImGui::MenuItem("Behaviour Inspector", nullptr, false, currState))
+						if (ImGui::MenuItem("Behaviour Inspector", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowBehaviourInspector", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowResourceBrowser", true);
-						if (ImGui::MenuItem("Resource Browser", nullptr, false, currState))
+						if (ImGui::MenuItem("Resource Browser", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowResourceBrowser", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowScripts", true);
-						if (ImGui::MenuItem("Scripts", nullptr, false, currState))
+						if (ImGui::MenuItem("Scripts", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowScripts", !currState);
 						}
 
 						currState = EditorConfig::LoadBool("Editor.ShowSavedData", true);
-						if (ImGui::MenuItem("Saved Data", nullptr, false, currState))
+						if (ImGui::MenuItem("Saved Data", nullptr, currState))
 						{
 							EditorConfig::StoreBool("Editor.ShowSavedData", !currState);
 						}
@@ -459,7 +459,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				resourceBrowser.Render();
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowSceneView", true))
+			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
 			}

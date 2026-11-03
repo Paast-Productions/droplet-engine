@@ -203,7 +203,7 @@ namespace
 
 void SceneViewWindow::InitImpl()
 {
-	SetName("Scene View"); 
+	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
 	// TODO: 
