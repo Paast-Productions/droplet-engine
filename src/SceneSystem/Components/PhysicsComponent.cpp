@@ -821,7 +821,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetCapsuleCollider(r, h, JPH::Vec3(offsetX, offsetY, offsetZ));
+			SetCapsuleCollider(h, r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 3: // Mesh collider
 			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
