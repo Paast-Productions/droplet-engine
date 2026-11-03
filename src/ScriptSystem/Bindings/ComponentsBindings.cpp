@@ -3,6 +3,7 @@
 #include "SceneSystem/Components/MeshComponent.hpp"
 #include "SceneSystem/Components/PhysicsComponent.hpp"
 #include "SceneSystem/Components/HealthComponent.hpp"
+#include "SceneSystem/Components/DamageComponent.hpp"
 #include "SceneSystem/Components/PlayerComponent.hpp"
 #include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
 #include <LuaBindings.hpp>
@@ -17,6 +18,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
+	RegisterDamageComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -534,6 +536,24 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 
 	LuaBindings::PushLuaClassDefinition(classDef);
 
+}
+
+void Bindings::RegisterDamageComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::DamageComponent>(
+		"DamageComponent",
+		"GetDamage", &Scene::DamageComponent::GetDamageLua
+	);
+
+    LuaClassDefinition classDef;
+    classDef.name = "DamageComponent";
+
+    classDef.functions =
+    {
+        { "GetDamage", "float", {} },
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
 }
 
 void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)

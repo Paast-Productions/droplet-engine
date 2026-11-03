@@ -16,6 +16,7 @@
 #include <tracy/public/tracy/TracyLua.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
+#include <DamageComponent.hpp>
 #include <PlayerComponent.hpp>
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
@@ -119,6 +120,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::HealthComponent>();
+		},
+		"GetDamageComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::DamageComponent>();
 		},
 		"GetPlayerComponent",
 		[](Scene::Node &node)
