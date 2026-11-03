@@ -26,18 +26,25 @@ namespace Droplet
 	
 	constexpr UpdateFlags operator|(UpdateFlags lhs, UpdateFlags rhs)
 	{
-		return static_cast<UpdateFlags>(
-			static_cast<uint32_t>(lhs) |
-			static_cast<uint32_t>(rhs)
-			);
+		return static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
 	}
-
+	constexpr UpdateFlags operator|=(UpdateFlags &lhs, UpdateFlags rhs)
+	{
+		lhs = static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+		return lhs;
+	}
 	constexpr UpdateFlags operator&(UpdateFlags lhs, UpdateFlags rhs)
 	{
-		return static_cast<UpdateFlags>(
-			static_cast<uint32_t>(lhs) &
-			static_cast<uint32_t>(rhs)
-			);
+		return static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+	}
+	constexpr UpdateFlags operator&=(UpdateFlags &lhs, UpdateFlags rhs)
+	{
+		lhs = static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+		return lhs;
+	}
+	constexpr UpdateFlags operator~(UpdateFlags lhs)
+	{
+		return static_cast<UpdateFlags>(~static_cast<uint32_t>(lhs));
 	}
 
 	class EngineFlagsOwner

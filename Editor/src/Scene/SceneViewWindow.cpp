@@ -947,7 +947,11 @@ void SceneViewWindow::RenderGameView()
 			ImGui::SetCursorScreenPos(buttonPos);
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
-				EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags | UpdateFlags::InPlayMode);
+				auto flags = UpdateFlags::EditorFlags;
+				flags |= UpdateFlags::InPlayMode;		// Enable InPlayMode flag so that the game state is preserved when paused
+				flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
+
+				EngineFlagsOwner::SetUpdateFlags(flags);
 			}
 
 			ImGui::PopStyleColor(4);
