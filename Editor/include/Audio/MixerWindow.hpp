@@ -26,6 +26,8 @@ namespace Droplet
 			
 			void DrawBus(Audio::AudioBus* p_bus);
 
+			void HandleBusDropTarget(Audio::AudioBus *p_parent);
+
 			EditorContext *m_editorContext;
 
 			std::vector<Audio::AudioBus *> m_visibleBuses;
@@ -54,6 +56,8 @@ namespace Droplet
 
 
 			std::optional<PendingReparent> m_pendingReparent;
+
+			std::optional<std::uint64_t> m_pendingRemoveBusID;
 
 			std::vector<Audio::AudioBus *> m_busesToRemove;
 		};
