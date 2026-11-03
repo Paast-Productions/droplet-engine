@@ -511,7 +511,7 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::HealthComponent>(
 		"HealthComponent",
-		"GetHealth", &Scene::HealthComponent::GetHealth,
+        "GetHealth", &Scene::HealthComponent::GetHealth,
 		"GetMaxHealth", &Scene::HealthComponent::GetMaxHealth,
 		"TakeDamage", &Scene::HealthComponent::TakeDamage,
 		"Heal", &Scene::HealthComponent::Heal,

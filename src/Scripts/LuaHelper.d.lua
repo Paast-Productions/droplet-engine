@@ -72,8 +72,28 @@ function Node:GetName()
     return ""
 end
 
+---@return integer
+function Node:GetID()
+    return nil
+end
+
 ---@return Transform
 function Node:GetTransform()
+    return nil
+end
+
+---@return CameraComponent
+function Node:GetCameraComponent()
+    return nil
+end
+
+---@return MeshComponent
+function Node:GetMeshComponent()
+    return nil
+end
+
+---@return PhysicsComponent
+function Node:GetPhysicsComponent()
     return nil
 end
 
@@ -84,6 +104,11 @@ end
 
 ---@return PlayerComponent
 function Node:GetPlayerComponent()
+    return nil
+end
+
+---@return PlayerBehaviour
+function Node:GetPlayerBehaviour()
     return nil
 end
 

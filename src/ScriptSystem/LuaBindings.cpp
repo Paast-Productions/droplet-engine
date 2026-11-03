@@ -17,6 +17,9 @@
 #include <Component.hpp>
 #include <HealthComponent.hpp>
 #include <PlayerComponent.hpp>
+#include <CameraComponent.hpp>
+#include <MeshComponent.hpp>
+#include <PhysicsComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 
@@ -92,10 +95,45 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetName", &Scene::Node::GetName,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform",
-		static_cast<Scene::Transform & (Scene::Node:: *)()>(
-			&Scene::Node::GetTransform),
-		"GetHealthComponent", &Scene::Node::GetHealthComponent,
-		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
+		static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+
+		"GetCameraComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CameraComponent>();
+		},
+		"GetMeshComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::MeshComponent>();
+		},
+		"GetPhysicsComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PhysicsComponent>();
+		},
+
+		"GetHealthComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::HealthComponent>();
+		},
+		"GetPlayerComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PlayerComponent>();
+		},
+		"GetPlayerBehaviour",
+		[](Scene::Node &node)
+		{
+			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
+			if (playerComponent)
+			{
+				return playerComponent->GetPlayerBehaviourLua();
+			}
+			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		}
+
 	);
 
 	LuaClassDefinition classDef;
@@ -103,26 +141,15 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{
-			"GetName",
-			"string",
-			{}
-		},
-		{
-			"GetTransform",
-			"Transform",
-			{}
-		},
-		{
-			"GetHealthComponent",
-			"HealthComponent",
-			{}
-		},
-		{
-			"GetPlayerComponent",
-			"PlayerComponent",
-			{}
-		}
+		{"GetName", "string", {}},
+		{"GetID", "integer", {}},
+		{"GetTransform", "Transform", {}},
+		{"GetCameraComponent", "CameraComponent", {}},
+		{"GetMeshComponent", "MeshComponent", {}},
+		{"GetPhysicsComponent", "PhysicsComponent", {}},
+		{"GetHealthComponent", "HealthComponent", {}},
+		{"GetPlayerComponent", "PlayerComponent", {}},
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
