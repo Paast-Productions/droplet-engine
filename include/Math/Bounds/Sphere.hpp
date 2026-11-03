@@ -30,5 +30,12 @@ namespace Droplet::Math
 		{
 			return radius;
 		}
+
+		[[nodiscard]] static inline Sphere Transform(const Sphere &p_sphere, const glm::mat4 &p_transform)
+		{
+			glm::vec3 newCenter = glm::vec3(p_transform * glm::vec4(p_sphere.center, 1.0f));
+			float newRadius = p_sphere.radius * glm::length(glm::vec3(p_transform[0])); // Assuming uniform scaling
+			return Sphere(newCenter, newRadius);
+		}
 	};
 }

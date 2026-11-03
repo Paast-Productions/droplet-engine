@@ -12,6 +12,11 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
+        "FindNodeById",
+        [](Scene::Scene &p_scene, std::uint64_t p_id)
+        {
+            return p_scene.FindNodeById(p_id).lock();
+        },
 		"RaycastNode",
 		[](Scene::Scene &p_scene, const Math::Ray &p_ray)
 		{
@@ -62,6 +67,13 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
     classDef.functions =
     {
+        {
+            "FindNodeById",
+            "Node | nil",
+            {
+                {"id", "integer"}
+            }
+        },
         {
             "RaycastNode",
             "tuple<Node, RayHit>",

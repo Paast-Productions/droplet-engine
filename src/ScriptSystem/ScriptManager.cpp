@@ -57,13 +57,13 @@ void Droplet::Script::ScriptManager::UpdateBehaviour(Droplet::Scene::Behaviour *
 	}
 }
 
-void Droplet::Script::ScriptManager::TriggerComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
+void Droplet::Script::ScriptManager::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)
 {
 	ZoneScoped;
 	
 	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
 	{
-		instance->OnTrigger(p_deltaTime);
+		instance->OnTrigger(p_deltaTime, p_otherNode);
 	}
 }
 
@@ -448,6 +448,17 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 		throw std::invalid_argument("ScriptDirectory can't be found or doesn't exists");
 	}
 	m_scriptDirectoryPath = scriptDirectory;
+
+	sol::table package = m_StateHandler.GetState()["package"];
+	std::string currentPath = package["path"];
+
+	package["path"] =
+		m_scriptDirectoryPath.generic_string() + "/?.lua;" +
+		m_scriptDirectoryPath.generic_string() + "/?/init.lua;" +
+		currentPath;
+
+	std::print("Updated package.path: {}\n",
+		package["path"].get<std::string>());
 }
 
 std::string Droplet::Script::ScriptManager::GetScriptDirectory()
