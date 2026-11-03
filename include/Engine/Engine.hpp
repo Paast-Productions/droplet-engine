@@ -20,7 +20,7 @@
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
-
+#include <AudioSystem/AudioMixer.hpp>
 namespace Droplet
 {
 	enum class DROPLET_RETURNTYPE
@@ -62,6 +62,10 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
+		/// @brief Is meant to enable other classes to use functionality in the audiomixer
+		/// @return A reference to the engines Audio mixer
+		[[nodiscard]] Audio::AudioMixer &GetAudioMixer() { return m_audioMixer; }
+
 		/// @brief Getter for the window of the engine
 		/// @return An SDL window handle
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
@@ -101,6 +105,9 @@ namespace Droplet
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
 		
+		/// @brief  The Audio mixer, should only be one.
+		Audio::AudioMixer m_audioMixer;
+
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 

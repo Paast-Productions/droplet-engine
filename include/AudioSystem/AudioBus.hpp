@@ -1,17 +1,22 @@
 #pragma once
-#include "AudioMixer.hpp"
+
+#include <cstdint>
+#include <memory>
+#include <string>
+#include <vector>
 
 
 namespace Droplet::Audio
 {
+	class AudioMixer;
+
 	class AudioBus
 	{
 	public:
 
-		
-		AudioBus() = default;
+		explicit AudioBus(const std::string& p_name, std::uint64_t p_id);
 		~AudioBus() = default;
-
+		AudioBus() = delete;
 		AudioBus(AudioBus &&) = delete;
 		AudioBus &operator=(const AudioBus &) = delete;
 		AudioBus &operator=(AudioBus &&) = delete;
@@ -22,8 +27,8 @@ namespace Droplet::Audio
 		float GetVolume() const { return m_volume; }
 		void SetVolume(float p_volume);
 
-		AudioBusID GetID() const { return m_id; }
-		void SetID(AudioBusID p_id) { m_id = p_id; }
+		uint64_t GetID() const { return m_id; }
+		void SetID(uint64_t p_id) { m_id = p_id; }
 
 		//---------------------------------------
 		// Name
@@ -32,10 +37,10 @@ namespace Droplet::Audio
 		void SetName(std::string p_name);
 		std::string GetName() const { return m_name; }
 
-
 		// --------------------------------------
 		// Children and parent AudioBuses
 		//---------------------------------------
+
 		void SetParent(AudioBus* p_audioBus);
 		AudioBus* GetParent() const;
 
@@ -45,6 +50,7 @@ namespace Droplet::Audio
 
 		[[nodiscard]] bool IsDecendantOf(const AudioBus* p_audioBus) const;
 
+		const std::vector<AudioBus *>& GetChildren() const;
 		//---------------------------------------
 		// Render UI
 		//---------------------------------------
@@ -62,9 +68,9 @@ namespace Droplet::Audio
 	private:
 
 		friend class AudioMixer;
-		AudioBusID m_id;
+		uint64_t m_id = 0;
 
-		std::string m_name;
+		std::string m_name = "";
 
 		bool m_active = false;
 
@@ -72,6 +78,6 @@ namespace Droplet::Audio
 		AudioBus* m_parent = nullptr;
 		std::vector<AudioBus*> m_children;
 
-		float m_volume;
+		float m_volume = 0.0f;
 	};
 }

@@ -1,0 +1,152 @@
+#include "MixerWindow.hpp"
+#include <AudioSystem/AudioBus.hpp>
+Droplet::Editor::MixerWindow::MixerWindow(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
+{
+}
+using namespace Droplet;
+
+void Droplet::Editor::MixerWindow::InitImpl()
+{
+	SetName("Audio Mixer");
+}
+
+void Droplet::Editor::MixerWindow::CloseImpl()
+{
+}
+
+void Droplet::Editor::MixerWindow::RenderImpl()
+{
+	Audio::AudioMixer &mixer = m_editorContext->GetAudioMixer();
+	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+
+	Audio::AudioBus *selectedBus = nullptr;
+
+	if (state.selectedAudioBusID.has_value())
+	{
+		selectedBus = mixer.FindAudioBus(state.selectedAudioBusID.value());
+		if (selectedBus == nullptr)
+		{
+			state.selectedAudioBusID.reset();
+		}
+	}
+
+	if (ImGui::Button("Add Bus"))
+	{
+		Audio::AudioBus *newBus =
+			mixer.AddAudioBus("New Bus", mixer.GetMasterBus());
+
+		if (newBus != nullptr)
+		{
+			state.selectedAudioBusID = newBus->GetID();
+		}
+	}
+
+	ImGui::SeparatorText("Bus hierarchy");
+	ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
+
+	DrawBus(mixer.GetMasterBus());
+
+	ImGui::EndChild();
+
+	if (m_pendingReparent.has_value())
+	{
+		const PendingReparent &operation = m_pendingReparent.value();
+
+		Audio::AudioBus *bus = mixer.FindAudioBus(operation.busID);
+		Audio::AudioBus *parent = mixer.FindAudioBus(operation.newParentID);
+
+		if (bus != nullptr && parent != nullptr)
+		{
+			mixer.SetBusParent(bus, parent);
+		}
+		m_pendingReparent.reset();
+	}
+	
+}
+
+void Droplet::Editor::MixerWindow::RenderToolbar()
+{
+}
+
+void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
+{
+	if (p_bus == nullptr)
+	{
+		return;
+	}
+
+	Audio::AudioMixer &mixer = m_editorContext->GetAudioMixer();
+	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+
+	const std::uint64_t busID = p_bus->GetID();
+	const bool hasChildren = !p_bus->GetChildren().empty();
+
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+	if (!hasChildren)
+	{
+		flags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+	}
+
+	if (state.selectedAudioBusID.has_value() && state.selectedAudioBusID.value() == busID)
+	{
+		flags |= ImGuiTreeNodeFlags_Selected;
+	}
+
+	const std::string idString = std::to_string(busID);
+	ImGui::PushID(idString.c_str());
+
+	const bool nodeOpen = ImGui::TreeNodeEx(p_bus->GetName().c_str(), flags);
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+	{
+		state.selectedAudioBusID = busID;
+	}
+
+	if (ImGui::BeginPopupContextItem("BusContextMenu"))
+	{
+		if (ImGui::MenuItem("Add Child Bus"))
+		{
+			Audio::AudioBus *newBus = mixer.AddAudioBus("New bus", p_bus);
+
+			if (newBus != nullptr)
+			{
+				state.selectedAudioBusID = newBus->GetID();
+			}
+		}
+
+		ImGui::EndPopup();
+	}
+
+	if (nodeOpen && hasChildren)
+	{
+		for (Audio::AudioBus *child : p_bus->GetChildren())
+		{
+			DrawBus(child);
+		}
+		ImGui::TreePop();
+	}
+
+	if (ImGui::BeginDragDropSource())
+	{
+		Audio::AudioBus *bus = p_bus;
+
+		ImGui::SetDragDropPayload("AUDIO_BUS", &p_bus, sizeof(Audio::AudioBus *));
+
+		ImGui::Text("%s", p_bus->GetName().c_str());
+
+		ImGui::EndDragDropSource();
+	}
+
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS"))
+		{
+			
+		}
+	}
+
+
+	ImGui::PopID();
+}

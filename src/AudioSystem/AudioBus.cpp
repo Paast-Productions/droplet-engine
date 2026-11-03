@@ -1,7 +1,12 @@
 #include "AudioBus.hpp"
+#include "AudioMixer.hpp"
 
 using namespace Droplet::Audio;
 
+
+Droplet::Audio::AudioBus::AudioBus(const std::string& p_name, uint64_t p_id) : m_name(p_name), m_id(p_id)
+{
+}
 
 void Droplet::Audio::AudioBus::SetActive(bool p_active)
 {
@@ -121,6 +126,11 @@ bool Droplet::Audio::AudioBus::IsDecendantOf(const AudioBus* p_audioBus) const
 		parent = parent->GetParent();
 	}
 	return false;
+}
+
+const std::vector<AudioBus *> & AudioBus::GetChildren() const
+{
+	return m_children;
 }
 
 void Droplet::Audio::AudioBus::RenderUI()

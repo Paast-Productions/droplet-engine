@@ -9,7 +9,10 @@
 namespace Droplet::Editor
 {
 
-	
+	struct AudioMixerEditorState
+	{
+		std::optional <std::uint64_t> selectedAudioBusID;
+	};
 
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext 
@@ -39,6 +42,11 @@ namespace Droplet::Editor
 		/// @returns A scene from scenemanager
 		[[nodiscard]] std::shared_ptr<Droplet::Scene::Scene> GetActiveScene(); // TODO: Make weak pointer
 
+		/// @brief Get the mixer
+		/// @return the mixer
+		[[nodiscard]] Audio::AudioMixer &GetAudioMixer();
+
+		AudioMixerEditorState &GetAudioMixerState() { return m_selectedBus; }
 		/// @breif Lets the context set a new active scene
 		/// @param p_sceneName The name of the scene to set as active
 		void SetActiveScene(std::string p_sceneName);
@@ -68,5 +76,7 @@ namespace Droplet::Editor
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
 		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+		Audio::AudioMixer m_audioMixer;
+		AudioMixerEditorState m_selectedBus;
 	};
 }
