@@ -1,6 +1,7 @@
 #include "ScriptInstance.hpp"
 #include "Node.hpp"
 #include <print>
+#include <bvh/v2/node.h>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
@@ -77,12 +78,12 @@ void ScriptInstance::OnUpdate(float deltatime)
 	}
 }
 
-void ScriptInstance::OnTrigger(float deltatime)
+void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)
 {
 	ZoneScoped;
 	if (m_onTrigger.valid())
 	{
-		sol::protected_function_result result = m_onTrigger(deltatime);
+		sol::protected_function_result result = m_onTrigger(deltatime, p_otherNode);
 		if (!result.valid())
 		{
 			sol::error err = result;

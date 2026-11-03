@@ -1,0 +1,117 @@
+{
+    "name": "Freeze",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 1,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "health": 100.0,
+                        "maxHealth": 100.0
+                    },
+                    "id": 2,
+                    "type": "HealthComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.004",
+                        "meshGUID": 12885130674664679680,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Drone",
+                        "textureGUID": 1365390299680718017,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 3,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "player",
+            "transform": {
+                "position": [
+                    -2.8317723274230957,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 2,
+            "name": "freeze",
+            "transform": {
+                "position": [
+                    5.509003639221191,
+                    0.0,
+                    -2.526942491531372
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.842045783996582,
+                    4.752846717834473,
+                    5.143836498260498
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
