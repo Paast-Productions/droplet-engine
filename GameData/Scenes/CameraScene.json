@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 9,
             "name": "Default Node",
             "transform": {
                 "position": [
@@ -76,7 +76,7 @@
                 }
             ],
             "drawLayer": 8,
-            "id": 2,
+            "id": 10,
             "name": "UI Node",
             "transform": {
                 "position": [
@@ -106,10 +106,10 @@
                     "data": {
                         "autoRender": true,
                         "camera": {
-                            "fov": 61.09600067138672,
+                            "fov": 75.0,
                             "planes": [
-                                0.10000000149011612,
-                                100.0
+                                0.25,
+                                20.0
                             ]
                         },
                         "drawLayerMask": 1,
@@ -124,7 +124,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3,
+            "id": 11,
             "name": "Default Camera",
             "transform": {
                 "position": [
@@ -154,14 +154,14 @@
                     "data": {
                         "autoRender": true,
                         "camera": {
-                            "fov": 61.09600067138672,
+                            "fov": 75.0,
                             "planes": [
-                                0.10000000149011612,
-                                100.0
+                                0.25,
+                                20.0
                             ]
                         },
                         "drawLayerMask": 8,
-                        "priority": 0,
+                        "priority": 1,
                         "resolution": [
                             64,
                             64
@@ -172,7 +172,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 4,
+            "id": 12,
             "name": "UI Camera",
             "transform": {
                 "position": [

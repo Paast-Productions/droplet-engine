@@ -13,11 +13,13 @@
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Components/TriggerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
+#include <SceneSystem/Items/BaseItems.hpp>
 
 using namespace Droplet;
 
@@ -80,7 +82,10 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
-    // ------
+
+	// Register base items and set the item registry for the scene manager
+	Droplet::Game::RegisterBaseItems(m_itemRegistry);
+	m_sceneManager.SetItemRegistry(&m_itemRegistry);
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -187,14 +192,15 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRender
 	// Rendering
 	m_renderer.Draw(renderData);
 
-	m_sceneManager.PostRender();
-
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+
+	m_sceneManager.PostRender();
+
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
@@ -222,4 +228,5 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Scene::DamageComponent>(); });
 }

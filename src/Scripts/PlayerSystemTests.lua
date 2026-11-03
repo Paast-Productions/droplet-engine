@@ -8,6 +8,12 @@ local healthComp = nil
 local playerComp = nil
 local pb = nil
 
+local trans = nil
+local healthComp = nil
+local playerComp = nil
+local pb = nil
+local woodId = nil
+
 local hasHealthComponent = false
 local hasPlayerComponent = false
 
@@ -122,10 +128,20 @@ function OnStart()
         -- Check for PlayerBehaviour
         pb = playerComp:GetPlayerBehaviour()
 
-        if pb == nil then
-            print("[Drone_movement] Warning: PlayerBehaviour not found.")
-        elseif hasHealthComponent then
-            healthComp:SetMaxHealth(pb:GetMaxHealth())
+        if pb ~= nil then
+            if hasHealthComponent then
+                healthComp:SetMaxHealth(pb:GetMaxHealth())
+            end
+            local registry = pb:GetItemRegistry()
+            if registry == nil then
+                print("Item registry is unavailable!")
+            else
+                woodId = registry:Find("resource:wood")
+                if woodId == nil or not woodId:IsValid() then
+                    print("Wood item is not registered!")
+                    woodId = nil
+                end
+            end
         end
     end
 
@@ -171,23 +187,40 @@ function OnUpdate(dt)
     end
 
     if Input:KeyHeld(Key.K) then
-    if pb ~= nil and healthComp ~= nil then
-        print("heat increased :()")
+        if pb ~= nil and healthComp ~= nil then
+            print("heat increased :()")
 
-        pb:IncreaseHeatLevel(1)
+            pb:IncreaseHeatLevel(1)
 
-        if pb:GetHeatLevel() > pb:GetHeatResistance() then
-            print("taking damage:==)")
+            if pb:GetHeatLevel() > pb:GetHeatResistance() then
+                print("taking damage:==)")
 
-            healthComp:TakeDamage(1)
+                healthComp:TakeDamage(1)
 
-            if healthComp:GetHealth() <= 0 then
-                print("DEAD :P")
+                if healthComp:GetHealth() <= 0 then
+                    print("DEAD :P")
+                end
             end
         end
     end
-end
 
+    if Input:KeyPressed(Key.I) then
+        if pb ~= nil then
+            local remaining = pb:AddItem(
+                InventoryType.Player,
+                woodId,
+                10
+            )
+            if remaining > 0 then
+                print("Could not fit " .. remaining .. " wood")
+            end
+            local woodCount = pb:CountItem(
+                InventoryType.Player,
+                woodId
+            )
+            print(woodCount)
+        end
+    end
     tracy.ZoneEnd()
 end
 

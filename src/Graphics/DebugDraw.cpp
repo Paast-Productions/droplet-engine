@@ -3,6 +3,7 @@
 #include <math/Bezier.hpp>
 #include <math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <print>
 #include <iostream>
@@ -1103,6 +1104,53 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv
 	InternalDrawOptions intOpt(p_col, p_depth);
 
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+}
+
+void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, const glm::vec3 &p_centerToStart, float p_radius, float p_angle, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)
+{
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	const int segments = ClampCircleSegments(p_seg);
+
+	std::vector<glm::vec3> points;
+	points.resize(segments + 2);
+
+	glm::vec3 startPoint = p_center + glm::normalize(p_centerToStart) * p_radius;
+	glm::vec3 endPoint = p_center + glm::vec3(glm::normalize(glm::rotate(glm::mat4(1.0f), glm::radians(p_angle), p_normal) * glm::vec4(p_centerToStart, 0.0f)) * p_radius);
+
+	points[0] = startPoint;
+	points[segments + 1] = endPoint;
+
+	for (int i = 1; i < segments + 1; i++)
+	{
+		points[i] = p_center + glm::vec3(glm::normalize(glm::rotate(glm::mat4(1.0f), glm::radians(p_angle * i / (segments + 1)), p_normal) * glm::vec4(p_centerToStart, 0.0f)) * p_radius);
+	}
+
+	InternalDrawOptions intOpt(p_col, p_depth);
+
+	if (p_wire)
+	{
+		std::vector<DbgLine> lines;
+		lines.reserve(points.size());
+
+		for (int i = 0; i < points.size() - 1; ++i)
+		{
+			lines.emplace_back(points[i], points[i + 1]);
+		}
+
+		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
+	}
+	else
+	{
+		std::vector<DbgTri> triangles;
+		triangles.reserve(points.size());
+
+		for (int i = 0; i < points.size() - 1; ++i)
+		{
+			triangles.emplace_back(p_center, points[i], points[i + 1]);
+		}
+
+		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+	}
 }
 
 void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)
