@@ -20,6 +20,7 @@
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet
 {
@@ -98,6 +99,9 @@ namespace Droplet
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
+
+		/// @brief Registry containing the game's registered item definitions.
+		Droplet::Game::ItemRegistry m_itemRegistry;
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;

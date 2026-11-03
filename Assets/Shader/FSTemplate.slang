@@ -22,7 +22,7 @@ struct FSInput
 
 //Normally you would add a sampler without the "[]" but in bindless all used textures are bound to the same descriptor
 //To access a specific texture, the CPU sends the index through the PushConstants sampler.
-layout(set = 0, binding = 1) Sampler2D texture[];
+layout(set = 2, binding = 0) Sampler2D texture[];
 
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET 

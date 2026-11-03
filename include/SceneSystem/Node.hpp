@@ -20,6 +20,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -329,6 +330,14 @@ namespace Droplet::Scene
         {
             const auto components = GetComponents<PlayerComponent>();
             return components.empty() ? nullptr : components.front();
+        }
+    	
+    	/// @brief Gets the DamageComponent attached to this Node.
+    	/// @return The DamageComponent, or nullptr if none is attached.
+    	[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+        {
+        	const auto components = GetComponents<DamageComponent>();
+        	return components.empty() ? nullptr : components.front();
         }
 
     private:

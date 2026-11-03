@@ -17,6 +17,8 @@
 #include <PlayerComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Items/Item.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
 
 #include <print>
 #include <filesystem>
@@ -48,6 +50,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
+	RegisterDamageComponent(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -89,11 +92,13 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
+		"GetID", &Scene::Node::GetID,
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
-		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
+		"GetDamageComponent", &Scene::Node::GetDamageComponent
 	);
 
 	LuaClassDefinition classDef;
@@ -119,6 +124,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"GetPlayerComponent",
 			"PlayerComponent",
+			{}
+		},
+		{
+			"GetDamageComponent",
+			"DamageComponent",
 			{}
 		}
 	};
@@ -2783,15 +2793,51 @@ void LuaBindings::RegisterPlayerComponent(sol::state_view p_luaState)
 
 void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
+	// Item identifier.
+	p_luaState.new_usertype<Game::ItemId>(
+		"ItemId",
+		sol::no_constructor,
+		"IsValid", &Game::ItemId::IsValid,
+		"value", &Game::ItemId::value
+	);
+
+	// Inventory type.
+	p_luaState.new_enum(
+		"InventoryType",
+		"Player", Scene::InventoryType::Player,
+		"Drone", Scene::InventoryType::Drone
+	);
+
+	// Item registry.
+	p_luaState.new_usertype<Game::ItemRegistry>(
+		"ItemRegistry",
+		sol::no_constructor,
+		"Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
+		{
+			return p_registry.Find(p_name);
+		}
+	);
+
+	// Player behaviour.
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
 		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
+		"SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
+
+		// Item registry access.
+		"GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+
+		// Inventory functions.
+		"AddItem", &Scene::PlayerBehaviour::AddItem,
+		"RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+		"CountItem", &Scene::PlayerBehaviour::CountItem
 	);
 
+	// PlayerBehaviour API metadata.
 	LuaClassDefinition classDef;
 	classDef.name = "PlayerBehaviour";
 
@@ -2801,7 +2847,54 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		{ "GetHeatResistance", "float", {} },
 		{ "GetHeatLevel", "float", {} },
 		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
+		{ "SetHeatLevel", "void", { { "heat", "number" } } },
+		{ "SetHeatResistance", "void", { { "resistance", "number" } } },
+
+		{ "GetItemRegistry", "ItemRegistry", {} },
+
+		{ "AddItem", "number", {
+			{ "inventory", "InventoryType" },
+			{ "itemId", "ItemId" },
+			{ "count", "number" }
+		} },
+		{ "RemoveItem", "boolean", {
+			{ "inventory", "InventoryType" },
+			{ "itemId", "ItemId" },
+			{ "count", "number" }
+		} },
+		{ "CountItem", "number", {
+			{ "inventory", "InventoryType" },
+			{ "itemId", "ItemId" }
+		} }
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(classDef);
+
+	// ItemRegistry API metadata.
+	LuaClassDefinition registryDef;
+	registryDef.name = "ItemRegistry";
+
+	registryDef.functions =
+	{
+		{ "Find", "ItemId", { { "name", "string" } } }
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(registryDef);
+}
+
+void LuaBindings::RegisterDamageComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::DamageComponent>(
+		"DamageComponent",
+		"GetDamage", &Scene::DamageComponent::GetDamageLua
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "DamageComponent";
+
+	classDef.functions =
+	{
+		{ "GetDamageComponent", "DamageComponent", {} },
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
