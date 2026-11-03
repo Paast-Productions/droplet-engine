@@ -17,7 +17,7 @@ struct FSInput
     float2 fragTexCoord;
 };
 
-layout(set = 0, binding = 1) Sampler2D texture[];
+layout(set = 2, binding = 0) Sampler2D texture[];
 
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET 
