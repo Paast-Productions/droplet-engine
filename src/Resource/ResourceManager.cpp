@@ -34,7 +34,7 @@ namespace Droplet
 
     void ResourceManager::Update()
     {
-        ZoneScoped;
+		ZoneScopedC(tracy::Color::PaleGreen1);
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         
@@ -388,6 +388,29 @@ namespace Droplet
         {
             // TODO: Log error (type is not registered)
         }
+    }
+
+    void ResourceManager::RemoveResourceMeta(const GUID p_guid, bool p_forceRemove)
+    {
+        if (!p_forceRemove)
+        {
+            if (GetRef(p_guid) > 0)
+            {
+                throw std::runtime_error("Cannot remove resource because it is in use");
+            }
+        }
+        
+        MetaEntry metaEntry;
+        m_registry.GetResourceMetaData(p_guid, metaEntry);
+        
+        const std::filesystem::path path = m_rootDirectory / (metaEntry.relAssetPath + ".meta");
+        if (!std::filesystem::remove(path))
+        {
+            Debug::Log(Debug::LogType::Warning, "Could not remove resource " + path.generic_string());
+            return;
+        }
+        m_registry.RemoveMetaEntry(p_guid);
+        m_liveResources.erase(p_guid);
     }
 
     std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,

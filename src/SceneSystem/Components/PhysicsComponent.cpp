@@ -17,8 +17,10 @@
 #include <resource/GuidUtils.hpp>
 #include <IntermediaryStorage.hpp>
 #include <Editor/ResourceSlot.hpp>
+#include <Graphics/DebugDraw.hpp>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Graphics::Debug;
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -43,7 +45,7 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 	m_shapeType = ShapeType::Box;
 	m_serializeData.halfExtents.x = p_halfExtents.GetX();
 	m_serializeData.halfExtents.y = p_halfExtents.GetY();
-	m_serializeData.halfExtents.x = p_halfExtents.GetZ();
+	m_serializeData.halfExtents.z = p_halfExtents.GetZ();
 }
 
 void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset)
@@ -180,7 +182,7 @@ void PhysicsComponent::SetActive(bool p_active)
 
 void PhysicsComponent::RemoveCollider()
 {
-	if (m_shapeType != ShapeType::None)
+	if (m_shapeType != ShapeType::None && !m_bodyID.IsInvalid())
 	{
 		if (m_shapeType == ShapeType::Mesh || m_shapeType == ShapeType::ConvexHull)
 		{
@@ -255,6 +257,8 @@ void PhysicsComponent::ActiveChangedImpl(const bool p_active)
 
 void PhysicsComponent::RenderUIImpl()
 {
+	DebugDrawShape();
+
 	if (m_shapeType != ShapeType::None)
 	{
 		// Display the current collider shape
@@ -645,7 +649,7 @@ void PhysicsComponent::RenderUIImpl()
 				if (ImGui::BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
 				{
 					ImGui::TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-        			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+					ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 				
 					if (ResourceSlot(
 						"Mesh",
@@ -817,7 +821,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetCapsuleCollider(r, h, JPH::Vec3(offsetX, offsetY, offsetZ));
+			SetCapsuleCollider(h, r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 3: // Mesh collider
 			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
@@ -1049,6 +1053,98 @@ void PhysicsComponent::PullTransformFromPhysics()
 	m_transform->SetPosition(pos);
 	m_transform->SetRotation(rot);
 	m_transform->MakePhysicsDirty();
+}
+
+void PhysicsComponent::DebugDrawShape()
+{
+	using namespace Droplet::Graphics::Debug;
+	using namespace glm;
+
+	// Interpret m_serializeData based on the shape type and draw the appropriate debug shape
+
+	vec4 color(0, 0.7f, 0, 1); // Default color for debug drawing
+
+	switch (m_shapeType)
+	{
+	case PhysicsComponent::ShapeType::Box:
+	{
+		Math::OBB obb{ JPHtoGLM(m_offset), m_serializeData.halfExtents };
+		obb = Math::OBB::Transform(obb, m_transform->GetMatrix(Transform::Space::World));
+
+		DebugDraw::DrawBox(
+			obb,
+			color, false, true
+		);
+		break;
+	}
+
+	case PhysicsComponent::ShapeType::Sphere:
+	{
+		// Draw three circles in the local axis planes of the sphere to represent it in 3D space
+
+		vec3 center = JPHtoGLM(m_offset);
+		float radius = m_serializeData.r;
+
+		// Transform the center to world space
+		center = vec3(m_transform->GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+
+		vec3 up = vec3(m_transform->GetUp(Transform::Space::World));
+		vec3 right = vec3(m_transform->GetRight(Transform::Space::World));
+		vec3 forward = vec3(m_transform->GetForward(Transform::Space::World));
+
+		DebugDraw::DrawCircle(center, up, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(center, right, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(center, forward, radius, color, 24, false, true);
+
+		break;
+	}
+
+	case PhysicsComponent::ShapeType::Capsule:
+	case PhysicsComponent::ShapeType::Player:
+	{
+		// Draw two 180-degree arcs on each end to represent the capsule's hemispherical ends and four lines connecting them to represent the cylindrical part
+		// Then draw two circles at the ends to represent the capsule's cross-section
+
+		vec3 center = JPHtoGLM(m_offset);
+		float radius = m_serializeData.r;
+		float halfHeight = m_serializeData.h * 0.5f;
+
+		center = vec3(m_transform->GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+
+		vec3 up = vec3(m_transform->GetUp(Transform::Space::World));
+		vec3 right = vec3(m_transform->GetRight(Transform::Space::World));
+		vec3 forward = vec3(m_transform->GetForward(Transform::Space::World));
+
+		// Calculate the top and bottom centers of the capsule
+		vec3 topCenter = center + up * halfHeight;
+		vec3 bottomCenter = center - up * halfHeight;
+
+		// Draw the hemispherical ends
+		DebugDraw::DrawArc(topCenter, forward, right, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(topCenter, -right, forward, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(bottomCenter, -forward, right, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(bottomCenter, right, forward, radius, 180.0f, color, 12, false, true);
+
+		// Draw the cylindrical part
+		DebugDraw::DrawLine(topCenter + right * radius, bottomCenter + right * radius, color, false);
+		DebugDraw::DrawLine(topCenter - right * radius, bottomCenter - right * radius, color, false);
+		DebugDraw::DrawLine(topCenter + forward * radius, bottomCenter + forward * radius, color, false);
+		DebugDraw::DrawLine(topCenter - forward * radius, bottomCenter - forward * radius, color, false);
+
+		// Draw circles at the ends to represent the cross-section
+		DebugDraw::DrawCircle(topCenter, up, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(bottomCenter, up, radius, color, 24, false, true);
+
+		break;
+	}
+
+	default:
+	case PhysicsComponent::ShapeType::None:
+	case PhysicsComponent::ShapeType::Mesh:
+	case PhysicsComponent::ShapeType::Compound:
+	case PhysicsComponent::ShapeType::ConvexHull:
+		break;
+	}
 }
 
 JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)
