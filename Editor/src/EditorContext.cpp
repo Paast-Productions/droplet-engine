@@ -52,6 +52,16 @@ void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath, s
 	GetActiveScene()->LoadNodeFromFile(p_filepath,p_overridePosition);
 }
 
+bool Droplet::Editor::EditorContext::GetIsPlayMode()
+{
+	return m_isPlayMode;
+}
+
+void Droplet::Editor::EditorContext::SetIsPlayMode(bool p_playMode)
+{
+	m_isPlayMode = p_playMode;
+}
+
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
 {
 	return m_editorCamera;

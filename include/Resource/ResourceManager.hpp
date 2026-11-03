@@ -265,6 +265,13 @@ namespace Droplet
 		/// @brief Forces a live resource to reload its data from disk.
 		/// @param p_guid The globally unique identifier for the resource.
 		void HotReload(GUID p_guid);
+		
+		/// @brief Removes metadata and file of a resource
+		/// @param p_guid The GUID of the resource to be removed
+		/// @param p_forceRemove If false, it won't remove the resource metadata and file if its
+		/// reference count is greater than zero. If true, the resource metadata and file will
+		/// be removed regardless.
+		void RemoveResourceMeta(const GUID p_guid, bool p_forceRemove = false);
 	
 	private:
 		
