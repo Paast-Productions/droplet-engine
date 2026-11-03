@@ -62,7 +62,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 3,
+		.maxSets = 4,
 		.poolSizeCount = 1,
 		.pPoolSizes = &poolSize 
 	};
@@ -80,6 +80,9 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetSurfaceFormat().format,
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
+	
+	m_slugPrototype = Slug::SlugPrototype();
+	m_slugPrototype.Initialize(m_context.GetDevice(), VK::IntermediaryStorage::GetInstance().GetAllocator(), m_debugDescriptorPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat());
 
 	constexpr VK::ViewProjectionBuffer vpb
 	{
@@ -147,6 +150,7 @@ Renderer::~Renderer()
 	
 	m_context.GetDevice().waitIdle();
 	Debug::DebugDraw::Get().Shutdown();
+	m_slugPrototype.Shutdown();
 	VK::IntermediaryStorage::GetInstance().Shutdown();
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
@@ -324,6 +328,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 
+	// m_slugPrototype.Record(commandBuffer, p_renderTarget.GetExtent());
+	m_slugPrototype.RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();

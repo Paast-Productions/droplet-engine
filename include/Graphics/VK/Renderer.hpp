@@ -34,6 +34,8 @@
 #include <ImGui/imgui_impl_vulkan.h>
 #undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
+#include "SlugPrototype.hpp"
+
 namespace Droplet{class Engine;}
 
 // HACK: Implementation subject to change
@@ -124,5 +126,7 @@ namespace Droplet::Graphics
 		std::uint32_t m_imGuiPoolSize { 0 };
 
 		VkFormat m_imGuiColorFormat {};
+
+		Slug::SlugPrototype m_slugPrototype;
 	};
 }
