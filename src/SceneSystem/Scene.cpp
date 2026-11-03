@@ -443,3 +443,16 @@ void Scene::QueueRenderer(std::shared_ptr<CameraComponent> p_node)
 
 	m_renderers.push_back(p_node);
 }
+
+const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
+{
+	std::vector<std::weak_ptr<CameraComponent>> cameraStack;
+	for (const auto &renderer : m_renderers)
+	{
+		if (renderer)
+		{
+			cameraStack.emplace_back(renderer);
+		}
+	}
+	return cameraStack;
+}

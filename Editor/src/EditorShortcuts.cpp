@@ -103,7 +103,7 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 			PasteNodes(p_editorContext);
 		}
 
-		if (input.KeyPressed(Key::KeyS) && !p_editorContext.GetIsPlayMode())
+		if (input.KeyPressed(Key::KeyS) && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 		{
 			auto scene = p_editorContext.GetActiveScene();
 

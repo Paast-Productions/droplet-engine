@@ -26,6 +26,8 @@ namespace Droplet::Editor::Scene
 
 		~SceneViewWindow() = default;
 
+		bool IsRenderingGameView() const { return m_renderingGameView; }
+
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -37,6 +39,8 @@ namespace Droplet::Editor::Scene
 		void RenderImpl() override;
 
 	private:
+		bool m_renderingGameView = false;
+
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 		bool m_hoveringGizmo = false;
@@ -61,6 +65,10 @@ namespace Droplet::Editor::Scene
 
 		bool m_wrapMouse = false;
 		int m_skipMouseDeltas = 0;
+
+		void RenderEditorView();
+
+		void RenderGameView();
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.

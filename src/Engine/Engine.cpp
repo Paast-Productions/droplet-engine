@@ -192,14 +192,15 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRender
 	// Rendering
 	m_renderer.Draw(renderData);
 
-	m_sceneManager.PostRender();
-
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+
+	m_sceneManager.PostRender();
+
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();

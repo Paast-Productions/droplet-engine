@@ -198,6 +198,10 @@ namespace Droplet::Graphics::VK
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
         [[nodiscard]] std::uint32_t CreateImGuiTexture(const RenderTarget &p_renderTarget);
+
+		/// @brief Removes an ImGui texture at a specified index
+		/// @param p_index Index of the ImGui texture to remove
+		void RemoveImGuiTexture(std::uint32_t p_index);
         
         /// @brief Getter function for an ImGui texture at a specified index
         /// @param p_index Index of the ImGui texture
@@ -294,7 +298,7 @@ namespace Droplet::Graphics::VK
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
         
         // ImGui
-        std::vector<vk::DescriptorSet> m_imGuiTextures {};
+        std::map<std::uint64_t, vk::DescriptorSet> m_imGuiTextures {};
         
         // TEMP
         struct ImGuiTexture

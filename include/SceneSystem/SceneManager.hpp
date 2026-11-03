@@ -19,6 +19,7 @@ namespace Droplet::Scene
     class Scene;
     class Behaviour;
     class Node;
+	class CameraComponent;
 
     /// @brief Manages the Scenes used by the application.
     ///
@@ -87,7 +88,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the Scene, or nullptr if the
         /// Scene is not loaded.
-        std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
+        [[nodiscard]] std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
 
         /// @brief Gets the currently active Scenes.
         ///
@@ -97,7 +98,7 @@ namespace Droplet::Scene
         ///
         /// @return A constant reference to the list of active Scene
         /// weak pointers.
-        const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
+        [[nodiscard]] const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
 
         /// @brief Updates all active Scenes.
         void Update();
@@ -130,11 +131,15 @@ namespace Droplet::Scene
         /// @param p_behaviourTypeName The type name of the behaviour to start.
 		/// @return A shared pointer to the started Behaviour.
 		/// @throws std::runtime_error if the behaviour type is not registered or cannot be started.
-		std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
+        [[nodiscard]] std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
 
         /// @brief Shuts down a behaviour.
 		/// @param p_behaviour A weak pointer to the behaviour to shut down.
 		void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour);
+        
+		/// @brief Gets the main camera of all active scenes.
+		/// @return A weak pointer to the CameraComponent at the end of the camera stack.
+        [[nodiscard]] std::weak_ptr<CameraComponent> GetMainCamera() const;
 
         void SetItemRegistry(const Droplet::Game::ItemRegistry *p_reg) { m_itemRegistry = p_reg; }
 
