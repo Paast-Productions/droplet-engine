@@ -84,9 +84,6 @@ namespace Droplet::Scene
             ImGui::EndTable();
         }
 
-        /// Debug row: pick any registered item, choose an amount, press Add.
-        /// Goes through PlayerBehaviour::AddItem so stack limits are respected.
-        /// Selection state is static (shared between player behaviours), which is fine for a debug UI.
         void RenderAddItemRow(PlayerBehaviour &p_player, InventoryType p_type, const char *p_id)
         {
             const ItemRegistry *reg = p_player.GetItemRegistry();
@@ -134,15 +131,22 @@ namespace Droplet::Scene
 
     std::uint32_t PlayerBehaviour::AddItem(InventoryType p_inv, Droplet::Game::ItemId p_id, std::uint32_t p_count)
     {
-        const ItemRegistry *reg = GetItemRegistry();
+        const auto *registry = GetItemRegistry();
 
-        assert(reg != nullptr);
-        assert(p_id.IsValid());
-
-        if (!reg || !p_id.IsValid())
+        if (!registry)
             return p_count;
 
-        return Droplet::Game::AddItem(*reg, Inv(p_inv), p_id, p_count);
+        const std::size_t maxSlots =
+            p_inv == InventoryType::Player
+            ? m_data.maxPlayerInventorySlots
+            : m_data.maxDroneInventorySlots;
+
+        return Droplet::Game::AddItem(
+            *registry,
+            Inv(p_inv),
+            p_id,
+            p_count,
+            maxSlots);
     }
 
     bool PlayerBehaviour::RemoveItem(InventoryType p_inv, Droplet::Game::ItemId p_id, std::uint32_t p_count)
