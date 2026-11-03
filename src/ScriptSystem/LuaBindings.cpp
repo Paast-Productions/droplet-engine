@@ -89,6 +89,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
+		"GetID", &Scene::Node::GetID,
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),

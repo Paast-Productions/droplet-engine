@@ -54,6 +54,12 @@ include "Premake/Samples/Scene/Scene"
 
 group ""
 
+group "Devtools"
+
+include "Premake/Devtools/SlugGenerator"
+
+group ""
+
 -- [[ EXTERNAL ]] --
 
 group "External"
