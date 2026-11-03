@@ -1519,6 +1519,12 @@ end
 ---@class Scene
 Scene = {}
 
+---@param id integer
+---@return Node | nil
+function Scene:FindNodeById(id)
+    return nil
+end
+
 ---@param ray Ray
 ---@return tuple<Node, RayHit>
 function Scene:RaycastNode(ray)
@@ -1558,6 +1564,170 @@ end
 
 ---@return Scene[]
 function SceneManager:GetActiveScenes()
+    return nil
+end
+
+---@class Camera
+Camera = {}
+
+---@param direction Vec3
+---@param deltaTime number
+function Camera:Move(direction, deltaTime)
+end
+
+---@param xOffset number
+---@param yOffset number
+---@param up Vec3
+---@param constrainPitch boolean
+function Camera:Rotate(xOffset, yOffset, up, constrainPitch)
+end
+
+---@return Vec3
+function Camera:GetPosition()
+    return nil
+end
+
+---@return Vec3
+function Camera:GetForward()
+    return nil
+end
+
+---@return Vec3
+function Camera:GetRight()
+    return nil
+end
+
+---@return Vec3
+function Camera:GetUp()
+    return nil
+end
+
+---@return Mat4
+function Camera:GetViewMatrix()
+    return nil
+end
+
+---@return Mat4
+function Camera:GetProjectionMatrix()
+    return nil
+end
+
+---@return number
+function Camera:GetFOV()
+    return 0
+end
+
+---@return number
+function Camera:GetAspect()
+    return 0
+end
+
+---@return Vec2
+function Camera:GetPlanes()
+    return nil
+end
+
+---@param position Vec3
+function Camera:SetPosition(position)
+end
+
+---@param fov number
+function Camera:SetFOV(fov)
+end
+
+---@param yaw number
+---@param pitch number
+function Camera:SetOrientationYawPitch(yaw, pitch)
+end
+
+---@param forward Vec3
+---@param up Vec3
+function Camera:SetOrientationVectors(forward, up)
+end
+
+---@param orientation Quat
+function Camera:SetOrientationQuaternion(orientation)
+end
+
+---@class CameraComponent
+CameraComponent = {}
+
+---@return Camera
+function CameraComponent:GetCamera()
+    return nil
+end
+
+---@return DrawLayer
+function CameraComponent:GetDrawLayerMask()
+    return nil
+end
+
+---@return integer
+function CameraComponent:GetPriority()
+    return nil
+end
+
+---@param priority integer
+function CameraComponent:SetPriority(priority)
+end
+
+---@return Vec2i
+function CameraComponent:GetResolution()
+    return nil
+end
+
+---@param resolution Vec2i
+function CameraComponent:SetResolution(resolution)
+end
+
+---@return boolean
+function CameraComponent:IsAutoRenderEnabled()
+    return false
+end
+
+---@param enabled boolean
+function CameraComponent:SetAutoRender(enabled)
+end
+
+function CameraComponent:TriggerRender()
+end
+
+---@return integer
+function CameraComponent:GetTargetIndex()
+    return nil
+end
+
+---@param renderTarget integer
+function CameraComponent:SetTargetIndex(renderTarget)
+end
+
+---@return integer
+function CameraComponent:GetTextureIndex()
+    return nil
+end
+
+---@param textureIndex integer
+function CameraComponent:SetTextureIndex(textureIndex)
+end
+
+---@param aspect number
+function CameraComponent:SetAspect(aspect)
+end
+
+---@param nearPlane number
+---@param farPlane number
+function CameraComponent:SetPlanes(nearPlane, farPlane)
+end
+
+---@param viewPosition Vec2
+---@return Ray
+function CameraComponent:GetViewRay(viewPosition)
+    return nil
+end
+
+---@param minMax Vec4
+---@return Frustum
+function CameraComponent:ViewRectToWorldTile(minMax)
     return nil
 end
 
