@@ -99,8 +99,10 @@ namespace Droplet::Script::Bindings
 		static void RegisterHealthComponent(sol::state_view p_luaState);
 
 		static void RegisterPlayerComponent(sol::state_view p_luaState);
-
+		
 		static void RegisterPlayerBehaviour(sol::state_view p_luaState);
+
+		static void RegisterDamageComponent(sol::state_view p_luaState);
 		
 		// TODO: Implement additional engine bindings as functionality is added.
 	};

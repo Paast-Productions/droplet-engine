@@ -50,6 +50,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
+	RegisterDamageComponent(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -96,7 +97,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
-		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
+		"GetDamageComponent", &Scene::Node::GetDamageComponent
 	);
 
 	LuaClassDefinition classDef;
@@ -122,6 +124,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"GetPlayerComponent",
 			"PlayerComponent",
+			{}
+		},
+		{
+			"GetDamageComponent",
+			"DamageComponent",
 			{}
 		}
 	};
@@ -2873,4 +2880,22 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(registryDef);
+}
+
+void LuaBindings::RegisterDamageComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::DamageComponent>(
+		"DamageComponent",
+		"GetDamage", &Scene::DamageComponent::GetDamageLua
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "DamageComponent";
+
+	classDef.functions =
+	{
+		{ "GetDamageComponent", "DamageComponent", {} },
+	};
+
+	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }
