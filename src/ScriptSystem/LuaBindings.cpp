@@ -2894,7 +2894,7 @@ void LuaBindings::RegisterDamageComponent(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{ "GetDamageComponent", "DamageComponent", {} },
+		{ "GetDamage", "float", {} },
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
