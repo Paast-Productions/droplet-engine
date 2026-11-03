@@ -333,6 +333,32 @@ void Scene::SetActive(bool p_active)
     }
 }
 
+std::weak_ptr<Node> Scene::FindNodeById(std::uint64_t p_id) const 
+{
+    std::vector<std::shared_ptr<Node>> pendingNodes(m_roots.begin(), m_roots.end());
+
+    while (!pendingNodes.empty())
+    {
+        std::shared_ptr<Node> node = std::move(pendingNodes.back());
+        pendingNodes.pop_back();
+
+        if (!node)
+        {
+            continue;
+        }
+
+        if (node->GetID() == p_id)
+        {
+            return node;
+        }
+
+        const auto &children = node->GetChildren();
+        pendingNodes.insert(pendingNodes.end(), children.begin(), children.end());
+    }
+
+    return {};
+}
+
 void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
@@ -416,4 +442,17 @@ void Scene::QueueRenderer(std::shared_ptr<CameraComponent> p_node)
 	}
 
 	m_renderers.push_back(p_node);
+}
+
+const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
+{
+	std::vector<std::weak_ptr<CameraComponent>> cameraStack;
+	for (const auto &renderer : m_renderers)
+	{
+		if (renderer)
+		{
+			cameraStack.emplace_back(renderer);
+		}
+	}
+	return cameraStack;
 }

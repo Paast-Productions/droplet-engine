@@ -77,11 +77,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 2,
@@ -128,11 +123,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 3,
@@ -179,11 +169,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 4,
@@ -230,11 +215,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 5,
@@ -281,11 +261,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 6,
@@ -332,11 +307,6 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": {},
-                    "id": 2,
-                    "type": "CameraComponent"
                 }
             ],
             "id": 7,

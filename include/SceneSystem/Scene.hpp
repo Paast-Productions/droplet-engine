@@ -196,6 +196,8 @@ namespace Droplet::Scene
         /// that has not been loaded.
         void SetActive(bool p_active);
 
+        [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
+
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
 
@@ -268,6 +270,10 @@ namespace Droplet::Scene
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
         void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
+
+		/// @brief Gets the camera stack for the scene.
+		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
+        const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
 
     private:
 		friend class SceneManager;
