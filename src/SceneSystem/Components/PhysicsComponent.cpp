@@ -180,7 +180,7 @@ void PhysicsComponent::SetActive(bool p_active)
 
 void PhysicsComponent::RemoveCollider()
 {
-	if (m_shapeType != ShapeType::None)
+	if (m_shapeType != ShapeType::None && !m_bodyID.IsInvalid())
 	{
 		if (m_shapeType == ShapeType::Mesh || m_shapeType == ShapeType::ConvexHull)
 		{
