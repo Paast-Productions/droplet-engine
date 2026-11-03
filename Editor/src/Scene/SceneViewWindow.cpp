@@ -301,7 +301,24 @@ void SceneViewWindow::RenderToolbar()
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
-		ImGui::Separator();
+		ImGui::SeparatorText("Camera");
+
+		if (ImGui::BeginMenu("Camera Snap"))
+		{
+			ImGui::SeparatorText("Camera Snapping");
+			ImGui::DragFloat3("Position", &m_cameraSnapPos.x, 0.02f, -FLT_MAX, FLT_MAX);
+
+			if (ImGui::Button("Save Snap"))
+			{
+				m_cameraSnapDir = m_editorContext->GetEditorCamera().GetForward();
+				m_cameraSnapPos = m_cameraPivot;
+				m_cameraSnapRadius = m_cameraPivotRadius;
+				EditorConfig::StoreVec3("CameraSnap.Position", m_cameraSnapPos);
+				EditorConfig::StoreVec3("CameraSnap.Direction", m_cameraSnapDir);
+				EditorConfig::StoreFloat("CameraSnap.Radius", m_cameraSnapRadius);
+			}
+			ImGui::EndMenu();
+		}
 
 		// Camera movement speed
 		float movementSpeed = m_editorContext->GetEditorCameraController().GetMovementSpeed();
@@ -455,7 +472,7 @@ void SceneViewWindow::RenderEditorView()
 	ImVec2 imageMin = ImGui::GetItemRectMin();
 	ImVec2 imageMax = ImGui::GetItemRectMax();
 
-	const EditorCamera &camera = m_editorContext->GetEditorCamera();
+	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
 	if (isWindowFocused)
 	{
@@ -487,6 +504,16 @@ void SceneViewWindow::RenderEditorView()
 			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
 		}
 
+		// Camera snaping
+		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
+		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed)
+		{
+			camera.SetOrientation(EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
+			glm::vec3 cameraSnapPos = EditorConfig::LoadVec3("CameraSnap.Position", glm::vec3(0.0f));
+			float cameraSnapRadius = EditorConfig::LoadFloat("CameraSnap.Radius", 8.0f);
+			SetCameraPivot(m_cameraSnapPos, m_cameraSnapRadius);
+			ApplyCameraPivot();
+		}
 	}
 
 	if (m_hoveringSceneView || isWindowFocused)
@@ -1371,6 +1398,11 @@ void SceneViewWindow::SetCameraPivot(const glm::vec3 &p_pivot, float p_radius)
 
 	// Save camera pivot radius
 	EditorConfig::StoreFloat("Editor.CameraPivotRadius", m_cameraPivotRadius);
+}
+
+void SceneViewWindow::SetCameraPivotPoint(const glm::vec3 &p_pivot)
+{
+	SetCameraPivot(p_pivot, m_cameraPivotRadius);
 }
 
 void SceneViewWindow::ApplyCameraPivot()

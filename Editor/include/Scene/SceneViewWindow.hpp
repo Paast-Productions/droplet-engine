@@ -92,6 +92,7 @@ namespace Droplet::Editor::Scene
 		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
 
 		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void SetCameraPivotPoint(const glm::vec3 &p_pivot); // Is it even needed?
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
 
@@ -101,5 +102,10 @@ namespace Droplet::Editor::Scene
 		/// @brief Contains a json object that hold temporary scene data in memory
 		/// It is useful for when you have unsaved changes and want to enter play-mode
 		nlohmann::json m_json;
+
+		/// @brief Camera snapping
+		glm::vec3 m_cameraSnapPos = glm::vec3(0.0f);
+		glm::vec3 m_cameraSnapDir = glm::vec3(0.0f, 0.0f, 1.0f);
+		float m_cameraSnapRadius = 8.0f;
 	};
 }

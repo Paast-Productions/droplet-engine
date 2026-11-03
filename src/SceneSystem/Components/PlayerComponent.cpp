@@ -4,6 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include "PlayerComponent.hpp"
+#include <SceneSystem/Items/BaseItems.hpp>
 
 
 namespace Droplet::Scene

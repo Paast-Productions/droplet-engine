@@ -11,6 +11,9 @@ namespace Droplet::Graphics
 	struct CameraRenderData;
 }
 
+namespace Droplet::Game { class ItemRegistry; }
+
+
 namespace Droplet::Scene
 {
     class Scene;
@@ -138,9 +141,14 @@ namespace Droplet::Scene
 		/// @return A weak pointer to the CameraComponent at the end of the camera stack.
         [[nodiscard]] std::weak_ptr<CameraComponent> GetMainCamera() const;
 
+        void SetItemRegistry(const Droplet::Game::ItemRegistry *p_reg) { m_itemRegistry = p_reg; }
+
+        [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
+
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
+        const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
 
