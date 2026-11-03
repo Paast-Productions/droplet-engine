@@ -1,14 +1,17 @@
 #include "ComponentsBindings.hpp"
 #include "SceneSystem/Components/CameraComponent.hpp"
+#include "SceneSystem/Components/MeshComponent.hpp"
+#include "SceneSystem/Components/PhysicsComponent.hpp"
 #include "SceneSystem/Components/HealthComponent.hpp"
 #include "SceneSystem/Components/PlayerComponent.hpp"
 #include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
 #include <LuaBindings.hpp>
 
 
-using namespace Droplet;
+using namespace Droplet::Scene;
+using namespace Droplet::Script;
 
-void Script::Bindings::RegisterComponents(sol::state_view p_luaState)
+void Bindings::RegisterComponents(sol::state_view p_luaState)
 {
 	RegisterCameraComponent(p_luaState);
 	RegisterHealthComponent(p_luaState);
@@ -16,7 +19,7 @@ void Script::Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 }
 
-void Script::Bindings::RegisterCameraComponent(sol::state_view p_luaState)
+void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Graphics::Camera>(
 		"Camera",
@@ -291,7 +294,220 @@ void Script::Bindings::RegisterCameraComponent(sol::state_view p_luaState)
     LuaBindings::PushLuaClassDefinition(classDef);
 }
 
-void Script::Bindings::RegisterHealthComponent(sol::state_view p_luaState)
+void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::MeshComponent>(
+		"MeshComponent",
+		"SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
+		"GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
+		"SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
+		"GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
+		"SetVSGUID", &Scene::MeshComponent::SetVSGUID,
+		"GetVSGUID", &Scene::MeshComponent::GetVSGUID,
+		"SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
+		"GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
+		"SetTESGUID", &Scene::MeshComponent::SetTESGUID,
+        "GetTESGUID", &Scene::MeshComponent::GetTESGUID,
+		"SetGSGUID", &Scene::MeshComponent::SetGSGUID,
+		"GetGSGUID", &Scene::MeshComponent::GetGSGUID,
+		"HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
+		"GetsBounds", &Scene::MeshComponent::GetBounds
+	);
+
+    LuaClassDefinition classDef;
+    classDef.name = "MeshComponent";
+
+    classDef.functions = {
+        {"GetTypeName", "string", {}},
+
+        {"SetMeshGUID", "void", {{"guid", "GUID"}}},
+        {"GetMeshGUID", "GUID", {}},
+
+        {"SetTextureGUID", "void", {{"guid", "GUID"}}},
+        {"GetTextureGUID", "GUID", {}},
+
+        {"SetVSGUID", "void", {{"guid", "GUID"}}},
+        {"GetVSGUID", "GUID", {}},
+
+        {"SetTCSGUID", "void", {{"guid", "GUID"}}},
+        {"GetTCSGUID", "GUID", {}},
+
+        {"SetTESGUID", "void", {{"guid", "GUID"}}},
+        {"GetTESGUID", "GUID", {}},
+
+        {"SetGSGUID", "void", {{"guid", "GUID"}}},
+        {"GetGSGUID", "GUID", {}},
+
+        {"SetFSGUID", "void", {{"guid", "GUID"}}},
+        {"GetFSGUID", "GUID", {}},
+
+        {"HasBoundsOverride", "boolean", {}},
+        {"GetBounds", "NodeBounds", {}}
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_enum<PhysicsComponent::ShapeType>(
+		"ShapeType",
+		{
+            {"None", PhysicsComponent::ShapeType::None},
+            {"Box", PhysicsComponent::ShapeType::Box},
+            {"Sphere",  PhysicsComponent::ShapeType::Sphere},
+            {"Capsule", PhysicsComponent::ShapeType::Capsule},
+            {"Mesh", PhysicsComponent::ShapeType::Mesh},
+            {"ConvexHull", PhysicsComponent::ShapeType::ConvexHull},
+            {"Compound", PhysicsComponent::ShapeType::Compound},
+            {"Player", PhysicsComponent::ShapeType::Player}  
+		}
+	);
+
+    p_luaState.new_usertype<PhysicsComponent>(
+        "PhysicsComponent",
+
+        "GetTypeName", &PhysicsComponent::GetTypeName,
+
+        // Collider configuration
+        "SetBoxCollider",
+        [](PhysicsComponent &p_component,
+            const glm::vec3 &p_halfExtents,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetBoxCollider(
+                p_halfExtents,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        "SetSphereCollider",
+        [](PhysicsComponent &p_component,
+            float p_radius,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetSphereCollider(
+                p_radius,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        "SetCapsuleCollider",
+        [](PhysicsComponent &p_component,
+            float p_halfHeight,
+            float p_radius,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetCapsuleCollider(
+                p_halfHeight,
+                p_radius,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        "SetMeshCollider",
+        [](PhysicsComponent &p_component,
+            GUID p_meshGuid,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetMeshCollider(
+                p_meshGuid,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        "SetConvexHullCollider",
+        [](PhysicsComponent &p_component,
+            GUID p_meshGuid,
+            float p_edgeRadius,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetConvexHullCollider(
+                p_meshGuid,
+                p_edgeRadius,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        "SetPlayerCollider",
+        [](PhysicsComponent &p_component,
+            float p_halfHeight,
+            float p_radius,
+            const glm::vec3 &p_offset)
+        {
+            p_component.SetPlayerCollider(
+                p_halfHeight,
+                p_radius,
+                GLMtoJPH(p_offset)
+            );
+        },
+
+        // Body configuration
+        "SetMotionType", &PhysicsComponent::SetMotionType,
+        "SetObjectLayer", &PhysicsComponent::SetObjectLayer,
+        "SetActive", &PhysicsComponent::SetActive,
+        "RemoveCollider", &PhysicsComponent::RemoveCollider
+    );
+
+
+    LuaClassDefinition classDef;
+    classDef.name = "PhysicsComponent";
+
+    classDef.functions = {
+        {"GetTypeName", "string", {}},
+
+        {"SetBoxCollider", "void", {
+            {"halfExtents", "Vec3"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetSphereCollider", "void", {
+            {"radius", "number"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetCapsuleCollider", "void", {
+            {"halfHeight", "number"},
+            {"radius", "number"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetMeshCollider", "void", {
+            {"meshGuid", "GUID"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetConvexHullCollider", "void", {
+            {"meshGuid", "GUID"},
+            {"edgeRadius", "number"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetPlayerCollider", "void", {
+            {"halfHeight", "number"},
+            {"radius", "number"},
+            {"offset", "Vec3"}
+        }},
+
+        {"SetMotionType", "void", {
+            {"motionType", "MotionType"}
+        }},
+
+        {"SetObjectLayer", "void", {
+            {"objectLayer", "Layers"}
+        }},
+
+        {"SetActive", "void", {
+            {"active", "boolean"}
+        }},
+
+        {"RemoveCollider", "void", {}}
+    };
+
+	LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::HealthComponent>(
 		"HealthComponent",
@@ -320,7 +536,7 @@ void Script::Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 
 }
 
-void Script::Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
+void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::PlayerComponent>(
 		"PlayerComponent",
@@ -338,7 +554,7 @@ void Script::Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
-void Script::Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
+void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
