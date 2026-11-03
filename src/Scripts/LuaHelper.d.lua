@@ -1519,6 +1519,12 @@ end
 ---@class Scene
 Scene = {}
 
+---@param id integer
+---@return Node | nil
+function Scene:FindNodeById(id)
+    return nil
+end
+
 ---@param ray Ray
 ---@return tuple<Node, RayHit>
 function Scene:RaycastNode(ray)

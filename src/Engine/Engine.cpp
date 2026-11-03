@@ -81,11 +81,10 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
-    // ------
 
+	// Register base items and set the item registry for the scene manager
 	Droplet::Game::RegisterBaseItems(m_itemRegistry);
 	m_sceneManager.SetItemRegistry(&m_itemRegistry);
-
 
 	// Register engine behaviours
 	RegisterBehaviours();
