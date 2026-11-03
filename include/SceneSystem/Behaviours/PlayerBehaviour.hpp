@@ -68,6 +68,26 @@ namespace Droplet::Scene
         /// @return The player's current heat level.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
 
+        //Inventory
+        [[nodiscard]] std::string GetItemId() const
+        { 
+            for (int x = 0; x < m_data.playerInventory.size(); x++)
+            {
+                return m_data.playerInventory[x].itemId;
+            }
+        }
+        [[nodiscard]] std::uint32_t GetCount() const 
+        { 
+            for (int x = 0; x < m_data.playerInventory.size(); x++)
+            {
+                return m_data.playerInventory[x].count;
+            };
+        }
+        [[nodiscard]] std::uint32_t GetPlayerInventorySize() const
+        {
+            return m_data.playerInventory.size();
+        }
+
     protected:
         /// @brief Renders the behaviour's properties in the editor.
         void RenderUIImpl() override;

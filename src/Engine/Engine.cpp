@@ -227,4 +227,5 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("OffTriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
 }

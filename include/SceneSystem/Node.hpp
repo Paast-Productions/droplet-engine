@@ -135,7 +135,6 @@ namespace Droplet::Scene
         [[nodiscard]] PlayerBehaviour &GetPlayerData() { return m_playerBehaviour; } // TODO: Make weak pointer
         [[nodiscard]] const PlayerBehaviour &GetPlayerData() const { return m_playerBehaviour; } // TODO: Make weak pointer
 
-
         // --------------------------------------------------
         // Children 
         // --------------------------------------------------

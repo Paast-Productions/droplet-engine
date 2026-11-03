@@ -1,10 +1,22 @@
 {
-    "name": "UpgradeDrone",
+    "name": "DroneUpgrade",
     "roots": [
         {
             "active": true,
             "children": [],
             "components": [
+                {
+                    "data": {
+                        "filepath": "Drone-Upgrade-Station.lua"
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "data": null,
+                    "id": 2,
+                    "type": "TriggerComponent"
+                },
                 {
                     "data": {
                         "fs": 13680123319807966343,
@@ -17,23 +29,21 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "WoodTexture",
-                        "textureGUID": 1466059150086384494,
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
-                    "id": 1,
+                    "id": 3,
                     "type": "MeshComponent"
                 },
                 {
-                    "data": {
-                        "filepath": "Drone-Upgrade-Station.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
+                    "data": null,
+                    "id": 4,
+                    "type": "TriggerComponent"
                 }
             ],
-            "id": 9,
+            "id": 2,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -84,72 +94,19 @@
                     },
                     "id": 2,
                     "type": "ScriptComponent"
-                },
-                {
-                    "data": {
-                        "filepath": "TempRaycast.lua"
-                    },
-                    "id": 3,
-                    "type": "ScriptComponent"
                 }
             ],
-            "id": 10,
+            "id": 3,
             "name": "New Node",
             "transform": {
                 "position": [
-                    10.103314399719238,
-                    -1.043624758720398,
-                    0.4592703580856323
+                    10.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
-                    -2.9802322387695313e-08,
-                    -2.984261016081291e-08,
-                    -6.826810050597487e-08
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [],
-            "components": [
-                {
-                    "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Cube.004",
-                        "meshGUID": 12885130674664679680,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
-                    },
-                    "id": 1,
-                    "type": "MeshComponent"
-                }
-            ],
-            "id": 11,
-            "name": "New Node",
-            "transform": {
-                "position": [
-                    0.0,
-                    0.0,
-                    -9.854434967041016
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
+                    7.450580596923828e-09,
                     0.0,
                     0.0
                 ],

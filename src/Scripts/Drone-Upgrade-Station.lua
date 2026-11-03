@@ -4,32 +4,13 @@ local amountOfMaterial
 local trans = nil
 local touchedTheMesh = false
 local player = nil
---local inventory = nil   
---local interactionRadius = 3.0 
 
---function DroneIsNear()
-    --DOTO INCLUDE PLAYER INSTEAD OF CUBEPOS
-    --local cubePos = helper.cubePos()
-
-    --local TablePos = cubeTrans:GetPosition(TransformSpace.World)
-    --local vectorToTable = GLM.V3Sub(TablePos, cubePos)
-    --local distance = GLM.V3Length(vectorToTable)
-    
-    --ImGui.Text("Table distance: " .. string.format("%.2f", distance))
-
-    --if distance <= interactionRadius then
-        --print("cube is near!")
-        
-        --if Input:KeyPressed(Key.E) then
-            --print("interact with table!")
-        --end
-    --end
---end
 function Upgrade()
+    print("Material station:")
     local priceOfItem = 10;
     -- Example of how to handle crafting logic
     -- DOTO CHANGE THE PRICE FOR EACH ITEM
-    if(itemToCraft and priceOfItem <= amountOfMaterial) then
+    if(priceOfItem <= amountOfMaterial) then
         -- Check if the player has the required items for crafting
         -- If they do, perform the crafting logic
         newItem = "pink light"
@@ -42,11 +23,11 @@ function Upgrade()
 end
 
 function Crafting()
-    print("Interacted witer:")
+    print("Crafting station:")
     -- Example of how to handle crafting logic
     -- DOTO CHANGE THE PRICE FOR EACH ITEM
     local priceOfItem = 2;
-    if(itemToCraft and priceOfItem <= amountOfFish) then
+    if(priceOfItem <= amountOfFish) then
         -- Check if the player has the required items for crafting
         -- If they do, perform the crafting logic
         newItem = "wood"
@@ -61,9 +42,16 @@ end
 function OnStart()
     print("Drone Upgrade Station")
     trans = self:GetTransform()
-    player = self:GetplayerData()
+    player = self:GetPlayerData()
+
     if player then
-        local inventory = player:GetData()
+        local size = player:InventorySize()
+        for i = 0, size - 1 do
+            local ItemId = player:InventoryItemId(i)
+            local count = player:InventoryCount(i)
+            print("ItemId [" .. i .. "]: " .. ItemId)
+            print("count [" .. i .. "]: " .. tostring(count))
+        end
     end
 end
 
@@ -78,6 +66,7 @@ function OnUpdate()
     if touchedTheMesh then
         if Input:KeyPressed(Key.E) then
             Crafting()
+            touchedTheMesh = false
         end
     end
 end
