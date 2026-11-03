@@ -87,6 +87,11 @@ function Node:GetPlayerComponent()
     return nil
 end
 
+---@return DamageComponent
+function Node:GetDamageComponent()
+    return nil
+end
+
 ---@class Transform
 Transform = {}
 
@@ -1668,6 +1673,14 @@ ItemRegistry = {}
 ---@param name string
 ---@return ItemId
 function ItemRegistry:Find(name)
+    return nil
+end
+
+---@class DamageComponent
+DamageComponent = {}
+
+---@return DamageComponent
+function DamageComponent:GetDamageComponent()
     return nil
 end
 
