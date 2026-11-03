@@ -11,6 +11,7 @@
 #include <BoundsBindings.hpp>
 #include <SceneBindings.hpp>
 #include <ComponentsBindings.hpp>
+#include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
 #include <Component.hpp>
@@ -47,6 +48,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterDebugDraw(p_luaState);
 	RegisterScenes(p_luaState, p_sceneManager);
 	RegisterComponents(p_luaState);
+	RegisterOctree(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";

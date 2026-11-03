@@ -1796,3 +1796,54 @@ function PlayerBehaviour:SetHeatLevel(amount)
     return nil
 end
 
+---@class Octree
+Octree = {}
+
+---@param node Node
+function Octree:AddNode(node)
+end
+
+---@param node Node
+function Octree:RemoveNode(node)
+end
+
+---@param frustum Frustum
+---@return Node[]
+function Octree:GetNodesFromCulling(frustum)
+    return nil
+end
+
+---@param frustum Frustum
+---@return Node[]
+function Octree:GetNodesFullyInFrustum(frustum)
+    return nil
+end
+
+---@param ray Ray
+---@return tuple<Node, RayHit>
+function Octree:GetNodeFromRaycast(ray)
+    return nil
+end
+
+---@param ray Ray
+---@return Node[]
+function Octree:GetNodesFromRaycast(ray)
+    return nil
+end
+
+---@param obb OBB
+---@return Node[]
+function Octree:GetNodesFromOBB(obb)
+    return nil
+end
+
+---@return string
+function Octree:ToGraphviz()
+    return ""
+end
+
+---@return string
+function Octree:ToGraphvizTree()
+    return ""
+end
+

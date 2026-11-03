@@ -56,6 +56,9 @@
 !/Samples
 !/Samples/**
 src/Graphics/VK/Shaders/slang.spv
+src/Scripts/LuaHelper.d.lua
 
 !/GameData
 !/GameData/**
+
+
