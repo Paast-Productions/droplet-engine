@@ -2,7 +2,7 @@
 #include <ImGui/imgui.h>
 #include <string>
 #include <Resource/GuidUtils.hpp>
-#include <Resource/IResource.hpp>
+#include <Resource/IStaticResource.hpp>
 
 namespace Droplet::Editor
 {
@@ -17,7 +17,7 @@ namespace Droplet::Editor
     struct ResourcePayload
     {
         GUID guid;
-        ResourceType type;
+        StaticResourceType type;
         char name[256];
     };
 }

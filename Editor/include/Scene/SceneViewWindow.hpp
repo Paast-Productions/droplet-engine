@@ -1,4 +1,6 @@
 #pragma once
+
+// TODO: Fix the ordering
 #include <vector>
 #include <memory>
 #include <Ray.hpp>
@@ -10,6 +12,7 @@
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
+#include <Resource/DynamicResourceHandle.hpp>
 #include <Engine.hpp>
 
 namespace Droplet::Editor::Scene
@@ -52,11 +55,11 @@ namespace Droplet::Editor::Scene
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
 
-		/// @brief The index of the texture that the renderer will render to
-		std::uint32_t m_targetIndex { Graphics::VK::INVALID_INDEX };
+		/// @brief The handle of the texture that the renderer will render to
+		DynamicResourceHandle<Graphics::RenderTarget> m_renderTargetHandle {};
 
 		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		std::uint32_t m_textureIndex { Graphics::VK::INVALID_INDEX };
+		std::uint32_t m_textureIndex { Graphics::VK::C_INVALID_INDEX };
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.

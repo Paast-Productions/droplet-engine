@@ -30,8 +30,22 @@ namespace Droplet::Graphics::VK
 {
     // TODO: <REFACTOR>
     // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something
-    constexpr std::uint32_t INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
+    constexpr std::uint32_t C_INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
     // TODO: </REFACTOR>
+    
+    enum class DynamicResourceType : std::uint8_t 
+    {
+        Buffer = 0, 
+        Image = 1,
+        INVALID = std::numeric_limits<std::uint8_t>::max()
+    };
+    
+    struct DynamicLiveResource
+    {
+        DynamicResourceType type { DynamicResourceType::INVALID };
+        std::uint32_t refCount {};
+        std::unique_ptr<IDynamicResource> resource { nullptr };
+    };
     
     struct PipelineKey
     {
@@ -156,6 +170,15 @@ namespace Droplet::Graphics::VK
         IntermediaryStorage& operator=(const IntermediaryStorage &p_other) = delete;
         IntermediaryStorage(IntermediaryStorage &&p_other) noexcept = delete;
         IntermediaryStorage& operator=(IntermediaryStorage &&p_other) noexcept = delete;
+            
+        template <typename T>
+        [[nodiscard]] T* GetLiveObject(GUID p_guid) const;
+        
+        [[nodiscard]] std::uint32_t GetLiveObjectRefCount(GUID p_guid) const;
+        void IncrementRef(GUID p_guid);
+        void DecrementRef(GUID p_guid);
+        
+        void QueueForDestruction(GUID p_guid);
         
         /// @brief Creates Vulkan buffer with the inputted resource type
         /// @param p_data Data to store in the buffer
@@ -175,7 +198,8 @@ namespace Droplet::Graphics::VK
         /// @param p_width Width of the render target in pixels
         /// @param p_height Height of the render target in pixels
         /// @returns Index to the render target
-        [[nodiscard]] std::uint32_t CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
+        [[nodiscard]] RenderTarget CreateRenderTarget(
+            std::uint32_t p_width, std::uint32_t p_height);
         
         /// @brief Getter function for a render target at a specified index
         /// @param p_index Index of the render target
@@ -235,8 +259,12 @@ namespace Droplet::Graphics::VK
         /// @param p_commandPool
         void Initialise(const Context &p_context, const CommandPool &p_commandPool);
         
-        /// @brief Shutdown and clear all vulkan memory allocations
+        /// @brief Shutdown and clear all vulkan memory allocations  
         void Shutdown();
+        
+        DynamicResourceHandle<Image> CreateColourImage();
+        DynamicResourceHandle<ImageView> CreateColourImageView();
+        
         
         /// @brief Getter function for the VMA allocator
         /// @returns VMA allocator
@@ -288,11 +316,14 @@ namespace Droplet::Graphics::VK
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
+        // TODO: Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
         std::vector<RenderTarget> m_renderTargets {};
         std::vector<PresentTarget> m_presentTargets {};
         std::vector<UniformBuffer> m_uniformBuffers {};
+        
+        // TODO: Remove?
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
@@ -308,6 +339,32 @@ namespace Droplet::Graphics::VK
             VkDescriptorSet descriptorSet;
         };
         std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};
+        
+        // NEW STUFF
+        
+        void DestroyUnusedResources();
+        
+        std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
+        std::queue<GUID> m_destroyQueue {};
+        
+        // DESCRIPTORS
+        
+        // Types of Descriptor Sets:
+        // - Sampler
+        // - Combined Image Sampler
+        // - Sampled Image
+        // - Uniform Texel Buffer
+        // - Storage Texel Buffer
+        // - Uniform Buffer
+        // - Storage Buffer
+        // - Uniform Buffer Dynamic
+        // - Storage Buffer Dynamic
+        // - Input Attachment
+        
+        std::vector<Image> m_newImage {};
+        std::vector<vma::raii::Buffer> m_newUniformBuffer {};
+        //std::vector<StorageBuffer>
+        
     };
 }
 

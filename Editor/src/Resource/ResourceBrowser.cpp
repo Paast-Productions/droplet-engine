@@ -474,7 +474,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 	switch (p_entry.type)
 	{
-	case ResourceType::Texture2D:
+	case StaticResourceType::Texture2D:
 		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
 		{
 			if (m_previewResourceHandle.IsValid())
@@ -484,19 +484,19 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			m_isPreviewResourceLoaded = false;
 
-			ResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
+			StaticResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
 				p_entry.guid,
-				[this](ResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
+				[this](StaticResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
 			);
 
-			m_previewResourceHandle = ResourceHandle<IResource>(textureHandle.GetGUID(), &resManInstance);
+			m_previewResourceHandle = StaticResourceHandle<IStaticResource>(textureHandle.GetGUID(), &resManInstance);
 		}
 
 		if (m_isPreviewResourceLoaded)
 		{
 			GUID guid = m_previewResourceHandle.GetGUID();
 
-			ResourceHandle<Texture2DResource> texHandle = ResourceHandle<Texture2DResource>(guid, &resManInstance);
+			StaticResourceHandle<Texture2DResource> texHandle = StaticResourceHandle<Texture2DResource>(guid, &resManInstance);
 			Texture2DResource *texture = texHandle.Get();
 
 			// Calculate the size to maintain aspect ratio
@@ -530,13 +530,13 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		break;
 
 	default:
-	case ResourceType::None:
-	case ResourceType::Texture3D:
-	case ResourceType::Mesh:
-	case ResourceType::SkinnedMesh:
-	case ResourceType::Animation:
-	case ResourceType::Shader:
-	case ResourceType::Material:
+	case StaticResourceType::None:
+	case StaticResourceType::Texture3D:
+	case StaticResourceType::Mesh:
+	case StaticResourceType::SkinnedMesh:
+	case StaticResourceType::Animation:
+	case StaticResourceType::Shader:
+	case StaticResourceType::Material:
 		// Draw text in center of the preview area
 		ImVec2 textSize = CalcTextSize("No Preview Available");
 		SetCursorPosX(regionCenter.x - textSize.x * 0.5f);
@@ -618,23 +618,23 @@ void ResourceBrowser::RegisterAsset()
 	}
 }
 
-std::string ResourceBrowser::ResourceTypeToString(ResourceType p_type)
+std::string ResourceBrowser::ResourceTypeToString(StaticResourceType p_type)
 {
 	switch (p_type)
 	{
-		case ResourceType::Animation:
+		case StaticResourceType::Animation:
 			return "Animation";
-		case ResourceType::Material:
+		case StaticResourceType::Material:
 			return "Material";
-		case ResourceType::Mesh:
+		case StaticResourceType::Mesh:
 			return "Mesh";
-		case ResourceType::Shader:
+		case StaticResourceType::Shader:
 			return "Shader";
-		case ResourceType::SkinnedMesh:
+		case StaticResourceType::SkinnedMesh:
 			return "Skinned Mesh";
-		case ResourceType::Texture2D:
+		case StaticResourceType::Texture2D:
 				return "2D Texture";
-		case ResourceType::Texture3D:
+		case StaticResourceType::Texture3D:
 			return "3D Texture";
 		default:
 			return "None";

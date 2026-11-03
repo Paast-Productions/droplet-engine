@@ -191,7 +191,7 @@ static void PhysicsTest()
     rm.Initialize(ROOT_PATH "/Assets");
     rm.RegisterResourceType<Droplet::MeshResource>();
     rm.RegisterAsset("Seafloor.fbx");
-    const Droplet::ResourceHandle<Droplet::MeshResource> rh = rm.LoadResource<Droplet::MeshResource>(12751091778080588892);
+    const Droplet::StaticResourceHandle<Droplet::MeshResource> rh = rm.LoadResource<Droplet::MeshResource>(12751091778080588892);
 
     Droplet::Time &time = Droplet::Time::Get();
     float timePassed = 0.0f;

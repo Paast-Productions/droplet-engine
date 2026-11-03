@@ -6,6 +6,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
+#include <Resource/DynamicResourceHandle.hpp>
 #include <Graphics/VK/ShaderModule.hpp> 
 
 using namespace Droplet::Graphics::VK;
@@ -49,16 +50,110 @@ void IntermediaryStorage::Shutdown()
     m_context = { nullptr };
 }
 
-std::uint32_t IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+
+std::uint32_t IntermediaryStorage::GetLiveObjectRefCount(GUID p_guid) const
 {
-    m_renderTargets.emplace_back(
-        m_allocator.Get(),
-        m_context->GetDevice(),
-        m_context->GetPhysicalDevice(),
-        p_width,
-        p_height);
+    return m_liveObjects.at(p_guid).refCount;
+}
+
+void IntermediaryStorage::IncrementRef(GUID p_guid)
+{
+    ++m_liveObjects.at(p_guid).refCount;
+}
+
+void IntermediaryStorage::DecrementRef(GUID p_guid)
+{
+    --m_liveObjects.at(p_guid).refCount;
+}
+
+void IntermediaryStorage::QueueForDestruction(GUID p_guid)
+{
+    m_destroyQueue.push(p_guid);
+}
+
+void IntermediaryStorage::DestroyUnusedResources()
+{
+    while (!m_destroyQueue.empty())
+    {
+        const GUID guid = m_destroyQueue.front();
+        const auto& it { m_liveObjects.find(guid) };
+        
+        if (it != m_liveObjects.end())
+        {
+            m_liveObjects.erase(it);
+        } 
+        
+        m_destroyQueue.pop();
+    }
+}
+
+Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+{
+    // Create Colour Image
     
-    return static_cast<std::uint32_t>(m_renderTargets.size() - 1);
+    DynamicLiveResource colourImage 
+    {
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    GUID colourImageGuid { GuidUtils::Generate() };
+    m_liveObjects[colourImageGuid] = std::move(colourImage);
+    
+    DynamicResourceHandle<Image> colourImageHandle { colourImageGuid };
+    
+    // Create Colour Image View
+    
+    DynamicLiveResource colourImageView 
+    {
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())
+    };
+    
+    GUID colourImageViewGuid { GuidUtils::Generate() };
+    m_liveObjects[colourImageViewGuid] = std::move(colourImageView);
+    
+    DynamicResourceHandle<ImageView> colourImageViewHandle { colourImageViewGuid };
+    
+    // Create Depth Image
+    
+    DynamicLiveResource depthImage
+    {
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD24UnormS8Uint, 
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    GUID depthImageGuid { GuidUtils::Generate() };
+    m_liveObjects[depthImageGuid] = std::move(depthImage);
+    
+    DynamicResourceHandle<Image> depthImageHandle { depthImageGuid };
+    
+    // Create Depth Image View
+    
+    DynamicLiveResource depthImageView 
+    {
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD24UnormS8Uint,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+    
+    GUID depthImageViewGuid { GuidUtils::Generate() };
+    m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
+    
+    DynamicResourceHandle<ImageView> { depthImageViewGuid };
+    
+    return { colourImageGuid };
 }
 
 std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height)
@@ -133,11 +228,11 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
 
     // IF FAILED, CREATE NEW
     ResourceManager& RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
-    ResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
-    ResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
-    ResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
-    ResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
+    StaticResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
+    StaticResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
+    StaticResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
+    StaticResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
+    StaticResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
 
     if
     (
@@ -251,7 +346,7 @@ const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
     if (it == m_indexMap.end())
     {
         ResourceManager& RMInstance = ResourceManager::GetInstance();
-        ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
+        StaticResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
 
         if (!(meshRes.IsReady() || meshRes.HasFailed()))
         {
@@ -301,7 +396,7 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     }
 
     ResourceManager& RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_renderData.texData.GUID);
+    StaticResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_renderData.texData.GUID);
 
     if (!(texRes.IsReady() || texRes.HasFailed()))
     {
@@ -365,7 +460,7 @@ VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)
     }
 
     ResourceManager &RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
+    StaticResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
 
     if (!(texRes.IsReady() || texRes.HasFailed()))
     {

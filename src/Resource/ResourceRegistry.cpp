@@ -81,14 +81,14 @@ namespace Droplet
         return false; // Asset is not registered
     }
 
-    std::vector<const MetaEntry *> ResourceRegistry::GetEntries(ResourceType p_type) const
+    std::vector<const MetaEntry *> ResourceRegistry::GetEntries(StaticResourceType p_type) const
     {
         std::vector<const MetaEntry *> result;
         result.reserve(m_guidToEntryMap.size());
         
         for (const auto &[guid, entry] : m_guidToEntryMap)
         {
-            if (p_type == ResourceType::None || entry.type == p_type)
+            if (p_type == StaticResourceType::None || entry.type == p_type)
             {
                 result.push_back(&entry);
             }

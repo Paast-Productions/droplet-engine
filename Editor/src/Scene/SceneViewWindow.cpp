@@ -157,8 +157,8 @@ void SceneViewWindow::InitImpl()
 	using namespace Graphics::VK;
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
-	m_targetIndex = instance.CreateRenderTarget(720, 720);
-	m_textureIndex = instance.CreateImGuiTexture(instance.GetRenderTargetAt(m_targetIndex));
+	m_renderTargetHandle = instance.CreateRenderTarget(720, 720);
+	m_textureIndex = instance.CreateImGuiTexture(instance.GetRenderTargetAt(m_renderTargetHandle));
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -290,7 +290,7 @@ void SceneViewWindow::RenderImpl()
 	GameInput &input = GameInput::Get();
 	float contentAspect = contentRegion.x / contentRegion.y;
 	vk::Extent2D extent = Droplet::Graphics::VK::IntermediaryStorage::GetInstance()
-								.GetRenderTargetAt(m_targetIndex)
+								.GetRenderTargetAt(m_renderTargetHandle)
 								.GetExtent();
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
@@ -1063,5 +1063,5 @@ void SceneViewWindow::DrawCameraPivot() const
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height)
 {
-	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(m_targetIndex, m_textureIndex, width, height);
+	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(m_renderTargetHandle, m_textureIndex, width, height);
 }

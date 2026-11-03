@@ -9,7 +9,7 @@
 #include <typeindex>
 
 #include "resource/ResourceTraits.hpp"
-#include "resource/ResourceHandle.hpp"
+#include "resource/StaticResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
@@ -31,7 +31,7 @@ namespace Droplet
     /// @brief Contains relevant information about a specific loaded resource.
     struct LiveResource
     {
-        std::unique_ptr<IResource> resource = nullptr;
+        std::unique_ptr<IStaticResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
         uint32_t refCount = 0;
         
@@ -44,7 +44,7 @@ namespace Droplet
         bool succeeded = true;
         
         GUID guid;
-        IResource* resource = nullptr;
+        IStaticResource* resource = nullptr;
         ResourceLoadFlag loadFlags;
     };
 
@@ -53,12 +53,12 @@ namespace Droplet
     {
         std::filesystem::path relAssetPath;
         std::filesystem::path absoluteMetaPath;
-        std::vector<std::pair<ResourceType, std::string>> foundResources;
+        std::vector<std::pair<StaticResourceType, std::string>> foundResources;
         bool succeeded = false;
         std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
     };
     
-    using AssetScannerFunc = std::vector<std::pair<ResourceType, std::string>>(*)(const std::filesystem::path &);
+    using AssetScannerFunc = std::vector<std::pair<StaticResourceType, std::string>>(*)(const std::filesystem::path &);
 
     /// @brief Universal resource manager class.
     class ResourceManager
@@ -108,9 +108,9 @@ namespace Droplet
         /// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
         /// @return A handle to the resource. Make sure to check its validity before use.
         template<typename T>
-        [[nodiscard]] ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
+        [[nodiscard]] StaticResourceHandle<T> LoadResource(GUID p_guid, std::function<void(StaticResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
-            static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource");
+            static_assert(std::is_base_of_v<IStaticResource, T>, "T must inherit from IResource");
             assert(m_isInitialized && "ResourceManager is not initialized.");
 
             MetaEntry metaEntry;
@@ -118,7 +118,7 @@ namespace Droplet
             {
                 // Handle missing resource
                             // TODO: Log this as a warning/error
-                return ResourceHandle<T>(C_INVALID_GUID, this);
+                return StaticResourceHandle<T>(C_INVALID_GUID, this);
             }
             
             bool loadAsync = false;
@@ -131,7 +131,7 @@ namespace Droplet
                 loadAsync = true;
             }
             
-            ResourceHandle<T> handle(p_guid, this);
+            StaticResourceHandle<T> handle(p_guid, this);
 
             // Handle callback
             if (p_onLoadCallback)
@@ -162,7 +162,7 @@ namespace Droplet
         /// @brief Retrieves a list of registered resources, optionally filtered by type.
         /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
         /// @return A vector of pointers to the registered metadata entries.
-        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type = ResourceType::None) const;
+        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(StaticResourceType p_type = StaticResourceType::None) const;
         
         /// @brief Meta entry data for a specific resource.
         /// @param p_guid The GUID of the resource.
@@ -173,7 +173,7 @@ namespace Droplet
         /// @brief Retrieves the schema descriptor for the load settings of a specific resource.
         /// @param p_type The resource type to get the schema for.
         /// @return A list of descriptors detailing the valid fields, types and values.
-        [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type) const;
+        [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(StaticResourceType p_type) const;
 
         /// @brief Updated the meta entry for a specific resource and optionally triggers a hot-reload of that resource.
         /// @note This function will reject updates if the resource is currently being loaded or uploaded.
@@ -208,11 +208,11 @@ namespace Droplet
         template<typename T>
         void RegisterResourceType()
         {
-            static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource.");
+            static_assert(std::is_base_of_v<IStaticResource, T>, "T must inherit from IResource.");
             
             m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback(); // Create fallback resource
             
-            ResourceType type = ResourceTraits<T>::GetType();
+            StaticResourceType type = ResourceTraits<T>::GetType();
             m_loadDispatchers[type] = [this](GUID p_guid, MetaEntry p_metaEntry)
             {
                 PushWorkerLoadTask<T>(p_guid, p_metaEntry);
@@ -272,7 +272,7 @@ namespace Droplet
         /// @param p_foundResources The resources found in the asset file.
         /// @return The updated list of resources that should be listed for the asset.
         std::vector<MetaEntry> CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath, 
-            const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
+            const std::vector<std::pair<StaticResourceType, std::string>> &p_foundResources);
 
         /// @brief Pushes a load task to the worker thread pool.
         /// @tparam T The resource to load.
@@ -302,8 +302,8 @@ namespace Droplet
         ResourceRegistry m_registry;
         std::unordered_map<GUID, LiveResource> m_liveResources;
         
-        std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
-        std::unordered_map<ResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
+        std::unordered_map<std::type_index, std::unique_ptr<IStaticResource>> m_fallbackResources;
+        std::unordered_map<StaticResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
         std::unordered_map<std::string, AssetScannerFunc> m_assetScanners;
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
@@ -312,6 +312,6 @@ namespace Droplet
     
 }
 
-#include "resource/ResourceHandle.inl" // Included here to avoid circular definitions
+#include "resource/StaticResourceHandle.inl" // Included here to avoid circular definitions
 
 

@@ -1,59 +1,39 @@
-﻿#pragma once
+#pragma once
 
-#include "resource/GuidUtils.hpp"
+#include <Resource/IStaticResource.hpp>
+#include <Resource/IDynamicResource.hpp>
 
 namespace Droplet
 {
-    class ResourceManager;
-
-    /// @brief Proxy object for a resource managed by a resource manager.
-    /// @tparam T The resource type that the handle is referencing.
     template<typename T>
     class ResourceHandle
     {
     public:
+        static_assert(std::derived_from<T, IStaticResource> || std::derived_from<T, IDynamicResource>);
+        
         ResourceHandle() = default;
-        ResourceHandle(GUID p_guid, ResourceManager *p_resourceManager);
-        ~ResourceHandle();
         
-        ResourceHandle(const ResourceHandle &other);
-        ResourceHandle& operator=(const ResourceHandle &p_other);
-        ResourceHandle(ResourceHandle &&p_other) noexcept;
-        ResourceHandle& operator=(ResourceHandle &&p_other) noexcept;
+        ResourceHandle(GUID p_guid) :
+            m_guid(p_guid) {}
         
-        /// @return True if the handle is valid, otherwise false.
-        bool IsValid() const;
+        ResourceHandle(const ResourceHandle &p_other) = default;
+        ResourceHandle &operator=(const ResourceHandle &p_other) = default;
+        ResourceHandle(ResourceHandle &&p_other) noexcept = default;
+        ResourceHandle &operator=(ResourceHandle &&p_other) noexcept = default;
 
-        /// @return The globally unique identifier for the resource the handle is referencing.
-        GUID GetGUID() const;
+        virtual ~ResourceHandle() = default;
         
-        /// @return True if resource is queued, otherwise false.
-        bool IsQueued() const;
+        GUID GetGUID() const { return m_guid; }
         
-        /// @return True if resource is currently loading, otherwise false.
-        bool IsLoading() const; 
+        virtual bool IsValid() const = 0; 
         
-        /// @return True if resource is ready to be used, otherwise false.
-        bool IsReady() const;
+        virtual T* Get() const = 0;
+        virtual std::uint32_t GetRef() const = 0;
         
-        /// @return True if resource failed to load, otherwise false.
-        bool HasFailed() const;
+    protected:
+        virtual void IncrementRef() = 0;
+        virtual void DecrementRef() = 0;
         
-        /// @return The loaded resource stored within the central resource manager, or nullptr if the load failed.
-        T *Get() const;
-        
-        uint32_t GetRef();
-    private:
-        GUID m_guid = 0;
-        ResourceManager *m_resourceManager = nullptr;
-
-        /// @brief Increments the reference of the resource the handle is referencing.
-        void IncrementRef();
-
-        /// @brief Decrements the reference count of the resource the handle is referencing.
-        void DecrementRef();
+        GUID m_guid {};
     };
-    
 }
-
-#include "resource/ResourceManager.hpp"

@@ -21,7 +21,7 @@ DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::D
     {
         .binding = 0,
         .descriptorType = m_descriptorType,
-        .descriptorCount = std::numeric_limits<std::uint8_t>::max(), 
+        .descriptorCount = DESCRIPTOR_COUNT, 
         .stageFlags = vk::ShaderStageFlagBits::eAll
     };
     
@@ -134,4 +134,23 @@ void DescriptorSet::WriteDescriptor(const vk::raii::Device &p_device, const vk::
     };
     
     p_device.updateDescriptorSets(descriptorWrite, {});
+}
+
+std::uint32_t DescriptorSet::GetNextAvailableIndex()
+{
+    for (std::uint32_t i = 0; i < m_available.size(); ++i)
+    {
+        if (!m_available.test(i))
+        {
+            m_available.set(i);
+            return i;
+        }
+    }
+    
+    throw std::runtime_error(std::format("[ERROR / OUT OF MEMORY]: Descriptor Set with descriptor type {0} is out of memory. Max size is {1}", static_cast<std::uint32_t>(m_descriptorType), m_available.size()));
+}
+
+void DescriptorSet::ClearIndex(const std::uint32_t p_index)
+{
+    m_available.reset(p_index);
 }

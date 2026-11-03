@@ -7,11 +7,12 @@
 
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Context.hpp>
+#include <Graphics/VK/ImageView.hpp>
 
 namespace Droplet::Graphics::VK
 {
 	/// @brief Image class for storing textures/image buffers to be bound to shader stages
-	class Image
+	class Image : public IDynamicResource
 	{
 	public:
 		Image()
@@ -43,8 +44,8 @@ namespace Droplet::Graphics::VK
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
 		Image(const vma::raii::Allocator &p_allocator,
-			const Droplet::Graphics::VK::CommandPool &p_commandPool,
-			const Droplet::Graphics::VK::Context &p_context,
+			const CommandPool &p_commandPool,
+			const Context &p_context,
 			const std::byte *p_pixels,
 			std::size_t p_size,
 			std::uint32_t p_width,
@@ -69,17 +70,18 @@ namespace Droplet::Graphics::VK
 			vk::ImageTiling p_tiling,
 			vk::ImageUsageFlags p_usage,
 			vk::MemoryPropertyFlags p_properties);
-	
+		
 		// TODO: </REFACTOR>
 		
-		Image(vma::raii::Image &&p_image) { m_image = std::move(p_image); }
+		// What is this, and why?
+		Image(vma::raii::Image &&p_image) { std::swap(m_image, p_image); }
 		
 		Image(const Image &p_other) = delete;
 		Image &operator=(const Image &p_other) = delete;
 		
 		Image(Image &&p_other) noexcept
 		{
-			m_image = std::move(p_other.m_image);
+			std::swap(m_image, p_other.m_image);
 		}
 		
 		Image &operator=(Image &&p_other) noexcept
@@ -89,12 +91,12 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_image = std::move(p_other.m_image); 
+			std::swap(m_image, p_other.m_image); 
 			
 			return *this;
 		}
 
-		~Image() = default;
+		~Image() final = default;
 		
 		bool operator==(const Image &p_other) const
 		{
@@ -106,7 +108,7 @@ namespace Droplet::Graphics::VK
 		[[nodiscard]] const vma::raii::Image &Get() const { return m_image; }
 
 	private:
-		vma::raii::Image m_image = nullptr;
+		vma::raii::Image m_image { nullptr };
 		
 	};
 }

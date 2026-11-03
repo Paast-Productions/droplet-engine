@@ -1,6 +1,6 @@
 #include "resource/io/AssimpFormat.hpp"
 
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 #include "resource/meta/MetaUtils.hpp"
 
 #include <vector>
@@ -470,13 +470,13 @@ std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(cons
 	return std::make_unique<AnimationResource>(animation);
 }
 
-std::vector<std::pair<ResourceType, std::string>> Droplet::IO::AssimpFormat::ScanAssetResources(const std::filesystem::path &p_assetPath)
+std::vector<std::pair<StaticResourceType, std::string>> Droplet::IO::AssimpFormat::ScanAssetResources(const std::filesystem::path &p_assetPath)
 {
 	ZoneScoped;
 
     thread_local Assimp::Importer s_importer;
         
-	std::vector<std::pair<ResourceType, std::string>> resourceList{};
+	std::vector<std::pair<StaticResourceType, std::string>> resourceList{};
 	const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), 0);
 
 	if (meshData == nullptr)
@@ -491,13 +491,13 @@ std::vector<std::pair<ResourceType, std::string>> Droplet::IO::AssimpFormat::Sca
 		for (std::uint32_t i = 0; i < meshData->mNumMeshes; i++)
 		{
 			const aiMesh *mesh = meshData->mMeshes[i];
-			resourceList.emplace_back(ResourceType::Mesh, mesh->mName.C_Str());
+			resourceList.emplace_back(StaticResourceType::Mesh, mesh->mName.C_Str());
 
 			// Meshes with bone data can additionally be loaded as skinned meshes
 			if (mesh->HasBones())
 			{
 				hasSkinnedMesh = true;
-				resourceList.emplace_back(ResourceType::SkinnedMesh, mesh->mName.C_Str());
+				resourceList.emplace_back(StaticResourceType::SkinnedMesh, mesh->mName.C_Str());
 			}
 		}
 
@@ -505,7 +505,7 @@ std::vector<std::pair<ResourceType, std::string>> Droplet::IO::AssimpFormat::Sca
 		{
 			for (std::uint32_t i = 0; i < meshData->mNumAnimations; i++)
 			{
-				resourceList.emplace_back(ResourceType::Animation, meshData->mAnimations[i]->mName.C_Str());
+				resourceList.emplace_back(StaticResourceType::Animation, meshData->mAnimations[i]->mName.C_Str());
 			}
 		}
 	}

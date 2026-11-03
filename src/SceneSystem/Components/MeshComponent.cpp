@@ -64,7 +64,7 @@ void MeshComponent::RenderUIImpl()
             m_meshDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Mesh))
+            Droplet::StaticResourceType::Mesh))
         {
             SetMeshGUID(newGUID);
 			m_meshDisplayName = newName;
@@ -79,7 +79,7 @@ void MeshComponent::RenderUIImpl()
             m_textureDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Texture2D))
+            Droplet::StaticResourceType::Texture2D))
         {
             SetTextureGUID(newGUID);
 			m_textureDisplayName = newName;
@@ -96,7 +96,7 @@ void MeshComponent::RenderUIImpl()
             m_vsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader,
+            Droplet::StaticResourceType::Shader,
             Droplet::ShaderResource::ShaderType::Vertex))
         {
             SetVSGUID(newGUID);
@@ -111,7 +111,7 @@ void MeshComponent::RenderUIImpl()
             m_tcsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader,
+            Droplet::StaticResourceType::Shader,
             Droplet::ShaderResource::ShaderType::TessellationControl))
         {
             SetTCSGUID(newGUID);
@@ -126,7 +126,7 @@ void MeshComponent::RenderUIImpl()
             m_tesDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader,
+            Droplet::StaticResourceType::Shader,
             Droplet::ShaderResource::ShaderType::TessellationEvaluation))
         {
             SetTESGUID(newGUID);
@@ -141,7 +141,7 @@ void MeshComponent::RenderUIImpl()
             m_gsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader,
+            Droplet::StaticResourceType::Shader,
             Droplet::ShaderResource::ShaderType::Geometry))
         {
             SetGSGUID(newGUID);
@@ -156,7 +156,7 @@ void MeshComponent::RenderUIImpl()
             m_fsDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::Shader,
+            Droplet::StaticResourceType::Shader,
             Droplet::ShaderResource::ShaderType::Fragment))
         {
             SetFSGUID(newGUID);

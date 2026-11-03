@@ -192,7 +192,7 @@ namespace Droplet
         });
     }
     
-    std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(ResourceType p_type) const
+    std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(StaticResourceType p_type) const
     {
         return m_registry.GetEntries(p_type);
     }
@@ -202,7 +202,7 @@ namespace Droplet
         return m_registry.GetResourceMetaData(p_guid, p_metaEntry);
     }
 
-    std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(ResourceType p_type) const
+    std::vector<MetaLoadSettings::Descriptor> ResourceManager::GetSettingsSchema(StaticResourceType p_type) const
     {
         return MetaUtils::GetSettingsSchema(p_type);
     }
@@ -386,7 +386,7 @@ namespace Droplet
     }
 
     std::vector<MetaEntry> ResourceManager::CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath,
-                                                                      const std::vector<std::pair<ResourceType, std::string>> &p_foundResources)
+                                                                      const std::vector<std::pair<StaticResourceType, std::string>> &p_foundResources)
     {
         ZoneScoped;
 

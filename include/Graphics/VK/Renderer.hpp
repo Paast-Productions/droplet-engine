@@ -34,7 +34,10 @@
 #include <ImGui/imgui_impl_vulkan.h>
 #undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
-namespace Droplet{class Engine;}
+namespace Droplet
+{
+	class Engine;
+}
 
 // HACK: Implementation subject to change
 
@@ -112,7 +115,7 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 		
-		std::uint32_t m_vpBufferIndex { INVALID_INDEX };
+		std::uint32_t m_vpBufferIndex { C_INVALID_INDEX };
 		
 		bool m_framebufferResized { false };
 		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 

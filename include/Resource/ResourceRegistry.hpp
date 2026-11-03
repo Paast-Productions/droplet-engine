@@ -33,7 +33,7 @@ namespace Droplet
         /// @brief Retrieves a list of all resources in the registry, optionally filtered by type.
         /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
         /// @return A vector of pointers to the registered metadata entries.
-        std::vector<const MetaEntry *> GetEntries(ResourceType p_type = ResourceType::None) const;
+        std::vector<const MetaEntry *> GetEntries(StaticResourceType p_type = StaticResourceType::None) const;
 
         /// @brief Registers and updates a resource in the registry.
         /// @param p_relAssetPath The path to the asset file relative to the directory that was scanned for meta entries.

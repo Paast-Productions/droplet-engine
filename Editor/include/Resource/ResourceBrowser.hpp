@@ -55,7 +55,7 @@ namespace Droplet::Editor::Resource
         /// @brief Converts a resource type enum to a string.
         /// @param p_type The resource type to convert.
         /// @return String representing the resource type.
-        std::string ResourceTypeToString(ResourceType p_type);
+        std::string ResourceTypeToString(StaticResourceType p_type);
 
 	    EditorContext *m_editorContext { nullptr };
 	    
@@ -65,7 +65,7 @@ namespace Droplet::Editor::Resource
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
 	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
-		ResourceHandle<IResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
+		StaticResourceHandle<IStaticResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
 	    
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
