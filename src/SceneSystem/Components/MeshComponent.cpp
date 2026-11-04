@@ -2,6 +2,7 @@
 
 #include <ImGui/imgui.h>
 
+#include <SceneSystem/Scene.hpp>
 #include <Editor/DragDropFields.hpp>
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
@@ -61,18 +62,26 @@ void MeshComponent::UpdateImpl()
 	//TODO: will be inplemted later when the mesh system is implemented
 }
 
-void MeshComponent::GetRenderData(Graphics::RenderData &p_renderData)
+void MeshComponent::QueueRenderImpl()
 {
-	p_renderData.fsData.GUID = m_shaderData.fs.GetGUID();
+	GetOwner()->GetScene()->QueueRenderable(shared_from_this());
+}
 
-	p_renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
-	p_renderData.tesData.GUID = m_shaderData.tes.GetGUID();
-	p_renderData.gsData.GUID = m_shaderData.gs.GetGUID();
-	p_renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
+{
+	Droplet::Graphics::RenderData renderData{};
+	renderData.fsData.GUID = m_shaderData.fs.GetGUID();
 
-	p_renderData.meshData.GUID = m_mesh.GetGUID();
+	renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
+	renderData.tesData.GUID = m_shaderData.tes.GetGUID();
+	renderData.gsData.GUID = m_shaderData.gs.GetGUID();
+	renderData.vsData.GUID = m_shaderData.vs.GetGUID();
 
-	p_renderData.texData.GUID = m_2dTexture.GetGUID();
+	renderData.meshData.GUID = m_mesh.GetGUID();
+
+	renderData.texData.GUID = m_2dTexture.GetGUID();
+
+	return renderData;
 }
 
 void MeshComponent::RenderUIImpl()

@@ -11,7 +11,8 @@ LuaStateHandler::LuaStateHandler()
 		sol::lib::base,
 		sol::lib::math,
 		sol::lib::string,
-		sol::lib::table
+		sol::lib::table,
+		sol::lib::package
 	);
 }
 

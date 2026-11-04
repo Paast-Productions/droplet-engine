@@ -21,6 +21,8 @@
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 #include <AudioSystem/AudioMixer.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
+
 namespace Droplet
 {
 	enum class DROPLET_RETURNTYPE
@@ -52,7 +54,11 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update(Droplet::Graphics::Camera &p_camera);
+		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		
+		/// @brief Will render the subsystems. Is needed to run anything.
+		/// @return The droplet returntype can be used to detemine if the render was successful or not.
+		[[nodiscard]] DROPLET_RETURNTYPE Render(Graphics::CameraRenderData *camRenderData = nullptr);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -98,6 +104,9 @@ namespace Droplet
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
+
+		/// @brief Registry containing the game's registered item definitions.
+		Droplet::Game::ItemRegistry m_itemRegistry;
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;

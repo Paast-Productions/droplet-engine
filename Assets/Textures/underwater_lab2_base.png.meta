@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "underwater_lab2_base",
+            "guid": 17525405162226008434,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "underwater_lab2_base",
+            "type": 1
+        }
+    ]
+}

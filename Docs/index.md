@@ -1,4 +1,4 @@
-# Index {#mainpage}
+# Droplet {#mainpage}
 
 **Droplet** is the name of the game engine built for *Project Thalassa*.
 

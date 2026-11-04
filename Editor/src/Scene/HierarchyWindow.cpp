@@ -79,11 +79,16 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode("Scene Selection"))
     {
         DrawSceneWindow();
         ImGui::TreePop();
     }
+
+    ImGui::EndDisabled();
 
     if (ImGui::Button("Add Node"))
     {
@@ -122,6 +127,8 @@ void HierarchyWindow::RenderImpl()
         ImGui::EndPopup();
     }
 
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+
     ImGui::SeparatorText(scene->GetName().c_str());
 
     // Reserve a thin strip on the left for dropping nodes as roots.
@@ -157,7 +164,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -192,10 +199,14 @@ void HierarchyWindow::RenderImpl()
     m_visibleNodeRects.clear();
     m_rangeSelectTarget = nullptr;
 
+    ImGui::EndDisabled();
+
     for (const auto &root : scene->GetRoots())
     {
         DrawNode(root);
     }
+
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (m_rangeSelectTarget)
@@ -249,7 +260,7 @@ void HierarchyWindow::RenderImpl()
 
                     if (oldParent)
                     {
-                        oldParent->RemoveChild(node);
+                        oldParent->RemoveChild(node, true);
                     }
                 }
             }
@@ -291,10 +302,10 @@ void HierarchyWindow::RenderImpl()
 
             if (oldParent)
             {
-                oldParent->RemoveChild(node);
+                oldParent->RemoveChild(node, true);
             }
 
-            m_newParent->AddChild(node);
+            m_newParent->AddChild(node, true);
         }
     }
 
@@ -324,6 +335,8 @@ void HierarchyWindow::RenderImpl()
         }
         m_nodesToRemove.clear();
     }
+
+    ImGui::EndDisabled();
 }
 
 void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
@@ -450,24 +463,27 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
 
-    if (ImGui::BeginDragDropTarget())
+    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
     {
-        if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
+        if (ImGui::BeginDragDropTarget())
         {
-            if (payload->Data != nullptr && payload->DataSize > 0)
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
             {
-                const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
-                const std::string scenePath(droppedData->path);
-                const std::string sceneName(droppedData->name);
-                m_editorContext->GetActiveScene().get()->SetActive(false);
-                m_editorContext->LoadFromFile(scenePath);
-                m_editorContext->SetActiveScene(sceneName);
-                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
-                fileName[sizeof(fileName) - 1] = '\0';
+                if (payload->Data != nullptr && payload->DataSize > 0)
+                {
+                    const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
+                    const std::string scenePath(droppedData->path);
+                    const std::string sceneName(droppedData->name);
+                    m_editorContext->GetActiveScene().get()->SetActive(false);
+                    m_editorContext->LoadFromFile(scenePath);
+                    m_editorContext->SetActiveScene(sceneName);
+                    std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+                    fileName[sizeof(fileName) - 1] = '\0';
+                }
             }
+            ImGui::EndDragDropTarget();
         }
-        ImGui::EndDragDropTarget();
-    }
+    }    
 }
 
 
@@ -577,7 +593,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
         }
 
 
- 
+
         if (ImGui::BeginPopupContextItem())
         {
             if (ImGui::MenuItem("Add Child"))
@@ -669,9 +685,13 @@ void HierarchyWindow::HandleRectSelection(const ImVec2 &p_emptyAreaMin, const Im
     // Start the drag when pressing in the empty area below the nodes
     if (!m_marqueeActive)
     {
-        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Left)
-            && !ImGui::IsAnyItemActive() && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
-            && !IsOverNodeRow(io.MousePos))
+		ImGuiHoveredFlags hoverFlags = 
+            ImGuiHoveredFlags_AllowWhenBlockedByPopup | 
+            ImGuiHoveredFlags_AllowWhenBlockedByActiveItem;
+
+        if (ImGui::IsWindowHovered(hoverFlags) && ImGui::IsMouseClicked(ImGuiMouseButton_Left) 
+            && ImGui::IsMouseHoveringRect(p_emptyAreaMin, p_emptyAreaMax)
+            && !ImGui::IsAnyItemActive() && !IsOverNodeRow(io.MousePos))
         {
             m_marqueeActive = true;
             m_marqueeStart = io.MousePos + scroll;

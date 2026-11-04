@@ -6,13 +6,21 @@
 #include <vector>
 #include <json/json.hpp>
 
-#include <Graphics/RenderData.hpp>
+namespace Droplet::Graphics
+{
+	struct CameraRenderData;
+}
+
+namespace Droplet::Game { class ItemRegistry; }
+
 
 namespace Droplet::Scene
 {
     class Scene;
     class Behaviour;
     class Node;
+	class CameraComponent;
+
     /// @brief Manages the Scenes used by the application.
     ///
     /// SceneManager is responsible for loading, unloading, activating,
@@ -80,7 +88,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the Scene, or nullptr if the
         /// Scene is not loaded.
-        std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
+        [[nodiscard]] std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
 
         /// @brief Gets the currently active Scenes.
         ///
@@ -90,18 +98,16 @@ namespace Droplet::Scene
         ///
         /// @return A constant reference to the list of active Scene
         /// weak pointers.
-        const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
+        [[nodiscard]] const std::vector<std::weak_ptr<Scene>> &GetActiveScenes() const;
 
         /// @brief Updates all active Scenes.
-        ///
-        /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        void Update(float p_deltaTime);
+        void Update();
 
         /// @brief Returns Renderdata for all active scenes
-        ///
-        /// @note This function is currently a placeholder and does not
-        /// perform any rendering.
-        [[nodiscard]] std::vector<Droplet::Graphics::RenderData> GetRenderData();
+        [[nodiscard]] std::vector<Droplet::Graphics::CameraRenderData> GetRenderData();
+
+		/// @brief Performs post-rendering operations for all active Scenes.
+		void PostRender();
 
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize
@@ -110,12 +116,12 @@ namespace Droplet::Scene
 
         /// @brief Loads a scene from a file
         /// @param p_filePath The name of the file the scene is serialized in
-        void LoadFromFile(const std::string& p_filePath);
+        void LoadFromFile(const std::string &p_filePath);
 
         /// @brief Serializes a lonesome node to a josn file
         /// @param p_node the node to be serialized
         /// @param p_filePath the filepath
-        void SerializeNodeToFile(const Droplet::Scene::Node &p_node, const std::string &p_filePath);
+        void SerializeNodeToFile(const Node &p_node, const std::string &p_filePath);
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
@@ -125,16 +131,28 @@ namespace Droplet::Scene
         /// @param p_behaviourTypeName The type name of the behaviour to start.
 		/// @return A shared pointer to the started Behaviour.
 		/// @throws std::runtime_error if the behaviour type is not registered or cannot be started.
-		std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
+        [[nodiscard]] std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
 
         /// @brief Shuts down a behaviour.
 		/// @param p_behaviour A weak pointer to the behaviour to shut down.
 		void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour);
+        
+		/// @brief Gets the main camera of all active scenes.
+		/// @return A weak pointer to the CameraComponent at the end of the camera stack.
+        [[nodiscard]] std::weak_ptr<CameraComponent> GetMainCamera() const;
+
+        void SetItemRegistry(const Droplet::Game::ItemRegistry *p_reg) { m_itemRegistry = p_reg; }
+
+        [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
 
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
+        const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
+
+        /// @brief Prepares all active Scenes for rendering.
+        void PrepareRender();
     };
 }
