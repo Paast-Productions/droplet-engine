@@ -14,7 +14,14 @@ CameraComponent::~CameraComponent()
 {
 	if (m_textureIndex != Graphics::VK::INVALID_INDEX)
 	{
-		Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+		try // HACK: Until destruction order has been corrected
+		{
+			Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+		}
+		catch (...)
+		{
+			
+		}
 	}
 }
 
