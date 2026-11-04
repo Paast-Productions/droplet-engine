@@ -50,7 +50,7 @@ namespace Droplet::Editor
 
 		/// @brief Get the mixer
 		/// @return the mixer
-		//TODO[[nodiscard]] Audio::AudioSystem &GetAudioSystem();
+		[[nodiscard]] Audio::AudioSystem &GetAudioSystem();
 
 		AudioMixerEditorState &GetAudioMixerState() { return m_selectedBus; }
 		/// @breif Lets the context set a new active scene

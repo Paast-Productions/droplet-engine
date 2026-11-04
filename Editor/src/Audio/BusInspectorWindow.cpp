@@ -20,44 +20,44 @@ void Droplet::Editor::BusInspectorWindow::CloseImpl()
 
 void Droplet::Editor::BusInspectorWindow::RenderImpl()
 {
-	//const Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	const Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
 
-	//AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 
-	//if (state.selectedAudioBusID.has_value())
-	//{
-	//	m_currentBus = mixer.FindAudioBus(state.selectedAudioBusID.value());
-	//}
-	//if (m_currentBus == nullptr)
-	//{
-	//	m_currentBus = mixer.GetMasterBus();
-	//}
-	////Push ID
-	//uintptr_t busNumber = (uintptr_t)m_currentBus;
-	//std::string busString = std::to_string(busNumber);
-	//ImGui::PushID(busString.c_str());
+	if (state.selectedAudioBusID.has_value())
+	{
+		m_currentBus = mixer.FindAudioBus(state.selectedAudioBusID.value());
+	}
+	if (m_currentBus == nullptr)
+	{
+		m_currentBus = mixer.GetMasterBus();
+	}
+	//Push ID
+	uintptr_t busNumber = (uintptr_t)m_currentBus;
+	std::string busString = std::to_string(busNumber);
+	ImGui::PushID(busString.c_str());
 
-	////name
-	//std::string busName = m_currentBus->GetName();
-	//if (ImGui::InputText("Bus Name", &busName))
-	//{
-	//	m_currentBus->SetName(busName);
-	//}
+	//name
+	std::string busName = m_currentBus->GetName();
+	if (ImGui::InputText("Bus Name", &busName))
+	{
+		m_currentBus->SetName(busName);
+	}
 
-	////Active
-	//bool active = m_currentBus->IsActive();
-	//if (ImGui::Checkbox("Active", &active))
-	//{
-	//	m_currentBus->SetActive(active);
-	//}
+	//Active
+	bool active = m_currentBus->IsActive();
+	if (ImGui::Checkbox("Active", &active))
+	{
+		m_currentBus->SetActive(active);
+	}
 
-	////Volume
-	//float volume = m_currentBus->GetVolume();
-	//if (ImGui::SliderFloat("Bus Volume", &volume, 0.0f, 2.0f, "%.3f"))
-	//{
-	//	m_currentBus->SetVolume(volume);
-	//}
+	//Volume
+	float volume = m_currentBus->GetVolume();
+	if (ImGui::SliderFloat("Bus Volume", &volume, 0.0f, 2.0f, "%.3f"))
+	{
+		m_currentBus->SetVolume(volume);
+	}
 
 
-	//ImGui::PopID();
+	ImGui::PopID();
 }

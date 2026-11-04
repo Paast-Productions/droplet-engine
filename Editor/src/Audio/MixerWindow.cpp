@@ -16,85 +16,85 @@ void Droplet::Editor::MixerWindow::CloseImpl()
 
 void Droplet::Editor::MixerWindow::RenderImpl()
 {
-	//Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
-	//AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+	Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 
-	//Audio::AudioBus *selectedBus = nullptr;
+	Audio::AudioBus *selectedBus = nullptr;
 
-	//if (state.selectedAudioBusID.has_value())
-	//{
-	//	selectedBus = mixer.FindAudioBus(state.selectedAudioBusID.value());
-	//	if (selectedBus == nullptr)
-	//	{
-	//		state.selectedAudioBusID.reset();
-	//	}
-	//}
+	if (state.selectedAudioBusID.has_value())
+	{
+		selectedBus = mixer.FindAudioBus(state.selectedAudioBusID.value());
+		if (selectedBus == nullptr)
+		{
+			state.selectedAudioBusID.reset();
+		}
+	}
 
-	//if (ImGui::Button("Add Bus"))
-	//{
-	//	Audio::AudioBus *newBus =
-	//		mixer.AddAudioBus("New Bus", mixer.GetMasterBus());
+	if (ImGui::Button("Add Bus"))
+	{
+		Audio::AudioBus *newBus =
+			mixer.AddAudioBus("New Bus", mixer.GetMasterBus());
 
-	//	if (newBus != nullptr)
-	//	{
-	//		state.selectedAudioBusID = newBus->GetID();
-	//	}
-	//}
+		if (newBus != nullptr)
+		{
+			state.selectedAudioBusID = newBus->GetID();
+		}
+	}
 
-	//ImGui::SeparatorText("Bus hierarchy");
-	//ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
-	//const ImVec2 available = ImGui::GetContentRegionAvail();
-	//constexpr float rootDropWidth = 8.0f;
+	ImGui::SeparatorText("Bus hierarchy");
+	ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
+	const ImVec2 available = ImGui::GetContentRegionAvail();
+	constexpr float rootDropWidth = 8.0f;
 
-	////Fixed stripe
+	//Fixed stripe
 
-	//ImGui::BeginChild("RootDropStripe", ImVec2(rootDropWidth, available.y), false);
-	//ImGui::InvisibleButton("RootDropTarget", ImVec2(rootDropWidth, available.y));
+	ImGui::BeginChild("RootDropStripe", ImVec2(rootDropWidth, available.y), false);
+	ImGui::InvisibleButton("RootDropTarget", ImVec2(rootDropWidth, available.y));
 
-	//const ImVec2 stripeMin = ImGui::GetItemRectMin();
-	//const ImVec2 stripeMax = ImGui::GetItemRectMax();
+	const ImVec2 stripeMin = ImGui::GetItemRectMin();
+	const ImVec2 stripeMax = ImGui::GetItemRectMax();
 
-	//ImGui::GetWindowDrawList()->AddRectFilled(stripeMin, stripeMax, IM_COL32(90, 130, 180, 100));
-	//HandleBusDropTarget(mixer.GetMasterBus());
-	//ImGui::EndChild();
-	//ImGui::SameLine();
+	ImGui::GetWindowDrawList()->AddRectFilled(stripeMin, stripeMax, IM_COL32(90, 130, 180, 100));
+	HandleBusDropTarget(mixer.GetMasterBus());
+	ImGui::EndChild();
+	ImGui::SameLine();
 
-	//ImGui::BeginChild("BusTree", ImVec2(0.0f, available.y), false);
+	ImGui::BeginChild("BusTree", ImVec2(0.0f, available.y), false);
 
-	//DrawBus(mixer.GetMasterBus());
+	DrawBus(mixer.GetMasterBus());
 
-	//const ImVec2 remaining = ImGui::GetContentRegionAvail();
+	const ImVec2 remaining = ImGui::GetContentRegionAvail();
 
-	//if (remaining.y > 0.0f)
-	//{
-	//	ImGui::InvisibleButton("BottomRootDropTarget", ImVec2(remaining.x, remaining.y));
-	//	HandleBusDropTarget(mixer.GetMasterBus());
-	//}
+	if (remaining.y > 0.0f)
+	{
+		ImGui::InvisibleButton("BottomRootDropTarget", ImVec2(remaining.x, remaining.y));
+		HandleBusDropTarget(mixer.GetMasterBus());
+	}
 
-	//ImGui::EndChild();
-	//ImGui::EndChild();
+	ImGui::EndChild();
+	ImGui::EndChild();
 
-	//if (m_pendingReparent.has_value())
-	//{
-	//	const PendingReparent &operation = m_pendingReparent.value();
+	if (m_pendingReparent.has_value())
+	{
+		const PendingReparent &operation = m_pendingReparent.value();
 
-	//	Audio::AudioBus *bus = mixer.FindAudioBus(operation.busID);
-	//	Audio::AudioBus *parent = mixer.FindAudioBus(operation.newParentID);
+		Audio::AudioBus *bus = mixer.FindAudioBus(operation.busID);
+		Audio::AudioBus *parent = mixer.FindAudioBus(operation.newParentID);
 
-	//	if (bus != nullptr && parent != nullptr)
-	//	{
-	//		mixer.SetBusParent(bus, parent);
-	//	}
-	//	m_pendingReparent.reset();
-	//}
-	//
-	//if (m_pendingRemoveBusID.has_value())
-	//{
-	//	const uint64_t operation = m_pendingRemoveBusID.value();
-	//	mixer.RemoveAudioBus(operation);
+		if (bus != nullptr && parent != nullptr)
+		{
+			mixer.SetBusParent(bus, parent);
+		}
+		m_pendingReparent.reset();
+	}
+	
+	if (m_pendingRemoveBusID.has_value())
+	{
+		const uint64_t operation = m_pendingRemoveBusID.value();
+		mixer.RemoveAudioBus(operation);
 
-	//	m_pendingRemoveBusID.reset();
-	//}
+		m_pendingRemoveBusID.reset();
+	}
 }
 
 void Droplet::Editor::MixerWindow::RenderToolbar()
@@ -103,7 +103,7 @@ void Droplet::Editor::MixerWindow::RenderToolbar()
 
 void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 {
-	/*if (p_bus == nullptr)
+	if (p_bus == nullptr)
 	{
 		return;
 	}
@@ -179,32 +179,32 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 		}
 		ImGui::TreePop();
 	}
-	ImGui::PopID();*/
+	ImGui::PopID();
 }
 
 void Droplet::Editor::MixerWindow::HandleBusDropTarget(Audio::AudioBus *p_parent)
 {
-	//if (p_parent == nullptr)
-	//{
-	//	return;
-	//}
-	//if (ImGui::BeginDragDropTarget())
-	//{
-	//	const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+	if (p_parent == nullptr)
+	{
+		return;
+	}
+	if (ImGui::BeginDragDropTarget())
+	{
+		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
 
-	//	if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
-	//	{
-	//		std::uint64_t draggedBusID = 0;
-	//		std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
+		if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
+		{
+			std::uint64_t draggedBusID = 0;
+			std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
 
-	//		Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
-	//		Audio::AudioBus *draggedBus = mixer.FindAudioBus(draggedBusID);
+			Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+			Audio::AudioBus *draggedBus = mixer.FindAudioBus(draggedBusID);
 
-	//		if (draggedBus != nullptr && draggedBus != mixer.GetMasterBus() && !p_parent->IsDecendantOf(draggedBus))
-	//		{
-	//			m_pendingReparent = PendingReparent{ draggedBusID, p_parent->GetID() };
-	//		}
-	//	}
-	//	ImGui::EndDragDropTarget();
-	//}
+			if (draggedBus != nullptr && draggedBus != mixer.GetMasterBus() && !p_parent->IsDecendantOf(draggedBus))
+			{
+				m_pendingReparent = PendingReparent{ draggedBusID, p_parent->GetID() };
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
 }

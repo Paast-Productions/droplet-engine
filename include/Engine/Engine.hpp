@@ -70,7 +70,7 @@ namespace Droplet
 		
 		/// @brief Is meant to enable other classes to use functionality in the audiomixer
 		/// @return A reference to the engines Audio mixer
-		//[[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }
+		[[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }
 
 		/// @brief Getter for the window of the engine
 		/// @return An SDL window handle

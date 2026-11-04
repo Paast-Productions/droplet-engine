@@ -18,8 +18,6 @@ namespace Droplet::Audio
 
 		void Initialize();
 		
-
-
 	private:
 
 		dalia::Engine m_daliaEngine;
