@@ -190,6 +190,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		{
 			ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
+			switch (engine.Update())
+			{
+			case Droplet::DROPLET_RETURNTYPE::OK:
+				break;
+
+			case Droplet::DROPLET_RETURNTYPE::EXIT:
+				run = false;
+				break;
+
+			default:
+			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+				run = false;
+				break;
+			}
+
 			EditorConfig::Update();
 
 			if (pendingLayoutChange != "")
@@ -215,6 +230,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			ImGui::NewFrame();
 			ImGui::DockSpaceOverViewport();
 			ImGuizmo::BeginFrame();
+
+			ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+			ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 			// Main toolbar
 			{
@@ -424,7 +442,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				hierarchyWindow.Render();
 			}
-
 			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
 			{
 				nodeInspectorWindow.Render();
@@ -450,24 +467,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				resourceBrowser.Render();
 			}
 
+
 			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
-			}
-
-			switch (engine.Update())
-			{
-			case Droplet::DROPLET_RETURNTYPE::OK:
-				break;
-
-			case Droplet::DROPLET_RETURNTYPE::EXIT:
-				run = false;
-				break;
-
-			default:
-			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
-				run = false;
-				break;
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
