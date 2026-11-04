@@ -61,4 +61,5 @@ function OnUpdate(dt)
 end
 
 function RenderUI()
+    ImGui.Text("WARNING: This script only rotates the node around the local x-axis using the mouse.")
 end

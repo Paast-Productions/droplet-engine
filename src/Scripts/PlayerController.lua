@@ -48,4 +48,5 @@ function OnUpdate(dt)
 end
 
 function RenderUI()
+    ImGui.Text("WARNING: This script rotates the node around the world y-axis using the mouse.")
 end
