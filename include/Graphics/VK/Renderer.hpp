@@ -70,7 +70,7 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, DynamicResourceHandle<RenderTarget> &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates sync objects for preventing race conditions etc

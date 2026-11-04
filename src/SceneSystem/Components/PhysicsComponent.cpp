@@ -506,7 +506,7 @@ void PhysicsComponent::RenderUIImpl()
 				for (const std::shared_ptr<MeshComponent> &m : meshComponents)
 				{
 					Droplet::MetaEntry metaEntry{};
-					if (Droplet::ResourceManager::Get().GetResourceMetaEntry(m->GetMeshGUID(), metaEntry))
+					if (Droplet::ResourceManager::GetInstance().GetResourceMetaEntry(m->GetMeshGUID(), metaEntry))
 					{
 						meshNames.push_back(metaEntry.displayName);
 					}
@@ -1149,7 +1149,7 @@ void PhysicsComponent::DebugDrawShape()
 
 JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)
 {
-	StaticResourceHandle<MeshResource> meshHandle = ResourceManager::Get().LoadResource<MeshResource>(p_meshGuid);
+	StaticResourceHandle<MeshResource> meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(p_meshGuid);
 	MeshResource *mesh = meshHandle.Get();
 	const std::size_t C_BYTES_PER_VERTEX = mesh->GetVertexByteSize();
 	const std::size_t C_VERTEX_COUNT = mesh->GetVertexData().size() / C_BYTES_PER_VERTEX;

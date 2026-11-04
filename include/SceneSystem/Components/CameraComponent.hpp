@@ -1,6 +1,8 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
+#include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/VK/ImGuiTexture.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 #include <Graphics/DrawLayer.hpp>
@@ -46,11 +48,11 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
 		void ClearRenderData() { m_renderData.clear(); }
 
-        [[nodiscard]] std::uint32_t GetTargetIndex() const { return m_targetIndex; }
-        void SetTargetIndex(std::uint32_t p_renderTarget) { m_targetIndex = p_renderTarget; }
+        [[nodiscard]] Graphics::RenderTarget GetTarget() const { return m_target; }
+        void SetTarget(Graphics::RenderTarget p_renderTarget) { m_target = p_renderTarget; }
 
-        [[nodiscard]] std::uint32_t GetTextureIndex() const { return m_textureIndex; }
-        void SetTextureIndex(std::uint32_t p_textureIndex) { m_textureIndex = p_textureIndex; }
+        [[nodiscard]] Graphics::ImGuiTexture GetTexture() const { return m_texture; }
+        void SetTexture(Graphics::ImGuiTexture p_textureIndex) { m_texture = p_textureIndex; }
 
     protected:
         void StartImpl() override;
@@ -69,8 +71,8 @@ namespace Droplet::Scene
 		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
 		int32_t m_priority{ 0 };
 
-        std::uint32_t m_targetIndex{ Graphics::VK::INVALID_INDEX }; // The index of the texture that the camera will render to
-        std::uint32_t m_textureIndex{ Graphics::VK::INVALID_INDEX }; // The index of the texture that ImGui uses to render the camera view
+        Graphics::RenderTarget m_target { }; // The index of the texture that the camera will render to
+        Graphics::ImGuiTexture m_texture { }; // The index of the texture that ImGui uses to render the camera view
 		glm::ivec2 m_resolution{ 256, 256 };
 		bool m_dirty{ true };
 

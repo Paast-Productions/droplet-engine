@@ -2,7 +2,9 @@
 
 #include <functional>
 
-#include <vulkan/vulkan.h>
+#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
+#include <vulkan/vulkan_raii.hpp>
+#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
 #include <Graphics/VK/PresentTarget.hpp>
 #include <Graphics/VK/Pipeline.hpp>
@@ -19,6 +21,7 @@
 
 namespace Droplet
 {
+    // Forward declarations
     template <typename>
     class DynamicResourceHandle;
 }
@@ -29,6 +32,7 @@ namespace Droplet::Graphics
     class Renderer;
     class Context;
     class RenderTarget;
+    class ImGuiTexture; 
 }
 
 namespace Droplet::Graphics::VK
@@ -40,8 +44,10 @@ namespace Droplet::Graphics::VK
     
     enum class DynamicResourceType : std::uint8_t 
     {
-        Buffer = 0, 
+        Buffer = 0,
         Image = 1,
+        ImageView = 2,
+        ImGuiTexture = 3,
         INVALID = std::numeric_limits<std::uint8_t>::max()
     };
     
@@ -183,7 +189,7 @@ namespace Droplet::Graphics::VK
         void IncrementRef(GUID p_guid);
         void DecrementRef(GUID p_guid);
         
-        void QueueForDestruction(GUID p_guid);
+        void MoveToDestructionQueue(GUID p_guid);
         
         /// @brief Creates Vulkan buffer with the inputted resource type
         /// @param p_data Data to store in the buffer
@@ -204,6 +210,13 @@ namespace Droplet::Graphics::VK
         /// @param p_height Height of the render target in pixels
         /// @returns Index to the render target
         [[nodiscard]] RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
+        
+        [[nodiscard]] RenderTarget CreateRenderTarget(GUID p_colourImageGuid,
+            GUID p_colourImageViewGuid,
+            GUID p_depthImageGuid,
+            GUID p_depthImageViewGuid, 
+            std::uint32_t p_width,
+            std::uint32_t p_height);
         
         /// @brief Getter function for a render target at a specified index
         /// @param p_index Index of the render target
@@ -229,7 +242,7 @@ namespace Droplet::Graphics::VK
         /// @brief Creates an ImGui texture based on a render target
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
-        [[nodiscard]] std::uint32_t CreateImGuiTexture(const RenderTarget &p_renderTarget);
+        [[nodiscard]] ImGuiTexture CreateImGuiTexture(const RenderTarget &p_renderTarget);
 
 		/// @brief Removes an ImGui texture at a specified index
 		/// @param p_index Index of the ImGui texture to remove
@@ -241,11 +254,11 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] vk::DescriptorSet &GetImGuiTextureAt(const std::uint32_t p_index) { return m_imGuiTextures.at(p_index); }
         
         /// @brief Recreates render target and ImGui texture and updates them with new params
-        /// @param p_targetIndex Index of the render target
+        /// @param p_target Index of the render target
         /// @param p_textureIndex Index of the texture
         /// @param p_width Width of the new render target in pixels
         /// @param p_height Height of the new render target in pixels
-        void UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height);
+        void UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height);
         
         // TODO: <REFACTOR>
         // Maybe move to separate class etc.
@@ -336,20 +349,20 @@ namespace Droplet::Graphics::VK
         std::map<std::uint64_t, vk::DescriptorSet> m_imGuiTextures {};
         
         // TEMP
-        struct ImGuiTexture
+        /*struct ImGuiTexture
         {
             Image image;
             ImageView view;
             VkDescriptorSet descriptorSet;
         };
-        std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};
+        std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};*/
         
         // NEW STUFF
         
         void DestroyUnusedResources();
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
-        std::queue<GUID> m_destroyQueue {};
+        std::queue<DynamicLiveResource> m_destroyQueue {};
         
         // DESCRIPTORS
         
@@ -364,11 +377,6 @@ namespace Droplet::Graphics::VK
         // - Uniform Buffer Dynamic
         // - Storage Buffer Dynamic
         // - Input Attachment
-        
-        std::vector<Image> m_newImage {};
-        std::vector<vma::raii::Buffer> m_newUniformBuffer {};
-        //std::vector<StorageBuffer>
-        
     };
 }
 

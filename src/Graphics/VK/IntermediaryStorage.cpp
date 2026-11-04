@@ -8,6 +8,7 @@
 
 #include <Graphics/VK/ShaderModule.hpp> 
 #include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/VK/ImGuiTexture.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
 
 using namespace Droplet::Graphics::VK;
@@ -67,22 +68,29 @@ void IntermediaryStorage::DecrementRef(GUID p_guid)
     --m_liveObjects.at(p_guid).refCount;
 }
 
-void IntermediaryStorage::QueueForDestruction(GUID p_guid)
+void IntermediaryStorage::MoveToDestructionQueue(GUID p_guid)
 {
-    m_destroyQueue.push(p_guid);
+    // Move unused object to a destroy queue. It will be popped once the 
+    m_destroyQueue.push(std::move(m_liveObjects[p_guid]));
+    m_liveObjects.erase(p_guid);
 }
 
 void IntermediaryStorage::DestroyUnusedResources()
 {
     while (!m_destroyQueue.empty())
     {
-        const GUID guid = m_destroyQueue.front();
-        const auto& it { m_liveObjects.find(guid) };
+        DynamicLiveResource temp = std::move(m_destroyQueue.front());
         
-        if (it != m_liveObjects.end())
+        // If we have specific removal rules for each object type, add them here
+        switch (temp.type)
         {
-            m_liveObjects.erase(it);
-        } 
+            case DynamicResourceType::ImGuiTexture:
+                ImGui_ImplVulkan_RemoveTexture(dynamic_cast<ImGuiTextureResource*>(temp.resource.get())->Get());
+                break;
+            
+            default:
+                break;
+        }
         
         m_destroyQueue.pop();
     }
@@ -94,6 +102,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     
     DynamicLiveResource colourImage 
     {
+        .type = DynamicResourceType::Image,
         .resource = std::make_unique<Image>(m_allocator.Get(),
             p_width,
             p_height,
@@ -112,6 +121,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     
     DynamicLiveResource colourImageView 
     {
+        .type = DynamicResourceType::ImageView,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
             colourImageHandle->Get())
     };
@@ -125,6 +135,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     
     DynamicLiveResource depthImage
     {
+        .type = DynamicResourceType::Image,
         .resource = std::make_unique<Image>(m_allocator.Get(),
         p_width,
         p_height,
@@ -143,6 +154,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     
     DynamicLiveResource depthImageView 
     {
+        .type = DynamicResourceType::ImageView,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
         depthImageHandle->Get(),
         vk::Format::eD24UnormS8Uint,
@@ -153,6 +165,83 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
     
     DynamicResourceHandle<ImageView> depthImageViewHandle { depthImageViewGuid };
+    
+    return RenderTarget 
+    {
+        colourImageHandle,
+        colourImageViewHandle,
+        depthImageHandle,
+        depthImageViewHandle,
+        p_width,
+        p_height
+    };
+}
+
+Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_colourImageGuid, GUID p_colourImageViewGuid, GUID p_depthImageGuid, GUID p_depthImageViewGuid, std::uint32_t p_width, std::uint32_t p_height)
+{
+    // Create Colour Image
+    
+    DynamicLiveResource colourImage 
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    m_liveObjects[p_colourImageGuid] = std::move(colourImage);
+    
+    DynamicResourceHandle<Image> colourImageHandle { p_colourImageGuid };
+    
+    // Create Colour Image View
+    
+    DynamicLiveResource colourImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())
+    };
+    
+    m_liveObjects[p_colourImageViewGuid] = std::move(colourImageView);
+    
+    DynamicResourceHandle<ImageView> colourImageViewHandle { p_colourImageViewGuid };
+    
+    // Create Depth Image
+    
+    DynamicLiveResource depthImage
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD24UnormS8Uint, 
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    m_liveObjects[p_depthImageGuid] = std::move(depthImage);
+    
+    DynamicResourceHandle<Image> depthImageHandle { p_depthImageGuid };
+    
+    // Create Depth Image View
+    
+    DynamicLiveResource depthImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD24UnormS8Uint,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+    
+    m_liveObjects[p_depthImageViewGuid] = std::move(depthImageView);
+    
+    DynamicResourceHandle<ImageView> depthImageViewHandle { p_depthImageViewGuid };
     
     return RenderTarget 
     {
@@ -179,33 +268,24 @@ std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage,
     return static_cast<std::uint32_t>(m_presentTargets.size() - 1);
 }
 
-std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
+Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
 {
-    m_imGuiTextures.emplace_back(
-        ImGui_ImplVulkan_AddTexture(
+    DynamicLiveResource imGuiTexture
+    {
+        .type = DynamicResourceType::ImGuiTexture,
+        .resource = std::make_unique<ImGuiTextureResource>(ImGui_ImplVulkan_AddTexture(
             *m_textureSampler.Get(),
             *p_renderTarget.GetColourImageView(),
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         )
-    );
-        
-	static std::uint32_t guidCounter = 0;
-	std::uint32_t guid = guidCounter++;
+    };
     
-    return guid;
-}
-
-void IntermediaryStorage::RemoveImGuiTexture(std::uint32_t p_index)
-{
-	if (m_imGuiTextures.find(p_index) == m_imGuiTextures.end())
-	{
-		throw std::out_of_range("Invalid ImGui texture index.");
-	}
-
-    m_context->GetDevice().waitIdle();
-
-    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_index));
-    m_imGuiTextures.erase(p_index);
+    GUID imGuiTextureGuid { GuidUtils::Generate() };
+    m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
+    
+    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureHandle { imGuiTextureGuid }; 
+    
+    return ImGuiTexture { imGuiTextureHandle };
 }
 
 /*void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
@@ -467,7 +547,25 @@ std::vector<vk::DescriptorSet> IntermediaryStorage::GetDescriptorSets() const
     return descriptorSets; 
 }
 
-VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)
+void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height)
+{
+    ZoneScoped;
+    
+    GUID colourImageGuid = p_target.GetColourImageGuid();
+    GUID depthImageGuid = p_target.GetDepthImageGuid();
+    GUID colourImageViewGuid = p_target.GetColourImageViewGuid();
+    GUID depthImageViewGuid = p_target.GetDepthImageViewGuid();
+    
+    MoveToDestructionQueue(colourImageGuid);
+    MoveToDestructionQueue(depthImageGuid);
+    MoveToDestructionQueue(colourImageViewGuid);
+    MoveToDestructionQueue(depthImageViewGuid);
+    
+    CreateRenderTarget(colourImageGuid, depthImageGuid, colourImageViewGuid, depthImageViewGuid, p_width, p_height);
+    
+}
+
+/*VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)
 {
     ZoneScoped;
 
@@ -516,9 +614,9 @@ VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)
     );
 
     return imguiTex.descriptorSet;
-}
+}*/
 
-void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
+/*void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
 {
     auto it = m_imGuiTexMap.find(p_guid);
     if (it == m_imGuiTexMap.end())
@@ -528,4 +626,4 @@ void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
 
     ImGui_ImplVulkan_RemoveTexture(it->second.descriptorSet);
     m_imGuiTexMap.erase(it);
-}
+}*/
