@@ -65,8 +65,7 @@ void Octree::Update()
 			continue;
 		}
 			
-		Math::AABB nodeBounds = nodePtr->GetBounds()->GetAABB();
-		nodeBounds.center = nodePtr->GetTransform().GetPosition();
+		Math::OBB nodeBounds = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 			
 		// If the actual world bounds remain inside the previously inserted fat AABB,
 		// the tree's placements are still conservative and no reinsertion is needed.
@@ -79,7 +78,13 @@ void Octree::Update()
 		}
 
 		RemoveFromTreeNode(node, m_root);
-		const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
+		
+		glm::vec3 corners[8];
+		nodeBounds.GetCorners(corners);
+		AABB fatBounds = AABB::FromPoints(corners, 8);
+
+		fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+
 		m_placements[nodePtr.get()] = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
 	}
