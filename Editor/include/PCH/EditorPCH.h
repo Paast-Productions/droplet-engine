@@ -6,6 +6,7 @@
 #include <PCH/GraphicsPCH.h>
 
 // Externals
+#include <ImGuizmo/ImGuizmo.h>
 
 // Editor
 #include <core/FileExplorer.hpp>
@@ -14,3 +15,5 @@
 #include <EditorConfig.hpp>
 #include <EditorWindow.hpp>
 #include <InteractionState.hpp>
+#include <Editor/ImGuiCurve.hpp>
+#include <Editor/ViewOverlayUI.hpp>
