@@ -124,7 +124,7 @@ void Camera::SetOrientation(float p_yaw, float p_pitch, glm::vec3 p_up)
 
 void Camera::SetOrientation(glm::quat p_orientation)
 {
-	m_forward = glm::normalize(p_orientation * glm::vec3(0, 0, -1));
+	m_forward = glm::normalize(p_orientation * glm::vec3(0, 0, 1));
 	m_up = glm::normalize(p_orientation * glm::vec3(0, 1, 0));
 
 	UpdateCameraVectors();
