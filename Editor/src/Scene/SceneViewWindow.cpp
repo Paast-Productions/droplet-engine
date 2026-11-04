@@ -521,7 +521,7 @@ void SceneViewWindow::RenderEditorView()
 		if (input.KeyPressed(Key::KeyTab))
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x, viewCenter.y);
 
 			ImGuiViewport *viewport = ImGui::GetWindowViewport();
 
@@ -869,7 +869,7 @@ void SceneViewWindow::RenderGameView()
 	ImVec2 windowPos = ImGui::GetWindowPos();
 	GameInput &input = GameInput::Get();
 
-	ImVec2 camSize, camViewPos, camViewRectMin;
+	ImVec2 camSize, camViewPos, camViewRectMin, camViewRectMax;
 
 	std::shared_ptr<DCamera> camera = m_editorContext->GetGameCamera().lock();
 
@@ -885,6 +885,11 @@ void SceneViewWindow::RenderGameView()
 		camViewRectMin = {
 			cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
 			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+		};
+
+		camViewRectMax = {
+			camViewRectMin.x + camSize.x,
+			camViewRectMin.y + camSize.y
 		};
 
 		camViewPos = {
@@ -932,7 +937,7 @@ void SceneViewWindow::RenderGameView()
 			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
 		};
 
-		ImVec2 camViewRectMax = {
+		camViewRectMax = {
 			camViewRectMin.x + camSize.x,
 			camViewRectMin.y + camSize.y
 		};
@@ -955,11 +960,6 @@ void SceneViewWindow::RenderGameView()
 		}
 	}
 
-	ImVec2 camViewRectMax = {
-		camViewRectMin.x + camSize.x,
-		camViewRectMin.y + camSize.y
-	};
-
 	ImVec2 viewCenter = {
 		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
 		(camViewRectMin.y + camViewRectMax.y) * 0.5f
@@ -974,11 +974,11 @@ void SceneViewWindow::RenderGameView()
 		if (input.KeyPressed(Key::KeyTab))
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x, viewCenter.y);
 		}
 	}
 
-	if (isWindowFocused && m_cameraLookToggled)
+	if (m_cameraLookToggled)
 	{
 		ImGuiViewport *viewport = ImGui::GetWindowViewport();
 		SDL_Window *sceneWindow = nullptr;
@@ -988,8 +988,6 @@ void SceneViewWindow::RenderGameView()
 			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
 			sceneWindow = SDL_GetWindowFromID(windowID);
 		}
-
-		input.SetCursorPosition(sceneWindow, false, viewCenter.x, viewCenter.y);
 	}
 
 	// Render pause/stop buttons

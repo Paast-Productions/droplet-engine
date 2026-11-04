@@ -95,6 +95,8 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Script Init
 	ScriptSystem::Get().Initialize(m_sceneManager);
+
+	GameInput::Get().SetMainWindow(m_window.Get());
 }
 
 Droplet::Engine::~Engine()
@@ -128,9 +130,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Inputs
 	Droplet::GameInput::Get().Update();
-
-	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
-	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
