@@ -486,7 +486,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
-				auto activeScene = editorContext.GetActiveScene();
+				auto activeScene = editorContext.GetActiveScene().lock();
 
 				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
 				camRenderData.renderTarget = editorCamera.GetTargetIndex();

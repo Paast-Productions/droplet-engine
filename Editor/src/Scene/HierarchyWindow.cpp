@@ -22,9 +22,11 @@ namespace
 {
     /// @brief Gets the nodes a drag of p_dragged should move. If the dragged node is part of a multi-selection, all
     /// selected nodes are moved. Nodes whose ancestor is also moved are excluded, since they follow their ancestor.
-    std::vector<std::shared_ptr<Node>> GetDraggedNodes(const InteractionState &p_state, const std::shared_ptr<Node> &p_dragged)
+    std::vector<std::weak_ptr<Node>> GetDraggedNodes(
+        const InteractionState &p_state,
+        const std::weak_ptr<Node> &p_dragged)
     {
-        std::vector<std::shared_ptr<Node>> candidates;
+        std::vector<std::weak_ptr<Node>> candidates;
 
         if (p_state.IsNodeSelected(p_dragged))
         {
@@ -35,15 +37,29 @@ namespace
             candidates.push_back(p_dragged);
         }
 
-        std::vector<std::shared_ptr<Node>> result;
+        std::vector<std::weak_ptr<Node>> result;
 
-        for (const auto &node : candidates)
+        for (const auto &weakNode : candidates)
         {
+            auto node = weakNode.lock();
+            if (!node)
+            {
+                continue;
+            }
+
             bool ancestorMoved = false;
 
-            for (auto parent = node->GetParent(); parent; parent = parent->GetParent())
+            for (auto parent = node->GetParent().lock(); parent; parent = parent->GetParent().lock())
             {
-                if (std::find(candidates.begin(), candidates.end(), parent) != candidates.end())
+                const bool parentIsCandidate = std::any_of(
+                    candidates.begin(),
+                    candidates.end(),
+                    [&parent](const std::weak_ptr<Node> &p_candidate)
+                    {
+                        return p_candidate.lock() == parent;
+                    });
+
+                if (parentIsCandidate)
                 {
                     ancestorMoved = true;
                     break;
@@ -68,7 +84,7 @@ void HierarchyWindow::InitImpl()
 
 void HierarchyWindow::RenderImpl()
 {
-    auto scene = m_editorContext->GetActiveScene();
+    auto scene = m_editorContext->GetActiveScene().lock();
     if (ImGui::IsWindowFocused())
     {
         EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
@@ -160,11 +176,11 @@ void HierarchyWindow::RenderImpl()
                 // Remove all dragged nodes from their current parents, if any.
                 for (const auto &node : GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNode->shared_from_this()))
                 {
-                    auto oldParent = node->GetParent();
+                    auto oldParent = node.lock()->GetParent();
 
-                    if (oldParent)
+                    if (!oldParent.expired())
                     {
-                        oldParent->RemoveChild(node, true);
+                        oldParent.lock()->RemoveChild(node.lock(), true);
                     }
                 }
             }
@@ -182,7 +198,7 @@ void HierarchyWindow::RenderImpl()
                 const char *droppedData = static_cast<const char *>(payload->Data);
                 glm::vec3 position = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward() * 5.0f;
 
-                scene->LoadNodeFromFile(droppedData,position);
+                scene->LoadNodeFromFile(droppedData, position);
             }
         }
         ImGui::EndDragDropTarget();
@@ -197,7 +213,7 @@ void HierarchyWindow::RenderImpl()
 
     m_visibleNodes.clear();
     m_visibleNodeRects.clear();
-    m_rangeSelectTarget = nullptr;
+    m_rangeSelectTarget.reset();
 
     ImGui::EndDisabled();
 
@@ -209,19 +225,34 @@ void HierarchyWindow::RenderImpl()
     ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
-    if (m_rangeSelectTarget)
+    if (auto target = m_rangeSelectTarget.lock())
     {
         InteractionState &interactionState = m_editorContext->GetInteractionState();
-        const std::shared_ptr<Node> anchor = m_selectionAnchor.lock();
+        auto anchor = m_selectionAnchor.lock();
 
-        const auto targetIt = std::find(m_visibleNodes.begin(), m_visibleNodes.end(), m_rangeSelectTarget);
-        auto anchorIt = anchor ? std::find(m_visibleNodes.begin(), m_visibleNodes.end(), anchor) : m_visibleNodes.end();
+        const auto targetIt = std::find_if(
+            m_visibleNodes.begin(),
+            m_visibleNodes.end(),
+            [&target](const std::weak_ptr<Node> &p_node)
+            {
+                return p_node.lock() == target;
+            });
+
+        auto anchorIt = anchor
+            ? std::find_if(
+                m_visibleNodes.begin(),
+                m_visibleNodes.end(),
+                [&anchor](const std::weak_ptr<Node> &p_node)
+                {
+                    return p_node.lock() == anchor;
+                })
+            : m_visibleNodes.end();
 
         if (anchorIt == m_visibleNodes.end())
         {
             // No usable anchor, so the target becomes the anchor
             anchorIt = targetIt;
-            m_selectionAnchor = m_rangeSelectTarget;
+            m_selectionAnchor = target;
         }
 
         if (targetIt != m_visibleNodes.end())
@@ -231,13 +262,17 @@ void HierarchyWindow::RenderImpl()
                 interactionState.ClearNodeSelection();
             }
 
-            for (auto it = std::min(anchorIt, targetIt); it <= std::max(anchorIt, targetIt); ++it)
+            for (auto it = std::min(anchorIt, targetIt);
+                it <= std::max(anchorIt, targetIt); ++it)
             {
-                interactionState.SelectNode(*it, false);
+                if (auto node = it->lock())
+                {
+                    interactionState.SelectNode(node, false);
+                }
             }
         }
 
-        m_rangeSelectTarget = nullptr;
+        m_rangeSelectTarget.reset();
     }
 
     // Create an invisible item covering the remaining content area.
@@ -254,13 +289,22 @@ void HierarchyWindow::RenderImpl()
             {
                 Node *draggedNode = *static_cast<Node **>(payload->Data);
 
-                for (const auto &node : GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNode->shared_from_this()))
+                if (auto draggedNodeShared = draggedNode->weak_from_this().lock())
                 {
-                    auto oldParent = node->GetParent();
-
-                    if (oldParent)
+                    for (const auto &weakNode : GetDraggedNodes(
+                        m_editorContext->GetInteractionState(),
+                        draggedNodeShared))
                     {
-                        oldParent->RemoveChild(node, true);
+                        auto node = weakNode.lock();
+                        if (!node)
+                        {
+                            continue;
+                        }
+
+                        if (auto oldParent = node->GetParent().lock())
+                        {
+                            oldParent->RemoveChild(node, true);
+                        }
                     }
                 }
             }
@@ -288,52 +332,59 @@ void HierarchyWindow::RenderImpl()
 
     HandleRectSelection(nodeAreaMin, nodeAreaMax);
 
-    if (!m_nodesToReparent.empty() && m_newParent)
+    if (!m_nodesToReparent.empty() && !m_newParent.expired())
     {
         for (const auto &node : m_nodesToReparent)
         {
             // Skip invalid moves, such as moving a node into itself or its own descendants
-            if (node == m_newParent || m_newParent->IsDescendantOf(node))
+            if (node.lock() == m_newParent.lock() || m_newParent.lock()->IsDescendantOf(node.lock()))
             {
                 continue;
             }
 
-            auto oldParent = node->GetParent();
+            auto oldParent = node.lock()->GetParent();
 
-            if (oldParent)
+            if (!oldParent.expired())
             {
-                oldParent->RemoveChild(node, true);
+                oldParent.lock()->RemoveChild(node.lock(), true);
             }
 
-            m_newParent->AddChild(node, true);
+            m_newParent.lock()->AddChild(node.lock(), true);
         }
     }
 
     m_nodesToReparent.clear();
     m_newParent.reset();
 
-    if (m_nodeToAddChildTo)
+    if (!m_nodeToAddChildTo.expired())
     {
         auto newNode = scene->AddNode("New Node");
 
-        m_nodeToAddChildTo->AddChild(newNode);
+        m_nodeToAddChildTo.lock()->AddChild(newNode);
         m_nodeToAddChildTo.reset();
     }
 
     if (!m_nodesToRemove.empty())
     {
-        for (const auto &node : m_nodesToRemove)
+        for (const auto &weakNode : m_nodesToRemove)
         {
-            auto oldParent = node->GetParent();
-
-            if (oldParent)
+            auto node = weakNode.lock();
+            if (!node)
             {
-                oldParent->RemoveChild(node);
+                continue;
+            }
+
+            if (auto parent = node->GetParent().lock())
+            {
+                parent->RemoveChild(node);
             }
 
             scene->RemoveRoot(node);
         }
+
         m_nodesToRemove.clear();
+
+        m_editorContext->GetInteractionState().ClearNodeSelection();
     }
 
     ImGui::EndDisabled();
@@ -404,7 +455,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     if (ImGui::Button("Save Scene"))
     {
-        m_editorContext->GetActiveScene()->SetName(fileName);
+        m_editorContext->GetActiveScene().lock()->SetName(fileName);
         std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
         m_editorContext->SaveScene(path);
 
@@ -414,7 +465,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("New Scene"))
     {
         std::string name = "New Scene";
-        m_editorContext->GetActiveScene().get()->SetActive(false);
+        m_editorContext->GetActiveScene().lock()->SetActive(false);
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
         std::strncpy(fileName, name.c_str(), sizeof(name) - 1);
@@ -450,7 +501,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
                 std::string filePath = scenesDirectory.string() + std::string(selectedScene);
 
-                m_editorContext->GetActiveScene().get()->SetActive(false);
+                m_editorContext->GetActiveScene().lock()->SetActive(false);
                 m_editorContext->LoadFromFile(filePath);
                 m_editorContext->SetActiveScene(sceneName);
                 std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
@@ -474,7 +525,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
                     const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
                     const std::string scenePath(droppedData->path);
                     const std::string sceneName(droppedData->name);
-                    m_editorContext->GetActiveScene().get()->SetActive(false);
+                    m_editorContext->GetActiveScene().lock()->SetActive(false);
                     m_editorContext->LoadFromFile(scenePath);
                     m_editorContext->SetActiveScene(sceneName);
                     std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
@@ -487,9 +538,9 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 }
 
 
-void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node) // TODO: Make weak pointer
 {
-    if (!p_node)
+    if (p_node.expired())
     {
         return;
     }
@@ -498,7 +549,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
         ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | 
         ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
 
-    if (p_node->GetChildren().empty())
+    if (p_node.lock()->GetChildren().empty())
     {
         flags |= ImGuiTreeNodeFlags_Leaf;
     }
@@ -508,7 +559,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
         flags |= ImGuiTreeNodeFlags_Selected;
     }
 
-    const bool opened = ImGui::TreeNodeEx(p_node.get(), flags, "%s", p_node->GetName().c_str());
+    const bool opened = ImGui::TreeNodeEx(p_node.lock().get(), flags, "%s", p_node.lock()->GetName().c_str());
 
     const bool visible = ImGui::IsItemVisible();
 
@@ -556,7 +607,7 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             }
         }
 
-        if (m_pendingCollapseNode == p_node && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+        if (auto pendingCollapseNode = m_pendingCollapseNode.lock(); pendingCollapseNode == p_node.lock() && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
         {
             const ImGuiIO &io = ImGui::GetIO();
             constexpr float c_dragThreshold = 4.0f;
@@ -569,24 +620,25 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
                 m_selectionAnchor = p_node;
             }
 
-            m_pendingCollapseNode = nullptr;
+            m_pendingCollapseNode.reset();
         }
 
         if (ImGui::BeginDragDropSource())
         {
-            Node *draggedNode = p_node.get();
+			auto node = p_node.lock();
+            Node *draggedNode = node.get();
 
             ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
 
-            const size_t draggedCount = GetDraggedNodes(m_editorContext->GetInteractionState(), p_node).size();
+            const size_t draggedCount = GetDraggedNodes(m_editorContext->GetInteractionState(), node).size();
 
             if (draggedCount > 1)
             {
-                ImGui::Text("%s (+%zu more)", p_node->GetName().c_str(), draggedCount - 1);
+                ImGui::Text("%s (+%zu more)", node->GetName().c_str(), draggedCount - 1);
             }
             else
             {
-                ImGui::Text("%s", p_node->GetName().c_str());
+                ImGui::Text("%s", node->GetName().c_str());
             }
 
             ImGui::EndDragDropSource();
@@ -603,25 +655,23 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
 
             if (ImGui::MenuItem("Remove Node"))
             {
-				// If selected, remove all selected nodes. Otherwise, remove this node only.
-                if (m_editorContext->GetInteractionState().IsNodeSelected(p_node))
+                auto &interactionState = m_editorContext->GetInteractionState();
+
+                if (interactionState.IsNodeSelected(p_node))
                 {
-                    for (const auto &selectedNode : m_editorContext->GetInteractionState().GetSelectedNodes())
-                    {
-                        m_nodesToRemove.push_back(selectedNode);
-                    }
+                    m_nodesToRemove = interactionState.GetSelectedRootNodes();
                 }
                 else
                 {
                     m_nodesToRemove.push_back(p_node);
-				}
+                }
             }
 
             if (ImGui::MenuItem("Serialize Node"))
             {
                 const std::filesystem::path prefabDirectory = ROOT_PATH "/GameData/Prefabs";
-                const std::string filePath = (prefabDirectory / (p_node->GetName() + ".json")).string();
-                m_editorContext->SaveNode(filePath, *p_node.get());
+                const std::string filePath = (prefabDirectory / (p_node.lock()->GetName() + ".json")).string();
+                m_editorContext->SaveNode(filePath, *p_node.lock().get());
             }
 
             if (ImGui::MenuItem("Duplicate Node"))
@@ -637,25 +687,29 @@ void HierarchyWindow::DrawNode(const std::shared_ptr<Node> &p_node) // TODO: Mak
             if (const ImGuiPayload *payload =
                 ImGui::AcceptDragDropPayload("SCENE_NODE"))
             {
-                Node *draggedNode =
-                    *static_cast<Node **>(payload->Data);
+                Node *draggedNode = *static_cast<Node **>(payload->Data);
 
-                auto draggedNodeShared = draggedNode->shared_from_this();
-
-                if (draggedNodeShared != p_node &&
-                    !p_node->IsDescendantOf(draggedNodeShared))
+                if (auto draggedNodeShared = draggedNode->weak_from_this().lock())
                 {
-                    m_nodesToReparent = GetDraggedNodes(m_editorContext->GetInteractionState(), draggedNodeShared);
-                    m_newParent = p_node;
+                    if (draggedNodeShared != p_node.lock() &&
+                        !p_node.lock()->IsDescendantOf(draggedNodeShared))
+                    {
+                        m_nodesToReparent = GetDraggedNodes(
+                            m_editorContext->GetInteractionState(),
+                            draggedNodeShared);
+
+                        m_newParent = p_node;
+                    }
                 }
             }
+
             ImGui::EndDragDropTarget();
         }
     }
 
     if (opened)
     {
-        for (const auto &child : p_node->GetChildren())
+        for (const auto &child : p_node.lock()->GetChildren())
         {
             DrawNode(child);
         }
