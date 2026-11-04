@@ -178,11 +178,23 @@ namespace Droplet
 		/// @param p_active Bool that when true hide cursor and show when false
 		void HideCursor(bool p_active);
 
+		/// @brief Locks the cursor to a specific position within the given SDL window.
+		/// @param p_window The pointer to the SDL window instance.
+		/// @param p_x The relative x-coordinate to lock the cursor to.
+		/// @param p_y The relative y-coordinate to lock the cursor to.
+		/// @param p_lock A boolean indicating whether to lock (true) or unlock (false) the cursor.
+		void LockCursor(bool p_lock, float p_x, float p_y, SDL_Window *p_window = nullptr);
+
+		void SetMainWindow(SDL_Window *p_window) { m_mainWindow = p_window; }
+		[[nodiscard]] SDL_Window *GetMainWindow() const { return m_mainWindow; }
+
 	private:
 		// Keyboard variables
 		std::unordered_set<Key> m_currentKeys{};
 		std::unordered_set<Key> m_previousKeys{};
 		std::unordered_map<Key, bool> m_toggledKeys{};
+
+		SDL_Window *m_mainWindow = nullptr;
 
 		// Mouse variables
 		float m_mouseX = 0.0f;
@@ -194,5 +206,9 @@ namespace Droplet
 		std::array<bool, (size_t)Mouse::Count> m_currentMouse = { false };
 		std::array<bool, (size_t)Mouse::Count> m_previousMouse = { false };
 
+		SDL_Window *m_cursorLockWindow = nullptr;
+		bool m_firstLockFrame = false;
+		float m_lockedCursorX = 0.0f;
+		float m_lockedCursorY = 0.0f;
 	};
 }

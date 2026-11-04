@@ -316,6 +316,15 @@ namespace Droplet::Scene
 		/// @return true if this Node is a descendant of p_node, otherwise false.
         [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
 
+		/// @brief Gets the first Component of the specified type attached to this Node.
+		/// @return The first Component of the specified type, or nullptr if none is attached.
+        template<typename T>
+        [[nodiscard]] std::shared_ptr<T> GetComponent()
+        {
+            const auto components = GetComponents<T>();
+            return components.empty() ? nullptr : components.front();
+        }
+
         /// @brief Gets the HealthComponent attached to this Node.
         /// @return The HealthComponent, or nullptr if none is attached.
         [[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
