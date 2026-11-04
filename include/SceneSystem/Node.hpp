@@ -176,7 +176,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the parent Node, or nullptr if this
         /// Node has no parent.
-        [[nodiscard]] std::weak_ptr<Node> GetParent() const; // TODO: Make weak pointer
+        [[nodiscard]] std::weak_ptr<Node> GetParent() const;
 
         /// @brief Gets the child Nodes.
         ///

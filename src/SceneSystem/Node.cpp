@@ -425,7 +425,7 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	}
 }
 
-std::weak_ptr<Node> Node::GetParent() const // TODO: Make weak pointer
+std::weak_ptr<Node> Node::GetParent() const
 {
 	return m_parent;
 }
