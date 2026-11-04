@@ -12,7 +12,7 @@
 namespace Droplet::Graphics::VK
 {
 	/// @brief Image class for storing textures/image buffers to be bound to shader stages
-	class Image : public IDynamicResource
+	class Image : public Droplet::IDynamicResource
 	{
 	public:
 		Image()

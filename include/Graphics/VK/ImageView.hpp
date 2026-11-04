@@ -10,7 +10,7 @@
 namespace Droplet::Graphics::VK
 {
     /// @brief Vulkan Image View wrapper class
-    class ImageView : public IDynamicResource
+    class ImageView : public Droplet::IDynamicResource
     {
     public:
         ImageView()

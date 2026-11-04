@@ -7,8 +7,6 @@
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
 #include <Graphics/VK/Image.hpp>
-#include <Graphics/VK/ImageView.hpp>
-
 #include <Resource/DynamicResourceHandle.hpp>
 
 namespace Droplet::Graphics
@@ -30,9 +28,10 @@ namespace Droplet::Graphics
 		/// @param p_width Width of the render target texture
 		/// @param p_height Height of the render target texture
 		RenderTarget(
-			const vma::raii::Allocator &p_allocator,
-			const vk::raii::Device &p_device,
-			const vk::raii::PhysicalDevice &p_physicalDevice,
+			DynamicResourceHandle<VK::Image> p_colourImage,
+			DynamicResourceHandle<VK::ImageView> p_colourImageView,
+			DynamicResourceHandle<VK::Image> p_depthImage,
+			DynamicResourceHandle<VK::ImageView> p_depthImageView,
 			std::uint32_t p_width,
 			std::uint32_t p_height);
 		
@@ -45,19 +44,19 @@ namespace Droplet::Graphics
 		
 		/// @brief Get the texture
 		/// returns A custom Image
-		[[nodiscard]] const vk::raii::Image &GetColorImage() const { return m_colourImageHandle->Get(); }
+		[[nodiscard]] const vk::raii::Image &GetColourImage() const { return m_colourImageHandle.Get()->Get(); }
 		
 		/// @brief Get the depth buffer of the texture
 		/// @returns A custom DepthBuffer 
-		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthBuffer.GetImage(); }
+		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthImageHandle.Get()->Get(); }
 		
 		/// @brief Get the descriptor of the texture
 		/// @returns A custom ImageView
-		[[nodiscard]] const vk::raii::ImageView &GetColorImageView() const { return m_colourView.Get(); }
+		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourImageViewHandle.Get()->Get(); }
 		
-		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthBuffer.GetView(); }
+		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthImageViewHandle.Get()->Get(); }
 		
-		[[nodiscard]] const vk::Format &GetDepthFormat() const { return m_depthBuffer.GetFormat(); }
+		[[nodiscard]] const vk::Format &GetDepthFormat() const { return m_depthFormat; }
 		
 		/// @brief Get the extent of the texture
 		/// @returns A Vulkan Extent2D
@@ -66,7 +65,7 @@ namespace Droplet::Graphics
 	private:
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters
-		// vk::Extent2D m_extent {};
+		vk::Extent2D m_extent {};
 
 		// VK::Image m_colourImage { nullptr };
 		// VK::ImageView m_colourView { nullptr };
@@ -74,13 +73,13 @@ namespace Droplet::Graphics
 		
 		// Colour Attachment
 		vk::Format m_colourFormat {};
-		DynamicResourceHandle<Image> m_colourImageHandle {};
-		DynamicResourceHandle<ImageView> m_colourImageViewHandle {};
+		DynamicResourceHandle<VK::Image> m_colourImageHandle {};
+		DynamicResourceHandle<VK::ImageView> m_colourImageViewHandle {};
 		
 		// Depth Attachment
 		vk::Format m_depthFormat {};
-		DynamicResourceHandle<Image> m_depthImageHandle {};
-		DynamicResourceHandle<ImageView> m_depthImageViewHandle {};
+		DynamicResourceHandle<VK::Image> m_depthImageHandle {};
+		DynamicResourceHandle<VK::ImageView> m_depthImageViewHandle {};
 		
 	};
 }

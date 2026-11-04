@@ -71,7 +71,7 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, DynamicResourceHandle<RenderTarget> &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates sync objects for preventing race conditions etc
@@ -115,7 +115,7 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 		
-		std::uint32_t m_vpBufferIndex { C_INVALID_INDEX };
+		std::uint32_t m_vpBufferIndex { Droplet::Graphics::VK::C_INVALID_INDEX };
 		
 		bool m_framebufferResized { false };
 		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 

@@ -6,8 +6,9 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
-#include <Resource/DynamicResourceHandle.hpp>
 #include <Graphics/VK/ShaderModule.hpp> 
+#include <Graphics/VK/RenderTarget.hpp>
+#include <Resource/DynamicResourceHandle.hpp>
 
 using namespace Droplet::Graphics::VK;
 
@@ -34,7 +35,7 @@ void IntermediaryStorage::Shutdown()
     // STORAGE
     m_presentTargets.clear();
     m_uniformBuffers.clear();
-    m_renderTargets.clear();
+    //m_renderTargets.clear();
     m_viewMap.clear();
     m_imageMap.clear();
     m_worldMap.clear();
@@ -151,9 +152,17 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
     GUID depthImageViewGuid { GuidUtils::Generate() };
     m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
     
-    DynamicResourceHandle<ImageView> { depthImageViewGuid };
+    DynamicResourceHandle<ImageView> depthImageViewHandle { depthImageViewGuid };
     
-    return { colourImageGuid };
+    return RenderTarget 
+    {
+        colourImageHandle,
+        colourImageViewHandle,
+        depthImageHandle,
+        depthImageViewHandle,
+        p_width,
+        p_height
+    };
 }
 
 std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height)
@@ -175,7 +184,7 @@ std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_rend
     m_imGuiTextures.emplace_back(
         ImGui_ImplVulkan_AddTexture(
             *m_textureSampler.Get(),
-            *p_renderTarget.GetColorImageView(),
+            *p_renderTarget.GetColourImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         )
     );
@@ -183,7 +192,7 @@ std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_rend
     return static_cast<std::uint32_t>(m_imGuiTextures.size() - 1);
 }
 
-void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
+/*void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
 {
     m_context->GetDevice().waitIdle();
     
@@ -203,7 +212,7 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, u
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         )
     );
-}
+}*/
 
 const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {

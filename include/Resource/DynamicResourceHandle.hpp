@@ -1,19 +1,17 @@
 #pragma once
 
+#include <Resource/ResourceHandle.hpp>
+
 namespace Droplet
 {
+    // Forward declarations
     class IDynamicResource;
-    
-    template <typename>
-    class ResourceHandle;
 }
-
-
 
 namespace Droplet
 {
     template <typename T>
-    class DynamicResourceHandle<T> : public ResourceHandle<T>
+    class DynamicResourceHandle : public ResourceHandle<T>
     {
     public:
         static_assert(std::derived_from<T, IDynamicResource>);
@@ -43,4 +41,4 @@ namespace Droplet
     };
 }
 
-#include <Resource/DynamicResourceHandle.inl>
+#include "Resource/DynamicResourceHandle.inl"

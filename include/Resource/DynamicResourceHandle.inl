@@ -8,14 +8,14 @@ namespace Droplet
     DynamicResourceHandle<T>::DynamicResourceHandle(GUID p_guid) : 
         ResourceHandle<T>(p_guid)
     {
-        IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
+        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     DynamicResourceHandle<T>::DynamicResourceHandle(const DynamicResourceHandle &p_other) :
         ResourceHandle<T>(p_other.ResourceHandle<T>::m_guid)
     {
-        IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -55,13 +55,13 @@ namespace Droplet
     template <typename T>
     T *DynamicResourceHandle<T>::operator->()
     {
-        return IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
+        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     DynamicResourceHandle<T>::~DynamicResourceHandle()
     {
-        IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -75,25 +75,25 @@ namespace Droplet
     template <typename T>
     T *DynamicResourceHandle<T>::Get() const
     {
-        return IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
+        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     std::uint32_t DynamicResourceHandle<T>::GetRef() const
     {
-        return IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid);
+        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     void DynamicResourceHandle<T>::IncrementRef()
     {
-        IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
+        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     void DynamicResourceHandle<T>::DecrementRef()
     {
-        IntermediaryStorage &instance { IntermediaryStorage::GetInstance() };
+        Graphics::VK::IntermediaryStorage &instance { Graphics::VK::IntermediaryStorage::GetInstance() };
         
         instance.DecrementRef(ResourceHandle<T>::m_guid);
         

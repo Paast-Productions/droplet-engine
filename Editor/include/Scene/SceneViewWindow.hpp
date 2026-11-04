@@ -12,7 +12,6 @@
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
-#include <Resource/DynamicResourceHandle.hpp>
 #include <Engine.hpp>
 
 namespace Droplet::Editor::Scene

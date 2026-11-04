@@ -4,14 +4,11 @@
 
 #include <vulkan/vulkan.h>
 
-#include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/VK/PresentTarget.hpp>
 #include <Graphics/VK/Pipeline.hpp>
 #include <Graphics/VK/Allocator.hpp>
 #include <Graphics/VK/DescriptorPool.hpp>
 #include <Graphics/VK/DescriptorSet.hpp>
-#include <Graphics/VK/Image.hpp>
-#include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/Sampler.hpp>
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/VK/IndexBuffer.hpp>
@@ -19,11 +16,18 @@
 #include <Graphics/RenderData.hpp>
 #include <Resource/ResourceManager.hpp>
 
+namespace Droplet
+{
+    template <typename>
+    class DynamicResourceHandle;
+}
+
 namespace Droplet::Graphics
 {
     // Forward declarations
     class Renderer;
     class Context;
+    class RenderTarget;
 }
 
 namespace Droplet::Graphics::VK
@@ -198,13 +202,12 @@ namespace Droplet::Graphics::VK
         /// @param p_width Width of the render target in pixels
         /// @param p_height Height of the render target in pixels
         /// @returns Index to the render target
-        [[nodiscard]] RenderTarget CreateRenderTarget(
-            std::uint32_t p_width, std::uint32_t p_height);
+        [[nodiscard]] RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
         
         /// @brief Getter function for a render target at a specified index
         /// @param p_index Index of the render target
         /// @returns The render target
-        [[nodiscard]] RenderTarget &GetRenderTargetAt(const std::uint32_t p_index) { return m_renderTargets.at(p_index); }
+        // [[nodiscard]] RenderTarget &GetRenderTargetAt(const std::uint32_t p_index) { return m_renderTargets.at(p_index); }
         
         /// @brief Creates a swapchain present target
         /// @param p_presentImage Presentation image of the swapchain
@@ -262,10 +265,6 @@ namespace Droplet::Graphics::VK
         /// @brief Shutdown and clear all vulkan memory allocations  
         void Shutdown();
         
-        DynamicResourceHandle<Image> CreateColourImage();
-        DynamicResourceHandle<ImageView> CreateColourImageView();
-        
-        
         /// @brief Getter function for the VMA allocator
         /// @returns VMA allocator
         /// @note Use carefully as misuse will result in memory leaks or crashes
@@ -319,7 +318,7 @@ namespace Droplet::Graphics::VK
         // TODO: Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
-        std::vector<RenderTarget> m_renderTargets {};
+        //std::vector<RenderTarget> m_renderTargets {};
         std::vector<PresentTarget> m_presentTargets {};
         std::vector<UniformBuffer> m_uniformBuffers {};
         
