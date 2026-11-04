@@ -296,6 +296,12 @@ std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
     {
         auto scene = it->lock();
 
+		if (!scene)
+		{
+			it = m_activeScenes.erase(it);
+			continue;
+		}
+
         if (!scene->IsActive())
         {
             it = m_activeScenes.erase(it);

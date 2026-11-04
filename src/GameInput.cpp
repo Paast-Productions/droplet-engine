@@ -21,50 +21,55 @@ namespace Droplet
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
 
+		if (m_cursorLockWindow)
+		{
+			m_mouseX = m_lockedCursorX;
+			m_mouseY = m_lockedCursorY;
+
+			if (!m_firstLockFrame)
+			{
+                m_prevMouseX = m_lockedCursorX;
+                m_prevMouseY = m_lockedCursorY;
+			}
+
+            SDL_WarpMouseInWindow(m_cursorLockWindow, static_cast<int>(m_lockedCursorX), static_cast<int>(m_lockedCursorY));
+			m_firstLockFrame = false;
+		}
     }
 
     void GameInput::ProcessEvent(const SDL_Event &p_event)
     {
         ZoneScoped;
 
-        // Keyboard events
-        if (p_event.type == SDL_EVENT_KEY_DOWN)
+        switch (p_event.type)
         {
+		case SDL_EVENT_KEY_DOWN:
             // Ignore key repeat events.
             if (!p_event.key.repeat)
             {
                 m_currentKeys.insert(static_cast<Key>(p_event.key.scancode));
             }
+			break;
 
-            return;
-        }
-        else if (p_event.type == SDL_EVENT_KEY_UP)
-        {
+		case SDL_EVENT_KEY_UP:
             m_currentKeys.erase(static_cast<Key>(p_event.key.scancode));
+			break;
 
-            return;
-        }
-
-        // Mouse events
-        if (p_event.type == SDL_EVENT_MOUSE_MOTION)
-        {
+		case SDL_EVENT_MOUSE_MOTION:
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
+			break;
 
-            return;
-        }
-
-        if (p_event.type == SDL_EVENT_MOUSE_BUTTON_DOWN)
-        {
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
             m_currentMouse[static_cast<std::size_t>(p_event.button.button)] = true;
+			break;
 
-            return;
-        }
-        else if (p_event.type == SDL_EVENT_MOUSE_BUTTON_UP)
-        {
+		case SDL_EVENT_MOUSE_BUTTON_UP:
             m_currentMouse[static_cast<std::size_t>(p_event.button.button)] = false;
+			break;
 
-            return;
+        default:
+            break;
         }
     }
 
@@ -141,6 +146,27 @@ namespace Droplet
         {
             SDL_ShowCursor();
         }
+    }
+
+    void GameInput::LockCursor(bool p_lock, float p_x, float p_y, SDL_Window *p_window)
+    {
+		if (!p_lock)
+		{
+			SDL_SetWindowRelativeMouseMode(m_cursorLockWindow, false);
+
+			m_cursorLockWindow = nullptr;
+            m_firstLockFrame = false;
+			return;
+		}
+
+		m_firstLockFrame = true;
+		m_cursorLockWindow = p_window ? p_window : m_mainWindow;
+
+		m_lockedCursorX = p_x;
+		m_lockedCursorY = p_y;
+
+        SDL_SetWindowRelativeMouseMode(m_cursorLockWindow, true);
+		SDL_WarpMouseInWindow(m_cursorLockWindow, static_cast<int>(m_lockedCursorX), static_cast<int>(m_lockedCursorY));
     }
 
     void GameInput::SetCursorPosition(SDL_Window *&p_window, bool p_relativeMouse, float p_x, float p_y)
