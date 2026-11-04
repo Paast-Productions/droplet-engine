@@ -1863,8 +1863,8 @@ end
 ---@class DamageComponent
 DamageComponent = {}
 
----@return DamageComponent
-function DamageComponent:GetDamageComponent()
+---@return float
+function DamageComponent:GetDamage()
     return nil
 end
 
