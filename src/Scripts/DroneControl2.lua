@@ -79,14 +79,14 @@ function UpdateMovement(dt)
 
     -- Forward and backward
     if Input:KeyHeld(Key.W) then
-        inputDirection = GLM.V3Sub(
+        inputDirection = GLM.V3Add(
             inputDirection,
             trans:GetForward(TransformSpace.World)
         )
     end
 
     if Input:KeyHeld(Key.S) then
-        inputDirection = GLM.V3Add(
+        inputDirection = GLM.V3Sub(
             inputDirection,
             trans:GetForward(TransformSpace.World)
         )
@@ -94,14 +94,14 @@ function UpdateMovement(dt)
 
     -- Strafe left and right
     if Input:KeyHeld(Key.A) then
-        inputDirection = GLM.V3Sub(
+        inputDirection = GLM.V3Add(
             inputDirection,
             trans:GetRight(TransformSpace.World)
         )
     end
 
     if Input:KeyHeld(Key.D) then
-        inputDirection = GLM.V3Add(
+        inputDirection = GLM.V3Sub(
             inputDirection,
             trans:GetRight(TransformSpace.World)
         )
