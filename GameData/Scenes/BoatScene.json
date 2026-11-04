@@ -6,6 +6,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -26,6 +27,7 @@
                     "type": "MeshComponent"
                 },
                 {
+                    "active": true,
                     "data": {
                         "h": 0.0,
                         "halfExtentsX": 0.0,
@@ -44,6 +46,7 @@
                     "type": "PhysicsComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 1,
             "name": "Boat",
             "transform": {
@@ -67,9 +70,67 @@
         },
         {
             "active": true,
-            "children": [],
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 90.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65535,
+                                "priority": 0,
+                                "resolution": [
+                                    1280,
+                                    720
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "CameraController.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 3,
+                    "name": "Camera",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "filepath": "PlayerController.lua"
                     },
@@ -77,6 +138,7 @@
                     "type": "ScriptComponent"
                 },
                 {
+                    "active": true,
                     "data": {
                         "h": 0.5,
                         "halfExtentsX": 0.0,
@@ -95,11 +157,15 @@
                     "type": "PhysicsComponent"
                 },
                 {
-                    "data": {},
-                    "id": 3,
-                    "type": "CameraComponent"
+                    "active": true,
+                    "data": {
+                        "filepath": "PlayerController.lua"
+                    },
+                    "id": 4,
+                    "type": "ScriptComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 2,
             "name": "Player",
             "transform": {

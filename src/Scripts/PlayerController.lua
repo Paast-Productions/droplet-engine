@@ -1,53 +1,25 @@
 ﻿local trans = nil
-local parent = nil
-
-local moveSpeed = 5.0
 
 local mouseSensitivity = 0.0025   -- radians per pixel
-local maxSine = 0.95   -- pitch limit up/down
-
-local mouseLock = false
-
-function ApplyMouseLook(dt)
-    
-    local dx = Input:GetDeltaMouseX()
-    local dy = Input:GetDeltaMouseY()
-
-    local yawDelta = -dx * mouseSensitivity
-    local pitchDelta = dy * mouseSensitivity
-
-    -- Rotate around y-axis
-    if parent ~= nil then
-        parent:GetTransform():RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
-    else
-        trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
-    end
-    
-    -- Rotate around local x-axis
-    local forwardY = trans:GetForward().y
-    if forwardY <= maxSine and pitchDelta < 0.0 then
-        trans:RotateAxis(pitchDelta, trans:GetRight(), TransformSpace.World)
-    end
-    if forwardY >= -maxSine and pitchDelta > 0.0  then
-        trans:RotateAxis(pitchDelta, trans:GetRight(), TransformSpace.World)
-    end
-end
+local moveSpeed = 5.0
 
 function OnStart()
     tracy.ZoneBeginN("PlayerController OnStart")
 
     print("New PlayerController")
-    
-    parent = self:GetParent()
-    trans = self:GetTransform()
+	trans = self:GetTransform()
+    moveSpeed = 5.0
     
     tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
-
-    ApplyMouseLook(dt)
+    
+    -- HACK: This rotation code should've been in CameraController.lua but doesn't work there
+    local dx = Input:GetDeltaMouseX()
+    local yawDelta = -dx * mouseSensitivity
+    trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
 
     local walkDir = Vec3.new(0.0, 0.0, 0.0)
 	if Input:KeyHeld(Key.W) then
@@ -76,6 +48,4 @@ function OnUpdate(dt)
 end
 
 function RenderUI()
-    tracy.ZoneBeginN("PlayerController RenderUI")
-    tracy.ZoneEnd()
 end
