@@ -300,7 +300,7 @@ TEST_F(TransformTest, SetParent)
 
 	parentNode.get()->AddChild(m_node);
 
-	EXPECT_EQ(m_node->GetParent(), parentNode);
+	EXPECT_EQ(m_node->GetParent().lock(), parentNode);
 }
 
 TEST_F(TransformTest, InheritParentTransform)

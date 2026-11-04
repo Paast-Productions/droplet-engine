@@ -233,7 +233,7 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TOD
     }
 
     // Ensure node has no parent
-    if (p_node->GetParent())
+    if (!p_node->GetParent().expired())
 	{
 		throw std::runtime_error(
 			"Cannot add Node '" + p_node->GetName() + "' as a root: Node has a parent."
@@ -275,7 +275,7 @@ void Scene::OnDestructNode(const Node *p_node)
 
     m_octree.RemoveNode(p_node);
 
-	if (p_node->GetParent() == nullptr)
+	if (p_node->GetParent().lock() == nullptr)
     {
         auto it = std::find_if(m_roots.begin(), m_roots.end(), [p_node](const std::shared_ptr<Node> &node) {
             return node.get() == p_node;

@@ -242,7 +242,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	}
 
 	// Check for cycles in the hierarchy
-	if (auto parent = GetParent())
+	if (auto parent = GetParent().lock())
 	{
 		while (parent)
 		{
@@ -253,7 +253,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 					"Adding a Node as a child of its own descendant would create a cycle."
 				);
 			}
-			parent = parent->GetParent();
+			parent = parent->GetParent().lock();
 		}
 	}
 
@@ -265,7 +265,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 		);
 	}
 
-	if (auto prevParent = p_child->GetParent())
+	if (auto prevParent = p_child->GetParent().lock())
 	{
 		prevParent->RemoveChild(p_child);
 	}
@@ -425,9 +425,9 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	}
 }
 
-std::shared_ptr<Node> Node::GetParent() const // TODO: Make weak pointer
+std::weak_ptr<Node> Node::GetParent() const
 {
-	return m_parent.lock();
+	return m_parent;
 }
 
 const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const // TODO: Make weak pointer
@@ -607,7 +607,7 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Ma
 			return true;
 		}
 
-		parent = parent->GetParent();
+		parent = parent->GetParent().lock();
 	}
 
 	return false;

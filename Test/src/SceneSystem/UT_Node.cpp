@@ -86,11 +86,11 @@ TEST_F(NodeTest, AddChildWithParent)
 
     parent1->AddChild(child);
 
-	EXPECT_EQ(child->GetParent(), parent1);
+	EXPECT_EQ(child->GetParent().lock(), parent1);
 
 	parent2->AddChild(child);
 
-	EXPECT_EQ(child->GetParent(), parent2);
+	EXPECT_EQ(child->GetParent().lock(), parent2);
 	EXPECT_EQ(parent1->GetChildren().size(), 0);
 	EXPECT_EQ(parent2->GetChildren().size(), 1);
 	EXPECT_EQ(parent2->GetChildren()[0], child);
@@ -125,7 +125,7 @@ TEST_F(NodeTest, ChildHasCorrectParent)
 
     ASSERT_NE(player, nullptr);
 
-    EXPECT_EQ(player->GetParent(), root);
+    EXPECT_EQ(player->GetParent().lock(), root);
 }
 
 
@@ -141,7 +141,7 @@ TEST_F(NodeTest, RemoveChild)
         root->RemoveChild(player));
 
     EXPECT_TRUE(root->GetChildren().empty());
-    EXPECT_EQ(player->GetParent(), nullptr);
+    EXPECT_EQ(player->GetParent().lock(), nullptr);
 }
 
 
@@ -480,7 +480,7 @@ TEST_F(NodeTest, IDDoesNotChangeWhenReparented)
     parent2->AddChild(child);
 
     EXPECT_EQ(child->GetID(), originalID);
-    EXPECT_EQ(child->GetParent(), parent2);
+    EXPECT_EQ(child->GetParent().lock(), parent2);
 }
 
 TEST_F(NodeTest, IDsAreUniqueAcrossScenes)
@@ -502,5 +502,5 @@ TEST_F(NodeTest, IDDoesNotChangeWhenRemovedFromParent)
     root->RemoveChild(child);
 
     EXPECT_EQ(child->GetID(), originalID);
-    EXPECT_EQ(child->GetParent(), nullptr);
+    EXPECT_EQ(child->GetParent().lock(), nullptr);
 }

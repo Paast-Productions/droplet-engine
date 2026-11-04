@@ -5,9 +5,9 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node, bool p_clearFirst) // TODO: Make weak pointer
+void InteractionState::SelectNode(const std::weak_ptr<Node> &p_node, bool p_clearFirst)
 {
-    if (!p_node || IsNodeSelected(p_node))
+    if (p_node.expired() || IsNodeSelected(p_node))
     {
         return;
     }
@@ -20,9 +20,9 @@ void InteractionState::SelectNode(const std::shared_ptr<Node> &p_node, bool p_cl
     m_selectedNodes.push_back(p_node);
 }
 
-void InteractionState::DeselectNode(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+void InteractionState::DeselectNode(const std::weak_ptr<Node> &p_node)
 {
-    if (!p_node)
+    if (p_node.expired())
     {
         return;
     }
@@ -34,7 +34,7 @@ void InteractionState::DeselectNode(const std::shared_ptr<Node> &p_node) // TODO
         {
             const auto node = p_selectedNode.lock();
 
-            return !node || node == p_node;
+            return !node || node == p_node.lock();
         }),
         m_selectedNodes.end());
 }
@@ -44,9 +44,9 @@ void InteractionState::ClearNodeSelection()
     m_selectedNodes.clear();
 }
 
-bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const // TODO: Make weak pointer
+bool InteractionState::IsNodeSelected(const std::weak_ptr<Node> &p_node) const
 {
-    if (!p_node)
+    if (p_node.expired())
     {
         return false;
     }
@@ -55,7 +55,7 @@ bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const
     {
         const auto node = selectedNode.lock();
 
-        if (node == p_node)
+        if (node == p_node.lock())
         {
             return true;
         }
@@ -64,9 +64,9 @@ bool InteractionState::IsNodeSelected(const std::shared_ptr<Node> &p_node) const
     return false;
 }
 
-std::vector<std::shared_ptr<Node>> InteractionState::GetSelectedNodes() const // TODO: Make weak pointer
+std::vector<std::weak_ptr<Node>> InteractionState::GetSelectedNodes() const
 {
-    std::vector<std::shared_ptr<Node>> selectedNodes; // TODO: Make weak pointer
+    std::vector<std::weak_ptr<Node>> selectedNodes;
 
     for (const auto &selectedNode : m_selectedNodes)
     {
@@ -83,41 +83,41 @@ std::vector<std::weak_ptr<Node>> InteractionState::GetSelectedRootNodes() const
 {
     std::vector<std::weak_ptr<Node>> result;
 
-    for (auto &node : m_selectedNodes)
+    for (const auto &weakNode : m_selectedNodes)
     {
-        const auto n = node.lock();
-        if (!n)
+        auto node = weakNode.lock();
+        if (!node)
         {
             continue;
         }
 
         bool ancestorSelected = false;
-        for (auto parent = n->GetParent(); parent; parent = parent->GetParent())
-        {
-			bool found = false;
-			for (const auto &selectedNode : m_selectedNodes)
-			{
-				const auto selected = selectedNode.lock();
-				if (selected == parent)
-				{
-					found = true;
-					break;
-				}
-			}
 
-			if (found)
-			{
-				ancestorSelected = true;
-				break;
-			}
+        for (auto parent = node->GetParent().lock();
+            parent;
+            parent = parent->GetParent().lock())
+        {
+            for (const auto &weakSelectedNode : m_selectedNodes)
+            {
+                auto selectedNode = weakSelectedNode.lock();
+
+                if (selectedNode && selectedNode == parent)
+                {
+                    ancestorSelected = true;
+                    break;
+                }
+            }
+
+            if (ancestorSelected)
+            {
+                break;
+            }
         }
 
-        if (ancestorSelected)
+        if (!ancestorSelected)
         {
-            continue;
+            result.push_back(node);
         }
-
-        result.push_back(node);
     }
 
     return result;
