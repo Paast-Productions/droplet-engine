@@ -1,0 +1,486 @@
+{
+    "name": "sandbox",
+    "roots": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "children": [],
+                            "components": [
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "fs": 13680123319807966343,
+                                        "fsName": "Base.FS",
+                                        "gs": 0,
+                                        "gsName": "",
+                                        "meshDisplayName": "Seafloor",
+                                        "meshGUID": 783955779018406974,
+                                        "tcs": 0,
+                                        "tcsName": "",
+                                        "tes": 0,
+                                        "tesName": "",
+                                        "textureDisplayName": "Seaflorr_base",
+                                        "textureGUID": 6101051464888118377,
+                                        "vs": 7809030845991192100,
+                                        "vsName": "Base.VS"
+                                    },
+                                    "id": 1,
+                                    "type": "MeshComponent"
+                                }
+                            ],
+                            "drawLayer": 1,
+                            "id": 20,
+                            "name": "Seafloor",
+                            "transform": {
+                                "position": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 19,
+                    "name": "CenterChunk",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "children": [],
+                            "components": [
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "fs": 13680123319807966343,
+                                        "fsName": "Base.FS",
+                                        "gs": 0,
+                                        "gsName": "",
+                                        "meshDisplayName": "Seafloor",
+                                        "meshGUID": 783955779018406974,
+                                        "tcs": 0,
+                                        "tcsName": "",
+                                        "tes": 0,
+                                        "tesName": "",
+                                        "textureDisplayName": "Seaflorr_base",
+                                        "textureGUID": 6101051464888118377,
+                                        "vs": 7809030845991192100,
+                                        "vsName": "Base.VS"
+                                    },
+                                    "id": 1,
+                                    "type": "MeshComponent"
+                                }
+                            ],
+                            "drawLayer": 1,
+                            "id": 22,
+                            "name": "Seafloor",
+                            "transform": {
+                                "position": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "rotation": [
+                                    0.7071068286895752,
+                                    0.0,
+                                    0.7071068286895752,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [
+                                {
+                                    "active": true,
+                                    "children": [],
+                                    "components": [
+                                        {
+                                            "active": true,
+                                            "data": {
+                                                "fs": 13680123319807966343,
+                                                "fsName": "Base.FS",
+                                                "gs": 0,
+                                                "gsName": "",
+                                                "meshDisplayName": "Cube",
+                                                "meshGUID": 11929133566856826472,
+                                                "tcs": 0,
+                                                "tcsName": "",
+                                                "tes": 0,
+                                                "tesName": "",
+                                                "textureDisplayName": "RockV2_base",
+                                                "textureGUID": 2617992142281023542,
+                                                "vs": 7809030845991192100,
+                                                "vsName": "Base.VS"
+                                            },
+                                            "id": 1,
+                                            "type": "MeshComponent"
+                                        }
+                                    ],
+                                    "drawLayer": 1,
+                                    "id": 24,
+                                    "name": "BigRock",
+                                    "transform": {
+                                        "position": [
+                                            0.0,
+                                            0.0,
+                                            2.2965965270996094
+                                        ],
+                                        "rotation": [
+                                            1.0,
+                                            0.0,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "scale": [
+                                            7.0,
+                                            7.0,
+                                            7.0
+                                        ]
+                                    }
+                                },
+                                {
+                                    "active": true,
+                                    "children": [],
+                                    "components": [
+                                        {
+                                            "active": true,
+                                            "data": {
+                                                "fs": 13680123319807966343,
+                                                "fsName": "Base.FS",
+                                                "gs": 0,
+                                                "gsName": "",
+                                                "meshDisplayName": "Cube",
+                                                "meshGUID": 11929133566856826472,
+                                                "tcs": 0,
+                                                "tcsName": "",
+                                                "tes": 0,
+                                                "tesName": "",
+                                                "textureDisplayName": "RockV2_base",
+                                                "textureGUID": 2617992142281023542,
+                                                "vs": 7809030845991192100,
+                                                "vsName": "Base.VS"
+                                            },
+                                            "id": 1,
+                                            "type": "MeshComponent"
+                                        }
+                                    ],
+                                    "drawLayer": 1,
+                                    "id": 25,
+                                    "name": "MiddleRock",
+                                    "transform": {
+                                        "position": [
+                                            0.0,
+                                            -3.8413400650024414,
+                                            -15.627296447753906
+                                        ],
+                                        "rotation": [
+                                            0.9847018718719482,
+                                            -0.17424777150154114,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "scale": [
+                                            2.0,
+                                            1.9999996423721313,
+                                            3.64500093460083
+                                        ]
+                                    }
+                                },
+                                {
+                                    "active": true,
+                                    "children": [],
+                                    "components": [
+                                        {
+                                            "active": true,
+                                            "data": {
+                                                "fs": 13680123319807966343,
+                                                "fsName": "Base.FS",
+                                                "gs": 0,
+                                                "gsName": "",
+                                                "meshDisplayName": "Cube",
+                                                "meshGUID": 11929133566856826472,
+                                                "tcs": 0,
+                                                "tcsName": "",
+                                                "tes": 0,
+                                                "tesName": "",
+                                                "textureDisplayName": "RockV2_base",
+                                                "textureGUID": 2617992142281023542,
+                                                "vs": 7809030845991192100,
+                                                "vsName": "Base.VS"
+                                            },
+                                            "id": 1,
+                                            "type": "MeshComponent"
+                                        }
+                                    ],
+                                    "drawLayer": 1,
+                                    "id": 26,
+                                    "name": "SmallRock",
+                                    "transform": {
+                                        "position": [
+                                            0.0,
+                                            -6.250499248504639,
+                                            -25.37647819519043
+                                        ],
+                                        "rotation": [
+                                            0.772327184677124,
+                                            0.6352249383926392,
+                                            0.0,
+                                            0.0
+                                        ],
+                                        "scale": [
+                                            0.9380000233650208,
+                                            2.8480029106140137,
+                                            1.0000001192092896
+                                        ]
+                                    }
+                                }
+                            ],
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 23,
+                            "name": "RockRubble",
+                            "transform": {
+                                "position": [
+                                    -49.77030944824219,
+                                    6.947480201721191,
+                                    33.00912094116211
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 21,
+                    "name": "WestChunk",
+                    "transform": {
+                        "position": [
+                            100.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 18,
+            "name": "Map",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cube",
+                                "meshGUID": 15104664662864096133,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 33,
+                    "name": "PlayerModel",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 45.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65535,
+                                "priority": 0,
+                                "resolution": [
+                                    1024,
+                                    1024
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 34,
+                    "name": "Camera",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "DroneControl2.lua"
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 32,
+            "name": "Player",
+            "transform": {
+                "position": [
+                    0.0,
+                    7.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

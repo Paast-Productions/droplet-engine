@@ -1,0 +1,75 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seagrass_2_2",
+                        "meshGUID": 12451767557024591540,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seagrass_2",
+                        "textureGUID": 3979492177554091074,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 102,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    -3.9733047485351563,
+                    0.0,
+                    -3.119271755218506
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "components": [],
+    "drawLayer": 1,
+    "id": 101,
+    "name": "FixedSeagrass",
+    "transform": {
+        "position": [
+            -50.22969055175781,
+            -6.947480201721191,
+            -33.00912094116211
+        ],
+        "rotation": [
+            1.0,
+            1.4901162970204496e-08,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            0.999998152256012,
+            0.999998152256012
+        ]
+    }
+}
