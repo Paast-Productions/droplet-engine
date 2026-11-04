@@ -1,4 +1,5 @@
 ﻿local trans = nil
+local parent = nil
 
 local moveSpeed = 5.0
 
@@ -7,22 +8,20 @@ local maxSine = 0.95   -- pitch limit up/down
 
 local mouseLock = false
 
-function Clamp(value, minValue, maxValue)
-    return math.max(minValue, math.min(maxValue, value))
-end
-
 function ApplyMouseLook(dt)
-    local dx, dy = 0.0, 0.0
-    if (mouseLock) then
-        dx = Input:GetDeltaMouseX()
-        dy = Input:GetDeltaMouseY()
-    end
+    
+    local dx = Input:GetDeltaMouseX()
+    local dy = Input:GetDeltaMouseY()
 
     local yawDelta = -dx * mouseSensitivity
     local pitchDelta = dy * mouseSensitivity
 
     -- Rotate around y-axis
-    trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
+    if parent ~= nil then
+        parent:GetTransform():RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
+    else
+        trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
+    end
     
     -- Rotate around local x-axis
     local forwardY = trans:GetForward().y
@@ -38,8 +37,9 @@ function OnStart()
     tracy.ZoneBeginN("PlayerController OnStart")
 
     print("New PlayerController")
-	trans = self:GetTransform()
-    moveSpeed = 5.0
+    
+    parent = self:GetParent()
+    trans = self:GetTransform()
     
     tracy.ZoneEnd()
 end
@@ -48,13 +48,6 @@ function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
 
     ApplyMouseLook(dt)
-    if Input:KeyPressed(Key.Q) then
-        if (mouseLock == false) then
-            mouseLock = true
-        else
-            mouseLock = false
-        end
-    end
 
     local walkDir = Vec3.new(0.0, 0.0, 0.0)
 	if Input:KeyHeld(Key.W) then
