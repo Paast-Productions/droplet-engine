@@ -401,18 +401,14 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	p_component->SetOwner(shared_from_this());
 	m_components.push_back((p_component));
 	
-
 	if (p_component->HasBoundsOverride())
 	{
 		if (m_boundsOverride.expired())
 		{
+			m_transform.MakeDirty();
 			m_boundsOverride = p_component;
 		}
-
-		
 	}
-
-	
 
 	if (p_componentID >= m_nextComponentID)
 	{
@@ -467,6 +463,7 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
 	{
 		if (m_boundsOverride.expired())
 		{
+			m_transform.MakeDirty();
 			m_boundsOverride = addedComponent;
 		}
 	}
@@ -512,6 +509,7 @@ void Node::RemoveComponent(const Component *p_component) // TODO: Make weak poin
 	if (isBoundsOverride)
 	{
 		m_boundsOverride.reset();
+		m_transform.MakeDirty();
 
 		for (const auto &component : m_components)
 		{
@@ -549,6 +547,7 @@ void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
 		throw std::invalid_argument("Node bounds cannot be null.");
 	}
 
+	m_transform.MakeDirty();
 	m_bounds = std::move(p_bounds);
 }
 
