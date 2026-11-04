@@ -9,7 +9,11 @@ local velocity = nil
 -- Movement settings
 local acceleration = 5.0
 local maxSpeed = 8.0
-local drag = 1.5
+
+local acceleration = 5.0     -- speeding up along the input direction
+local deceleration = 12.0    -- no input: slowing to a stop
+local braking = 14.0         -- input opposes current motion: turning around
+
 local moveSpeed = 0.0
 
 
@@ -40,21 +44,21 @@ function ApplyMouseLook(dt)
     end
     -- Frame-rate independent one-pole filter. Total rotation is preserved,
     -- it's just spread over a few frames.
-    -- local a = 1.0
-    -- if mouseSmoothTime > 0.0001 then
-    --     a = 1.0 - math.exp(-dt / mouseSmoothTime)
-    -- end
-    -- smoothDX = smoothDX + (dx - smoothDX) * a
-    -- smoothDY = smoothDY + (dy - smoothDY) * a
+    local a = 1.0
+    if mouseSmoothTime > 0.0001 then
+        a = 1.0 - math.exp(-dt / mouseSmoothTime)
+    end
+    smoothDX = smoothDX + (dx - smoothDX) * a
+    smoothDY = smoothDY + (dy - smoothDY) * a
 
-    -- -- Keep running until the tail has decayed, then stop
-    -- if math.abs(smoothDX) < 0.001 and math.abs(smoothDY) < 0.001 then
-    --     smoothDX, smoothDY = 0.0, 0.0
-    --     return
-    -- end
+    -- Keep running until the tail has decayed, then stop
+    if math.abs(smoothDX) < 0.001 and math.abs(smoothDY) < 0.001 then
+        smoothDX, smoothDY = 0.0, 0.0
+        return
+    end
 
-    local yawDelta = -dx * mouseSensitivity
-    local pitchDelta = -dy * mouseSensitivity
+    local yawDelta = -smoothDX * mouseSensitivity
+    local pitchDelta = -smoothDY * mouseSensitivity
     if invertY then pitchDelta = -pitchDelta end
 
     local forward = trans:GetForward()
@@ -134,6 +138,7 @@ function UpdateMovement(dt)
 
     if inputLength > 1.0 then
         inputDirection = GLM.V3Normalize(inputDirection)
+        inputLength = 1.0
     end
 
     -- Accelerate while input is held
@@ -142,14 +147,26 @@ function UpdateMovement(dt)
             inputDirection,
             acceleration * modifier * dt
         )
+    -- Target velocity is what the player is asking for
+    local targetVelocity = GLM.V3MulF(inputDirection, maxSpeed)
 
-        velocity = GLM.V3Add(velocity, accelerationStep)
-    else
-        local dragFactor = math.max(0.0, 1.0 - drag * dt)
+    -- Pick the rate depending on the situation
+    local rate = deceleration                      -- no input: stop
 
-        velocity = GLM.V3MulF(velocity, dragFactor)
+    if inputLength > 0.0 then
+        local dot = velocity.x * inputDirection.x
+                  + velocity.y * inputDirection.y
+                  + velocity.z * inputDirection.z
+
+        if dot < 0.0 then
+            rate = braking                         -- pushing against motion
+        else
+            rate = acceleration                    -- pushing with motion
+        end
     end
-    
+
+    velocity = MoveTowardsV3(velocity, targetVelocity, rate * dt)
+
     -- Limit the total velocity, regardless of direction
     local speed = GLM.V3Length(velocity)
 
@@ -186,7 +203,8 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-    if Input:KeyPressed(Key.Q) then
+    ApplyMouseLook(dt)
+    if Input:KeyPressed(Key.Tab) then
         if (mouseLock == false) then
             mouseLock = true
         else
@@ -207,8 +225,8 @@ function RenderUI()
     _, mouseSmoothTime = ImGui.DragFloat("Mouse Smoothing (s)", mouseSmoothTime, 0.005, 0.0, 0.3)
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
     _, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
-    _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
-
+    _, deceleration = ImGui.SliderFloat("Deceleration", deceleration, 0.5, 40.0)
+    _, braking = ImGui.SliderFloat("Braking", braking, 0.5, 40.0)
 	ImGui.Text("Current Move Speed: " .. moveSpeed)
 
     tracy.ZoneEnd()
