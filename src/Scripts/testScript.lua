@@ -1,5 +1,7 @@
 function OnStart()
-	print("Axel smells ew today")
+	local cameraComp = self:GetCameraComponent()
+	local camera = cameraComp:GetCamera()
+	print(camera:GetFOV())
 end
 
 function OnUpdate(dt)
@@ -21,6 +23,6 @@ function OnUpdate(dt)
 end             
 
 function RenderUI()
-	print("Axel is eww")
+	
 end
 
