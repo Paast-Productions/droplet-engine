@@ -1,14 +1,18 @@
 #pragma once
 
 #include "EditorWindow.hpp"
+#include "EditorContext.hpp"
 
 namespace Droplet::Editor
 {
 	class BusInspectorWindow : public EditorWindow
 	{
 	public:
-		BusInspectorWindow() = default;
+		BusInspectorWindow(EditorContext *p_editorContext);
 		~BusInspectorWindow() = default;
+		
+		void SetCurrentBus(Audio::AudioBus *p_bus);
+
 	protected:
 
 		void InitImpl() override;
@@ -16,6 +20,8 @@ namespace Droplet::Editor
 		void RenderImpl() override;
 
 	private:
+		EditorContext *m_editorContext;
 
+		Audio::AudioBus *m_currentBus = nullptr;
 	};
 }

@@ -78,6 +78,6 @@ namespace Droplet::Audio
 		AudioBus* m_parent = nullptr;
 		std::vector<AudioBus*> m_children;
 
-		float m_volume = 0.0f;
+		float m_volume = 1.0f;
 	};
 }

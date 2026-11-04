@@ -5,6 +5,7 @@
 #include "SavedDataWindow.hpp"
 #include "ScriptsWindow.hpp"
 #include "Audio/MixerWindow.hpp"
+#include "Audio/BusInspectorWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
@@ -160,6 +161,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     NodeInspectorWindow nodeInspectorWindow(&editorContext);
     BehaviourInspector behaviourInspector(&editorContext);
     MixerWindow mixerWindow(&editorContext);
+    BusInspectorWindow busInspectorWindow(&editorContext);
     ScriptsWindow scriptsWindow;
     SavedDataWindow savedDataWindow;
     Resource::ResourceBrowser resourceBrowser(&editorContext);
@@ -171,6 +173,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     nodeInspectorWindow.Init();
     behaviourInspector.Init();
     mixerWindow.Init();
+    busInspectorWindow.Init();
     scriptsWindow.Init();
     savedDataWindow.Init();
     resourceBrowser.Init();
@@ -374,6 +377,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         nodeInspectorWindow.Render();
         behaviourInspector.Render();
         mixerWindow.Render();
+        busInspectorWindow.Render();
         scriptsWindow.Render();
         savedDataWindow.Render();
         resourceBrowser.Render();
