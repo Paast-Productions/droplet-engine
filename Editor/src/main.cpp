@@ -355,6 +355,40 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						ImGui::EndMenu();
 					}
 
+					if (ImGui::BeginMenu("Help"))
+					{
+						ImGui::Text(
+							"Controls:\n"
+							"    - Tab:           Enter editor camera\n"
+							"    - Z:             Snap camera\n"
+							"    - B:             Show octree\n"
+
+							"Guizmo:\n"
+							"    - Q:             None\n"
+							"    - W:             Translation\n"
+							"    - E:             Rotation\n"
+							"    - R:             Scale\n"
+							"    - T:             Bounds\n"
+							"    - Y:             Universal\n"
+
+							"Camera Pivot:\n"
+							"    - F:             Focus view & pivot on selection\n"
+							"    - MMB:           Pan along view plane\n"
+							"    - Alt + LMB:     Rotate around pivot\n"
+							"    - Scroll:        Move along view normal at constant rate\n"
+							"    - Alt + Scroll:  Zoom towards pivot\n"
+
+							"Nodes:\n"
+							"    - LMB:           Select node\n"
+							"    - LMB + drag:    Select multiple nodes\n"
+							"    - Del:           Remove node\n"
+							"    - CTRL + C:      Copy node(s)\n"
+							"    - CTRL + V:      Paste node(s)\n"
+						);
+
+						ImGui::EndMenu();
+					}
+
 					ImGui::EndMainMenuBar();
 				}
 
