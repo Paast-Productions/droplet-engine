@@ -280,6 +280,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	m_children.push_back(p_child);
 
 	p_child->GetTransform().MakeDirty();
+	p_child->GetTransform().MakePhysicsDirty();
 	if (p_keepWorldPos)
 	{
 		p_child->GetTransform().SetMatrix(wMat, Transform::Space::World);
@@ -342,6 +343,7 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	m_scene.lock()->SetRoot(p_child, true);
 
 	p_child->GetTransform().MakeDirty();
+	p_child->GetTransform().MakePhysicsDirty();
 
 	if (p_keepWorldPos)
 	{
@@ -401,18 +403,15 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	p_component->SetOwner(shared_from_this());
 	m_components.push_back((p_component));
 	
-
 	if (p_component->HasBoundsOverride())
 	{
 		if (m_boundsOverride.expired())
 		{
+			m_transform.MakeDirty();
+			m_transform.MakePhysicsDirty();
 			m_boundsOverride = p_component;
 		}
-
-		
 	}
-
-	
 
 	if (p_componentID >= m_nextComponentID)
 	{
@@ -467,6 +466,8 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
 	{
 		if (m_boundsOverride.expired())
 		{
+			m_transform.MakeDirty();
+			m_transform.MakePhysicsDirty();
 			m_boundsOverride = addedComponent;
 		}
 	}
@@ -512,6 +513,8 @@ void Node::RemoveComponent(const Component *p_component) // TODO: Make weak poin
 	if (isBoundsOverride)
 	{
 		m_boundsOverride.reset();
+		m_transform.MakeDirty();
+		m_transform.MakePhysicsDirty();
 
 		for (const auto &component : m_components)
 		{
@@ -549,6 +552,8 @@ void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
 		throw std::invalid_argument("Node bounds cannot be null.");
 	}
 
+	m_transform.MakeDirty();
+	m_transform.MakePhysicsDirty();
 	m_bounds = std::move(p_bounds);
 }
 

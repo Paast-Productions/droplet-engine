@@ -103,11 +103,21 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 	{
 		return;
 	}
+
+	if (p_node.expired())
+	{
+		return;
+	}
 		
 	auto nodePtr = p_node.lock();
-	Math::AABB nodeBounds = nodePtr->GetBounds()->GetAABB();
+	Math::OBB nodeBounds = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 
-	const AABB fatBounds = AABB(nodeBounds.center, nodeBounds.extents + C_FAT_AABB_MARGIN);
+	glm::vec3 corners[8];
+	nodeBounds.GetCorners(corners);
+	AABB fatBounds = AABB::FromPoints(corners, 8);
+
+	fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+
 	m_placements[nodePtr.get()] = fatBounds;
 	AddToTreeNode(p_node, m_root, fatBounds);
 }
