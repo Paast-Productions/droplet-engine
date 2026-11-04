@@ -188,8 +188,24 @@ std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_rend
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
         )
     );
+        
+	static std::uint32_t guidCounter = 0;
+	std::uint32_t guid = guidCounter++;
     
-    return static_cast<std::uint32_t>(m_imGuiTextures.size() - 1);
+    return guid;
+}
+
+void IntermediaryStorage::RemoveImGuiTexture(std::uint32_t p_index)
+{
+	if (m_imGuiTextures.find(p_index) == m_imGuiTextures.end())
+	{
+		throw std::out_of_range("Invalid ImGui texture index.");
+	}
+
+    m_context->GetDevice().waitIdle();
+
+    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_index));
+    m_imGuiTextures.erase(p_index);
 }
 
 /*void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
@@ -197,20 +213,14 @@ std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_rend
     m_context->GetDevice().waitIdle();
     
     ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_textureIndex));
-    
-    m_renderTargets.emplace(m_renderTargets.begin() + p_targetIndex,
+
+    m_renderTargets.emplace(
+        m_renderTargets.begin() + p_targetIndex,
         m_allocator.Get(),
         m_context->GetDevice(),
         m_context->GetPhysicalDevice(),
         p_width,
-        p_height);
-    
-    m_imGuiTextures.emplace(m_imGuiTextures.begin() + p_textureIndex,
-        ImGui_ImplVulkan_AddTexture(
-            *m_textureSampler.Get(),
-            *m_renderTargets.at(p_targetIndex).GetColorImageView(),
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-        )
+        p_height
     );
 }*/
 

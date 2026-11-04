@@ -13,6 +13,7 @@
 #include <EditorContext.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
 #include <Engine.hpp>
+#include <SceneSerializer.hpp>
 
 namespace Droplet::Editor::Scene
 {
@@ -27,6 +28,8 @@ namespace Droplet::Editor::Scene
 
 		~SceneViewWindow() = default;
 
+		bool IsRenderingGameView() const { return m_renderingGameView; }
+
 	protected:
 
 		/// @brief Initializes the scene view window and sets its name.
@@ -38,6 +41,8 @@ namespace Droplet::Editor::Scene
 		void RenderImpl() override;
 
 	private:
+		bool m_renderingGameView = false;
+
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 		bool m_hoveringGizmo = false;
@@ -59,16 +64,28 @@ namespace Droplet::Editor::Scene
 
 		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
 		std::uint32_t m_textureIndex { Graphics::VK::C_INVALID_INDEX };
+		
+		/// @brief Camera navigation drag currently in progress
+		enum class CameraDrag { None, Orbit, Pan };
+		CameraDrag m_cameraDrag = CameraDrag::None;
+		glm::vec3 m_cameraPivot = glm::vec3(0.0f);
+		float m_cameraPivotRadius = 8.0f;
+
+		bool m_wrapMouse = false;
+		int m_skipMouseDeltas = 0;
+
+		void RenderEditorView();
+
+		void RenderGameView();
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
 		/// @param p_sceneViewMax The maximum coordinates of the scene view rectangle.
 		void RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax);
-		
-		/// @brief Updates the SceneViews render target to match the cameraSize
-		/// @param p_width The width of the render target
-		/// @param p_height The height of the render target
-		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height);
+
+		/// @brief Renders the overlay queue for the scene view, which may include UI elements or debug information.
+		/// @note Any part of the editor may queue overlay elements to be drawn on top of the scene view, and this function handles their rendering.
+		void RenderOverlayQueue();
 
 		/// @brief Handles the editor camera controls that operate on the current selection:
 		/// F focuses the selection, Alt + LMB drag orbits around it, MMB drag pans in the plane perpendicular to the
@@ -76,15 +93,27 @@ namespace Droplet::Editor::Scene
 		/// Does nothing that depends on a selection when the selection is empty.
 		/// @param p_viewWidth Width of the camera view in pixels, used to scale panning.
 		void ProcessCameraControls(float p_viewWidth);
+		
+		/// @brief Updates the SceneViews render target to match the cameraSize
+		/// @param p_width The width of the render target
+		/// @param p_height The height of the render target
+		void UpdateRenderTarget(uint32_t p_width, uint32_t p_height) const;
 
 		void SetCameraPivot(const glm::vec3 &p_pivot, float p_radius);
+		void SetCameraPivotPoint(const glm::vec3 &p_pivot); // Is it even needed?
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
 
-		/// @brief Camera navigation drag currently in progress
-		enum class CameraDrag { None, Orbit, Pan };
-		CameraDrag m_cameraDrag = CameraDrag::None;
-		glm::vec3 m_cameraPivot = glm::vec3(0.0f);
-		float m_cameraPivotRadius = 8.0f;
+		/// @brief Serializer is needed to store temporary scene data in memory
+		Droplet::Scene::SceneSerializer serializer;
+
+		/// @brief Contains a json object that hold temporary scene data in memory
+		/// It is useful for when you have unsaved changes and want to enter play-mode
+		nlohmann::json m_json;
+
+		/// @brief Camera snapping
+		glm::vec3 m_cameraSnapPos = glm::vec3(0.0f);
+		glm::vec3 m_cameraSnapDir = glm::vec3(0.0f, 0.0f, 1.0f);
+		float m_cameraSnapRadius = 8.0f;
 	};
 }

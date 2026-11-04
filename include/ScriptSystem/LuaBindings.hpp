@@ -95,7 +95,7 @@ namespace Droplet::Script::Bindings
 		/// Exposes the functionality of Tracy that is intended to be accessible from Lua scripts.
 		/// @param p_luaState Lua state in which the Tracy bindings should be registered.
 		static void RegisterTracy([[maybe_unused]] sol::state_view p_luaState);
-
+		
 		// TODO: Implement additional engine bindings as functionality is added.
 	};
 }

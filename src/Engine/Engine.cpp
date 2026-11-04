@@ -9,11 +9,17 @@
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/TriggerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
+#include <SceneSystem/Items/BaseItems.hpp>
 
 using namespace Droplet;
 
@@ -76,7 +82,10 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
-    // ------
+
+	// Register base items and set the item registry for the scene manager
+	Droplet::Game::RegisterBaseItems(m_itemRegistry);
+	m_sceneManager.SetItemRegistry(&m_itemRegistry);
 
 	// Register engine behaviours
 	RegisterBehaviours();
@@ -86,6 +95,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Script Init
 	Script::ScriptSystem::Get().Initialize(m_sceneManager);
+	GameInput::Get().SetMainWindow(m_window.Get());
 }
 
 Droplet::Engine::~Engine()
@@ -110,9 +120,9 @@ void Droplet::Engine::Shutdown()
 	ThreadPool::GetInstance().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
+DROPLET_RETURNTYPE Droplet::Engine::Update()
 {
-	ZoneScoped;
+	ZoneScopedC(tracy::Color::PaleTurquoise1);
 
 	// Time
 	Time::Get().Update();
@@ -124,7 +134,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 	while (SDL_PollEvent(&m_renderer.Event))
 	{
 #ifdef TRACY_ENABLE
-		ZoneNamedN(eventZone, "Event", true);
+		ZoneNamedNC(eventZone, "Event", tracy::Color::MistyRose1, true);
 
 		constexpr int eventStrMaxLen = 256;
 		char eventStrBuf[eventStrMaxLen]{};
@@ -156,35 +166,29 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PreUpdate();
-		}
-	}
-
 	// Scenesystem
-	m_sceneManager.Update(Time::Get().GetDeltaTime());
-	
-	std::vector<Graphics::RenderData> renderDataVec = m_sceneManager.GetRenderData();
-
-	// Script Behaviours
-	for (const auto &behaviour : m_sceneManager.GetBehaviours())
-	{
-		if (behaviour && behaviour->IsActive())
-		{
-			behaviour->PostUpdate();
-		}
-	}
+	m_sceneManager.Update();
 
 	// ResourceManager
 
-	ResourceManager::Get().Update();
+	ResourceManager::GetInstance().Update();
+
+	return DROPLET_RETURNTYPE::OK;
+}
+
+DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+{
+	ZoneScopedC(tracy::Color::SkyBlue1);
+
+	auto renderData = m_sceneManager.GetRenderData();
+
+	if (camRenderData)
+	{
+		renderData.push_back(*camRenderData);
+	}
 
 	// Rendering
-	m_renderer.Draw(p_camera, renderDataVec);
-	//m_renderer.DrawFrame(p_camera, p_renderTarget);
+	m_renderer.Draw(renderData);
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -193,9 +197,11 @@ DROPLET_RETURNTYPE Droplet::Engine::Update(Droplet::Graphics::Camera &p_camera)
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
-	
+	m_sceneManager.PostRender();
+
+
 	// Other system that need updating go here.
-    ResourceManager::GetInstance().Update();
+	ResourceManager::GetInstance().Update();
 
 	FrameMark;
 
@@ -206,6 +212,7 @@ void Engine::RegisterBehaviours()
 {
 	// Register engine behaviours
 	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
+	Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Scene::PlayerBehaviour>(); });
 }
 
 void Engine::RegisterComponents()
@@ -216,4 +223,8 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Scene::DamageComponent>(); });
 }

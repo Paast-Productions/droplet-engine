@@ -20,7 +20,8 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-	    ResourceBrowser(EditorContext *p_editorContext);
+	    ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext) {}
+		~ResourceBrowser();
 	     
 	protected:
 

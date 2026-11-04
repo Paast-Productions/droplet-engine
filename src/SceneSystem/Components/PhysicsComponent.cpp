@@ -8,6 +8,7 @@
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
+#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
@@ -16,8 +17,10 @@
 #include <resource/GuidUtils.hpp>
 #include <IntermediaryStorage.hpp>
 #include <Editor/ResourceSlot.hpp>
+#include <Graphics/DebugDraw.hpp>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Graphics::Debug;
 
 PhysicsComponent::~PhysicsComponent()
 {
@@ -32,7 +35,7 @@ void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
 
 void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -42,7 +45,7 @@ void PhysicsComponent::SetBoxCollider(const JPH::Vec3 p_halfExtents, const JPH::
 	m_shapeType = ShapeType::Box;
 	m_serializeData.halfExtents.x = p_halfExtents.GetX();
 	m_serializeData.halfExtents.y = p_halfExtents.GetY();
-	m_serializeData.halfExtents.x = p_halfExtents.GetZ();
+	m_serializeData.halfExtents.z = p_halfExtents.GetZ();
 }
 
 void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::Vec3 &p_offset)
@@ -52,7 +55,7 @@ void PhysicsComponent::SetBoxCollider(const glm::vec3 p_halfExtents, const JPH::
 
 void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -65,7 +68,7 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 
 void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -79,7 +82,7 @@ void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, co
 
 void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -93,7 +96,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 
 void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
 {
-	if (m_shapeType != ShapeType::None)
+	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
@@ -107,6 +110,11 @@ void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, flo
 
 void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_shapes)
 {
+	if (!m_bodyID.IsInvalid())
+	{
+		RemoveCollider();
+	}
+	
 	JPH::Ref<JPH::StaticCompoundShapeSettings> compoundSettings = new JPH::StaticCompoundShapeSettings();
 	for (const CompoundShape &shape : p_shapes)
 	{
@@ -115,6 +123,37 @@ void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_s
 	
 	CreateCollider(compoundSettings);
 	m_shapeType = ShapeType::Compound;
+}
+
+void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, const float p_radius,
+	const JPH::Vec3& p_offset)
+{
+	if (!m_bodyID.IsInvalid())
+	{
+		RemoveCollider();
+	}
+	
+	JPH::Ref<JPH::CharacterSettings> characterSettings = new JPH::CharacterSettings();
+	characterSettings->mShape = new JPH::CapsuleShape(p_HalfHeightOfCylinder, p_radius);
+	characterSettings->mLayer = Layers::MOVING;
+	characterSettings->mMass = 80.0f;
+	characterSettings->mFriction = 1.0f;
+	characterSettings->mMaxSlopeAngle = JPH::DegreesToRadians(50.0f);
+	m_character = new JPH::Character(
+		characterSettings,
+		GLMtoJPH(m_transform->GetPosition()),
+		GLMtoJPH(m_transform->GetRotation()),
+		0,
+		m_physics->GetPhyscisSystem());
+	m_character->AddToPhysicsSystem(JPH::EActivation::Activate);
+	
+	m_bodyID = m_character->GetBodyID();
+	
+	m_shapeType = ShapeType::Player;
+	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.r = p_radius;
+	SetMotionType(JPH::EMotionType::Dynamic);
+	SetObjectLayer(Layers::MOVING);
 }
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
@@ -143,17 +182,25 @@ void PhysicsComponent::SetActive(bool p_active)
 
 void PhysicsComponent::RemoveCollider()
 {
-	if (m_shapeType != ShapeType::None)
+	if (m_shapeType != ShapeType::None && !m_bodyID.IsInvalid())
 	{
-		if (m_shapeType == ShapeType::Mesh || 
-			m_shapeType == ShapeType::ConvexHull)
+		if (m_shapeType == ShapeType::Mesh || m_shapeType == ShapeType::ConvexHull)
 		{
 			MeshColliderManager::Get().UnloadMeshSetting(m_meshGuid);
 		}
 		
-		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
-		bodyInterface->RemoveBody(m_bodyID);
-		bodyInterface->DestroyBody(m_bodyID);
+		if (m_character != nullptr)
+		{
+			m_character->RemoveFromPhysicsSystem();
+		}
+		else
+		{
+			JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+			bodyInterface->RemoveBody(m_bodyID);
+			bodyInterface->DestroyBody(m_bodyID);
+			m_bodyID = JPH::BodyID();
+		}
+		
 		m_shapeType = ShapeType::None;
 	}
 }
@@ -184,12 +231,15 @@ void PhysicsComponent::UpdateImpl()
 	if (m_transform->HasBeenChanged())
 	{
 		PushTransformToPhysics();
-		m_physics->GetBodyInterface()->SetLinearVelocity(m_bodyID, JPH::Vec3(0.0f, 0.0f, 0.0f));
 	}
 }
 
 void PhysicsComponent::LateUpdateImpl()
 {
+	if (m_character != nullptr)
+	{
+		m_character->PostSimulation(0.05f);
+	}
 	PullTransformFromPhysics();
 }
 
@@ -207,6 +257,8 @@ void PhysicsComponent::ActiveChangedImpl(const bool p_active)
 
 void PhysicsComponent::RenderUIImpl()
 {
+	DebugDrawShape();
+
 	if (m_shapeType != ShapeType::None)
 	{
 		// Display the current collider shape
@@ -231,6 +283,9 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			case ShapeType::Compound:
 				shapeType += "Compound";
+				break;
+			case ShapeType::Player:
+				shapeType += "Player";
 				break;
 			case ShapeType::None:
 				break;
@@ -372,7 +427,7 @@ void PhysicsComponent::RenderUIImpl()
 		return;
 	}
 	
-	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull", "Compound" };
+	const char* colliderTypes[] = { "Box", "Sphere", "Capsule", "Mesh", "Convex Hull", "Compound", "Player" };
 	static int selectedColliderIdx = 0; // Here we store our selection data as an index.
 
 	const char* comboPreviewValue1 = colliderTypes[selectedColliderIdx];
@@ -410,7 +465,7 @@ void PhysicsComponent::RenderUIImpl()
 	{
 	case 0: // Box collider
 		{
-			ImGui::Text("Input half extents:");
+			ImGui::TextWrapped("Input half extents:");
 			ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
 			ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
 			ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
@@ -418,13 +473,13 @@ void PhysicsComponent::RenderUIImpl()
 		}
 	case 1: // Sphere collider
 		{
-			ImGui::Text("Input radius:");
+			ImGui::TextWrapped("Input radius:");
 			ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
 			break;
 		}
 	case 2: // Capsule collider
 		{
-			ImGui::Text("Input capsule radius and cylinder height:");
+			ImGui::TextWrapped("Input capsule radius and cylinder height:");
 			ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
 			ImGui::InputFloat("Cylinder height##0", &h, 0.1f, 1.0f, "%.3f");
 			break;
@@ -433,7 +488,7 @@ void PhysicsComponent::RenderUIImpl()
 		{
 			if (!meshComponents.empty())
 			{
-				ImGui::Text("Input edge radius:");
+				ImGui::TextWrapped("Input edge radius:");
 				ImGui::InputFloat("Radius##0", &r, 0.01f, 1.0f, "%.3f");
 				ImGui::SetItemTooltip("Values <= 0.0 sets to default value of %.2f", JPH::cDefaultConvexRadius);
 			}
@@ -442,7 +497,7 @@ void PhysicsComponent::RenderUIImpl()
 		{   
 			if (meshComponents.empty())
 			{
-				ImGui::Text("There's no mesh component on this node!");
+				ImGui::TextWrapped("There's no mesh component on this node!");
 			}
 			else
 			{
@@ -459,11 +514,11 @@ void PhysicsComponent::RenderUIImpl()
 				
 				if (meshComponents.size() != meshNames.size())
 				{
-					ImGui::Text("There's no valid mesh components on this node!");
+					ImGui::TextWrapped("There's no valid mesh components on this node!");
 					break;
 				}
 
-				ImGui::Text("Choose mesh:");
+				ImGui::TextWrapped("Choose mesh:");
 				
 				// Pass in the preview value visible before opening the combo (it could technically be different contents or not pulled from items[])
 				const char* comboPreviewValue2 = meshNames[selectedMeshIdx].c_str();
@@ -530,7 +585,7 @@ void PhysicsComponent::RenderUIImpl()
 			
 			ImGui::NewLine();
 			ImGui::Separator();
-			ImGui::Text("Choose shape:");
+			ImGui::TextWrapped("Choose shape:");
 			
 			const char* comboPreviewValue2 = colliderTypes[selectedColliderIdx1];
 			if (ImGui::BeginCombo("Collider Type##1", comboPreviewValue2, 0))
@@ -562,7 +617,7 @@ void PhysicsComponent::RenderUIImpl()
 			{
 			case 0: // Box collider
 				{
-					ImGui::Text("Input half extents:");
+					ImGui::TextWrapped("Input half extents:");
 					ImGui::InputFloat("x##3", &x1, 0.01f, 1.0f, "%.3f");
 					ImGui::InputFloat("y##3", &y1, 0.01f, 1.0f, "%.3f");
 					ImGui::InputFloat("z##3", &z1, 0.01f, 1.0f, "%.3f");
@@ -570,13 +625,13 @@ void PhysicsComponent::RenderUIImpl()
 				}
 			case 1: // Sphere collider
 				{
-					ImGui::Text("Input radius:");
+					ImGui::TextWrapped("Input radius:");
 					ImGui::InputFloat("Radius##1", &r1, 0.01f, 1.0f, "%.3f");
 					break;
 				}
 			case 2: // Capsule collider
 				{
-					ImGui::Text("Input capsule radius and cylinder height:");
+					ImGui::TextWrapped("Input capsule radius and cylinder height:");
 					ImGui::InputFloat("Radius##1", &r1, 0.01f, 1.0f, "%.3f");
 					ImGui::InputFloat("Cylinder height##1", &h1, 0.1f, 1.0f, "%.3f");
 					break;
@@ -594,7 +649,7 @@ void PhysicsComponent::RenderUIImpl()
 				if (ImGui::BeginTable("MeshProps", 2, ImGuiTableFlags_SizingStretchProp))
 				{
 					ImGui::TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-        			ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+					ImGui::TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 				
 					if (ResourceSlot(
 						"Mesh",
@@ -715,6 +770,11 @@ void PhysicsComponent::RenderUIImpl()
 			ImGui::NewLine();
 			break;
 		}
+	case 6: // Player collider
+		ImGui::TextWrapped("Input player capsule radius and cylinder height:");
+		ImGui::InputFloat("Radius##2", &r, 0.01f, 1.0f, "%.3f");
+		ImGui::InputFloat("Cylinder height##2", &h, 0.1f, 1.0f, "%.3f");
+		break;
 	default:
 		break;
 	}
@@ -761,7 +821,7 @@ void PhysicsComponent::RenderUIImpl()
 				break;
 			}
 			displayError = false;
-			SetCapsuleCollider(r, h, JPH::Vec3(offsetX, offsetY, offsetZ));
+			SetCapsuleCollider(h, r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		case 3: // Mesh collider
 			SetMeshCollider(meshComponents[selectedMeshIdx]->GetMeshResource().GetGUID(), JPH::Vec3(offsetX, offsetY, offsetZ));
@@ -774,6 +834,9 @@ void PhysicsComponent::RenderUIImpl()
 			{
 				SetCompoundCollider(compoundShapes);
 			}
+			break;
+		case 6:
+			SetPlayerCollider(h, r, JPH::Vec3(offsetX, offsetY, offsetZ));
 			break;
 		default:
 			break;
@@ -868,19 +931,15 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 		switch (m_shapeType)
 		{
 		case ShapeType::Box:
-			m_shapeType = ShapeType::None;
 			SetBoxCollider(m_serializeData.halfExtents, m_offset);
 			break;
 		case ShapeType::Sphere:
-			m_shapeType = ShapeType::None;
 			SetSphereCollider(m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Capsule:
-			m_shapeType = ShapeType::None;
 			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Mesh:
-			m_shapeType = ShapeType::None;
 			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
 				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
@@ -888,13 +947,14 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 				});
 			break;
 		case ShapeType::ConvexHull:
-			m_shapeType = ShapeType::None;
-			
 			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
 				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
 					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
 				});
+			break;
+		case ShapeType::Player:
+			SetPlayerCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::None:
 		case ShapeType::Compound:
@@ -958,7 +1018,15 @@ void PhysicsComponent::PushTransformToPhysics()
 	const JPH::Vec3 pos = GLMtoJPH(m_transform->GetPosition(Transform::Space::World));
 	const JPH::Quat rot = GLMtoJPH(m_transform->GetRotation(Transform::Space::World));
 
-	m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+	if (m_character != nullptr)
+	{
+		m_character->SetPosition(pos);
+		m_character->SetRotation(rot);
+	}
+	else
+	{
+		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+	}
 }
 
 void PhysicsComponent::PullTransformFromPhysics()
@@ -968,13 +1036,115 @@ void PhysicsComponent::PullTransformFromPhysics()
 		return;
 	}
 
-	const JPH::RMat44 joltTransform = m_physics->GetBodyInterface()->GetWorldTransform(m_bodyID);
+	JPH::RMat44 joltTransform{};
+	if (m_character != nullptr)
+	{
+		joltTransform = m_character->GetWorldTransform();
+	}
+	else
+	{
+		joltTransform = m_physics->GetBodyInterface()->GetWorldTransform(m_bodyID);
+	}
+	
 
 	const glm::vec3 pos = JPHtoGLM(joltTransform.GetTranslation());
 	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
 
 	m_transform->SetPosition(pos);
 	m_transform->SetRotation(rot);
+	m_transform->MakePhysicsDirty();
+}
+
+void PhysicsComponent::DebugDrawShape()
+{
+	using namespace Droplet::Graphics::Debug;
+	using namespace glm;
+
+	// Interpret m_serializeData based on the shape type and draw the appropriate debug shape
+
+	vec4 color(0, 0.7f, 0, 1); // Default color for debug drawing
+
+	switch (m_shapeType)
+	{
+	case PhysicsComponent::ShapeType::Box:
+	{
+		Math::OBB obb{ JPHtoGLM(m_offset), m_serializeData.halfExtents };
+		obb = Math::OBB::Transform(obb, m_transform->GetMatrix(Transform::Space::World));
+
+		DebugDraw::DrawBox(
+			obb,
+			color, false, true
+		);
+		break;
+	}
+
+	case PhysicsComponent::ShapeType::Sphere:
+	{
+		// Draw three circles in the local axis planes of the sphere to represent it in 3D space
+
+		vec3 center = JPHtoGLM(m_offset);
+		float radius = m_serializeData.r;
+
+		// Transform the center to world space
+		center = vec3(m_transform->GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+
+		vec3 up = vec3(m_transform->GetUp(Transform::Space::World));
+		vec3 right = vec3(m_transform->GetRight(Transform::Space::World));
+		vec3 forward = vec3(m_transform->GetForward(Transform::Space::World));
+
+		DebugDraw::DrawCircle(center, up, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(center, right, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(center, forward, radius, color, 24, false, true);
+
+		break;
+	}
+
+	case PhysicsComponent::ShapeType::Capsule:
+	case PhysicsComponent::ShapeType::Player:
+	{
+		// Draw two 180-degree arcs on each end to represent the capsule's hemispherical ends and four lines connecting them to represent the cylindrical part
+		// Then draw two circles at the ends to represent the capsule's cross-section
+
+		vec3 center = JPHtoGLM(m_offset);
+		float radius = m_serializeData.r;
+		float halfHeight = m_serializeData.h * 0.5f;
+
+		center = vec3(m_transform->GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+
+		vec3 up = vec3(m_transform->GetUp(Transform::Space::World));
+		vec3 right = vec3(m_transform->GetRight(Transform::Space::World));
+		vec3 forward = vec3(m_transform->GetForward(Transform::Space::World));
+
+		// Calculate the top and bottom centers of the capsule
+		vec3 topCenter = center + up * halfHeight;
+		vec3 bottomCenter = center - up * halfHeight;
+
+		// Draw the hemispherical ends
+		DebugDraw::DrawArc(topCenter, forward, right, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(topCenter, -right, forward, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(bottomCenter, -forward, right, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(bottomCenter, right, forward, radius, 180.0f, color, 12, false, true);
+
+		// Draw the cylindrical part
+		DebugDraw::DrawLine(topCenter + right * radius, bottomCenter + right * radius, color, false);
+		DebugDraw::DrawLine(topCenter - right * radius, bottomCenter - right * radius, color, false);
+		DebugDraw::DrawLine(topCenter + forward * radius, bottomCenter + forward * radius, color, false);
+		DebugDraw::DrawLine(topCenter - forward * radius, bottomCenter - forward * radius, color, false);
+
+		// Draw circles at the ends to represent the cross-section
+		DebugDraw::DrawCircle(topCenter, up, radius, color, 24, false, true);
+		DebugDraw::DrawCircle(bottomCenter, up, radius, color, 24, false, true);
+
+		break;
+	}
+
+	default:
+	case PhysicsComponent::ShapeType::None:
+	case PhysicsComponent::ShapeType::Mesh:
+	case PhysicsComponent::ShapeType::Compound:
+	case PhysicsComponent::ShapeType::ConvexHull:
+		break;
+	}
 }
 
 JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)

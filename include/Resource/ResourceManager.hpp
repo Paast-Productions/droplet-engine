@@ -17,16 +17,16 @@
 
 namespace Droplet
 {
-    /// @brief Represents all states that a resource can have.
-    enum class ResourceState
-    {
-        Unloaded,
-        Queued,
-        LoadingAsync,
-        Uploading,
-        Ready,
-        Failed
-    };
+	/// @brief Represents all states that a resource can have.
+	enum class ResourceState
+	{
+		Unloaded,
+		Queued,
+		LoadingAsync,
+		Uploading,
+		Ready,
+		Failed
+	};
 
     /// @brief Contains relevant information about a specific loaded resource.
     struct LiveResource
@@ -60,47 +60,42 @@ namespace Droplet
     
     using AssetScannerFunc = std::vector<std::pair<StaticResourceType, std::string>>(*)(const std::filesystem::path &);
 
-    /// @brief Universal resource manager class.
-    class ResourceManager
-    {
-    public:
-        [[nodiscard]] static ResourceManager &GetInstance()
-        {
-            static ResourceManager instance {};
-            return instance;
-        }
-
-        ResourceManager(const ResourceManager &) = delete;
-
-        /// @brief Copy assignment operator deleting itself
-        /// @param ResourceManager
-        ResourceManager &operator=(const ResourceManager &) = delete;
-
+	/// @brief Universal resource manager class.
+	class ResourceManager
+	{
+	public:
 		/// @brief Retrieves the singleton instance of the resource manager.
 		/// @return A reference to the resource manager singleton.
-        [[nodiscard]] static ResourceManager &Get()
-        {
-            // HACK: DON'T DO THIS
-            return ResourceManager::GetInstance();
-        }
+		[[nodiscard]] static ResourceManager &GetInstance()
+		{
+			static ResourceManager instance {};
+			return instance;
+		}
 
-        /// @brief Initializes the resource manager for a specific root directory.
-        /// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
-        /// be able to load resources from.
-        void Initialize(const std::filesystem::path &p_rootDirectory);
+		ResourceManager(const ResourceManager &) = delete;
 
-        /// @brief Should be called every frame. Processes the internal task queues.
-        void Update();
+		/// @brief Copy assignment operator deleting itself
+		/// @param ResourceManager
+		ResourceManager &operator=(const ResourceManager &) = delete;
 
-        /// @brief Retrieves the root asset directory that the manager was initialized with.
-        /// @return The root asset directory.
-        std::filesystem::path GetRootDirectory() const;
 
-        /// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
-        /// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
+		/// @brief Initializes the resource manager for a specific root directory.
+		/// @param p_rootDirectory The absolute path to the root directory containing all assets that the manager should 
+		/// be able to load resources from.
+		void Initialize(const std::filesystem::path &p_rootDirectory);
+
+		/// @brief Should be called every frame. Processes the internal task queues.
+		void Update();
+
+		/// @brief Retrieves the root asset directory that the manager was initialized with.
+		/// @return The root asset directory.
+		std::filesystem::path GetRootDirectory() const;
+
+		/// @brief Parses an asset file and generates a .meta file based on its internal resources (or updates an existing one).
+		/// @param p_relAssetPath The path to the asset relative to the resource manager's root directory.
 		/// @param p_onComplete Optional callback that is triggered when the register operation has completed. The callback is executed on the main thread.
-        void RegisterAsset(const std::filesystem::path &p_relAssetPath, 
-            std::function<void(bool p_success, const std::vector<MetaEntry>&)> p_onComplete = nullptr);
+		void RegisterAsset(const std::filesystem::path &p_relAssetPath, 
+			std::function<void(bool p_success, const std::vector<MetaEntry>&)> p_onComplete = nullptr);
 
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
@@ -133,31 +128,31 @@ namespace Droplet
             
             StaticResourceHandle<T> handle(p_guid, this);
 
-            // Handle callback
-            if (p_onLoadCallback)
-            {
-                if (it->second.state == ResourceState::Ready)
-                {
-                    p_onLoadCallback(handle);
-                }
-                else if (it->second.state != ResourceState::Failed)
-                {
-                    // Resource is not loaded and has not failed -> Store callback until loaded
-                    // Capture handle by value inside lambda to guarantee that ref count is >= 1
-                    it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
-                        {
-                            p_onLoadCallback(handle);
-                        });
-                }
-            }
-            
-            if (loadAsync)
-            {
-                PushWorkerLoadTask<T>(p_guid, metaEntry);
-            }
-            
-            return handle;
-        }
+			// Handle callback
+			if (p_onLoadCallback)
+			{
+				if (it->second.state == ResourceState::Ready)
+				{
+					p_onLoadCallback(handle);
+				}
+				else if (it->second.state != ResourceState::Failed)
+				{
+					// Resource is not loaded and has not failed -> Store callback until loaded
+					// Capture handle by value inside lambda to guarantee that ref count is >= 1
+					it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
+						{
+							p_onLoadCallback(handle);
+						});
+				}
+			}
+			
+			if (loadAsync)
+			{
+				PushWorkerLoadTask<T>(p_guid, metaEntry);
+			}
+			
+			return handle;
+		}
 
         /// @brief Retrieves a list of registered resources, optionally filtered by type.
         /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
@@ -170,37 +165,43 @@ namespace Droplet
         /// @return True if meta entry was found, else false.
         [[nodiscard]] bool GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const;
 
-        /// @brief Retrieves the schema descriptor for the load settings of a specific resource.
+		/// @brief Meta entry data for a specific resource by its display name.
+		/// @param p_resourceName The display name of the resource.
+		/// @param[out] p_metaEntry The meta entry result.
+		/// @return True if meta entry was found, else false.
+		[[nodiscard]] bool GetResourceMetaEntry(const std::string &p_resourceName, MetaEntry &p_metaEntry) const;
+		
+		/// @brief Retrieves the schema descriptor for the load settings of a specific resource.
         /// @param p_type The resource type to get the schema for.
         /// @return A list of descriptors detailing the valid fields, types and values.
         [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(StaticResourceType p_type) const;
 
-        /// @brief Updated the meta entry for a specific resource and optionally triggers a hot-reload of that resource.
-        /// @note This function will reject updates if the resource is currently being loaded or uploaded.
-        /// @param p_guid The globally unique identifier of the resource.
-        /// @param p_updatedEntry The modified metadata entry.
-        /// @param hotReload If true, the resource is hot-reloaded from disk using the new meta entry settings.
-        /// @return True if the entry was successfully updated and written to disk. False if resource was loading,
-        /// uploading, or if GUID does not relate to any registered resource.
-        bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = true);
+		/// @brief Updated the meta entry for a specific resource and optionally triggers a hot-reload of that resource.
+		/// @note This function will reject updates if the resource is currently being loaded or uploaded.
+		/// @param p_guid The globally unique identifier of the resource.
+		/// @param p_updatedEntry The modified metadata entry.
+		/// @param hotReload If true, the resource is hot-reloaded from disk using the new meta entry settings.
+		/// @return True if the entry was successfully updated and written to disk. False if resource was loading,
+		/// uploading, or if GUID does not relate to any registered resource.
+		bool UpdateMetaEntry(GUID p_guid, const MetaEntry& p_updatedEntry, bool hotReload = true);
  
-        /// @brief Increments the reference count of a resource in the internal cache.
-        /// @param p_guid The globally unique identifier of the resource.
-        void IncrementRef(GUID p_guid);
+		/// @brief Increments the reference count of a resource in the internal cache.
+		/// @param p_guid The globally unique identifier of the resource.
+		void IncrementRef(GUID p_guid);
 
-        /// @brief Decrements the reference count of a resource in the internal cache.
-        /// @param p_guid The globally unique identifier of the resource.
-        void DecrementRef(GUID p_guid);
+		/// @brief Decrements the reference count of a resource in the internal cache.
+		/// @param p_guid The globally unique identifier of the resource.
+		void DecrementRef(GUID p_guid);
 
-        /// @brief Retrieves the current reference count for a resource.
-        /// @param p_guid The guid of the resource.
-        /// @return The reference count.
-        [[nodiscard]] std::uint32_t GetRef(GUID p_guid);
+		/// @brief Retrieves the current reference count for a resource.
+		/// @param p_guid The guid of the resource.
+		/// @return The reference count.
+		[[nodiscard]] std::uint32_t GetRef(GUID p_guid);
 
-        /// @brief Queries the load state of a resource in the internal cache.
-        /// @param p_guid The globally unique identifier of the resource.
-        /// @return The state that the resource is currently in.
-        [[nodiscard]] ResourceState GetState(GUID p_guid);
+		/// @brief Queries the load state of a resource in the internal cache.
+		/// @param p_guid The globally unique identifier of the resource.
+		/// @return The state that the resource is currently in.
+		[[nodiscard]] ResourceState GetState(GUID p_guid);
 
         /// @brief Registers a resource type, initializes its fallback instance and maps its load function.
         /// @note This function must be called during engine startup for every resource type the engine supports.
@@ -219,47 +220,54 @@ namespace Droplet
             };
         }
 
-        /// @brief Registers a scanner function to a list of extensions.
-        /// @param p_extensions The list of file extensions the scanner supports.
-        /// @param p_scanFunc The scanner function to be used for given file extensions.
-        void RegisterAssetScanner(const std::vector<std::string> &p_extensions, AssetScannerFunc p_scanFunc);
+		/// @brief Registers a scanner function to a list of extensions.
+		/// @param p_extensions The list of file extensions the scanner supports.
+		/// @param p_scanFunc The scanner function to be used for given file extensions.
+		void RegisterAssetScanner(const std::vector<std::string> &p_extensions, AssetScannerFunc p_scanFunc);
 
-        /// @brief Checks if the asset extension has a registered scanner. This function should be called before
-        /// attempting to register an asset.
-        /// @param p_path The path to the asset file.
-        /// @return True if the file's extension has a scanner registered, otherwise false.
-        [[nodiscard]] bool IsAssetSupported(const std::filesystem::path &p_path);
+		/// @brief Checks if the asset extension has a registered scanner. This function should be called before
+		/// attempting to register an asset.
+		/// @param p_path The path to the asset file.
+		/// @return True if the file's extension has a scanner registered, otherwise false.
+		[[nodiscard]] bool IsAssetSupported(const std::filesystem::path &p_path);
 
-        /// @brief Gets the raw resource stored in the internal cache specified by a GUID. If the guid does not reference
-        /// a registered resource, a fallback resource of the requested type will be returned instead.
-        /// @tparam T The resource type.
-        /// @param p_guid The globally unique identifier of the resource.
-        /// @return The resource.
-        template<typename T>
-        T *GetResource(GUID p_guid)
-        {
-            assert(m_isInitialized && "AssetManager is not initialized.");
-            
-            auto it = m_liveResources.find(p_guid);
-            if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
-            {
-                // Asset is ready to be used
-                return static_cast<T*>(it->second.resource.get());
-            }
+		/// @brief Gets the raw resource stored in the internal cache specified by a GUID. If the guid does not reference
+		/// a registered resource, a fallback resource of the requested type will be returned instead.
+		/// @tparam T The resource type.
+		/// @param p_guid The globally unique identifier of the resource.
+		/// @return The resource.
+		template<typename T>
+		T *GetResource(GUID p_guid)
+		{
+			assert(m_isInitialized && "AssetManager is not initialized.");
+			
+			auto it = m_liveResources.find(p_guid);
+			if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
+			{
+				// Asset is ready to be used
+				return static_cast<T*>(it->second.resource.get());
+			}
 
-            // Resource with guid was not found or is not ready -> hand over fallback for that resource type
-            auto fallbackIt = m_fallbackResources.find(typeid(T));
-            if (fallbackIt != m_fallbackResources.end())
-            {
-                return static_cast<T*>(fallbackIt->second.get());
-            }
-            
-            return nullptr; // Worst case scenario return nullptr
-        }
+			// Resource with guid was not found or is not ready -> hand over fallback for that resource type
+			auto fallbackIt = m_fallbackResources.find(typeid(T));
+			if (fallbackIt != m_fallbackResources.end())
+			{
+				return static_cast<T*>(fallbackIt->second.get());
+			}
+			
+			return nullptr; // Worst case scenario return nullptr
+		}
 
         /// @brief Forces a live resource to reload its data from disk.
         /// @param p_guid The globally unique identifier for the resource.
         void HotReload(GUID p_guid);
+		
+		/// @brief Removes metadata and file of a resource
+		/// @param p_guid The GUID of the resource to be removed
+		/// @param p_forceRemove If false, it won't remove the resource metadata and file if its
+		/// reference count is greater than zero. If true, the resource metadata and file will
+		/// be removed regardless.
+		void RemoveResourceMeta(const GUID p_guid, bool p_forceRemove = false);
     
     private:
         
@@ -309,7 +317,6 @@ namespace Droplet
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
     };
-    
 }
 
 #include "resource/StaticResourceHandle.inl" // Included here to avoid circular definitions
