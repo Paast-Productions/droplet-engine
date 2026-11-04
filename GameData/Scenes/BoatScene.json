@@ -13,7 +13,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Boat",
-                        "meshGUID": 1951864560061615958,
+                        "meshGUID": 6902259134965776716,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -34,7 +34,7 @@
                         "halfExtentsY": 0.0,
                         "halfExtentsZ": 0.0,
                         "layer": 0,
-                        "meshGUID": 1951864560061615958,
+                        "meshGUID": 6902259134965776716,
                         "motionType": 0,
                         "offsetX": 0.0,
                         "offsetY": 0.0,
@@ -42,12 +42,12 @@
                         "r": 0.0,
                         "shapeType": 4
                     },
-                    "id": 2,
+                    "id": 3,
                     "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 10,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -56,8 +56,8 @@
                     0.0
                 ],
                 "rotation": [
-                    0.7071067690849304,
-                    -0.7071068286895752,
+                    1.0,
+                    -2.9802322387695313e-08,
                     0.0,
                     0.0
                 ],
@@ -106,12 +106,12 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 3,
+                    "id": 12,
                     "name": "Camera",
                     "transform": {
                         "position": [
                             0.0,
-                            1.0,
+                            0.800000011920929,
                             0.0
                         ],
                         "rotation": [
@@ -166,7 +166,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 11,
             "name": "Player",
             "transform": {
                 "position": [
