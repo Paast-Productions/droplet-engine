@@ -81,7 +81,7 @@ void LuaBindings::RegisterGlobalFunctions()
 		},
 		{
 			"OnTrigger",
-			"void",
+			"void", 
 			{
 				{ "dt", "number" }
 			} 

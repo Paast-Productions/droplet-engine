@@ -1,44 +1,71 @@
 
+local fishSystem = require("FishSystem")
 
+local scene
+local roots
+local interactioRange = 5.0
+local interactionAngle = 30.0
+
+function InteractWithFish(target)
+    local playerPosition = self:GetTransform():GetPosition()
+    local targetPosition = target:GetTransform():GetPosition()
+
+    local forward = self:GetTransform():GetForward()
+
+    local direction = Vec3.new(
+        targetPosition.x - playerPosition.x,
+        targetPosition.y - playerPosition.y,
+        targetPosition.z - playerPosition.z
+    )
+
+    local distanceSquared = 
+        direction.x * direction.x +
+        direction.y * direction.y + 
+        direction.z * direction.z
+
+    if distanceSquared > interactioRange * interactioRange then
+        return false
+    end
+
+    if distanceSquared < 0.0001 then
+        return true
+    end
+
+    local distance = math.sqrt(distanceSquared)
+
+    direction = Vec3.new(
+        direction.x / distance,
+        direction.y / distance,
+        direction.z / distance
+    )
+
+    local dot = 
+        forward.x * direction.x +
+        forward.y * direction.y + 
+        forward.z * direction.z
+
+    local threshold = math.cos(math.rad(interactionAngle))
+
+    return dot >= threshold
+
+end
 
 
 function OnStart()
-    scene = SceneManagerInstance:GetScene("MainScene")
+    scene = SceneManagerInstance:GetScene("TutorialScecne")
 
     if not scene then
         print("Scene not found")
         return
     end
 
-    local transform = self:GetTransform()
-
-    local origin = transform:GetPosition(TSWorld)
-    local direction = transform:GetForward(TSWorld)
-
-    local ray = Ray.new(origin, direction)
-    local hits = scene:RaycastNodes(ray)
-
-    print("Raycast returned " .. #hits .. " nodes")
-
-    for _, node in ipairs(hits) do
-        if node ~= self then
-            print("Ray hit node: " .. node:GetName())
-        end
-    end
 end
 
 function OnUpdate(dt)
-
-    local transform = self:GetTransform()
-    local origin = transform:GetPosition(TSWorld)
-    local direction = transform:GetForward(TSWorld)
-
-    local ray = Ray(origin, direction)
-    local node, hit = scene:RaycastNode(ray)
-
-    if node and hit.didHit then
-        print("Hit: " .. node:GetName())
-        print("Distance: " .. hit.distance)
+    for _, fish in ipairs(fishSystem:GetFishes()) do
+        if InteractWithFish(fish) then
+           print("it works")
+        end
     end
 end
 

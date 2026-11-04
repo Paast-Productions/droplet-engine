@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 98,
+            "id": 1,
             "name": "SeafloorMain",
             "transform": {
                 "position": [
@@ -76,12 +76,12 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 99,
+            "id": 2,
             "name": "Seafloor",
             "transform": {
                 "position": [
                     0.0,
-                    0.0,
+                    1.1504571437835693,
                     0.0
                 ],
                 "rotation": [
@@ -124,7 +124,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 100,
+            "id": 3,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -133,10 +133,10 @@
                     -48.729644775390625
                 ],
                 "rotation": [
-                    0.5524958968162537,
-                    0.11899898201227188,
-                    -0.7051836252212524,
-                    -0.4281396269798279
+                    0.5524959564208984,
+                    0.11899899691343307,
+                    -0.7051836848258972,
+                    -0.42813968658447266
                 ],
                 "scale": [
                     0.19251741468906403,
@@ -172,7 +172,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 101,
+            "id": 4,
             "name": "UnderWaterLab",
             "transform": {
                 "position": [
@@ -220,7 +220,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 102,
+            "id": 5,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -268,7 +268,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 103,
+            "id": 6,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -316,7 +316,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 104,
+            "id": 7,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -325,9 +325,9 @@
                     -55.304168701171875
                 ],
                 "rotation": [
-                    0.8012517690658569,
+                    0.8012516498565674,
                     0.0,
-                    0.5983275175094604,
+                    0.5983274579048157,
                     0.0
                 ],
                 "scale": [
@@ -364,7 +364,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 105,
+            "id": 8,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -412,7 +412,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 106,
+            "id": 9,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -460,7 +460,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 107,
+            "id": 10,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -508,7 +508,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 108,
+            "id": 11,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -556,7 +556,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 109,
+            "id": 12,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -604,7 +604,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 110,
+            "id": 13,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -652,7 +652,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 111,
+            "id": 14,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -700,7 +700,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 112,
+            "id": 15,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -748,7 +748,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 113,
+            "id": 16,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -796,7 +796,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 114,
+            "id": 17,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -844,7 +844,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 115,
+            "id": 18,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -892,7 +892,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 116,
+            "id": 19,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -940,7 +940,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 117,
+            "id": 20,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -988,7 +988,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 118,
+            "id": 21,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -1036,7 +1036,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 119,
+            "id": 22,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -1084,7 +1084,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 120,
+            "id": 23,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1132,7 +1132,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 121,
+            "id": 24,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1180,7 +1180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 122,
+            "id": 25,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1228,7 +1228,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 123,
+            "id": 26,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1276,7 +1276,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 124,
+            "id": 27,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1324,7 +1324,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 125,
+            "id": 28,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1372,7 +1372,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 126,
+            "id": 29,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1420,7 +1420,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 127,
+            "id": 30,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1468,7 +1468,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 128,
+            "id": 31,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1542,10 +1542,18 @@
                     },
                     "id": 4,
                     "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "FishInteraction.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 129,
+            "id": 32,
             "name": "Drone",
             "transform": {
                 "position": [
@@ -1563,6 +1571,90 @@
                     1.0,
                     1.0000033378601074,
                     1.0000033378601074
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Fish",
+                                "meshGUID": 13422515732780036519,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 34,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            -1.924212611470466e-08,
+                            0.0,
+                            -0.16141465306282043
+                        ],
+                        "rotation": [
+                            -4.5577415619391104e-08,
+                            -0.7071678042411804,
+                            -5.715653372817542e-08,
+                            0.7070457339286804
+                        ],
+                        "scale": [
+                            0.999984860420227,
+                            1.0000131130218506,
+                            0.9999954700469971
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "testScript.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 33,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    0.0,
+                    10.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.5107618570327759,
+                    0.8026304841041565,
+                    -0.16539233922958374,
+                    -0.2599080204963684
+                ],
+                "scale": [
+                    1.0000046491622925,
+                    1.0000046491622925,
+                    1.0
                 ]
             }
         }
