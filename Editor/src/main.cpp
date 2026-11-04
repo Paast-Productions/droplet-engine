@@ -190,6 +190,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		{
 			ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
+			switch (engine.Update())
+			{
+			case Droplet::DROPLET_RETURNTYPE::OK:
+				break;
+
+			case Droplet::DROPLET_RETURNTYPE::EXIT:
+				run = false;
+				break;
+
+			default:
+			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+				run = false;
+				break;
+			}
+
 			EditorConfig::Update();
 
 			if (pendingLayoutChange != "")
@@ -215,6 +230,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			ImGui::NewFrame();
 			ImGui::DockSpaceOverViewport();
 			ImGuizmo::BeginFrame();
+
+			ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+			ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 			// Main toolbar
 			{
@@ -337,6 +355,40 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						ImGui::EndMenu();
 					}
 
+					if (ImGui::BeginMenu("Help"))
+					{
+						ImGui::Text(
+							"Controls:\n"
+							"    - Tab:           Enter editor camera\n"
+							"    - Z:             Snap camera\n"
+							"    - B:             Show octree\n"
+
+							"Guizmo:\n"
+							"    - Q:             None\n"
+							"    - W:             Translation\n"
+							"    - E:             Rotation\n"
+							"    - R:             Scale\n"
+							"    - T:             Bounds\n"
+							"    - Y:             Universal\n"
+
+							"Camera Pivot:\n"
+							"    - F:             Focus view & pivot on selection\n"
+							"    - MMB:           Pan along view plane\n"
+							"    - Alt + LMB:     Rotate around pivot\n"
+							"    - Scroll:        Move along view normal at constant rate\n"
+							"    - Alt + Scroll:  Zoom towards pivot\n"
+
+							"Nodes:\n"
+							"    - LMB:           Select node\n"
+							"    - LMB + drag:    Select multiple nodes\n"
+							"    - Del:           Remove node\n"
+							"    - CTRL + C:      Copy node(s)\n"
+							"    - CTRL + V:      Paste node(s)\n"
+						);
+
+						ImGui::EndMenu();
+					}
+
 					ImGui::EndMainMenuBar();
 				}
 
@@ -424,7 +476,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				hierarchyWindow.Render();
 			}
-
 			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
 			{
 				nodeInspectorWindow.Render();
@@ -450,24 +501,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				resourceBrowser.Render();
 			}
 
+
 			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
-			}
-
-			switch (engine.Update())
-			{
-			case Droplet::DROPLET_RETURNTYPE::OK:
-				break;
-
-			case Droplet::DROPLET_RETURNTYPE::EXIT:
-				run = false;
-				break;
-
-			default:
-			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
-				run = false;
-				break;
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering

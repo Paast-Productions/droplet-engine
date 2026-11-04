@@ -456,9 +456,6 @@ void ScriptManager::SetScriptDirectory(const std::string& p_directoryPath)
 		m_scriptDirectoryPath.generic_string() + "/?.lua;" +
 		m_scriptDirectoryPath.generic_string() + "/?/init.lua;" +
 		currentPath;
-
-	std::print("Updated package.path: {}\n",
-		package["path"].get<std::string>());
 }
 
 std::string Droplet::Script::ScriptManager::GetScriptDirectory()
