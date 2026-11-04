@@ -93,6 +93,28 @@ namespace Droplet::Scene
         /// @brief Gets the player's current heat level.
         /// @return Current heat level value.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
+        
+        /// Freeze
+        
+        /// @brief Sets the player's resistance to environmental heat.
+        /// @param p_heatResistance New heat resistance value.
+        void SetFreezeResistance(float p_freezeResistance) { m_data.freezeResistance = p_freezeResistance; }
+
+        /// @brief Gets the player's resistance to environmental heat.
+        /// @return Current heat resistance value.
+        [[nodiscard]] float GetFreezeResistance() const { return m_data.freezeResistance; }
+
+        /// @brief Increases the player's current heat level.
+        /// @param p_amount Amount to add to the current heat level.
+        void IncreaseFreezeLevel(float p_amount) { m_data.freezeLevel += p_amount; }
+
+        /// @brief Sets the player's current heat level.
+        /// @param p_heat New heat level value.
+        void SetFreezeLevel(float p_freeze) { m_data.freezeLevel = p_freeze; }
+
+        /// @brief Gets the player's current heat level.
+        /// @return Current heat level value.
+        [[nodiscard]] float GetFreezeLevel() const { return m_data.freezeLevel; }
 
         // ITEMS
 

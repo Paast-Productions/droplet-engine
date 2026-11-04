@@ -91,7 +91,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 19,
+            "id": 1,
             "name": "Player",
             "transform": {
                 "position": [
@@ -150,14 +150,22 @@
                     },
                     "id": 3,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "damage": 1.0
+                    },
+                    "id": 4,
+                    "type": "DamageComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 20,
+            "id": 2,
             "name": "FreezeBlock",
             "transform": {
                 "position": [
-                    -1.527909278869629,
+                    -15.096654891967773,
                     0.0,
                     0.0
                 ],
@@ -168,7 +176,7 @@
                     0.0
                 ],
                 "scale": [
-                    1.2708089351654053,
+                    15.790557861328125,
                     1.0,
                     1.0
                 ]
