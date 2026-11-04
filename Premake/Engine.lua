@@ -57,7 +57,9 @@ project "Engine"
         "Stb",
         "Gli",
         "bvh",
-        "Dalia"
+        "Dalia",
+        "ole32",
+        "avrt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
