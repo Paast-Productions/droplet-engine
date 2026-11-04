@@ -1,7 +1,6 @@
 
---local ray = Ray.new()
 
-local scene
+
 
 function OnStart()
     scene = SceneManagerInstance:GetScene("MainScene")

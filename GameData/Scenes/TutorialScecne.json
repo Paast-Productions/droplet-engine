@@ -6,6 +6,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -26,7 +27,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 1,
+            "drawLayer": 1,
+            "id": 98,
             "name": "SeafloorMain",
             "transform": {
                 "position": [
@@ -52,6 +54,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -72,7 +75,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 2,
+            "drawLayer": 1,
+            "id": 99,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -98,6 +102,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -118,7 +123,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 3,
+            "drawLayer": 1,
+            "id": 100,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -144,6 +150,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -164,7 +171,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 4,
+            "drawLayer": 1,
+            "id": 101,
             "name": "UnderWaterLab",
             "transform": {
                 "position": [
@@ -190,6 +198,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -210,7 +219,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 5,
+            "drawLayer": 1,
+            "id": 102,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -236,6 +246,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -256,7 +267,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 6,
+            "drawLayer": 1,
+            "id": 103,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -282,6 +294,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -302,7 +315,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 7,
+            "drawLayer": 1,
+            "id": 104,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -328,6 +342,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -348,7 +363,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 8,
+            "drawLayer": 1,
+            "id": 105,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -374,6 +390,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -394,7 +411,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 9,
+            "drawLayer": 1,
+            "id": 106,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -420,6 +438,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -440,7 +459,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 10,
+            "drawLayer": 1,
+            "id": 107,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -466,6 +486,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -486,7 +507,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 11,
+            "drawLayer": 1,
+            "id": 108,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -512,6 +534,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -532,7 +555,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 12,
+            "drawLayer": 1,
+            "id": 109,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -558,6 +582,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -578,7 +603,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 13,
+            "drawLayer": 1,
+            "id": 110,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -604,6 +630,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -624,7 +651,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 14,
+            "drawLayer": 1,
+            "id": 111,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -650,6 +678,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -670,7 +699,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 15,
+            "drawLayer": 1,
+            "id": 112,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -696,6 +726,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -716,7 +747,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 16,
+            "drawLayer": 1,
+            "id": 113,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -742,6 +774,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -762,7 +795,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 17,
+            "drawLayer": 1,
+            "id": 114,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -788,6 +822,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -808,7 +843,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 18,
+            "drawLayer": 1,
+            "id": 115,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -834,6 +870,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -854,7 +891,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 19,
+            "drawLayer": 1,
+            "id": 116,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -880,6 +918,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -900,7 +939,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 20,
+            "drawLayer": 1,
+            "id": 117,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -926,6 +966,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -946,7 +987,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 21,
+            "drawLayer": 1,
+            "id": 118,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -972,6 +1014,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -992,7 +1035,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 22,
+            "drawLayer": 1,
+            "id": 119,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -1018,6 +1062,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1038,7 +1083,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 23,
+            "drawLayer": 1,
+            "id": 120,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1064,6 +1110,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1084,7 +1131,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 24,
+            "drawLayer": 1,
+            "id": 121,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1110,6 +1158,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1130,7 +1179,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 25,
+            "drawLayer": 1,
+            "id": 122,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1156,6 +1206,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1176,7 +1227,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 26,
+            "drawLayer": 1,
+            "id": 123,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1202,6 +1254,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1222,7 +1275,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 27,
+            "drawLayer": 1,
+            "id": 124,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1248,6 +1302,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1268,7 +1323,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 28,
+            "drawLayer": 1,
+            "id": 125,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1294,6 +1350,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1314,7 +1371,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 29,
+            "drawLayer": 1,
+            "id": 126,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1340,6 +1398,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1360,7 +1419,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 30,
+            "drawLayer": 1,
+            "id": 127,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1386,6 +1446,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1406,7 +1467,8 @@
                     "type": "MeshComponent"
                 }
             ],
-            "id": 31,
+            "drawLayer": 1,
+            "id": 128,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1424,6 +1486,83 @@
                     1.0000001192092896,
                     1.0,
                     1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.004",
+                        "meshGUID": 12885130674664679680,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Drone",
+                        "textureGUID": 1365390299680718017,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "DroneControl2.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 4,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 129,
+            "name": "Drone",
+            "transform": {
+                "position": [
+                    0.0,
+                    20.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.00048731855349615216,
+                    0.9999998807907104,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000033378601074,
+                    1.0000033378601074
                 ]
             }
         }
