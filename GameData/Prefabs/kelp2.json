@@ -1,0 +1,46 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 3575449250532881688,
+                "fsName": "BaseFS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "kelp",
+                "meshGUID": 10162919735263167665,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "kelp_base",
+                "textureGUID": 14395557324987730134,
+                "vs": 17704871794447121608,
+                "vsName": "BaseVS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 10,
+    "name": "kelp2",
+    "transform": {
+        "position": [
+            44.63186264038086,
+            24.317140579223633,
+            -46.73657989501953
+        ],
+        "rotation": [
+            0.9111024141311646,
+            0.0,
+            -0.4121801555156708,
+            0.0
+        ],
+        "scale": [
+            1.0000001192092896,
+            1.0,
+            1.0000001192092896
+        ]
+    }
+}
