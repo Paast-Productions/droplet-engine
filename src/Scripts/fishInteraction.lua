@@ -1,10 +1,15 @@
 
 local fishSystem = require("FishSystem")
-
 local scene
-local roots
+
 local interactioRange = 5.0
 local interactionAngle = 30.0
+
+local suctuonSpeed = 4.0
+local suctionDistance = 0.3
+
+local currentTarget = nil
+local isSucking = false
 
 function InteractWithFish(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -64,7 +69,9 @@ end
 function OnUpdate(dt)
     for _, fish in ipairs(fishSystem:GetFishes()) do
         if InteractWithFish(fish) then
-           print("it works")
+           if Input:KeyHeld(Key.E) then
+                print("Succc")
+           end
         end
     end
 end

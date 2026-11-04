@@ -1,5 +1,5 @@
 local FishSystem = {}
-FishSystem.fish = {}
+FishSystem.fishes = {}
 
 function OnStart()
 end
@@ -8,12 +8,11 @@ function OnUpdate()
 end
 
 function FishSystem.RegisterFish(node)
-    table.insert(FishSystem.fish, node)
-    print("FishSystem called wowowowo")
+    table.insert(FishSystem.fishes, node)
 end
 
 function FishSystem.GetFishes()
-    return FishSystem.fish
+    return FishSystem.fishes
 end
 
 return FishSystem
