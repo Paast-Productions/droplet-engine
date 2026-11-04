@@ -20,7 +20,9 @@ namespace Droplet::Editor::Scene
 
 		/// @brief Function that controls if the camera should follow the cursor
 		/// @param p_active Boolean if true sets the camera to follow the cursor
-		void CameraLock(bool p_active);
+		/// @param p_centerX X-axis position in screen space which to reset the cursor position to after rotation
+		/// @param p_centerY Y-axis position in screen space which to reset the cursor position to after rotation
+		void CameraLock(bool p_active, float p_centerX, float p_centerY);
 
 		void SetMovementSpeed(float p_speed) { m_movementSpeed = p_speed; }
 		float GetMovementSpeed() const { return m_movementSpeed; }
