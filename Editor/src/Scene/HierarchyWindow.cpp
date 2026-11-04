@@ -538,7 +538,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 }
 
 
-void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node) // TODO: Make weak pointer
+void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node)
 {
     if (p_node.expired())
     {
