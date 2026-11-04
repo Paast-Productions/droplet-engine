@@ -23,6 +23,8 @@ local smoothDY = 0.0
 
 local mouseLock = false
 
+local MovementModifiers = require("MovementModifiers")
+
 --
 -- Member Functions
 --
@@ -38,21 +40,21 @@ function ApplyMouseLook(dt)
     end
     -- Frame-rate independent one-pole filter. Total rotation is preserved,
     -- it's just spread over a few frames.
-    local a = 1.0
-    if mouseSmoothTime > 0.0001 then
-        a = 1.0 - math.exp(-dt / mouseSmoothTime)
-    end
-    smoothDX = smoothDX + (dx - smoothDX) * a
-    smoothDY = smoothDY + (dy - smoothDY) * a
+    -- local a = 1.0
+    -- if mouseSmoothTime > 0.0001 then
+    --     a = 1.0 - math.exp(-dt / mouseSmoothTime)
+    -- end
+    -- smoothDX = smoothDX + (dx - smoothDX) * a
+    -- smoothDY = smoothDY + (dy - smoothDY) * a
 
-    -- Keep running until the tail has decayed, then stop
-    if math.abs(smoothDX) < 0.001 and math.abs(smoothDY) < 0.001 then
-        smoothDX, smoothDY = 0.0, 0.0
-        return
-    end
+    -- -- Keep running until the tail has decayed, then stop
+    -- if math.abs(smoothDX) < 0.001 and math.abs(smoothDY) < 0.001 then
+    --     smoothDX, smoothDY = 0.0, 0.0
+    --     return
+    -- end
 
-    local yawDelta = -smoothDX * mouseSensitivity
-    local pitchDelta = -smoothDY * mouseSensitivity
+    local yawDelta = -dx * mouseSensitivity
+    local pitchDelta = -dy * mouseSensitivity
     if invertY then pitchDelta = -pitchDelta end
 
     local forward = trans:GetForward()
@@ -67,21 +69,24 @@ function ApplyMouseLook(dt)
     trans:Rotate(GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), yawDelta), TransformSpace.World)
 end
 
+
 function UpdateMovement(dt)
     tracy.ZoneBeginN("Drone_movement UpdateMovement")
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
 
+    MovementModifiers.Update(dt)
+
     -- Forward and backward
     if Input:KeyHeld(Key.W) then
-        inputDirection = GLM.V3Add(
+        inputDirection = GLM.V3Sub(
             inputDirection,
             trans:GetForward(TransformSpace.World)
         )
     end
 
     if Input:KeyHeld(Key.S) then
-        inputDirection = GLM.V3Sub(
+        inputDirection = GLM.V3Add(
             inputDirection,
             trans:GetForward(TransformSpace.World)
         )
@@ -89,14 +94,14 @@ function UpdateMovement(dt)
 
     -- Strafe left and right
     if Input:KeyHeld(Key.A) then
-        inputDirection = GLM.V3Add(
+        inputDirection = GLM.V3Sub(
             inputDirection,
             trans:GetRight(TransformSpace.World)
         )
     end
 
     if Input:KeyHeld(Key.D) then
-        inputDirection = GLM.V3Sub(
+        inputDirection = GLM.V3Add(
             inputDirection,
             trans:GetRight(TransformSpace.World)
         )
@@ -118,6 +123,11 @@ function UpdateMovement(dt)
         )
     end
 
+    -- Get the slow modifier and apply on maxspeed and velocity
+    local modifier = MovementModifiers.GetSpeedMultiplier()
+    local effectiveMaxSpeed = maxSpeed * modifier
+
+
     -- Normalize only if the direction is longer than 1
     -- This prevents diagonal movement from increasing speed
     local inputLength = GLM.V3Length(inputDirection)
@@ -130,7 +140,7 @@ function UpdateMovement(dt)
     if inputLength > 0.0 then 
         local accelerationStep = GLM.V3MulF(
             inputDirection,
-            acceleration * dt
+            acceleration * modifier * dt
         )
 
         velocity = GLM.V3Add(velocity, accelerationStep)
@@ -139,26 +149,22 @@ function UpdateMovement(dt)
 
         velocity = GLM.V3MulF(velocity, dragFactor)
     end
-
+    
     -- Limit the total velocity, regardless of direction
     local speed = GLM.V3Length(velocity)
 
-    if speed > maxSpeed then
+    if speed > effectiveMaxSpeed then
         velocity = GLM.V3MulF(
             GLM.V3Normalize(velocity),
-            maxSpeed
+            effectiveMaxSpeed
         )
     end
 
     -- Apply movement in world space
-    local movement = GLM.V3MulF(velocity, dt)
+
+    local movement = GLM.V3MulF(velocity, dt * modifier)
 
     trans:Move(movement, TransformSpace.World)
-
-    -- Check movementspeed amplifiers with health component for now
-
-    local health = self:GetHealthComponent()
-    health:Heal(dt)
 
     tracy.ZoneEnd()
 end
@@ -180,8 +186,7 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-    ApplyMouseLook(dt)
-    if Input:KeyPressed(Key.Tab) then
+    if Input:KeyPressed(Key.Q) then
         if (mouseLock == false) then
             mouseLock = true
         else
@@ -189,6 +194,7 @@ function OnUpdate(dt)
         end
     end
 	
+    ApplyMouseLook(dt)
     UpdateMovement(dt)
 
     tracy.ZoneEnd()

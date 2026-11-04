@@ -18,10 +18,13 @@ function OnTrigger(dt, node)
         return
     end
     
+    -- Apply Damage
     health:TakeDamage(damage * dt)
     print("player health", health:GetHealth())
 
+    -- Notify the movementmodifer to apply slow
     MovementModifiers.ApplyFreeze()
+    print("TriggerTimer: ", MovementModifiers.triggerTimer)
 
 end
 
