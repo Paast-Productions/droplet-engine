@@ -61,21 +61,34 @@ namespace
 
 	/// @brief Gets the selected nodes that are valid for manipulation, excluding nodes whose ancestor is also selected
 	/// (those follow their ancestor, and would otherwise be transformed twice).
-	std::vector<std::shared_ptr<DNode>> GetManipulatableSelection(const std::vector<std::shared_ptr<DNode>> &p_selected)
+	std::vector<std::weak_ptr<DNode>> GetManipulatableSelection(
+		const std::vector<std::weak_ptr<DNode>> &p_selected)
 	{
-		std::vector<std::shared_ptr<DNode>> result;
+		std::vector<std::weak_ptr<DNode>> result;
 
-		for (const auto &node : p_selected)
+		for (const auto &weakNode : p_selected)
 		{
+			auto node = weakNode.lock();
 			if (!node || !node->GetBounds())
 			{
 				continue;
 			}
 
 			bool ancestorSelected = false;
-			for (auto parent = node->GetParent(); parent; parent = parent->GetParent())
+
+			for (auto parent = node->GetParent().lock();
+				parent;
+				parent = parent->GetParent().lock())
 			{
-				if (std::find(p_selected.begin(), p_selected.end(), parent) != p_selected.end())
+				const bool selected = std::any_of(
+					p_selected.begin(),
+					p_selected.end(),
+					[&parent](const std::weak_ptr<DNode> &p_candidate)
+					{
+						return p_candidate.lock() == parent;
+					});
+
+				if (selected)
 				{
 					ancestorSelected = true;
 					break;
@@ -92,18 +105,18 @@ namespace
 	}
 
 	/// @brief Computes the world-space AABB (min, max) enclosing the world-space bounds of all given nodes.
-	bool ComputeWorldBounds(const std::vector<std::shared_ptr<DNode>> &p_nodes, glm::vec3 &p_min, glm::vec3 &p_max)
+	bool ComputeWorldBounds(const std::vector<std::weak_ptr<DNode>> &p_nodes, glm::vec3 &p_min, glm::vec3 &p_max)
 	{
 		bool any = false;
 
 		for (const auto &node : p_nodes)
 		{
-			if (!node || !node->GetBounds())
+			if (!node.lock() || !node.lock()->GetBounds())
 			{
 				continue;
 			}
 
-			Droplet::Math::OBB obb = node->GetBounds()->GetTransformedOBB(node->GetTransform().GetMatrix(DTransform::Space::World));
+			Droplet::Math::OBB obb = node.lock()->GetBounds()->GetTransformedOBB(node.lock()->GetTransform().GetMatrix(DTransform::Space::World));
 			glm::vec3 corners[8];
 			obb.GetCorners(corners);
 
@@ -120,19 +133,19 @@ namespace
 
 	/// @brief Computes the world-space center and bounding radius of the given nodes. Nodes without bounds contribute
 	/// their world position. Returns false if there are no valid nodes.
-	bool ComputeFocusSphere(const std::vector<std::shared_ptr<DNode>> &p_nodes, glm::vec3 &p_center, float &p_radius)
+	bool ComputeFocusSphere(const std::vector<std::weak_ptr<DNode>> &p_nodes, glm::vec3 &p_center, float &p_radius)
 	{
 		glm::vec3 boundsMin{}, boundsMax{};
 		bool any = ComputeWorldBounds(p_nodes, boundsMin, boundsMax);
 
 		for (const auto &node : p_nodes)
 		{
-			if (!node || node->GetBounds())
+			if (!node.lock() || node.lock()->GetBounds())
 			{
 				continue;
 			}
 
-			glm::vec3 position = node->GetTransform().GetMatrix(DTransform::Space::World)[3];
+			glm::vec3 position = node.lock()->GetTransform().GetMatrix(DTransform::Space::World)[3];
 			boundsMin = any ? glm::min(boundsMin, position) : position;
 			boundsMax = any ? glm::max(boundsMax, position) : position;
 			any = true;
@@ -547,7 +560,7 @@ void SceneViewWindow::RenderEditorView()
 				(mousePos.y - camViewRectMin.y) / viewSize.y
 			);
 
-			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene().lock();
 			InteractionState &interactionState = m_editorContext->GetInteractionState();
 
 			if (interactionState.HasSelection())
@@ -709,7 +722,7 @@ void SceneViewWindow::RenderEditorView()
 		{
 			isDragging = false;
 
-			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene().lock();
 			InteractionState &interactionState = m_editorContext->GetInteractionState();
 
 			if (scene)
@@ -751,9 +764,9 @@ void SceneViewWindow::RenderEditorView()
 						);
 
 						Math::RayHit hit{};
-						auto hitNode = scene->RaycastNode(camera.GetViewRay(mousePosInView), &hit).lock();
+						auto hitNode = scene->RaycastNode(camera.GetViewRay(mousePosInView), &hit);
 
-						if (hit.didHit && hitNode)
+						if (hit.didHit && !hitNode.expired())
 						{
 							if (additiveSelection)
 							{
@@ -845,7 +858,7 @@ void SceneViewWindow::RenderEditorView()
 		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 		{
 			// Save scene before playing
-			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
+			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene().lock());
 
 			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
 		}
@@ -1053,11 +1066,11 @@ void SceneViewWindow::RenderGameView()
 			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
 
 			// Reset the scene
-			std::string sceneName = m_editorContext->GetActiveScene()->GetName();
-			m_editorContext->GetActiveScene()->SetActive(false);
+			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
+			m_editorContext->GetActiveScene().lock()->SetActive(false);
 			m_editorContext->CreateNewScene(sceneName);
 			m_editorContext->SetActiveScene(sceneName);
-			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
+			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1092,22 +1105,22 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer
-	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
+	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer // why is this even here?
+	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots(); // TODO: Make weak pointer // why is this even here?
 
 	// DebugDraw wireframe around selected nodes by their bounds
 	{
-		auto selectedNodes = interactionState.GetSelectedNodes(); // TODO: Make weak pointer
+		auto selectedNodes = interactionState.GetSelectedNodes();
 
 		for (const auto &node : selectedNodes)
 		{
-			if (!node)
+			if (node.expired())
 			{
 				continue;
 			}
 
-			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
-			Math::OBB nodeOBB = node->GetBounds()->GetTransformedOBB(nodeMat);
+			glm::mat4 nodeMat = node.lock()->GetTransform().GetMatrix(DTransform::Space::World);
+			Math::OBB nodeOBB = node.lock()->GetBounds()->GetTransformedOBB(nodeMat);
 
 			DebugDraw::DrawBox(
 				nodeOBB,
@@ -1123,7 +1136,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	{
 		// Nodes whose ancestor is also selected follow that ancestor, so they are excluded to avoid double transforms
 		const auto &allSelected = interactionState.GetSelectedNodes();
-		std::vector<std::shared_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
+		std::vector<std::weak_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
 
 		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
@@ -1132,7 +1145,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		if (manipulated.size() == 1)
 		{
-			const std::shared_ptr<DNode> &selectedNode = manipulated[0];
+			const std::shared_ptr<DNode> &selectedNode = manipulated[0].lock();
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
@@ -1222,13 +1235,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 					newMatrices.reserve(manipulated.size());
 					for (const auto &node : manipulated)
 					{
-						newMatrices.push_back(groupDelta * node->GetTransform().GetMatrix(DTransform::Space::World));
+						newMatrices.push_back(groupDelta * node.lock()->GetTransform().GetMatrix(DTransform::Space::World));
 					}
 
 					for (size_t i = 0; i < manipulated.size(); i++)
 					{
 						// SetMatrix in world space accounts for the parent transform
-						manipulated[i]->GetTransform().SetMatrix(newMatrices[i], DTransform::Space::World);
+						manipulated[i].lock()->GetTransform().SetMatrix(newMatrices[i], DTransform::Space::World);
 					}
 
 					didUse = true;
