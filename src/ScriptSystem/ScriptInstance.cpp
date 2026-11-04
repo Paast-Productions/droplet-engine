@@ -1,6 +1,7 @@
 #include "ScriptInstance.hpp"
 #include "Node.hpp"
 #include <print>
+#include <bvh/v2/node.h>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using namespace Droplet;
@@ -35,6 +36,7 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_environment["Input"] = &p_input;
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
+	m_onTrigger = m_environment["OnTrigger"];
 }
 
 ScriptInstance::~ScriptInstance()
@@ -76,6 +78,20 @@ void ScriptInstance::OnUpdate(float deltatime)
 	}
 }
 
+void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)
+{
+	ZoneScoped;
+	if (m_onTrigger.valid())
+	{
+		sol::protected_function_result result = m_onTrigger(deltatime, p_otherNode);
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::print("ScriptInstance: Error in OnTrigger for script {}\n", m_scriptPath, err.what());
+		}
+	}
+}
+
 bool ScriptInstance::Reload(sol::load_result &p_script)
 {
 	ZoneScoped;
@@ -100,6 +116,7 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
+	m_onTrigger = m_environment["OnTrigger"];
 
 	return true;
 }

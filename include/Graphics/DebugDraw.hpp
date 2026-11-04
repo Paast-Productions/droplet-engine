@@ -160,6 +160,26 @@ namespace Droplet::Graphics::Debug
 			int p_subdiv = 1,
 			bool p_depth = true
 		);
+
+		/// @brief Draw an arc in 3D space.
+		/// @param p_center The center of the arc.
+		/// @param p_normal The normal vector of the arc's plane.
+		/// @param p_centerToStart Vector from the center to the start point of the arc.
+		/// @param p_radius The radius of the arc.
+		/// @param p_angle The angle of the arc in degrees.
+		/// @param p_col The color of the arc.
+		/// @param p_seg The number of segments to divide the arc into.
+		/// @param p_depth Whether to enable depth testing for the arc.
+		/// @param p_wire Whether to draw only the wireframe of the arc.
+		static void DrawArc(
+			const glm::vec3 &p_center, const glm::vec3 &p_normal, const glm::vec3 &p_centerToStart, 
+			float p_radius, float p_angle, 
+			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
+			int p_seg = 12,
+			bool p_depth = true,
+			bool p_wire = false
+
+		);
 		
 		/// @brief Draw a circle in 3D space.
 		/// @param p_center The center of the circle.
@@ -407,7 +427,7 @@ namespace Droplet::Graphics::Debug
 		const vk::raii::CommandPool *m_commandPool = nullptr;
 		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
 		vk::Format m_colorFormat {};
-		vk::Format m_depthFormat {};
+		vk::Format m_depthFormat {}; 
 		std::vector<FrameResources> m_frameResources {};
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };

@@ -2,6 +2,8 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
 
+using namespace ImGui;
+
 static void WrapMousePosEx(int axises_mask, const ImRect &wrap_rect)
 {
 	ImGuiContext &g = *GImGui;

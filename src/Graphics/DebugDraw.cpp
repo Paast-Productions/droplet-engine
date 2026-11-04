@@ -3,7 +3,10 @@
 #include <math/Bezier.hpp>
 #include <math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <print>
+#include <iostream>
 #include <array>
 #include <map>
 #include <algorithm>
@@ -367,7 +370,8 @@ void DebugDraw::Initialize(
 	m_iconDepthMeshes.clear();
 	m_icosphereCache.clear();
 	m_circleCache.clear();
-
+	
+	
 	const vk::DescriptorSetLayoutBinding cameraBinding {
 		.binding = 0,
 		.descriptorType = vk::DescriptorType::eUniformBuffer,
@@ -398,13 +402,22 @@ void DebugDraw::Initialize(
 		frame.cameraBuffer = CreateHostBuffer(p_allocator, sizeof(CameraUniform), vk::BufferUsageFlagBits::eUniformBuffer);
 
 		const vk::DescriptorSetAllocateInfo allocateInfo {
-			.descriptorPool = *p_descriptorPool,
+			.descriptorPool = *m_descriptorPool,
 			.descriptorSetCount = 1,
 			.pSetLayouts = &*m_descriptorSetLayout
 		};
-
-		frame.descriptorSet = std::move(p_device.allocateDescriptorSets(allocateInfo).front());
-
+		
+		try
+		{
+			frame.descriptorSet = std::move(p_device.allocateDescriptorSets(allocateInfo).front());
+		}
+		catch (const std::exception &err)
+		{
+			std::println(std::cerr, "DEBUG ERROR: {0}", err.what());
+			std::flush(std::cerr);
+			throw std::runtime_error("");
+		}
+		
 		const vk::DescriptorBufferInfo bufferInfo {
 			.buffer = frame.cameraBuffer,
 			.offset = 0,
@@ -450,7 +463,7 @@ void DebugDraw::Initialize(
 
 		const vk::VertexInputBindingDescription binding {
 			.binding = 0,
-			.stride = p_icon ? sizeof(IconVertex) : sizeof(Vertex),
+			.stride = static_cast<std::uint32_t>(p_icon) ? static_cast<std::uint32_t>(sizeof(IconVertex)) : static_cast<std::uint32_t>(sizeof(Vertex)),
 			.inputRate = vk::VertexInputRate::eVertex
 		};
 
@@ -526,7 +539,7 @@ void DebugDraw::Initialize(
 			.dynamicStateCount = static_cast<std::uint32_t>(dynamicStates.size()),
 			.pDynamicStates = dynamicStates.data()
 		};
-
+		
 		vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> createInfo {
 			{
 				.stageCount = static_cast<std::uint32_t>(stages.size()),
@@ -565,7 +578,7 @@ void DebugDraw::Shutdown()
 
 	if (m_device)
 	{
-		(*m_device).waitIdle();
+		m_device->waitIdle();
 	}
 
 	m_frameResources.clear();
@@ -1091,6 +1104,53 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv
 	InternalDrawOptions intOpt(p_col, p_depth);
 
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+}
+
+void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, const glm::vec3 &p_centerToStart, float p_radius, float p_angle, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)
+{
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	const int segments = ClampCircleSegments(p_seg);
+
+	std::vector<glm::vec3> points;
+	points.resize(segments + 2);
+
+	glm::vec3 startPoint = p_center + glm::normalize(p_centerToStart) * p_radius;
+	glm::vec3 endPoint = p_center + glm::vec3(glm::normalize(glm::rotate(glm::mat4(1.0f), glm::radians(p_angle), p_normal) * glm::vec4(p_centerToStart, 0.0f)) * p_radius);
+
+	points[0] = startPoint;
+	points[segments + 1] = endPoint;
+
+	for (int i = 1; i < segments + 1; i++)
+	{
+		points[i] = p_center + glm::vec3(glm::normalize(glm::rotate(glm::mat4(1.0f), glm::radians(p_angle * i / (segments + 1)), p_normal) * glm::vec4(p_centerToStart, 0.0f)) * p_radius);
+	}
+
+	InternalDrawOptions intOpt(p_col, p_depth);
+
+	if (p_wire)
+	{
+		std::vector<DbgLine> lines;
+		lines.reserve(points.size());
+
+		for (int i = 0; i < points.size() - 1; ++i)
+		{
+			lines.emplace_back(points[i], points[i + 1]);
+		}
+
+		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
+	}
+	else
+	{
+		std::vector<DbgTri> triangles;
+		triangles.reserve(points.size());
+
+		for (int i = 0; i < points.size() - 1; ++i)
+		{
+			triangles.emplace_back(p_center, points[i], points[i + 1]);
+		}
+
+		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+	}
 }
 
 void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal, float p_radius, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)

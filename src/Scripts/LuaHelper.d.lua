@@ -6,6 +6,9 @@ function OnStart() end
 ---@param dt number
 function OnUpdate(dt) end
 
+---@param dt number
+function OnTrigger(dt) end
+
 ---@enum TransformSpace
 TransformSpace = {
 	Local = 0,
@@ -71,6 +74,21 @@ end
 
 ---@return Transform
 function Node:GetTransform()
+    return nil
+end
+
+---@return HealthComponent
+function Node:GetHealthComponent()
+    return nil
+end
+
+---@return PlayerComponent
+function Node:GetPlayerComponent()
+    return nil
+end
+
+---@return DamageComponent
+function Node:GetDamageComponent()
     return nil
 end
 
@@ -1506,6 +1524,12 @@ end
 ---@class Scene
 Scene = {}
 
+---@param id integer
+---@return Node | nil
+function Scene:FindNodeById(id)
+    return nil
+end
+
 ---@param ray Ray
 ---@return tuple<Node, RayHit>
 function Scene:RaycastNode(ray)
@@ -1545,6 +1569,118 @@ end
 
 ---@return Scene[]
 function SceneManager:GetActiveScenes()
+    return nil
+end
+
+---@class HealthComponent
+HealthComponent = {}
+
+---@return float
+function HealthComponent:GetHealth()
+    return nil
+end
+
+---@return float
+function HealthComponent:GetMaxHealth()
+    return nil
+end
+
+---@param amount number
+function HealthComponent:TakeDamage(amount)
+end
+
+---@param amount number
+function HealthComponent:Heal(amount)
+end
+
+---@param amount number
+function HealthComponent:SetHealth(amount)
+end
+
+---@param amount number
+function HealthComponent:SetMaxHealth(amount)
+end
+
+---@class PlayerComponent
+PlayerComponent = {}
+
+---@return PlayerBehaviour
+function PlayerComponent:GetPlayerBehaviour()
+    return nil
+end
+
+---@class PlayerBehaviour
+PlayerBehaviour = {}
+
+---@return float
+function PlayerBehaviour:GetMaxHealth()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatResistance()
+    return nil
+end
+
+---@return float
+function PlayerBehaviour:GetHeatLevel()
+    return nil
+end
+
+---@param amount number
+function PlayerBehaviour:IncreaseHeatLevel(amount)
+end
+
+---@param heat number
+function PlayerBehaviour:SetHeatLevel(heat)
+end
+
+---@param resistance number
+function PlayerBehaviour:SetHeatResistance(resistance)
+end
+
+---@return ItemRegistry
+function PlayerBehaviour:GetItemRegistry()
+    return nil
+end
+
+---@param inventory InventoryType
+---@param itemId ItemId
+---@param count number
+---@return number
+function PlayerBehaviour:AddItem(inventory, itemId, count)
+    return 0
+end
+
+---@param inventory InventoryType
+---@param itemId ItemId
+---@param count number
+---@return boolean
+function PlayerBehaviour:RemoveItem(inventory, itemId, count)
+    return false
+end
+
+---@param inventory InventoryType
+---@param itemId ItemId
+---@return number
+function PlayerBehaviour:CountItem(inventory, itemId)
+    return 0
+end
+
+---@class ItemRegistry
+ItemRegistry = {}
+
+---@param name string
+---@return ItemId
+function ItemRegistry:Find(name)
+    return nil
+end
+
+---@class DamageComponent
+DamageComponent = {}
+
+---@return DamageComponent
+function DamageComponent:GetDamageComponent()
     return nil
 end
 

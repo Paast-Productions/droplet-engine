@@ -20,6 +20,7 @@
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet
 {
@@ -52,7 +53,11 @@ namespace Droplet
 		
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Update(Droplet::Graphics::RenderTarget &p_renderTarget, Droplet::Graphics::Camera &p_camera);
+		[[nodiscard]] DROPLET_RETURNTYPE Update();
+		
+		/// @brief Will render the subsystems. Is needed to run anything.
+		/// @return The droplet returntype can be used to detemine if the render was successful or not.
+		[[nodiscard]] DROPLET_RETURNTYPE Render(Graphics::CameraRenderData *camRenderData = nullptr);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -65,20 +70,6 @@ namespace Droplet
 		/// @brief Getter for the window of the engine
 		/// @return An SDL window handle
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
-
-		/// @brief Creates and returns a descriptorset of a render target   //TODO: REFACTOR
-		/// @param p_renderTarget The rendertarget to bind to the descriptorset
-		/// @return A vkDescriptorSet 
-		VkDescriptorSet RegisterImGuiTexture(Graphics::RenderTarget& p_renderTarget);
-
-		VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid);
-		void RemoveImGuiTexture(GUID p_guid);
-
-		/// @brief Creates and returns a rendertarget   //TODO: REFACTOR
-		/// @param p_width Width of the target
-		/// @param p_height Height of the target
-		/// @return A Droplet::Graphics::Rendertarget 
-		Graphics::RenderTarget CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height);
 
 		//HACK: This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
 		Graphics::Renderer &GetRenderer() { return m_renderer; }
@@ -109,11 +100,11 @@ namespace Droplet
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
 
+		/// @brief Registry containing the game's registered item definitions.
+		Droplet::Game::ItemRegistry m_itemRegistry;
+
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
-
-		/// @brief 
-		ImGui_ImplVulkan_InitInfo m_initInfo {};
 
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;

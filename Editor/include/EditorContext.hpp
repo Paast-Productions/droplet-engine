@@ -1,16 +1,19 @@
 #pragma once
 #include "InteractionState.hpp"
-#include "../../include/SceneSystem/Scene.hpp"
+#include "SceneSystem/Scene.hpp"
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
 #include <Graphics/VK/Renderer.hpp>
 #include <Engine/Engine.hpp>
 #include <SceneSystem/Node.hpp>
+
+namespace Droplet::Scene
+{
+	class CameraComponent;
+}
+
 namespace Droplet::Editor
 {
-
-	
-
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext 
 	{
@@ -53,7 +56,7 @@ namespace Droplet::Editor
 
 		/// @brief Loads a scene from a file
 		/// @param p_filepath Filepath
-		void LoadFromFile( std::string &p_filepath);
+		void LoadFromFile(const std::string &p_filepath);
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
@@ -62,11 +65,23 @@ namespace Droplet::Editor
 		/// @brief Loads a node from a pre-existing file
 		/// @param filepath File
 		void LoadNodeFromFile(std::string &filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+
+		/// @brief Sets the game camera for the editor context.
+		/// This determines which camera is used for rendering the game view within the editor.
+		/// @param p_gameCamera A weak pointer to the CameraComponent that should be used as the game camera.
+		void SetGameCamera(std::weak_ptr<Droplet::Scene::CameraComponent> p_gameCamera) { m_gameCamera = p_gameCamera; }
+
+		/// @brief Gets the current game camera for the editor context.
+		/// @return A weak pointer to the CameraComponent that is currently set as the game camera.
+		[[nodiscard]] std::weak_ptr<Droplet::Scene::CameraComponent> GetGameCamera() { return m_gameCamera; }
+
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
 		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+
+		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
 	};
 }

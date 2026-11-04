@@ -1,80 +1,59 @@
 {
     "active": true,
-    "children": [
-        {
-            "active": true,
-            "children": [],
-            "components": [
-                {
-                    "data": {
-                        "fs": 3658838734074951198,
-                        "fsName": "BlueTint.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Cube.004",
-                        "meshGUID": 12885130674664679680,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "Drone",
-                        "textureGUID": 7728054173164093918,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
-                    },
-                    "id": 2,
-                    "type": "MeshComponent"
-                }
-            ],
-            "id": 34,
-            "name": "DroneMesh",
-            "transform": {
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    -3.0908619663705394e-08,
-                    -3.0908619663705394e-08,
-                    -0.7071067690849304,
-                    -0.70710688829422
-                ],
-                "scale": [
-                    0.4000000059604645,
-                    0.4000000059604645,
-                    0.4000000059604645
-                ]
-            }
-        }
-    ],
+    "children": [],
     "components": [
         {
             "data": {
-                "filepath": "DroneControl2.lua"
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube.004",
+                "meshGUID": 12885130674664679680,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Drone",
+                "textureGUID": 1365390299680718017,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
             },
             "id": 1,
-            "type": "ScriptComponent"
+            "type": "MeshComponent"
         },
         {
-            "data": {},
+            "data": {
+                "h": 1.0,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 0,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 1.0,
+                "shapeType": 7
+            },
             "id": 2,
-            "type": "CameraComponent"
+            "type": "PhysicsComponent"
         }
     ],
-    "id": 33,
+    "id": 1,
     "name": "Drone",
     "transform": {
         "position": [
-            35.52427291870117,
-            9.397393226623535,
-            -9.007463455200195
+            0.0,
+            17.699125289916992,
+            0.0
         ],
         "rotation": [
-            -0.5143393874168396,
-            -0.02161473035812378,
-            0.8565583229064941,
-            -0.035996463149785995
+            1.0,
+            0.0,
+            0.0,
+            0.0
         ],
         "scale": [
             1.0,
