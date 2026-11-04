@@ -167,6 +167,9 @@ namespace Droplet
 		/// @returns The cursor y delta.
 		[[nodiscard]] float GetDeltaMouseY() const;
 
+		/// @brief Get the delta mouse position as a glm::vec2.
+		[[nodiscard]] glm::vec2 GetDeltaMouse() const;
+
 		/// @brief Set the cursor position.
 		/// @param p_window The pointer to the SDL window instance.
 		/// @param p_x The new cursor x position.
