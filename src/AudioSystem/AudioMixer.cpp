@@ -4,6 +4,11 @@ using namespace Droplet::Audio;
 
 Droplet::Audio::AudioMixer::AudioMixer()
 {
+}
+
+void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
+{
+	//m_daliaEngine = &p_dalia;
 	const uint64_t masterID = m_nextBusID++;
 	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID);
 	m_masterBus = master.get();

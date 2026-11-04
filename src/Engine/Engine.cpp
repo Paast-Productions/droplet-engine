@@ -98,7 +98,12 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	// Script Init
 	ScriptSystem::Get().Initialize(m_sceneManager);
 
+	// Audio Init
+	//m_audioSystem.Initialize();
+
+
 	GameInput::Get().SetMainWindow(m_window.Get());
+
 }
 
 Droplet::Engine::~Engine()

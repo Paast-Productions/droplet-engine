@@ -50,7 +50,7 @@ namespace Droplet::Editor
 
 		/// @brief Get the mixer
 		/// @return the mixer
-		[[nodiscard]] Audio::AudioMixer &GetAudioMixer();
+		//TODO[[nodiscard]] Audio::AudioSystem &GetAudioSystem();
 
 		AudioMixerEditorState &GetAudioMixerState() { return m_selectedBus; }
 		/// @breif Lets the context set a new active scene
@@ -94,7 +94,7 @@ namespace Droplet::Editor
 		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
 
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
-		Audio::AudioMixer m_audioMixer;
+		//Audio::AudioSystem m_audioSystem;
 		AudioMixerEditorState m_selectedBus;
 	};
 }

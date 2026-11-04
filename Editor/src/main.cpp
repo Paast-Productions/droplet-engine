@@ -358,6 +358,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							EditorConfig::StoreBool("Editor.ShowSavedData", !currState);
 						}
 
+						currState = EditorConfig::LoadBool("Editor.ShowAudioMixer", true);
+						if (ImGui::MenuItem("Audio Mixer", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowAudioMixer", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowBusInspector", true);
+						if (ImGui::MenuItem("Bus Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowBusInspector", !currState);
+						}
+
 						ImGui::EndMenu();
 					}
 
@@ -477,6 +489,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
+			{
+				mixerWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
+			{
+				busInspectorWindow.Render();
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering

@@ -14,7 +14,8 @@ namespace Droplet::Audio
 	{
 	public:
 		AudioMixer();
-		~AudioMixer() = default;
+
+		void Initialize(dalia::Engine& p_dalia);
 
 		AudioBus* AddAudioBus(const std::string& p_nameAudioBus, AudioBus *p_parent);
 		void RemoveAudioBus(std::uint64_t p_id);
@@ -31,6 +32,8 @@ namespace Droplet::Audio
 		AudioBus* m_masterBus;
 		/// @brief A map of buses and their IDs, Every bus is owned by the Audio mixer and anyone who would ever think something else is something of a master in the topic of being stupid. 
 		std::unordered_map<std::uint64_t, std::unique_ptr<AudioBus>> m_buses;
+
+		//dalia::Engine *m_daliaEngine = nullptr;
 
 	};
 }

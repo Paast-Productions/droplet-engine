@@ -56,7 +56,8 @@ project "Engine"
         "Assimp",
         "Stb",
         "Gli",
-        "bvh"
+        "bvh",
+        "Dalia"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 

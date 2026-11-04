@@ -1815,48 +1815,9 @@ end
 function PlayerBehaviour:IncreaseHeatLevel(amount)
 end
 
----@param heat number
-function PlayerBehaviour:SetHeatLevel(heat)
-end
-
----@param resistance number
-function PlayerBehaviour:SetHeatResistance(resistance)
-end
-
----@return ItemRegistry
-function PlayerBehaviour:GetItemRegistry()
-    return nil
-end
-
----@param inventory InventoryType
----@param itemId ItemId
----@param count number
----@return number
-function PlayerBehaviour:AddItem(inventory, itemId, count)
-    return 0
-end
-
----@param inventory InventoryType
----@param itemId ItemId
----@param count number
----@return boolean
-function PlayerBehaviour:RemoveItem(inventory, itemId, count)
-    return false
-end
-
----@param inventory InventoryType
----@param itemId ItemId
----@return number
-function PlayerBehaviour:CountItem(inventory, itemId)
-    return 0
-end
-
----@class ItemRegistry
-ItemRegistry = {}
-
----@param name string
----@return ItemId
-function ItemRegistry:Find(name)
+---@param amount number
+---@return HeatResistance
+function PlayerBehaviour:SetHeatLevel(amount)
     return nil
 end
 
