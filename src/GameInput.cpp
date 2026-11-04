@@ -16,8 +16,7 @@ namespace Droplet
         ZoneScoped;
 
         m_previousKeys = m_currentKeys;
-        m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
-        m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
+        m_previousMouse = m_currentMouse;
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
 
