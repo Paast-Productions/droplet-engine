@@ -1,5 +1,6 @@
 #include "LuaBindings.hpp"
 #include <Node.hpp>
+#include <Scene.hpp>
 #include <Transform.hpp>
 #include <glm/glm.hpp>
 #include <GameInput.hpp>
