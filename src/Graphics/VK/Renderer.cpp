@@ -100,11 +100,11 @@ Renderer::Renderer(SDL_Window *p_window) :
 		{
 			{ 
 				.type = vk::DescriptorType::eSampledImage,
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE * 10
 			},
 			{ 
 				.type = vk::DescriptorType::eSampler, 
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE * 10
 			},
 		}
 	};

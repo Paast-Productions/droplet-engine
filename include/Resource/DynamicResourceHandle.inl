@@ -15,7 +15,12 @@ namespace Droplet
     DynamicResourceHandle<T>::DynamicResourceHandle(const DynamicResourceHandle &p_other) :
         ResourceHandle<T>(p_other.ResourceHandle<T>::m_guid)
     {
-        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID)
+        {
+            return;    
+        }
+        
+        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -34,9 +39,10 @@ namespace Droplet
     }
 
     template <typename T>
-    DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept
+    DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept :
+        ResourceHandle<T>(p_other.m_guid)
     {
-        std::swap(ResourceHandle<T>::m_guid, p_other.ResourceHandle<T>::m_guid);
+        ResourceHandle<T>::m_guid = p_other.m_guid;
     }
 
     template <typename T>
@@ -45,9 +51,10 @@ namespace Droplet
         if (this == &p_other)
         {
             return *this;    
-        }
+        }   
         
-        std::swap(ResourceHandle<T>::m_guid, p_other.ResourceHandle<T>::m_guid);
+        ResourceHandle<T>::m_guid = p_other.m_guid;
+        p_other.m_guid = C_INVALID_GUID;
         
         return *this;
     }
@@ -61,13 +68,18 @@ namespace Droplet
     template <typename T>
     DynamicResourceHandle<T>::~DynamicResourceHandle()
     {
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID)
+        {
+            return;
+        }
+        
         Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     bool DynamicResourceHandle<T>::IsValid() const
     {
-        return ResourceHandle<T>::m_guid == C_INVALID_GUID;
+        return ResourceHandle<T>::m_guid != C_INVALID_GUID;
     }
     
     //DynamicResourceHandle
@@ -87,19 +99,22 @@ namespace Droplet
     template <typename T>
     void DynamicResourceHandle<T>::IncrementRef()
     {
+        if (!IsValid())
+        {
+            return;
+        }
+        
         Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
     void DynamicResourceHandle<T>::DecrementRef()
     {
-        Graphics::VK::IntermediaryStorage &instance { Graphics::VK::IntermediaryStorage::GetInstance() };
-        
-        instance.DecrementRef(ResourceHandle<T>::m_guid);
-        
-        if (instance.GetLiveObjectRefCount(ResourceHandle<T>::m_guid) <= 0)
+        if (!IsValid())
         {
-            instance.MoveToDestructionQueue(ResourceHandle<T>::m_guid);
+            return;
         }
+        
+        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 }

@@ -11,6 +11,8 @@ namespace Droplet::Graphics
 		ImGuiTexture() = default;
 		
 		ImGuiTexture(DynamicResourceHandle<ImGuiTextureResource> p_textureHandle) : m_textureHandle(p_textureHandle) {}
+		ImGuiTexture(DynamicResourceHandle<ImGuiTextureResource> p_textureHandle, DynamicResourceHandle<VK::Image> p_image, DynamicResourceHandle<VK::ImageView> p_imageView) : 
+			m_textureHandle(p_textureHandle), m_image(p_image), m_imageView(p_imageView) {}
 		
 		ImGuiTexture(const ImGuiTexture &p_other) = default;
 		ImGuiTexture &operator=(const ImGuiTexture &p_other) = default;
@@ -25,5 +27,7 @@ namespace Droplet::Graphics
 		
 	private:
 		DynamicResourceHandle<ImGuiTextureResource> m_textureHandle {};
+		DynamicResourceHandle<VK::Image> m_image {};
+		DynamicResourceHandle<VK::ImageView> m_imageView {};
 	};
 }

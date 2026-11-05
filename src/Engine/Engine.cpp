@@ -202,6 +202,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRender
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
+	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
 	FrameMark;
 

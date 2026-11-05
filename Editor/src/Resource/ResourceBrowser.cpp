@@ -17,16 +17,6 @@ namespace
 	static bool s_isPreviewingResource = false;
 }
 
-
-ResourceBrowser::~ResourceBrowser()
-{
-	if (m_previewResourceHandle.IsValid())
-	{
-		Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
-		m_previewResourceHandle = {};
-	}
-}
-
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
@@ -189,7 +179,7 @@ void ResourceBrowser::RenderImpl()
 
 	if (!s_isPreviewingResource && m_previewResourceHandle.IsValid())
 	{
-		Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+		m_texture = {};
 		m_previewResourceHandle = {};
 	}
 }
@@ -539,7 +529,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		{
 			if (m_previewResourceHandle.IsValid())
 			{
-				Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+				m_texture = {};
 			}
 
 			m_isPreviewResourceLoaded = false;
@@ -579,7 +569,8 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
 			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			ImTextureRef textureRef = Graphics::VK::IntermediaryStorage::GetInstance().GetOrCreateImGuiTexture(guid);
+			m_texture = Graphics::VK::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
+			ImTextureRef textureRef = m_texture.Get();
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);

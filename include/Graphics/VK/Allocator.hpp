@@ -32,7 +32,7 @@ namespace Droplet::Graphics::VK
         
         /// @brief Getter-function for a vma allocator
         /// @returns vma allocator
-        [[nodiscard]] const vma::raii::Allocator &Get() const {return m_allocator; }
+        [[nodiscard]] const vma::raii::Allocator &Get() const { return m_allocator; }
     
     private:
     

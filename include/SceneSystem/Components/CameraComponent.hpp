@@ -23,7 +23,7 @@ namespace Droplet::Scene
             return "CameraComponent";
         }
 
-		~CameraComponent();
+		~CameraComponent() = default;
 
         [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
         [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }

@@ -190,6 +190,7 @@ namespace Droplet::Graphics::VK
         void DecrementRef(GUID p_guid);
         
         void MoveToDestructionQueue(GUID p_guid);
+        void DestroyUnusedResources();
         
         /// @brief Creates Vulkan buffer with the inputted resource type
         /// @param p_data Data to store in the buffer
@@ -243,15 +244,8 @@ namespace Droplet::Graphics::VK
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
         [[nodiscard]] ImGuiTexture CreateImGuiTexture(const RenderTarget &p_renderTarget);
-
-		/// @brief Removes an ImGui texture at a specified index
-		/// @param p_index Index of the ImGui texture to remove
-		void RemoveImGuiTexture(std::uint32_t p_index);
         
-        /// @brief Getter function for an ImGui texture at a specified index
-        /// @param p_index Index of the ImGui texture
-        /// @returns Reference to the texture in the form of a descriptor set
-        [[nodiscard]] vk::DescriptorSet &GetImGuiTextureAt(const std::uint32_t p_index) { return m_imGuiTextures.at(p_index); }
+        [[nodiscard]] ImGuiTexture CreateImGuiTexture(GUID p_guid);
         
         /// @brief Recreates render target and ImGui texture and updates them with new params
         /// @param p_target Index of the render target
@@ -259,14 +253,6 @@ namespace Droplet::Graphics::VK
         /// @param p_width Width of the new render target in pixels
         /// @param p_height Height of the new render target in pixels
         void UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height);
-        
-        // TODO: <REFACTOR>
-        // Maybe move to separate class etc.
-        
-        [[nodiscard]] VkDescriptorSet GetOrCreateImGuiTexture(GUID p_guid);
-        void RemoveImGuiTexture(GUID p_guid);
-        
-        // TODO: </REFACTOR>
         
     private:
         // Friend class Renderer to give it access to internals
@@ -344,22 +330,9 @@ namespace Droplet::Graphics::VK
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
-        
-        // ImGui
-        std::map<std::uint64_t, vk::DescriptorSet> m_imGuiTextures {};
-        
-        // TEMP
-        /*struct ImGuiTexture
-        {
-            Image image;
-            ImageView view;
-            VkDescriptorSet descriptorSet;
-        };
-        std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};*/
-        
+ 
         // NEW STUFF
         
-        void DestroyUnusedResources();
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
         std::queue<DynamicLiveResource> m_destroyQueue {};

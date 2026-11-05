@@ -21,7 +21,7 @@ namespace Droplet::Editor::Resource
 	{
 	public:
 	    ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext) {}
-		~ResourceBrowser();
+		~ResourceBrowser() = default;
 	     
 	protected:
 
@@ -68,6 +68,8 @@ namespace Droplet::Editor::Resource
 
 		StaticResourceHandle<IStaticResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
+		
+		Graphics::ImGuiTexture m_texture {};
 	    
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
 	    std::string m_unsupportedFilesList {}; // A list of unsupported assets in the latest registering attempt
