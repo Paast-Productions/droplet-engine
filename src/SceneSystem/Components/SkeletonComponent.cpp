@@ -107,7 +107,7 @@ void SkeletonComponent::ClearSkeleton()
             continue;
         }
 
-        if (const auto parent = node->GetParent())
+        if (const auto parent = node->GetParent().lock())
         {
             parent->RemoveChild(node); // Re-adds the node as a scene root
         }
@@ -221,10 +221,10 @@ void SkeletonComponent::DrawDebugSkeleton() const
         const glm::vec3 position = bone->GetTransform().GetPosition(Transform::Space::World);
         const auto parent = bone->GetParent();
 
-        if (parent)
+        if (!parent.expired())
         {
-            const bool toOwner = parent == owner;
-            const glm::vec3 parentPosition = parent->GetTransform().GetPosition(Transform::Space::World);
+            const bool toOwner = parent.lock() == owner;
+            const glm::vec3 parentPosition = parent.lock()->GetTransform().GetPosition(Transform::Space::World);
             DebugDraw::DrawLine(parentPosition, position, toOwner ? rootLinkColor : boneColor, false);
         }
 

@@ -456,6 +456,9 @@ void PhysicsComponent::RenderUIImpl()
 	static float z = 0.0f;
 	static float r = 0.0f;
 	static float h = 0.0f;
+	static float offsetX = 0.0f;
+	static float offsetY = 0.0f;
+	static float offsetZ = 0.0f;
 	Droplet::GUID guid = 0;
 	std::shared_ptr<Node> node = GetOwner();
 	std::vector<std::shared_ptr<MeshComponent>> meshComponents = node->GetComponents<MeshComponent>();
@@ -465,10 +468,30 @@ void PhysicsComponent::RenderUIImpl()
 	{
 	case 0: // Box collider
 		{
-			ImGui::TextWrapped("Input half extents:");
-			ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
+			static bool fitToBounds = false;
+			ImGui::Checkbox("Fit to Bounds", &fitToBounds);
+			
+			if (fitToBounds)
+			{
+				const NodeBounds *bounds = GetOwner()->GetBounds();
+				const Math::AABB &aabb = bounds->GetAABB();
+				const glm::vec3 center = aabb.center;
+				const glm::vec3 extents = aabb.extents;
+				x = extents.x;
+				y = extents.y;
+				z = extents.z;
+				
+				offsetX = center.x;
+				offsetY = center.y;
+				offsetZ = center.z;
+			}
+			else
+			{
+				ImGui::TextWrapped("Input half extents:");
+				ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
+				ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
+				ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
+			}
 			break;
 		}
 	case 1: // Sphere collider
@@ -781,9 +804,6 @@ void PhysicsComponent::RenderUIImpl()
 	
 	ImGui::Separator();
 	
-	static float offsetX = 0.0f;
-	static float offsetY = 0.0f;
-	static float offsetZ = 0.0f;
 	ImGui::Text("Input offset:");
 	ImGui::InputFloat("x##4", &offsetX, 0.01f, 1.0f, "%.3f");
 	ImGui::InputFloat("y##4", &offsetY, 0.01f, 1.0f, "%.3f");
