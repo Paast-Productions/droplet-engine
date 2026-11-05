@@ -37,6 +37,7 @@ namespace Droplet::Graphics::VK::Slug
 	{
 		glm::mat4 view;
 		glm::mat4 projection;
+		float aspectRatio;
 	};
 	
 	struct IconVertex
@@ -62,6 +63,8 @@ namespace Droplet::Graphics::VK::Slug
 		void Shutdown();
 	
 	private:
+		bool LoadFont(const char *p_inputPath);
+		
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
 		std::array<vk::raii::ShaderModule, 2> m_shaderModules

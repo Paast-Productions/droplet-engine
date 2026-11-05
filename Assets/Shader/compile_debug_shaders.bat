@@ -12,3 +12,7 @@ slangc debug_draw.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -f
 slangc debug_draw.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry fragMain -o ..\..\Build\Target\release\Editor\debug_draw.frag.spv || exit /b 1
 slangc debug_icon.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry iconVertMain -o ..\..\Build\Target\release\Editor\debug_icon.vert.spv || exit /b 1
 slangc debug_icon.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry iconFragMain -o ..\..\Build\Target\release\Editor\debug_icon.frag.spv || exit /b 1
+
+
+slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry slugVertMain -o ..\..\Build\Target\debug\Editor\slug_test.vert.spv || exit /b 1
+slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry slugFragMain -o ..\..\Build\Target\debug\Editor\slug_test.frag.spv || exit /b 1
