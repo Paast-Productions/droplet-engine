@@ -18,6 +18,12 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 {
 	GameInput &input = GameInput::Get();
 
+	// If ImGui is currently capturing keyboard input, we should not process shortcuts to avoid conflicts with ImGui widgets.
+	if (ImGui::GetIO().WantTextInput)
+	{
+		return;
+	}
+
 	ImGuizmo::OPERATION noneOperation = (ImGuizmo::OPERATION)0;
 	ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
 	ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
