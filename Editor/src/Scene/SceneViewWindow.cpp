@@ -310,7 +310,7 @@ void SceneViewWindow::RenderToolbar()
 		}
 
 		float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
-		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, .3f);
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
@@ -401,7 +401,6 @@ void SceneViewWindow::RenderImpl()
 
 void SceneViewWindow::RenderEditorView()
 {
-	ImDrawList *drawList = ImGui::GetWindowDrawList();
 	GameInput &input = GameInput::Get();
 
 	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
@@ -491,8 +490,6 @@ void SceneViewWindow::RenderEditorView()
 
 	if (isWindowFocused)
 	{
-		bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
-
 		EditorCameraController &controller = m_editorContext->GetEditorCameraController();
 
 		// Get the mouse position relative to the camera view rect
@@ -515,16 +512,18 @@ void SceneViewWindow::RenderEditorView()
 
 		if (m_cameraLookToggled)
 		{
-			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
+			controller.Update(viewCenter.x, viewCenter.y);
 		}
 
 		// Camera snaping
 		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
 		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed && !imGuiWantKeyboard)
 		{
-			camera.SetOrientation(EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::vec3 cameraSnapPos = EditorConfig::LoadVec3("CameraSnap.Position", glm::vec3(0.0f));
-			float cameraSnapRadius = EditorConfig::LoadFloat("CameraSnap.Radius", 8.0f);
+			camera.SetOrientation(
+				EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), 
+				glm::vec3(0.0f, 1.0f, 0.0f)
+			);
+
 			SetCameraPivot(m_cameraSnapPos, m_cameraSnapRadius);
 			ApplyCameraPivot();
 		}
