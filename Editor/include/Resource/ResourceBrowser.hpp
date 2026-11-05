@@ -20,7 +20,7 @@ namespace Droplet::Editor::Resource
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-	    ResourceBrowser(EditorContext *p_editorContext) : m_editorContext(p_editorContext) {}
+	    ResourceBrowser(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~ResourceBrowser();
 	     
 	protected:
@@ -57,8 +57,6 @@ namespace Droplet::Editor::Resource
         /// @param p_type The resource type to convert.
         /// @return String representing the resource type.
         std::string ResourceTypeToString(ResourceType p_type);
-
-	    EditorContext *m_editorContext { nullptr };
 	    
 	    BrowserNode m_rootBrowserNode {}; // The root node in the resource browser hierarchy
 	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser

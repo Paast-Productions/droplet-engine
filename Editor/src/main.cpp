@@ -162,9 +162,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		HierarchyWindow hierarchyWindow(&editorContext);
 		NodeInspectorWindow nodeInspectorWindow(&editorContext);
 		BehaviourInspector behaviourInspector(&editorContext);
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
-		ScriptsWindow scriptsWindow;
-		SavedDataWindow savedDataWindow;
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
 
 		hierarchyWindow.Init();

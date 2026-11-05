@@ -39,7 +39,7 @@ namespace Droplet
             /// @brief Constructs a hierarchy window.
             /// @param p_instance The instance of the engine used to access scene data.
             /// @param p_interactionState The shared interaction state used to track selections.
-            explicit HierarchyWindow(EditorContext *p_editorContext);
+            explicit HierarchyWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 
         protected:
             /// @brief Initializes the hierarchy window.

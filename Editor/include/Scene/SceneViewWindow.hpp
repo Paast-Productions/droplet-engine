@@ -21,9 +21,7 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(EditorContext *p_editorContext) :
-			m_editorContext(p_editorContext) {}
-
+		SceneViewWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~SceneViewWindow() = default;
 
 		bool IsRenderingGameView() const { return m_renderingGameView; }
