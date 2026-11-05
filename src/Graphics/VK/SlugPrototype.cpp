@@ -1,5 +1,6 @@
 #include "SlugPrototype.hpp"
 #include <Graphics/VK/Camera.hpp>
+#include <fstream>
 
 // Shamelessly stolen from DebugDraw.cpp
 std::vector<char> Droplet::Graphics::VK::Slug::ReadShader(const std::filesystem::path &p_path)
@@ -222,10 +223,10 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 		const std::uint32_t attributeCount = static_cast<std::uint32_t>(iconAttributes.size());
 
 		const vk::PipelineVertexInputStateCreateInfo vertexInput {
-			.vertexBindingDescriptionCount = 1,
-			.pVertexBindingDescriptions = &binding,
-			.vertexAttributeDescriptionCount = attributeCount,
-			.pVertexAttributeDescriptions = attributeData
+			.vertexBindingDescriptionCount = 0,
+			.pVertexBindingDescriptions = nullptr,
+			.vertexAttributeDescriptionCount = 0,
+			.pVertexAttributeDescriptions = nullptr
 		};
 
 		const vk::PipelineInputAssemblyStateCreateInfo inputAssembly { 
@@ -307,6 +308,14 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 	};
 	
 	m_pipeline = createPipeline(0);
+	
+	
+	
+	// Glyph rendering
+	
+	uint32_t width = 1024;
+	uint32_t height = 1024;
+	
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_camera,
@@ -331,7 +340,8 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 
 	const CameraUniform cameraUniform { 
 		p_camera.GetViewMatrix(), 
-		p_camera.GetProjectionMatrix() 
+		p_camera.GetProjectionMatrix(),
+		p_camera.GetAspect()
 	};
 
 	frame.cameraBuffer.getAllocation().copyFromMemory(&cameraUniform, 0, sizeof(cameraUniform));
@@ -420,6 +430,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 		p_commandBuffer.drawIndexed(p_vertexCount, 1, p_firstVertex, 0, 0);
 	};
 	
+	p_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
 	p_commandBuffer.setViewport(0, viewport);
 	p_commandBuffer.setScissor(0, scissor);
 	p_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *frame.descriptorSet, nullptr);
@@ -428,8 +439,9 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 		drawMesh(p_pipelineIndex, frame.iconBuffer, 0, static_cast<std::uint32_t>(p_vertices.size()));
 	};
 
-	drawIcons(iconVertices, 5, 0);
+	// drawIcons(iconVertices, 5, 0);
 	// drawIcons(m_iconDepthMeshes, 4, frame.iconDepthFirst);
+	p_commandBuffer.draw(6, 1, 0,0);
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
@@ -455,4 +467,15 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
 	m_allocator = nullptr;
 	m_colorFormat = {};
 	m_depthFormat = {};
+}
+
+bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPath)
+{
+	std::ifstream inFile(p_inputPath, std::ios::binary);
+	if (!inFile.is_open())
+	{
+		std::cerr << "Failed to open font file." << std::endl;
+		return false;
+	}
+	return true;
 }
