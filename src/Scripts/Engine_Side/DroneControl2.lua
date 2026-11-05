@@ -27,6 +27,7 @@ local smoothDY = 0.0
 
 local mouseLock = false
 
+local MovementModifiers = require("MovementModifiers")
 --
 -- Member Functions
 --
@@ -83,6 +84,7 @@ function ApplyMouseLook(dt)
     trans:Rotate(GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), yawDelta), TransformSpace.World)
 end
 
+
 function UpdateMovement(dt)
     tracy.ZoneBeginN("Drone_movement UpdateMovement")
     -- Build the movement input directions
@@ -134,7 +136,12 @@ function UpdateMovement(dt)
         )
     end
 
-       -- Normalize only if the direction is longer than 1
+    -- Get the slow modifier and apply on maxspeed and velocity
+    local modifier = MovementModifiers.GetSpeedMultiplier()
+    local effectiveMaxSpeed = maxSpeed * modifier
+
+    -- Normalize only if the direction is longer than 1
+    -- This prevents diagonal movement from increasing speed
     local inputLength = GLM.V3Length(inputDirection)
 
     if inputLength > 1.0 then
@@ -142,8 +149,8 @@ function UpdateMovement(dt)
         inputLength = 1.0
     end
 
-    -- Target velocity is what the player is asking for
-    local targetVelocity = GLM.V3MulF(inputDirection, maxSpeed)
+    -- Calculate desired velocity    
+    local targetVelocity = GLM.V3MulF(inputDirection, effectiveMaxSpeed)
 
     -- Pick the rate depending on the situation
     local rate = deceleration                      -- no input: stop
@@ -165,16 +172,16 @@ function UpdateMovement(dt)
     -- Limit the total velocity, regardless of direction
     local speed = GLM.V3Length(velocity)
 
-    if speed > maxSpeed then
+    if speed > effectiveMaxSpeed then
         velocity = GLM.V3MulF(
             GLM.V3Normalize(velocity),
-            maxSpeed
+            effectiveMaxSpeed
         )
     end
 
     -- Apply movement in world space
-    local movement = GLM.V3MulF(velocity, dt)
 
+    local movement = GLM.V3MulF(velocity, dt)
     trans:Move(movement, TransformSpace.World)
 
     tracy.ZoneEnd()
@@ -197,8 +204,7 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-    ApplyMouseLook(dt)
-    if Input:KeyPressed(Key.Tab) then
+    if Input:KeyPressed(Key.tab) then
         if (mouseLock == false) then
             mouseLock = true
         else
@@ -206,6 +212,7 @@ function OnUpdate(dt)
         end
     end
 	
+    ApplyMouseLook(dt)
     UpdateMovement(dt)
 
     tracy.ZoneEnd()

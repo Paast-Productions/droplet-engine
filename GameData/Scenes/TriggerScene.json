@@ -6,13 +6,7 @@
             "children": [],
             "components": [
                 {
-                    "data": {
-                        "filepath": "printTrigger.lua"
-                    },
-                    "id": 1,
-                    "type": "ScriptComponent"
-                },
-                {
+                    "active": true,
                     "data": {
                         "h": 0.0,
                         "halfExtentsX": 0.0,
@@ -31,6 +25,7 @@
                     "type": "PhysicsComponent"
                 },
                 {
+                    "active": true,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -51,20 +46,61 @@
                     "type": "MeshComponent"
                 },
                 {
+                    "active": true,
                     "data": {
-                        "filepath": ""
+                        "filepath": "DroneControl2.lua"
                     },
                     "id": 4,
                     "type": "ScriptComponent"
                 },
                 {
-                    "data": null,
+                    "active": true,
+                    "data": {},
                     "id": 5,
-                    "type": "TriggerComponent"
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "health": 100.0,
+                        "maxHealth": 100.0
+                    },
+                    "id": 6,
+                    "type": "HealthComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 7,
+                    "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "FreezeControl.lua"
+                    },
+                    "id": 8,
+                    "type": "ScriptComponent"
                 }
             ],
-            "id": 1,
-            "name": "TriggerNode",
+            "drawLayer": 1,
+            "id": 31,
+            "name": "Player",
             "transform": {
                 "position": [
                     1.7661347389221191,
@@ -87,12 +123,57 @@
         {
             "active": true,
             "children": [],
-            "components": [],
-            "id": 2,
-            "name": "New Node",
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "FreezeColor",
+                        "textureGUID": 14503967403712679070,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 2,
+                    "type": "TriggerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "damage": 1.0
+                    },
+                    "id": 4,
+                    "type": "DamageComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Freeze.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 32,
+            "name": "FreezeBlock",
             "transform": {
                 "position": [
-                    -1.527909278869629,
+                    -15.096654891967773,
                     0.0,
                     0.0
                 ],
@@ -103,7 +184,7 @@
                     0.0
                 ],
                 "scale": [
-                    1.0,
+                    15.790557861328125,
                     1.0,
                     1.0
                 ]
