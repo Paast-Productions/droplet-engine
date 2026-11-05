@@ -9,7 +9,11 @@ local velocity = nil
 -- Movement settings
 local acceleration = 5.0
 local maxSpeed = 8.0
-local drag = 1.5
+
+local acceleration = 5.0     -- speeding up along the input direction
+local deceleration = 12.0    -- no input: slowing to a stop
+local braking = 14.0         -- input opposes current motion: turning around
+
 local moveSpeed = 0.0
 
 
@@ -28,6 +32,18 @@ local mouseLock = false
 --
 function Clamp(value, minValue, maxValue)
     return math.max(minValue, math.min(maxValue, value))
+end
+
+-- Move a vector toward a target by at most maxDelta (vector version of MoveTowards)
+function MoveTowardsV3(current, target, maxDelta)
+    local delta = GLM.V3Sub(target, current)
+    local dist = GLM.V3Length(delta)
+
+    if dist <= maxDelta or dist < 0.00001 then
+        return target
+    end
+
+    return GLM.V3Add(current, GLM.V3MulF(delta, maxDelta / dist))
 end
 
 function ApplyMouseLook(dt)
@@ -118,27 +134,33 @@ function UpdateMovement(dt)
         )
     end
 
-    -- Normalize only if the direction is longer than 1
-    -- This prevents diagonal movement from increasing speed
+       -- Normalize only if the direction is longer than 1
     local inputLength = GLM.V3Length(inputDirection)
 
     if inputLength > 1.0 then
         inputDirection = GLM.V3Normalize(inputDirection)
+        inputLength = 1.0
     end
 
-    -- Accelerate while input is held
-    if inputLength > 0.0 then 
-        local accelerationStep = GLM.V3MulF(
-            inputDirection,
-            acceleration * dt
-        )
+    -- Target velocity is what the player is asking for
+    local targetVelocity = GLM.V3MulF(inputDirection, maxSpeed)
 
-        velocity = GLM.V3Add(velocity, accelerationStep)
-    else
-        local dragFactor = math.max(0.0, 1.0 - drag * dt)
+    -- Pick the rate depending on the situation
+    local rate = deceleration                      -- no input: stop
 
-        velocity = GLM.V3MulF(velocity, dragFactor)
+    if inputLength > 0.0 then
+        local dot = velocity.x * inputDirection.x
+                  + velocity.y * inputDirection.y
+                  + velocity.z * inputDirection.z
+
+        if dot < 0.0 then
+            rate = braking                         -- pushing against motion
+        else
+            rate = acceleration                    -- pushing with motion
+        end
     end
+
+    velocity = MoveTowardsV3(velocity, targetVelocity, rate * dt)
 
     -- Limit the total velocity, regardless of direction
     local speed = GLM.V3Length(velocity)
@@ -196,8 +218,8 @@ function RenderUI()
     _, mouseSmoothTime = ImGui.DragFloat("Mouse Smoothing (s)", mouseSmoothTime, 0.005, 0.0, 0.3)
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
     _, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
-    _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
-
+    _, deceleration = ImGui.SliderFloat("Deceleration", deceleration, 0.5, 40.0)
+    _, braking = ImGui.SliderFloat("Braking", braking, 0.5, 40.0)
 	ImGui.Text("Current Move Speed: " .. moveSpeed)
 
     tracy.ZoneEnd()
