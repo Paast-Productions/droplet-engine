@@ -1,5 +1,5 @@
 #pragma once
-#include <Bezier.hpp>
+#include <Math/Bezier.hpp>
 #include <glm/glm.hpp>
 #include <vector>
 

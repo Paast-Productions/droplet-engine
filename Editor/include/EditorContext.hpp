@@ -40,7 +40,7 @@ namespace Droplet::Editor
 
 		/// @brief Get the active scene
 		/// @returns A scene from scenemanager
-		[[nodiscard]] std::shared_ptr<Droplet::Scene::Scene> GetActiveScene(); // TODO: Make weak pointer
+		[[nodiscard]] std::weak_ptr<Droplet::Scene::Scene> GetActiveScene();
 
 		/// @breif Lets the context set a new active scene
 		/// @param p_sceneName The name of the scene to set as active
@@ -80,7 +80,7 @@ namespace Droplet::Editor
 		InteractionState m_interactionState;
 		Scene::EditorCamera m_editorCamera;
 		Scene::EditorCameraController m_editorCameraController;
-		std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+		std::weak_ptr<Droplet::Scene::Scene> m_selectedScene;
 
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
 	};
