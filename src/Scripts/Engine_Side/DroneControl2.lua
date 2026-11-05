@@ -204,7 +204,7 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
 
-    if Input:KeyPressed(Key.Q) then
+    if Input:KeyPressed(Key.tab) then
         if (mouseLock == false) then
             mouseLock = true
         else
