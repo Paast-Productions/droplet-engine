@@ -237,7 +237,8 @@ void SceneViewWindow::InitImpl()
 	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
 	
-	m_engine->AddEventListener([&](SDL_Event &event)
+	Engine& engine = m_editorContext->GetEngine();
+	engine.AddEventListener([&](SDL_Event &event)
 	{
 		if (event.type == SDL_EVENT_WINDOW_RESIZED)
 		{

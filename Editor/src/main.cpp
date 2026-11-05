@@ -165,7 +165,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
 		ScriptsWindow scriptsWindow;
 		SavedDataWindow savedDataWindow;
-		Scene::SceneViewWindow sceneViewWindow(&editorContext, &engine);
+		Scene::SceneViewWindow sceneViewWindow(&editorContext);
 
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
