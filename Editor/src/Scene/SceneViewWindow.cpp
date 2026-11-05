@@ -440,21 +440,19 @@ void SceneViewWindow::RenderEditorView()
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
 
-	// If mouse is released and viewSize is changed, Update the camera and renderTarget
-	if (input.MouseReleased(Mouse::LMB))
+	// If viewSize is changed, Update the camera and renderTarget
+	if (width != extent.width || height != extent.height)
 	{
-		if (width != extent.width || height != extent.height)
+		if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
 		{
-			if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
-			{
-				return;
-			}
+			return;
+		}
 
-			if (input.MouseReleased(Mouse::LMB))
-			{
-				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
-				UpdateRenderTarget(width, height);
-			}
+		// If the change is large enough
+		if (std::abs(m_editorContext->GetEditorCamera().GetAspect() - contentAspect) > 0.0001f)
+		{
+			m_editorContext->GetEditorCamera().SetAspect(contentAspect);
+			UpdateRenderTarget(width, height);
 		}
 	}
 
