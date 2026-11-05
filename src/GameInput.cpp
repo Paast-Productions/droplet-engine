@@ -33,7 +33,7 @@ namespace Droplet
                 m_prevMouseY = m_lockedCursorY;
 			}
 
-            SDL_WarpMouseInWindow(m_cursorLockWindow, static_cast<int>(m_lockedCursorX), static_cast<int>(m_lockedCursorY));
+            SDL_WarpMouseInWindow(m_cursorLockWindow, m_lockedCursorX, m_lockedCursorY);
 			m_firstLockFrame = false;
 		}
     }
@@ -176,7 +176,7 @@ namespace Droplet
 		m_lockedCursorY = p_y;
 
         SDL_SetWindowRelativeMouseMode(m_cursorLockWindow, true);
-		SDL_WarpMouseInWindow(m_cursorLockWindow, static_cast<int>(m_lockedCursorX), static_cast<int>(m_lockedCursorY));
+		SDL_WarpMouseInWindow(m_cursorLockWindow, m_lockedCursorX, m_lockedCursorY);
     }
 
     void GameInput::SetCursorPosition(SDL_Window *&p_window, bool p_relativeMouse, float p_x, float p_y)

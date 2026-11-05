@@ -34,11 +34,6 @@ static void MoveCP(ImVec2& cp, ImVec2& cpM, const ImVec2& p, const ImVec2& newPo
 
 static bool IsXMonotonic(const ImVec2& p0, const ImVec2& p1, const ImVec2& p2, const ImVec2& p3)
 {
-	// Compute coefficients of the quadratic derivative x'(t)/3
-	float a = 3 * (p0.x - 3 * p1.x + 3 * p2.x - p3.x);
-	float b = 6 * (p1.x - 2 * p2.x + p3.x);
-	float c = 3 * (p1.x - p0.x);
-
 	// Standard expanded quadratic for dx/dt:
 	float A = -3 * p0.x + 9 * p1.x - 9 * p2.x + 3 * p3.x;
 	float B = 6 * p0.x - 12 * p1.x + 6 * p2.x;
@@ -226,7 +221,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 			// Label x-value to the bottom of the grid line
 			if (!noLabels)
 			{
-				char label[32];
+				char label[32]{};
 				snprintf(label, 32, "%.1f", pointBounds.Min.x + t * pointBounds.GetWidth());
 				ImVec2 textSize = CalcTextSize(label);
 				drawList->AddText(ImVec2(p1.x - textSize.x * 0.5f, contentArea.Max.y + 8), IM_COL32(255, 255, 255, 255), label);
@@ -245,7 +240,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 			// Label y-value to the left of the grid line
 			if (!noLabels)
 			{
-				char label[32];
+				char label[32]{};
 				snprintf(label, 32, "%.1f", pointBounds.Max.y - t * pointBounds.GetHeight());
 				ImVec2 textSize = CalcTextSize(label);
 				drawList->AddText(ImVec2(contentArea.Min.x - textSize.x - 8, p1.y - textSize.y * 0.5f), IM_COL32(255, 255, 255, 255), label);
@@ -380,7 +375,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 					if (rP.controlPoint1.x < lP.position.x)
 					{
-						int attempts = 0;
+						attempts = 0;
 						if (!IsXMonotonic(lP.position, lP.controlPoint2, rP.controlPoint2, rP.position))
 						{
 							ImVec2 pToCp = rP.controlPoint1 - rP.position;
@@ -550,7 +545,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 					if (!noLabels)
 					{
 						// While dragging, draw vector coords to bottom right
-						char label[64];
+						char label[64]{};
 						snprintf(label, 64, "X%.3f\nY%.3f", (*points)[i].position.x, (*points)[i].position.y);
 						ImVec2 textSize = CalcTextSize(label);
 						drawList->AddText(ImVec2(contentArea.Max.x - textSize.x - 8, contentArea.Max.y - textSize.y - 8), IM_COL32(255, 255, 255, 255), label);
@@ -594,7 +589,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 				if (distSq < overlapThresholdSqr)
 				{
-					ImVec2 dir;
+					ImVec2 dir{};
 					if (distSq < 1e-6)
 					{
 						dir = ImVec2((quadratic || j != 0) ? 1 : -1, 0);

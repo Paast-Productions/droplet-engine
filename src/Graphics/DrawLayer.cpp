@@ -188,7 +188,7 @@ bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
 
 	// Ensure that p_layer is a single layer flag
 	assert(
-		IsSingleLayer(p_layer),
+		IsSingleLayer(p_layer) &&
 		"p_layer must be a single layer flag, not a layer mask."
 	);
 
