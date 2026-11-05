@@ -189,9 +189,9 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode to be rendered
 		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
-		static constexpr std::uint8_t C_MAX_NODES = 16;
-		static constexpr std::uint8_t C_MAX_DEPTH = 4;
-		static constexpr std::uint8_t C_MERGE_THRESHOLD = 8;
+		static constexpr std::uint8_t C_MAX_NODES = 32;
+		static constexpr std::uint8_t C_MAX_DEPTH = 6;
+		static constexpr std::uint8_t C_MERGE_THRESHOLD = 16;
 		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
 
 		struct TreeNode
