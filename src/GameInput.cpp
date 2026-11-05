@@ -59,8 +59,8 @@ namespace Droplet
 		case SDL_EVENT_MOUSE_MOTION:
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
-            m_deltaMouseX = p_event.motion.xrel;
-			m_deltaMouseY = p_event.motion.yrel;
+            m_deltaMouseX += p_event.motion.xrel;
+			m_deltaMouseY += p_event.motion.yrel;
 			break;
 
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
