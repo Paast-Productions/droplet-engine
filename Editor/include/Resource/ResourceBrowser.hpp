@@ -16,6 +16,19 @@ namespace Droplet::Editor::Resource
         std::map<std::string, BrowserNode> children; // If it's a directory
         std::vector<const MetaEntry*> resources;     // If it's an asset file
     };
+
+	struct PreviewCamera
+	{
+		Graphics::Camera camera{};
+
+		std::uint32_t targetIndex{ Graphics::VK::INVALID_INDEX };
+		std::uint32_t textureIndex{ Graphics::VK::INVALID_INDEX };
+		glm::ivec2 resolution{ 256, 256 };
+
+		ResourceHandle<Texture2DResource> texHandle{};
+		ResourceHandle<ShaderResource> vsHandle{};
+		ResourceHandle<ShaderResource> fsHandle{};
+	};
     
 	class ResourceBrowser : public EditorWindow
 	{
@@ -64,6 +77,7 @@ namespace Droplet::Editor::Resource
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
 	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
+		PreviewCamera m_previewCamera{}; // The camera used for rendering previews of resources in the resource browser
 		ResourceHandle<IResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
 	    
@@ -72,5 +86,6 @@ namespace Droplet::Editor::Resource
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue {}; // Queued popups upon successful resource registration
 		
 		std::unordered_map<std::uint64_t, std::uint32_t> m_imGuiTexMap {};
+
 	};
 }

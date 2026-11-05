@@ -104,10 +104,6 @@ namespace Droplet
             /// @brief Engine instance used to access engine systems.
             std::weak_ptr<Engine> m_instance;
             
-            /// @brief EditorContext that is used to access information from a scene between
-            /// different views
-            EditorContext *m_editorContext;
-            
 			/// @brief The currently selected scene in the hierarchy window.
 			std::weak_ptr<Droplet::Scene::Scene> m_selectedScene;
 

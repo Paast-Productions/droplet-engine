@@ -52,9 +52,6 @@ namespace Droplet::Editor::Scene
 		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
 		bool m_groupGizmoActive = false;
 		
-		/// @brief Pointer to a variable that is shared across several scenes
-		EditorContext *m_editorContext = nullptr;
-		
 		/// @brief Bool indicating whether the SDL Window has been resized
 		bool m_hasBeenResized = false;
 

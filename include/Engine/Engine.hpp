@@ -56,8 +56,9 @@ namespace Droplet
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
 		
 		/// @brief Will render the subsystems. Is needed to run anything.
+		/// @brief If camRenderDatas is provided, the engine will render the provided camera render data in addition to the scene's render data.
 		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render(Graphics::CameraRenderData *camRenderData = nullptr);
+		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas = nullptr);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.

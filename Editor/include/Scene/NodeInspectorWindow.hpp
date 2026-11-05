@@ -28,8 +28,6 @@ namespace Droplet::Editor
 	private:
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
-		
-		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The node that is currently displayed.
 		std::weak_ptr<Droplet::Scene::Node> m_currentNode;

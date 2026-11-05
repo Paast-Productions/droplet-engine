@@ -35,8 +35,5 @@ namespace Droplet::Editor
 		/// @brief Renders the scripts window's toolbar.
 		/// Displays toolbar controls associated with the scripts window.
 		void RenderToolbar() override;
-
-	private:
-		Droplet::Editor::EditorContext *m_editorContext;
 	};
 }
