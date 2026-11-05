@@ -111,7 +111,7 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
         {
 			assert(
-                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer),
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
                 "p_drawLayer must be a single layer"
             );
 

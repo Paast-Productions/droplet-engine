@@ -1,7 +1,7 @@
 #include "ScriptSystem/Bindings/BoundsBindings.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <LuaBindings.hpp>
 
