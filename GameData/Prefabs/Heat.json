@@ -3,6 +3,7 @@
     "children": [],
     "components": [
         {
+            "active": true,
             "data": {
                 "fs": 13680123319807966343,
                 "fsName": "Base.FS",
@@ -23,15 +24,31 @@
             "type": "MeshComponent"
         },
         {
+            "active": true,
             "data": {
-                "filepath": "DroneMovement.lua"
+                "damage": 2.0
             },
-            "id": 2,
+            "id": 3,
+            "type": "DamageComponent"
+        },
+        {
+            "active": true,
+            "data": null,
+            "id": 4,
+            "type": "TriggerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "filepath": "HeatHazard.lua"
+            },
+            "id": 6,
             "type": "ScriptComponent"
         }
     ],
+    "drawLayer": 1,
     "id": 1,
-    "name": "TestDrone",
+    "name": "Heat",
     "transform": {
         "position": [
             0.0,
