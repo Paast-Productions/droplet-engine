@@ -1127,8 +1127,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer // why is this even here?
-	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots(); // TODO: Make weak pointer // why is this even here?
+	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene();
+	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots();
 
 	// DebugDraw wireframe around selected nodes by their bounds
 	{
