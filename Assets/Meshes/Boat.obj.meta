@@ -2,14 +2,14 @@
     "resources": [
         {
             "displayName": "Boat",
-            "guid": 1951864560061615958,
+            "guid": 6902259134965776716,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
                 "join_identical_vertices": true,
                 "triangulate": true
             },
-            "sourceName": "Cube",
+            "sourceName": "Boat",
             "type": 3
         }
     ]

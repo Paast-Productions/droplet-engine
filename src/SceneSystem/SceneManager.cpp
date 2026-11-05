@@ -250,8 +250,8 @@ void SceneManager::Update()
 
             if (behaviour->IsActive())
             {
-                ZoneNamedN(behaviourPostUpdateZone, "Post-Update", true);
-                ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+                ZoneNamedN(postUpdateZone, "Post-Update", true);
+                ZoneTextV(postUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
 
                 behaviour->PostUpdate();
             }

@@ -97,8 +97,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"Node",
 		"GetName", &Scene::Node::GetName,
 		"GetID", &Scene::Node::GetID,
-		"GetTransform",
-		static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		"GetParent", &Scene::Node::GetParent,
 
 		"GetCameraComponent",
 		[](Scene::Node &node)
@@ -152,6 +152,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
+		{"GetParent", "Node", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
