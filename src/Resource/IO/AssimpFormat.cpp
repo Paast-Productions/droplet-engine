@@ -34,6 +34,8 @@ static constexpr double C_EPSILON = 0.00001;
 	std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
 	for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 	{
+		// TODO: Make not hardcoded
+		
 		// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
 		const float attributes[8] = {
 			mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z,
@@ -113,6 +115,8 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 	ZoneScoped;
 
 	thread_local Assimp::Importer s_importer;
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
         
     bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
     bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
@@ -165,6 +169,8 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 	ZoneScoped;
 
     thread_local Assimp::Importer s_importer;
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
         
     bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
     bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
@@ -309,6 +315,8 @@ std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(cons
 	ZoneScoped;
 
     thread_local Assimp::Importer s_importer;
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
         
     bool generateNormals =  MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
     bool joinVertices =     MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
