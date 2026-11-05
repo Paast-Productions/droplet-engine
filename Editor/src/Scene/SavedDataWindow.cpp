@@ -11,7 +11,7 @@
 #endif
 
 
-Droplet::Editor::SavedDataWindow::SavedDataWindow()
+Droplet::Editor::SavedDataWindow::SavedDataWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext)
 {
 	m_scenePath = ROOT_PATH "/GameData/Scenes/";
 	m_prefabPath = ROOT_PATH "/GameData/Prefabs/";
