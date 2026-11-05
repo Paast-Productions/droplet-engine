@@ -1544,6 +1544,10 @@ end
 ---@class Scene
 Scene = {}
 
+---@param node Node
+function Scene:RemoveNode(node)
+end
+
 ---@param id integer
 ---@return Node | nil
 function Scene:FindNodeById(id)

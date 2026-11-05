@@ -12,6 +12,16 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
+		"RemoveNode",
+        [](Scene::Scene &p_scene, Scene::Node *p_node)
+        {
+            if (p_node == nullptr)
+            {
+                return;
+            }
+
+            p_scene.RemoveRoot(p_node->shared_from_this());
+        },
         "FindNodeById",
         [](Scene::Scene &p_scene, std::uint64_t p_id)
         {
@@ -67,6 +77,13 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
     classDef.functions =
     {
+        {
+			"RemoveNode",
+			"void",
+			{
+				{"node", "Node"}
+			}
+        },
         {
             "FindNodeById",
             "Node | nil",

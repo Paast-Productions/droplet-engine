@@ -70,6 +70,7 @@ function OnUpdate(dt)
     for _, fish in ipairs(fishSystem:GetFishes()) do
         if InteractWithFish(fish) then
            if Input:KeyHeld(Key.E) then
+                scene:RemoveNode(fish)
                 print("Succc")
            end
         end
