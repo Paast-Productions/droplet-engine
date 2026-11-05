@@ -231,7 +231,7 @@ void ResourceBrowser::BuildBrowserTree(const std::vector<const MetaEntry *> &p_r
 	}
 }
 
-void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_resources, BrowserNode *p_currentNode)
+void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const MetaEntry *> &p_resources, BrowserNode *p_currentNode)
 {
 	using namespace ImGui;
 
@@ -546,7 +546,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			ResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
 				p_entry.guid,
-				[this](ResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
+				[this]([[maybe_unused]] ResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
 			);
 
 			m_previewResourceHandle = ResourceHandle<IResource>(textureHandle.GetGUID(), &resManInstance);

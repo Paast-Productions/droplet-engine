@@ -12,6 +12,7 @@
 !/include/**
 !/src
 !/src/**
+src/Scripts/LuaHelper.d.lua
 
 # Premake
 !premake5.lua
