@@ -403,6 +403,8 @@ void SceneViewWindow::RenderEditorView()
 {
 	GameInput &input = GameInput::Get();
 
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
+
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
@@ -515,7 +517,7 @@ void SceneViewWindow::RenderEditorView()
 
 		// Camera snaping
 		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
-		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed)
+		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed && !imGuiWantKeyboard)
 		{
 			camera.SetOrientation(
 				EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), 
@@ -529,10 +531,10 @@ void SceneViewWindow::RenderEditorView()
 
 	if (m_hoveringSceneView || isWindowFocused)
 	{
-		if (input.KeyPressed(Key::KeyTab))
+		if (input.KeyPressed(Key::KeyTab) && !imGuiWantKeyboard)
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x, viewCenter.y);
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x - windowPos.x, viewCenter.y - windowPos.y);
 
 			ImGuiViewport *viewport = ImGui::GetWindowViewport();
 
@@ -640,6 +642,7 @@ void SceneViewWindow::RenderEditorView()
 	// Click and rectangle (marquee) selection. A press starts a potential drag, and the selection is
 	// resolved on release: a tiny drag is a click (raycast), a larger drag is a marquee selection.
 	static bool isDragging = false;
+	static bool allowRaycast = false;
 	static ImVec2 dragStartPos;
 	constexpr float c_minDragSize = 4.0f;
 
@@ -653,6 +656,7 @@ void SceneViewWindow::RenderEditorView()
 		{
 			isDragging = true;
 			dragStartPos = ImGui::GetIO().MousePos;
+			allowRaycast = ImGui::IsWindowFocused();
 		}
 	}
 	else if (m_cameraLookToggled || m_usingGizmo)
@@ -748,7 +752,7 @@ void SceneViewWindow::RenderEditorView()
 						}
 					}
 				}
-				else
+				else if (allowRaycast)
 				{
 					// Treat as a click, as long as it was released over the camera view
 					const bool releasedInView = mouseNow.x >= camViewRectMin.x && mouseNow.x <= camViewRectMax.x
@@ -880,6 +884,8 @@ void SceneViewWindow::RenderGameView()
 	ImVec2 windowPos = ImGui::GetWindowPos();
 	GameInput &input = GameInput::Get();
 
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
+
 	ImVec2 camSize, camViewPos, camViewRectMin, camViewRectMax;
 
 	std::shared_ptr<DCamera> camera = m_editorContext->GetGameCamera().lock();
@@ -982,10 +988,10 @@ void SceneViewWindow::RenderGameView()
 
 	if (m_hoveringSceneView || isWindowFocused)
 	{
-		if (input.KeyPressed(Key::KeyTab))
+		if (input.KeyPressed(Key::KeyTab) && !imGuiWantKeyboard)
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x, viewCenter.y);
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x - windowPos.x, viewCenter.y - windowPos.y);
 		}
 	}
 
@@ -1088,6 +1094,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	ZoneScoped;
 		
 	using DScene = Droplet::Scene::Scene;
+
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
 
 	// Setup
 	ImVec2 rectPos = p_sceneViewMin;
@@ -1330,12 +1338,14 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	ImGuiIO &io = ImGui::GetIO();
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 	InteractionState &interactionState = m_editorContext->GetInteractionState();
+	bool imGuiWantKeyboard = io.WantTextInput;
+
 	const bool active = m_hoveringSceneView || ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 	bool hasSelection = interactionState.HasSelection();
 
 	// Focus: frame the selection while keeping the camera orientation
-	if (active && hasSelection && !io.WantTextInput && input.KeyPressed(Key::KeyF))
+	if (active && hasSelection && input.KeyPressed(Key::KeyF) && !imGuiWantKeyboard)
 	{
 		glm::vec3 center = glm::vec3(0.0f);
 		float selectionRadius = 0.0f;
