@@ -68,9 +68,6 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
-		/// @brief Is meant to enable other classes to use functionality in the audiomixer
-		/// @return A reference to the engines Audio mixer
-		[[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }
 
 		/// @brief Getter for the window of the engine
 		/// @return An SDL window handle
@@ -114,8 +111,6 @@ namespace Droplet
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
 		
-		/// @brief  The Audio system, should only be one.
-		Audio::AudioSystem m_audioSystem;
 
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();

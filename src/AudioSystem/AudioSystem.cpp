@@ -16,7 +16,6 @@ void Droplet::Audio::AudioSystem::Initialize()
 	dalia::Result res = m_daliaEngine.Initialize(config);
 	if (res != dalia::Result::Ok)
 	{
-		
 		return;
 	}
 	m_mixer.Initialize(m_daliaEngine);

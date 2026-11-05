@@ -3,7 +3,9 @@
     "children": [],
     "components": [
         {
+            "active": true,
             "data": {
+                "attenuationCurve": 2,
                 "looping": false,
                 "volume": 0.5210000276565552
             },
@@ -11,11 +13,13 @@
             "type": "AudioEmitterComponent"
         },
         {
+            "active": true,
             "data": null,
             "id": 2,
             "type": "AudioListenerComponent"
         }
     ],
+    "drawLayer": 1,
     "id": 1,
     "name": "TestSoundNode",
     "transform": {

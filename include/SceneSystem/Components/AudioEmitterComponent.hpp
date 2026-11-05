@@ -4,13 +4,16 @@
 
 namespace Droplet::Scene 
 {
+	
 	/// @brief Right now just outline class to start work with later
 	class AudioEmitterComponent : public Component
 	{
 	public:
+		AudioEmitterComponent();
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioEmitterComponent"; }
 
 	protected:
+		void StartImpl() override;
 		void RenderUIImpl() override;
 
 		nlohmann::json SerializeImpl() override;
@@ -23,5 +26,7 @@ namespace Droplet::Scene
 		std::string m_audioBusName;
 		dalia::PlaybackHandle m_playHandle;
 		Audio::AudioMixer *m_mixer = nullptr;
+
+		dalia::AttenuationCurve m_attCurve;
 	};
 }

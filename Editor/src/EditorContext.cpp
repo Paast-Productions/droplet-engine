@@ -69,7 +69,7 @@ std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActive
 
 Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()
 {
-	return  m_engine.GetAudioSystem();
+	return  m_engine.GetSceneManager().GetAudioSystem();
 }
 
 Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractionState()
