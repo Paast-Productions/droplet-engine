@@ -1,5 +1,6 @@
 #include "LuaBindings.hpp"
 #include <Node.hpp>
+#include <Scene.hpp>
 #include <Transform.hpp>
 #include <glm/glm.hpp>
 #include <GameInput.hpp>
@@ -10,12 +11,18 @@
 #include <DebugDrawBindings.hpp>
 #include <BoundsBindings.hpp>
 #include <SceneBindings.hpp>
+#include <ComponentsBindings.hpp>
+#include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
 #include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
+#include <DamageComponent.hpp>
 #include <PlayerComponent.hpp>
+#include <CameraComponent.hpp>
+#include <MeshComponent.hpp>
+#include <PhysicsComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
@@ -48,9 +55,8 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterBounds(p_luaState);
 	RegisterDebugDraw(p_luaState);
 	RegisterScenes(p_luaState, p_sceneManager);
-	RegisterHealthComponent(p_luaState);
-	RegisterPlayerComponent(p_luaState);
-	RegisterPlayerBehaviour(p_luaState);
+	RegisterComponents(p_luaState);
+	RegisterOctree(p_luaState);
 
 	std::filesystem::path scriptDirectory = std::filesystem::current_path()
 		/ ".." / ".." / ".." / "src" / "Scripts";
@@ -101,6 +107,56 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount
+		"GetID", &Scene::Node::GetID,
+		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		"GetParent", &Scene::Node::GetParent,
+		"GetScene",
+		[](Scene::Node &p_node) -> Scene::Scene *
+		{
+			return p_node.GetScene().get();
+		},
+		"GetCameraComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CameraComponent>();
+		},
+		"GetMeshComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::MeshComponent>();
+		},
+		"GetPhysicsComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PhysicsComponent>();
+		},
+
+		"GetHealthComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::HealthComponent>();
+		},
+		"GetDamageComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::DamageComponent>();
+		},
+		"GetPlayerComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PlayerComponent>();
+		},
+		"GetPlayerBehaviour",
+		[](Scene::Node &node)
+		{
+			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
+			if (playerComponent)
+			{
+				return playerComponent->GetPlayerBehaviourLua();
+			}
+			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		}
+
 	);
 
 	LuaClassDefinition classDef;
@@ -143,6 +199,16 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			"uint32_t",
 			{}
 		}
+		{"GetName", "string", {}},
+		{"GetID", "integer", {}},
+		{"GetTransform", "Transform", {}},
+		{"GetParent", "Node", {}},
+		{"GetCameraComponent", "CameraComponent", {}},
+		{"GetMeshComponent", "MeshComponent", {}},
+		{"GetPhysicsComponent", "PhysicsComponent", {}},
+		{"GetHealthComponent", "HealthComponent", {}},
+		{"GetPlayerComponent", "PlayerComponent", {}},
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);

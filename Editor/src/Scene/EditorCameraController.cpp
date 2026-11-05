@@ -5,7 +5,7 @@
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
+void EditorCameraController::Update([[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	GameInput &input = GameInput::Get();
 	float velocity = Time::Get().GetDeltaTime() * m_movementSpeed;
@@ -44,11 +44,10 @@ void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float
 			-dx * m_mouseSensitivity,
 			-dy * m_mouseSensitivity
 		);
-		input.SetCursorPosition(p_window, true, p_centerX, p_centerY);
 	}
 }
 
-void EditorCameraController::CameraLock(bool p_enabled)
+void EditorCameraController::CameraLock(bool p_enabled, float p_centerX, float p_centerY)
 {
 	if (m_lookActive == p_enabled)
 		return;
@@ -67,5 +66,6 @@ void EditorCameraController::CameraLock(bool p_enabled)
 		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 	}
 
-	input.HideCursor(m_lookActive);
+	//input.HideCursor(m_lookActive);
+	input.LockCursor(m_lookActive, p_centerX, p_centerY);
 }

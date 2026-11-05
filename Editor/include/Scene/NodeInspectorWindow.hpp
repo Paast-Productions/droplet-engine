@@ -12,12 +12,12 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow(EditorContext *p_editorContext);
+		NodeInspectorWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~NodeInspectorWindow() = default;
 
 		/// @brief Sets the node a user sends to be the current node that will be displayed
 		/// @param p_nodeToInspect The node that user wants to display
-		void SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect); // TODO: Make weak pointer
+		void SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect);
 
 	protected:
 		void InitImpl() override;
@@ -28,11 +28,9 @@ namespace Droplet::Editor
 	private:
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
-		
-		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The node that is currently displayed.
-		std::shared_ptr<Droplet::Scene::Node> m_currentNode; // TODO: Make weak pointer
+		std::weak_ptr<Droplet::Scene::Node> m_currentNode;
 
 		/// @brief A variable to remember if the scale should be locked
 		bool m_lockScale = false;

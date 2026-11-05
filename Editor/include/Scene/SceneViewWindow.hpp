@@ -21,10 +21,10 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(EditorContext *p_editorContext) :
-			m_editorContext(p_editorContext) {}
-
+		SceneViewWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~SceneViewWindow() = default;
+
+		bool IsRenderingGameView() const { return m_renderingGameView; }
 
 	protected:
 
@@ -37,6 +37,8 @@ namespace Droplet::Editor::Scene
 		void RenderImpl() override;
 
 	private:
+		bool m_renderingGameView = false;
+
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
 		bool m_hoveringGizmo = false;
@@ -50,8 +52,8 @@ namespace Droplet::Editor::Scene
 		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
 		bool m_groupGizmoActive = false;
 		
-		/// @brief Pointer to a variable that is shared across several scenes
-		EditorContext *m_editorContext = nullptr;
+		/// @brief Bool indicating whether the SDL Window has been resized
+		bool m_hasBeenResized = false;
 
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };
@@ -61,6 +63,10 @@ namespace Droplet::Editor::Scene
 
 		bool m_wrapMouse = false;
 		int m_skipMouseDeltas = 0;
+
+		void RenderEditorView();
+
+		void RenderGameView();
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.

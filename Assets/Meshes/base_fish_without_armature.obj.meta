@@ -1,0 +1,28 @@
+{
+    "resources": [
+        {
+            "displayName": "fish",
+            "guid": 2489423863934714007,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": false
+            },
+            "sourceName": "Cube",
+            "type": 3
+        },
+        {
+            "displayName": "base_fish",
+            "guid": 3744586861951311724,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "base_fish",
+            "type": 3
+        }
+    ]
+}

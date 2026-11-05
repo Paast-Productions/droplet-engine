@@ -1,8 +1,7 @@
-  #pragma once
+#pragma once
 #include <vector>
 #include <memory>
 #include <ImGui/imgui.h>
-#include <EditorCamera.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 

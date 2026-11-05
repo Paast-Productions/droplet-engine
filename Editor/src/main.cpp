@@ -162,12 +162,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		HierarchyWindow hierarchyWindow(&editorContext);
 		NodeInspectorWindow nodeInspectorWindow(&editorContext);
 		BehaviourInspector behaviourInspector(&editorContext);
-		ScriptsWindow scriptsWindow;
-		SavedDataWindow savedDataWindow;
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
-
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
-
 
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
@@ -191,6 +189,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		while (run)
 		{
 			ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
+
+			switch (engine.Update())
+			{
+			case Droplet::DROPLET_RETURNTYPE::OK:
+				break;
+
+			case Droplet::DROPLET_RETURNTYPE::EXIT:
+				run = false;
+				break;
+
+			default:
+			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+				run = false;
+				break;
+			}
 
 			EditorConfig::Update();
 
@@ -218,139 +231,184 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			ImGui::DockSpaceOverViewport();
 			ImGuizmo::BeginFrame();
 
-			bool openLayoutPopup = false;
+			ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+			ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 			// Main toolbar
-			if (ImGui::BeginMainMenuBar())
 			{
-				if (ImGui::BeginMenu("File"))
+				bool openLayoutPopup = false;
+
+				if (ImGui::BeginMainMenuBar())
 				{
-					if (ImGui::BeginMenu("Layout"))
+					if (ImGui::BeginMenu("File"))
 					{
-						if (ImGui::BeginMenu("Set Layout"))
+						if (ImGui::BeginMenu("Layout"))
 						{
-							std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
-
-							std::vector<std::string> layouts;
-							UIStyle::GetLayoutNames(layouts);
-
-							for (const auto &layoutName : layouts)
+							if (ImGui::BeginMenu("Set Layout"))
 							{
-								bool isSelected = (layoutName == currLayout);
-								if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
+								std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
+
+								std::vector<std::string> layouts;
+								UIStyle::GetLayoutNames(layouts);
+
+								for (const auto &layoutName : layouts)
 								{
-									if (layoutName != currLayout)
+									bool isSelected = (layoutName == currLayout);
+									if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
 									{
-										pendingLayoutChange = layoutName;
+										if (layoutName != currLayout)
+										{
+											pendingLayoutChange = layoutName;
+										}
 									}
 								}
+
+								ImGui::EndMenu();
+							}
+
+							openLayoutPopup = ImGui::MenuItem("Save Layout");
+
+							ImGui::EndMenu();
+						}
+
+						if (ImGui::BeginMenu("Style"))
+						{
+							if (ImGui::BeginMenu("Set Style"))
+							{
+								std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+								std::vector<std::string> styles;
+								UIStyle::GetStyleNames(styles);
+
+								for (const auto &styleName : styles)
+								{
+									bool isSelected = (styleName == currStyle);
+									if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
+									{
+										if (styleName != currStyle)
+										{
+											UIStyle::LoadStyle(styleName);
+										}
+									}
+								}
+
+								ImGui::EndMenu();
+							}
+
+							if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
+							{
+								showStyleEditor = !showStyleEditor;
 							}
 
 							ImGui::EndMenu();
 						}
 
-						openLayoutPopup = ImGui::MenuItem("Save Layout");
-
 						ImGui::EndMenu();
 					}
 
-					if (ImGui::BeginMenu("Style"))
+					if (ImGui::BeginMenu("View"))
 					{
-						if (ImGui::BeginMenu("Set Style"))
+						bool currState;
+
+						currState = EditorConfig::LoadBool("Editor.ShowEditorView", true);
+						if (ImGui::MenuItem("Editor View", nullptr, currState))
 						{
-							std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-							std::vector<std::string> styles;
-							UIStyle::GetStyleNames(styles);
-
-							for (const auto &styleName : styles)
-							{
-								bool isSelected = (styleName == currStyle);
-								if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
-								{
-									if (styleName != currStyle)
-									{
-										UIStyle::LoadStyle(styleName);
-									}
-								}
-							}
-
-							ImGui::EndMenu();
+							EditorConfig::StoreBool("Editor.ShowEditorView", !currState);
 						}
 
-						if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
+						currState = EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true);
+						if (ImGui::MenuItem("Node Hierarchy", nullptr, currState))
 						{
-							showStyleEditor = !showStyleEditor;
+							EditorConfig::StoreBool("Editor.ShowNodeHierarchy", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowNodeInspector", true);
+						if (ImGui::MenuItem("Node Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowNodeInspector", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true);
+						if (ImGui::MenuItem("Behaviour Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowBehaviourInspector", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowResourceBrowser", true);
+						if (ImGui::MenuItem("Resource Browser", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowResourceBrowser", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowScripts", true);
+						if (ImGui::MenuItem("Scripts", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowScripts", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowSavedData", true);
+						if (ImGui::MenuItem("Saved Data", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowSavedData", !currState);
 						}
 
 						ImGui::EndMenu();
 					}
 
-					ImGui::EndMenu();
+					if (ImGui::BeginMenu("Help"))
+					{
+						ImGui::Text(
+							"Controls:\n"
+							"    - Tab:           Enter editor camera\n"
+							"    - Z:             Snap camera\n"
+							"    - B:             Show octree\n"
+
+							"Guizmo:\n"
+							"    - Q:             None\n"
+							"    - W:             Translation\n"
+							"    - E:             Rotation\n"
+							"    - R:             Scale\n"
+							"    - T:             Bounds\n"
+							"    - Y:             Universal\n"
+
+							"Camera Pivot:\n"
+							"    - F:             Focus view & pivot on selection\n"
+							"    - MMB:           Pan along view plane\n"
+							"    - Alt + LMB:     Rotate around pivot\n"
+							"    - Scroll:        Move along view normal at constant rate\n"
+							"    - Alt + Scroll:  Zoom towards pivot\n"
+
+							"Nodes:\n"
+							"    - LMB:           Select node\n"
+							"    - LMB + drag:    Select multiple nodes\n"
+							"    - Del:           Remove node\n"
+							"    - CTRL + C:      Copy node(s)\n"
+							"    - CTRL + V:      Paste node(s)\n"
+						);
+
+						ImGui::EndMenu();
+					}
+
+					ImGui::EndMainMenuBar();
 				}
 
-				ImGui::EndMainMenuBar();
-			}
-
-			if (openLayoutPopup)
-			{
-				ImGui::OpenPopup("Save Layout");
-			}
-
-			if (ImGui::BeginPopup("Save Layout"))
-			{
-				static std::string layoutName = "";
-
-				ImGui::InputText("Layout Name", &layoutName);
-
-				// Disable if the layout name is empty
-				ImGui::BeginDisabled(layoutName.empty());
-
-				if (ImGui::Button("Confirm"))
+				if (openLayoutPopup)
 				{
-					UIStyle::SaveLayout(layoutName);
-					ImGui::CloseCurrentPopup();
+					ImGui::OpenPopup("Save Layout");
 				}
 
-				ImGui::EndDisabled();
-
-				ImGui::SameLine();
-				if (ImGui::Button("Cancel"))
+				if (ImGui::BeginPopup("Save Layout"))
 				{
-					ImGui::CloseCurrentPopup();
-				}
-				ImGui::EndPopup();
-			}
+					static std::string layoutName = "";
 
-			if (showStyleEditor)
-			{
-				ImGui::Begin("Style Editor", &showStyleEditor);
+					ImGui::InputText("Layout Name", &layoutName);
 
-				if (ImGui::Button("Save Style"))
-				{
-					ImGui::OpenPopup("Save Style");
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button("Reset Style"))
-				{
-					std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
-
-					UIStyle::LoadStyle(currStyle);
-				}
-
-				if (ImGui::BeginPopup("Save Style"))
-				{
-					static std::string styleName = "";
-
-					ImGui::InputText("Style Name", &styleName);
-
-					// Disable if the style name is empty
-					ImGui::BeginDisabled(styleName.empty());
+					// Disable if the layout name is empty
+					ImGui::BeginDisabled(layoutName.empty());
 
 					if (ImGui::Button("Confirm"))
 					{
-						UIStyle::SaveStyle(styleName);
+						UIStyle::SaveLayout(layoutName);
 						ImGui::CloseCurrentPopup();
 					}
 
@@ -361,48 +419,115 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 					{
 						ImGui::CloseCurrentPopup();
 					}
-
 					ImGui::EndPopup();
 				}
 
-				ImGui::Separator();
+				if (showStyleEditor)
+				{
+					ImGui::Begin("Style Editor", &showStyleEditor);
 
-				ImGui::ShowStyleEditor(nullptr);
-				ImGui::End();
+					if (ImGui::Button("Save Style"))
+					{
+						ImGui::OpenPopup("Save Style");
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button("Reset Style"))
+					{
+						std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+						UIStyle::LoadStyle(currStyle);
+					}
+
+					if (ImGui::BeginPopup("Save Style"))
+					{
+						static std::string styleName = "";
+
+						ImGui::InputText("Style Name", &styleName);
+
+						// Disable if the style name is empty
+						ImGui::BeginDisabled(styleName.empty());
+
+						if (ImGui::Button("Confirm"))
+						{
+							UIStyle::SaveStyle(styleName);
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndDisabled();
+
+						ImGui::SameLine();
+						if (ImGui::Button("Cancel"))
+						{
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+
+					ImGui::Separator();
+
+					ImGui::ShowStyleEditor(nullptr);
+					ImGui::End();
+				}
 			}
 
-			hierarchyWindow.Render();
-			nodeInspectorWindow.Render();
-			behaviourInspector.Render();
-			scriptsWindow.Render();
-			savedDataWindow.Render();
-			resourceBrowser.Render();
-			sceneViewWindow.Render();
-
-			switch (engine.Update())
+			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
 			{
-			case Droplet::DROPLET_RETURNTYPE::OK:
-				break;
-
-			case Droplet::DROPLET_RETURNTYPE::EXIT:
-				run = false;
-				break;
-
-			default:
-			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
-				run = false;
-				break;
+				hierarchyWindow.Render();
+			}
+			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
+			{
+				nodeInspectorWindow.Render();
 			}
 
-			Droplet::Graphics::CameraRenderData camRenderData{ };
+			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			{
+				behaviourInspector.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowScripts", true))
+			{
+				scriptsWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowSavedData", true))
+			{
+				savedDataWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowResourceBrowser", true))
+			{
+				resourceBrowser.Render();
+			}
+
+
+			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
+			{
+				sceneViewWindow.Render();
+			}
+
+			// Set the game camera to the last camera in the active scene's camera stack before rendering
+			editorContext.SetGameCamera(engine.GetSceneManager().GetMainCamera());
+
+			bool renderEditorView = 
+				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
+				!sceneViewWindow.IsRenderingGameView();
+
+			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+
+			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
 				using namespace Droplet::Graphics::VK;
 
+				Droplet::Graphics::CameraRenderData camRenderData{ };
+				camRenderData.debug = true;
+
 				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
-				auto activeScene = editorContext.GetActiveScene();
+				auto activeScene = editorContext.GetActiveScene().lock();
 
 				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
 				camRenderData.renderTarget = editorCamera.GetTargetIndex();
@@ -447,9 +572,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 					camRenderData.renderData.emplace_back(component->GetRenderData());
 				}
+
+				if (renderEditorView)
+					queuedEditorCameras.push_back(camRenderData);
 			}
 
-			switch (engine.Render(&camRenderData))
+			// Render the engine
+			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;
@@ -463,6 +592,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				run = false;
 				break;
 			}
+
+			editorContext.ClearQueuedEditorCameras();
 		}
 	}
 

@@ -12,6 +12,7 @@
 !/include/**
 !/src
 !/src/**
+src/Scripts/LuaHelper.d.lua
 
 # Premake
 !premake5.lua
@@ -57,5 +58,8 @@
 !/Samples/**
 src/Graphics/VK/Shaders/slang.spv
 
+
 !/GameData
 !/GameData/**
+
+

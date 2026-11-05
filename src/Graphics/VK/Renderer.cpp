@@ -205,7 +205,10 @@ void Renderer::TransitionImageLayout(
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
-void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData)
+void Renderer::RecordRenderTargetCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
+	const Camera &p_camera, std::vector<RenderData> &p_renderData, 
+	bool p_debug, glm::vec4 p_clearColor)
 {
 	ZoneScoped;
 
@@ -238,7 +241,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer
 	);
 
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.3f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(p_clearColor.x, p_clearColor.y, p_clearColor.z, p_clearColor.w);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
@@ -324,7 +327,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 
-	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	if (p_debug)
+		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -439,43 +443,47 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	auto &device = m_context.GetDevice();
 	auto &queue = m_context.GetQueue();
 
+	// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
+	// while renderFinishedSemaphores is indexed by imageIndex
+	const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
+
+	if (fenceResult != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to wait for fence!");
+	}
+
+	//vk::result, std::uint32_t
+	//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
+	const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
+
+	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+	// here and does not need to be caught by an exception.
+	if (resVal.result == vk::Result::eErrorOutOfDateKHR)
+	{
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+		{
+			SDL_WaitEvent(&Event);
+		}
+
+		m_context.GetDevice().waitIdle();
+
+		m_swapchain = nullptr;
+		IntermediaryStorage::GetInstance().ClearPresentTargets();
+		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+		return;
+	}
+
+	std::uint32_t imageIndex = resVal.value;
+
+	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
+	commandBuffer.reset();
+	commandBuffer.begin({});
+
 	// Render all cameras
 	for (auto &camRenderData : p_renderData)
 	{
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
-
-		// Note: inFlightFences, presentCompleteSemaphores, and commandBuffers are indexed by frameIndex,
-		//while renderFinishedSemaphores is indexed by imageIndex
-		const vk::Result fenceResult = m_context.GetDevice().waitForFences(*m_inFlightFences.at(m_frameIndex), vk::True, std::numeric_limits<std::uint64_t>::max());
-
-		if (fenceResult != vk::Result::eSuccess)
-		{
-			throw std::runtime_error("failed to wait for fence!");
-		}
-
-		//vk::result, std::uint32_t
-		//auto [result, imageIndex] = m_swapchain.Get().acquireNextImage(std::numeric_limits<std::uint64_t>::max(), *m_presentCompleteSemaphores[m_swapchain.GetCurrentIndex()], nullptr);
-		const vk::ResultValue<std::uint32_t> resVal = m_swapchain.AcquireNextImageIndex(m_context.GetDevice(), m_presentCompleteSemaphores.at(m_frameIndex), nullptr, std::numeric_limits<std::uint64_t>::max());
-
-		// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-		// here and does not need to be caught by an exception.
-		if (resVal.result == vk::Result::eErrorOutOfDateKHR)
-		{
-			while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
-			{
-				SDL_WaitEvent(&Event);
-			}
-
-			m_context.GetDevice().waitIdle();
-
-			m_swapchain = nullptr;
-			IntermediaryStorage::GetInstance().ClearPresentTargets();
-			m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
-			return;
-		}
-
-		std::uint32_t imageIndex = resVal.value;
 
 		VK::ViewProjectionBuffer vp
 		{
@@ -485,84 +493,82 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		VK::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
 
-		Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
-
-		// Only reset the fence if we are submitting work
-		m_context.GetDevice().resetFences(*m_inFlightFences.at(m_frameIndex));
-
-		ImGui::EndFrame();
-		ImGui::Render();
-
-		m_commandPool.GetBufferAt(m_frameIndex).reset();
-
-		auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
-		commandBuffer.begin({});
+		if (camRenderData.debug)
+			Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 		RecordRenderTargetCommandBuffer(
 			commandBuffer,
 			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(camRenderData.renderTarget),
 			cam,
-			drawList
+			drawList,
+			camRenderData.debug,
+			camRenderData.clearColor
 		);
-
-		RecordImGuiCommandBuffer(
-			commandBuffer,
-			imageIndex
-		);
-
-		Debug::DebugDraw::Get().ClearDrawCommands();
-
-		commandBuffer.end();
-
-		vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
-
-		const vk::SubmitInfo   submitInfo
-		{
-			.waitSemaphoreCount = 1,
-			.pWaitSemaphores = &*m_presentCompleteSemaphores.at(m_frameIndex),
-			.pWaitDstStageMask = &waitDestinationStageMask,
-			.commandBufferCount = 1,
-			.pCommandBuffers = &*commandBuffer,
-			.signalSemaphoreCount = 1,
-			.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex]
-		};
-
-		m_context.GetQueue().submit(submitInfo, *m_inFlightFences.at(m_frameIndex));
-
-		const vk::PresentInfoKHR presentInfoKHR
-		{
-			.waitSemaphoreCount = 1,
-			.pWaitSemaphores = &*m_renderFinishedSemaphores.at(imageIndex),
-			.swapchainCount = 1,
-			.pSwapchains = &*m_swapchain.Get(),
-			.pImageIndices = &imageIndex
-		};
-
-		const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
-
-		// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
-		// here and does not need to be caught by an exception.
-		if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
-		{
-			m_framebufferResized = false;
-			while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
-			{
-				SDL_WaitEvent(&Event);
-			}
-
-			m_context.GetDevice().waitIdle();
-			m_swapchain = nullptr;
-			IntermediaryStorage::GetInstance().ClearPresentTargets();
-			m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
-		}
-		else
-		{
-			// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
-			assert(result == vk::Result::eSuccess);
-		}
-
-		m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
+
+	// Only reset the fence if we are submitting work
+	m_context.GetDevice().resetFences(*m_inFlightFences.at(m_frameIndex));
+
+	ImGui::EndFrame();
+	ImGui::Render();
+
+	RecordImGuiCommandBuffer(
+		commandBuffer,
+		imageIndex
+	);
+
+	Debug::DebugDraw::Get().ClearDrawCommands();
+
+	commandBuffer.end();
+
+	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);
+
+	const vk::SubmitInfo   submitInfo
+	{
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &*m_presentCompleteSemaphores.at(m_frameIndex),
+		.pWaitDstStageMask = &waitDestinationStageMask,
+		.commandBufferCount = 1,
+		.pCommandBuffers = &*commandBuffer,
+		.signalSemaphoreCount = 1,
+		.pSignalSemaphores = &*m_renderFinishedSemaphores[imageIndex]
+	};
+
+	m_context.GetQueue().submit(submitInfo, *m_inFlightFences.at(m_frameIndex));
+
+	const vk::PresentInfoKHR presentInfoKHR
+	{
+		.waitSemaphoreCount = 1,
+		.pWaitSemaphores = &*m_renderFinishedSemaphores.at(imageIndex),
+		.swapchainCount = 1,
+		.pSwapchains = &*m_swapchain.Get(),
+		.pImageIndices = &imageIndex
+	};
+
+	const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
+
+	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
+	// here and does not need to be caught by an exception.
+	if ((result == vk::Result::eSuboptimalKHR) || (result == vk::Result::eErrorOutOfDateKHR) || m_framebufferResized)
+	{
+		m_framebufferResized = false;
+		while ((SDL_GetWindowFlags(m_window) & SDL_WINDOW_MINIMIZED) != 0)
+		{
+			SDL_WaitEvent(&Event);
+		}
+
+		m_context.GetDevice().waitIdle();
+		m_swapchain = nullptr;
+		IntermediaryStorage::GetInstance().ClearPresentTargets();
+		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
+	}
+	else
+	{
+		// There are no other success codes than eSuccess; on any error code, presentKHR already threw an exception.
+		assert(result == vk::Result::eSuccess);
+	}
+
+	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 static void CheckVkResult(VkResult p_err)

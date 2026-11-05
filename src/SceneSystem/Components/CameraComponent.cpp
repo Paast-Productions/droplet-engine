@@ -10,10 +10,23 @@ using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
+CameraComponent::~CameraComponent()
+{
+	if (m_textureIndex != Graphics::VK::INVALID_INDEX)
+	{
+		try // HACK: Until destruction order has been corrected
+		{
+			Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+		}
+		catch (...)
+		{
+			
+		}
+	}
+}
+
 void CameraComponent::StartImpl()
 {
-	// TODO: Construct camera and create render target
-
 	using namespace Graphics::VK;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
@@ -49,6 +62,13 @@ void CameraComponent::QueueRenderImpl()
 
 		m_dirty = false;
 	}
+	/*else if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+	{
+		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+			m_targetIndex, m_textureIndex,
+			m_resolution.x, m_resolution.y
+		);
+	}*/
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
 	{
@@ -69,7 +89,7 @@ void CameraComponent::QueueRenderImpl()
 
 void CameraComponent::EditorUpdateImpl()
 {
-	if (!m_debugDraw && !m_uiSelected)
+	if (/*!m_debugDraw && */!m_uiSelected)
 	{
 		return;
 	}
@@ -127,25 +147,30 @@ void CameraComponent::RenderUIImpl()
 
 	Checkbox("Debug Draw", &m_debugDraw);
 
+	ColorEdit4("Clear Color", &m_clearColor.x);
+
 	if (Button("Trigger Render"))
 	{
 		TriggerRender();
 	}
 
-	Separator();
+	if (TreeNode("Preview"))
+	{
+		ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+			Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
+		);
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
-	);
+		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
-	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+		float availWidth = GetContentRegionAvail().x;
+		float imageWidth = availWidth * m_uiScale;
+		float imageHeight = imageWidth / m_camera.GetAspect();
 
-	float availWidth = GetContentRegionAvail().x;
-	float imageWidth = availWidth * m_uiScale;
-	float imageHeight = imageWidth / m_camera.GetAspect();
+		// Render the camera view texture to the scene view window
+		ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 
-	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+		TreePop();
+	}
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)
@@ -195,8 +220,11 @@ CameraRenderData CameraComponent::GetRenderData() const
 {
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
+	renderData.priority = m_priority;
 	renderData.renderTarget = m_targetIndex;
 	renderData.renderData = m_renderData;
+	renderData.debug = m_debugDraw;
+	renderData.clearColor = m_clearColor;
 
 	return renderData;
 }

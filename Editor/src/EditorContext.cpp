@@ -34,7 +34,7 @@ void Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
 
 void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
 {
-	m_engine.GetSceneManager().SerializeToFile(GetActiveScene(), p_filepath);
+	m_engine.GetSceneManager().SerializeToFile(GetActiveScene().lock(), p_filepath);
 }
 
 void Droplet::Editor::EditorContext::LoadFromFile( const std::string &p_filepath)
@@ -49,17 +49,7 @@ void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, con
 
 void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
-	GetActiveScene()->LoadNodeFromFile(p_filepath,p_overridePosition);
-}
-
-bool Droplet::Editor::EditorContext::GetIsPlayMode()
-{
-	return m_isPlayMode;
-}
-
-void Droplet::Editor::EditorContext::SetIsPlayMode(bool p_playMode)
-{
-	m_isPlayMode = p_playMode;
+	GetActiveScene().lock()->LoadNodeFromFile(p_filepath,p_overridePosition);
 }
 
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
@@ -72,7 +62,7 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 	return m_editorCameraController;
 }
 
-std::shared_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene() // TODO: Make weak pointer
+std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
 {
 	return m_selectedScene;
 }

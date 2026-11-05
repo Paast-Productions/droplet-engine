@@ -13,6 +13,7 @@
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Components/TriggerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
@@ -94,6 +95,8 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Script Init
 	ScriptSystem::Get().Initialize(m_sceneManager);
+
+	GameInput::Get().SetMainWindow(m_window.Get());
 }
 
 Droplet::Engine::~Engine()
@@ -127,9 +130,6 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// Inputs
 	Droplet::GameInput::Get().Update();
-
-	ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
-	ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
@@ -177,21 +177,27 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderData> *camRenderDatas)
 {
 	ZoneScopedC(tracy::Color::SkyBlue1);
 
 	auto renderData = m_sceneManager.GetRenderData();
 
-	if (camRenderData)
+	if (camRenderDatas)
 	{
-		renderData.push_back(*camRenderData);
+		for (const auto &camRenderData : *camRenderDatas)
+		{
+			renderData.push_back(camRenderData);
+		}
+
+		// Sort the render data by priority, higher priority first
+		std::sort(renderData.begin(), renderData.end(), [](const Graphics::CameraRenderData &a, const Graphics::CameraRenderData &b) {
+			return a.priority > b.priority;
+		});
 	}
 
 	// Rendering
 	m_renderer.Draw(renderData);
-
-	m_sceneManager.PostRender();
 
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
@@ -199,6 +205,9 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRender
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+
+	m_sceneManager.PostRender();
+
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
@@ -226,4 +235,5 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
+	Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Scene::DamageComponent>(); });
 }

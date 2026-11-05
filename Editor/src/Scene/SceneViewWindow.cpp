@@ -1,7 +1,5 @@
 #include "SceneViewWindow.hpp"
-#include <Editor/ViewOverlayUI.hpp>
-
-// TODO: Clean whatever this mess is
+#include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
 #include <math/bounds/Intersection.hpp>
 #include <math/bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -18,10 +16,12 @@
 #include <Graphics/DebugDraw.hpp>
 #include <Graphics/VK/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
+using namespace Droplet::Graphics::VK;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -55,26 +55,40 @@ namespace
 		return s_lastFPSAvg;
 	}
 
+	using DScene = Droplet::Scene::Scene;
 	using DNode = Droplet::Scene::Node;
 	using DTransform = Droplet::Scene::Transform;
 
 	/// @brief Gets the selected nodes that are valid for manipulation, excluding nodes whose ancestor is also selected
 	/// (those follow their ancestor, and would otherwise be transformed twice).
-	std::vector<std::shared_ptr<DNode>> GetManipulatableSelection(const std::vector<std::shared_ptr<DNode>> &p_selected)
+	std::vector<std::weak_ptr<DNode>> GetManipulatableSelection(
+		const std::vector<std::weak_ptr<DNode>> &p_selected)
 	{
-		std::vector<std::shared_ptr<DNode>> result;
+		std::vector<std::weak_ptr<DNode>> result;
 
-		for (const auto &node : p_selected)
+		for (const auto &weakNode : p_selected)
 		{
+			auto node = weakNode.lock();
 			if (!node || !node->GetBounds())
 			{
 				continue;
 			}
 
 			bool ancestorSelected = false;
-			for (auto parent = node->GetParent(); parent; parent = parent->GetParent())
+
+			for (auto parent = node->GetParent().lock();
+				parent;
+				parent = parent->GetParent().lock())
 			{
-				if (std::find(p_selected.begin(), p_selected.end(), parent) != p_selected.end())
+				const bool selected = std::any_of(
+					p_selected.begin(),
+					p_selected.end(),
+					[&parent](const std::weak_ptr<DNode> &p_candidate)
+					{
+						return p_candidate.lock() == parent;
+					});
+
+				if (selected)
 				{
 					ancestorSelected = true;
 					break;
@@ -91,18 +105,18 @@ namespace
 	}
 
 	/// @brief Computes the world-space AABB (min, max) enclosing the world-space bounds of all given nodes.
-	bool ComputeWorldBounds(const std::vector<std::shared_ptr<DNode>> &p_nodes, glm::vec3 &p_min, glm::vec3 &p_max)
+	bool ComputeWorldBounds(const std::vector<std::weak_ptr<DNode>> &p_nodes, glm::vec3 &p_min, glm::vec3 &p_max)
 	{
 		bool any = false;
 
 		for (const auto &node : p_nodes)
 		{
-			if (!node || !node->GetBounds())
+			if (!node.lock() || !node.lock()->GetBounds())
 			{
 				continue;
 			}
 
-			Droplet::Math::OBB obb = node->GetBounds()->GetTransformedOBB(node->GetTransform().GetMatrix(DTransform::Space::World));
+			Droplet::Math::OBB obb = node.lock()->GetBounds()->GetTransformedOBB(node.lock()->GetTransform().GetMatrix(DTransform::Space::World));
 			glm::vec3 corners[8];
 			obb.GetCorners(corners);
 
@@ -119,19 +133,19 @@ namespace
 
 	/// @brief Computes the world-space center and bounding radius of the given nodes. Nodes without bounds contribute
 	/// their world position. Returns false if there are no valid nodes.
-	bool ComputeFocusSphere(const std::vector<std::shared_ptr<DNode>> &p_nodes, glm::vec3 &p_center, float &p_radius)
+	bool ComputeFocusSphere(const std::vector<std::weak_ptr<DNode>> &p_nodes, glm::vec3 &p_center, float &p_radius)
 	{
 		glm::vec3 boundsMin{}, boundsMax{};
 		bool any = ComputeWorldBounds(p_nodes, boundsMin, boundsMax);
 
 		for (const auto &node : p_nodes)
 		{
-			if (!node || node->GetBounds())
+			if (!node.lock() || node.lock()->GetBounds())
 			{
 				continue;
 			}
 
-			glm::vec3 position = node->GetTransform().GetMatrix(DTransform::Space::World)[3];
+			glm::vec3 position = node.lock()->GetTransform().GetMatrix(DTransform::Space::World)[3];
 			boundsMin = any ? glm::min(boundsMin, position) : position;
 			boundsMax = any ? glm::max(boundsMax, position) : position;
 			any = true;
@@ -203,7 +217,7 @@ namespace
 
 void SceneViewWindow::InitImpl()
 {
-	SetName("Scene View"); 
+	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
 	// TODO: 
@@ -222,6 +236,16 @@ void SceneViewWindow::InitImpl()
 
 	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
+	
+	Engine& engine = m_editorContext->GetEngine();
+	engine.AddEventListener([&](SDL_Event &event)
+	{
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			m_hasBeenResized = true;
+		}
+	});
+			
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -296,7 +320,7 @@ void SceneViewWindow::RenderToolbar()
 		}
 
 		float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
-		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001, .3f);
+		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
@@ -362,24 +386,72 @@ void SceneViewWindow::RenderToolbar()
 
 void SceneViewWindow::RenderImpl()
 {
-	ImDrawList *drawList = ImGui::GetWindowDrawList();
-		
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
-	
-	GameInput &input = GameInput::Get();
-	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = Droplet::Graphics::VK::IntermediaryStorage::GetInstance()
-								.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
-								.GetExtent();
 
-	uint32_t width = static_cast<uint32_t>(contentRegion.x); 
+	ImVec2 camSize = contentRegion;
+
+	ImVec2 camViewRectMin = {
+		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+	};
+	
+	m_renderingGameView = false;
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	{
+		RenderGameView();
+	}
+	else
+	{
+		RenderEditorView();
+	}
+}
+
+void SceneViewWindow::RenderEditorView()
+{
+	GameInput &input = GameInput::Get();
+
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
+
+	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
+	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+
+	ImVec2 camSize = contentRegion;
+
+	ImVec2 camViewRectMin = {
+		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+	};
+
+	ImVec2 camViewRectMax = {
+		camViewRectMin.x + camSize.x,
+		camViewRectMin.y + camSize.y
+	};
+
+	ImVec2 camViewPos = {
+		camViewRectMin.x - windowPos.x,
+		camViewRectMin.y - windowPos.y
+	};
+
+	ImVec2 viewCenter = {
+		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+		(camViewRectMin.y + camViewRectMax.y) * 0.5f
+	};
+
+	float contentAspect = contentRegion.x / contentRegion.y;
+	vk::Extent2D extent = IntermediaryStorage::GetInstance()
+		.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
+		.GetExtent();
+
+	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
 
-	// If mouse is released and viewSize is changed, Update the camera and renderTarget
-	if (input.MouseReleased(Mouse::LMB))
-	{	
+	// If mouse is released and viewSize is changed, or if the SDL window has been resized, Update the camera and renderTarget
+	if (input.MouseReleased(Mouse::LMB) || m_hasBeenResized)
+	{
 		if (width != extent.width || height != extent.height)
 		{
 			if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
@@ -387,35 +459,19 @@ void SceneViewWindow::RenderImpl()
 				return;
 			}
 
-			if (input.MouseReleased(Mouse::LMB))
+			if (input.MouseReleased(Mouse::LMB) || m_hasBeenResized)
 			{
 				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
 				UpdateRenderTarget(width, height);
+				
+				m_hasBeenResized = false;
 			}
 		}
+		else // In case the SDL resize event triggered, but the extents are unchanged, reset the resize flag.
+		{
+			m_hasBeenResized = false;
+		}
 	}
-	
-	ImVec2 camSize = contentRegion;
-	
-	ImVec2 camViewRectMin = {
-		cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
-		cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
-	};
-	
-	ImVec2 camViewRectMax = {
-		camViewRectMin.x + camSize.x,
-		camViewRectMin.y + camSize.y
-	};
-
-	ImVec2 camViewPos = { 
-		camViewRectMin.x - windowPos.x, 
-		camViewRectMin.y - windowPos.y 
-	};
-	
-	ImVec2 viewCenter = {
-		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
-		(camViewRectMin.y + camViewRectMax.y) * 0.5f
-	};
 
 	if (m_cameraLookToggled)
 	{
@@ -450,9 +506,6 @@ void SceneViewWindow::RenderImpl()
 
 	if (isWindowFocused)
 	{
-		bool isMouseHovering = ImGui::IsMouseHoveringRect(camViewRectMin, camViewRectMax);
-
-		GameInput &input = GameInput::Get();
 		EditorCameraController &controller = m_editorContext->GetEditorCameraController();
 
 		// Get the mouse position relative to the camera view rect
@@ -475,16 +528,18 @@ void SceneViewWindow::RenderImpl()
 
 		if (m_cameraLookToggled)
 		{
-			controller.Update(sceneWindow, viewCenter.x, viewCenter.y);
+			controller.Update(viewCenter.x, viewCenter.y);
 		}
 
 		// Camera snaping
 		bool ctrlPressed = input.KeyHeld(Key::KeyLCTRL) || input.KeyHeld(Key::KeyRCTRL);
-		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed)
+		if (input.KeyHeld(Key::KeyZ) && !ctrlPressed && !imGuiWantKeyboard)
 		{
-			camera.SetOrientation(EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::vec3 cameraSnapPos = EditorConfig::LoadVec3("CameraSnap.Position", glm::vec3(0.0f));
-			float cameraSnapRadius = EditorConfig::LoadFloat("CameraSnap.Radius", 8.0f);
+			camera.SetOrientation(
+				EditorConfig::LoadVec3("CameraSnap.Direction", glm::vec3(0.0f, 0.0f, 1.0f)), 
+				glm::vec3(0.0f, 1.0f, 0.0f)
+			);
+
 			SetCameraPivot(m_cameraSnapPos, m_cameraSnapRadius);
 			ApplyCameraPivot();
 		}
@@ -492,10 +547,10 @@ void SceneViewWindow::RenderImpl()
 
 	if (m_hoveringSceneView || isWindowFocused)
 	{
-		if (input.KeyPressed(Key::KeyTab))
+		if (input.KeyPressed(Key::KeyTab) && !imGuiWantKeyboard)
 		{
 			m_cameraLookToggled = !m_cameraLookToggled;
-			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled);
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x - windowPos.x, viewCenter.y - windowPos.y);
 
 			ImGuiViewport *viewport = ImGui::GetWindowViewport();
 
@@ -511,7 +566,7 @@ void SceneViewWindow::RenderImpl()
 		}
 
 		// If press mouse button 5 with node selected, move node to viewed surface
-		if (input.MousePressed(Mouse::MB5))
+		if (input.MouseHeld(Mouse::MB5))
 		{
 			const ImVec2 viewSize = { camViewRectMax.x - camViewRectMin.x, camViewRectMax.y - camViewRectMin.y };
 			const ImVec2 mousePos = ImGui::GetIO().MousePos;
@@ -521,81 +576,80 @@ void SceneViewWindow::RenderImpl()
 				(mousePos.y - camViewRectMin.y) / viewSize.y
 			);
 
-			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene().lock();
 			InteractionState &interactionState = m_editorContext->GetInteractionState();
 
+			std::vector<std::weak_ptr<DNode>> ignoreNodes{};
 			if (interactionState.HasSelection())
 			{
-				glm::vec3 putPos;
-
-				std::vector<std::weak_ptr<DNode>> ignoreNodes;
 				ignoreNodes.reserve(interactionState.GetSelectionCount());
 
 				for (const auto &node : interactionState.GetSelectedNodesAndChildren())
 				{
 					ignoreNodes.push_back(node);
 				}
+			}
 
-				Math::RayHit hit{};
-				Math::Ray viewRay = camera.GetViewRay(mousePosInView);
-				auto hitNode = scene->RaycastNode(viewRay, &hit, &ignoreNodes);
+			Math::RayHit hit{};
+			Math::Ray viewRay = camera.GetViewRay(mousePosInView);
+			auto hitNode = scene->RaycastNode(viewRay, &hit, &ignoreNodes);
 
-				if (hit.didHit)
+			glm::vec3 putPos;
+			if (hit.didHit)
+			{
+				putPos = hit.point;
+
+				DebugDraw::DrawRay(
+					hit.point,
+					hit.normal * 0.5f,
+					glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+					false
+				);
+
+				DebugDraw::DrawCircle(
+					hit.point,
+					hit.normal,
+					0.075f,
+					glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+					12,
+					false,
+					true
+				);
+
+				DebugDraw::DrawCircle(
+					hit.point,
+					hit.normal,
+					0.1f,
+					glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+					16,
+					false,
+					true
+				);
+
+				DebugDraw::DrawCircle(
+					hit.point,
+					hit.normal,
+					0.125f,
+					glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
+					18,
+					false,
+					true
+				);
+			}
+			else
+			{
+				putPos = viewRay.pos + viewRay.dir * m_cameraPivotRadius; // Arbitrary distance if no hit
+			}
+
+			for (const auto &node : interactionState.GetSelectedRootNodes())
+			{
+				const auto n = node.lock();
+				if (!n)
 				{
-					putPos = hit.point;
-
-					DebugDraw::DrawRay(
-						hit.point, 
-						hit.normal * 0.5f,
-						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), 
-						false
-					);
-
-					DebugDraw::DrawCircle(
-						hit.point,
-						hit.normal,
-						0.075f,
-						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
-						12,
-						false,
-						true
-					);
-
-					DebugDraw::DrawCircle(
-						hit.point,
-						hit.normal,
-						0.1f,
-						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
-						16,
-						false,
-						true
-					);
-
-					DebugDraw::DrawCircle(
-						hit.point,
-						hit.normal,
-						0.125f,
-						glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),
-						18,
-						false,
-						true
-					);
-				}
-				else
-				{
-					putPos = viewRay.pos + viewRay.dir * 5.0f; // Arbitrary distance if no hit
+					continue;
 				}
 
-				for (const auto &node : interactionState.GetSelectedRootNodes())
-				{
-					const auto n = node.lock();
-					if (!n)
-					{
-						continue;
-					}
-
-					n->GetTransform().SetPosition(putPos, DTransform::Space::World);
-				}
+				n->GetTransform().SetPosition(putPos, DTransform::Space::World);
 			}
 		}
 	}
@@ -603,6 +657,7 @@ void SceneViewWindow::RenderImpl()
 	// Click and rectangle (marquee) selection. A press starts a potential drag, and the selection is
 	// resolved on release: a tiny drag is a click (raycast), a larger drag is a marquee selection.
 	static bool isDragging = false;
+	static bool allowRaycast = false;
 	static ImVec2 dragStartPos;
 	constexpr float c_minDragSize = 4.0f;
 
@@ -616,6 +671,7 @@ void SceneViewWindow::RenderImpl()
 		{
 			isDragging = true;
 			dragStartPos = ImGui::GetIO().MousePos;
+			allowRaycast = ImGui::IsWindowFocused();
 		}
 	}
 	else if (m_cameraLookToggled || m_usingGizmo)
@@ -683,7 +739,7 @@ void SceneViewWindow::RenderImpl()
 		{
 			isDragging = false;
 
-			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene();
+			std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene().lock();
 			InteractionState &interactionState = m_editorContext->GetInteractionState();
 
 			if (scene)
@@ -711,7 +767,7 @@ void SceneViewWindow::RenderImpl()
 						}
 					}
 				}
-				else
+				else if (allowRaycast)
 				{
 					// Treat as a click, as long as it was released over the camera view
 					const bool releasedInView = mouseNow.x >= camViewRectMin.x && mouseNow.x <= camViewRectMax.x
@@ -725,9 +781,9 @@ void SceneViewWindow::RenderImpl()
 						);
 
 						Math::RayHit hit{};
-						auto hitNode = scene->RaycastNode(camera.GetViewRay(mousePosInView), &hit).lock();
+						auto hitNode = scene->RaycastNode(camera.GetViewRay(mousePosInView), &hit);
 
-						if (hit.didHit && hitNode)
+						if (hit.didHit && !hitNode.expired())
 						{
 							if (additiveSelection)
 							{
@@ -761,7 +817,7 @@ void SceneViewWindow::RenderImpl()
 			}
 		}
 	}
-	
+
 	if (!m_cameraLookToggled && !m_usingGizmo)
 	{
 		ProcessCameraControls(camSize.x);
@@ -797,7 +853,7 @@ void SceneViewWindow::RenderImpl()
 
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
-	// Render play/pause button
+	// Render play button
 	{
 		ImVec2 buttonSize = ImVec2(30, 30);
 		ImVec2 buttonPos = ImVec2(
@@ -809,11 +865,178 @@ void SceneViewWindow::RenderImpl()
 			camViewRectMin.y + 10
 		);
 
-		bool isPlaying = EngineFlagsOwner::GetUpdateFlags() == Droplet::UpdateFlags::PlayModeFlags;
-		bool hasPlayed = m_editorContext->GetIsPlayMode();
+		// Make green
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		ImGui::SetCursorScreenPos(buttonPos);
-		if (isPlaying)
+		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+		{
+			// Save scene before playing
+			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene().lock());
+
+			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+		}
+
+		ImGui::PopStyleColor(4);
+
+		m_hoveringPlayButton = ImGui::IsItemHovered();
+	}
+
+	RenderOverlayQueue();
+
+	ImGui::EndChild();
+}
+
+void SceneViewWindow::RenderGameView()
+{
+	typedef Droplet::Scene::CameraComponent DCamera;
+
+	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
+	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
+	ImVec2 windowPos = ImGui::GetWindowPos();
+	GameInput &input = GameInput::Get();
+
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
+
+	ImVec2 camSize, camViewPos, camViewRectMin, camViewRectMax;
+
+	std::shared_ptr<DCamera> camera = m_editorContext->GetGameCamera().lock();
+
+	if (m_cameraLookToggled)
+	{
+		ImGui::SetNextWindowFocus();
+	}
+
+	if (!camera)
+	{
+		camSize = contentRegion;
+
+		camViewRectMin = {
+			cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+		};
+
+		camViewRectMax = {
+			camViewRectMin.x + camSize.x,
+			camViewRectMin.y + camSize.y
+		};
+
+		camViewPos = {
+			camViewRectMin.x - windowPos.x,
+			camViewRectMin.y - windowPos.y
+		};
+
+		ImGui::SetCursorPos(camViewPos);
+		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+
+		std::string text = "No Game Camera found in the scene.";
+		ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+
+		ImVec2 textPos = {
+			cursorScreenPos.x + (contentRegion.x - textSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - textSize.y) * 0.5f
+		};
+
+		ImGui::SetCursorScreenPos(textPos);
+		ImGui::Text(text.c_str());
+	}
+	else
+	{
+		m_renderingGameView = true;
+
+		ImVec2 camRawSize = ImVec2((float)camera->GetResolution().x, (float)camera->GetResolution().y);
+		ImVec2 camAspect = ImVec2(camRawSize.x / camRawSize.y, 1.0f);
+
+		camSize = camRawSize;
+
+		// Scale the camera view to fit within the available content region while maintaining aspect ratio
+		if (contentRegion.x / contentRegion.y > camAspect.x)
+		{
+			camSize.y = contentRegion.y;
+			camSize.x = camSize.y * camAspect.x;
+		}
+		else
+		{
+			camSize.x = contentRegion.x;
+			camSize.y = camSize.x / camAspect.x;
+		}
+
+		camViewRectMin = {
+			cursorScreenPos.x + (contentRegion.x - camSize.x) * 0.5f,
+			cursorScreenPos.y + (contentRegion.y - camSize.y) * 0.5f,
+		};
+
+		camViewRectMax = {
+			camViewRectMin.x + camSize.x,
+			camViewRectMin.y + camSize.y
+		};
+
+		camViewPos = {
+			camViewRectMin.x - windowPos.x,
+			camViewRectMin.y - windowPos.y
+		};
+
+		// Begin the child window that encompasses the camera view.
+		ImGui::SetCursorPos(camViewPos);
+		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+		{
+			ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+				Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(camera->GetTextureIndex())
+				);
+
+			// Render the camera view texture to the scene view window
+			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
+		}
+	}
+
+	ImVec2 viewCenter = {
+		(camViewRectMin.x + camViewRectMax.x) * 0.5f,
+		(camViewRectMin.y + camViewRectMax.y) * 0.5f
+	};
+
+	bool isWindowFocused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
+	m_hoveringSceneView = ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
+
+	if (m_hoveringSceneView || isWindowFocused)
+	{
+		if (input.KeyPressed(Key::KeyTab) && !imGuiWantKeyboard)
+		{
+			m_cameraLookToggled = !m_cameraLookToggled;
+			m_editorContext->GetEditorCameraController().CameraLock(m_cameraLookToggled, viewCenter.x - windowPos.x, viewCenter.y - windowPos.y);
+		}
+	}
+
+	if (m_cameraLookToggled)
+	{
+		ImGuiViewport *viewport = ImGui::GetWindowViewport();
+		SDL_Window *sceneWindow = nullptr;
+
+		if (viewport)
+		{
+			SDL_WindowID windowID = static_cast<SDL_WindowID>(reinterpret_cast<uintptr_t>(viewport->PlatformHandle));
+			sceneWindow = SDL_GetWindowFromID(windowID);
+		}
+	}
+
+	// Render pause/stop buttons
+	{
+		ImVec2 buttonSize = ImVec2(30, 30);
+		ImVec2 buttonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
+			camViewRectMin.y + 10
+		);
+		ImVec2 stopButtonPos = ImVec2(
+			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
+			camViewRectMin.y + 10
+		);
+
+		ImGui::BeginGroup();
+
+		if (EngineFlagsOwner::GetUpdateFlags() == UpdateFlags::PlayModeFlags)
 		{
 			// Make orange
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
@@ -821,9 +1044,14 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
+			ImGui::SetCursorScreenPos(buttonPos);
 			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 			{
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
+				auto flags = UpdateFlags::EditorFlags;
+				flags |= UpdateFlags::InPlayMode;		// Enable InPlayMode flag so that the game state is preserved when paused
+				flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
+
+				EngineFlagsOwner::SetUpdateFlags(flags);
 			}
 
 			ImGui::PopStyleColor(4);
@@ -836,51 +1064,43 @@ void SceneViewWindow::RenderImpl()
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
+			ImGui::SetCursorScreenPos(buttonPos);
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-			{	
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::PlayModeFlags);
-				m_editorContext->SetIsPlayMode(true);
-
-				// Save scene before playing
-				if (!hasPlayed)
-				{
-					m_json = serializer.SerializeScene(m_editorContext->GetActiveScene());
-				}
+			{
+				EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
 			}
 
 			ImGui::PopStyleColor(4);
 		}
+
+		// Make red
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		ImGui::SetCursorScreenPos(stopButtonPos);
-		if (hasPlayed)
+		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 		{
-			// Make red
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
 
-			if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
-			{
-				EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::EditorFlags);
-				m_editorContext->SetIsPlayMode(false);
-
-				// Reset the scene
-				std::string sceneName = m_editorContext->GetActiveScene()->GetName();
-				m_editorContext->GetActiveScene()->SetActive(false);
-				m_editorContext->CreateNewScene(sceneName);
-				m_editorContext->SetActiveScene(sceneName);
-				serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene());
-			}
-
-			ImGui::PopStyleColor(4);
+			// Reset the scene
+			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
+			m_editorContext->GetActiveScene().lock()->SetActive(false);
+			m_editorContext->CreateNewScene(sceneName);
+			m_editorContext->SetActiveScene(sceneName);
+			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
 		}
+
+		ImGui::PopStyleColor(4);
+
+		ImGui::EndGroup();
 
 		m_hoveringPlayButton = ImGui::IsItemHovered();
 	}
 
 	RenderOverlayQueue();
-	
+
 	ImGui::EndChild();
 }
 
@@ -889,6 +1109,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	ZoneScoped;
 		
 	using DScene = Droplet::Scene::Scene;
+
+	bool imGuiWantKeyboard = ImGui::GetIO().WantTextInput;
 
 	// Setup
 	ImVec2 rectPos = p_sceneViewMin;
@@ -904,22 +1126,22 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::shared_ptr<DScene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer
-	std::vector<std::shared_ptr<DNode>> nodes = selectedScene->GetRoots(); // TODO: Make weak pointer
+	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer // why is this even here?
+	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots(); // TODO: Make weak pointer // why is this even here?
 
 	// DebugDraw wireframe around selected nodes by their bounds
 	{
-		auto selectedNodes = interactionState.GetSelectedNodes(); // TODO: Make weak pointer
+		auto selectedNodes = interactionState.GetSelectedNodes();
 
 		for (const auto &node : selectedNodes)
 		{
-			if (!node)
+			if (node.expired())
 			{
 				continue;
 			}
 
-			glm::mat4 nodeMat = node->GetTransform().GetMatrix(DTransform::Space::World);
-			Math::OBB nodeOBB = node->GetBounds()->GetTransformedOBB(nodeMat);
+			glm::mat4 nodeMat = node.lock()->GetTransform().GetMatrix(DTransform::Space::World);
+			Math::OBB nodeOBB = node.lock()->GetBounds()->GetTransformedOBB(nodeMat);
 
 			DebugDraw::DrawBox(
 				nodeOBB,
@@ -935,7 +1157,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	{
 		// Nodes whose ancestor is also selected follow that ancestor, so they are excluded to avoid double transforms
 		const auto &allSelected = interactionState.GetSelectedNodes();
-		std::vector<std::shared_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
+		std::vector<std::weak_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
 
 		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
@@ -944,7 +1166,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		if (manipulated.size() == 1)
 		{
-			const std::shared_ptr<DNode> &selectedNode = manipulated[0];
+			const std::shared_ptr<DNode> &selectedNode = manipulated[0].lock();
 
 			Math::AABB nodeAABB = selectedNode->GetBounds()->GetAABB();
 			glm::vec3 aabb[2] = { nodeAABB.GetMin(), nodeAABB.GetMax() };
@@ -1034,13 +1256,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 					newMatrices.reserve(manipulated.size());
 					for (const auto &node : manipulated)
 					{
-						newMatrices.push_back(groupDelta * node->GetTransform().GetMatrix(DTransform::Space::World));
+						newMatrices.push_back(groupDelta * node.lock()->GetTransform().GetMatrix(DTransform::Space::World));
 					}
 
 					for (size_t i = 0; i < manipulated.size(); i++)
 					{
 						// SetMatrix in world space accounts for the parent transform
-						manipulated[i]->GetTransform().SetMatrix(newMatrices[i], DTransform::Space::World);
+						manipulated[i].lock()->GetTransform().SetMatrix(newMatrices[i], DTransform::Space::World);
 					}
 
 					didUse = true;
@@ -1120,7 +1342,7 @@ void SceneViewWindow::RenderOverlayQueue()
 	ImGui::PopID();
 
 	ImGui::Unindent(c_overlayIndent);
-	ImGui::SetCursorPos(cPos);
+	//ImGui::SetCursorPos(cPos);
 }
 
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
@@ -1131,12 +1353,14 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	ImGuiIO &io = ImGui::GetIO();
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 	InteractionState &interactionState = m_editorContext->GetInteractionState();
+	bool imGuiWantKeyboard = io.WantTextInput;
+
 	const bool active = m_hoveringSceneView || ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 	bool hasSelection = interactionState.HasSelection();
 
 	// Focus: frame the selection while keeping the camera orientation
-	if (active && hasSelection && !io.WantTextInput && input.KeyPressed(Key::KeyF))
+	if (active && hasSelection && input.KeyPressed(Key::KeyF) && !imGuiWantKeyboard)
 	{
 		glm::vec3 center = glm::vec3(0.0f);
 		float selectionRadius = 0.0f;

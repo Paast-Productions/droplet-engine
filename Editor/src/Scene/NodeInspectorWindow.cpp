@@ -9,11 +9,7 @@
 
 using namespace Droplet::Editor;
 
-NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext) 
-	: m_editorContext(p_editorContext)
-{ }
-
-void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect) // TODO: Make weak pointer
+void NodeInspectorWindow::SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
 	m_currentNode = p_nodeToInspect;
 }
@@ -40,10 +36,10 @@ void NodeInspectorWindow::RenderImpl()
 		return;
 	}
 
-	m_currentNode = selectedNodes.back();
+	m_currentNode = selectedNodes.back().lock();
 
 	// Push ID
-	uintptr_t nodeNumber = (uintptr_t)(m_currentNode.get());
+	uintptr_t nodeNumber = (uintptr_t)(m_currentNode.lock().get());
 	std::string nodeString = std::to_string(nodeNumber);
 	ImGui::PushID(nodeString.c_str());
 
@@ -53,25 +49,25 @@ void NodeInspectorWindow::RenderImpl()
 	ImGui::SetNextItemWidth(availWidth - iconButtonWidth - ImGui::GetStyle().ItemSpacing.x);
 
 	// Name
-	std::string stringNodeName = m_currentNode->GetName();
+	std::string stringNodeName = m_currentNode.lock()->GetName();
 	if (ImGui::InputText("##Node Name", &stringNodeName))
 	{
-		m_currentNode->SetName(stringNodeName);
+		m_currentNode.lock()->SetName(stringNodeName);
 	}
 
 	ImGui::SameLine();
 
 	// Active
-	bool active = m_currentNode->IsActiveSelf();
+	bool active = m_currentNode.lock()->IsActiveSelf();
 	if (ImGui::Checkbox("##Active", &active))
 	{
-		m_currentNode->SetActive(active);
+		m_currentNode.lock()->SetActive(active);
 	}
 
-	Graphics::DrawLayer drawLayer = m_currentNode->GetDrawLayer();
+	Graphics::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
 	if (Graphics::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
 	{
-		m_currentNode->SetDrawLayer(drawLayer);
+		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}
 
 	// Transform
@@ -82,7 +78,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
 
-		Transform &transform = m_currentNode->GetTransform();
+		Transform &transform = m_currentNode.lock()->GetTransform();
 		float drag_speed = 0.005f;
 
 		glm::vec3 pos = transform.GetPosition(space);
@@ -168,7 +164,7 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonMargin = buttonWidth * 0.2f;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents(); // TODO: Make weak pointer
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: Make weak pointer
 
 	for (const auto &component : components)
 	{
@@ -197,7 +193,7 @@ void NodeInspectorWindow::RenderImpl()
 		{
 			if (ImGui::MenuItem("Remove Component"))
 			{
-				m_currentNode->RemoveComponent(component.get());
+				m_currentNode.lock()->RemoveComponent(component.get());
 			}
 			ImGui::EndPopup();
 		}
@@ -223,7 +219,7 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		m_currentNode->AttachComponent(newComp);
+		m_currentNode.lock()->AttachComponent(newComp);
 	}
 
 	ImGui::PopID();

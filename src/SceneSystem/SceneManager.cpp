@@ -250,8 +250,8 @@ void SceneManager::Update()
 
             if (behaviour->IsActive())
             {
-                ZoneNamedN(behaviourPostUpdateZone, "Post-Update", true);
-                ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+                ZoneNamedN(postUpdateZone, "Post-Update", true);
+                ZoneTextV(postUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
 
                 behaviour->PostUpdate();
             }
@@ -282,28 +282,6 @@ void SceneManager::PrepareRender()
 
         ++it;
     }
-
-	// Sort render cameras by their priority, ensuring that higher priority cameras are rendered first
-	std::sort(m_activeScenes.begin(), m_activeScenes.end(), [](const std::weak_ptr<Scene> &a, const std::weak_ptr<Scene> &b) {
-		auto sceneA = a.lock();
-		auto sceneB = b.lock();
-		if (!sceneA || !sceneB)
-		{
-			return false;
-		}
-
-		auto &renderersA = sceneA->m_renderers;
-		auto &renderersB = sceneB->m_renderers;
-		if (renderersA.empty() || renderersB.empty())
-		{
-			return false;
-		}
-
-		int32_t priorityA = renderersA.front()->GetPriority();
-		int32_t priorityB = renderersB.front()->GetPriority();
-
-		return priorityA > priorityB;
-	});
 }
 
 std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
@@ -317,6 +295,12 @@ std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
         auto scene = it->lock();
+
+		if (!scene)
+		{
+			it = m_activeScenes.erase(it);
+			continue;
+		}
 
         if (!scene->IsActive())
         {
@@ -338,7 +322,12 @@ std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
         
         ++it;
     }
-    
+
+	// Sort the render views by priority (highest priority first)
+	std::sort(renderViews.begin(), renderViews.end(), [](const CameraRenderData &a, const CameraRenderData &b) {
+		return a.priority > b.priority;
+	});
+
     return renderViews;
 }
 
@@ -363,7 +352,7 @@ void SceneManager::PostRender()
     }
 }
 
-void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
+void SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string &p_filePath)
 {
     ZoneScoped;
 
@@ -374,7 +363,7 @@ void Droplet::Scene::SceneManager::SerializeToFile(std::shared_ptr<Scene> p_scen
     Droplet::Core::JsonIO::Write(p_filePath, json);
 }
 
-void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
+void SceneManager::LoadFromFile(const std::string &p_filePath)
 {
     ZoneScoped;
 
@@ -404,7 +393,7 @@ void Droplet::Scene::SceneManager::LoadFromFile(const std::string &p_filePath)
     m_scenes[json["name"]] = scene;
 }
 
-void Droplet::Scene::SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+void SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
 {
     ZoneScoped;
 
@@ -440,4 +429,34 @@ void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
     {
         m_behaviours.erase(it);
 	}
+}
+
+std::weak_ptr<CameraComponent> SceneManager::GetMainCamera() const
+{
+	std::shared_ptr<CameraComponent> mainCamera = nullptr;
+	for (const auto &sceneWeak : m_activeScenes)
+	{
+		auto scene = sceneWeak.lock();
+		if (!scene)
+		{
+			continue;
+		}
+
+		const auto &cameraStack = scene->GetCameraStack();
+		for (const auto &cameraWeak : cameraStack)
+		{
+			auto camera = cameraWeak.lock();
+			if (!camera)
+			{
+				continue;
+			}
+
+			if (!mainCamera || camera->GetPriority() < mainCamera->GetPriority())
+			{
+				mainCamera = camera;
+			}
+		}
+	}
+
+	return mainCamera;
 }

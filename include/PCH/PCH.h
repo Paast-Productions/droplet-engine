@@ -130,7 +130,22 @@
 // Externals
 #include <json/json.hpp>
 #include <glm/glm.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <Jolt/Jolt.h>
+JPH_SUPPRESS_WARNING_PUSH
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
+#include <Jolt/Physics/PhysicsSettings.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Body/BodyActivationListener.h>
+JPH_SUPPRESS_WARNING_POP
 
 // Engine
 #include <Core/IoManager.hpp>
@@ -141,3 +156,16 @@
 #include <Editor/DragDropFields.hpp>
 #include <Editor/ImGuiUtils.hpp>
 #include <Engine/EngineFlags.hpp>
+#include <Math/Bezier.hpp>
+#include <Math/Curves.hpp>
+#include <Math/EasingFunctions.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/Frustum.hpp>
+#include <Math/Bounds/OBB.hpp>
+#include <Math/Bounds/Plane.hpp>
+#include <Math/Bounds/Ray.hpp>
+#include <Math/Bounds/Sphere.hpp>
+#include <Math/Bounds/Intersection.hpp>
+#include <Math/Bounds/Conversion.hpp>
+#include <Resource/GuidUtils.hpp>
+#include <Resource/ResourceHandle.hpp>

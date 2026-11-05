@@ -20,6 +20,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -110,7 +111,7 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
         {
 			assert(
-                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer),
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
                 "p_drawLayer must be a single layer"
             );
 
@@ -184,7 +185,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the parent Node, or nullptr if this
         /// Node has no parent.
-        [[nodiscard]] std::shared_ptr<Node> GetParent() const; // TODO: Make weak pointer
+        [[nodiscard]] std::weak_ptr<Node> GetParent() const;
 
         /// @brief Gets the child Nodes.
         ///
@@ -324,6 +325,15 @@ namespace Droplet::Scene
 		/// @return true if this Node is a descendant of p_node, otherwise false.
         [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
 
+		/// @brief Gets the first Component of the specified type attached to this Node.
+		/// @return The first Component of the specified type, or nullptr if none is attached.
+        template<typename T>
+        [[nodiscard]] std::shared_ptr<T> GetComponent()
+        {
+            const auto components = GetComponents<T>();
+            return components.empty() ? nullptr : components.front();
+        }
+
         /// @brief Gets the HealthComponent attached to this Node.
         /// @return The HealthComponent, or nullptr if none is attached.
         [[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
@@ -338,6 +348,14 @@ namespace Droplet::Scene
         {
             const auto components = GetComponents<PlayerComponent>();
             return components.empty() ? nullptr : components.front();
+        }
+    	
+    	/// @brief Gets the DamageComponent attached to this Node.
+    	/// @return The DamageComponent, or nullptr if none is attached.
+    	[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+        {
+        	const auto components = GetComponents<DamageComponent>();
+        	return components.empty() ? nullptr : components.front();
         }
 
     private:

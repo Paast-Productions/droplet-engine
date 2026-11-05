@@ -21,10 +21,11 @@ namespace Droplet::Graphics
 		/// @param p_aspect Aspect ratio of the camera (width / height)
 		Camera(
 			glm::vec3 p_position = glm::vec3(0, 0, 0),
-			glm::vec3 p_fwd = glm::vec3(0, 0, -1),
+			glm::vec3 p_fwd = glm::vec3(0, 0, 1),
 			glm::vec3 p_up = glm::vec3(0, 1, 0),
 			float p_fov = 45.0f, 
-			float p_aspect = 1.0f
+			float p_aspect = 1.0f,
+			glm::vec2 p_planes = glm::vec2(0.1f, 100.0f)
 		);
 
 		/// @brief Apply movement inputs on the camera
@@ -124,7 +125,10 @@ namespace Droplet::Graphics
 	struct CameraRenderData
 	{
 		Camera camera;
+		std::int32_t priority = 0;
 		std::uint32_t renderTarget;
 		std::vector<RenderData> renderData;
+		bool debug = false;
+		glm::vec4 clearColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	};
 }

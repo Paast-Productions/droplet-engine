@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "underwater_lab2_rough",
+            "guid": 8804090425592237515,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "underwater_lab2_rough",
+            "type": 1
+        }
+    ]
+}

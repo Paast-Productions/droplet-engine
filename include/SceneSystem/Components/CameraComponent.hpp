@@ -21,6 +21,8 @@ namespace Droplet::Scene
             return "CameraComponent";
         }
 
+		~CameraComponent();
+
         [[nodiscard]] Graphics::Camera &GetCamera() { return m_camera; }
         [[nodiscard]] const Graphics::Camera &GetCamera() const { return m_camera; }
 
@@ -50,6 +52,9 @@ namespace Droplet::Scene
         [[nodiscard]] std::uint32_t GetTextureIndex() const { return m_textureIndex; }
         void SetTextureIndex(std::uint32_t p_textureIndex) { m_textureIndex = p_textureIndex; }
 
+		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
+		void SetClearColor(const glm::vec4 &p_clearColor) { m_clearColor = p_clearColor; }
+
     protected:
         void StartImpl() override;
         void LateUpdateImpl() override;
@@ -78,6 +83,8 @@ namespace Droplet::Scene
 		bool m_debugDraw{ false };
 		bool m_uiSelected{ false };
 		float m_uiScale{ 1.0f };
+
+		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.3f, 1.0f };
 
 		std::vector<Graphics::RenderData> m_renderData{ };
     };
