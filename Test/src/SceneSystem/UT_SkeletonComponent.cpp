@@ -65,8 +65,8 @@ TEST_F(SkeletonComponentTest, ParentChildHierarchy)
 
     EXPECT_EQ(rootNode->GetName(), "Root");
     EXPECT_EQ(childNode->GetName(), "Child");
-    EXPECT_EQ(rootNode->GetParent(), node);
-    EXPECT_EQ(childNode->GetParent(), rootNode);
+    EXPECT_EQ(rootNode->GetParent().lock(), node);
+    EXPECT_EQ(childNode->GetParent().lock(), rootNode);
     ASSERT_EQ(node->GetChildren().size(), 1u);
     ASSERT_EQ(rootNode->GetChildren().size(), 1u);
 }
@@ -81,9 +81,9 @@ TEST_F(SkeletonComponentTest, MultipleRoots)
     skeleton->BuildSkeleton(&mesh);
 
     EXPECT_EQ(node->GetChildren().size(), 2u);
-    EXPECT_EQ(skeleton->GetBoneNode(a)->GetParent(), node);
-    EXPECT_EQ(skeleton->GetBoneNode(b)->GetParent(), node);
-    EXPECT_EQ(skeleton->GetBoneNode(c)->GetParent(), skeleton->GetBoneNode(b));
+    EXPECT_EQ(skeleton->GetBoneNode(a)->GetParent().lock(), node);
+    EXPECT_EQ(skeleton->GetBoneNode(b)->GetParent().lock(), node);
+    EXPECT_EQ(skeleton->GetBoneNode(c)->GetParent().lock(), skeleton->GetBoneNode(b));
 }
 
 TEST_F(SkeletonComponentTest, BindTransformsAreInverseOffsetRelativeToParent)
@@ -135,7 +135,7 @@ TEST_F(SkeletonComponentTest, OutOfRangeBoneLookupReturnsNull)
     (void)b;
 
     skeleton->BuildSkeleton(&mesh);
-    EXPECT_EQ(skeleton->GetBoneNode(a)->GetParent(), node);
+    EXPECT_EQ(skeleton->GetBoneNode(a)->GetParent().lock(), node);
     EXPECT_EQ(skeleton->GetBoneNode(static_cast<std::size_t>(99)), nullptr);
 }
 
@@ -179,7 +179,7 @@ TEST_F(SkeletonComponentTest, BindPoseGlobalsMatchInverseOffsetsWithRotationScal
     ExpectMatNear(skeleton->GetBoneNode(other)->GetTransform().GetMatrix(), otherRootBind);
 
     ExpectMatNear(skeleton->GetBoneNode(child)->GetTransform().GetMatrix(Transform::Space::World), ownerMat * childBind);
-    EXPECT_EQ(skeleton->GetBoneNode(other)->GetParent(), node);
+    EXPECT_EQ(skeleton->GetBoneNode(other)->GetParent().lock(), node);
 }
 
 TEST(SkinnedMeshResourceTest, BoneBoundsAreInBoneSpace)
