@@ -7,13 +7,15 @@ end
 function OnUpdate()
 end
 
+function RenderUI()
+end
+
 function FishSystem.RegisterFish(node)
     table.insert(FishSystem.fishes, node)
 end
 
 function FishSystem.UnregisterFish(node)
     if node == nil then
-        print("fish is nil")
         return
     end
     
@@ -21,7 +23,6 @@ function FishSystem.UnregisterFish(node)
     for i, fish in ipairs(FishSystem.fishes) do
         if fish == node then
             table.remove(FishSystem.fishes, i)
-            print("remove:", i)
             return
         end
     end

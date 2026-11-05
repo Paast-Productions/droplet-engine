@@ -1,5 +1,6 @@
 #include "LuaBindings.hpp"
 #include <Node.hpp>
+#include <Scene.hpp>
 #include <Transform.hpp>
 #include <glm/glm.hpp>
 #include <GameInput.hpp>
@@ -81,7 +82,7 @@ void LuaBindings::RegisterGlobalFunctions()
 		},
 		{
 			"OnTrigger",
-			"void", 
+			"void",
 			{
 				{ "dt", "number" }
 			} 
@@ -97,6 +98,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"Node",
 		"GetName", &Scene::Node::GetName,
 		"GetID", &Scene::Node::GetID,
+		"GetScene",
+		[](Scene::Node &p_node) -> Scene::Scene *
+		{
+			return p_node.GetScene().get();
+		},
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 
@@ -158,7 +164,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
 		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
-	};
+	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }

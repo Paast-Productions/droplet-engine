@@ -6121,7 +6121,7 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": ""
+                        "filepath": "FishInteraction.lua"
                     },
                     "id": 4,
                     "type": "ScriptComponent"

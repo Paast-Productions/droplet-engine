@@ -9,29 +9,20 @@ using namespace Droplet;
 void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
-
+     
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
         "RemoveNode",
         [](Scene::Scene &p_scene, Scene::Node *p_node)
         {
-            std::cout << "[RemoveNode] Begin\n";
-
             if (p_node == nullptr)
             {
-                std::cout << "[RemoveNode] Null node\n";
                 return;
             }
 
-            std::cout << "[RemoveNode] Before shared_from_this\n";
-
             auto node = p_node->shared_from_this();
 
-            std::cout << "[RemoveNode] Before RemoveRoot\n";
-
             p_scene.RemoveRoot(node);
-
-            std::cout << "[RemoveNode] After RemoveRoot\n";
         },
         "FindNodeById",
         [](Scene::Scene &p_scene, std::uint64_t p_id)
