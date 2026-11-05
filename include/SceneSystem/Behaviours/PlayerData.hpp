@@ -23,6 +23,7 @@ namespace Droplet::Game
         float heatLevel = 10;       ///< Current heat level of the player.
         float pressure = 0;         ///< Current environmental pressure affecting the player.
         float freezeResistance = 50; ///< Resistance to environmental freeze.
-        float freezeLevel = 10;      ///< Current freeze level of the player.
+        float freezeLevel = 0;      ///< Current freeze level of the player.
+        float timeSinceFreeze = 0;
     };
 }

@@ -5,7 +5,10 @@ local freezeDamage = nil
 -- Called when script starts
 function OnStart()
     damageComp = self:GetDamageComponent()
-        print("DamageComponent valid:", damageComp ~= nil)
+        if damageComp == nil then
+            print("ERROR: DamageComponent missing!")
+            return
+        end
     freezeDamage = damageComp:GetDamage()
 end
 
@@ -21,19 +24,20 @@ function OnTrigger(dt, node)
     if player ~= nil then
         pb = player:GetPlayerBehaviour()
     end
-    print("Health valid:", health ~= nil)
-    print("PlayerBehaviour valid:", pb ~= nil)
-    print("DamageComponent valid:", damageComp ~= nil)
+
     if health ~= nil and pb ~= nil and damageComp ~= nil then
         pb:IncreaseFreezeLevel(1)
-        print("freezeLevel", pb:GetFreezeLevel())        
+        
+        if pb:GetFreezeLevel() % 50 == 0 then
+            print("new level reached")
+        end      
         if pb:GetFreezeLevel() > pb:GetFreezeResistance() then
             health:TakeDamage(freezeDamage * dt)
         end
     end
     -- Apply Damage
     --health:TakeDamage(freezeDamage * dt)
-    print("player health", health:GetHealth())
+    --print("player health", health:GetHealth())
 
     -- Notify the movementmodifer to apply slow
     MovementModifiers.ApplyFreeze()

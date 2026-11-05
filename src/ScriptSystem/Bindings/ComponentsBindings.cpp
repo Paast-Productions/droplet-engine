@@ -586,7 +586,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		"GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
 		"GetFreezeLevel", &Scene::PlayerBehaviour::GetFreezeLevel,
 		"IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
-		"SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel
+		"SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
+		"SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
+		"GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer
 	);
 
 	LuaClassDefinition classDef;
@@ -603,6 +605,8 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		{ "GetFreezeLevel", "float", {} },
 		{ "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
 		{ "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
+		{ "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "GetFreezeTimer", "float", {} },
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);

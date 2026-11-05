@@ -115,6 +115,14 @@ namespace Droplet::Scene
         /// @brief Gets the player's current heat level.
         /// @return Current heat level value.
         [[nodiscard]] float GetFreezeLevel() const { return m_data.freezeLevel; }
+        
+        /// @brief Start a timer of when the player cannot warm up from freeze
+        /// @param p_time The amount of time that the player cannot get warm
+        void SetFreezeTimer(float p_time) { m_data.timeSinceFreeze = p_time; }
+        
+        /// @brief Get the time of when freeze was applied on the player
+        /// @returns Time since last time player was affected by freeze
+        [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
 
         // ITEMS
 

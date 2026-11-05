@@ -88,10 +88,18 @@
                     },
                     "id": 7,
                     "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "FreezeControl.lua"
+                    },
+                    "id": 8,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 31,
             "name": "Player",
             "transform": {
                 "position": [
@@ -146,22 +154,22 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": "Freeze.lua"
-                    },
-                    "id": 3,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
                         "damage": 1.0
                     },
                     "id": 4,
                     "type": "DamageComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Freeze.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 32,
             "name": "FreezeBlock",
             "transform": {
                 "position": [

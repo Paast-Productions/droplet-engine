@@ -28,11 +28,6 @@ local smoothDY = 0.0
 local mouseLock = false
 
 local MovementModifiers = require("MovementModifiers")
--- local MovementModifiers = {
---     Update = function(dt) end,
---     GetSpeedMultiplier = function() return 1.0 end
--- }
-
 --
 -- Member Functions
 --
@@ -94,8 +89,6 @@ function UpdateMovement(dt)
     tracy.ZoneBeginN("Drone_movement UpdateMovement")
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
-
-    MovementModifiers.Update(dt)
 
     -- Forward and backward
     if Input:KeyHeld(Key.W) then
@@ -189,7 +182,6 @@ function UpdateMovement(dt)
     -- Apply movement in world space
 
     local movement = GLM.V3MulF(velocity, dt)
-
     trans:Move(movement, TransformSpace.World)
 
     tracy.ZoneEnd()
