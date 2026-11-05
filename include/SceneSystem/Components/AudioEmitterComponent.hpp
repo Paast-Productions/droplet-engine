@@ -1,5 +1,6 @@
 #pragma once
 #include <SceneSystem/Component.hpp>
+#include <AudioSystem/AudioSystem.hpp>
 
 namespace Droplet::Scene 
 {
@@ -18,6 +19,9 @@ namespace Droplet::Scene
 	private:
 		float m_volume = 0;
 		bool m_looping = false;
-		bool m_isSpacial = false;
+		
+		std::string m_audioBusName;
+		dalia::PlaybackHandle m_playHandle;
+		Audio::AudioMixer &m_mixer;
 	};
 }

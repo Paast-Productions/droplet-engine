@@ -21,6 +21,8 @@ namespace Droplet::Audio
 		void RemoveAudioBus(std::uint64_t p_id);
 		
 		void SetBusParent(AudioBus *p_childBus, AudioBus *p_parentBus);
+		
+		bool HasAudioBusWithName(const std::string &p_name);
 
 		AudioBus *GetMasterBus() const { return m_masterBus; }
 		AudioBus *FindAudioBus(std::uint64_t p_id) const;
@@ -33,7 +35,7 @@ namespace Droplet::Audio
 		/// @brief A map of buses and their IDs, Every bus is owned by the Audio mixer and anyone who would ever think something else is something of a master in the topic of being stupid. 
 		std::unordered_map<std::uint64_t, std::unique_ptr<AudioBus>> m_buses;
 
-		//dalia::Engine *m_daliaEngine = nullptr;
+		dalia::Engine *m_daliaEngine = nullptr;
 
 	};
 }

@@ -99,7 +99,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	ScriptSystem::Get().Initialize(m_sceneManager);
 
 	// Audio Init
-	//m_audioSystem.Initialize();
+	m_audioSystem.Initialize();
 
 
 	GameInput::Get().SetMainWindow(m_window.Get());

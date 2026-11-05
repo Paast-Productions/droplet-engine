@@ -8,11 +8,23 @@ Droplet::Audio::AudioMixer::AudioMixer()
 
 void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 {
-	//m_daliaEngine = &p_dalia;
+	m_daliaEngine = &p_dalia;
 	const uint64_t masterID = m_nextBusID++;
 	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID);
 	m_masterBus = master.get();
 	m_buses.emplace(masterID, std::move(master));
+
+	// Using 'Master' as our bus identifier for dalia gives this waring :
+	// [DALIA WARNING] [API] CreateBus() - CreateBus called for existing bus (Master) with conflicting parent. Ignoring new parent.
+
+
+
+	dalia::Result res;
+	res = m_daliaEngine->CreateBus(m_masterBus->GetName().c_str()); // "Droplets master bus has the ID 0
+	if (res != dalia::Result::Ok)
+	{
+		throw std::runtime_error("FAILED TO CREATE MASTER BUS");
+	}
 }
 
 AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, AudioBus* p_parent)
@@ -20,6 +32,11 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 	if (p_parent == nullptr)
 	{
 		throw std::invalid_argument("Audio bus parent cannot be nullptr");
+	}
+
+	if (HasAudioBusWithName(p_name))
+	{
+		return nullptr;
 	}
 
 	const auto parentIT = m_buses.find(p_parent->GetID());
@@ -33,6 +50,14 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 	std::unique_ptr<AudioBus> newBus = std::make_unique<AudioBus>(p_name, busID);
 
 	AudioBus *busPointer = newBus.get();
+
+	dalia::Result res;
+	res = m_daliaEngine->CreateBus(busPointer->GetName().c_str());
+	if (res == dalia::Result::BusPoolExhausted)
+	{
+		// Maximum number of buses are 63
+		throw std::runtime_error("Bus pool exhausted");
+	}
 
 	const auto [iterator, inserted] = m_buses.emplace(busID, std::move(newBus));
 
@@ -67,7 +92,7 @@ void Droplet::Audio::AudioMixer::RemoveAudioBus(uint64_t p_id)
 
 	if (newParent == nullptr)
 	{
-		newParent == m_masterBus;
+		newParent = m_masterBus;
 	}
 
 	const std::vector<AudioBus *> children = bus->m_children;
@@ -86,7 +111,10 @@ void Droplet::Audio::AudioMixer::RemoveAudioBus(uint64_t p_id)
 
 	bus->m_parent = nullptr;
 
+
+	m_daliaEngine->DestroyBus(bus->GetName().c_str());
 	m_buses.erase(busIt);
+
 }
 
 void Droplet::Audio::AudioMixer::SetBusParent(AudioBus *p_childBus, AudioBus *p_parentBus)
@@ -135,6 +163,21 @@ void Droplet::Audio::AudioMixer::SetBusParent(AudioBus *p_childBus, AudioBus *p_
 		oldParent->m_children.erase(childIt);
 	}
 	p_childBus->m_parent = p_parentBus;
+
+
+	m_daliaEngine->RouteBus(p_childBus->GetName().c_str(), p_parentBus->GetName().c_str());
+}
+
+bool Droplet::Audio::AudioMixer::HasAudioBusWithName(const std::string &p_name)
+{
+	for (const auto &[id, bus] : m_buses)
+	{
+		if (bus->GetName() == p_name)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 AudioBus *Droplet::Audio::AudioMixer::FindAudioBus(std::uint64_t p_id) const

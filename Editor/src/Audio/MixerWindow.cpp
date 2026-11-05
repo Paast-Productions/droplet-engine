@@ -30,14 +30,19 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 		}
 	}
 
+	static char busName[128] = "Unique Bus Name";
+
+	ImGui::InputText("Bus Name", busName, sizeof(busName));
+
 	if (ImGui::Button("Add Bus"))
 	{
-		Audio::AudioBus *newBus =
-			mixer.AddAudioBus("New Bus", mixer.GetMasterBus());
-
-		if (newBus != nullptr)
+		if (!mixer.HasAudioBusWithName(busName))
 		{
-			state.selectedAudioBusID = newBus->GetID();
+			Audio::AudioBus *newBus = mixer.AddAudioBus(busName, mixer.GetMasterBus());
+			if (newBus != nullptr)
+			{
+				state.selectedAudioBusID = newBus->GetID();
+			}
 		}
 	}
 
@@ -138,15 +143,6 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 
 	if (ImGui::BeginPopupContextItem("BusContextMenu"))
 	{
-		if (ImGui::MenuItem("Add Child Bus"))
-		{
-			Audio::AudioBus *newBus = mixer.AddAudioBus("New bus", p_bus);
-
-			if (newBus != nullptr)
-			{
-				state.selectedAudioBusID = newBus->GetID();
-			}
-		}
 
 		if (ImGui::MenuItem("Remove Bus"))
 		{
@@ -155,11 +151,10 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 				m_pendingRemoveBusID = p_bus->GetID();
 			}
 		}
-
 		ImGui::EndPopup();
 	}
 
-	if (ImGui::BeginDragDropSource() && p_bus != mixer.GetMasterBus())
+	if (ImGui::BeginDragDropSource())
 	{
 		Audio::AudioBus *bus = p_bus;
 		ImGui::SetDragDropPayload("AUDIO_BUS", &busID, sizeof(busID));

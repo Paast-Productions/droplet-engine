@@ -1,6 +1,6 @@
 #include "AudioEmitterComponent.hpp"
 #include "ImGui/imgui.h"
-#include <dalia/dalia.h>
+
 
 using namespace Droplet::Scene;
 
@@ -22,8 +22,6 @@ void AudioEmitterComponent::RenderUIImpl()
 	{
 		SliderFloat("volume", &m_volume, 0.0f, 1.0f, "%.2f");
 
-		Checkbox("Spacial", &m_isSpacial);
-
 		Checkbox("Looping", &m_looping);
 
 		TreePop();
@@ -37,7 +35,7 @@ nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
 
 	json["volume"] = m_volume;
 	json["looping"] = m_looping;
-	json["Spacial"] = m_isSpacial;
+
 
 	return json;
 }
@@ -52,8 +50,5 @@ void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_com
 	{
 		m_looping = p_compJson["looping"];
 	}
-	if (p_compJson.contains("Spacial"))
-	{
-		m_isSpacial = p_compJson["Spacial"];
-	}
+
 }
