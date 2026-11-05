@@ -122,7 +122,7 @@ void UIStyle::SaveLayout(const std::string &name)
 	{
 		Write(layoutPath, doc);
 	}
-	catch (const std::exception &e)
+	catch ([[maybe_unused]] const std::exception &e)
 	{
 		// TODO
 	}
@@ -244,7 +244,7 @@ void UIStyle::SaveStyle(const std::string &name)
 	{
 		Write(filePath, doc);
 	}
-	catch (const std::exception &e)
+	catch ([[maybe_unused]] const std::exception &e)
 	{
 		// TODO
 	}
@@ -280,7 +280,7 @@ void UIStyle::LoadLayout(const std::string &name)
 		{
 			doc = Read(layoutPath);
 		}
-		catch (const std::exception &e)
+		catch ([[maybe_unused]] const std::exception &e)
 		{
 			return; // If the file doesn't exist, we can just return without throwing an error
 		}
@@ -350,7 +350,7 @@ void UIStyle::LoadStyle(const std::string &name)
 		{
 			doc = Read(filePath);
 		}
-		catch (const std::exception &e)
+		catch ([[maybe_unused]] const std::exception &e)
 		{
 			// TODO
 		}

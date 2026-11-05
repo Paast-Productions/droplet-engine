@@ -5,7 +5,7 @@
 using namespace Droplet::Editor::Scene;
 
 
-void EditorCameraController::Update(SDL_Window* p_window, [[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
+void EditorCameraController::Update([[maybe_unused]] float p_centerX, [[maybe_unused]]  float p_centerY)
 {
 	GameInput &input = GameInput::Get();
 	float velocity = Time::Get().GetDeltaTime() * m_movementSpeed;
