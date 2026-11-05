@@ -148,17 +148,16 @@ namespace Droplet::Scene
             InventoryType p_inv,
             Droplet::Game::ItemId p_id) const;
 
-        ////Inventory
-        [[nodiscard]] std::vector<std::uint32_t> GetCount() const;
-
-        [[nodiscard]] std::vector<Droplet::Game::ItemId> GetItemID() const;
-
+        /// @brief Gets the size of the player's inventory.
+        /// @return The number of slots in the player's inventory.
         [[nodiscard]] std::uint32_t GetPlayerInventorySize() const
         {
             return m_data.playerInventory.size();
         }
 
         [[nodiscard]] std::vector<Droplet::Game::ItemId> GetUniqueID() const;
+
+        
 
     protected:
         /// @brief Renders the behaviour's properties in the editor.

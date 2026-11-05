@@ -1,12 +1,10 @@
- 
-
 function OnStart()
-    print("temp raycast")
+    print("remove Node")
 end
 
 function OnUpdate()
     if Input:KeyPressed(Key.E) then
-        self:RemoveNode();
+        self:RemoveNode()
     end
 end
 

@@ -463,6 +463,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
 
+
     if (!m_editorContext->GetIsPlayMode())
     {
         if (ImGui::BeginDragDropTarget())

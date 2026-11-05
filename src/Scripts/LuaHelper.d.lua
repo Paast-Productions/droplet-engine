@@ -77,7 +77,7 @@ function Node:GetTransform()
     return nil
 end
 
-function Node:Destroy()
+function Node:RemoveNode()
 end
 
 ---@return PlayerData
@@ -92,6 +92,11 @@ end
 
 ---@return PlayerComponent
 function Node:GetPlayerComponent()
+    return nil
+end
+
+---@return uint32_t
+function Node:GetNodeRemovalCount()
     return nil
 end
 

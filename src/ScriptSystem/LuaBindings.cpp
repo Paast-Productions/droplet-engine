@@ -97,17 +97,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
 		"GetName", &Droplet::Scene::Node::GetName,
-		"RemoveNode", [](Scene::Node& node)
-		{
-			auto scene = node.GetScene();
-			if (scene)
-			{
-				scene->RemoveRoot(node.shared_from_this());
-			}
-		},
-		"GetPlayerData", static_cast<Scene::PlayerBehaviour &(Scene::Node:: *)()>(&Scene::Node::GetPlayerData),
+		"RemoveNode", &Scene::Node::RemoveNode,
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
-		"GetPlayerComponent", &Scene::Node::GetPlayerComponent
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
+		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount
 	);
 
 	LuaClassDefinition classDef;
@@ -126,7 +119,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			{}
 		},
 		{
-			"Destroy",
+			"RemoveNode",
 			"void",
 			{}
 		},
@@ -143,6 +136,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			"GetPlayerComponent",
 			"PlayerComponent",
+			{}
+		},
+		{
+			"GetNodeRemovalCount",
+			"uint32_t",
 			{}
 		}
 	};
@@ -2841,10 +2839,7 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
 		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
 		"SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
-		//maybye need to gets removed
-		"GetCount", &Scene::PlayerBehaviour::GetCount,
-		"GetItemID", &Scene::PlayerBehaviour::GetItemID,
-		//-----
+
 		"GetUniqueID", &Scene::PlayerBehaviour::GetUniqueID,
 
 		// Item registry access.

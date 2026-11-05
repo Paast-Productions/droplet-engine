@@ -354,6 +354,18 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	}
 }
 
+void Droplet::Scene::Node::RemoveNode()
+{
+	std::cout << this << std::endl;
+	auto scene = this->GetScene();
+	if (scene)
+	{
+		scene->RemoveRoot(this->shared_from_this());
+	}
+
+	nodeRemovalCount++;
+}
+
 void Node::AttachComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)

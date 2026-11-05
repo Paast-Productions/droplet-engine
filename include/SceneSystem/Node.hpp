@@ -147,15 +147,6 @@ namespace Droplet::Scene
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; } // TODO: Make weak pointer
 
         // --------------------------------------------------
-		// player data
-        // --------------------------------------------------
-        
-        /// @brief Gets the Node's playerData.
-        /// @return A reference to the Node's playerData.
-        [[nodiscard]] PlayerBehaviour &GetPlayerData() { return m_playerBehaviour; } // TODO: Make weak pointer
-        [[nodiscard]] const PlayerBehaviour &GetPlayerData() const { return m_playerBehaviour; } // TODO: Make weak pointer
-
-        // --------------------------------------------------
         // Children 
         // --------------------------------------------------
 
@@ -179,6 +170,15 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+
+
+        void RemoveNode();
+
+        [[nodiscard]] uint32_t GetNodeRemovalCount()
+        {
+            std::cout << this << std::endl;
+            return nodeRemovalCount;
+        }
 
         /// @brief Gets the parent Node.
         ///
@@ -408,5 +408,7 @@ namespace Droplet::Scene
         std::weak_ptr<Component> m_boundsOverride{};
 
 		void ActiveChanged(bool p_active);
+
+        inline static std::uint32_t nodeRemovalCount = 0;
     };
 }
