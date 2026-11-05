@@ -92,7 +92,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
-		"GetID", &Scene::Node::GetID,
+		"GetID", &Scene::Node::GetID, 
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
@@ -2841,6 +2841,11 @@ void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
 		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
 		"SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
+		//maybye need to gets removed
+		"GetCount", &Scene::PlayerBehaviour::GetCount,
+		"GetItemID", &Scene::PlayerBehaviour::GetItemID,
+		//-----
+		"GetUniqueID", &Scene::PlayerBehaviour::GetUniqueID,
 
 		// Item registry access.
 		"GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,

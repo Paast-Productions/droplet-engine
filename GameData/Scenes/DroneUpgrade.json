@@ -6,6 +6,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "filepath": "Drone-Upgrade-Station.lua"
                     },
@@ -13,11 +14,13 @@
                     "type": "ScriptComponent"
                 },
                 {
+                    "active": true,
                     "data": null,
                     "id": 2,
                     "type": "TriggerComponent"
                 },
                 {
+                    "active": true,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -36,14 +39,10 @@
                     },
                     "id": 3,
                     "type": "MeshComponent"
-                },
-                {
-                    "data": null,
-                    "id": 4,
-                    "type": "TriggerComponent"
                 }
             ],
-            "id": 2,
+            "drawLayer": 1,
+            "id": 1,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -69,6 +68,7 @@
             "children": [],
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -89,6 +89,7 @@
                     "type": "MeshComponent"
                 },
                 {
+                    "active": true,
                     "data": {
                         "filepath": "DroneMovement.lua"
                     },
@@ -96,7 +97,8 @@
                     "type": "ScriptComponent"
                 }
             ],
-            "id": 3,
+            "drawLayer": 1,
+            "id": 2,
             "name": "New Node",
             "transform": {
                 "position": [

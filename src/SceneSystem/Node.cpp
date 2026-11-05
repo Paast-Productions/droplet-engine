@@ -412,8 +412,6 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 		
 	}
 
-	
-
 	if (p_componentID >= m_nextComponentID)
 	{
 		m_nextComponentID = p_componentID + 1;

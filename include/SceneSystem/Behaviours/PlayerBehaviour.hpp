@@ -149,26 +149,16 @@ namespace Droplet::Scene
             Droplet::Game::ItemId p_id) const;
 
         ////Inventory
-        [[nodiscard]] uint32_t GetItemValue() const
-        { 
-            for (int x = 0; x < m_data.playerInventory.size(); x++)
-            {
-                return m_data.playerInventory[x].item.value;
-            }
-        }
+        [[nodiscard]] std::vector<std::uint32_t> GetCount() const;
 
-        [[nodiscard]] std::uint32_t GetCount() const 
-        { 
-            for (int x = 0; x < m_data.playerInventory.size(); x++)
-            {
-                return m_data.playerInventory[x].count;
-            };
-        }
+        [[nodiscard]] std::vector<Droplet::Game::ItemId> GetItemID() const;
 
         [[nodiscard]] std::uint32_t GetPlayerInventorySize() const
         {
             return m_data.playerInventory.size();
         }
+
+        [[nodiscard]] std::vector<Droplet::Game::ItemId> GetUniqueID() const;
 
     protected:
         /// @brief Renders the behaviour's properties in the editor.

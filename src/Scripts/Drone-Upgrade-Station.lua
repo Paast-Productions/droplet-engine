@@ -1,70 +1,59 @@
-local itemToCraft = "woodfish"
-local amountOfFish = 10
-local amountOfMaterial
-local trans = nil
+
+--make the math easier
+local unique = nil
+local itemRegistry = nil
+local amount = 0
+
+-- bool
 local touchedTheMesh = false
+
+-- variabels that is need to gets code from c++¨
 local player = nil
 
-function Upgrade()
-    print("Material station:")
-    local priceOfItem = 10;
-    -- Example of how to handle crafting logic
-    -- DOTO CHANGE THE PRICE FOR EACH ITEM
-    if(priceOfItem <= amountOfMaterial) then
-        -- Check if the player has the required items for crafting
-        -- If they do, perform the crafting logic
-        newItem = "pink light"
-        print("upgrading light " .. newItem .. "")
-        amountOfMaterial = amountOfMaterial - priceOfItem
-        print(amountOfMaterial)
-    else
-        print("Not enough resources to craft " .. itemToCraft)
-    end
+function OnStart()
+    print("Drone Upgrade Station")
+    local playerComponent = self:GetPlayerComponent()
+
+    player = playerComponent:GetPlayerBehaviour()
+    unique = player:GetUniqueID()
+    itemRegistry = player:GetItemRegistry() 
 end
 
 function Crafting()
     print("Crafting station:")
     -- Example of how to handle crafting logic
     -- DOTO CHANGE THE PRICE FOR EACH ITEM
-    local priceOfItem = 2;
-    if(priceOfItem <= amountOfFish) then
-        -- Check if the player has the required items for crafting
-        -- If they do, perform the crafting logic
-        newItem = "wood"
-        print("Crafting " .. newItem .. "")
-        amountOfFish = amountOfFish - priceOfItem
-        print(amountOfFish)
+    local priceOfCraft = 2;
+    if amount >= priceOfCraft then
+        amount = amount - priceOfCraft
+        print(amount .. " <- amount of fish got removed by small calulation")
+        
+        
+        local succes = player:RemoveItem(InventoryType.Player, unique[x], amount)
+        if succes then 
+            print(succes .. " <- removeing item is")            
+        end
     else
         print("Not enough resources to craft " .. itemToCraft)
     end
 end
- 
-function OnStart()
-    print("Drone Upgrade Station")
-    trans = self:GetTransform()
-    player = self:GetPlayerData()
-    local ItemRegistry = player:GetItemRegistry()
-    local ironId = ItemRegistry:Find("iron")
-    print(ironId)
-    --if player then
-        --local size = player:InventorySize()
-        --for i = 0, size - 1 do
-           -- local ItemId = player:InventoryItemId(i)
-            --local count = player:InventoryCount(i)
-            --print("ItemId [" .. i .. "]: " .. ItemId)
-            --("count [" .. i .. "]: " .. tostring(count))
-        --end
-    --end
-end
+
 
 function RenderUI()
 end
 
 function OnTrigger()
+
     touchedTheMesh = true
 end
 
 function OnUpdate()
+    -- DOTO
+    -- Currently hardcoded. The first index is processed automatically.
+    -- The remaining indices need to be selected through the 2D engine or its components.
+    amount = player:CountItem(InventoryType.Player, unique[1])
+    print("amount-> " .. amount)
+
     if touchedTheMesh then
         if Input:KeyPressed(Key.E) then
             Crafting()

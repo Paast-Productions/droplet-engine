@@ -203,6 +203,42 @@ namespace Droplet::Scene
         }
     }
 
+    std::vector<std::uint32_t> PlayerBehaviour::GetCount() const
+    {
+        std::vector<std::uint32_t> ids;
+        for (const auto& stack : m_data.playerInventory)
+        {
+            ids.push_back(stack.count);
+        }
+        return ids;
+    }
+
+	std::vector<Droplet::Game::ItemId> PlayerBehaviour::GetItemID() const
+    {
+        std::vector<Droplet::Game::ItemId> ids;
+        for (const auto& stack : m_data.playerInventory)
+        {
+            ids.push_back(stack.item);
+        }
+        return ids;
+    }
+
+    std::vector<Droplet::Game::ItemId> PlayerBehaviour::GetUniqueID() const
+    {
+        std::vector<Droplet::Game::ItemId> uniqueVlues;
+        std::unordered_set<std::uint32_t> seenValues;
+		std::uint32_t counter = 0;
+        for (const auto& stack : m_data.playerInventory)
+        {
+            if (seenValues.find(stack.item.value) == seenValues.end())
+            {
+                seenValues.insert(stack.item.value);
+                uniqueVlues.push_back(stack.item);
+            }
+        }
+        return uniqueVlues;
+    }
+
     void PlayerBehaviour::RenderUIImpl()
     {
         ImGui::TextUnformatted("Player Data");
