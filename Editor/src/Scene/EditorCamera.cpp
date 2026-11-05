@@ -14,6 +14,7 @@ EditorCamera::EditorCamera()
 
 	Camera::SetPosition(position);
 	Camera::SetOrientation(fwd, up);
+	Camera::SetPlanes(0.1f, 1000.0f);
 }
 
 EditorCamera::~EditorCamera()

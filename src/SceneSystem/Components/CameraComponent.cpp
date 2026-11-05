@@ -14,7 +14,14 @@ CameraComponent::~CameraComponent()
 {
 	if (m_textureIndex != Graphics::VK::INVALID_INDEX)
 	{
-		Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+		try // HACK: Until destruction order has been corrected
+		{
+			Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+		}
+		catch (...)
+		{
+			
+		}
 	}
 }
 
@@ -147,20 +154,23 @@ void CameraComponent::RenderUIImpl()
 		TriggerRender();
 	}
 
-	Separator();
+	if (TreeNode("Preview"))
+	{
+		ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
+			Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
+		);
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
-	);
+		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
-	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+		float availWidth = GetContentRegionAvail().x;
+		float imageWidth = availWidth * m_uiScale;
+		float imageHeight = imageWidth / m_camera.GetAspect();
 
-	float availWidth = GetContentRegionAvail().x;
-	float imageWidth = availWidth * m_uiScale;
-	float imageHeight = imageWidth / m_camera.GetAspect();
+		// Render the camera view texture to the scene view window
+		ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 
-	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+		TreePop();
+	}
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)

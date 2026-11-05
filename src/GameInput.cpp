@@ -16,10 +16,11 @@ namespace Droplet
         ZoneScoped;
 
         m_previousKeys = m_currentKeys;
-        m_previousMouse[static_cast<std::size_t>(Mouse::LMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::LMB)];
-        m_previousMouse[static_cast<std::size_t>(Mouse::RMB)] = m_currentMouse[static_cast<std::size_t>(Mouse::RMB)];
+        m_previousMouse = m_currentMouse;
         m_prevMouseX = m_mouseX;
         m_prevMouseY = m_mouseY;
+        m_deltaMouseX = 0.0f;
+        m_deltaMouseY = 0.0f;
 
 		if (m_cursorLockWindow)
 		{
@@ -58,6 +59,8 @@ namespace Droplet
 		case SDL_EVENT_MOUSE_MOTION:
             m_mouseX = p_event.motion.x;
             m_mouseY = p_event.motion.y;
+            m_deltaMouseX += p_event.motion.xrel;
+			m_deltaMouseY += p_event.motion.yrel;
 			break;
 
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -127,12 +130,19 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
-        return m_mouseX - m_prevMouseX;
+        //return m_mouseX - m_prevMouseX;
+		return m_deltaMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
-        return m_mouseY - m_prevMouseY;
+        //return m_mouseY - m_prevMouseY;
+		return m_deltaMouseY;
+    }
+
+    glm::vec2 GameInput::GetDeltaMouse() const
+    {
+		return glm::vec2(GetDeltaMouseX(), GetDeltaMouseY());
     }
 
     void GameInput::HideCursor(bool p_active)

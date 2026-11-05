@@ -56,6 +56,9 @@ namespace Droplet::Editor::Scene
 		
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
+		
+		/// @brief Bool indicating whether the SDL Window has been resized
+		bool m_hasBeenResized = false;
 
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };
