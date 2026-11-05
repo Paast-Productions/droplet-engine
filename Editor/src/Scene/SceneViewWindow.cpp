@@ -455,9 +455,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-		m_editorContext->GetEditorCamera().GetTexture().Get()
-	);
+	ImTextureRef camViewTexture = m_editorContext->GetEditorCamera().GetTexture().Get();
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -948,9 +946,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-				camera->GetTexture().Get()
-				);
+			ImTextureRef camViewTexture = camera->GetTexture().Get();
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));

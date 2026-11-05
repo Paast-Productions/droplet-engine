@@ -19,7 +19,9 @@ namespace Droplet::Graphics
 
 		~ImGuiTexture() = default;
 		
-		vk::DescriptorSet Get() { return m_textureHandle->Get(); }
+		ImTextureRef Get() const { return static_cast<VkDescriptorSet>(m_textureHandle->Get()); }
+		
+		GUID GetGUID() const { return m_textureHandle.GetGUID(); }
 		
 	private:
 		DynamicResourceHandle<ImGuiTextureResource> m_textureHandle {};

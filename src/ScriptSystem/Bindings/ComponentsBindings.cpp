@@ -66,11 +66,11 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 		"SetAutoRender", &Scene::CameraComponent::SetAutoRender,
 		"TriggerRender", &Scene::CameraComponent::TriggerRender,
 
-		"GetTargetIndex", &Scene::CameraComponent::GetTargetIndex,
-		"SetTargetIndex", &Scene::CameraComponent::SetTargetIndex,
+		"GetTarget", &Scene::CameraComponent::GetTarget,
+		"SetTarget", &Scene::CameraComponent::SetTarget,
 
-		"GetTextureIndex", &Scene::CameraComponent::GetTextureIndex,
-		"SetTextureIndex", &Scene::CameraComponent::SetTextureIndex
+		"GetTexture", &Scene::CameraComponent::GetTexture,
+		"SetTexture", &Scene::CameraComponent::SetTexture
 	);
 
     LuaClassDefinition classDef;

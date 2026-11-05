@@ -26,10 +26,12 @@ namespace Droplet
 
         ~DynamicResourceHandle() override;
         
-        T* operator->();
+        T* operator->() const;
         
-        bool IsValid() const override;
+        // TODO: Refactor to be private with intermediary storage friended.
+        // This will make it so that the vulkan resource is exclusively restricted to the rendering pipeline
         T* Get() const override;
+        bool IsValid() const override;
         std::uint32_t GetRef() const override;
         
     protected:

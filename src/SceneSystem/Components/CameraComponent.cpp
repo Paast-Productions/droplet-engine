@@ -141,9 +141,7 @@ void CameraComponent::RenderUIImpl()
 
 	Separator();
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-		m_texture.Get()
-	);
+	ImTextureRef camViewTexture = m_texture.Get();
 
 	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 

@@ -60,7 +60,7 @@ namespace Droplet::Editor::Scene
 		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The handle of the texture that the renderer will render to
-		DynamicResourceHandle<Graphics::RenderTarget> m_renderTargetHandle {};
+		Graphics::RenderTarget m_renderTarget {};
 
 		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
 		std::uint32_t m_textureIndex { Graphics::VK::C_INVALID_INDEX };

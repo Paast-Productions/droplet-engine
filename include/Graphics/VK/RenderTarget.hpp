@@ -26,23 +26,12 @@ namespace Droplet::Graphics
 		
 		~RenderTarget() = default;
 		
-	private:
-		// Friend to access data
-		friend class VK::IntermediaryStorage;
-		
-		/// @brief Constructor that create every vulkan resource
-		/// @param p_allocator VMA raii Allocator
-		/// @param p_device Vulkan device
-		/// @param p_physicalDevice Information about the physical computer components
-		/// @param p_width Width of the render target texture
-		/// @param p_height Height of the render target texture
-		RenderTarget(
-			DynamicResourceHandle<VK::Image> p_colourImage,
-			DynamicResourceHandle<VK::ImageView> p_colourImageView,
-			DynamicResourceHandle<VK::Image> p_depthImage,
-			DynamicResourceHandle<VK::ImageView> p_depthImageView,
-			std::uint32_t p_width,
-			std::uint32_t p_height);
+		//
+		// TODO: <REFACTOR>
+		// This should be extended to also returning handles.
+		// The handles should then return these resources to a friended Intermediary Storage instead as to 
+		// not expose Vulkan resources outside the Intermediary Storage and renderer
+		//
 		
 		/// @brief Get the texture
 		/// returns A custom Image
@@ -71,6 +60,29 @@ namespace Droplet::Graphics
 		/// @brief Get the extent of the texture
 		/// @returns A Vulkan Extent2D
 		[[nodiscard]] vk::Extent2D GetExtent() const { return m_extent; }
+		
+		//
+		// TODO: </REFACTOR> 
+		//
+		
+	private:
+		// Friend to access data
+		friend class VK::IntermediaryStorage;
+		
+		/// @brief Constructor that create every vulkan resource
+		/// @param p_allocator VMA raii Allocator
+		/// @param p_device Vulkan device
+		/// @param p_physicalDevice Information about the physical computer components
+		/// @param p_width Width of the render target texture
+		/// @param p_height Height of the render target texture
+		RenderTarget(
+			DynamicResourceHandle<VK::Image> p_colourImage,
+			DynamicResourceHandle<VK::ImageView> p_colourImageView,
+			DynamicResourceHandle<VK::Image> p_depthImage,
+			DynamicResourceHandle<VK::ImageView> p_depthImageView,
+			std::uint32_t p_width,
+			std::uint32_t p_height);
+		
 		
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters

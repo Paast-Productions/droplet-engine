@@ -551,18 +551,94 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
 {
     ZoneScoped;
     
-    GUID colourImageGuid = p_target.GetColourImageGuid();
-    GUID depthImageGuid = p_target.GetDepthImageGuid();
-    GUID colourImageViewGuid = p_target.GetColourImageViewGuid();
-    GUID depthImageViewGuid = p_target.GetDepthImageViewGuid();
+    // Create Colour Image
+    
+    GUID colourImageGuid { p_target.GetColourImageGuid() };
+    DynamicLiveResource colourImage 
+    {
+        .type = DynamicResourceType::Image,
+        .refCount = m_liveObjects[colourImageGuid].refCount,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal),
+    };
     
     MoveToDestructionQueue(colourImageGuid);
-    MoveToDestructionQueue(depthImageGuid);
+    m_liveObjects[colourImageGuid] = std::move(colourImage);
+    
+    DynamicResourceHandle<Image> colourImageHandle { colourImageGuid };
+    
+    // Create Colour Image View
+    
+    GUID colourImageViewGuid { p_target.GetColourImageViewGuid() };
+    DynamicLiveResource colourImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .refCount = m_liveObjects[colourImageViewGuid].refCount,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())       
+    };
+    
     MoveToDestructionQueue(colourImageViewGuid);
+    m_liveObjects[colourImageViewGuid] = std::move(colourImageView);
+    
+    // Create Depth Image
+    
+    GUID depthImageGuid { p_target.GetDepthImageGuid() };
+    DynamicLiveResource depthImage
+    {
+        .type = DynamicResourceType::Image,
+        .refCount = m_liveObjects[depthImageGuid].refCount,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD24UnormS8Uint, 
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    MoveToDestructionQueue(depthImageGuid);
+    m_liveObjects[depthImageGuid] = std::move(depthImage);
+    
+    DynamicResourceHandle<Image> depthImageHandle { depthImageGuid };
+    
+    // Create Depth Image View
+    
+    GUID depthImageViewGuid { p_target.GetDepthImageViewGuid() };
+    DynamicLiveResource depthImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .refCount = m_liveObjects[depthImageViewGuid].refCount,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD24UnormS8Uint,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+    
     MoveToDestructionQueue(depthImageViewGuid);
+    m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
     
-    CreateRenderTarget(colourImageGuid, depthImageGuid, colourImageViewGuid, depthImageViewGuid, p_width, p_height);
+    // Create ImGui Texture
     
+    GUID imGuiTextureGuid { p_texture.GetGUID() };
+    DynamicLiveResource imGuiTexture
+    {
+        .type = DynamicResourceType::ImGuiTexture,
+        .refCount = m_liveObjects[imGuiTextureGuid].refCount, 
+        .resource = std::make_unique<ImGuiTextureResource>(ImGui_ImplVulkan_AddTexture(
+            *m_textureSampler.Get(),
+            *p_target.GetColourImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        )
+    };
+    
+    MoveToDestructionQueue(imGuiTextureGuid);
+    m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
 }
 
 /*VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)

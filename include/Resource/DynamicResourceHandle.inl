@@ -53,7 +53,7 @@ namespace Droplet
     }
 
     template <typename T>
-    T *DynamicResourceHandle<T>::operator->()
+    T *DynamicResourceHandle<T>::operator->() const
     {
         return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
@@ -99,7 +99,7 @@ namespace Droplet
         
         if (instance.GetLiveObjectRefCount(ResourceHandle<T>::m_guid) <= 0)
         {
-            instance.QueueForDestruction(ResourceHandle<T>::m_guid);
+            instance.MoveToDestructionQueue(ResourceHandle<T>::m_guid);
         }
     }
 }
