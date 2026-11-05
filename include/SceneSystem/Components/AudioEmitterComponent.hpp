@@ -22,6 +22,6 @@ namespace Droplet::Scene
 		
 		std::string m_audioBusName;
 		dalia::PlaybackHandle m_playHandle;
-		Audio::AudioMixer &m_mixer;
+		Audio::AudioMixer *m_mixer = nullptr;
 	};
 }
