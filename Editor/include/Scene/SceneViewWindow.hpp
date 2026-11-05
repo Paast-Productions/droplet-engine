@@ -21,8 +21,9 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(EditorContext *p_editorContext) :
-			m_editorContext(p_editorContext) {}
+		/// @param p_engine is a pointer to the game engine which runs the editor
+		SceneViewWindow(EditorContext *p_editorContext, Engine *p_engine) :
+			m_editorContext(p_editorContext), m_engine(p_engine) {}
 
 		~SceneViewWindow() = default;
 
@@ -56,6 +57,12 @@ namespace Droplet::Editor::Scene
 		
 		/// @brief Pointer to a variable that is shared across several scenes
 		EditorContext *m_editorContext = nullptr;
+		
+		/// @brief Pointer to the engine
+		Engine *m_engine = nullptr;
+		
+		/// @brief Bool indicating whether the SDL Window has been resized
+		bool m_hasBeenResized = false;
 
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };

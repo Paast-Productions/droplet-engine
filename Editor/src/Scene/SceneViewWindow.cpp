@@ -236,6 +236,15 @@ void SceneViewWindow::InitImpl()
 
 	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
+	
+	m_engine->AddEventListener([&](SDL_Event &event)
+	{
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			m_hasBeenResized = true;
+		}
+	});
+			
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -440,19 +449,27 @@ void SceneViewWindow::RenderEditorView()
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
 
-	// If viewSize is changed, Update the camera and renderTarget
-	if (width != extent.width || height != extent.height)
+	// If mouse is released and viewSize is changed, or if the SDL window has been resized, Update the camera and renderTarget
+	if (input.MouseReleased(Mouse::LMB) || m_hasBeenResized)
 	{
-		if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
+		if (width != extent.width || height != extent.height)
 		{
-			return;
-		}
+			if (contentRegion.x <= 0.0f || contentRegion.y <= 0.0f)
+			{
+				return;
+			}
 
-		// If the change is large enough
-		if (std::abs(m_editorContext->GetEditorCamera().GetAspect() - contentAspect) > 0.0001f)
+			if (input.MouseReleased(Mouse::LMB) || m_hasBeenResized)
+			{
+				m_editorContext->GetEditorCamera().SetAspect(contentAspect);
+				UpdateRenderTarget(width, height);
+				
+				m_hasBeenResized = false;
+			}
+		}
+		else // In case the SDL resize event triggered, but the extents are unchanged, reset the resize flag.
 		{
-			m_editorContext->GetEditorCamera().SetAspect(contentAspect);
-			UpdateRenderTarget(width, height);
+			m_hasBeenResized = false;
 		}
 	}
 
