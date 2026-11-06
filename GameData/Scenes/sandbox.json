@@ -34,7 +34,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 20,
+                            "id": 29,
                             "name": "Seafloor",
                             "transform": {
                                 "position": [
@@ -54,11 +54,81 @@
                                     1.0
                                 ]
                             }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "components": [
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "fs": 13680123319807966343,
+                                        "fsName": "Base.FS",
+                                        "gs": 0,
+                                        "gsName": "",
+                                        "meshDisplayName": "Cube",
+                                        "meshGUID": 1448650563753099256,
+                                        "tcs": 0,
+                                        "tcsName": "",
+                                        "tes": 0,
+                                        "tesName": "",
+                                        "textureDisplayName": "White",
+                                        "textureGUID": 13855953862202670664,
+                                        "vs": 7809030845991192100,
+                                        "vsName": "Base.VS"
+                                    },
+                                    "id": 1,
+                                    "type": "MeshComponent"
+                                },
+                                {
+                                    "active": true,
+                                    "data": null,
+                                    "id": 3,
+                                    "type": "TriggerComponent"
+                                },
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "damage": 1.0
+                                    },
+                                    "id": 4,
+                                    "type": "DamageComponent"
+                                },
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "filepath": "Heat.lua"
+                                    },
+                                    "id": 5,
+                                    "type": "ScriptComponent"
+                                }
+                            ],
+                            "drawLayer": 1,
+                            "id": 30,
+                            "name": "HeatHazard",
+                            "transform": {
+                                "position": [
+                                    0.5190325975418091,
+                                    5.768780708312988,
+                                    20.011165618896484
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    5.0,
+                                    5.0,
+                                    5.0
+                                ]
+                            }
                         }
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 19,
+                    "id": 28,
                     "name": "CenterChunk",
                     "transform": {
                         "position": [
@@ -109,7 +179,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 22,
+                            "id": 32,
                             "name": "Seafloor",
                             "transform": {
                                 "position": [
@@ -160,11 +230,11 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 24,
+                                    "id": 34,
                                     "name": "BigRock",
                                     "transform": {
                                         "position": [
-                                            0.0,
+                                            0.7503128051757813,
                                             0.0,
                                             2.2965965270996094
                                         ],
@@ -208,13 +278,13 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 25,
+                                    "id": 35,
                                     "name": "MiddleRock",
                                     "transform": {
                                         "position": [
-                                            0.0,
-                                            -3.8413400650024414,
-                                            -15.627296447753906
+                                            -0.07674407958984375,
+                                            -3.2405056953430176,
+                                            -14.90463638305664
                                         ],
                                         "rotation": [
                                             0.9847018718719482,
@@ -256,13 +326,13 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 26,
+                                    "id": 36,
                                     "name": "SmallRock",
                                     "transform": {
                                         "position": [
                                             0.0,
-                                            -6.250499248504639,
-                                            -25.37647819519043
+                                            -6.660890579223633,
+                                            -23.802871704101563
                                         ],
                                         "rotation": [
                                             0.772327184677124,
@@ -280,7 +350,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 23,
+                            "id": 33,
                             "name": "RockRubble",
                             "transform": {
                                 "position": [
@@ -304,7 +374,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 21,
+                    "id": 31,
                     "name": "WestChunk",
                     "transform": {
                         "position": [
@@ -328,7 +398,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 18,
+            "id": 27,
             "name": "Map",
             "transform": {
                 "position": [
@@ -376,10 +446,25 @@
                             },
                             "id": 1,
                             "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "health": 100.0,
+                                "maxHealth": 100.0
+                            },
+                            "id": 2,
+                            "type": "HealthComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {},
+                            "id": 3,
+                            "type": "PlayerComponent"
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 33,
+                    "id": 38,
                     "name": "PlayerModel",
                     "transform": {
                         "position": [
@@ -427,7 +512,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 34,
+                    "id": 39,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -457,10 +542,25 @@
                     },
                     "id": 1,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "health": 100.0,
+                        "maxHealth": 100.0
+                    },
+                    "id": 2,
+                    "type": "HealthComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 3,
+                    "type": "PlayerComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 32,
+            "id": 37,
             "name": "Player",
             "transform": {
                 "position": [
