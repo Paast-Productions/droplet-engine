@@ -65,7 +65,8 @@ project "Test"
         "Sol2",
         "Lua",
         "tracy",
-        "Jolt"
+        "Jolt",
+        "Dalia"
     }
 
     links
@@ -75,6 +76,9 @@ project "Test"
         "tracy",
         "VulkanMemoryAllocator",
         "ImGui",
+        "dalia_engine",
+        "ole32",
+        "avrt",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("zlibstaticd"),

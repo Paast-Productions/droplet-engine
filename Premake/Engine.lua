@@ -56,7 +56,10 @@ project "Engine"
         "Assimp",
         "Stb",
         "Gli",
-        "bvh"
+        "bvh",
+        "Dalia",
+        "ole32",
+        "avrt"
     }
     --buildoptions { "-FIEnginePCH.hpp" }
 
