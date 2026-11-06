@@ -12,6 +12,9 @@ local maxSuctionTime = 2.0
 local currentTarget = nil
 local suctionElapsed = 0.0
 
+local playerBehaviour
+local woodId
+
 function InteractWithFish(target)
     local playerPosition = self:GetTransform():GetPosition()
     local targetPosition = target:GetTransform():GetPosition()
@@ -120,7 +123,9 @@ function SuctionEnd()
 
     fishSystem.UnregisterFish(fish)
     scene:RemoveNode(fish)
-    print("Fish is yum")
+    
+    playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
+    print("Fish is yum: ")
 end
 
 function SuctionCancel()
@@ -131,6 +136,13 @@ end
 
 function OnStart()
     scene = self:GetScene()
+    playerBehaviour = self:GetPlayerComponent():GetPlayerBehaviour()
+    local registry = playerBehaviour:GetItemRegistry()
+    woodId = registry:Find("resource:wood")
+    if woodId == nil or not woodId:IsValid() then
+        print("Wood item is not registered!")
+        woodId = nil
+    end
 end
 
 function OnUpdate(dt)
