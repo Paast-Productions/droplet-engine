@@ -766,7 +766,7 @@ bool Transform::HasParent() const
 {
 	assert(m_owner != nullptr && "Transform must have an owner Node.");
 
-	return m_owner->GetParent() != nullptr;
+	return m_owner->GetParent().lock() != nullptr;
 }
 
 Transform *Transform::GetParentTransform() const
@@ -774,5 +774,5 @@ Transform *Transform::GetParentTransform() const
 	if (!HasParent())
 		return nullptr;
 
-	return &(m_owner->GetParent()->GetTransform());
+	return &(m_owner->GetParent().lock()->GetTransform());
 }

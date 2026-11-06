@@ -205,7 +205,10 @@ void Renderer::TransitionImageLayout(
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
-void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData)
+void Renderer::RecordRenderTargetCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
+	const Camera &p_camera, std::vector<RenderData> &p_renderData, 
+	bool p_debug, glm::vec4 p_clearColor)
 {
 	ZoneScoped;
 
@@ -238,7 +241,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer
 	);
 
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.3f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(p_clearColor.x, p_clearColor.y, p_clearColor.z, p_clearColor.w);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
@@ -324,7 +327,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 
-	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	if (p_debug)
+		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -489,13 +493,16 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		VK::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
 
-		Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
+		if (camRenderData.debug)
+			Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 		RecordRenderTargetCommandBuffer(
 			commandBuffer,
 			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(camRenderData.renderTarget),
 			cam,
-			drawList
+			drawList,
+			camRenderData.debug,
+			camRenderData.clearColor
 		);
 	}
 

@@ -582,7 +582,13 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
+		"GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
+        "GetFreezeLevel", &Scene::PlayerBehaviour::GetFreezeLevel,
+        "IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
+        "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
+        "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
+        "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer
 	);
 
 	LuaClassDefinition classDef;
@@ -594,7 +600,13 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		{ "GetHeatResistance", "float", {} },
 		{ "GetHeatLevel", "float", {} },
 		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
+		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },		
+        { "GetFreezeResistance", "float", {} },
+        { "GetFreezeLevel", "float", {} },
+        { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
+        { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
+        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "GetFreezeTimer", "float", {} },
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);

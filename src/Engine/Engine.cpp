@@ -180,15 +180,23 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderData> *camRenderDatas)
 {
 	ZoneScopedC(tracy::Color::SkyBlue1);
 
 	auto renderData = m_sceneManager.GetRenderData();
 
-	if (camRenderData)
+	if (camRenderDatas)
 	{
-		renderData.push_back(*camRenderData);
+		for (const auto &camRenderData : *camRenderDatas)
+		{
+			renderData.push_back(camRenderData);
+		}
+
+		// Sort the render data by priority, higher priority first
+		std::sort(renderData.begin(), renderData.end(), [](const Graphics::CameraRenderData &a, const Graphics::CameraRenderData &b) {
+			return a.priority > b.priority;
+		});
 	}
 
 	// Rendering

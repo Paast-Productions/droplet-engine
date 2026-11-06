@@ -164,9 +164,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		HierarchyWindow hierarchyWindow(&editorContext);
 		NodeInspectorWindow nodeInspectorWindow(&editorContext);
 		BehaviourInspector behaviourInspector(&editorContext);
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
-		ScriptsWindow scriptsWindow;
-		SavedDataWindow savedDataWindow;
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
 		MixerWindow mixerWindow(&editorContext);
    		BusInspectorWindow busInspectorWindow(&editorContext);
@@ -373,6 +373,40 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						ImGui::EndMenu();
 					}
 
+					if (ImGui::BeginMenu("Help"))
+					{
+						ImGui::Text(
+							"Controls:\n"
+							"    - Tab:           Enter editor camera\n"
+							"    - Z:             Snap camera\n"
+							"    - B:             Show octree\n"
+
+							"Guizmo:\n"
+							"    - Q:             None\n"
+							"    - W:             Translation\n"
+							"    - E:             Rotation\n"
+							"    - R:             Scale\n"
+							"    - T:             Bounds\n"
+							"    - Y:             Universal\n"
+
+							"Camera Pivot:\n"
+							"    - F:             Focus view & pivot on selection\n"
+							"    - MMB:           Pan along view plane\n"
+							"    - Alt + LMB:     Rotate around pivot\n"
+							"    - Scroll:        Move along view normal at constant rate\n"
+							"    - Alt + Scroll:  Zoom towards pivot\n"
+
+							"Nodes:\n"
+							"    - LMB:           Select node\n"
+							"    - LMB + drag:    Select multiple nodes\n"
+							"    - Del:           Remove node\n"
+							"    - CTRL + C:      Copy node(s)\n"
+							"    - CTRL + V:      Paste node(s)\n"
+						);
+
+						ImGui::EndMenu();
+					}
+
 					ImGui::EndMainMenuBar();
 				}
 
@@ -508,16 +542,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
 				!sceneViewWindow.IsRenderingGameView();
 
-			Droplet::Graphics::CameraRenderData camRenderData{ };
+			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+
 			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
 				using namespace Droplet::Graphics::VK;
 
+				Droplet::Graphics::CameraRenderData camRenderData{ };
+				camRenderData.debug = true;
+
 				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
-				auto activeScene = editorContext.GetActiveScene();
+				auto activeScene = editorContext.GetActiveScene().lock();
 
 				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
 				camRenderData.renderTarget = editorCamera.GetTargetIndex();
@@ -562,10 +600,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 					camRenderData.renderData.emplace_back(component->GetRenderData());
 				}
+
+				if (renderEditorView)
+					queuedEditorCameras.push_back(camRenderData);
 			}
 
 			// Render the engine
-			switch (engine.Render(renderEditorView ? &camRenderData : nullptr))
+			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;
@@ -579,6 +620,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				run = false;
 				break;
 			}
+
+			editorContext.ClearQueuedEditorCameras();
 		}
 	}
 
