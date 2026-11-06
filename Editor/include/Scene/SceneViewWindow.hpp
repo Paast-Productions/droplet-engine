@@ -21,9 +21,7 @@ namespace Droplet::Editor::Scene
 	public:
 		/// @brief Constructor with a pointer to the editor context
 		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
-		SceneViewWindow(EditorContext *p_editorContext) :
-			m_editorContext(p_editorContext) {}
-
+		SceneViewWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~SceneViewWindow() = default;
 
 		bool IsRenderingGameView() const { return m_renderingGameView; }
@@ -53,9 +51,6 @@ namespace Droplet::Editor::Scene
 		/// @brief Aggregate selection bounds (min, max) relative to the group gizmo matrix
 		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
 		bool m_groupGizmoActive = false;
-		
-		/// @brief Pointer to a variable that is shared across several scenes
-		EditorContext *m_editorContext = nullptr;
 		
 		/// @brief Bool indicating whether the SDL Window has been resized
 		bool m_hasBeenResized = false;

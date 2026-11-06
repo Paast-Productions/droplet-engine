@@ -124,6 +124,37 @@ namespace Droplet::Scene
         /// @returns Time since last time player was affected by freeze
         [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
 
+                
+        /// Freeze
+        
+        /// @brief Sets the player's resistance to environmental heat.
+        /// @param p_heatResistance New heat resistance value.
+        void SetFreezeResistance(float p_freezeResistance) { m_data.freezeResistance = p_freezeResistance; }
+
+        /// @brief Gets the player's resistance to environmental heat.
+        /// @return Current heat resistance value.
+        [[nodiscard]] float GetFreezeResistance() const { return m_data.freezeResistance; }
+
+        /// @brief Increases the player's current heat level.
+        /// @param p_amount Amount to add to the current heat level.
+        void IncreaseFreezeLevel(float p_amount) { m_data.freezeLevel += p_amount; }
+
+        /// @brief Sets the player's current heat level.
+        /// @param p_heat New heat level value.
+        void SetFreezeLevel(float p_freeze) { m_data.freezeLevel = p_freeze; }
+
+        /// @brief Gets the player's current heat level.
+        /// @return Current heat level value.
+        [[nodiscard]] float GetFreezeLevel() const { return m_data.freezeLevel; }
+        
+        /// @brief Start a timer of when the player cannot warm up from freeze
+        /// @param p_time The amount of time that the player cannot get warm
+        void SetFreezeTimer(float p_time) { m_data.timeSinceFreeze = p_time; }
+        
+        /// @brief Get the time of when freeze was applied on the player
+        /// @returns Time since last time player was affected by freeze
+        [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
+        
         // ITEMS
 
         /// @brief Gets the item registry assigned to the SceneManager.
