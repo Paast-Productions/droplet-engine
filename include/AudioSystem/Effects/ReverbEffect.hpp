@@ -11,7 +11,7 @@ namespace Droplet::Audio
 		ReverbEffect() = default;
 		~ReverbEffect() = default;
 
-		[[no_discard]] std::string GetEffectTypeName() const override { return "ReverbEffect"; }
+		[[nodiscard]] std::string GetEffectTypeName() const override { return "ReverbEffect"; }
 		void Initilize();
 	private:
 
