@@ -8,8 +8,17 @@
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <Editor/DragDropFields.hpp>
+#include <cmath>
 
 using namespace Droplet::Editor;
+
+namespace
+{
+	bool SameRotation(const glm::quat &p_left, const glm::quat &p_right)
+	{
+		return std::abs(glm::dot(glm::normalize(p_left), glm::normalize(p_right))) > 1.0f - 1.0e-7f;
+	}
+}
 
 void NodeInspectorWindow::SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
@@ -90,40 +99,83 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		// Displayed angles are only a readout; edits are applied as per-axis delta rotations
+		if (ImGui::BeginPopupContextItem("Position Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetPosition(glm::vec3(0.0f), space);
+			}
+			ImGui::EndPopup();
+		}
+
+		// Keep edited axis values independent while applying quaternion deltas to the transform.
 		glm::vec3 &rot = m_displayedRotation;
-		if (!m_rotationActive)
+		const glm::quat currentRotation = transform.GetRotation(space);
+		const Droplet::Scene::Node *currentNode = m_currentNode.lock().get();
+
+		if (!m_hasDisplayedRotation ||
+			m_rotationNode != currentNode ||
+			m_rotationSpace != space ||
+			!SameRotation(currentRotation, m_lastDisplayedRotation))
 		{
 			rot = glm::degrees(transform.GetEuler(space));
+			m_rotationNode = currentNode;
+			m_rotationSpace = space;
+			m_lastDisplayedRotation = currentRotation;
+			m_hasDisplayedRotation = true;
 		}
+
 		glm::vec3 prevRot = rot;
 		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
-			glm::vec3 normal = glm::vec3(0, 1, 0);
-			float deltaRot = 0.0f;
+			for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
+			{
+				const float deltaDegrees = rot[axisIndex] - prevRot[axisIndex];
+				if (deltaDegrees == 0.0f)
+				{
+					continue;
+				}
 
-			if (rot.x != prevRot.x)
-			{
-				normal = (space == TSpace::Local) ? transform.GetRight() : glm::vec3(1, 0, 0);
-				deltaRot = glm::radians(rot.x - prevRot.x);
-			}
-			else if (rot.y != prevRot.y)
-			{
-				normal = (space == TSpace::Local) ? transform.GetUp() : glm::vec3(0, 1, 0);
-				deltaRot = glm::radians(rot.y - prevRot.y);
-			}
-			else if (rot.z != prevRot.z)
-			{
-				normal = (space == TSpace::Local) ? transform.GetForward() : glm::vec3(0, 0, 1);
-				deltaRot = glm::radians(rot.z - prevRot.z);
-			}
+				glm::vec3 axis(0.0f);
+				if (space == TSpace::Local)
+				{
+					switch (axisIndex)
+					{
+					case 0:
+						axis = transform.GetRight(TSpace::Local);
+						break;
+					case 1:
+						axis = transform.GetUp(TSpace::Local);
+						break;
+					default:
+						axis = transform.GetForward(TSpace::Local);
+						break;
+					}
+				}
+				else
+				{
+					axis[axisIndex] = 1.0f;
+				}
 
-			glm::quat deltaQuat = glm::angleAxis(deltaRot, normal);
-			transform.Rotate(deltaQuat, space);
+				transform.RotateAxis(glm::radians(deltaDegrees), axis, space);
+			}
+			m_lastDisplayedRotation = transform.GetRotation(space);
 		}
 		ImGui::LockToItem();
 
-		m_rotationActive = ImGui::IsItemActive();
+		// HACK: Resetting rotation to zero doesn't consistently undo all rotation. 
+		// Added a right-click context menu to reset rotation to alleviate issue.
+
+		if (ImGui::BeginPopupContextItem("Rotation Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetRotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), space);
+				m_lastDisplayedRotation = transform.GetRotation(space);
+				m_displayedRotation = glm::degrees(transform.GetEuler(space));
+			}
+			ImGui::EndPopup();
+		}
 
 		glm::vec3 scl = transform.GetScale();
 		const glm::vec3 oldScl = scl;
@@ -155,6 +207,15 @@ void NodeInspectorWindow::RenderImpl()
 			transform.SetScale(scl);
 		}
 		ImGui::LockToItem();
+
+		if (ImGui::BeginPopupContextItem("Scale Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetScale(glm::vec3(1.0f));
+			}
+			ImGui::EndPopup();
+		}
 
 		// Lock scale
 		ImGui::Checkbox("Lock Scale", &m_lockScale);
