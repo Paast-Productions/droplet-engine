@@ -14,10 +14,7 @@ namespace Droplet::Editor
 	class ScriptsWindow : public EditorWindow
 	{
 	public:
-		/// @brief Constructs the scripts window.
-		/// @param p_interactionState Shared editor interaction state.
-		ScriptsWindow();
-		/// @brief Destroys the scripts window.
+		ScriptsWindow(EditorContext *p_editorContext);
 		~ScriptsWindow() = default;
 
 	protected:

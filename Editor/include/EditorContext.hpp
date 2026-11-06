@@ -75,6 +75,10 @@ namespace Droplet::Editor
 		/// @return A weak pointer to the CameraComponent that is currently set as the game camera.
 		[[nodiscard]] std::weak_ptr<Droplet::Scene::CameraComponent> GetGameCamera() { return m_gameCamera; }
 
+		void QueueEditorCamera(const Graphics::CameraRenderData &p_camRenderData) { m_camsToRender.push_back(p_camRenderData); }
+		[[nodiscard]] const std::vector<Graphics::CameraRenderData> &GetQueuedEditorCameras() const { return m_camsToRender; }
+		void ClearQueuedEditorCameras() { m_camsToRender.clear(); }
+
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
@@ -83,5 +87,7 @@ namespace Droplet::Editor
 		std::weak_ptr<Droplet::Scene::Scene> m_selectedScene;
 
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
+
+		std::vector<Graphics::CameraRenderData> m_camsToRender;
 	};
 }

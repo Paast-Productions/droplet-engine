@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "FreezeColor",
+            "guid": 14503967403712679070,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "FreezeColor",
+            "type": 1
+        }
+    ]
+}

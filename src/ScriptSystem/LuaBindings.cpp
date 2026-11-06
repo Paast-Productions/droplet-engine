@@ -105,9 +105,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return p_node.GetScene().get();
 		},
-		"GetTransform",
-		static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-
 		"GetCameraComponent",
 		[](Scene::Node &node)
 		{

@@ -14,10 +14,6 @@
 using namespace Droplet::Editor;
 using namespace Droplet::Scene;
 
-HierarchyWindow::HierarchyWindow(EditorContext *p_editorContext) :
- m_editorContext(p_editorContext)
-{ }
-
 namespace
 {
     /// @brief Gets the nodes a drag of p_dragged should move. If the dragged node is part of a multi-selection, all

@@ -9,10 +9,6 @@
 
 using namespace Droplet::Editor;
 
-NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext) 
-	: m_editorContext(p_editorContext)
-{ }
-
 void NodeInspectorWindow::SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
 	m_currentNode = p_nodeToInspect;

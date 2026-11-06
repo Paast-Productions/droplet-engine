@@ -21,21 +21,23 @@ function OnUpdate(dt)
     local yawDelta = -dx * mouseSensitivity
     trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
 
+    --local MovementModifiers = require("MovementModifiers")
+
     local walkDir = Vec3.new(0.0, 0.0, 0.0)
 	if Input:KeyHeld(Key.W) then
-        walkDir = GLM.V3Add(walkDir, trans:GetForward())
-    end
-
-    if Input:KeyHeld(Key.A) then
-        walkDir = GLM.V3Add(walkDir, trans:GetRight())
-    end
-
-    if Input:KeyHeld(Key.S) then
         walkDir = GLM.V3Sub(walkDir, trans:GetForward())
     end
 
-    if Input:KeyHeld(Key.D) then
+    if Input:KeyHeld(Key.A) then
         walkDir = GLM.V3Sub(walkDir, trans:GetRight())
+    end
+
+    if Input:KeyHeld(Key.S) then
+        walkDir = GLM.V3Add(walkDir, trans:GetForward())
+    end
+
+    if Input:KeyHeld(Key.D) then
+        walkDir = GLM.V3Add(walkDir, trans:GetRight())
     end
 
     if walkDir.x ~= 0.0 or walkDir.z ~= 0.0 then
