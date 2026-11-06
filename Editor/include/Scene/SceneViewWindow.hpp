@@ -22,7 +22,7 @@ namespace Droplet::Editor::Scene
 		/// @brief Constructor with a pointer to the editor context
 		/// @param p_editorContext is a pointer that holds information about scene, camera, interactions and renderer
 		SceneViewWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
-		~SceneViewWindow() = default;
+		~SceneViewWindow();
 
 		bool IsRenderingGameView() const { return m_renderingGameView; }
 
@@ -45,6 +45,8 @@ namespace Droplet::Editor::Scene
 		bool m_usingGizmo = false;
 		bool m_hoveringSceneView = false;
 		bool m_hoveringPlayButton = false;
+		std::shared_ptr<Droplet::Scene::Node> m_prefabPreviewNode;
+		std::weak_ptr<Droplet::Scene::Scene> m_prefabPreviewScene;
 
 		/// @brief Gizmo matrix for a multi-node selection, kept between frames while the gizmo is in use
 		glm::mat4 m_groupGizmoMatrix = glm::mat4(1.0f);
@@ -67,6 +69,8 @@ namespace Droplet::Editor::Scene
 		void RenderEditorView();
 
 		void RenderGameView();
+
+		void RemovePrefabPreview();
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.
 		/// @param p_sceneViewMin The minimum coordinates of the scene view rectangle.
