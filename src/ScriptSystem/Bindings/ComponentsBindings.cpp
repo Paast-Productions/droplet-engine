@@ -8,6 +8,8 @@
 #include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
 #include <LuaBindings.hpp>
 
+#include "ItemRegistry.hpp"
+
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -576,6 +578,31 @@ void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 
 void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
+    // Item identifier.
+    p_luaState.new_usertype<Game::ItemId>(
+        "ItemId",
+        sol::no_constructor,
+        "IsValid", &Game::ItemId::IsValid,
+        "value", &Game::ItemId::value
+    );
+
+    // Inventory type.
+    p_luaState.new_enum(
+        "InventoryType",
+        "Player", Scene::InventoryType::Player,
+        "Drone", Scene::InventoryType::Drone
+    );
+
+    // Item registry.
+    p_luaState.new_usertype<Game::ItemRegistry>(
+        "ItemRegistry",
+        sol::no_constructor,
+        "Find", [](const Game::ItemRegistry& p_registry, const std::string& p_name)
+        {
+            return p_registry.Find(p_name);
+        }
+    );
+	
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
@@ -588,8 +615,16 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
         "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
         "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
-        "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer
-	);
+        "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+        "GetUniqueID", &Scene::PlayerBehaviour::GetUniqueID,
+        // Item registry access.
+        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+        // Inventory functions.
+        "AddItem", &Scene::PlayerBehaviour::AddItem,
+        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+        "CountItem", &Scene::PlayerBehaviour::CountItem
+    
+    );
 
 	LuaClassDefinition classDef;
 	classDef.name = "PlayerBehaviour";
@@ -607,7 +642,22 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
         { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
         { "GetFreezeTimer", "float", {} },
+		{ "GetItemRegistry", "ItemRegistry", {} },
+        { "AddItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" },{ "count", "number" }} },
+        { "RemoveItem", "boolean", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" },{ "count", "number" }} },
+        { "CountItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" }} }
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
+
+    // ItemRegistry API metadata.
+    LuaClassDefinition registryDef;
+    registryDef.name = "ItemRegistry";
+
+    registryDef.functions =
+    {
+        { "Find", "ItemId", { { "name", "string" } } }
+    };
+
+    LuaBindings::PushLuaClassDefinition(registryDef);
 }

@@ -98,15 +98,20 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
+
 		"GetID", &Scene::Node::GetID, 
 		"GetTransform",
 		static_cast<Scene::Transform & (Scene::Node:: *)()>(
 			&Scene::Node::GetTransform),
+
 		"GetName", &Droplet::Scene::Node::GetName,
 		"RemoveNode", &Scene::Node::RemoveNode,
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
-		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount
+		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount,
+
+
+
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
@@ -198,7 +203,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			"GetNodeRemovalCount",
 			"uint32_t",
 			{}
-		}
+		},
+
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
@@ -2821,143 +2827,4 @@ void LuaBindings::RegisterTracy(sol::state_view p_luaState)
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(tracyDef);
-}
-
-void LuaBindings::RegisterHealthComponent(sol::state_view p_luaState)
-{
-	p_luaState.new_usertype<Scene::HealthComponent>(
-		"HealthComponent",
-		"GetHealth", &Scene::HealthComponent::GetHealth,
-		"GetMaxHealth", &Scene::HealthComponent::GetMaxHealth,
-		"TakeDamage", &Scene::HealthComponent::TakeDamage,
-		"Heal", &Scene::HealthComponent::Heal,
-		"SetHealth", &Scene::HealthComponent::SetHealth,
-		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth
-	);
-
-	LuaClassDefinition classDef;
-	classDef.name = "HealthComponent";
-
-	classDef.functions =
-	{
-		{ "GetHealth", "float", {} },
-		{ "GetMaxHealth", "float", {} },
-		{ "TakeDamage", "void", { { "amount", "number" } } },
-		{ "Heal", "void", { { "amount", "number" } } },
-		{ "SetHealth", "void", { { "amount", "number" } } },
-		{ "SetMaxHealth", "void", { { "amount", "number" } } }
-	};
-
-	LuaBindings::m_luaClassDefinitions.push_back(classDef);
-}
-
-void LuaBindings::RegisterPlayerComponent(sol::state_view p_luaState)
-{
-	p_luaState.new_usertype<Scene::PlayerComponent>(
-		"PlayerComponent",
-		"GetPlayerBehaviour", &Scene::PlayerComponent::GetPlayerBehaviourLua
-	);
-
-	LuaClassDefinition classDef;
-	classDef.name = "PlayerComponent";
-
-	classDef.functions =
-	{
-		{ "GetPlayerBehaviour", "PlayerBehaviour", {} },
-	};
-
-	LuaBindings::m_luaClassDefinitions.push_back(classDef);
-}
-
-void LuaBindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
-{
-	// Item identifier.
-	p_luaState.new_usertype<Game::ItemId>(
-		"ItemId",
-		sol::no_constructor,
-		"IsValid", &Game::ItemId::IsValid,
-		"value", &Game::ItemId::value
-	);
-
-	// Inventory type.
-	p_luaState.new_enum(
-		"InventoryType",
-		"Player", Scene::InventoryType::Player,
-		"Drone", Scene::InventoryType::Drone
-	);
-
-	// Item registry.
-	p_luaState.new_usertype<Game::ItemRegistry>(
-		"ItemRegistry",
-		sol::no_constructor,
-		"Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
-		{
-			return p_registry.Find(p_name);
-		}
-	);
-
-	// Player behaviour.
-	p_luaState.new_usertype<Scene::PlayerBehaviour>(
-		"PlayerBehaviour",
-		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
-		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
-		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
-		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
-		"SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
-
-		"GetUniqueID", &Scene::PlayerBehaviour::GetUniqueID,
-
-		// Item registry access.
-		"GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
-
-		// Inventory functions.
-		"AddItem", &Scene::PlayerBehaviour::AddItem,
-		"RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
-		"CountItem", &Scene::PlayerBehaviour::CountItem
-	);
-
-	// PlayerBehaviour API metadata.
-	LuaClassDefinition classDef;
-	classDef.name = "PlayerBehaviour";
-
-	classDef.functions =
-	{
-		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatResistance", "float", {} },
-		{ "GetHeatLevel", "float", {} },
-		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "void", { { "heat", "number" } } },
-		{ "SetHeatResistance", "void", { { "resistance", "number" } } },
-
-		{ "GetItemRegistry", "ItemRegistry", {} },
-
-		{ "AddItem", "number", {
-			{ "inventory", "InventoryType" },
-			{ "itemId", "ItemId" },
-			{ "count", "number" }
-		} },
-		{ "RemoveItem", "boolean", {
-			{ "inventory", "InventoryType" },
-			{ "itemId", "ItemId" },
-			{ "count", "number" }
-		} },
-		{ "CountItem", "number", {
-			{ "inventory", "InventoryType" },
-			{ "itemId", "ItemId" }
-		} }
-	};
-
-	LuaBindings::m_luaClassDefinitions.push_back(classDef);
-
-	// ItemRegistry API metadata.
-	LuaClassDefinition registryDef;
-	registryDef.name = "ItemRegistry";
-
-	registryDef.functions =
-	{
-		{ "Find", "ItemId", { { "name", "string" } } }
-	};
-
-	LuaBindings::m_luaClassDefinitions.push_back(registryDef);
 }

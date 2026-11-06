@@ -40,20 +40,34 @@ end
 
 
 function RenderUI()
+    -- DOTO
+    -- Currently hardcoded. The first index is processed automatically.
+    -- The remaining indices need to be selected through the 2D engine or its components.
+
+    if ImGui.Button("Wood") then
+        local wood = itemRegistry:Find("Wood")
+        amount = player:CountItem(InventoryType.Player, wood)
+        print("amount wood-> " .. amount)
+    end
+
+    if ImGui.Button("Stone") then
+        local stone = itemRegistry:Find("Stone")
+        amount = player:CountItem(InventoryType.Player, stone)
+        print("amount stone-> " .. amount)
+    end 
+    
+    if ImGui.Button("Iron") then
+        local iron = itemRegistry:Find("Iron") 
+        amount = player:CountItem(InventoryType.Player, iron)
+        print("amount iron-> " .. amount)
+    end
 end
 
 function OnTrigger()
-
     touchedTheMesh = true
 end
 
 function OnUpdate()
-    -- DOTO
-    -- Currently hardcoded. The first index is processed automatically.
-    -- The remaining indices need to be selected through the 2D engine or its components.
-    amount = player:CountItem(InventoryType.Player, unique[1])
-    print("amount-> " .. amount)
-
     if touchedTheMesh then
         if Input:KeyPressed(Key.E) then
             Crafting()
