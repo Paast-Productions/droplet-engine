@@ -7,6 +7,8 @@
 #include "SceneSystem/Components/PlayerComponent.hpp"
 #include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
 #include <LuaBindings.hpp>
+#include <Item.hpp>
+#include <ItemRegistry.hpp>
 
 
 using namespace Droplet::Scene;
@@ -574,28 +576,93 @@ void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
+
 void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::PlayerBehaviour>(
-		"PlayerBehaviour",
-		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
-		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
-		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
-		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
-	);
+    // Item identifier.
+    p_luaState.new_usertype<Game::ItemId>(
+        "ItemId",
+        sol::no_constructor,
+        "IsValid", &Game::ItemId::IsValid,
+        "value", &Game::ItemId::value
+    );
 
-	LuaClassDefinition classDef;
-	classDef.name = "PlayerBehaviour";
+    // Inventory type.
+    p_luaState.new_enum(
+        "InventoryType",
+        "Player", Scene::InventoryType::Player,
+        "Drone", Scene::InventoryType::Drone
+    );
 
-	classDef.functions =
-	{
-		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatResistance", "float", {} },
-		{ "GetHeatLevel", "float", {} },
-		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
-	};
+    // Item registry.
+    p_luaState.new_usertype<Game::ItemRegistry>(
+        "ItemRegistry",
+        sol::no_constructor,
+        "Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
+        {
+            return p_registry.Find(p_name);
+        }
+    );
 
-	LuaBindings::PushLuaClassDefinition(classDef);
+    // Player behaviour.
+    p_luaState.new_usertype<Scene::PlayerBehaviour>(
+        "PlayerBehaviour",
+        "GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+        "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
+        "GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
+        "IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
+        "SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
+        "SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
+
+        // Item registry access.
+        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+
+        // Inventory functions.
+        "AddItem", &Scene::PlayerBehaviour::AddItem,
+        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+        "CountItem", &Scene::PlayerBehaviour::CountItem
+    );
+
+    // PlayerBehaviour API metadata.
+    LuaClassDefinition classDef;
+    classDef.name = "PlayerBehaviour";
+
+    classDef.functions =
+    {
+        { "GetMaxHealth", "float", {} },
+        { "GetHeatResistance", "float", {} },
+        { "GetHeatLevel", "float", {} },
+        { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+        { "SetHeatLevel", "void", { { "heat", "number" } } },
+        { "SetHeatResistance", "void", { { "resistance", "number" } } },
+
+        { "GetItemRegistry", "ItemRegistry", {} },
+
+        { "AddItem", "number", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" },
+            { "count", "number" }
+        } },
+        { "RemoveItem", "boolean", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" },
+            { "count", "number" }
+        } },
+        { "CountItem", "number", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" }
+        } }
+    };
+    LuaBindings::PushLuaClassDefinition(classDef);
+
+    // ItemRegistry API metadata.
+    LuaClassDefinition registryDef;
+    registryDef.name = "ItemRegistry";
+
+    registryDef.functions =
+    {
+        { "Find", "ItemId", { { "name", "string" } } }
+    };
+
+    LuaBindings::PushLuaClassDefinition(registryDef);
 }
