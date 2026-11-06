@@ -45,19 +45,22 @@ function RenderUI()
     -- The remaining indices need to be selected through the 2D engine or its components.
 
     if ImGui.Button("Wood") then
-        local wood = itemRegistry:Find("Wood")
+        local wood = itemRegistry:Find("resource:wood")
+        print(wood.value)
         amount = player:CountItem(InventoryType.Player, wood)
         print("amount wood-> " .. amount)
     end
 
     if ImGui.Button("Stone") then
-        local stone = itemRegistry:Find("Stone")
+        local stone = itemRegistry:Find("resource:stone")
+        print(stone.value)
         amount = player:CountItem(InventoryType.Player, stone)
         print("amount stone-> " .. amount)
     end 
     
     if ImGui.Button("Iron") then
-        local iron = itemRegistry:Find("Iron") 
+        local iron = itemRegistry:Find("resource:iron") 
+        print(iron.value)
         amount = player:CountItem(InventoryType.Player, iron)
         print("amount iron-> " .. amount)
     end
