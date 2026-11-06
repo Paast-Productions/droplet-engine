@@ -12,12 +12,14 @@ Camera::Camera(
 	glm::vec3 p_fwd,
 	glm::vec3 p_up,
 	float p_fov, 
-	float p_aspect) : 
+	float p_aspect,
+	glm::vec2 p_planes) : 
 	m_position(p_pos),
 	m_forward(p_fwd),
 	m_up(p_up),
 	m_fov(p_fov),
-	m_aspect(p_aspect)
+	m_aspect(p_aspect),
+	m_planes(p_planes)
 {
 	UpdateCameraVectors();
 }
