@@ -433,9 +433,29 @@ std::weak_ptr<Node> Node::GetParent() const
 	return m_parent;
 }
 
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const // TODO: Make weak pointer
+const std::vector<std::shared_ptr<Node>> Node::GetChildren(bool p_recursive) const // TODO: Make weak pointer
 {
-	return m_children;
+	if (!p_recursive)
+	{
+		return m_children;
+	}
+
+	std::vector<std::shared_ptr<Node>> recursiveChildren;
+	std::function<void(const std::shared_ptr<Node> &)> collectChildren = [&](const std::shared_ptr<Node> &node) {
+		for (const auto &child : node->m_children)
+		{
+			recursiveChildren.push_back(child);
+			collectChildren(child);
+		}
+	};
+
+	for (const auto &child : m_children)
+	{
+		recursiveChildren.push_back(child);
+		collectChildren(child);
+	}
+
+	return recursiveChildren;
 }
 
 std::shared_ptr<Scene> Node::GetScene() const // TODO: Make weak pointer

@@ -180,8 +180,8 @@ namespace Droplet::Scene
 
         /// @brief Gets the child Nodes.
         ///
-        /// @return A constant reference to the vector containing this Node's children.
-        [[nodiscard]] const std::vector<std::shared_ptr<Node>> &GetChildren() const; // TODO: Make weak pointer
+        /// @return A vector containing this Node's children.
+        [[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene that owns this Node.
         ///

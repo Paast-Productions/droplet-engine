@@ -230,8 +230,7 @@ void HierarchyWindow::RenderImpl()
         const auto targetIt = std::find_if(
             m_visibleNodes.begin(),
             m_visibleNodes.end(),
-            [&target](const std::weak_ptr<Node> &p_node)
-            {
+            [&target](const std::weak_ptr<Node> &p_node) {
                 return p_node.lock() == target;
             });
 
@@ -239,8 +238,7 @@ void HierarchyWindow::RenderImpl()
             ? std::find_if(
                 m_visibleNodes.begin(),
                 m_visibleNodes.end(),
-                [&anchor](const std::weak_ptr<Node> &p_node)
-                {
+                [&anchor](const std::weak_ptr<Node> &p_node) {
                     return p_node.lock() == anchor;
                 })
             : m_visibleNodes.end();
@@ -437,6 +435,17 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::strin
 void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 {
     static char fileName[128] = "MyScene";
+    static std::weak_ptr<Droplet::Scene::Scene> previousScene;
+    static bool hasPreviousScene = false;
+    auto activeScene = m_editorContext->GetActiveScene().lock();
+    if (activeScene && hasPreviousScene && previousScene.lock() != activeScene)
+    {
+        const std::string sceneName = activeScene->GetName();
+        std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+        fileName[sizeof(fileName) - 1] = '\0';
+    }
+    previousScene = activeScene;
+    hasPreviousScene = true;
 
     ImGui::InputText("Scene name", fileName, sizeof(fileName));
     static std::vector <std::string> sceneFiles;
@@ -452,7 +461,7 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     if (ImGui::Button("Save Scene"))
     {
-        m_editorContext->GetActiveScene().lock()->SetName(fileName);
+        activeScene->SetName(fileName);
         std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
         m_editorContext->SaveScene(path);
 
@@ -488,7 +497,8 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
         }
         for (const std::string &sceneFile : sceneFiles)
         {
-            if (ImGui::Selectable(sceneFile.c_str()))
+            if (ImGui::Selectable(sceneFile.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick)
+                && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
             {
                 selectedScene = sceneFile;
 
@@ -509,29 +519,6 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
         ImGui::EndPopup();
     }
 
-    ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
-
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
-    {
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
-            {
-                if (payload->Data != nullptr && payload->DataSize > 0)
-                {
-                    const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
-                    const std::string scenePath(droppedData->path);
-                    const std::string sceneName(droppedData->name);
-                    m_editorContext->GetActiveScene().lock()->SetActive(false);
-                    m_editorContext->LoadFromFile(scenePath);
-                    m_editorContext->SetActiveScene(sceneName);
-                    std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
-                    fileName[sizeof(fileName) - 1] = '\0';
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }    
 }
 
 

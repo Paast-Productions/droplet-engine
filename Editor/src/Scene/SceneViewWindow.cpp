@@ -215,6 +215,30 @@ namespace
 	}
 }
 
+SceneViewWindow::~SceneViewWindow()
+{
+	RemovePrefabPreview();
+}
+
+void SceneViewWindow::RemovePrefabPreview()
+{
+	if (m_prefabPreviewNode)
+	{
+		if (auto scene = m_prefabPreviewScene.lock())
+		{
+			const auto &roots = scene->GetRoots();
+			if (std::find(roots.begin(), roots.end(), m_prefabPreviewNode) != roots.end())
+			{
+				scene->RemoveRoot(m_prefabPreviewNode);
+			}
+		}
+
+		m_prefabPreviewNode.reset();
+	}
+
+	m_prefabPreviewScene.reset();
+}
+
 void SceneViewWindow::InitImpl()
 {
 	SetName("Editor View"); 
@@ -401,6 +425,7 @@ void SceneViewWindow::RenderImpl()
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 	{
+		RemovePrefabPreview();
 		RenderGameView();
 	}
 	else
@@ -503,6 +528,87 @@ void SceneViewWindow::RenderEditorView()
 	ImVec2 imageMax = ImGui::GetItemRectMax();
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
+	bool prefabPreviewHovered = false;
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
+			"PREFAB_PATH",
+			ImGuiDragDropFlags_AcceptBeforeDelivery))
+		{
+			if (payload->Data != nullptr && payload->DataSize > 0)
+			{
+				const ImVec2 viewSize = { imageMax.x - imageMin.x, imageMax.y - imageMin.y };
+				if (viewSize.x > 0.0f && viewSize.y > 0.0f)
+				{
+					const ImVec2 mousePos = ImGui::GetIO().MousePos;
+					const glm::vec2 mousePosInView = {
+						(mousePos.x - imageMin.x) / viewSize.x,
+						(mousePos.y - imageMin.y) / viewSize.y
+					};
+
+					if (auto scene = m_editorContext->GetActiveScene().lock())
+					{
+						std::vector<std::weak_ptr<DNode>> ignoredNodes;
+						if (m_prefabPreviewNode)
+						{
+							auto children = m_prefabPreviewNode->GetChildren(true);
+
+							ignoredNodes.reserve(children.size() + 1);
+							for (const auto &child : children)
+							{
+								ignoredNodes.push_back(child);
+							}
+
+							ignoredNodes.push_back(m_prefabPreviewNode);
+						}
+
+						const Math::Ray viewRay = camera.GetViewRay(mousePosInView);
+						Math::RayHit hit{};
+						scene->RaycastNode(viewRay, &hit, &ignoredNodes);
+
+						const glm::vec3 position = hit.didHit
+							? hit.point
+							: viewRay.pos + viewRay.dir * m_cameraPivotRadius;
+
+						if (m_prefabPreviewNode && m_prefabPreviewScene.lock() != scene)
+						{
+							RemovePrefabPreview();
+						}
+
+						if (!m_prefabPreviewNode)
+						{
+							m_prefabPreviewNode = scene->LoadNodeFromFile(
+								static_cast<const char *>(payload->Data),
+								position
+							);
+							m_prefabPreviewScene = scene;
+						}
+						else
+						{
+							m_prefabPreviewNode->GetTransform().SetPosition(position);
+						}
+
+						if (payload->IsDelivery())
+						{
+							m_prefabPreviewNode.reset();
+							m_prefabPreviewScene.reset();
+						}
+						else
+						{
+							prefabPreviewHovered = true;
+						}
+					}
+				}
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (m_prefabPreviewNode && !prefabPreviewHovered)
+	{
+		RemovePrefabPreview();
+	}
 
 	if (isWindowFocused)
 	{
