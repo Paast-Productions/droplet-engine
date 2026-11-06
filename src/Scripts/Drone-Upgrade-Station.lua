@@ -4,9 +4,9 @@ local unique = nil
 local itemRegistry = nil
 local amount = 0
 
--- bool
+-- variabels
 local touchedTheMesh = false
-
+local word
 -- variabels that is need to gets code from c++¨
 local player = nil
 
@@ -19,8 +19,13 @@ function OnStart()
     itemRegistry = player:GetItemRegistry() 
 end
 
-function Crafting()
+function Crafting(itemId)
     print("Crafting station:")
+    print(itemId .. " <- word")
+    local Id = itemRegistry:Find(itemId)
+    amount = player:CountItem(InventoryType.Player, Id)
+    print("amount wood-> " .. amount)
+
     -- Example of how to handle crafting logic
     -- DOTO CHANGE THE PRICE FOR EACH ITEM
     local priceOfCraft = 2;
@@ -28,13 +33,13 @@ function Crafting()
         amount = amount - priceOfCraft
         print(amount .. " <- amount of fish got removed by small calulation")
         
-        
-        local succes = player:RemoveItem(InventoryType.Player, unique[x], amount)
+
+        local succes = player:RemoveItem(InventoryType.Player, Id, priceOfCraft)
         if succes then 
-            print(succes .. " <- removeing item is")            
+            print("Succes")            
         end
     else
-        print("Not enough resources to craft " .. itemToCraft)
+        print("Not enough resources to craft " .. amount)
     end
 end
 
@@ -45,24 +50,15 @@ function RenderUI()
     -- The remaining indices need to be selected through the 2D engine or its components.
 
     if ImGui.Button("Wood") then
-        local wood = itemRegistry:Find("resource:wood")
-        print(wood.value)
-        amount = player:CountItem(InventoryType.Player, wood)
-        print("amount wood-> " .. amount)
+        word = "wood"
     end
 
     if ImGui.Button("Stone") then
-        local stone = itemRegistry:Find("resource:stone")
-        print(stone.value)
-        amount = player:CountItem(InventoryType.Player, stone)
-        print("amount stone-> " .. amount)
+        word = "stone"
     end 
     
     if ImGui.Button("Iron") then
-        local iron = itemRegistry:Find("resource:iron") 
-        print(iron.value)
-        amount = player:CountItem(InventoryType.Player, iron)
-        print("amount iron-> " .. amount)
+        word = "iron"
     end
 end
 
@@ -71,10 +67,18 @@ function OnTrigger()
 end
 
 function OnUpdate()
-    if touchedTheMesh then
+    --if touchedTheMesh then
         if Input:KeyPressed(Key.E) then
-            Crafting()
+            if word == "wood" then
+                Crafting("resource:wood")
+            end
+            if word == "stone" then
+                Crafting("resource:stone")
+            end
+            if word == "iron" then
+                Crafting("resource:iron")
+            end
             touchedTheMesh = false
         end
-    end
+    --end
 end
