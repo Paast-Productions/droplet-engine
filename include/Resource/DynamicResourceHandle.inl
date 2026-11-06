@@ -8,6 +8,8 @@ namespace Droplet
     DynamicResourceHandle<T>::DynamicResourceHandle(GUID p_guid) : 
         ResourceHandle<T>(p_guid)
     {
+        std::print(std::cout, "Increment (GUID-Constructor): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) + 1);
+        std::flush(std::cout);
         Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
@@ -20,6 +22,8 @@ namespace Droplet
             return;    
         }
         
+        std::print(std::cout, "Increment (Copy Constructor): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) + 1);
+        std::flush(std::cout);
         Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
@@ -31,8 +35,12 @@ namespace Droplet
             return *this;
         }
         
+        std::print(std::cout, "Decrement (Copy Assignment): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) - 1);
+        std::flush(std::cout);
         DecrementRef();
         ResourceHandle<T>::m_guid = p_other.ResourceHandle<T>::m_guid;
+        std::print(std::cout, "Increment (Copy Assignment): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) + 1);
+        std::flush(std::cout);
         IncrementRef();
         
         return *this;
@@ -42,7 +50,7 @@ namespace Droplet
     DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept :
         ResourceHandle<T>(p_other.m_guid)
     {
-        ResourceHandle<T>::m_guid = p_other.m_guid;
+        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
     }
 
     template <typename T>
@@ -53,8 +61,7 @@ namespace Droplet
             return *this;    
         }   
         
-        ResourceHandle<T>::m_guid = p_other.m_guid;
-        p_other.m_guid = C_INVALID_GUID;
+        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
         
         return *this;
     }
@@ -73,6 +80,8 @@ namespace Droplet
             return;
         }
         
+        std::print(std::cout, "Decrement (Destructor): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) - 1);
+        std::flush(std::cout);
         Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 
@@ -93,6 +102,11 @@ namespace Droplet
     template <typename T>
     std::uint32_t DynamicResourceHandle<T>::GetRef() const
     {
+        if (!IsValid())
+        {
+            return 0;
+        }
+        
         return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid);
     }
 

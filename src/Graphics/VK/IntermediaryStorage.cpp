@@ -56,12 +56,18 @@ void IntermediaryStorage::Shutdown()
 
 std::uint32_t IntermediaryStorage::GetLiveObjectRefCount(GUID p_guid) const
 {
+    if (p_guid == C_INVALID_GUID)
+    {
+        return 0;
+    }
+    
     return m_liveObjects.at(p_guid).refCount;
 }
 
 void IntermediaryStorage::IncrementRef(GUID p_guid)
 {
     ++m_liveObjects.at(p_guid).refCount;
+
 }
 
 void IntermediaryStorage::DecrementRef(GUID p_guid)
@@ -69,6 +75,7 @@ void IntermediaryStorage::DecrementRef(GUID p_guid)
     if (--m_liveObjects.at(p_guid).refCount == 0)
     {
         MoveToDestructionQueue(p_guid);
+        return;
     }
 }
 
