@@ -39,7 +39,7 @@ namespace Droplet
             /// @brief Constructs a hierarchy window.
             /// @param p_instance The instance of the engine used to access scene data.
             /// @param p_interactionState The shared interaction state used to track selections.
-            explicit HierarchyWindow(EditorContext *p_editorContext);
+            explicit HierarchyWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 
         protected:
             /// @brief Initializes the hierarchy window.
@@ -103,10 +103,6 @@ namespace Droplet
 
             /// @brief Engine instance used to access engine systems.
             std::weak_ptr<Engine> m_instance;
-            
-            /// @brief EditorContext that is used to access information from a scene between
-            /// different views
-            EditorContext *m_editorContext;
             
 			/// @brief The currently selected scene in the hierarchy window.
 			std::weak_ptr<Droplet::Scene::Scene> m_selectedScene;

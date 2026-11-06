@@ -1,4 +1,5 @@
 #pragma once
+#include <EditorContext.hpp>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
 #include <string>
@@ -18,7 +19,7 @@ namespace Droplet::Editor
 	class EditorWindow
 	{
 	public:
-		EditorWindow() = default;
+		EditorWindow(EditorContext *p_editorContext) : m_editorContext(p_editorContext) {}
 		~EditorWindow() = default;
 
 		/// @brief Initializes the editor window.
@@ -71,6 +72,8 @@ namespace Droplet::Editor
 		/// @brief Sets the window flags for the editor window.
 		/// @param flags The ImGui window flags to set for the editor window.
 		void SetWindowFlags(ImGuiWindowFlags p_flags) { m_windowFlags = p_flags; }
+
+		EditorContext *m_editorContext{ nullptr };
 
 	private:
 		bool m_hasToolbar = true;
