@@ -6,6 +6,8 @@
 #include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <Editor/DragDropFields.hpp>
 
 using namespace Droplet::Editor;
 
@@ -166,8 +168,9 @@ void NodeInspectorWindow::RenderImpl()
 	// Vector of components
 	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: Make weak pointer
 
-	for (const auto &component : components)
+	for (std::size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex)
 	{
+		const auto &component = components[componentIndex];
 		if (!component)
 		{
 			continue;
@@ -178,15 +181,64 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::PushID(thisString.c_str());
 
 		// The actual header
-		std::string headerLabel = component->GetTypeName().data();
+		std::string headerLabel = "";
 
-		// Remove "component" suffix from name if it exists
-		if (headerLabel.size() >= 9 && headerLabel.compare(headerLabel.size() - 9, 9, "Component") == 0)
+		if (component->GetTypeName() == "ScriptComponent")
 		{
-			headerLabel = headerLabel.substr(0, headerLabel.size() - 9);
+			// Set name to the script name if it has a script
+			Droplet::Scene::ScriptComponent *scriptComp = dynamic_cast<Droplet::Scene::ScriptComponent *>(component.get());
+			std::string scriptPath = scriptComp->GetScriptPath();
+
+			if (!scriptPath.empty())
+			{
+				std::string scriptName = scriptPath.substr(scriptPath.find_last_of("/\\") + 1);
+				scriptName = scriptName.substr(0, scriptName.find_last_of('.'));
+				headerLabel = scriptName + " (script)";
+			}
+		}
+		
+		if (headerLabel.empty())
+		{
+			headerLabel = component->GetTypeName().data();
+
+			// Remove "component" suffix from name if it exists
+			if (headerLabel.size() >= 9 && headerLabel.compare(headerLabel.size() - 9, 9, "Component") == 0)
+			{
+				headerLabel = headerLabel.substr(0, headerLabel.size() - 9);
+			}
 		}
 
 		bool isOpen = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+
+		if (ImGui::BeginDragDropSource())
+		{
+			ComponentDragDropData payloadData{m_currentNode.lock().get(), component.get()};
+			ImGui::SetDragDropPayload(PAYLOAD_COMPONENT.data(), &payloadData, sizeof(payloadData));
+			ImGui::TextUnformatted(headerLabel.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_COMPONENT.data()))
+			{
+				if (payload->DataSize == sizeof(ComponentDragDropData))
+				{
+					const auto &data = *static_cast<const ComponentDragDropData *>(payload->Data);
+					auto sourceNode = data.sourceNode
+						? data.sourceNode->weak_from_this().lock()
+						: nullptr;
+					if (sourceNode && data.component)
+					{
+						sourceNode->MoveComponent(
+							data.component,
+							*m_currentNode.lock(),
+							componentIndex);
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		// The right click on header
 		if (ImGui::BeginPopupContextItem("popup"))

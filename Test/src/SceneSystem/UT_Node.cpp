@@ -229,6 +229,45 @@ TEST_F(NodeTest, SupportsMultipleComponents)
     EXPECT_EQ(components.size(), 2);
 }
 
+TEST_F(NodeTest, ReordersComponents)
+{
+    auto first = std::make_shared<TComponent>();
+    auto second = std::make_shared<TComponent>();
+    auto third = std::make_shared<TComponent>();
+    root->AttachComponent(first, 1);
+    root->AttachComponent(second, 2);
+    root->AttachComponent(third, 3);
+
+    root->MoveComponent(first.get(), *root, 2);
+
+    const auto components = root->GetAllComponents();
+    ASSERT_EQ(components.size(), 3);
+    EXPECT_EQ(components[0], second);
+    EXPECT_EQ(components[1], third);
+    EXPECT_EQ(components[2], first);
+}
+
+TEST_F(NodeTest, MovesComponentToAnotherNode)
+{
+    auto component = std::make_shared<TComponent>();
+    root->AttachComponent(component, 1);
+
+    auto destination = scene->AddNode("Destination");
+    auto existingComponent = std::make_shared<TComponent>();
+    destination->AttachComponent(existingComponent, 1);
+
+    root->MoveComponent(component.get(), *destination);
+
+    EXPECT_TRUE(root->GetAllComponents().empty());
+    const auto components = destination->GetAllComponents();
+    ASSERT_EQ(components.size(), 2);
+    EXPECT_EQ(components[0], existingComponent);
+    EXPECT_EQ(components[1], component);
+    EXPECT_EQ(component->GetOwner(), destination);
+    EXPECT_EQ(component->GetID(), 2);
+}
+
+
 TEST_F(NodeTest, RemoveNonExistentComponentThrows)
 {
     auto component =

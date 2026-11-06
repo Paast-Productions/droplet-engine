@@ -8,6 +8,7 @@
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
+#include <Editor/DragDropFields.hpp>
 #include <memory>
 
 
@@ -695,6 +696,23 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node
                             draggedNodeShared);
 
                         m_newParent = p_node;
+                    }
+                }
+            }
+
+            if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload(PAYLOAD_COMPONENT.data()))
+            {
+                if (payload->DataSize == sizeof(ComponentDragDropData))
+                {
+                    const auto &data = *static_cast<const ComponentDragDropData *>(payload->Data);
+                    auto sourceNode = data.sourceNode
+                        ? data.sourceNode->weak_from_this().lock()
+                        : nullptr;
+                    auto destinationNode = p_node.lock();
+                    if (sourceNode && destinationNode && data.component)
+                    {
+                        sourceNode->MoveComponent(data.component, *destinationNode);
                     }
                 }
             }

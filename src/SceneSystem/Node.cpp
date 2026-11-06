@@ -527,6 +527,109 @@ void Node::RemoveComponent(const Component *p_component) // TODO: Make weak poin
 	}
 }
 
+void Node::MoveComponent(
+	const Component *p_component,
+	Node &p_destination,
+	std::size_t p_index)
+{
+	if (!p_component)
+	{
+		throw std::invalid_argument("Cannot move nullptr Component.");
+	}
+
+	auto it = std::find_if(
+		m_components.begin(),
+		m_components.end(),
+		[p_component](const std::shared_ptr<Component> &p_attachedComponent)
+		{
+			return p_attachedComponent.get() == p_component;
+		});
+
+	if (it == m_components.end())
+	{
+		throw std::runtime_error("Cannot move Component: Component is not attached to Node '" + m_name + "'.");
+	}
+
+	const std::size_t sourceIndex = static_cast<std::size_t>(it - m_components.begin());
+	if (&p_destination == this)
+	{
+		const std::size_t destinationIndex =
+			p_index == static_cast<std::size_t>(-1) ? m_components.size() - 1 : p_index;
+
+		if (destinationIndex >= m_components.size())
+		{
+			throw std::out_of_range("Component destination index is out of range.");
+		}
+
+		if (sourceIndex != destinationIndex)
+		{
+			auto component = std::move(*it);
+			m_components.erase(it);
+			m_components.insert(m_components.begin() + destinationIndex, std::move(component));
+		}
+		return;
+	}
+
+	const std::size_t destinationIndex =
+		p_index == static_cast<std::size_t>(-1) ? p_destination.m_components.size() : p_index;
+	if (destinationIndex > p_destination.m_components.size())
+	{
+		throw std::out_of_range("Component destination index is out of range.");
+	}
+
+	if (p_destination.m_nextComponentID == 0)
+	{
+		throw std::runtime_error("Invalid next component ID");
+	}
+
+	auto component = *it;
+	const bool wasActive = component->IsActive();
+	const bool wasBoundsOverride = component.get() == m_boundsOverride.lock().get();
+	const auto destinationShared = p_destination.shared_from_this();
+
+	p_destination.m_components.insert(
+		p_destination.m_components.begin() + destinationIndex,
+		component);
+	m_components.erase(it);
+
+	if (wasBoundsOverride)
+	{
+		m_boundsOverride.reset();
+		m_transform.MakeDirty();
+		m_transform.MakePhysicsDirty();
+
+		for (const auto &remainingComponent : m_components)
+		{
+			if (remainingComponent->HasBoundsOverride())
+			{
+				m_boundsOverride = remainingComponent;
+				break;
+			}
+		}
+	}
+
+	component->m_id = p_destination.m_nextComponentID++;
+	component->SetOwner(destinationShared);
+
+	if (component->HasBoundsOverride() && p_destination.m_boundsOverride.expired())
+	{
+		p_destination.m_transform.MakeDirty();
+		p_destination.m_transform.MakePhysicsDirty();
+		p_destination.m_boundsOverride = component;
+	}
+
+	const bool isActive = component->IsActive();
+	if (wasActive != isActive)
+	{
+		component->ActiveChanged(isActive);
+	}
+
+	if (p_destination.m_started)
+	{
+		component->Start();
+	}
+}
+
 const NodeBounds *Node::GetBounds() const
 {
 	if (!m_boundsOverride.expired())

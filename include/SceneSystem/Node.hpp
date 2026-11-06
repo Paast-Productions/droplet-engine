@@ -276,6 +276,18 @@ namespace Droplet::Scene
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const Component *p_component);
 
+        /// @brief Moves a Component to a position on this Node or another Node.
+        ///
+        /// When moving to another Node, the Component receives a new ID unique
+        /// to that Node.
+        /// @param p_component Component to move.
+        /// @param p_destination Node that will own the Component.
+        /// @param p_index Position to insert the Component at. By default, it is appended.
+        void MoveComponent(
+            const Component *p_component,
+            Node &p_destination,
+            std::size_t p_index = static_cast<std::size_t>(-1));
+
         // --------------------------------------------------
         // Bounds
         // --------------------------------------------------
