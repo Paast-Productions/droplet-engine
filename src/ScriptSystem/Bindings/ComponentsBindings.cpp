@@ -579,6 +579,27 @@ void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 
 void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
+	p_luaState.new_usertype<Scene::PlayerBehaviour>(
+		"PlayerBehaviour",
+		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
+		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
+		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
+		"GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
+        "GetFreezeLevel", &Scene::PlayerBehaviour::GetFreezeLevel,
+        "IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
+        "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
+        "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
+        "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+         // Item registry access.
+        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+
+        // Inventory functions.
+        "AddItem", &Scene::PlayerBehaviour::AddItem,
+        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+        "CountItem", &Scene::PlayerBehaviour::CountItem
+	);
     // Item identifier.
     p_luaState.new_usertype<Game::ItemId>(
         "ItemId",
@@ -594,6 +615,20 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "Drone", Scene::InventoryType::Drone
     );
 
+	classDef.functions =
+	{
+		{ "GetMaxHealth", "float", {} },
+		{ "GetHeatResistance", "float", {} },
+		{ "GetHeatLevel", "float", {} },
+		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },		
+        { "GetFreezeResistance", "float", {} },
+        { "GetFreezeLevel", "float", {} },
+        { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
+        { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
+        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "GetFreezeTimer", "float", {} },
+	};
     // Item registry.
     p_luaState.new_usertype<Game::ItemRegistry>(
         "ItemRegistry",
@@ -602,25 +637,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         {
             return p_registry.Find(p_name);
         }
-    );
-
-    // Player behaviour.
-    p_luaState.new_usertype<Scene::PlayerBehaviour>(
-        "PlayerBehaviour",
-        "GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
-        "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
-        "GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
-        "IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-        "SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
-        "SetHeatResistance", &Scene::PlayerBehaviour::SetHeatResistance,
-
-        // Item registry access.
-        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
-
-        // Inventory functions.
-        "AddItem", &Scene::PlayerBehaviour::AddItem,
-        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
-        "CountItem", &Scene::PlayerBehaviour::CountItem
     );
 
     // PlayerBehaviour API metadata.
