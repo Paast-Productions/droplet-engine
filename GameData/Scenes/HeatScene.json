@@ -43,14 +43,14 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": "HeatHazard.lua"
+                        "filepath": "Heat.lua"
                     },
                     "id": 4,
                     "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 4,
+            "id": 1,
             "name": "Heat",
             "transform": {
                 "position": [
@@ -92,7 +92,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 5,
+            "id": 2,
             "name": "Player",
             "transform": {
                 "position": [
@@ -140,7 +140,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 6,
+            "id": 3,
             "name": "Camera",
             "transform": {
                 "position": [
