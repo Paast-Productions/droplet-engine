@@ -592,6 +592,7 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
         "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
         "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+
          // Item registry access.
         "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
 
@@ -615,20 +616,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "Drone", Scene::InventoryType::Drone
     );
 
-	classDef.functions =
-	{
-		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatResistance", "float", {} },
-		{ "GetHeatLevel", "float", {} },
-		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },		
-        { "GetFreezeResistance", "float", {} },
-        { "GetFreezeLevel", "float", {} },
-        { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
-        { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
-        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
-        { "GetFreezeTimer", "float", {} },
-	};
     // Item registry.
     p_luaState.new_usertype<Game::ItemRegistry>(
         "ItemRegistry",
@@ -651,6 +638,12 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
         { "SetHeatLevel", "void", { { "heat", "number" } } },
         { "SetHeatResistance", "void", { { "resistance", "number" } } },
+        { "GetFreezeResistance", "float", {} },
+        { "GetFreezeLevel", "float", {} },
+        { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
+        { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
+        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "GetFreezeTimer", "float", {} },
 
         { "GetItemRegistry", "ItemRegistry", {} },
 
