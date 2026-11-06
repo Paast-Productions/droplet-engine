@@ -216,7 +216,7 @@ namespace Droplet::Scene
 
 		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
 		/// @param p_component Unique pointer to the Component to add.
-        void AddComponent(std::unique_ptr<Component> &p_component);
+        std::weak_ptr<Component> AddComponent(std::unique_ptr<Component> &p_component);
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -226,8 +226,8 @@ namespace Droplet::Scene
         /// The overloaded function uses id from serialization
         ///       
         /// @param p_component The comoponent to be attached
-        void AttachComponent(std::unique_ptr<Component> &p_component); 
-        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
+        std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
+        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///

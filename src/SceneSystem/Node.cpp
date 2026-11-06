@@ -356,7 +356,7 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	}
 }
 
-void Node::AttachComponent(std::unique_ptr<Component> &p_component)
+std::weak_ptr<Component> Node::AttachComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)
 	{
@@ -367,11 +367,13 @@ void Node::AttachComponent(std::unique_ptr<Component> &p_component)
 	{
 		throw std::runtime_error("Invalid next component ID");
 	}
+
 	std::shared_ptr<Component> shared = std::move(p_component);
-	AttachComponent(shared, m_nextComponentID);
+	
+	return AttachComponent(shared, m_nextComponentID);
 }
 
-void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
+std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
 {
 	ZoneScoped;
 
@@ -422,6 +424,8 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	{
 		p_component->Start();
 	}
+
+	return p_component;
 }
 
 std::weak_ptr<Node> Node::GetParent() const
@@ -449,7 +453,7 @@ void Node::SetName(const std::string &p_name)
 	m_name = p_name;
 }
 
-void Node::AddComponent(std::unique_ptr<Component> &p_component)
+std::weak_ptr<Component> Node::AddComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)
 	{
@@ -476,6 +480,8 @@ void Node::AddComponent(std::unique_ptr<Component> &p_component)
 	{
 		addedComponent->Start();
 	}
+
+	return addedComponent;
 }
 
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer

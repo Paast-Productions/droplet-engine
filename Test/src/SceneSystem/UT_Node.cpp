@@ -229,42 +229,43 @@ TEST_F(NodeTest, SupportsMultipleComponents)
     EXPECT_EQ(components.size(), 2);
 }
 
-TEST_F(NodeTest, ReordersComponents)
+TEST_F(NodeTest, ReorderComponents)
 {
-    auto first = std::make_shared<TComponent>();
-    auto second = std::make_shared<TComponent>();
-    auto third = std::make_shared<TComponent>();
-    root->AttachComponent(first, 1);
-    root->AttachComponent(second, 2);
-    root->AttachComponent(third, 3);
+	auto component1 = ComponentFactory::CreateComponent("TComponent");
+	auto component2 = ComponentFactory::CreateComponent("TComponent");
+	auto component3 = ComponentFactory::CreateComponent("TComponent");
+
+	auto first = root->AttachComponent(component1).lock();
+    auto second = root->AttachComponent(component2).lock();
+    auto third = root->AttachComponent(component3).lock();
 
     root->MoveComponent(first.get(), *root, 2);
 
     const auto components = root->GetAllComponents();
     ASSERT_EQ(components.size(), 3);
-    EXPECT_EQ(components[0], second);
-    EXPECT_EQ(components[1], third);
-    EXPECT_EQ(components[2], first);
+    EXPECT_EQ(components[0].get(), second.get());
+    EXPECT_EQ(components[1].get(), third.get());
+    EXPECT_EQ(components[2].get(), first.get());
 }
 
-TEST_F(NodeTest, MovesComponentToAnotherNode)
+TEST_F(NodeTest, MoveComponentToAnotherNode)
 {
-    auto component = std::make_shared<TComponent>();
-    root->AttachComponent(component, 1);
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    auto componentPtr = root->AttachComponent(component).lock();
 
     auto destination = scene->AddNode("Destination");
-    auto existingComponent = std::make_shared<TComponent>();
-    destination->AttachComponent(existingComponent, 1);
+    auto existingComponent = ComponentFactory::CreateComponent("TComponent");
+    auto existingComponentPtr = destination->AttachComponent(existingComponent).lock();
 
-    root->MoveComponent(component.get(), *destination);
+    root->MoveComponent(componentPtr.get(), *destination);
 
     EXPECT_TRUE(root->GetAllComponents().empty());
     const auto components = destination->GetAllComponents();
     ASSERT_EQ(components.size(), 2);
-    EXPECT_EQ(components[0], existingComponent);
-    EXPECT_EQ(components[1], component);
-    EXPECT_EQ(component->GetOwner(), destination);
-    EXPECT_EQ(component->GetID(), 2);
+    EXPECT_EQ(components[0], existingComponentPtr);
+    EXPECT_EQ(components[1], componentPtr);
+    EXPECT_EQ(componentPtr->GetOwner(), destination);
+    EXPECT_EQ(componentPtr->GetID(), 2);
 }
 
 
