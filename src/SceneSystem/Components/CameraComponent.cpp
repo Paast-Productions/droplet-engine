@@ -27,8 +27,6 @@ CameraComponent::~CameraComponent()
 
 void CameraComponent::StartImpl()
 {
-	// TODO: Construct camera and create render target
-
 	using namespace Graphics::VK;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
@@ -91,7 +89,7 @@ void CameraComponent::QueueRenderImpl()
 
 void CameraComponent::EditorUpdateImpl()
 {
-	if (!m_debugDraw && !m_uiSelected)
+	if (/*!m_debugDraw && */!m_uiSelected)
 	{
 		return;
 	}
@@ -148,6 +146,8 @@ void CameraComponent::RenderUIImpl()
 	}
 
 	Checkbox("Debug Draw", &m_debugDraw);
+
+	ColorEdit4("Clear Color", &m_clearColor.x);
 
 	if (Button("Trigger Render"))
 	{
@@ -223,6 +223,8 @@ CameraRenderData CameraComponent::GetRenderData() const
 	renderData.priority = m_priority;
 	renderData.renderTarget = m_targetIndex;
 	renderData.renderData = m_renderData;
+	renderData.debug = m_debugDraw;
+	renderData.clearColor = m_clearColor;
 
 	return renderData;
 }

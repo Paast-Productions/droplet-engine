@@ -12,7 +12,7 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow(EditorContext *p_editorContext);
+		NodeInspectorWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~NodeInspectorWindow() = default;
 
 		/// @brief Sets the node a user sends to be the current node that will be displayed
@@ -28,8 +28,6 @@ namespace Droplet::Editor
 	private:
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
-		
-		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The node that is currently displayed.
 		std::weak_ptr<Droplet::Scene::Node> m_currentNode;

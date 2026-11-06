@@ -123,7 +123,7 @@ namespace Droplet::Scene
         /// @brief Get the time of when freeze was applied on the player
         /// @returns Time since last time player was affected by freeze
         [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
-
+        
         // ITEMS
 
         /// @brief Gets the item registry assigned to the SceneManager.
