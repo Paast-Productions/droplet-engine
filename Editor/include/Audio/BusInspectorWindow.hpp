@@ -5,6 +5,11 @@
 
 namespace Droplet::Editor
 {
+	/// @brief The Bus inspector window, interacting with bus specific operations
+	/// operations such as lowering or increasing volume
+	/// 
+	/// TODO: Future implementations should also be able to attach, remove, and handle sound effects to the bus
+	/// 
 	class BusInspectorWindow : public EditorWindow
 	{
 	public:

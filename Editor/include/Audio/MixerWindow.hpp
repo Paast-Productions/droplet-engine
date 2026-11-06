@@ -5,11 +5,14 @@
 
 namespace Droplet
 {
-
 	namespace Editor
 	{
-
-
+		/// @brief The Mixer Window, This window gives the same controls as the AudioMixer, 
+		/// it controls the bus hierarchy, adding removing and routing buses, Also making buses dragable to other locations such as components
+		/// 
+		/// TODO: Future implementation would be to implement switching between different pre determined bus hierarchys, similiar to loading scenes
+		/// 
+		/// 
 		class MixerWindow : public EditorWindow
 		{
 		public:
@@ -28,8 +31,6 @@ namespace Droplet
 
 			void HandleBusDropTarget(Audio::AudioBus *p_parent);
 
-			
-
 			std::vector<Audio::AudioBus *> m_visibleBuses;
 
 			std::vector<std::pair<ImVec2, ImVec2>> m_visibleBusRects;
@@ -37,12 +38,6 @@ namespace Droplet
 			VkImageResolve2 m_marqueeStart{};
 
 			std::vector<Audio::AudioBus *> m_selectionAnchor;
-
-			Audio::AudioBus *m_rangeselectTarget;
-
-			Audio::AudioBus *m_pendingCollapseBus;
-
-			bool m_rangeSelectAdditive = false;
 
 			std::weak_ptr<Engine> m_instance;
 

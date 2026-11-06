@@ -29,10 +29,8 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 	{
 		m_currentBus = mixer.GetMasterBus();
 	}
-	//Push ID
-	uintptr_t busNumber = (uintptr_t)m_currentBus;
-	std::string busString = std::to_string(busNumber);
-	ImGui::PushID(busString.c_str());
+	//Push IDS
+	ImGui::PushID(m_currentBus);
 
 	//name
 	std::string busName = m_currentBus->GetName();

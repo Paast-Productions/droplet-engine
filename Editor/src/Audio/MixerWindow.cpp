@@ -45,38 +45,40 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 	}
 
 	ImGui::SeparatorText("Bus hierarchy");
-	ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
-	const ImVec2 available = ImGui::GetContentRegionAvail();
-	constexpr float rootDropWidth = 8.0f;
-
-	//Fixed stripe
-
-	ImGui::BeginChild("RootDropStripe", ImVec2(rootDropWidth, available.y), false);
-	ImGui::InvisibleButton("RootDropTarget", ImVec2(rootDropWidth, available.y));
-
-	const ImVec2 stripeMin = ImGui::GetItemRectMin();
-	const ImVec2 stripeMax = ImGui::GetItemRectMax();
-
-	ImGui::GetWindowDrawList()->AddRectFilled(stripeMin, stripeMax, IM_COL32(90, 130, 180, 100));
-	HandleBusDropTarget(mixer.GetMasterBus());
-	ImGui::EndChild();
-	ImGui::SameLine();
-
-	ImGui::BeginChild("BusTree", ImVec2(0.0f, available.y), false);
-
-	DrawBus(mixer.GetMasterBus());
-
-	const ImVec2 remaining = ImGui::GetContentRegionAvail();
-
-	if (remaining.y > 0.0f)
 	{
-		ImGui::InvisibleButton("BottomRootDropTarget", ImVec2(remaining.x, remaining.y));
-		HandleBusDropTarget(mixer.GetMasterBus());
+		ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
+		const ImVec2 available = ImGui::GetContentRegionAvail();
+		constexpr float rootDropWidth = 8.0f;
+
+		//Fixed stripe
+		{
+			ImGui::BeginChild("RootDropStripe", ImVec2(rootDropWidth, available.y), false);
+			ImGui::InvisibleButton("RootDropTarget", ImVec2(rootDropWidth, available.y));
+
+			const ImVec2 stripeMin = ImGui::GetItemRectMin();
+			const ImVec2 stripeMax = ImGui::GetItemRectMax();
+
+			ImGui::GetWindowDrawList()->AddRectFilled(stripeMin, stripeMax, IM_COL32(90, 130, 180, 100));
+			HandleBusDropTarget(mixer.GetMasterBus());
+			ImGui::EndChild();
+			ImGui::SameLine();
+
+			ImGui::BeginChild("BusTree", ImVec2(0.0f, available.y), false);
+
+			DrawBus(mixer.GetMasterBus());
+
+			const ImVec2 remaining = ImGui::GetContentRegionAvail();
+
+			if (remaining.y > 0.0f)
+			{
+				ImGui::InvisibleButton("BottomRootDropTarget", ImVec2(remaining.x, remaining.y));
+				HandleBusDropTarget(mixer.GetMasterBus());
+			}
+
+			ImGui::EndChild();
+		}
+		ImGui::EndChild();
 	}
-
-	ImGui::EndChild();
-	ImGui::EndChild();
-
 	if (m_pendingReparent.has_value())
 	{
 		const PendingReparent &operation = m_pendingReparent.value();
