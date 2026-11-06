@@ -1,8 +1,6 @@
 #include "MixerWindow.hpp"
 #include <AudioSystem/AudioBus.hpp>
-Droplet::Editor::MixerWindow::MixerWindow(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
-{
-}
+
 using namespace Droplet;
 
 void Droplet::Editor::MixerWindow::InitImpl()

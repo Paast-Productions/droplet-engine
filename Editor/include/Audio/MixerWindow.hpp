@@ -13,7 +13,7 @@ namespace Droplet
 		class MixerWindow : public EditorWindow
 		{
 		public:
-			explicit MixerWindow(EditorContext *p_editorContext);
+			explicit MixerWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 
 		protected:
 
@@ -28,7 +28,7 @@ namespace Droplet
 
 			void HandleBusDropTarget(Audio::AudioBus *p_parent);
 
-			EditorContext *m_editorContext;
+			
 
 			std::vector<Audio::AudioBus *> m_visibleBuses;
 

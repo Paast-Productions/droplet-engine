@@ -1,8 +1,5 @@
 #include "BusInspectorWindow.hpp"
 
-Droplet::Editor::BusInspectorWindow::BusInspectorWindow(EditorContext *p_editorContext) : m_editorContext(p_editorContext)
-{
-}
 
 void Droplet::Editor::BusInspectorWindow::SetCurrentBus(Audio::AudioBus *p_bus)
 {

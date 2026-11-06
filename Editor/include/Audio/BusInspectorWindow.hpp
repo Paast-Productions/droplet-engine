@@ -8,7 +8,7 @@ namespace Droplet::Editor
 	class BusInspectorWindow : public EditorWindow
 	{
 	public:
-		BusInspectorWindow(EditorContext *p_editorContext);
+		BusInspectorWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {};
 		~BusInspectorWindow() = default;
 		
 		void SetCurrentBus(Audio::AudioBus *p_bus);
@@ -20,7 +20,7 @@ namespace Droplet::Editor
 		void RenderImpl() override;
 
 	private:
-		EditorContext *m_editorContext;
+		
 
 		Audio::AudioBus *m_currentBus = nullptr;
 	};
