@@ -52,7 +52,7 @@ namespace Droplet::Audio
 		//---------------------------------------
 
 		void SetName(std::string p_name);
-		std::string GetName() const { return m_name; }
+		const std::string &GetName() const { return m_name; }
 
 		// --------------------------------------
 		// Children and parent AudioBuses
