@@ -10,7 +10,7 @@ project "Engine"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation("../../../..")
     }
 
     targetdir(targetBuildPath .. "/%{prj.name}")

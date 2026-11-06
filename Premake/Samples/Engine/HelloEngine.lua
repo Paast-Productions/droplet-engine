@@ -17,7 +17,7 @@ project "Engine-HelloEngine"
     UseGraphicsPCH()
 
     defines{
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation("../../../..")
     }
     
     libdirs {
@@ -52,10 +52,13 @@ project "Engine-HelloEngine"
         "tracy",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
         AddQuotation("lua_static"),
         AddQuotation("vulkan-1"),
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd"),
         AddQuotation("Jolt")
     }
+
+    filter "configurations:debug"
+        links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
+    filter "configurations:release"
+        links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
+    filter {}

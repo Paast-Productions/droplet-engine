@@ -57,8 +57,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterComponents(p_luaState);
 	RegisterOctree(p_luaState);
 
-	std::filesystem::path scriptDirectory = std::filesystem::current_path()
-		/ ".." / ".." / ".." / "src" / "Scripts";
+	std::filesystem::path scriptDirectory = std::filesystem::current_path() / ROOT_PATH "/src/Scripts";
 
 	std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);

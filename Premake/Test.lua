@@ -11,7 +11,7 @@ project "Test"
 	defines{ 
         "GLM_ENABLE_EXPERIMENTAL",
         'TEST_ASSET_DIR="' .. path.getabsolute("../Test/src/resource/assets") .. '"',
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation("../../../..")
 	}
 
     files
@@ -77,10 +77,13 @@ project "Test"
         "ImGui",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
 		AddQuotation("lua_static"),
         AddQuotation("Jolt")
     }
+
+    filter "configurations:debug"
+        links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
+    filter "configurations:release"
+        links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
+    filter {}
