@@ -1,5 +1,5 @@
 project "Game"
-    kind "ConsoleApp"
+    kind "WindowedApp"
 
     location(projectsPath)
 
@@ -9,10 +9,10 @@ project "Game"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-    UseGamePCH()
+    UseGraphicsPCH()
 
     defines{ 
-        "_GAME",
+		"_GAME",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -24,8 +24,6 @@ project "Game"
     if _TARGET_OS == "windows" then
 
         buildoptions {"/Zi"}
-
-        entrypoint "mainCRTStartup"
         
         includedirs
         {
@@ -45,14 +43,16 @@ project "Game"
             vkPath .. "/Lib"
         }
 
+        filter { "system:windows" }
+
         files 
         { 
             "../Game/resources.rc", 
-            "../Game/drone-icon.ico" 
+            "../Game/icon.ico" 
         }
         
         postbuildcommands {
-            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Game " .. "%{cfg.buildcfg}"
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
         }
 
     else
@@ -80,7 +80,7 @@ project "Game"
         "Engine",
         "json",
         "tracy",
-        "LuaJIT",
+        "Lua",
         "Jolt",
         "Dalia"
     }
@@ -103,12 +103,12 @@ project "Game"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua51"),
+		AddQuotation("lua_static"),
 		AddQuotation("Jolt")
     }
 
     filter "configurations:debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:release or deploy"
+    filter "configurations:release"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}

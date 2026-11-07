@@ -12,7 +12,7 @@ project "Editor"
     UseEditorPCH()
 
     defines{ 
-        "_EDITOR",
+		"_EDITOR",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -26,8 +26,6 @@ project "Editor"
 
         buildoptions {"/Zi"}
         
-        entrypoint "mainCRTStartup"
-
         includedirs
         {
             "../include",
@@ -46,6 +44,8 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
+        filter { "system:windows" }
+
         files 
         { 
             "../Editor/resources.rc", 
@@ -53,8 +53,9 @@ project "Editor"
         }
         
         postbuildcommands {
-            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Editor " .. "%{cfg.buildcfg}"
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
         }
+
     else
 
         includedirs
@@ -111,11 +112,15 @@ project "Editor"
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
 		AddQuotation("Jolt"),
+		AddQuotation("Slangd"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
 		AddQuotation("lua51"),
+        AddQuotation("msvcrtd") -- DEBUG VERSION OF msvcrt.lib
     }
 
     filter "configurations:debug"
-		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd"), AddQuotation("msvcrtd") }
-    filter "configurations:release or deploy"
-		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt"), AddQuotation("msvcrt") }
+		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
+    filter "configurations:release"
+		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}
