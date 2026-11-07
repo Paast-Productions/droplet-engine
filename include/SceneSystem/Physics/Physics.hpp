@@ -15,7 +15,7 @@ namespace Droplet
 	{
 	public:
 
-		/// @brief A struct contaning values to initialize Physics
+		/// @brief A struct containing values to initialize Physics
 		struct Initializer
 		{
 			std::uint32_t maxBodies = 1024; // Maximum number of bodies to support.
@@ -49,7 +49,9 @@ namespace Droplet
 		/// @param p_gravityVector The gravity acceleration vector
 		void SetGravity(const glm::vec3 p_gravityVector);
 
-		JPH::PhysicsSystem *GetPhyscisSystem();
+		/// @brief Getter for the internal physics system
+		/// @return Pointer to the physics system
+		[[nodiscard]] JPH::PhysicsSystem *GetPhysicsSystem();
 		
 		/// @brief Getter for the body interface
 		/// @return Pointer to the body interface
