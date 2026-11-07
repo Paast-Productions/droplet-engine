@@ -1,4 +1,5 @@
 ﻿#pragma once
+#ifdef _EDITOR
 
 #include <string>
 #include <Resource/GuidUtils.hpp>
@@ -17,3 +18,4 @@ namespace Droplet
         Droplet::ResourceType p_expectedType,
         Droplet::ShaderResource::ShaderType p_expectedShader = Droplet::ShaderResource::ShaderType::Vertex);
 }
+#endif

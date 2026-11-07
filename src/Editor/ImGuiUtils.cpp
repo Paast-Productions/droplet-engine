@@ -1,3 +1,4 @@
+#ifdef _EDITOR
 #include "Editor/ImGuiUtils.hpp"
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
@@ -79,3 +80,5 @@ void ImGui::LockToItem(bool p_hideMouse)
 		target_item = 0;
 	}
 }
+
+#endif

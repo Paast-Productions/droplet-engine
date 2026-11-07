@@ -12,6 +12,7 @@ project "Editor"
     UseEditorPCH()
 
     defines{ 
+		"_EDITOR",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",

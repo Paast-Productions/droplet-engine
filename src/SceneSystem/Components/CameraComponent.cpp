@@ -3,7 +3,6 @@
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
-#include <ImGui/imgui.h>
 #include <IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
@@ -16,7 +15,9 @@ CameraComponent::~CameraComponent()
 	{
 		try // HACK: Until destruction order has been corrected
 		{
+#ifdef _EDITOR
 			Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
+#endif
 		}
 		catch (...)
 		{
@@ -31,12 +32,14 @@ void CameraComponent::StartImpl()
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
 
+#ifdef _EDITOR
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
 	{
 		m_textureIndex = instance.CreateImGuiTexture(
 			instance.GetRenderTargetAt(m_targetIndex)
 		);
 	}
+#endif
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -55,20 +58,15 @@ void CameraComponent::QueueRenderImpl()
 	{
 		// TODO
 
+#ifdef _EDITOR
 		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 			m_targetIndex, m_textureIndex,
 			m_resolution.x, m_resolution.y
 		);
+#endif
 
 		m_dirty = false;
 	}
-	/*else if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
-	{
-		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-			m_targetIndex, m_textureIndex,
-			m_resolution.x, m_resolution.y
-		);
-	}*/
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
 	{
@@ -113,6 +111,7 @@ void CameraComponent::EditorUpdateImpl()
 
 void CameraComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	using namespace ImGui;
 
 	m_uiSelected = true;
@@ -171,6 +170,7 @@ void CameraComponent::RenderUIImpl()
 
 		TreePop();
 	}
+#endif
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)

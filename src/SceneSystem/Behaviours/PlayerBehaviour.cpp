@@ -38,6 +38,7 @@ namespace Droplet::Scene
             return Droplet::Game::FromSaved(p_reg, saved, &p_skipped);
         }
 
+#ifdef _EDITOR
         /// Draws one inventory as a table: display name, stable name, count.
         /// Ids the registry doesn't know are shown greyed out instead of crashing.
         void RenderInventoryTable(const char *p_tableId,
@@ -127,6 +128,7 @@ namespace Droplet::Scene
 
             ImGui::PopID();
         }
+#endif
     }
 
     std::uint32_t PlayerBehaviour::AddItem(InventoryType p_inv, Droplet::Game::ItemId p_id, std::uint32_t p_count)
@@ -203,6 +205,7 @@ namespace Droplet::Scene
 
     void PlayerBehaviour::RenderUIImpl()
     {
+#ifdef _EDITOR
         ImGui::TextUnformatted("Player Data");
         ImGui::Separator();
 
@@ -265,5 +268,6 @@ namespace Droplet::Scene
             RenderInventoryTable("PlayerInventory", reg, m_data.playerInventory);
             RenderAddItemRow(*this, InventoryType::Player, "PlayerAdd");
         }
+#endif
     }
 }

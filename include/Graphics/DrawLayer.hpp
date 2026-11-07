@@ -151,9 +151,6 @@ namespace Droplet::Graphics
 			return result;
 		}
 
-		static bool EditLayerNamesPopup(bool p_doOpen);
-
-
 		// General Utilities
 
 		static inline size_t GetLayerCount() // Defined by bits in DrawLayer enum
@@ -170,9 +167,13 @@ namespace Droplet::Graphics
 			Get().InternalDeserializeLayerNames(p_path);
 		}
 
+#ifdef _EDITOR
+		static bool EditLayerNamesPopup(bool p_doOpen);
+
 		static bool SetLayerMaskUI(const char *label, DrawLayer &p_layerMask);
 
 		static bool SetLayerUI(const char *label, DrawLayer &p_layer);
+#endif
 
 
 	private:

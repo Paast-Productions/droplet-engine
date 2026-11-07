@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _EDITOR
 #include <ImGui/imgui.h>
 
 namespace ImGui
@@ -8,3 +9,4 @@ namespace ImGui
 	/// @param p_hideMouse Whether to hide the mouse cursor while locked. Defaults to false.
 	void LockToItem(bool p_hideMouse = false);
 }
+#endif

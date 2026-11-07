@@ -10,7 +10,6 @@
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <ImGui/imgui.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <SceneSystem/Physics/MeshColliderManager.hpp>
@@ -257,6 +256,7 @@ void PhysicsComponent::ActiveChangedImpl(const bool p_active)
 
 void PhysicsComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	DebugDrawShape();
 
 	if (m_shapeType != ShapeType::None)
@@ -867,6 +867,7 @@ void PhysicsComponent::RenderUIImpl()
 	{
 		ImGui::Text("Error: Invalid collider settings!");
 	}
+#endif
 }
 
 nlohmann::json PhysicsComponent::SerializeImpl()

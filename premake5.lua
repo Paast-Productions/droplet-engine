@@ -13,7 +13,7 @@ workspace "DropletEngine"
     externalwarnings "Off"
     --fatalwarnings { "All" }
     multiprocessorcompile "On"
-    configurations { "debug", "release" }
+    configurations { "debug", "release", "deploy" }
 
     architecture "x86_64"
     staticruntime "on"
@@ -27,6 +27,11 @@ workspace "DropletEngine"
         runtime "Release"
         defines { "NDEBUG" }
         optimize "On"
+    filter "configurations:deploy"
+        runtime "Release"
+        defines { "NDEBUG", "DEPLOY" }
+		optimize "Full"
+		symbols "Off"
     filter {}
 
     -- Paths
@@ -43,6 +48,7 @@ workspace "DropletEngine"
 
 include "Premake/Engine"
 include "Premake/Editor"
+include "Premake/Game"
 include "Premake/Test"
 
 -- [[ SAMPLES ]] --

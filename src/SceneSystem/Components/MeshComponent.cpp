@@ -1,15 +1,13 @@
 #include "MeshComponent.hpp"
 
-#include <ImGui/imgui.h>
-
 #include <SceneSystem/Scene.hpp>
-#include <Editor/DragDropFields.hpp>
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
-#include <string>
+#include <Editor/DragDropFields.hpp>
 #include <Editor/ResourceSlot.hpp>
+#include <string>
 
 // imgui helper function
 
@@ -86,6 +84,7 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 
 void MeshComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	using namespace ImGui;
 
 	PushID(this);
@@ -161,55 +160,11 @@ void MeshComponent::RenderUIImpl()
 			m_fsDisplayName = newName;
 		}
 
-		/*if (ResourceSlot(
-			"Tes Control Shader",
-			m_shaderData.tcs.GetGUID(),
-			m_tcsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::TessellationControl))
-		{
-			SetTCSGUID(newGUID);
-			m_tcsDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();
-
-		if (ResourceSlot(
-			"Tes Evaluation Shader",
-			m_shaderData.tes.GetGUID(),
-			m_tesDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::TessellationEvaluation))
-		{
-			SetTESGUID(newGUID);
-			m_tesDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();
-
-		if (ResourceSlot(
-			"Geometry Shader",
-			m_shaderData.gs.GetGUID(),
-			m_gsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::Geometry))
-		{
-			SetGSGUID(newGUID);
-			m_gsDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();*/
-		
 		EndTable();
 	}
 
 	PopID();
+#endif
 }
 
 nlohmann::json MeshComponent::SerializeImpl()

@@ -16,8 +16,11 @@
 #include <string>
 #include <chrono>
 
+#ifdef _EDITOR
 #include <ImGui/imgui_impl_vulkan.h>
 #include <ImGui/imgui_impl_sdl3.h>
+#endif
+
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
@@ -94,7 +97,8 @@ Renderer::Renderer(SDL_Window *p_window) :
 	// - - - - - - - - - - //
 	//         ImGui       //
 	// - - - - - - - - - - //
-	
+
+#ifdef _EDITOR
 	std::array<vk::DescriptorPoolSize, 2> imGuiPoolSizes
 	{
 		{
@@ -138,6 +142,8 @@ Renderer::Renderer(SDL_Window *p_window) :
 	ImGui_ImplVulkan_InitInfo initInfo {};
 	GetImGuiInitInfo(initInfo);
 	ImGui_ImplVulkan_Init(&initInfo);
+
+#endif
 }
 
 //Idle the device to allow for cleanup of swapchain and destroy window
@@ -148,8 +154,11 @@ Renderer::~Renderer()
 	m_context.GetDevice().waitIdle();
 	Debug::DebugDraw::Get().Shutdown();
 	VK::IntermediaryStorage::GetInstance().Shutdown();
+
+#ifdef _EDITOR
 	ImGui_ImplVulkan_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
+#endif
 }
 
 //Called to notify the renderer of a window resizing event
@@ -344,6 +353,8 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	//commandBuffer.end();
 }
 
+#ifdef _EDITOR
+
 // Bind it to ImGui
 void Renderer::RecordImGuiCommandBuffer(
 	vk::raii::CommandBuffer &p_commandBuffer,
@@ -411,6 +422,46 @@ void Renderer::RecordImGuiCommandBuffer(
 		commandBuffer
 	);
 }
+
+void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
+{
+	ZoneScoped;
+
+	//TODO: CREATE PIPELINE CACHE
+	p_initInfo.Instance = *m_context.GetInstance();
+	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
+	p_initInfo.Device = *m_context.GetDevice();
+	p_initInfo.QueueFamily = m_context.GetQueueIndex();
+	p_initInfo.Queue = *m_context.GetQueue();
+	p_initInfo.PipelineCache = nullptr;
+	p_initInfo.DescriptorPool = *m_imGuiDescriptorPool;
+	p_initInfo.MinImageCount = 2;
+	p_initInfo.ImageCount = 2;
+	p_initInfo.Allocator = nullptr;
+	p_initInfo.PipelineInfoMain.RenderPass = nullptr;
+	p_initInfo.PipelineInfoMain.Subpass = 0;
+	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+	p_initInfo.CheckVkResultFn = CheckVkResult;
+
+	p_initInfo.UseDynamicRendering = vk::True;
+
+	m_imGuiColorFormat = static_cast<VkFormat>(m_swapchain.GetSurfaceFormat().format);
+	VkFormat depthFormat = static_cast<VkFormat>(m_swapchain.GetDepthFormat());
+
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
+	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
+	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
+	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
+	p_initInfo.PipelineInfoForViewports.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+}
+
+#endif
 
 //Need to create fences and semaphores for each frame in flight
 //Creation of objects for parallellization, semaphores for GPU, fences for CPU
@@ -505,6 +556,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	// Only reset the fence if we are submitting work
 	m_context.GetDevice().resetFences(*m_inFlightFences.at(m_frameIndex));
 
+#ifdef _EDITOR
 	ImGui::EndFrame();
 	ImGui::Render();
 
@@ -512,6 +564,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 		commandBuffer,
 		imageIndex
 	);
+#endif
 
 	Debug::DebugDraw::Get().ClearDrawCommands();
 
@@ -572,42 +625,4 @@ static void CheckVkResult(VkResult p_err)
 	if (p_err == VK_SUCCESS)
 		return;
 	throw ("[vulkan] Error: VkResult = %d\n", p_err);
-}
-
-void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
-{
-	ZoneScoped;
-
-	//TODO: CREATE PIPELINE CACHE
-	p_initInfo.Instance = *m_context.GetInstance();
-	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
-	p_initInfo.Device = *m_context.GetDevice();
-	p_initInfo.QueueFamily = m_context.GetQueueIndex();
-	p_initInfo.Queue = *m_context.GetQueue();
-	p_initInfo.PipelineCache = nullptr;
-	p_initInfo.DescriptorPool = *m_imGuiDescriptorPool;
-	p_initInfo.MinImageCount = 2;
-	p_initInfo.ImageCount = 2;
-	p_initInfo.Allocator = nullptr;
-	p_initInfo.PipelineInfoMain.RenderPass = nullptr;
-	p_initInfo.PipelineInfoMain.Subpass = 0;
-	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-	p_initInfo.CheckVkResultFn = CheckVkResult;
-
-	p_initInfo.UseDynamicRendering = vk::True;
-
-	m_imGuiColorFormat = static_cast<VkFormat>(m_swapchain.GetSurfaceFormat().format);
-	VkFormat depthFormat = static_cast<VkFormat>(m_swapchain.GetDepthFormat());
-
-	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
-	p_initInfo.PipelineInfoMain.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
-	p_initInfo.PipelineInfoMain.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-
-	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO_KHR;
-	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.colorAttachmentCount = 1;
-	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.pColorAttachmentFormats = &m_imGuiColorFormat;
-	p_initInfo.PipelineInfoForViewports.PipelineRenderingCreateInfo.depthAttachmentFormat = depthFormat;
-	p_initInfo.PipelineInfoForViewports.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 }

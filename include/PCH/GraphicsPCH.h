@@ -27,10 +27,12 @@
 #include <SDL3/SDL_mouse.h>
 
 // ImGui
+#ifdef _EDITOR
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_vulkan.h>
 #include <ImGui/imgui_impl_sdl3.h>
 #include <IconFontCppHeaders/IconsLucide.h>
+#endif
 
 // Engine
 #include <Graphics/DebugDraw.hpp>

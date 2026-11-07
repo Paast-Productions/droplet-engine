@@ -30,11 +30,16 @@
 #include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/RenderData.hpp>
 
+#ifdef _EDITOR
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
 #undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
+#endif
 
-namespace Droplet{class Engine;}
+namespace Droplet
+{
+	class Engine;
+}
 
 // HACK: Implementation subject to change
 
@@ -70,7 +75,7 @@ namespace Droplet::Graphics
 		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
 			const Camera &p_camera, std::vector<RenderData> &p_renderData, 
 			bool p_debug, glm::vec4 p_clearColor);
-		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
+
 		
 		/// @brief Creates sync objects for preventing race conditions etc
 		void CreateSyncObjects();
@@ -95,10 +100,7 @@ namespace Droplet::Graphics
 			vk::PipelineStageFlags2 p_dst_stage_mask,
 			vk::ImageAspectFlags    p_image_aspect_flags,
 			const vk::raii::CommandBuffer &p_commandBuffer);
-		
-		/// @brief Fills and returns initInfo for ImGui
-		/// @return ImGui init info
-		void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
+
 
 		// MAIN RENDERER
 		static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
@@ -120,11 +122,19 @@ namespace Droplet::Graphics
 		
 		// DEBUG
 		vk::raii::DescriptorPool m_debugDescriptorPool { nullptr };
-		
+
+#ifdef _EDITOR
+		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
+
+		/// @brief Fills and returns initInfo for ImGui
+		/// @return ImGui init info
+		void GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo);
+
 		// IMGUI 
 		vk::raii::DescriptorPool m_imGuiDescriptorPool { nullptr };
 		std::uint32_t m_imGuiPoolSize { 0 };
 
 		VkFormat m_imGuiColorFormat {};
+#endif
 	};
 }

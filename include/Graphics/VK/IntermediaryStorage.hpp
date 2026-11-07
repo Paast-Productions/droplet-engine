@@ -193,7 +193,8 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] PresentTarget &GetPresentTargetAt(const std::uint32_t p_index) { return m_presentTargets.at(p_index); }
         
         void ClearPresentTargets() { m_presentTargets.clear(); }
-        
+
+#ifdef _EDITOR
         /// @brief Creates an ImGui texture based on a render target
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
@@ -222,6 +223,7 @@ namespace Droplet::Graphics::VK
         void RemoveImGuiTexture(GUID p_guid);
         
         // TODO: </REFACTOR>
+#endif
         
     private:
         // Friend class Renderer to give it access to internals
@@ -296,7 +298,8 @@ namespace Droplet::Graphics::VK
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
-        
+
+#ifdef _EDITOR
         // ImGui
         std::map<std::uint64_t, vk::DescriptorSet> m_imGuiTextures {};
         
@@ -308,6 +311,7 @@ namespace Droplet::Graphics::VK
             VkDescriptorSet descriptorSet;
         };
         std::unordered_map<std::uint64_t, ImGuiTexture> m_imGuiTexMap{};
+#endif
     };
 }
 

@@ -10,7 +10,7 @@ using namespace Droplet::Scene;
 
 void TriggerComponent::RenderUIImpl()
 {
-    ImGui::Text("TriggerComponent");
+
 }
 
 void TriggerComponent::StartImpl()
