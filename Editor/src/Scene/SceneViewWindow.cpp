@@ -215,6 +215,11 @@ namespace
 	}
 }
 
+SceneViewWindow::~SceneViewWindow()
+{
+	RemovePrefabPreview();
+}
+
 void SceneViewWindow::InitImpl()
 {
 	SetName("Editor View"); 
@@ -386,6 +391,12 @@ void SceneViewWindow::RenderToolbar()
 
 void SceneViewWindow::RenderImpl()
 {
+	if (m_editorContext->ShouldFocusCameraOnSelection())
+	{
+		FocusCameraOnSelection();
+		m_editorContext->SetFocusCameraOnSelection(false);
+	}
+
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
@@ -401,6 +412,7 @@ void SceneViewWindow::RenderImpl()
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 	{
+		RemovePrefabPreview();
 		RenderGameView();
 	}
 	else
@@ -503,6 +515,87 @@ void SceneViewWindow::RenderEditorView()
 	ImVec2 imageMax = ImGui::GetItemRectMax();
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
+	bool prefabPreviewHovered = false;
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(
+			"PREFAB_PATH",
+			ImGuiDragDropFlags_AcceptBeforeDelivery))
+		{
+			if (payload->Data != nullptr && payload->DataSize > 0)
+			{
+				const ImVec2 viewSize = { imageMax.x - imageMin.x, imageMax.y - imageMin.y };
+				if (viewSize.x > 0.0f && viewSize.y > 0.0f)
+				{
+					const ImVec2 mousePos = ImGui::GetIO().MousePos;
+					const glm::vec2 mousePosInView = {
+						(mousePos.x - imageMin.x) / viewSize.x,
+						(mousePos.y - imageMin.y) / viewSize.y
+					};
+
+					if (auto scene = m_editorContext->GetActiveScene().lock())
+					{
+						std::vector<std::weak_ptr<DNode>> ignoredNodes;
+						if (m_prefabPreviewNode)
+						{
+							auto children = m_prefabPreviewNode->GetChildren(true);
+
+							ignoredNodes.reserve(children.size() + 1);
+							for (const auto &child : children)
+							{
+								ignoredNodes.push_back(child);
+							}
+
+							ignoredNodes.push_back(m_prefabPreviewNode);
+						}
+
+						const Math::Ray viewRay = camera.GetViewRay(mousePosInView);
+						Math::RayHit hit{};
+						scene->RaycastNode(viewRay, &hit, &ignoredNodes);
+
+						const glm::vec3 position = hit.didHit
+							? hit.point
+							: viewRay.pos + viewRay.dir * m_cameraPivotRadius;
+
+						if (m_prefabPreviewNode && m_prefabPreviewScene.lock() != scene)
+						{
+							RemovePrefabPreview();
+						}
+
+						if (!m_prefabPreviewNode)
+						{
+							m_prefabPreviewNode = scene->LoadNodeFromFile(
+								static_cast<const char *>(payload->Data),
+								position
+							);
+							m_prefabPreviewScene = scene;
+						}
+						else
+						{
+							m_prefabPreviewNode->GetTransform().SetPosition(position);
+						}
+
+						if (payload->IsDelivery())
+						{
+							m_prefabPreviewNode.reset();
+							m_prefabPreviewScene.reset();
+						}
+						else
+						{
+							prefabPreviewHovered = true;
+						}
+					}
+				}
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	if (m_prefabPreviewNode && !prefabPreviewHovered)
+	{
+		RemovePrefabPreview();
+	}
 
 	if (isWindowFocused)
 	{
@@ -804,8 +897,8 @@ void SceneViewWindow::RenderEditorView()
 							}
 							else
 							{
-								interactionState.ClearNodeSelection();
 								interactionState.SelectNode(hitNode);
+								m_editorContext->SetNodeScrollFocus(hitNode);
 							}
 						}
 						else if (!additiveSelection)
@@ -1362,26 +1455,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	// Focus: frame the selection while keeping the camera orientation
 	if (active && hasSelection && input.KeyPressed(Key::KeyF) && !imGuiWantKeyboard)
 	{
-		glm::vec3 center = glm::vec3(0.0f);
-		float selectionRadius = 0.0f;
-		ComputeFocusSphere(interactionState.GetSelectedNodes(), center, selectionRadius);
-
-		// Distance used to scale panning and zooming, so they feel the same regardless of scene scale
-		constexpr float c_defaultDistance = 8.0f;
-		float distance = hasSelection ? glm::length(center - camera.GetPosition()) : c_defaultDistance;
-		distance = std::max(distance, 0.1f);
-
-		const float halfFovH = glm::radians(camera.GetFOV()) * 0.5f;
-		const float aspect = std::max(camera.GetAspect(), 0.001f);
-		const float halfFovV = std::atan(std::tan(halfFovH) / aspect);
-		const float halfFov = std::max(std::min(halfFovH, halfFovV), 0.01f);
-
-		const float focusRadius = std::max(selectionRadius, 0.5f);
-		const float focusDistance = focusRadius / std::sin(halfFov) * 1.1f;
-
-		SetCameraPivot(center, focusDistance);
-		ApplyCameraPivot();
-
+		m_editorContext->SetFocusCameraOnSelection(true);
 		m_cameraDrag = CameraDrag::None;
 		return;
 	}
@@ -1495,6 +1569,51 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.1f, 0.0f, 0.0f), m_cameraPivot + glm::vec3(0.1f, 0.0f, 0.0f), glm::vec4(1, 0, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.1f, 0.0f), m_cameraPivot + glm::vec3(0.0f, 0.1f, 0.0f), glm::vec4(0, 1, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
+}
+
+void SceneViewWindow::RemovePrefabPreview()
+{
+	if (m_prefabPreviewNode)
+	{
+		if (auto scene = m_prefabPreviewScene.lock())
+		{
+			const auto &roots = scene->GetRoots();
+			if (std::find(roots.begin(), roots.end(), m_prefabPreviewNode) != roots.end())
+			{
+				scene->RemoveRoot(m_prefabPreviewNode);
+			}
+		}
+
+		m_prefabPreviewNode.reset();
+	}
+
+	m_prefabPreviewScene.reset();
+}
+
+void SceneViewWindow::FocusCameraOnSelection()
+{
+	auto &camera = m_editorContext->GetEditorCamera();
+	auto &interactionState = m_editorContext->GetInteractionState();
+
+	glm::vec3 center = glm::vec3(0.0f);
+	float selectionRadius = 0.0f;
+	ComputeFocusSphere(interactionState.GetSelectedNodes(), center, selectionRadius);
+
+	// Distance used to scale panning and zooming, so they feel the same regardless of scene scale
+	constexpr float c_defaultDistance = 8.0f;
+	float distance = interactionState.HasSelection() ? glm::length(center - camera.GetPosition()) : c_defaultDistance;
+	distance = std::max(distance, 0.1f);
+
+	const float halfFovH = glm::radians(camera.GetFOV()) * 0.5f;
+	const float aspect = std::max(camera.GetAspect(), 0.001f);
+	const float halfFovV = std::atan(std::tan(halfFovH) / aspect);
+	const float halfFov = std::max(std::min(halfFovH, halfFovV), 0.01f);
+
+	const float focusRadius = std::max(selectionRadius, 0.5f);
+	const float focusDistance = focusRadius / std::sin(halfFov) * 1.1f;
+
+	SetCameraPivot(center, focusDistance);
+	ApplyCameraPivot();
 }
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const

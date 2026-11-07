@@ -85,7 +85,7 @@ namespace Droplet::Scene
 
     private:
         /// @brief Path to the Lua script associated with this component.
-        std::string m_scriptPath;
+        std::string m_scriptPath = "";
 
         Script::ScriptInstance *m_scriptInstance;
 

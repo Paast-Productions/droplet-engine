@@ -42,7 +42,8 @@ project "Engine-HelloEngine"
         "tracy",
         "PortableFileDialogs",
         "IconFontCppHeaders",
-        "Jolt"
+        "Jolt",
+        "Dalia"
     }
 
     links {
@@ -50,6 +51,9 @@ project "Engine-HelloEngine"
         "ImGui",
         "VulkanMemoryAllocator",
         "tracy",
+        "dalia_engine",
+        "ole32",
+        "avrt",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
         AddQuotation("lua_static"),
