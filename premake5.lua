@@ -1,20 +1,13 @@
 require "Premake/Utilities/Clean"
 require "Premake/Utilities/Helper"
 require "Premake/Utilities/Doxygen"
-require "Premake/Utilities/GameOption"
 
 workspace "DropletEngine"
     
     location "Generated"
     cppdialect "C++23"
     multiprocessorcompile "On"
-
-    if _OPTIONS["game"] then
-        startproject "Game"
-    else
-        startproject "Editor"
-    end
-    
+	startproject "Engine"
     warnings "Extra"
     externalanglebrackets "On"
     externalwarnings "Off"
@@ -41,32 +34,22 @@ workspace "DropletEngine"
 		symbols "Off"
     filter {}
 
-    if _OPTIONS["game"] then
-        defines { "_GAME" }
-    else
-        defines { "_EDITOR" }
-    end
+    -- Paths
 
--- [[ PATHS ]] --
-
-rootPath = path.getdirectory(_SCRIPT)
-targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
-objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
-includePath = path.getdirectory(_SCRIPT) .. "/include"
-srcPath = path.getdirectory(_SCRIPT) .. "/src"
-externalPath = path.getdirectory(_SCRIPT) .. "/External"
-projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
+    rootPath = path.getdirectory(_SCRIPT)
+    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
+    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
+    includePath = path.getdirectory(_SCRIPT) .. "/include"
+    srcPath = path.getdirectory(_SCRIPT) .. "/src"
+    externalPath = path.getdirectory(_SCRIPT) .. "/External"
+    projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 -- [[ SOURCE ]] --
 
-if _OPTIONS["game"] then
-    include "Premake/Game"
-else
-    include "Premake/Editor"
-end
-
-include "Premake/Test"
 include "Premake/Engine"
+include "Premake/Editor"
+include "Premake/Game"
+include "Premake/Test"
 
 -- [[ SAMPLES ]] --
 

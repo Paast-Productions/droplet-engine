@@ -3,7 +3,6 @@
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
-#include <ImGui/imgui.h>
 #include <Graphics/VK/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
