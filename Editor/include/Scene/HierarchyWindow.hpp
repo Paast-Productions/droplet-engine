@@ -39,6 +39,8 @@ namespace Droplet
             /// Creates temporary scene data used to test the hierarchy window.
             void InitImpl() override;
 
+			void RenderToolbar() override;
+
             /// @brief Renders the hierarchy window.
             /// 
             /// Displays the node hierarchy of the currently viewed scene.

@@ -214,9 +214,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
-		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
-		/// @param p_component Unique pointer to the Component to add.
-        std::weak_ptr<Component> AddComponent(std::unique_ptr<Component> &p_component);
+		/// @brief Adds a Component of the specified type to the Node.
+		/// @param p_componentType The type of Component to add, specified as a string.
+		/// @return A weak pointer to the added Component.
+        std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -225,9 +226,9 @@ namespace Droplet::Scene
         /// It assigns a freshly new component id
         /// The overloaded function uses id from serialization
         ///       
-        /// @param p_component The comoponent to be attached
+        /// @param p_component The component to be attached
         std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
-        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
+        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -368,6 +369,7 @@ namespace Droplet::Scene
         const std::uint64_t m_id;
 
         std::uint64_t m_nextComponentID = 1;
+
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 

@@ -145,6 +145,8 @@ namespace Droplet::Scene
 
         [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
 
+		[[nodiscard]] const std::unordered_map<std::string, std::shared_ptr<Scene>> &GetScenes() const { return m_scenes; }
+
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;

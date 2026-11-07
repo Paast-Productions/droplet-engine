@@ -220,25 +220,6 @@ SceneViewWindow::~SceneViewWindow()
 	RemovePrefabPreview();
 }
 
-void SceneViewWindow::RemovePrefabPreview()
-{
-	if (m_prefabPreviewNode)
-	{
-		if (auto scene = m_prefabPreviewScene.lock())
-		{
-			const auto &roots = scene->GetRoots();
-			if (std::find(roots.begin(), roots.end(), m_prefabPreviewNode) != roots.end())
-			{
-				scene->RemoveRoot(m_prefabPreviewNode);
-			}
-		}
-
-		m_prefabPreviewNode.reset();
-	}
-
-	m_prefabPreviewScene.reset();
-}
-
 void SceneViewWindow::InitImpl()
 {
 	SetName("Editor View"); 
@@ -410,6 +391,12 @@ void SceneViewWindow::RenderToolbar()
 
 void SceneViewWindow::RenderImpl()
 {
+	if (m_editorContext->ShouldFocusCameraOnSelection())
+	{
+		FocusCameraOnSelection();
+		m_editorContext->SetFocusCameraOnSelection(false);
+	}
+
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
@@ -910,8 +897,8 @@ void SceneViewWindow::RenderEditorView()
 							}
 							else
 							{
-								interactionState.ClearNodeSelection();
 								interactionState.SelectNode(hitNode);
+								m_editorContext->SetNodeScrollFocus(hitNode);
 							}
 						}
 						else if (!additiveSelection)
@@ -1468,26 +1455,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	// Focus: frame the selection while keeping the camera orientation
 	if (active && hasSelection && input.KeyPressed(Key::KeyF) && !imGuiWantKeyboard)
 	{
-		glm::vec3 center = glm::vec3(0.0f);
-		float selectionRadius = 0.0f;
-		ComputeFocusSphere(interactionState.GetSelectedNodes(), center, selectionRadius);
-
-		// Distance used to scale panning and zooming, so they feel the same regardless of scene scale
-		constexpr float c_defaultDistance = 8.0f;
-		float distance = hasSelection ? glm::length(center - camera.GetPosition()) : c_defaultDistance;
-		distance = std::max(distance, 0.1f);
-
-		const float halfFovH = glm::radians(camera.GetFOV()) * 0.5f;
-		const float aspect = std::max(camera.GetAspect(), 0.001f);
-		const float halfFovV = std::atan(std::tan(halfFovH) / aspect);
-		const float halfFov = std::max(std::min(halfFovH, halfFovV), 0.01f);
-
-		const float focusRadius = std::max(selectionRadius, 0.5f);
-		const float focusDistance = focusRadius / std::sin(halfFov) * 1.1f;
-
-		SetCameraPivot(center, focusDistance);
-		ApplyCameraPivot();
-
+		m_editorContext->SetFocusCameraOnSelection(true);
 		m_cameraDrag = CameraDrag::None;
 		return;
 	}
@@ -1601,6 +1569,51 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.1f, 0.0f, 0.0f), m_cameraPivot + glm::vec3(0.1f, 0.0f, 0.0f), glm::vec4(1, 0, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.1f, 0.0f), m_cameraPivot + glm::vec3(0.0f, 0.1f, 0.0f), glm::vec4(0, 1, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
+}
+
+void SceneViewWindow::RemovePrefabPreview()
+{
+	if (m_prefabPreviewNode)
+	{
+		if (auto scene = m_prefabPreviewScene.lock())
+		{
+			const auto &roots = scene->GetRoots();
+			if (std::find(roots.begin(), roots.end(), m_prefabPreviewNode) != roots.end())
+			{
+				scene->RemoveRoot(m_prefabPreviewNode);
+			}
+		}
+
+		m_prefabPreviewNode.reset();
+	}
+
+	m_prefabPreviewScene.reset();
+}
+
+void SceneViewWindow::FocusCameraOnSelection()
+{
+	auto &camera = m_editorContext->GetEditorCamera();
+	auto &interactionState = m_editorContext->GetInteractionState();
+
+	glm::vec3 center = glm::vec3(0.0f);
+	float selectionRadius = 0.0f;
+	ComputeFocusSphere(interactionState.GetSelectedNodes(), center, selectionRadius);
+
+	// Distance used to scale panning and zooming, so they feel the same regardless of scene scale
+	constexpr float c_defaultDistance = 8.0f;
+	float distance = interactionState.HasSelection() ? glm::length(center - camera.GetPosition()) : c_defaultDistance;
+	distance = std::max(distance, 0.1f);
+
+	const float halfFovH = glm::radians(camera.GetFOV()) * 0.5f;
+	const float aspect = std::max(camera.GetAspect(), 0.001f);
+	const float halfFovV = std::atan(std::tan(halfFovH) / aspect);
+	const float halfFov = std::max(std::min(halfFovH, halfFovV), 0.01f);
+
+	const float focusRadius = std::max(selectionRadius, 0.5f);
+	const float focusDistance = focusRadius / std::sin(halfFov) * 1.1f;
+
+	SetCameraPivot(center, focusDistance);
+	ApplyCameraPivot();
 }
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const

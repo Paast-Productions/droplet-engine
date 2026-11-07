@@ -1,6 +1,7 @@
 #include "Node.hpp"
 #include "Scene.hpp"
 #include "Component.hpp"
+#include "ComponentFactory.hpp"
 #include <SceneSystem/DefaultNodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <stdexcept>
@@ -356,6 +357,12 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	}
 }
 
+std::weak_ptr<Component> Node::AttachComponent(const std::string &p_componentType)
+{
+	auto component = ComponentFactory::CreateComponent(p_componentType);
+	return AttachComponent(component);
+}
+
 std::weak_ptr<Component> Node::AttachComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)
@@ -373,7 +380,7 @@ std::weak_ptr<Component> Node::AttachComponent(std::unique_ptr<Component> &p_com
 	return AttachComponent(shared, m_nextComponentID);
 }
 
-std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
+std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID)
 {
 	ZoneScoped;
 
@@ -403,8 +410,9 @@ std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> &p_com
 
 	p_component->m_id = p_componentID;
 	p_component->SetOwner(shared_from_this());
-	m_components.push_back((p_component));
-	
+	m_components.push_back(p_component);
+
+	// Check if the component being added provides bounds override.
 	if (p_component->HasBoundsOverride())
 	{
 		if (m_boundsOverride.expired())
@@ -471,37 +479,6 @@ const std::string &Node::GetName() const
 void Node::SetName(const std::string &p_name)
 {
 	m_name = p_name;
-}
-
-std::weak_ptr<Component> Node::AddComponent(std::unique_ptr<Component> &p_component)
-{
-	if (!p_component)
-	{
-		throw std::invalid_argument("Cannot add nullptr Component.");
-	}
-
-	p_component->SetOwner(shared_from_this());
-
-	m_components.push_back(std::move(p_component));
-	std::shared_ptr<Component> addedComponent = m_components.back();
-
-	// Check if the component being added provides bounds override.
-	if (addedComponent->HasBoundsOverride())
-	{
-		if (m_boundsOverride.expired())
-		{
-			m_transform.MakeDirty();
-			m_transform.MakePhysicsDirty();
-			m_boundsOverride = addedComponent;
-		}
-	}
-
-	if (m_started)
-	{
-		addedComponent->Start();
-	}
-
-	return addedComponent;
 }
 
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
