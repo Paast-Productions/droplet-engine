@@ -66,17 +66,17 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 	m_serializeData.r = p_radius;
 }
 
-void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetCapsuleCollider(const float p_halfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
 {
 	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
 
-	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
+	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_halfHeightOfCylinder, p_radius);
 	CreateCollider(capsuleSettings, p_offset);
 	m_shapeType = ShapeType::Capsule;
-	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.h = p_halfHeightOfCylinder;
 	m_serializeData.r = p_radius;
 }
 
@@ -125,7 +125,7 @@ void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_s
 	m_shapeType = ShapeType::Compound;
 }
 
-void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, const float p_radius,
+void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, const float p_radius,
 	const JPH::Vec3& p_offset)
 {
 	if (!m_bodyID.IsInvalid())
@@ -134,7 +134,7 @@ void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, con
 	}
 	
 	JPH::Ref<JPH::CharacterSettings> characterSettings = new JPH::CharacterSettings();
-	characterSettings->mShape = new JPH::CapsuleShape(p_HalfHeightOfCylinder, p_radius);
+	characterSettings->mShape = new JPH::CapsuleShape(p_halfHeightOfCylinder, p_radius);
 	characterSettings->mLayer = Layers::MOVING;
 	characterSettings->mMass = 80.0f;
 	characterSettings->mFriction = 1.0f;
@@ -144,13 +144,13 @@ void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, con
 		GLMtoJPH(m_transform->GetPosition()),
 		GLMtoJPH(m_transform->GetRotation()),
 		0,
-		m_physics->GetPhyscisSystem());
+		m_physics->GetPhysicsSystem());
 	m_character->AddToPhysicsSystem(JPH::EActivation::Activate);
 	
 	m_bodyID = m_character->GetBodyID();
 	
 	m_shapeType = ShapeType::Player;
-	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.h = p_halfHeightOfCylinder;
 	m_serializeData.r = p_radius;
 	SetMotionType(JPH::EMotionType::Dynamic);
 	SetObjectLayer(Layers::MOVING);
