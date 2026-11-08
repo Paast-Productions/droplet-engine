@@ -16,9 +16,10 @@ namespace Droplet::Game
         std::vector<ItemStack> playerInventory; ///< Items stored in the player's inventory.
 
         std::size_t maxDroneInventorySlots = 20;
+        std::size_t maxPlayerInventorySlots = 20;
         std::size_t DroneMaxSpeed = 8;
         std::size_t DroneMaxRange = 0;
-        std::size_t maxPlayerInventorySlots = 20;
+
 
         float maxHealth = 100;      ///< Maximum health of the player.
         float heatResistance = 50; ///< Resistance to environmental heat.
