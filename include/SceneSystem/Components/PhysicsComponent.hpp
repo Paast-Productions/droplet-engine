@@ -157,6 +157,18 @@ namespace Droplet::Scene
 		/// @brief Activate or deactivate the physics body
 		/// @param p_active True to activate, false to deactivate
 		void SetActive(bool p_active);
+		
+		// ---------- Set physics ----------
+		
+		/// @brief Set the velocity to the physics body
+		/// @param p_velocity The velocity vector
+		void SetVelocity(const glm::vec3 &p_velocity);
+		
+		// ---------- Get physics ----------
+		
+		/// @brief Get the velocity of the physics body
+		/// @return A vector of the velocity
+		glm::vec3 GetVelocity() const;
 
 	protected:
 		/// @brief Starts the component.

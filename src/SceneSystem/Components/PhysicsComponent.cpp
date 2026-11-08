@@ -205,6 +205,24 @@ void PhysicsComponent::SetActive(bool p_active)
 	}
 }
 
+void PhysicsComponent::SetVelocity(const glm::vec3 &p_velocity)
+{
+	if (m_character != nullptr)
+	{
+		m_character->SetLinearVelocity(GLMtoJPH(p_velocity));
+	}
+	else
+	{
+		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+		bodyInterface->SetLinearVelocity(m_bodyID, GLMtoJPH(p_velocity));
+	}
+}
+
+glm::vec3 PhysicsComponent::GetVelocity() const
+{
+	return JPHtoGLM(m_physics->GetBodyInterface()->GetLinearVelocity(m_bodyID));
+}
+
 void PhysicsComponent::StartImpl()
 {
 	std::shared_ptr<Scene> scene = GetOwner()->GetScene();
