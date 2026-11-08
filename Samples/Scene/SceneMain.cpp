@@ -220,7 +220,7 @@ static void PhysicsTest()
     }
 
     s->InitializePhysics();
-    s->GetPhysics()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
+    s->GetPhysics().lock()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
 
     sm.ActivateScene("Game");
 
