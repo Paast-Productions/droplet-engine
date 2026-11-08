@@ -18,6 +18,8 @@
 
 namespace Droplet::Scene
 {
+	class PhysicsComponentHandle;
+	
 	/// @brief A physics component for some shape
 	class PhysicsComponent : public Component
 	{
@@ -232,5 +234,33 @@ namespace Droplet::Scene
 		} m_serializeData;
 		bool m_isDeserialized = false;
 		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
+	};
+	
+	// ---------- PhysicsComponentHandle ----------
+	
+	/// @brief Class that exposes components to Lua scripts without increasing the components
+	/// shared pointer reference count
+	class PhysicsComponentHandle
+	{
+	public:
+		/// @brief Constructs the ComponentHandle of a component
+		/// @param p_component The shared pointer to the component
+		explicit PhysicsComponentHandle(const std::shared_ptr<PhysicsComponent> &p_component) : m_component(p_component) {}
+        
+		/// @brief Checks if the component is valid
+		/// @return True if valid, else false
+		bool IsValid() const;
+        
+		/// @brief Convert the weak pointer of the component to shared pointer
+		/// @return Shared pointer of the component
+		std::shared_ptr<PhysicsComponent> Lock() const;
+		
+		void SetVelocity(const glm::vec3 &p_velocity);
+		
+		glm::vec3 GetVelocity() const;
+        
+	private:
+		std::weak_ptr<PhysicsComponent> m_component;
+        
 	};
 }
