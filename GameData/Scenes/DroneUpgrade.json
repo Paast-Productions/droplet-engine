@@ -42,7 +42,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 5,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -95,10 +95,37 @@
                     },
                     "id": 2,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 3,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 4,
+                    "type": "CameraComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 6,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -107,10 +134,10 @@
                     0.0
                 ],
                 "rotation": [
-                    1.0,
-                    7.450580596923828e-09,
-                    0.0,
-                    0.0
+                    0.7071067690849304,
+                    -2.1073422118433882e-08,
+                    -0.70710688829422,
+                    -2.107342567114756e-08
                 ],
                 "scale": [
                     1.0,

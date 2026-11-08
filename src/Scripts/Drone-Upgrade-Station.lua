@@ -2,29 +2,26 @@
 --make the math easier
 local unique = nil
 local itemRegistry = nil
+local player = nil
+
 local amount = 0
 
 -- variabels
 local touchedTheMesh = false
 local word
 -- variabels that is need to gets code from c++¨
-local player = nil
 
 function OnStart()
     print("Drone Upgrade Station")
-    local playerComponent = self:GetPlayerComponent()
-
-    player = playerComponent:GetPlayerBehaviour()
-    unique = player:GetUniqueID()
-    itemRegistry = player:GetItemRegistry() 
 end
 
-function Crafting(itemId)
+function Crafting(id, name)
     print("Crafting station:")
-    print(itemId .. " <- word")
-    local Id = itemRegistry:Find(itemId)
-    amount = player:CountItem(InventoryType.Player, Id)
-    print("amount wood-> " .. amount)
+
+    local itemId = itemRegistry:Find(id)
+    amount = player:CountItem(InventoryType.Player, itemId)
+    print("amount material-> " .. amount)
+
 
     -- Example of how to handle crafting logic
     -- DOTO CHANGE THE PRICE FOR EACH ITEM
@@ -32,22 +29,25 @@ function Crafting(itemId)
     if amount >= priceOfCraft then
         amount = amount - priceOfCraft
         print(amount .. " <- amount of fish got removed by small calulation")
-        
+        -- Create the crafted item and add it to the player's inventory for the drone
+        -- speed, acceleration, drag 
 
-        local succes = player:RemoveItem(InventoryType.Player, Id, priceOfCraft)
+        --droplet-engine/    droplet-engine/src/Scripts/Engine_Side and DroneMovement.lua
+        --
+        local succes = player:RemoveItem(InventoryType.Player, itemId, priceOfCraft)
         if succes then 
             print("Succes")            
         end
     else
-        print("Not enough resources to craft " .. amount)
+        print("Not enough resources to craft " .. name)
     end
 end
 
 
 function RenderUI()
     -- DOTO
-    -- Currently hardcoded. The first index is processed automatically.
-    -- The remaining indices need to be selected through the 2D engine or its components.
+    -- Currently im using Imgui
+    -- The remaining indices need to be selected through the 2D engine.
 
     if ImGui.Button("Wood") then
         word = "wood"
@@ -62,21 +62,35 @@ function RenderUI()
     end
 end
 
-function OnTrigger()
+function OnTrigger(dt, node)
+    --print("Drigger works")
     touchedTheMesh = true
+    local playerComponent = node:GetPlayerComponent()
+
+    player = playerComponent:GetPlayerBehaviour()
+    unique = player:GetUniqueID()
+    itemRegistry = player:GetItemRegistry() 
 end
 
 function OnUpdate()
-    --if touchedTheMesh then
+    if touchedTheMesh then
+        -- DOTO
+        -- Currently im using Imgui
+        -- The remaining indices need to be selected through the 2D engine.
         if Input:KeyPressed(Key.E) then
-            if word == "wood" then
-                Crafting("resource:wood")
+            if "wood" == word then
+                print("wood")
+                Crafting("resource:wood", "Wood")
             end
-            if word == "stone" then
-                Crafting("resource:stone")
-            end
-            if word == "iron" then
-                Crafting("resource:iron")
+
+            if "stone" == word then
+                print("stone")
+                Crafting("resource:stone", "Stone")
+            end 
+    
+            if "iron" == word then
+                print("iron")
+                Crafting("resource:iron", "Iron")
             end
             touchedTheMesh = false
         end
