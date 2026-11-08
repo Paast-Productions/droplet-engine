@@ -411,9 +411,9 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 }
 
 
-Droplet::Physics *Scene::GetPhysics()
+std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
-    return m_physics.get();
+    return std::weak_ptr<Droplet::Physics>(m_physics);
 }
 
 void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)

@@ -86,7 +86,7 @@ namespace Droplet::Scene
 		/// @brief Initializes the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
 		/// @param p_transform The transform of the Node this component is added to
-		void Initialize(Physics *p_physics, Transform *p_transform);
+		void Initialize(const std::weak_ptr<Physics> p_physics, Transform *p_transform);
 		
 		/// @brief Gets the type name of the component.
 		/// @return The type name of the component.
@@ -191,7 +191,7 @@ namespace Droplet::Scene
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;
 
-		Physics *m_physics;
+		std::shared_ptr<Physics> m_physics;
 		Transform *m_transform;
 
 		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};
