@@ -407,13 +407,13 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
         return;
     }
 
-    m_physics = std::make_unique<Physics>(p_initializer);
+    m_physics = std::make_shared<Physics>(p_initializer);
 }
 
 
-Droplet::Physics *Scene::GetPhysics()
+std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
-    return m_physics.get();
+    return m_physics;
 }
 
 void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)

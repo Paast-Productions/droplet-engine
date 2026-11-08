@@ -5,7 +5,6 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/Shape/Shape.h>
 #include <glm/glm.hpp>
-#include <Resource/Types/MeshResource.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
 #include <Transform.hpp>
 #include <Jolt/Physics/Character/Character.h>
@@ -86,7 +85,7 @@ namespace Droplet::Scene
 		/// @brief Initializes the PhysicsComponent
 		/// @param p_physics The Physics instance of the Scene where this component exists
 		/// @param p_transform The transform of the Node this component is added to
-		void Initialize(Physics *p_physics, Transform *p_transform);
+		void Initialize(const std::weak_ptr<Physics> &p_physics, Transform *p_transform);
 		
 		/// @brief Removes the collider body from the physics simulation
 		void RemoveCollider();
@@ -202,7 +201,7 @@ namespace Droplet::Scene
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;
 
-		Physics *m_physics;
+		std::shared_ptr<Physics> m_physics;
 		Transform *m_transform;
 
 		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};

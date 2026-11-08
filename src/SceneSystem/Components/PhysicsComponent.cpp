@@ -27,9 +27,9 @@ PhysicsComponent::~PhysicsComponent()
 	RemoveCollider();
 }
 
-void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
+void PhysicsComponent::Initialize(const std::weak_ptr<Physics> &p_physics, Transform *p_transform)
 {
-	m_physics = p_physics;
+	m_physics = p_physics.lock();
 	m_transform = p_transform;
 }
 
@@ -207,11 +207,12 @@ void PhysicsComponent::SetActive(bool p_active)
 
 void PhysicsComponent::StartImpl()
 {
-	m_physics = GetOwner()->GetScene()->GetPhysics();
+	std::shared_ptr<Scene> scene = GetOwner()->GetScene();
+	m_physics = scene->GetPhysics().lock();
 	if (m_physics == nullptr)
 	{
-		GetOwner()->GetScene()->InitializePhysics();
-		m_physics = GetOwner()->GetScene()->GetPhysics();
+		scene->InitializePhysics();
+		m_physics = scene->GetPhysics().lock();
 	}
 	m_transform = &GetOwner()->GetTransform();
 }
