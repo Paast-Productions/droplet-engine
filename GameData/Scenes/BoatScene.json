@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 4,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 3,
+                    "id": 6,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -132,6 +132,14 @@
                 {
                     "active": true,
                     "data": {
+                        "filepath": "Engine_Side/PlayerController.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "h": 0.5,
                         "halfExtentsX": 0.0,
                         "halfExtentsY": 0.0,
@@ -142,23 +150,15 @@
                         "offsetX": 0.0,
                         "offsetY": 0.0,
                         "offsetZ": 0.0,
-                        "r": 0.5,
+                        "r": 0.30000001192092896,
                         "shapeType": 7
                     },
-                    "id": 2,
+                    "id": 6,
                     "type": "PhysicsComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "PlayerController.lua"
-                    },
-                    "id": 4,
-                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 5,
             "name": "Player",
             "transform": {
                 "position": [
