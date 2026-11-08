@@ -4,61 +4,122 @@ local unique = nil
 local itemRegistry = nil
 local player = nil
 
-local amount = 0
+local amount1 = 0
+local amount2 = 0
 
 -- variabels
 local touchedTheMesh = false
-local word
--- variabels that is need to gets code from c++¨
+local upgrades = {
+    { id1 = "resource:metal",   label = "Heat armor",           mat1 = "metal",  pri1 = 5 },
+    { id1 = "resource:wood",    label = "Increased inventory",  mat1 = "wood",   pri1 = 5 },
+    { id1 = "resource:eel",     label = "Movement speed",       mat1 = "eel",    pri1 = 3 },
+    { id1 = "resource:copper",  label = "Movement range",       mat1 = "copper", pri1 = 5 },
+    { id1 = "resource:tin",     label = "Freeze armor",         mat1 = "tin",    pri1 = 7 },
+    { id1 = "resource:bronze",  label = "Pressure",             mat1 = "bronze", pri1 = 5 },
+    { id1 = "resource:wood",    label = "Radiation tolerance",  mat1 = "wood",   pri1 = 10, id2 = "resource:lead",  mat2 = "lead",  pri2 = 4 }
+}
+
+local selected = nil
 
 function OnStart()
     print("Drone Upgrade Station")
 end
 
-function Crafting(id, name)
+function Upgrades()
+    if selected.label == "Heat armor" then
+        local current = player:GetHeatResistance()
+        player:SetHeatResistance(current + 10.0)
+        print("Heat armor applied!")
+
+    elseif selected.label == "Increased inventory" then
+        local current = player:GetDroneInventorySize()
+        player:SetDroneInventorySize(current + 1)
+        print("Inventory increased!")
+
+    elseif selected.label == "Movement speed" then
+        local current = player:GetDroneMaxSpeed()
+        player:SetDroneMaxSpeed(current + 100.0)
+        print("Movement speed increased!")
+
+    elseif selected.label == "Movement range" then
+        local current = player:GetDroneMaxRange()
+        player:SetDroneMaxRange(current + 1.0)
+        print("Movement range increased!")
+
+    elseif selected.label == "Freeze armor" then
+        local current = player:GetFreezeResistance()
+        player:SetFreezeResistance(current + 10.0)
+        print("Freeze armor applied!")
+
+    elseif selected.label == "Pressure" then
+        local current = player:GetPressureResistance()
+        player:SetPressureResistance(current + 10.0)
+        print("Pressure tolerance increased!")
+
+    elseif selected.label == "Radiation tolerance" then
+        local current = player:GetRadiationResistance()
+        player:SetRadiationResistance(current + 20.0)
+        print("Radiation tolerance increased!")
+    end
+    
+end
+
+function Crafting()
     print("Crafting station:")
+    local itemId2 = nil
+    if selected.id2 ~= nil then
+        itemId2 = itemRegistry:Find(selected.id2)
+        amount2 = player:CountItem(InventoryType.Player, itemId2)
+    end
 
-    local itemId = itemRegistry:Find(id)
-    amount = player:CountItem(InventoryType.Player, itemId)
-    print("amount material-> " .. amount)
+
+    local itemId1 = itemRegistry:Find(selected.id1)
+    amount1 = player:CountItem(InventoryType.Player, itemId1)
 
 
-    -- Example of how to handle crafting logic
-    -- DOTO CHANGE THE PRICE FOR EACH ITEM
-    local priceOfCraft = 2;
-    if amount >= priceOfCraft then
-        amount = amount - priceOfCraft
-        print(amount .. " <- amount of fish got removed by small calulation")
-        -- Create the crafted item and add it to the player's inventory for the drone
-        -- speed, acceleration, drag 
+    print("first amount material-> " .. amount1)
+    print("second amount material-> " .. amount2)
 
-        --droplet-engine/    droplet-engine/src/Scripts/Engine_Side and DroneMovement.lua
-        --
-        local succes = player:RemoveItem(InventoryType.Player, itemId, priceOfCraft)
+
+    if (amount1 >= selected.pri1)  then
+        if amount2 ~= 0 then
+            amount2 = amount2 - selected.pri2
+            print(amount2 .. " <- amount of fish got removed by small calulation")
+
+            local succes = player:RemoveItem(InventoryType.Player, itemId2, selected.pri2)
+            if succes then 
+                print("Succes2")            
+            end
+        end
+
+        amount1 = amount1 - selected.pri1
+        print(amount1 .. " <- amount of fish got removed by small calulation")
+
+        Upgrades()
+
+        local succes = player:RemoveItem(InventoryType.Player, itemId1, selected.pri1)
         if succes then 
-            print("Succes")            
+            print("Succes1")            
         end
     else
-        print("Not enough resources to craft " .. name)
+        print("Not enough resources to craft " .. selected.label)
     end
 end
 
-
 function RenderUI()
-    -- DOTO
-    -- Currently im using Imgui
-    -- The remaining indices need to be selected through the 2D engine.
+    for _, upgrade in ipairs(upgrades) do
+        if ImGui.Button(upgrade.label) then
+            if touchedTheMesh then
+                selected = upgrade;
+                print("material1: " .. selected.mat1 .. " price1 " .. selected.pri1 .. " id1 " .. selected.id1)
+                if selected.id2 ~= nil then
+                    print("material2: " .. selected.mat2 .. " price2 " .. selected.pri2 .. " id2 " .. selected.id2)
+                end
+                Crafting()
+                touchedTheMesh = false
+            end
 
-    if ImGui.Button("Wood") then
-        word = "wood"
-    end
-
-    if ImGui.Button("Stone") then
-        word = "stone"
-    end 
-    
-    if ImGui.Button("Iron") then
-        word = "iron"
+        end
     end
 end
 
@@ -70,29 +131,4 @@ function OnTrigger(dt, node)
     player = playerComponent:GetPlayerBehaviour()
     unique = player:GetUniqueID()
     itemRegistry = player:GetItemRegistry() 
-end
-
-function OnUpdate()
-    if touchedTheMesh then
-        -- DOTO
-        -- Currently im using Imgui
-        -- The remaining indices need to be selected through the 2D engine.
-        if Input:KeyPressed(Key.E) then
-            if "wood" == word then
-                print("wood")
-                Crafting("resource:wood", "Wood")
-            end
-
-            if "stone" == word then
-                print("stone")
-                Crafting("resource:stone", "Stone")
-            end 
-    
-            if "iron" == word then
-                print("iron")
-                Crafting("resource:iron", "Iron")
-            end
-            touchedTheMesh = false
-        end
-    --end
 end

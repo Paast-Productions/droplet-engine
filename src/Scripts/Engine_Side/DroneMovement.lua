@@ -6,18 +6,21 @@
 
 -- Movement settings
 local acceleration = 5.0
-local maxSpeed = 8.0
 local drag = 1.5
 
 -- Runtime state
 local trans = nil
 local velocity = nil
+local maxSpeed = nil
+local player = nil
 
 --
 -- Member functions
 --
 function UpdateMovement(dt)
     tracy.ZoneBeginN("Drone_movement UpdateMovement")
+    maxSpeed = player:GetDroneMaxSpeed()
+
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
 
@@ -115,6 +118,8 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Drone_movement OnStart")
+    local playerComponent = self:GetPlayerComponent()
+    player = playerComponent:GetPlayerBehaviour()
 
     print("New Drone_movement")
 	trans = self:GetTransform()
@@ -137,8 +142,10 @@ function RenderUI()
     ImGui.Spacing()
 
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
-    _, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
+    --_, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
     _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
+    ImGui.Text(tostring(maxSpeed))
+
 
     ImGui.Separator()
     ImGui.Text("W/S: Forward / Backward")

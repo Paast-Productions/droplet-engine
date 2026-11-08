@@ -606,24 +606,46 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
-		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
+		
+        "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
+		"SetHeatResistance", & Scene::PlayerBehaviour::SetHeatResistance,
 		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
 		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
-		"GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
+		
+        "GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
         "GetFreezeLevel", &Scene::PlayerBehaviour::GetFreezeLevel,
+        "SetFreezeResistance", & Scene::PlayerBehaviour::SetFreezeResistance,
         "IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
         "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
         "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
         "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
-        "GetUniqueID", &Scene::PlayerBehaviour::GetUniqueID,
-        // Item registry access.
+
+        "GetPressureResistance", &Scene::PlayerBehaviour::GetPressureResistance,
+        "SetPressureResistance", &Scene::PlayerBehaviour::SetPressureResistance,
+        "GetPressureLevel", &Scene::PlayerBehaviour::GetPressureLevel,
+        "SetPressureLevel", &Scene::PlayerBehaviour::SetPressureLevel,
+        "IncreasePressureLevel", &Scene::PlayerBehaviour::IncreasePressureLevel,
+
+        "GetRadiationResistance", &Scene::PlayerBehaviour::GetRadiationResistance,
+        "SetRadiationResistance", &Scene::PlayerBehaviour::SetRadiationResistance,
+        "GetRadiationLevel", &Scene::PlayerBehaviour::GetRadiationLevel,
+        "SetRadiationLevel", &Scene::PlayerBehaviour::SetRadiationLevel,
+        "IncreaseRadiationLevel", &Scene::PlayerBehaviour::IncreaseRadiationLevel,
+
         "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
-        // Inventory functions.
         "AddItem", &Scene::PlayerBehaviour::AddItem,
         "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
-        "CountItem", &Scene::PlayerBehaviour::CountItem
-    
+        "CountItem", &Scene::PlayerBehaviour::CountItem,
+        "GetUniqueID", & Scene::PlayerBehaviour::GetUniqueID,
+
+        "SetDroneInventorySize", &Scene::PlayerBehaviour::SetDroneInventorySize,
+        "GetDroneInventorySize", &Scene::PlayerBehaviour::GetDroneInventorySize,
+
+		"SetDroneMaxSpeed", &Scene::PlayerBehaviour::SetDroneMaxSpeed,
+        "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
+        "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
+        "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
     );
 
 	LuaClassDefinition classDef;
@@ -645,7 +667,24 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		{ "GetItemRegistry", "ItemRegistry", {} },
         { "AddItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" },{ "count", "number" }} },
         { "RemoveItem", "boolean", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" },{ "count", "number" }} },
-        { "CountItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" }} }
+        { "CountItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" }} },
+		{ "GetPressureResistance", "float", {} },
+        { "SetPressureResistance", "void", { { "amount", "number" } } },
+        { "GetPressureLevel", "float", {} },
+        { "SetPressureLevel", "void", { { "amount", "number" } } },
+        { "IncreasePressureLevel", "void", { { "amount", "number" } } },
+        { "GetRadiationResistance", "float", {} },
+        { "SetRadiationResistance", "void", { { "amount", "number" } } },
+        { "GetRadiationLevel", "float", {} },
+        { "SetRadiationLevel", "void", { { "amount", "number" } } },
+		{ "IncreaseRadiationLevel", "void", { { "amount", "number" } } },
+		{ "SetDroneInventorySize", "void", { { "amount", "number" } } },
+		{ "GetDroneInventorySize", "float", {} },
+		{ "SetDroneMaxSpeed", "void", { { "amount", "number" } } },
+        { "GetDroneMaxSpeed", "float", {} },
+		{ "SetDroneMaxRange", "void", { { "amount", "number" } } },
+        { "GetDroneMaxRange", "float", {} },
+		
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
