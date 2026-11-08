@@ -20,7 +20,6 @@ namespace Droplet::Game
         std::size_t DroneMaxSpeed = 8;
         std::size_t DroneMaxRange = 0;
 
-
         float maxHealth = 100;      ///< Maximum health of the player.
         float heatResistance = 50; ///< Resistance to environmental heat.
         float heatLevel = 10;       ///< Current heat level of the player.

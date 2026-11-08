@@ -173,26 +173,28 @@ namespace Droplet::Scene
 
 
 		///DroneInventory
-		/// @brief 
+        /// @brief The maximum inventory capacity of the drone.
         void SetDroneInventorySize(float p_droneinventorySize) { m_data.maxDroneInventorySlots = p_droneinventorySize; }
 
-        /// @brief 
+        /// @brief The maximum inventory capacity of the drone.
+        /// @return The maximum number of items the drone can carry.
         [[nodiscard]] float GetDroneInventorySize() const { return m_data.maxDroneInventorySlots; }
 
 
         /// Speed/range of the drone
-        /// @brief 
+        /// @brief The maximum speed of the drone.
         void SetDroneMaxSpeed(float p_droneMaxSpeed) { m_data.DroneMaxSpeed = p_droneMaxSpeed; }
 
-        /// @brief 
-        [[nodiscard]] float GetDroneMaxSpeed() const { return m_data.DroneMaxSpeed; }
+        /// @brief The maximum speed of the drone.
+		/// @return The maximum speed of the drone.
+		[[nodiscard]] float GetDroneMaxSpeed() const { return m_data.DroneMaxSpeed; }
 
 
-        /// Speed/range of the drone
-		/// @brief 
+        /// @brief The maximum range of the drone.
         void SetDroneMaxRange(float p_droneMaxRange) { m_data.DroneMaxRange = p_droneMaxRange; }
 
-        /// @brief 
+        /// @brief The maximum range of the drone.
+		/// @return The maximum range of the drone.
         [[nodiscard]] float GetDroneMaxRange() const { return m_data.DroneMaxRange; }
 
         // ITEMS
