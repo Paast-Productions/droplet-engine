@@ -1,11 +1,11 @@
-#include "ComponentsBindings.hpp"
-#include "SceneSystem/Components/CameraComponent.hpp"
-#include "SceneSystem/Components/MeshComponent.hpp"
-#include "SceneSystem/Components/PhysicsComponent.hpp"
-#include "SceneSystem/Components/HealthComponent.hpp"
-#include "SceneSystem/Components/DamageComponent.hpp"
-#include "SceneSystem/Components/PlayerComponent.hpp"
-#include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
+#include <ComponentsBindings.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -21,6 +21,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
+    RegisterPhysicsComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -509,6 +510,38 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
     };
 
 	LuaBindings::PushLuaClassDefinition(classDef);
+
+    // ---------- PhysicsComponentHandle ----------
+    
+    p_luaState.new_usertype<PhysicsComponentHandle>(
+        "PhysicsComponentHandle",
+        "IsValid", &PhysicsComponentHandle::IsValid,
+        "SetVelocity", &PhysicsComponentHandle::SetVelocity,
+        "GetVelocity", &PhysicsComponentHandle::GetVelocity
+    );
+    
+    classDef.name = "PhysicsComponentHandle";
+    
+    classDef.functions =
+    {
+        {
+            "IsValid",
+            "bool",
+            {}
+        },
+        {
+            "SetVelocity",
+            "void",
+            {{"velocity", "Vec3"}}
+        },
+        {
+            "GetVelocity",
+            "Vec3",
+            {}
+        }
+    };
+    
+    LuaBindings::PushLuaClassDefinition(classDef);
 }
 
 void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
