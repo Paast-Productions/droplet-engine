@@ -1211,34 +1211,3 @@ JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(con
 	}
 	return JPH::ConvexHullShapeSettings(points, p_edgeRadius);
 }
-
-// ---------- PhysicsComponentHandle ----------
-
-bool PhysicsComponentHandle::IsValid() const
-{
-	return !m_component.expired();
-}
-
-std::shared_ptr<PhysicsComponent> PhysicsComponentHandle::Lock() const
-{
-	return m_component.lock();
-}
-
-void PhysicsComponentHandle::SetVelocity(const glm::vec3 &p_velocity)
-{
-	std::shared_ptr<PhysicsComponent> component = m_component.lock();
-	if (component != nullptr)
-	{
-		component->SetVelocity(p_velocity);
-	}
-}
-
-glm::vec3 PhysicsComponentHandle::GetVelocity() const
-{
-	std::shared_ptr<PhysicsComponent> component = m_component.lock();
-	if (component != nullptr)
-	{
-		return component->GetVelocity();
-	}
-	return glm::vec3();
-}

@@ -1,5 +1,4 @@
 ﻿local trans = nil
-local physCompHandle = nil
 
 local mouseSensitivity = 0.0025   -- radians per pixel
 local moveSpeed = 5.0
@@ -16,8 +15,8 @@ end
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
     
-    physCompHandle = self:GetPhysicsComponent()
-    if physCompHandle == nil then
+    local physComp = self:GetPhysicsComponent():lock()
+    if physComp == nil then
         return
     end
     
@@ -46,8 +45,8 @@ function OnUpdate(dt)
     if walkDir.x ~= 0.0 or walkDir.y ~= 0.0 or walkDir.z ~= 0.0 then
         walkDir = GLM.V3MulF(GLM.V3Normalize(walkDir), moveSpeed)
     end
-    walkDir.y = physCompHandle:GetVelocity().y
-    physCompHandle:SetVelocity(walkDir)
+    walkDir.y = physComp:GetVelocity().y
+    physComp:SetVelocity(walkDir)
 
     tracy.ZoneEnd()
 end

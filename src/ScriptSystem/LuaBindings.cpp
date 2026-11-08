@@ -118,8 +118,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPhysicsComponent",
 		[](Scene::Node &node)
 		{
-			Scene::PhysicsComponentHandle handle(node.GetComponent<Scene::PhysicsComponent>());
-			return handle;
+			return std::weak_ptr<Scene::PhysicsComponent>(node.GetComponent<Scene::PhysicsComponent>());
 		},
 
 		"GetHealthComponent",
@@ -161,7 +160,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetParent", "Node", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
-		{"GetPhysicsComponent", "PhysicsComponentHandle", {}},
+		{"GetPhysicsComponent", "PhysicsComponent", {}},
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
 		{"GetPlayerBehaviour", "PlayerBehaviour", {}}

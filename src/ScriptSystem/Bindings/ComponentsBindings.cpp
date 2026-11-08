@@ -1,4 +1,4 @@
-#include <ComponentsBindings.hpp>
+#include "ComponentsBindings.hpp"
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
@@ -451,7 +451,16 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
         "SetMotionType", &PhysicsComponent::SetMotionType,
         "SetObjectLayer", &PhysicsComponent::SetObjectLayer,
         "SetActive", &PhysicsComponent::SetActive,
-        "RemoveCollider", &PhysicsComponent::RemoveCollider
+        "RemoveCollider", &PhysicsComponent::RemoveCollider,
+        
+        "SetVelocity", [](PhysicsComponent &p_component, glm::vec3 p_velocity)
+        {
+            return p_component.SetVelocity(p_velocity);
+        },
+        "GetVelocity", [](const PhysicsComponent &p_component)
+        {
+            return p_component.GetVelocity();
+        }
     );
 
 
@@ -506,39 +515,32 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
             {"active", "boolean"}
         }},
 
-        {"RemoveCollider", "void", {}}
+        {"RemoveCollider", "void", {}},
+        
+        {"SetVelocity", "void", {}},
+        
+        {"GetVelocity", "Vec3", {}},
     };
 
 	LuaBindings::PushLuaClassDefinition(classDef);
-
-    // ---------- PhysicsComponentHandle ----------
     
-    p_luaState.new_usertype<PhysicsComponentHandle>(
-        "PhysicsComponentHandle",
-        "IsValid", &PhysicsComponentHandle::IsValid,
-        "SetVelocity", &PhysicsComponentHandle::SetVelocity,
-        "GetVelocity", &PhysicsComponentHandle::GetVelocity
+    // Weak pointer PhysicsComponent
+    p_luaState.new_usertype<std::weak_ptr<PhysicsComponent>>(
+        "WeakPhysicsComponent",
+        "lock", [](const std::weak_ptr<PhysicsComponent> &p_component)
+        {
+            return p_component.lock();
+        },
+        "expired", &std::weak_ptr<PhysicsComponent>::expired
     );
     
-    classDef.name = "PhysicsComponentHandle";
-    
-    classDef.functions =
-    {
-        {
-            "IsValid",
-            "bool",
-            {}
-        },
-        {
-            "SetVelocity",
-            "void",
-            {{"velocity", "Vec3"}}
-        },
-        {
-            "GetVelocity",
-            "Vec3",
-            {}
-        }
+    classDef = {};
+    classDef.name = "WeakPhysicsComponent";
+
+    classDef.functions = {
+        {"lock", "PhysicsComponent", {}},
+
+        {"expired", "bool", {}},
     };
     
     LuaBindings::PushLuaClassDefinition(classDef);
