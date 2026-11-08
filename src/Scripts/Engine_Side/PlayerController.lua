@@ -1,4 +1,5 @@
 ﻿local trans = nil
+local physCompHandle = nil
 
 local mouseSensitivity = 0.0025   -- radians per pixel
 local moveSpeed = 5.0
@@ -8,13 +9,17 @@ function OnStart()
 
     print("New PlayerController")
 	trans = self:GetTransform()
-    moveSpeed = 5.0
     
     tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
+    
+    physCompHandle = self:GetPhysicsComponent()
+    if physCompHandle == nil then
+        return
+    end
     
     -- HACK: This rotation code should've been in CameraController.lua but doesn't work there
     local dx = Input:GetDeltaMouseX()
@@ -38,11 +43,11 @@ function OnUpdate(dt)
         walkDir = GLM.V3Sub(walkDir, trans:GetRight())
     end
 
-    if walkDir.x ~= 0.0 or walkDir.z ~= 0.0 then
-        walkDir.y = 0.0
-        walkDir = GLM.V3MulF(GLM.V3MulF(GLM.V3Normalize(walkDir), moveSpeed), dt)
-        trans:Move(walkDir, TransformSpace.World)
+    if walkDir.x ~= 0.0 or walkDir.y ~= 0.0 or walkDir.z ~= 0.0 then
+        walkDir = GLM.V3MulF(GLM.V3Normalize(walkDir), moveSpeed)
     end
+    walkDir.y = physCompHandle:GetVelocity().y
+    physCompHandle:SetVelocity(walkDir)
 
     tracy.ZoneEnd()
 end
