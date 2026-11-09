@@ -72,35 +72,23 @@ function Crafting()
         amount2 = player:CountItem(InventoryType.Player, itemId2)
     end
 
-
     local itemId1 = itemRegistry:Find(selected.id1)
     amount1 = player:CountItem(InventoryType.Player, itemId1)
-
-
-    print("first amount material-> " .. amount1)
-    print("second amount material-> " .. amount2)
-
 
     if (amount1 >= selected.pri1)  then
         if amount2 ~= 0 then
             amount2 = amount2 - selected.pri2
-            print(amount2 .. " <- amount of fish got removed by small calulation")
+            print(amount2 .. " Rest for the second material")
 
             local succes = player:RemoveItem(InventoryType.Player, itemId2, selected.pri2)
-            if succes then 
-                print("Succes2")            
-            end
         end
 
         amount1 = amount1 - selected.pri1
-        print(amount1 .. " <- amount of fish got removed by small calulation")
+        print(amount1 .. " Rest for the second material")
 
         Upgrades()
 
         local succes = player:RemoveItem(InventoryType.Player, itemId1, selected.pri1)
-        if succes then 
-            print("Succes1")            
-        end
     else
         print("Not enough resources to craft " .. selected.label)
     end
@@ -111,9 +99,9 @@ function RenderUI()
         if ImGui.Button(upgrade.label) then
             if touchedTheMesh then
                 selected = upgrade;
-                print("material1: " .. selected.mat1 .. " price1 " .. selected.pri1 .. " id1 " .. selected.id1)
+                print("It needs " .. "material: " .. selected.mat1 .. " price " .. selected.pri1)
                 if selected.id2 ~= nil then
-                    print("material2: " .. selected.mat2 .. " price2 " .. selected.pri2 .. " id2 " .. selected.id2)
+                    print("It needs " .. "material: " .. selected.mat2 .. " price " .. selected.pri2)
                 end
                 Crafting()
                 touchedTheMesh = false

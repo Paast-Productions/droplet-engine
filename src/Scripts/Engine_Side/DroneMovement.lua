@@ -19,7 +19,6 @@ local player = nil
 --
 function UpdateMovement(dt)
     tracy.ZoneBeginN("Drone_movement UpdateMovement")
-    maxSpeed = player:GetDroneMaxSpeed()
 
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
@@ -134,7 +133,7 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
-
+    maxSpeed = player:GetDroneMaxSpeed()
 	UpdateMovement(dt)
 
     tracy.ZoneEnd()
