@@ -237,7 +237,7 @@ namespace Droplet::Scene
 
         [[nodiscard]] Physics *GetPhysics();
         
-        void LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
+        std::shared_ptr<Node> LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
 		/// @brief Queues a component to be rendered in the next render pass
 		/// @param p_comp The component to be rendered

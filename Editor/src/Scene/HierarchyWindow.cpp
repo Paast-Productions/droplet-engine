@@ -8,6 +8,7 @@
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
+#include <Editor/DragDropFields.hpp>
 #include <memory>
 
 
@@ -75,7 +76,69 @@ namespace
 void HierarchyWindow::InitImpl()
 {   
     SetName("Node Hierarchy");
-    
+    ToggleToolbar(true);
+}
+
+void HierarchyWindow::RenderToolbar()
+{
+    auto scene = m_editorContext->GetActiveScene().lock();
+
+	bool isEnabled = scene && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode);
+
+    if (ImGui::BeginMenu("Scene", isEnabled))
+    {
+        DrawSceneWindow();
+
+		ImGui::EndMenu();
+    }
+
+    if (ImGui::BeginMenu("Nodes", isEnabled))
+    {
+        std::weak_ptr<Node> newNode{};
+
+        if (ImGui::Button("Add Empty Node"))
+        {
+            newNode = scene->AddNode("Empty Node");
+        }
+
+        if (ImGui::Button("Add Mesh Node"))
+        {
+            newNode = scene->AddNode("Mesh Node");
+			newNode.lock()->AttachComponent("MeshComponent");
+        }
+
+        if (ImGui::Button("Add Camera Node"))
+        {
+            newNode = scene->AddNode("Camera Node");
+			newNode.lock()->AttachComponent("CameraComponent");
+        }
+
+        if (ImGui::Button("Add Script Node"))
+        {
+            newNode = scene->AddNode("Script Node");
+			newNode.lock()->AttachComponent("ScriptComponent");
+        }
+
+        if (ImGui::Button("Add Physics Node"))
+        {
+            newNode = scene->AddNode("Physics Node");
+			newNode.lock()->AttachComponent("PhysicsComponent");
+        }
+
+
+		if (!newNode.expired())
+		{
+            m_editorContext->GetInteractionState().SelectNode(newNode, true);
+            m_editorContext->SetNodeScrollFocus(newNode);
+
+			// Move the new node to the center of the view
+			auto &editorCamera = m_editorContext->GetEditorCamera();
+			glm::vec3 position = editorCamera.GetPosition() + editorCamera.GetForward() * EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+			newNode.lock()->GetTransform().SetPosition(position, Transform::Space::World);
+		}
+
+		ImGui::EndMenu();
+    }
 }
 
 void HierarchyWindow::RenderImpl()
@@ -91,57 +154,9 @@ void HierarchyWindow::RenderImpl()
         return;
     }
 
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
-
-    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::TreeNode("Scene Selection"))
-    {
-        DrawSceneWindow();
-        ImGui::TreePop();
-    }
-
-    ImGui::EndDisabled();
-
-    if (ImGui::Button("Add Node"))
-    {
-        scene->AddNode("New Node");
-    }
-    ImGui::SameLine();
-
-    static std::vector < std::string> nodeFiles;
-    static std::string selectedNode;
-    const std::filesystem::path nodesDirectory = ROOT_PATH "/GameData/Prefabs/";
-    glm::vec3 cameraPos = m_editorContext->GetEditorCamera().GetPosition() + m_editorContext->GetEditorCamera().GetForward();
-
-    if (ImGui::Button("Add Node from file"))
-    {
-        RefreshLoadedNodes(nodeFiles);
-        ImGui::OpenPopup("Nodes");
-    }
-
-    if (ImGui::BeginPopup("Nodes"))
-    {
-        if (nodeFiles.empty())
-        {
-            ImGui::TextUnformatted("No saved nodes found.");
-        }
-        for (const std::string &nodeFile : nodeFiles)
-        {
-            if (ImGui::Selectable(nodeFile.c_str()))
-            {
-                selectedNode = nodeFile;
-                const std::string nodeName = std::filesystem::path(selectedNode).stem().string();
-                std::string filePath = nodesDirectory.string() + std::string(selectedNode);
-                scene->LoadNodeFromFile(filePath);
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        ImGui::EndPopup();
-    }
-
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
-
     ImGui::SeparatorText(scene->GetName().c_str());
+
+    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Reserve a thin strip on the left for dropping nodes as roots.
     const float rootDropWidth = 6.0f;
@@ -229,8 +244,7 @@ void HierarchyWindow::RenderImpl()
         const auto targetIt = std::find_if(
             m_visibleNodes.begin(),
             m_visibleNodes.end(),
-            [&target](const std::weak_ptr<Node> &p_node)
-            {
+            [&target](const std::weak_ptr<Node> &p_node) {
                 return p_node.lock() == target;
             });
 
@@ -238,8 +252,7 @@ void HierarchyWindow::RenderImpl()
             ? std::find_if(
                 m_visibleNodes.begin(),
                 m_visibleNodes.end(),
-                [&anchor](const std::weak_ptr<Node> &p_node)
-                {
+                [&anchor](const std::weak_ptr<Node> &p_node) {
                     return p_node.lock() == anchor;
                 })
             : m_visibleNodes.end();
@@ -386,7 +399,7 @@ void HierarchyWindow::RenderImpl()
     ImGui::EndDisabled();
 }
 
-void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
+void HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
 {
     
     const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes";
@@ -411,7 +424,7 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedScenes(std::vector<std::stri
     std::sort(p_sceneFiles.begin(), p_sceneFiles.end());
 }
 
-void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles)
+void HierarchyWindow::RefreshLoadedNodes(std::vector<std::string> &p_nodeFiles)
 {
     const std::filesystem::path nodesDirectory = ROOT_PATH "/GameData/Prefabs";
 
@@ -433,12 +446,25 @@ void Droplet::Editor::HierarchyWindow::RefreshLoadedNodes(std::vector<std::strin
     std::sort(p_nodeFiles.begin(), p_nodeFiles.end());
 }
 
-void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
+void HierarchyWindow::DrawSceneWindow()
 {
     static char fileName[128] = "MyScene";
+    static std::weak_ptr<Droplet::Scene::Scene> previousScene;
+    static bool hasPreviousScene = false;
+
+    auto activeScene = m_editorContext->GetActiveScene().lock();
+    if (activeScene && hasPreviousScene && previousScene.lock() != activeScene)
+    {
+        const std::string sceneName = activeScene->GetName();
+        std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
+        fileName[sizeof(fileName) - 1] = '\0';
+    }
+    previousScene = activeScene;
+    hasPreviousScene = true;
 
     ImGui::InputText("Scene name", fileName, sizeof(fileName));
-    static std::vector <std::string> sceneFiles;
+
+    static std::vector<std::string> sceneFiles;
     static std::string selectedScene;
     static bool hasScannedScenes = false;
     const std::filesystem::path scenesDirectory = ROOT_PATH "/GameData/Scenes/";
@@ -451,12 +477,12 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
 
     if (ImGui::Button("Save Scene"))
     {
-        m_editorContext->GetActiveScene().lock()->SetName(fileName);
+        activeScene->SetName(fileName);
         std::string path = (scenesDirectory).string() + std::string(fileName) + ".json";
         m_editorContext->SaveScene(path);
-
     }
-    ImGui::SameLine();
+
+	ImGui::SameLine();
 
     if (ImGui::Button("New Scene"))
     {
@@ -464,81 +490,48 @@ void Droplet::Editor::HierarchyWindow::DrawSceneWindow()
         m_editorContext->GetActiveScene().lock()->SetActive(false);
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
-        std::strncpy(fileName, name.c_str(), sizeof(name) - 1);
 
+        std::strncpy(fileName, name.c_str(), sizeof(name) - 1);
         fileName[sizeof(name) - 1] = '\0';
     }
 
-    ImGui::SameLine();
-    if (ImGui::Button("Load"))
+	ImGui::Separator();
+
+    if (ImGui::BeginMenu("Loaded Scenes"))
     {
-        RefreshLoadedScenes(sceneFiles);
-        ImGui::OpenPopup("Scenes");
-    }
-    
+		auto &loadedScenes = m_editorContext->GetEngine().GetSceneManager().GetScenes();
 
-    if (ImGui::BeginPopup("Scenes"))
-    {
-        ImGui::SeparatorText("Saved Scenes");
-        
-        if (sceneFiles.empty())
-        {
-            ImGui::TextUnformatted("No saved scenes found.");
-        }
-        for (const std::string &sceneFile : sceneFiles)
-        {
-            if (ImGui::Selectable(sceneFile.c_str()))
-            {
-                selectedScene = sceneFile;
-
-                const std::string sceneName =
-                    std::filesystem::path(selectedScene)
-                    .stem().string();
-
-                std::string filePath = scenesDirectory.string() + std::string(selectedScene);
-
+		for (const auto &[sceneName, scene] : loadedScenes)
+		{
+			if (ImGui::MenuItem(sceneName.c_str()))
+			{
                 m_editorContext->GetActiveScene().lock()->SetActive(false);
-                m_editorContext->LoadFromFile(filePath);
-                m_editorContext->SetActiveScene(sceneName);
-                std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
-                fileName[sizeof(fileName) - 1] = '\0';
-                ImGui::CloseCurrentPopup();
-            }
-        }
-        ImGui::EndPopup();
+				m_editorContext->SetActiveScene(sceneName);
+
+                std::strncpy(fileName, sceneName.c_str(), sceneName.size() - 1);
+                fileName[sceneName.size() - 1] = '\0';
+			}
+		}
+		ImGui::EndMenu();
     }
-
-    ImGui::Button("Drop Scene Here", ImVec2(130.0f, 20.0f));
-
-    if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
-    {
-        if (ImGui::BeginDragDropTarget())
-        {
-            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_PATH"))
-            {
-                if (payload->Data != nullptr && payload->DataSize > 0)
-                {
-                    const SceneDragDropData *droppedData = static_cast<const SceneDragDropData *>(payload->Data);
-                    const std::string scenePath(droppedData->path);
-                    const std::string sceneName(droppedData->name);
-                    m_editorContext->GetActiveScene().lock()->SetActive(false);
-                    m_editorContext->LoadFromFile(scenePath);
-                    m_editorContext->SetActiveScene(sceneName);
-                    std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
-                    fileName[sizeof(fileName) - 1] = '\0';
-                }
-            }
-            ImGui::EndDragDropTarget();
-        }
-    }    
 }
 
 
-void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node)
+void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 {
     if (p_node.expired())
     {
         return;
+    }
+
+    auto scrollFocus = m_editorContext->GetNodeScrollFocus();
+    if (!scrollFocus.expired())
+    {
+        if (scrollFocus.lock() == p_node.lock())
+        {
+            ImGui::SetScrollHereY();
+            m_editorContext->SetNodeScrollFocus({});
+        }
     }
 
     ImGuiTreeNodeFlags flags = 
@@ -556,6 +549,13 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node
     }
 
     const bool opened = ImGui::TreeNodeEx(p_node.lock().get(), flags, "%s", p_node.lock()->GetName().c_str());
+
+	// Detect double-click to focus camera on the node
+	if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+	{
+		m_editorContext->GetInteractionState().SelectNode(p_node);
+        m_editorContext->SetFocusCameraOnSelection(true);
+	}
 
     const bool visible = ImGui::IsItemVisible();
 
@@ -695,6 +695,23 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node
                             draggedNodeShared);
 
                         m_newParent = p_node;
+                    }
+                }
+            }
+
+            if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload(PAYLOAD_COMPONENT.data()))
+            {
+                if (payload->DataSize == sizeof(ComponentDragDropData))
+                {
+                    const auto &data = *static_cast<const ComponentDragDropData *>(payload->Data);
+                    auto sourceNode = data.sourceNode
+                        ? data.sourceNode->weak_from_this().lock()
+                        : nullptr;
+                    auto destinationNode = p_node.lock();
+                    if (sourceNode && destinationNode && data.component)
+                    {
+                        sourceNode->MoveComponent(data.component, *destinationNode);
                     }
                 }
             }
