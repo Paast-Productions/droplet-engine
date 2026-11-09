@@ -649,21 +649,8 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
         "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
         "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
-         // Item registry access.
-        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
 
-        // Inventory functions.
-        "AddItem", &Scene::PlayerBehaviour::AddItem,
-        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
-        "CountItem", &Scene::PlayerBehaviour::CountItem
 	);
-    // Item identifier.
-    p_luaState.new_usertype<Game::ItemId>(
-        "ItemId",
-        sol::no_constructor,
-        "IsValid", &Game::ItemId::IsValid,
-        "value", &Game::ItemId::value
-    );
 
     // Inventory type.
     p_luaState.new_enum(
