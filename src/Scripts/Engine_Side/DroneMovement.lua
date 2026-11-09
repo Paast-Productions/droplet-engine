@@ -119,6 +119,10 @@ end
 function OnStart()
     tracy.ZoneBeginN("Drone_movement OnStart")
     local playerComponent = self:GetPlayerComponent()
+    if playerComponent == nil then
+        print("Error: PlayerComponent not found on entity.")
+        return
+    end
     player = playerComponent:GetPlayerBehaviour()
 
     print("New Drone_movement")
@@ -144,7 +148,7 @@ function RenderUI()
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
     --_, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
     _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
-    ImGui.Text(tostring(maxSpeed))
+    ImGui.Text("maxSpeed: " .. tostring(maxSpeed))
 
 
     ImGui.Separator()
