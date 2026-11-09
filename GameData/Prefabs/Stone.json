@@ -1,0 +1,46 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "data": {
+                "fs": 3658838734074951198,
+                "fsName": "BlueTint.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 11929133566856826472,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "RockV2_base",
+                "textureGUID": 2617992142281023542,
+                "vs": 7809030845991192100,
+                "vsName": "BaseVS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "id": 73,
+    "name": "Stone",
+    "transform": {
+        "position": [
+            -2.34675669670105,
+            -0.8995774984359741,
+            -51.21684265136719
+        ],
+        "rotation": [
+            0.8310875296592712,
+            0.0,
+            -0.5561416149139404,
+            0.0
+        ],
+        "scale": [
+            1.6056565046310425,
+            1.729470133781433,
+            1.8014211654663086
+        ]
+    }
+}
