@@ -315,7 +315,10 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 	
 	uint32_t width = 1024;
 	uint32_t height = 1024;
-	
+	if (!LoadFont("C:\\Users\\linkl\\Desktop\\dev\\droplet-engine\\Assets\\Fonts\\JetBrainsMono-Regular.slug"))
+	{
+		return;
+	}
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_camera,
@@ -477,5 +480,68 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 		std::cerr << "Failed to open font file." << std::endl;
 		return false;
 	}
+	
+	char header[SLUG_HEADER_LEN + 1];
+	inFile.read(header, SLUG_HEADER_LEN);
+	header[SLUG_HEADER_LEN] = '\0';
+	if (strcmp(header, SLUG_HEADER_DATA) != 0)
+	{
+		std::cerr << "Invalid header found (" << header << " instead of " << SLUG_HEADER_DATA << ")" << std::endl;
+		return false;
+	}
+	
+	uint16_t codePointCount = 0;
+	inFile.read(reinterpret_cast<char *>(&codePointCount), sizeof(codePointCount));
+	if (codePointCount == 0)
+	{
+		std::cerr << "No code points found." << std::endl;
+		return false;
+	}
+	
+	m_codePoints.resize(codePointCount);
+	inFile.read(reinterpret_cast<char *>(m_codePoints.data()), static_cast<std::streamsize>(m_codePoints.size() * sizeof(SlugCodePoint)));
+	
+	uint16_t curveTextureWidth;
+	uint16_t curveTextureHeight;
+	uint32_t curveTextureBytes;
+	inFile.read(reinterpret_cast<char *>(&curveTextureWidth), sizeof(curveTextureWidth));
+	inFile.read(reinterpret_cast<char *>(&curveTextureHeight), sizeof(curveTextureHeight));
+	inFile.read(reinterpret_cast<char *>(&curveTextureBytes), sizeof(curveTextureBytes));
+	if (curveTextureWidth == 0 || curveTextureHeight == 0 || curveTextureBytes == 0 || curveTextureWidth != TEXTURE_WIDTH)
+	{
+		std::cerr << "Invalid curve texture dimensions." << std::endl;
+		return false;
+	}
+	
+	// Number of texels in the curve texture
+	const size_t curveTexTexels = static_cast<size_t>(curveTextureWidth * curveTextureHeight);
+	m_curvesTexture.resize(curveTexTexels);
+	
+	// "0xCD: This pattern is used to initialize the memory that is allocated using malloc or a new keyword in debug mode"
+	memset(m_curvesTexture.data(), 0xCD, m_curvesTexture.size() * sizeof(m_curvesTexture.front()));
+	inFile.read(reinterpret_cast<char *>(m_curvesTexture.data()), curveTextureBytes);
+	
+	
+	uint16_t bandsTextureWidth;
+	uint16_t bandsTextureHeight;
+	uint32_t bandsTextureBytes;
+	inFile.read(reinterpret_cast<char *>(&bandsTextureWidth), sizeof(bandsTextureWidth));
+	inFile.read(reinterpret_cast<char *>(&bandsTextureHeight), sizeof(bandsTextureHeight));
+	inFile.read(reinterpret_cast<char *>(&bandsTextureBytes), sizeof(bandsTextureBytes));
+	if (bandsTextureWidth == 0 || bandsTextureHeight == 0 || bandsTextureBytes == 0 || bandsTextureWidth != TEXTURE_WIDTH)
+	{
+		std::cerr << "Invalid bands texture dimensions." << std::endl;
+		return false;
+	}
+	
+	
+	// Number of texels in the bands texture
+	const size_t bandsTexTexels = static_cast<size_t>(bandsTextureWidth * bandsTextureHeight);
+	m_bandsTexture.resize(bandsTexTexels);
+	
+	memset(m_bandsTexture.data(), 0xAB, m_bandsTexture.size() * sizeof(m_bandsTexture.front()));
+	inFile.read(reinterpret_cast<char *>(m_bandsTexture.data()), bandsTextureBytes);
+	
+	
 	return true;
 }

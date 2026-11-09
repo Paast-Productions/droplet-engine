@@ -1,5 +1,7 @@
 #pragma once
 #include <vulkan/vulkan_raii.hpp>
+#include <glm/vec4.hpp>
+#include <glm/gtc/type_precision.hpp>
 
 namespace Droplet::Graphics
 {
@@ -10,6 +12,16 @@ namespace Droplet::Graphics
 
 namespace Droplet::Graphics::VK::Slug
 {
+	/// @brief Width, in texels, of the generated curve and band textures.
+	inline constexpr uint32_t TEXTURE_WIDTH = 4096;
+	
+	/// @brief Magic identifier used to recognize Slug binary files.
+	inline constexpr char SLUG_HEADER_DATA[] = "SLUG";
+	
+	/// @brief Number of bytes written for the Slug file identifier.
+	inline constexpr size_t SLUG_HEADER_LEN = 4;
+	
+	
 	std::vector<char> ReadShader(const std::filesystem::path &p_path);
 	vk::raii::ShaderModule CreateShaderModule(const vk::raii::Device &p_device, const std::filesystem::path &p_path);
 	vma::raii::Buffer CreateHostBuffer(const vma::raii::Allocator &p_allocator, vk::DeviceSize p_size, vk::BufferUsageFlags p_usage);
@@ -47,6 +59,42 @@ namespace Droplet::Graphics::VK::Slug
 		glm::vec2 texCoord;
 	};
 	
+#pragma pack(push, 1)
+	/// @brief Metadata required to render a processed Slug glyph.
+	///
+	/// Describes the glyph's dimensions, band configuration, and
+	/// location of its band headers within the shared band texture.
+	///
+	/// @note Serialized directly into the Slug binary file.
+	///       The structure must retain its expected 28-byte layout.
+	struct SlugCodePoint
+	{
+		/// @brief Unicode code point represented by the glyph.
+		uint32_t codePoint;
+		
+		/// @brief Width of the glyph's bounding box in font units.
+		uint32_t width;
+		
+		/// @brief Height of the glyph's bounding box in font units.
+		uint32_t height;
+		
+		/// @brief Number of horizontal and vertical bands per glyph.
+		uint32_t bandCount;
+		
+		/// @brief Width of each vertical band in glyph-local units.
+		uint32_t bandDimX;
+		
+		/// @brief Height of each horizontal band in glyph-local units.
+		uint32_t bandDimY;
+		
+		/// @brief X texel coordinate of the glyph's first band header.
+		uint16_t bandsTexCoordX;
+		
+		/// @brief Y texel coordinate of the glyph's first band header.
+		uint16_t bandsTexCoordY;
+	};
+#pragma pack(pop)
+	
 	class SlugPrototype
 	{
 	public:
@@ -79,5 +127,9 @@ namespace Droplet::Graphics::VK::Slug
 		vk::raii::Pipeline m_pipeline { nullptr };
 		const vk::raii::Device *m_device = nullptr;
 		const vma::raii::Allocator *m_allocator = nullptr;
+		
+		std::vector<SlugCodePoint> m_codePoints;
+		std::vector<glm::vec4> m_curvesTexture;
+		std::vector<glm::u16vec2> m_bandsTexture; 
 	};
 }
