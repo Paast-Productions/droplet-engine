@@ -66,7 +66,8 @@ project "SceneSystem"
 	    "Stb",
         "bvh",
         "PortableFileDialogs",
-        "IconFontCppHeaders"
+        "IconFontCppHeaders",
+        "Dalia"
     }
 
     links {
@@ -78,6 +79,9 @@ project "SceneSystem"
         "gdi32",
         "shell32",
         "VulkanMemoryAllocator",
+        "dalia_engine",
+        "ole32",
+        "avrt",
         AddQuotation("vulkan-1"),
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),

@@ -7,6 +7,8 @@
 #include "SceneSystem/Components/PlayerComponent.hpp"
 #include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
 #include <LuaBindings.hpp>
+#include <Item.hpp>
+#include <ItemRegistry.hpp>
 
 #include "ItemRegistry.hpp"
 
@@ -576,6 +578,7 @@ void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
+
 void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
     // Item identifier.
@@ -646,18 +649,51 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
         "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
         "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
+         // Item registry access.
+        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+
+        // Inventory functions.
+        "AddItem", &Scene::PlayerBehaviour::AddItem,
+        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+        "CountItem", &Scene::PlayerBehaviour::CountItem
+	);
+    // Item identifier.
+    p_luaState.new_usertype<Game::ItemId>(
+        "ItemId",
+        sol::no_constructor,
+        "IsValid", &Game::ItemId::IsValid,
+        "value", &Game::ItemId::value
     );
 
-	LuaClassDefinition classDef;
-	classDef.name = "PlayerBehaviour";
+    // Inventory type.
+    p_luaState.new_enum(
+        "InventoryType",
+        "Player", Scene::InventoryType::Player,
+        "Drone", Scene::InventoryType::Drone
+    );
 
-	classDef.functions =
-	{
-		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatResistance", "float", {} },
-		{ "GetHeatLevel", "float", {} },
-		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },		
+    // Item registry.
+    p_luaState.new_usertype<Game::ItemRegistry>(
+        "ItemRegistry",
+        sol::no_constructor,
+        "Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
+        {
+            return p_registry.Find(p_name);
+        }
+    );
+
+    // PlayerBehaviour API metadata.
+    LuaClassDefinition classDef;
+    classDef.name = "PlayerBehaviour";
+
+    classDef.functions =
+    {
+        { "GetMaxHealth", "float", {} },
+        { "GetHeatResistance", "float", {} },
+        { "GetHeatLevel", "float", {} },
+        { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+        { "SetHeatLevel", "void", { { "heat", "number" } } },
+        { "SetHeatResistance", "void", { { "resistance", "number" } } },
         { "GetFreezeResistance", "float", {} },
         { "GetFreezeLevel", "float", {} },
         { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
