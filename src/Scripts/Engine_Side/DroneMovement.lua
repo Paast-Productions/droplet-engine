@@ -6,8 +6,6 @@
 
 -- Movement settings
 local acceleration = 5.0
-local macspee
---local maxSpeed = 8.0
 local drag = 1.5
 
 -- Runtime state
@@ -149,7 +147,6 @@ function RenderUI()
     ImGui.Spacing()
 
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
-    --_, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
     _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
     ImGui.Text("Current Speed: " .. maxSpeed)
 
