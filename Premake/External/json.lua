@@ -20,6 +20,14 @@
     filter "system:linux"
         kind "Makefile"
 
+    filter { "system:linux", "configurations:debug" }
+        buildcommands
+        {
+            "{MKDIR} " .. AddQuotation(jsonPath),
+            "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
+        }
+
+    filter { "system:linux", "configurations:release" }
         buildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),

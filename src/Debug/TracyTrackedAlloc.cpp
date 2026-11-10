@@ -15,7 +15,7 @@ void *operator new(size_t size)
 	return ptr;
 }
 
-void *operator new(size_t size, int blockUse, char const *fileName, int lineNumber)
+void *operator new(size_t size, [[maybe_unused]] int blockUse, [[maybe_unused]] char const *fileName, [[maybe_unused]] int lineNumber)
 {
 	void *ptr = malloc(size);
 	if (!ptr)
@@ -37,7 +37,7 @@ void *operator new[](size_t size)
 	return ptr;
 }
 
-void *operator new[](size_t size, int blockUse, char const *fileName, int lineNumber)
+void *operator new[](size_t size, [[maybe_unused]] int blockUse, [[maybe_unused]] char const *fileName, [[maybe_unused]] int lineNumber)
 {
 	void *ptr = malloc(size);
 	if (!ptr)
@@ -57,7 +57,7 @@ void operator delete(void *ptr) noexcept
 	}
 }
 
-void operator delete(void *ptr, size_t size) noexcept
+void operator delete(void *ptr, [[maybe_unused]] size_t size) noexcept
 {
 	if (ptr)
 	{
@@ -75,7 +75,7 @@ void operator delete[](void *ptr) noexcept
 	}
 }
 
-void operator delete[](void *ptr, size_t size) noexcept
+void operator delete[](void *ptr, [[maybe_unused]] size_t size) noexcept
 {
 	if (ptr)
 	{

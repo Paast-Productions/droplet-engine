@@ -3,6 +3,8 @@ project "Dalia"
     location(projectsPath)
 
     local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
+    local objDirectory = AddQuotation(objBuildPath .. "/%{prj.name}")
+    local installDirectory = AddQuotation(targetBuildPath .. "/External")
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
@@ -11,13 +13,14 @@ project "Dalia"
 
     filter "configurations:release"
         prebuildcommands{
-            "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
-            "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
         }
     filter "configurations:debug"
         prebuildcommands{
-            "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
-            "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
         }
+    filter {}
