@@ -171,15 +171,6 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
-
-        /// @brif Removes a node in a script
-        void RemoveNode();
-
-        /// @brif Track the amount in the script
-        [[nodiscard]] std::uint32_t GetNodeRemovalCount();
-
-        /// @brif Controll the tracking
-        void SetNodeRemovalCount(uint32_t count);
  
 
         /// @brief Gets the parent Node.

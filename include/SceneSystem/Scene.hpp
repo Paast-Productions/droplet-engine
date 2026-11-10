@@ -296,7 +296,5 @@ namespace Droplet::Scene
         bool m_active = false;
 
 		SceneManager *m_sceneManager = nullptr;
-
-        std::uint32_t m_removalCounter = 0;
     };     
 }

@@ -356,29 +356,6 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	}
 }
 
-void Droplet::Scene::Node::RemoveNode()
-{
-	auto scene = GetScene();
-	scene->IncrementRemovalCounter();
-
-	if (scene)
-	{
-		scene->RemoveRoot(shared_from_this());
-	}
-}
-
-std::uint32_t Droplet::Scene::Node::GetNodeRemovalCount()
-{
-	auto scene = GetScene();
-	return scene->GetRemovalCounter();
-}
-
-void Droplet::Scene::Node::SetNodeRemovalCount(uint32_t count)
-{
-	auto scene = GetScene();
-	scene->SetRemovalCounter(count);
-}
-
 void Node::AttachComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)

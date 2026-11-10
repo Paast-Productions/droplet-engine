@@ -98,11 +98,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
-		"RemoveNode", &Scene::Node::RemoveNode,
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
-		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount,
-		"SetNodeRemovalCount", &Scene::Node::SetNodeRemovalCount,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
@@ -160,9 +157,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{"RemoveNode","void",{}},
 		{"GetPlayerData","PlayerData",{}},
-		{"GetNodeRemovalCount","uint32_t",{}},
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},

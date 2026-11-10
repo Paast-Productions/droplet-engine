@@ -456,18 +456,3 @@ const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 	}
 	return cameraStack;
 }
-
-void Droplet::Scene::Scene::IncrementRemovalCounter()
-{
-    m_removalCounter++;
-}
-
-std::uint32_t Droplet::Scene::Scene::GetRemovalCounter()
-{
-    return m_removalCounter;
-}
-
-void Droplet::Scene::Scene::SetRemovalCounter(std::uint32_t p_counter)
-{
-    m_removalCounter = p_counter;
-}
