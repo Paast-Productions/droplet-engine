@@ -93,7 +93,7 @@ end
 
 function UpdateVelocity(dt)
     tracy.ZoneBeginN("UpdateVelocity")
-
+    tracy.ZoneBeginN("Bindings.GetTransformD")
 	-- TODO: Steering behavior to move forwards and turn towards target point
 	 local pos = trans:GetPosition(TransformSpace.World)
 

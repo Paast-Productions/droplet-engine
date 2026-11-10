@@ -103,7 +103,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &p_node) -> Scene::Scene *
 		{
 			return p_node.GetScene().get();
-		},
+		}, 
 		"GetCameraComponent",
 		[](Scene::Node &node)
 		{
