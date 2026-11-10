@@ -86,7 +86,7 @@ project "Editor"
         "PortableFileDialogs",
         "LuaJIT",
         "Lua",
-        "Jolt"
+        "Jolt",
         "Dalia"
     }
 
@@ -111,7 +111,6 @@ project "Editor"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
 		AddQuotation("Jolt"),
 		AddQuotation("Slangd"),
         AddQuotation("zlibstaticd"),
