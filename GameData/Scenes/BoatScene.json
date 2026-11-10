@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 302,
+            "id": 21,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 304,
+                    "id": 23,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -163,24 +163,10 @@
                     },
                     "id": 4,
                     "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
-                    "data": {},
-                    "id": 5,
-                    "type": "PlayerComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "PlayerInteraction.lua"
-                    },
-                    "id": 6,
-                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 303,
+            "id": 22,
             "name": "Player",
             "transform": {
                 "position": [
@@ -217,14 +203,14 @@
                         {
                             "active": true,
                             "data": {
-                                "filepath": "BoatEngine2.lua"
+                                "filepath": "BoatEngine.lua"
                             },
                             "id": 2,
                             "type": "ScriptComponent"
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 306,
+                    "id": 25,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -270,7 +256,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 305,
+            "id": 24,
             "name": "New Node",
             "transform": {
                 "position": [

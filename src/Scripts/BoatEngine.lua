@@ -1,41 +1,47 @@
-
-local interactableSystem = require("InteractableSystem")
-
-local brokenPartId
-local repairedPartId
-
+local KeyPressed = false
+-- Called when script starts
 function OnStart()
-    local player = self:GetPlayerComponent()
-    -- Initialize your item IDs here.
 
-    interactableSystem.Register(self, function(playerNode)
-        Interact(playerNode)
-    end)
 end
 
-function Interact(playerNode)
-    local playerComponent = playerNode:GetPlayerComponent()
-    local pb = playerComponent:GetPlayerBehaviour()
-
-    local brokenCount = pb:CountItem(
-        InventoryType.Player, brokenPartId
-    )
-
-    local repairedCount = pb:CountItem(
-        InventoryType.Player, repairedPartId
-    )
-
-    if brokenCount == 1 and repairedCount == 0 then
-        print("Cannot repair the engine with a broken part")
-    elseif repairedCount == 1 then
-        print("Repaired")
-        -- Perform repair.
+-- Called every frame
+function OnUpdate(dt)
+    if Input:KeyPressed(Key.E) then
+        if (KeyPressed == false) then
+            KeyPressed = true
+        end
     end
 end
 
-function OnDestroy()
-    interactableSystem.Unregister(self)
+function OnTrigger(dt, node)
+    tracy.ZoneBeginN("BoatEngine OnTrigger")
+    local player = node:GetPlayerComponent()
+    local pb = nil
+    if player ~= nil then
+        
+        pb = player:GetPlayerBehaviour()
+        local registry = pb:GetItemRegistry()
+        if registry == nil then
+            print("Item registry is unavailable!")
+        else
+            BrokenPartId = registry:Find("upgrade:broken_engine_part")
+            RepairedPartId = registry:Find("upgrade:repaired_engine_part")
+            
+            if KeyPressed == true and pb:CountItem(InventoryType.Player, BrokenPartId) == 1 and pb:CountItem(InventoryType.Player, RepairedPartId) == 0 then
+                print("Cannot repair the engine with a broken part")
+                KeyPressed = false
+            else 
+                if KeyPressed == true and pb:CountItem(InventoryType.Player, RepairedPartId) == 1 then
+                    print("Repaired")
+                    KeyPressed = false
+                end
+            end
+        end
+    end
+    tracy.ZoneEnd()
 end
 
+-- Called to render variables in the script
 function RenderUI()
+
 end
