@@ -261,7 +261,7 @@ namespace Droplet::Scene
             return components;
         }
 
-        std::weak_ptr<AudioEmitterComponent> GetAudioEmitter(std::string &p_name);
+        std::weak_ptr<AudioEmitterComponent> GetAudioEmitter(const std::string &p_name);
 
 
         /// @brief Gets all components 

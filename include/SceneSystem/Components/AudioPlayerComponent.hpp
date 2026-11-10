@@ -11,7 +11,9 @@ namespace Droplet::Scene
 	public:
 
 		AudioPlayerComponent();
+		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioPlayerComponent"; }
 
+		const std::string GetName() { return m_audioName; }
 	protected:
 
 		void StartImpl() override;
@@ -32,7 +34,7 @@ namespace Droplet::Scene
 
 		dalia::PlaybackHandle m_playback;
 		//ResourceHandle<SoundResource> m_handle
-		std::string m_displayName = "";
+		std::string m_audioName = "";
 
 
 	};

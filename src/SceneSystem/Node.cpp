@@ -481,10 +481,17 @@ void Node::SetName(const std::string &p_name)
 	m_name = p_name;
 }
 
-std::weak_ptr<AudioEmitterComponent> Droplet::Scene::Node::GetAudioEmitter(std::string &p_name)
+std::weak_ptr<AudioEmitterComponent> Droplet::Scene::Node::GetAudioEmitter(const std::string &p_name)
 {
 	const auto Emitters = GetComponents<AudioEmitterComponent>();
-	return std::weak_ptr<AudioEmitterComponent>();
+	for (auto emitter : Emitters)
+	{
+		if (emitter->GetName() == p_name)
+		{
+			return emitter;
+		}
+	}
+	return {};
 }
 
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer

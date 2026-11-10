@@ -6,6 +6,7 @@
 #include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
@@ -234,6 +235,7 @@ void Engine::RegisterComponents()
 	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Scene::AudioListenerComponent>();});
 	Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Scene::AudioEmitterComponent>();});
+	Scene::ComponentRegistry::RegisterComponent("AudioPlayerComponent", []() {return std::make_unique<Scene::AudioPlayerComponent>();});
 	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
 	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
