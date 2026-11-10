@@ -8,6 +8,7 @@ using namespace Droplet::Scene;
 
 void Behaviour::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
@@ -25,6 +26,7 @@ void Behaviour::RenderUI()
 	}
 
 	ImGui::EndChild();
+#endif
 }
 
 void Behaviour::SetSceneManager(SceneManager *sceneManager)

@@ -61,6 +61,7 @@ void ScriptComponent::DetachScript()
 
 void ScriptComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     const std::string preview = m_scriptPath.empty()
         ? "Drop Lua script here"
         : m_scriptPath;
@@ -95,6 +96,7 @@ void ScriptComponent::RenderUIImpl()
     ScriptSystem::Get().Call(this, "RenderUI");
 
     ImGui::EndChild();
+#endif
 }
 
 nlohmann::json ScriptComponent::SerializeImpl()
