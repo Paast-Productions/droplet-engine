@@ -656,11 +656,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
 	);
 
-
     // PlayerBehaviour API metadata.
     LuaClassDefinition classDef;
     classDef.name = "PlayerBehaviour";
-
     classDef.functions =
     {
         { "GetMaxHealth", "float", {} },
