@@ -5,7 +5,6 @@
 
 local trans = nil
 local ffi = require("ffi")
-jit.on()
 
 ffi.cdef[[
 double sin(double x);
@@ -69,7 +68,7 @@ function NewTargetPoint()
     local r = targetRadius * math.random()^(1/3)
 
 	local v = Vec3.new(0.0, 0.0, 0.0)
-    v.x = r * ffi.C.sin(phi) * ffi.C.sin(theta)
+    v.x = r * ffi.C.sin(phi) * ffi.C.cos(theta)
     v.y = r * ffi.C.sin(phi) * ffi.C.sin(theta)
     v.z = r * ffi.C.cos(phi)
 
@@ -124,19 +123,19 @@ function UpdateVelocity(dt)
     local forward = trans:GetForward()
     
     tracy.ZoneBeginN("Atan Calculation")
-    local currentYaw = math.atan(forward.x, forward.z)
-    local targetYaw = math.atan(toTarget.x, toTarget.z)
+    local currentYaw = math.atan2(forward.x, forward.z)
+    local targetYaw = math.atan2(toTarget.x, toTarget.z)
     tracy.ZoneEnd()
     
     local yawError = WrapAngle(targetYaw - currentYaw)
 
     -- Calculate pitch error.
-    local currentPitch = math.atan(
+    local currentPitch = math.atan2(
         forward.y,
         math.sqrt(forward.x * forward.x + forward.z * forward.z)
     )
 
-    local targetPitch = math.atan(
+    local targetPitch = math.atan2(
         toTarget.y,
         math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
     )
@@ -240,6 +239,8 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
+    jit.off()
+    --jit.flush()
     local scene = SceneManagerInstance:GetScene("MainScene")
 
 	print("New Fih")
