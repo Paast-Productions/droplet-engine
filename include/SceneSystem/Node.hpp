@@ -21,6 +21,7 @@
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -259,6 +260,9 @@ namespace Droplet::Scene
 
             return components;
         }
+
+        std::weak_ptr<AudioEmitterComponent> GetAudioEmitter(std::string &p_name);
+
 
         /// @brief Gets all components 
         /// 

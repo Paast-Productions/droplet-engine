@@ -146,6 +146,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
 		}
 
+
 	);
 
 	LuaClassDefinition classDef;
