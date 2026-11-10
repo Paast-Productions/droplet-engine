@@ -80,12 +80,8 @@ end
 function IsWithinTarget()
     tracy.ZoneBeginN("IsWithinTarget")
     
-    tracy.ZoneBeginN("GetPosition")
 	local pos = trans:GetPosition(TransformSpace.World)
-    tracy.ZoneEnd()
-    tracy.ZoneBeginN("V3Distance")
 	local dist = GLM.V3Distance(pos, targetPoint)
-    tracy.ZoneEnd()
     
     tracy.ZoneEnd()
 	return (dist <= targetAcceptanceRadius)
@@ -93,14 +89,14 @@ end
 
 function UpdateVelocity(dt)
     tracy.ZoneBeginN("UpdateVelocity")
-    tracy.ZoneBeginN("Bindings.GetTransformD")
 	-- TODO: Steering behavior to move forwards and turn towards target point
 	 local pos = trans:GetPosition(TransformSpace.World)
 
     -- Direction towards the target
-    local toTarget = GLM.V3Sub(targetPoint, pos)
-    local distance = GLM.V3Length(toTarget)
-    tracy.ZoneEnd()
+    local dx = targetPoint.x - pos.x
+    local dy = targetPoint.y - pos.y
+    local dz = targetPoint.z - pos.z
+    local distance = math.sqrt(dx*dx + dy*dy + dz*dz)
 
     if distance < 0.0001 then
         moveSpeed = MoveTowards(
@@ -112,21 +108,19 @@ function UpdateVelocity(dt)
         turnSpeedY = MoveTowards(
             turnSpeedY, 0.0, turnSpeedRateOfChange * dt
         )
-
-        tracy.ZoneEnd()
         return
     end
-    
-    tracy.ZoneBeginN("V3MulF")
-    toTarget = GLM.V3MulF(toTarget, 1.0 / distance)
-    tracy.ZoneEnd()
+
+    local invDistance = 1.0 / distance
+    dx = dx * invDistance
+    dy = dy * invDistance
+    dz = dz * invDistance
     
     local forward = trans:GetForward()
     
-    tracy.ZoneBeginN("Atan Calculation")
+
     local currentYaw = math.atan2(forward.x, forward.z)
-    local targetYaw = math.atan2(toTarget.x, toTarget.z)
-    tracy.ZoneEnd()
+    local targetYaw = math.atan2(dx, dz)
     
     local yawError = WrapAngle(targetYaw - currentYaw)
 
@@ -137,8 +131,8 @@ function UpdateVelocity(dt)
     )
 
     local targetPitch = math.atan2(
-        toTarget.y,
-        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+        dy,
+        math.sqrt(dx * dx + dz * dz)
     )
 
     local pitchError = targetPitch - currentPitch
@@ -215,20 +209,14 @@ end
 function ApplyVelocity(dt)
     tracy.ZoneBeginN("ApplyVelocity")
 
-    tracy.ZoneBeginN("Move")
-	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
+	local toMove = GLM.V3MulF(trans:GetForward(), moveSpeed * dt)
 	trans:Move(toMove, TransformSpace.World)
-    tracy.ZoneEnd()
 
-    tracy.ZoneBeginN("RotateY")
 	local toRotateY = GLM.AngleAxis(trans:GetRight(), turnSpeedY * dt)
 	trans:Rotate(toRotateY)
-    tracy.ZoneEnd()
 
-    tracy.ZoneBeginN("RotateX")
 	local toRotateX = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeedX * dt)
 	trans:Rotate(toRotateX, TransformSpace.World)
-    tracy.ZoneEnd()
 
     tracy.ZoneEnd()
 end
@@ -240,8 +228,8 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
-    jit.off()
-    --jit.flush()
+    jit.on()
+    jit.flush()
     local scene = SceneManagerInstance:GetScene("MainScene")
 
 	print("New Fih")
