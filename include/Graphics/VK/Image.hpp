@@ -107,11 +107,14 @@ namespace Droplet::Graphics::VK
 		/// @return pointer to the image
 		[[nodiscard]] const vma::raii::Image &Get() const { return m_image; }
 		
-		[[nodiscard]] const vk::Extent2D &GetExtent() const { return m_extent; }
+		[[nodiscard]] vk::Extent2D GetExtent() const { return m_extent; }
+		
+		[[nodiscard]] vk::Format GetFormat() const { return m_format; }
 
 	private:
 		vma::raii::Image m_image { nullptr };
 		vk::Extent2D m_extent { 960, 480 };
+		vk::Format m_format {};
 		
 	};
 }

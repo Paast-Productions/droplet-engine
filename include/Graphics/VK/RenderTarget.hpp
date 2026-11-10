@@ -35,27 +35,29 @@ namespace Droplet::Graphics
 		
 		/// @brief Get the texture
 		/// returns A custom Image
-		[[nodiscard]] const vk::raii::Image &GetColourImage() const { return m_colourImageHandle.Get()->Get(); }
+		[[nodiscard]] const vk::raii::Image &GetColourImage() const { return m_colourImageHandle->Get(); }
 		
 		[[nodiscard]] GUID GetColourImageGuid() const { return m_colourImageHandle.GetGUID(); }
 		
+		[[nodiscard]] vk::Format GetColourFormat() const { return m_colourImageHandle->GetFormat(); }
+		
 		/// @brief Get the depth buffer of the texture
 		/// @returns A custom DepthBuffer 
-		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthImageHandle.Get()->Get(); }
+		[[nodiscard]] const vk::raii::Image &GetDepthImage() const { return m_depthImageHandle->Get(); }
 		
 		[[nodiscard]] GUID GetDepthImageGuid() const { return m_depthImageHandle.GetGUID(); }
 		
+		[[nodiscard]] vk::Format GetDepthFormat() const { return m_depthImageHandle->GetFormat(); }
+		
 		/// @brief Get the descriptor of the texture
 		/// @returns A custom ImageView
-		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourImageViewHandle.Get()->Get(); }
+		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourImageViewHandle->Get(); }
 		
 		[[nodiscard]] GUID GetColourImageViewGuid() const { return m_colourImageViewHandle.GetGUID(); }
 		
-		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthImageViewHandle.Get()->Get(); }
+		[[nodiscard]] const vk::raii::ImageView &GetDepthImageView() const { return m_depthImageViewHandle->Get(); }
 		
 		[[nodiscard]] GUID GetDepthImageViewGuid() const { return m_depthImageViewHandle.GetGUID(); }
-		
-		[[nodiscard]] const vk::Format &GetDepthFormat() const { return m_depthFormat; }
 		
 		/// @brief Get the extent of the texture
 		/// @returns A Vulkan Extent2D
@@ -79,21 +81,17 @@ namespace Droplet::Graphics
 			DynamicResourceHandle<VK::Image> p_colourImage,
 			DynamicResourceHandle<VK::ImageView> p_colourImageView,
 			DynamicResourceHandle<VK::Image> p_depthImage,
-			DynamicResourceHandle<VK::ImageView> p_depthImageView,
-			std::uint32_t p_width,
-			std::uint32_t p_height);
+			DynamicResourceHandle<VK::ImageView> p_depthImageView);
 		
 		
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters
 		
 		// Colour Attachment
-		vk::Format m_colourFormat {};
 		DynamicResourceHandle<VK::Image> m_colourImageHandle {};
 		DynamicResourceHandle<VK::ImageView> m_colourImageViewHandle {};
 		
 		// Depth Attachment
-		vk::Format m_depthFormat {};
 		DynamicResourceHandle<VK::Image> m_depthImageHandle {};
 		DynamicResourceHandle<VK::ImageView> m_depthImageViewHandle {};
 		
