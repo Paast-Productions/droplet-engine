@@ -1,7 +1,7 @@
 #pragma once
 #include <SceneSystem/Component.hpp>
-#include <AudioSystem/AudioSystem.hpp>
-#include <Resource/ResourceHandle.hpp>
+#include <Audio/AudioSystem.hpp>
+
 namespace Droplet::Scene 
 {
 	

@@ -1,5 +1,5 @@
-#include "AudioBus.hpp"
-#include "AudioMixer.hpp"
+#include "Audio/AudioBus.hpp"
+#include "Audio/AudioMixer.hpp"
 
 using namespace Droplet::Audio;
 

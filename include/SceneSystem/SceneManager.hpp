@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <json/json.hpp>
-#include <AudioSystem/AudioSystem.hpp>
+#include <Audio/AudioSystem.hpp>
 namespace Droplet::Graphics
 {
 	struct CameraRenderData;
@@ -147,19 +147,13 @@ namespace Droplet::Scene
 
 		[[nodiscard]] const std::unordered_map<std::string, std::shared_ptr<Scene>> &GetScenes() const { return m_scenes; }
 
-        /// @brief Is meant to enable other classes to use functionality in the audiomixer
-        /// @return A reference to the engines Audio mixer
-        [[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }
-
     private:
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
         const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
-
-        /// @brief  The Audio system, should only be one.
-        Audio::AudioSystem m_audioSystem;
+        
         /// @brief Prepares all active Scenes for rendering.
         void PrepareRender();
     };

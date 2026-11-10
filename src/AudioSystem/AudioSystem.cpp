@@ -1,42 +1,24 @@
-#include "AudioSystem.hpp"
+#include "Audio/AudioSystem.hpp"
 using namespace Droplet::Audio;
 
-Droplet::Audio::AudioSystem::AudioSystem()
-{
-}
-
-Droplet::Audio::AudioSystem::~AudioSystem()
-{
-	ShutDown();
-}
-
-void Droplet::Audio::AudioSystem::Initialize()
+bool Droplet::Audio::AudioSystem::Initialize()
 {
 	dalia::EngineConfig config;
 	dalia::Result res = m_daliaEngine.Initialize(config);
-	if (res != dalia::Result::Ok)
-	{
-		return;
-	}
+	if (res != dalia::Result::Ok) return false;
+    
 	m_mixer.Initialize(m_daliaEngine);
+    
+    return true;
 }
 
-void Droplet::Audio::AudioSystem::ShutDown()
+void Droplet::Audio::AudioSystem::Shutdown()
 {
 	m_daliaEngine.Shutdown();
+    // m_mixer.Shutdown(); // Don't we need this?
 }
 
 AudioMixer &Droplet::Audio::AudioSystem::GetMixer()
 {
 	return m_mixer;
-}
-
-void Droplet::Audio::AudioSystem::PlaySound()
-{
-	//TODO call dalias play sound
-}
-
-void Droplet::Audio::AudioSystem::PauseSound()
-{
-	//TODO call dalias pause sound
 }

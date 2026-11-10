@@ -17,12 +17,12 @@ using namespace Droplet::Scene;
 
 Droplet::Scene::SceneManager::SceneManager()
 {
-    m_audioSystem.Initialize();
+
 }
 
 Droplet::Scene::SceneManager::~SceneManager()
 {
-    m_audioSystem.ShutDown();
+    
 }
 
 void SceneManager::LoadScene(const std::string &p_name)
