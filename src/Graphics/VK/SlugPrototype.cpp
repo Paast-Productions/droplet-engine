@@ -1,6 +1,7 @@
 #include "SlugPrototype.hpp"
 #include <Graphics/VK/Camera.hpp>
 #include <fstream>
+#include <Graphics/VK/Image.hpp>
 
 // Shamelessly stolen from DebugDraw.cpp
 std::vector<char> Droplet::Graphics::VK::Slug::ReadShader(const std::filesystem::path &p_path)
@@ -121,36 +122,99 @@ void UploadBuffer(vma::raii::Buffer &p_buffer, const std::vector<T> &p_data)
 	}
 }
 
-void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Device &p_device, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
-	vk::Format p_depthFormat)
+void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_context, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
+	vk::Format p_depthFormat, const CommandPool &p_commandPool)
 {
-	m_device = &p_device;
+	m_device = &p_context.GetDevice();
 	m_descriptorPool = &p_descriptorPool;
 	m_colorFormat = p_colorFormat;
 	m_depthFormat = p_depthFormat;
 	m_allocator = &p_allocator;
+	
+	// Glyph rendering
+	
+	uint32_t width = 1024;
+	uint32_t height = 1024;
+	if (!LoadFont(R"(C:\Users\linkl\Desktop\dev\droplet-engine\Assets\Fonts\JetBrainsMono-Regular.slug)"))
+	{
+		return;
+	}
+	
+	m_curveTexture.emplace(
+			p_allocator,
+			p_commandPool,
+			p_context,
+			reinterpret_cast<const std::byte*>(m_curvesTextureData.data()),
+			m_curvesTextureData.size() * sizeof(glm::vec4),
+			m_curveTextureWidth,
+			m_curveTextureHeight,
+			vk::Format::eR32G32B32A32Sfloat,
+			vk::ImageTiling::eOptimal,
+			vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+			vk::MemoryPropertyFlagBits::eDeviceLocal
+		);
+	
+	m_bandTexture.emplace(
+		p_allocator,
+		p_commandPool,
+		p_context,
+		reinterpret_cast<const std::byte *>(m_bandsTextureData.data()),
+		m_bandsTextureData.size() * sizeof(glm::u16vec2),
+		m_bandsTextureWidth,
+		m_bandsTextureHeight,
+		vk::Format::eR16G16Uint,
+		vk::ImageTiling::eOptimal,
+		vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+		vk::MemoryPropertyFlagBits::eDeviceLocal
+		);
+	
+	m_curveTextureView.emplace(p_context.GetDevice(),m_curveTexture->Get(), vk::Format::eR32G32B32A32Sfloat, vk::ImageAspectFlagBits::eColor);
+	m_bandTextureView.emplace(p_context.GetDevice(),m_bandTexture->Get(), vk::Format::eR16G16Uint, vk::ImageAspectFlagBits::eColor);
+	
 
-	const vk::DescriptorSetLayoutBinding cameraBinding {
-		.binding = 0,
-		.descriptorType = vk::DescriptorType::eUniformBuffer,
-		.descriptorCount = 1,
-		.stageFlags = vk::ShaderStageFlagBits::eVertex
-	};
+	const std::array<vk::DescriptorSetLayoutBinding, 3> bindings {{
+		{
+				.binding = 0,
+				.descriptorType = vk::DescriptorType::eUniformBuffer,
+				.descriptorCount = 1,
+				.stageFlags = vk::ShaderStageFlagBits::eVertex 
+			},
+			{
+				.binding = 1,
+                .descriptorType = vk::DescriptorType::eSampledImage,
+                .descriptorCount = 1,
+                .stageFlags = vk::ShaderStageFlagBits::eFragment
+			},
+            {	.binding = 2,
+            	.descriptorType = vk::DescriptorType::eSampledImage,
+            	.descriptorCount = 1,
+            	.stageFlags = vk::ShaderStageFlagBits::eFragment
+            },
+		}};
+	
 
-	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(p_device, vk::DescriptorSetLayoutCreateInfo {
-		.bindingCount = 1,
-		.pBindings = &cameraBinding
+	m_descriptorSetLayout = vk::raii::DescriptorSetLayout(p_context.GetDevice(), vk::DescriptorSetLayoutCreateInfo {
+		.bindingCount = bindings.size(),
+		.pBindings = bindings.data()
 	});
+	
+	vk::PushConstantRange pushConstant {
+		.stageFlags = vk::ShaderStageFlagBits::eFragment,
+		.offset = 0,
+		.size = sizeof(SlugGlyphData)
+	};
 	
 	const vk::PipelineLayoutCreateInfo layoutInfo {
 		.setLayoutCount = 1,
-		.pSetLayouts = &*m_descriptorSetLayout
+		.pSetLayouts = &*m_descriptorSetLayout,
+		.pushConstantRangeCount = 1,
+		.pPushConstantRanges = &pushConstant
 	};
 	
-	m_pipelineLayout = vk::raii::PipelineLayout(p_device, layoutInfo);
+	m_pipelineLayout = vk::raii::PipelineLayout(p_context.GetDevice(), layoutInfo);
 	
-	m_shaderModules[0] = CreateShaderModule(p_device, "slug_test.vert.spv");
-	m_shaderModules[1] = CreateShaderModule(p_device, "slug_test.frag.spv");
+	m_shaderModules[0] = CreateShaderModule(p_context.GetDevice(), "slug_test.vert.spv");
+	m_shaderModules[1] = CreateShaderModule(p_context.GetDevice(), "slug_test.frag.spv");
 	
 	m_frameResources.resize(2);
 	for (FrameResources &frame : m_frameResources)
@@ -165,7 +229,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 		
 		try
 		{
-			frame.descriptorSet = std::move(p_device.allocateDescriptorSets(allocateInfo).front());
+			frame.descriptorSet = std::move(p_context.GetDevice().allocateDescriptorSets(allocateInfo).front());
 		}
 		catch (const std::exception &err)
 		{
@@ -179,16 +243,44 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 			.offset = 0,
 			.range = sizeof(CameraUniform)
 		};
-
-		const vk::WriteDescriptorSet descriptorWrite {
-			.dstSet = frame.descriptorSet,
-			.dstBinding = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eUniformBuffer,
-			.pBufferInfo = &bufferInfo
+		
+		const vk::DescriptorImageInfo curveInfo {
+			.sampler = nullptr,
+			.imageView = m_curveTextureView->Get(),
+			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
 		};
+		
+		const vk::DescriptorImageInfo bandInfo {
+			.sampler = nullptr,
+			.imageView = m_bandTextureView->Get(),
+			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
+		};
+		
+		const std::array<vk::WriteDescriptorSet, 3> descriptorWrites {{
+				{
+					.dstSet = frame.descriptorSet,
+					.dstBinding = 0,
+					.descriptorCount = 1,
+					.descriptorType = vk::DescriptorType::eUniformBuffer,
+					.pBufferInfo = &bufferInfo
+				},
+				{
+					.dstSet = frame.descriptorSet,
+					.dstBinding = 1,
+					.descriptorCount = 1,
+					.descriptorType = vk::DescriptorType::eSampledImage,
+					.pImageInfo = &curveInfo
+				},
+				{
+					.dstSet = frame.descriptorSet,
+					.dstBinding = 2,
+					.descriptorCount = 1,
+					.descriptorType = vk::DescriptorType::eSampledImage,
+					.pImageInfo = &bandInfo
+				}
+			}};
 
-		p_device.updateDescriptorSets(descriptorWrite, {});
+		p_context.GetDevice().updateDescriptorSets(descriptorWrites, {});
 	}
 	
 	const auto createPipeline = [&](std::size_t p_shaderOffset)
@@ -304,21 +396,10 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const vk::raii::Devi
 			}
 		};
 
-		return vk::raii::Pipeline(p_device, nullptr, createInfo.get<vk::GraphicsPipelineCreateInfo>());
+		return vk::raii::Pipeline(p_context.GetDevice(), nullptr, createInfo.get<vk::GraphicsPipelineCreateInfo>());
 	};
 	
 	m_pipeline = createPipeline(0);
-	
-	
-	
-	// Glyph rendering
-	
-	uint32_t width = 1024;
-	uint32_t height = 1024;
-	if (!LoadFont("C:\\Users\\linkl\\Desktop\\dev\\droplet-engine\\Assets\\Fonts\\JetBrainsMono-Regular.slug"))
-	{
-		return;
-	}
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_camera,
@@ -363,20 +444,20 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 	// m_iconMeshes = std::move(iconMeshes);
 	// m_iconDepthMeshes = std::move(iconDepthMeshes);
 	
-	const glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-
-	std::vector<IconVertex> iconVertices
-	{
-		// First triangle
-		{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
-		{{ 0.5f, -0.5f, 0.0f}, color, {1.0f, 1.0f}}, // Bottom-right
-		{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
-
-		// Second triangle
-		{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
-		{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
-		{{-0.5f,  0.5f, 0.0f}, color, {0.0f, 0.0f}}  // Top-left
-	};
+	// const glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
+	//
+	// std::vector<IconVertex> iconVertices
+	// {
+	// 	// First triangle
+	// 	{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
+	// 	{{ 0.5f, -0.5f, 0.0f}, color, {1.0f, 1.0f}}, // Bottom-right
+	// 	{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
+	//
+	// 	// Second triangle
+	// 	{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
+	// 	{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
+	// 	{{-0.5f,  0.5f, 0.0f}, color, {0.0f, 0.0f}}  // Top-left
+	// };
 	// for (const auto &[icon, vertices] : m_iconMeshes)
 	// {
 	// 	(void)icon;
@@ -390,20 +471,20 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 	// 	iconVertices.insert(iconVertices.end(), vertices.begin(), vertices.end());
 	// }
 
-	EnsureBuffer<IconVertex>(*m_allocator, frame.iconBuffer, frame.iconCapacity, iconVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
-	UploadBuffer(frame.iconBuffer, iconVertices);
-
-	const std::size_t indexCount = iconVertices.size();
-
-	std::vector<std::uint32_t> indices(indexCount);
-	for (std::uint32_t i = 0; i < indices.size(); ++i)
-	{
-		indices[i] = i;
-	}
-
-	EnsureBuffer<std::uint32_t>(*m_allocator, frame.indexBuffer, frame.indexCapacity, indices.size(), vk::BufferUsageFlagBits::eIndexBuffer);
-	UploadBuffer(frame.indexBuffer, indices);
-
+	// EnsureBuffer<IconVertex>(*m_allocator, frame.iconBuffer, frame.iconCapacity, iconVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
+	// UploadBuffer(frame.iconBuffer, iconVertices);
+	//
+	// const std::size_t indexCount = iconVertices.size();
+	//
+	// std::vector<std::uint32_t> indices(indexCount);
+	// for (std::uint32_t i = 0; i < indices.size(); ++i)
+	// {
+	// 	indices[i] = i;
+	// }
+	//
+	// EnsureBuffer<std::uint32_t>(*m_allocator, frame.indexBuffer, frame.indexCapacity, indices.size(), vk::BufferUsageFlagBits::eIndexBuffer);
+	// UploadBuffer(frame.indexBuffer, indices);
+	//
 	const vk::Viewport viewport {
 		.x = 0.0f,
 		.y = static_cast<float>(p_extent.height),
@@ -442,6 +523,40 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 		drawMesh(p_pipelineIndex, frame.iconBuffer, 0, static_cast<std::uint32_t>(p_vertices.size()));
 	};
 
+	const auto it = std::find_if(
+		m_codePoints.begin(),
+		m_codePoints.end(),
+		[](const SlugCodePoint& glyph)
+		{
+			return glyph.codePoint == 'B';
+		}
+	);
+	
+	if (it == m_codePoints.end())
+		return;
+	
+	const SlugCodePoint& glyph = *it;
+	const SlugGlyphData glyphData {
+		.glyphScale = {
+			static_cast<float>(glyph.width),
+			static_cast<float>(glyph.height)
+		},
+		.bandScale = {
+			static_cast<float>(glyph.width) / glyph.bandDimX,
+			static_cast<float>(glyph.height) / glyph.bandDimY
+		},
+		.bandMax = {
+			static_cast<uint32_t>(glyph.bandCount - 1),
+			static_cast<uint32_t>(glyph.bandCount - 1)
+		},
+		.bandsTexCoords = {
+			glyph.bandsTexCoordX,
+			glyph.bandsTexCoordY
+		}
+	};
+	
+	p_commandBuffer.pushConstants<SlugGlyphData>(*m_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, glyphData);
+	
 	// drawIcons(iconVertices, 5, 0);
 	// drawIcons(m_iconDepthMeshes, 4, frame.iconDepthFirst);
 	p_commandBuffer.draw(6, 1, 0,0);
@@ -470,6 +585,12 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
 	m_allocator = nullptr;
 	m_colorFormat = {};
 	m_depthFormat = {};
+	
+	m_curveTextureView.reset();
+	m_bandTextureView.reset();
+	
+	m_curveTexture.reset();
+	m_bandTexture.reset();
 }
 
 bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPath)
@@ -501,34 +622,29 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	m_codePoints.resize(codePointCount);
 	inFile.read(reinterpret_cast<char *>(m_codePoints.data()), static_cast<std::streamsize>(m_codePoints.size() * sizeof(SlugCodePoint)));
 	
-	uint16_t curveTextureWidth;
-	uint16_t curveTextureHeight;
 	uint32_t curveTextureBytes;
-	inFile.read(reinterpret_cast<char *>(&curveTextureWidth), sizeof(curveTextureWidth));
-	inFile.read(reinterpret_cast<char *>(&curveTextureHeight), sizeof(curveTextureHeight));
+	inFile.read(reinterpret_cast<char *>(&m_curveTextureWidth), sizeof(m_curveTextureWidth));
+	inFile.read(reinterpret_cast<char *>(&m_curveTextureHeight), sizeof(m_curveTextureHeight));
 	inFile.read(reinterpret_cast<char *>(&curveTextureBytes), sizeof(curveTextureBytes));
-	if (curveTextureWidth == 0 || curveTextureHeight == 0 || curveTextureBytes == 0 || curveTextureWidth != TEXTURE_WIDTH)
+	if (m_curveTextureWidth == 0 || m_curveTextureHeight == 0 || curveTextureBytes == 0 || m_curveTextureWidth != TEXTURE_WIDTH)
 	{
 		std::cerr << "Invalid curve texture dimensions." << std::endl;
 		return false;
 	}
 	
 	// Number of texels in the curve texture
-	const size_t curveTexTexels = static_cast<size_t>(curveTextureWidth * curveTextureHeight);
-	m_curvesTexture.resize(curveTexTexels);
+	const size_t curveTexTexels = static_cast<size_t>(m_curveTextureWidth * m_curveTextureHeight);
+	m_curvesTextureData.resize(curveTexTexels);
 	
 	// "0xCD: This pattern is used to initialize the memory that is allocated using malloc or a new keyword in debug mode"
-	memset(m_curvesTexture.data(), 0xCD, m_curvesTexture.size() * sizeof(m_curvesTexture.front()));
-	inFile.read(reinterpret_cast<char *>(m_curvesTexture.data()), curveTextureBytes);
+	memset(m_curvesTextureData.data(), 0xCD, m_curvesTextureData.size() * sizeof(m_curvesTextureData.front()));
+	inFile.read(reinterpret_cast<char *>(m_curvesTextureData.data()), curveTextureBytes);
 	
-	
-	uint16_t bandsTextureWidth;
-	uint16_t bandsTextureHeight;
 	uint32_t bandsTextureBytes;
-	inFile.read(reinterpret_cast<char *>(&bandsTextureWidth), sizeof(bandsTextureWidth));
-	inFile.read(reinterpret_cast<char *>(&bandsTextureHeight), sizeof(bandsTextureHeight));
+	inFile.read(reinterpret_cast<char *>(&m_bandsTextureWidth), sizeof(m_bandsTextureWidth));
+	inFile.read(reinterpret_cast<char *>(&m_bandsTextureHeight), sizeof(m_bandsTextureHeight));
 	inFile.read(reinterpret_cast<char *>(&bandsTextureBytes), sizeof(bandsTextureBytes));
-	if (bandsTextureWidth == 0 || bandsTextureHeight == 0 || bandsTextureBytes == 0 || bandsTextureWidth != TEXTURE_WIDTH)
+	if (m_bandsTextureWidth == 0 || m_bandsTextureHeight == 0 || bandsTextureBytes == 0 || m_bandsTextureWidth != TEXTURE_WIDTH)
 	{
 		std::cerr << "Invalid bands texture dimensions." << std::endl;
 		return false;
@@ -536,11 +652,11 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	
 	
 	// Number of texels in the bands texture
-	const size_t bandsTexTexels = static_cast<size_t>(bandsTextureWidth * bandsTextureHeight);
-	m_bandsTexture.resize(bandsTexTexels);
+	const size_t bandsTexTexels = static_cast<size_t>(m_bandsTextureWidth * m_bandsTextureHeight);
+	m_bandsTextureData.resize(bandsTexTexels);
 	
-	memset(m_bandsTexture.data(), 0xAB, m_bandsTexture.size() * sizeof(m_bandsTexture.front()));
-	inFile.read(reinterpret_cast<char *>(m_bandsTexture.data()), bandsTextureBytes);
+	memset(m_bandsTextureData.data(), 0xAB, m_bandsTextureData.size() * sizeof(m_bandsTextureData.front()));
+	inFile.read(reinterpret_cast<char *>(m_bandsTextureData.data()), bandsTextureBytes);
 	
 	
 	return true;

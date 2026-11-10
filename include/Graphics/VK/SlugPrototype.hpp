@@ -3,6 +3,11 @@
 #include <glm/vec4.hpp>
 #include <glm/gtc/type_precision.hpp>
 
+#include "CommandPool.hpp"
+#include "Context.hpp"
+#include "Image.hpp"
+#include "ImageView.hpp"
+
 namespace Droplet::Graphics
 {
 	// Forward declarations
@@ -59,6 +64,15 @@ namespace Droplet::Graphics::VK::Slug
 		glm::vec2 texCoord;
 	};
 	
+	struct SlugGlyphData
+	{
+		glm::vec2 glyphScale;
+		glm::vec2 bandScale;
+		glm::uvec2 bandMax;
+		glm::uvec2 bandsTexCoords;
+	};
+	
+// TODO: Move important definitions used by the generator and the renderer into a common space. (Linus)
 #pragma pack(push, 1)
 	/// @brief Metadata required to render a processed Slug glyph.
 	///
@@ -98,8 +112,8 @@ namespace Droplet::Graphics::VK::Slug
 	class SlugPrototype
 	{
 	public:
-		void Initialize(const vk::raii::Device &p_device, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
-		vk::Format p_depthFormat);
+		void Initialize(const Context &p_context, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
+		vk::Format p_depthFormat, const CommandPool &p_commandPool);
 		void Record(vk::raii::CommandBuffer& p_commandBuffer, vk::Extent2D extent);
 		
 		void RenderToCamera(
@@ -128,8 +142,20 @@ namespace Droplet::Graphics::VK::Slug
 		const vk::raii::Device *m_device = nullptr;
 		const vma::raii::Allocator *m_allocator = nullptr;
 		
+		std::optional<Image> m_curveTexture;
+		std::optional<Image> m_bandTexture;
+		
+		std::optional<ImageView> m_curveTextureView;
+		std::optional<ImageView> m_bandTextureView;
+		
 		std::vector<SlugCodePoint> m_codePoints;
-		std::vector<glm::vec4> m_curvesTexture;
-		std::vector<glm::u16vec2> m_bandsTexture; 
+		std::vector<glm::vec4> m_curvesTextureData;
+		std::vector<glm::u16vec2> m_bandsTextureData;
+		
+		uint16_t m_curveTextureWidth = 0;
+		uint16_t m_curveTextureHeight = 0;
+		
+		uint16_t m_bandsTextureWidth = 0;
+		uint16_t m_bandsTextureHeight = 0;
 	};
 }

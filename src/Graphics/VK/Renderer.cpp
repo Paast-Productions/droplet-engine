@@ -53,18 +53,23 @@ Renderer::Renderer(SDL_Window *p_window) :
 	//         Debug       //
 	// - - - - - - - - - - //
 	
-	vk::DescriptorPoolSize poolSize
-	{
-		.type = vk::DescriptorType::eUniformBuffer,
-		.descriptorCount = 2
-	};
+	std::array<vk::DescriptorPoolSize, 2> poolSizes{{
+			{
+				.type = vk::DescriptorType::eUniformBuffer,
+				.descriptorCount = 2
+			},
+			{
+				.type = vk::DescriptorType::eSampledImage,
+				.descriptorCount = 4
+			}
+		}};
 	
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 4,
-		.poolSizeCount = 1,
-		.pPoolSizes = &poolSize 
+		.maxSets = 6,
+		.poolSizeCount = poolSizes.size(),
+		.pPoolSizes = poolSizes.data()
 	};
 	
 	m_debugDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), debugPoolInfo);
@@ -82,7 +87,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 		MAX_FRAMES_IN_FLIGHT);
 	
 	m_slugPrototype = Slug::SlugPrototype();
-	m_slugPrototype.Initialize(m_context.GetDevice(), VK::IntermediaryStorage::GetInstance().GetAllocator(), m_debugDescriptorPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat());
+	m_slugPrototype.Initialize(m_context, VK::IntermediaryStorage::GetInstance().GetAllocator(), m_debugDescriptorPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat(), m_commandPool);
 
 	constexpr VK::ViewProjectionBuffer vpb
 	{
