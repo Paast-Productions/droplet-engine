@@ -13,25 +13,39 @@ workspace "DropletEngine"
     externalwarnings "Off"
     --fatalwarnings { "All" }
     multiprocessorcompile "On"
-    configurations { "debug", "release", "deploy" }
+    configurations { "editor-debug", "editor-release", "editor-deploy", "game-debug", "game-release", "game-deploy" }
 
     architecture "x86_64"
     staticruntime "on"
 
-    filter "configurations:debug"
+    filter "configurations:editor-debug"
         runtime "Debug"
-        defines { "DEBUG" }
+        defines { "_EDITOR", "DEBUG" }
         symbols "On"
         optimize "Off"
-    filter "configurations:release"
+    filter "configurations:editor-release"
         runtime "Release"
-        defines { "NDEBUG" }
+        defines { "_EDITOR", "NDEBUG" }
         optimize "On"
-    filter "configurations:deploy"
+    filter "configurations:editor-deploy"
         runtime "Release"
-        defines { "NDEBUG", "DEPLOY" }
+        defines { "_EDITOR", "NDEBUG", "DEPLOY" }
 		optimize "Full"
 		symbols "Off"
+    filter "configurations:game-debug"
+        runtime "Debug"
+        defines { "_GAME", "DEBUG" }
+        symbols "On"
+        optimize "Off"
+    filter "configurations:game-release"
+        runtime "Release"
+        defines { "_GAME", "NDEBUG" }
+        optimize "On"
+    filter "configurations:game-deploy"
+        runtime "Release"
+        defines { "_GAME", "NDEBUG", "DEPLOY" }
+        optimize "Full"
+        symbols "Off"
     filter {}
 
     -- Paths
