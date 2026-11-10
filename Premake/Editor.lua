@@ -18,7 +18,7 @@ project "Editor"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../../..")
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then
@@ -85,7 +85,6 @@ project "Editor"
         "IconFontCppHeaders",
         "PortableFileDialogs",
         "LuaJIT",
-        "Lua",
         "Jolt",
         "Dalia"
     }

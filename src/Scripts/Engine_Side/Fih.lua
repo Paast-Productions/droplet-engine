@@ -100,6 +100,7 @@ function UpdateVelocity(dt)
     -- Direction towards the target
     local toTarget = GLM.V3Sub(targetPoint, pos)
     local distance = GLM.V3Length(toTarget)
+    tracy.ZoneEnd()
 
     if distance < 0.0001 then
         moveSpeed = MoveTowards(

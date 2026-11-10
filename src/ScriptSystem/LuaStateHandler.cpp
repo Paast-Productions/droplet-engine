@@ -10,9 +10,9 @@ LuaStateHandler::LuaStateHandler()
 	m_luaState.open_libraries(
 		sol::lib::base,
 		sol::lib::math,
-		sol::lib::package,
 		sol::lib::string,
 		sol::lib::table,
+		sol::lib::package,
 		sol::lib::jit,
 		sol::lib::ffi
 	);
