@@ -42,7 +42,7 @@ namespace Droplet::Graphics::VK
         ImageView(const vk::raii::Device &p_device, 
             vk::Image p_image, 
             vk::Format p_format,
-            vk::ImageAspectFlagBits p_aspectFlagBits);
+            vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits);
         
         // TODO: </REFACTOR>
         

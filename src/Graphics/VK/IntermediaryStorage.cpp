@@ -152,7 +152,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
         .resource = std::make_unique<Image>(m_allocator.Get(),
         p_width,
         p_height,
-        vk::Format::eD24UnormS8Uint, 
+        vk::Format::eD32Sfloat, 
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eDepthStencilAttachment,
         vk::MemoryPropertyFlagBits::eDeviceLocal)
@@ -170,7 +170,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uin
         .type = DynamicResourceType::ImageView,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
         depthImageHandle->Get(),
-        vk::Format::eD24UnormS8Uint,
+        vk::Format::eD32Sfloat,
         vk::ImageAspectFlagBits::eDepth)
     };
     
@@ -231,7 +231,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_c
         .resource = std::make_unique<Image>(m_allocator.Get(),
         p_width,
         p_height,
-        vk::Format::eD24UnormS8Uint, 
+        vk::Format::eD32Sfloat, 
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eDepthStencilAttachment,
         vk::MemoryPropertyFlagBits::eDeviceLocal)
@@ -248,7 +248,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_c
         .type = DynamicResourceType::ImageView,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
         depthImageHandle->Get(),
-        vk::Format::eD24UnormS8Uint,
+        vk::Format::eD32Sfloat,
         vk::ImageAspectFlagBits::eDepth)
     };
     
@@ -609,7 +609,7 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
         .resource = std::make_unique<Image>(m_allocator.Get(),
         p_width,
         p_height,
-        vk::Format::eD24UnormS8Uint, 
+        vk::Format::eD32Sfloat, 
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eDepthStencilAttachment,
         vk::MemoryPropertyFlagBits::eDeviceLocal)
@@ -629,7 +629,7 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
         .refCount = m_liveObjects[depthImageViewGuid].refCount,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
         depthImageHandle->Get(),
-        vk::Format::eD24UnormS8Uint,
+        vk::Format::eD32Sfloat,
         vk::ImageAspectFlagBits::eDepth)
     };
     
