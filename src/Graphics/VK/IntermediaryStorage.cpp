@@ -76,6 +76,13 @@ void IntermediaryStorage::IncrementRef(GUID p_guid)
 
 void IntermediaryStorage::DecrementRef(GUID p_guid)
 {
+    auto it = m_liveObjects.find(p_guid);
+    if (it == m_liveObjects.end())
+    {
+        std::print(std::cerr, "Tried to decrement a non-existing Vulkan object at GUID: {0}\n", p_guid);
+        std::flush(std::cerr);
+        return;   
+    }
     if (--m_liveObjects.at(p_guid).refCount == 0)
     {
         MoveToDestructionQueue(p_guid);
