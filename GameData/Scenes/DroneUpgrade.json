@@ -1,151 +1,151 @@
 {
-  "name": "DroneUpgrade",
-  "roots": [
-    {
-      "active": true,
-      "children": [],
-      "components": [
+    "name": "DroneUpgrade",
+    "roots": [
         {
-          "active": true,
-          "data": {
-            "filepath": "Drone-Upgrade-Station.lua"
-          },
-          "id": 1,
-          "type": "ScriptComponent"
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Drone-Upgrade-Station.lua"
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 2,
+                    "type": "TriggerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Table",
+                        "meshGUID": 6417566881658024141,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 3,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "New Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
         },
         {
-          "active": true,
-          "data": null,
-          "id": 2,
-          "type": "TriggerComponent"
-        },
-        {
-          "active": true,
-          "data": {
-            "fs": 13680123319807966343,
-            "fsName": "Base.FS",
-            "gs": 0,
-            "gsName": "",
-            "meshDisplayName": "Table",
-            "meshGUID": 13626165034530630769,
-            "tcs": 0,
-            "tcsName": "",
-            "tes": 0,
-            "tesName": "",
-            "textureDisplayName": "White",
-            "textureGUID": 13855953862202670664,
-            "vs": 7809030845991192100,
-            "vsName": "Base.VS"
-          },
-          "id": 3,
-          "type": "MeshComponent"
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 3,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 4,
+                    "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/DroneMovement.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 2,
+            "name": "New Node",
+            "transform": {
+                "position": [
+                    8.069440841674805,
+                    1.1507015074130322e-07,
+                    -6.904207339175628e-07
+                ],
+                "rotation": [
+                    0.7071066498756409,
+                    -2.1073416789363364e-08,
+                    -0.70710688829422,
+                    -2.107342567114756e-08
+                ],
+                "scale": [
+                    0.9999585747718811,
+                    1.0,
+                    0.9999585747718811
+                ]
+            }
         }
-      ],
-      "drawLayer": 1,
-      "id": 5,
-      "name": "New Node",
-      "transform": {
-        "position": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "rotation": [
-          1.0,
-          0.0,
-          0.0,
-          0.0
-        ],
-        "scale": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "active": true,
-      "children": [],
-      "components": [
-        {
-          "active": true,
-          "data": {
-            "fs": 13680123319807966343,
-            "fsName": "Base.FS",
-            "gs": 0,
-            "gsName": "",
-            "meshDisplayName": "Cube",
-            "meshGUID": 15104664662864096133,
-            "tcs": 0,
-            "tcsName": "",
-            "tes": 0,
-            "tesName": "",
-            "textureDisplayName": "White",
-            "textureGUID": 13855953862202670664,
-            "vs": 7809030845991192100,
-            "vsName": "Base.VS"
-          },
-          "id": 1,
-          "type": "MeshComponent"
-        },
-        {
-          "active": true,
-          "data": {},
-          "id": 3,
-          "type": "PlayerComponent"
-        },
-        {
-          "active": true,
-          "data": {
-            "autoRender": true,
-            "camera": {
-              "fov": 45.0,
-              "planes": [
-                0.10000000149011612,
-                100.0
-              ]
-            },
-            "drawLayerMask": 65535,
-            "priority": 0,
-            "resolution": [
-              256,
-              256
-            ]
-          },
-          "id": 4,
-          "type": "CameraComponent"
-        },
-        {
-          "active": true,
-          "data": {
-            "filepath": "Engine_Side/DroneMovement.lua"
-          },
-          "id": 5,
-          "type": "ScriptComponent"
-        }
-      ],
-      "drawLayer": 1,
-      "id": 6,
-      "name": "New Node",
-      "transform": {
-        "position": [
-          8.069440841674805,
-          1.1507015074130322e-07,
-          -6.904207339175628e-07
-        ],
-        "rotation": [
-          0.7071066498756409,
-          -2.1073416789363364e-08,
-          -0.70710688829422,
-          -2.107342567114756e-08
-        ],
-        "scale": [
-          0.9999585747718811,
-          1.0,
-          0.9999585747718811
-        ]
-      }
-    }
-  ],
-  "version": 1
+    ],
+    "version": 1
 }
