@@ -1,7 +1,7 @@
 #pragma once
 #include <json/json.hpp>
 #include <dalia/dalia.h>
-#include <AudioSystem/AudioBus.hpp>
+#include <Audio/AudioBus.hpp>
 
 #include <cstdint>
 #include <memory>

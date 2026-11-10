@@ -2,7 +2,8 @@
 #include "ImGui/imgui.h"
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
-#include <AudioSystem/AudioSystem.hpp>
+#include <Audio/AudioSystem.hpp>
+#include <Audio/AudioBus.hpp>
 #include <SceneSystem/Behaviour.hpp>
 using namespace Droplet::Scene;
 

@@ -11,7 +11,8 @@ namespace Droplet
         SkinnedMesh,
         Animation,
         Shader,
-        Material
+        Material,
+        Sound
     };
     
     /// @brief Interface for all resources that can be loaded by the AssetManager. All resources must implement this interface.
