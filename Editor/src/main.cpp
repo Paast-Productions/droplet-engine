@@ -3,6 +3,8 @@
 #include "NodeInspectorWindow.hpp"
 #include "SavedDataWindow.hpp"
 #include "ScriptsWindow.hpp"
+#include "Audio/MixerWindow.hpp"
+#include "Audio/BusInspectorWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
@@ -162,11 +164,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		HierarchyWindow hierarchyWindow(&editorContext);
 		NodeInspectorWindow nodeInspectorWindow(&editorContext);
 		BehaviourInspector behaviourInspector(&editorContext);
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
-		ScriptsWindow scriptsWindow;
-		SavedDataWindow savedDataWindow;
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
-
+		MixerWindow mixerWindow(&editorContext);
+   		BusInspectorWindow busInspectorWindow(&editorContext);
+   		
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
 		behaviourInspector.Init();
@@ -174,7 +178,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		savedDataWindow.Init();
 		resourceBrowser.Init();
 		sceneViewWindow.Init();
-
+		mixerWindow.Init();
+    	busInspectorWindow.Init();
+    	
 		FrameMark;
 
 		bool showStyleEditor = false;
@@ -352,6 +358,18 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							EditorConfig::StoreBool("Editor.ShowSavedData", !currState);
 						}
 
+						currState = EditorConfig::LoadBool("Editor.ShowAudioMixer", true);
+						if (ImGui::MenuItem("Audio Mixer", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowAudioMixer", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowBusInspector", true);
+						if (ImGui::MenuItem("Bus Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowBusInspector", !currState);
+						}
+
 						ImGui::EndMenu();
 					}
 
@@ -507,6 +525,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				sceneViewWindow.Render();
 			}
 
+			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
+			{
+				mixerWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
+			{
+				busInspectorWindow.Render();
+			}
+
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
 			editorContext.SetGameCamera(engine.GetSceneManager().GetMainCamera());
 
@@ -514,16 +542,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
 				!sceneViewWindow.IsRenderingGameView();
 
-			Droplet::Graphics::CameraRenderData camRenderData{ };
+			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+
 			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
 				using namespace Droplet::Graphics::VK;
 
+				Droplet::Graphics::CameraRenderData camRenderData{ };
+				camRenderData.debug = true;
+
 				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
-				auto activeScene = editorContext.GetActiveScene();
+				auto activeScene = editorContext.GetActiveScene().lock();
 
 				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
 				camRenderData.renderTarget = editorCamera.GetTarget();
@@ -568,10 +600,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 					camRenderData.renderData.emplace_back(component->GetRenderData());
 				}
+
+				if (renderEditorView)
+					queuedEditorCameras.push_back(camRenderData);
 			}
 
 			// Render the engine
-			switch (engine.Render(renderEditorView ? &camRenderData : nullptr))
+			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;
@@ -585,6 +620,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				run = false;
 				break;
 			}
+
+			editorContext.ClearQueuedEditorCameras();
 		}
 	}
 

@@ -1,12 +1,14 @@
 #include "ComponentsBindings.hpp"
-#include "SceneSystem/Components/CameraComponent.hpp"
-#include "SceneSystem/Components/MeshComponent.hpp"
-#include "SceneSystem/Components/PhysicsComponent.hpp"
-#include "SceneSystem/Components/HealthComponent.hpp"
-#include "SceneSystem/Components/DamageComponent.hpp"
-#include "SceneSystem/Components/PlayerComponent.hpp"
-#include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
+#include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <LuaBindings.hpp>
+#include <Item.hpp>
+#include <ItemRegistry.hpp>
 
 
 using namespace Droplet::Scene;
@@ -19,6 +21,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
+    RegisterPhysicsComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -442,7 +445,10 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
         "SetMotionType", &PhysicsComponent::SetMotionType,
         "SetObjectLayer", &PhysicsComponent::SetObjectLayer,
         "SetActive", &PhysicsComponent::SetActive,
-        "RemoveCollider", &PhysicsComponent::RemoveCollider
+        "RemoveCollider", &PhysicsComponent::RemoveCollider,
+        
+        "SetVelocity", &PhysicsComponent::SetVelocity,
+        "GetVelocity", &PhysicsComponent::GetVelocity
     );
 
 
@@ -497,7 +503,13 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
             {"active", "boolean"}
         }},
 
-        {"RemoveCollider", "void", {}}
+        {"RemoveCollider", "void", {}},
+                
+        {"SetVelocity", "void", {
+            {"velocity", "Vec3"}
+        }},
+                
+        {"GetVelocity", "Vec3", {}}
     };
 
 	LuaBindings::PushLuaClassDefinition(classDef);
@@ -568,6 +580,7 @@ void Bindings::RegisterPlayerComponent(sol::state_view p_luaState)
 	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
+
 void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
@@ -576,20 +589,93 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 		"GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"GetHeatLevel", &Scene::PlayerBehaviour::GetHeatLevel,
 		"IncreaseHeatLevel", &Scene::PlayerBehaviour::IncreaseHeatLevel,
-		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel
+		"SetHeatLevel", &Scene::PlayerBehaviour::SetHeatLevel,
+		"GetFreezeResistance", &Scene::PlayerBehaviour::GetFreezeResistance,
+        "GetFreezeLevel", &Scene::PlayerBehaviour::GetFreezeLevel,
+        "IncreaseFreezeLevel", &Scene::PlayerBehaviour::IncreaseFreezeLevel,
+        "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
+        "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
+        "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+
+         // Item registry access.
+        "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
+
+        // Inventory functions.
+        "AddItem", &Scene::PlayerBehaviour::AddItem,
+        "RemoveItem", &Scene::PlayerBehaviour::RemoveItem,
+        "CountItem", &Scene::PlayerBehaviour::CountItem
 	);
+    // Item identifier.
+    p_luaState.new_usertype<Game::ItemId>(
+        "ItemId",
+        sol::no_constructor,
+        "IsValid", &Game::ItemId::IsValid,
+        "value", &Game::ItemId::value
+    );
 
-	LuaClassDefinition classDef;
-	classDef.name = "PlayerBehaviour";
+    // Inventory type.
+    p_luaState.new_enum(
+        "InventoryType",
+        "Player", Scene::InventoryType::Player,
+        "Drone", Scene::InventoryType::Drone
+    );
 
-	classDef.functions =
-	{
-		{ "GetMaxHealth", "float", {} },
-		{ "GetHeatResistance", "float", {} },
-		{ "GetHeatLevel", "float", {} },
-		{ "IncreaseHeatLevel", "void", { { "amount", "number" } } },
-		{ "SetHeatLevel", "HeatResistance", { { "amount", "number" } } },
-	};
+    // Item registry.
+    p_luaState.new_usertype<Game::ItemRegistry>(
+        "ItemRegistry",
+        sol::no_constructor,
+        "Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
+        {
+            return p_registry.Find(p_name);
+        }
+    );
 
-	LuaBindings::PushLuaClassDefinition(classDef);
+    // PlayerBehaviour API metadata.
+    LuaClassDefinition classDef;
+    classDef.name = "PlayerBehaviour";
+
+    classDef.functions =
+    {
+        { "GetMaxHealth", "float", {} },
+        { "GetHeatResistance", "float", {} },
+        { "GetHeatLevel", "float", {} },
+        { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
+        { "SetHeatLevel", "void", { { "heat", "number" } } },
+        { "SetHeatResistance", "void", { { "resistance", "number" } } },
+        { "GetFreezeResistance", "float", {} },
+        { "GetFreezeLevel", "float", {} },
+        { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
+        { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
+        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "GetFreezeTimer", "float", {} },
+
+        { "GetItemRegistry", "ItemRegistry", {} },
+
+        { "AddItem", "number", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" },
+            { "count", "number" }
+        } },
+        { "RemoveItem", "boolean", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" },
+            { "count", "number" }
+        } },
+        { "CountItem", "number", {
+            { "inventory", "InventoryType" },
+            { "itemId", "ItemId" }
+        } }
+    };
+    LuaBindings::PushLuaClassDefinition(classDef);
+
+    // ItemRegistry API metadata.
+    LuaClassDefinition registryDef;
+    registryDef.name = "ItemRegistry";
+
+    registryDef.functions =
+    {
+        { "Find", "ItemId", { { "name", "string" } } }
+    };
+
+    LuaBindings::PushLuaClassDefinition(registryDef);
 }

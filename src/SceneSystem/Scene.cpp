@@ -233,7 +233,7 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TOD
     }
 
     // Ensure node has no parent
-    if (p_node->GetParent())
+    if (!p_node->GetParent().expired())
 	{
 		throw std::runtime_error(
 			"Cannot add Node '" + p_node->GetName() + "' as a root: Node has a parent."
@@ -275,7 +275,7 @@ void Scene::OnDestructNode(const Node *p_node)
 
     m_octree.RemoveNode(p_node);
 
-	if (p_node->GetParent() == nullptr)
+	if (p_node->GetParent().lock() == nullptr)
     {
         auto it = std::find_if(m_roots.begin(), m_roots.end(), [p_node](const std::shared_ptr<Node> &node) {
             return node.get() == p_node;
@@ -411,17 +411,17 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 }
 
 
-Droplet::Physics *Scene::GetPhysics()
+std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
-    return m_physics.get();
+    return std::weak_ptr<Droplet::Physics>(m_physics);
 }
 
-void Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
+std::shared_ptr<Node> Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
+    return serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
 }
 
 void Scene::QueueRenderable(std::shared_ptr<Component> p_comp)

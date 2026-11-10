@@ -12,12 +12,12 @@ namespace Droplet::Editor
 	class NodeInspectorWindow : public EditorWindow
 	{
 	public:
-		NodeInspectorWindow(EditorContext *p_editorContext);
+		NodeInspectorWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 		~NodeInspectorWindow() = default;
 
 		/// @brief Sets the node a user sends to be the current node that will be displayed
 		/// @param p_nodeToInspect The node that user wants to display
-		void SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect); // TODO: Make weak pointer
+		void SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect);
 
 	protected:
 		void InitImpl() override;
@@ -28,19 +28,19 @@ namespace Droplet::Editor
 	private:
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
-		
-		EditorContext *m_editorContext = nullptr;
 
 		/// @brief The node that is currently displayed.
-		std::shared_ptr<Droplet::Scene::Node> m_currentNode; // TODO: Make weak pointer
+		std::weak_ptr<Droplet::Scene::Node> m_currentNode;
 
 		/// @brief A variable to remember if the scale should be locked
 		bool m_lockScale = false;
 
-		/// @brief Euler angles (degrees) shown in the rotation control; refreshed from the transform when not being dragged.
+		/// @brief Independent axis angles (degrees) shown in the rotation control.
 		glm::vec3 m_displayedRotation = glm::vec3(0.0f);
 
-		/// @brief Whether the rotation control was being dragged last frame.
-		bool m_rotationActive = false;
+		const Droplet::Scene::Node *m_rotationNode = nullptr;
+		Droplet::Scene::Transform::Space m_rotationSpace = Droplet::Scene::Transform::Space::World;
+		glm::quat m_lastDisplayedRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		bool m_hasDisplayedRotation = false;
 	};
 }

@@ -1,6 +1,7 @@
 #include "Node.hpp"
 #include "Scene.hpp"
 #include "Component.hpp"
+#include "ComponentFactory.hpp"
 #include <SceneSystem/DefaultNodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <stdexcept>
@@ -242,7 +243,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	}
 
 	// Check for cycles in the hierarchy
-	if (auto parent = GetParent())
+	if (auto parent = GetParent().lock())
 	{
 		while (parent)
 		{
@@ -253,7 +254,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 					"Adding a Node as a child of its own descendant would create a cycle."
 				);
 			}
-			parent = parent->GetParent();
+			parent = parent->GetParent().lock();
 		}
 	}
 
@@ -265,7 +266,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 		);
 	}
 
-	if (auto prevParent = p_child->GetParent())
+	if (auto prevParent = p_child->GetParent().lock())
 	{
 		prevParent->RemoveChild(p_child);
 	}
@@ -280,6 +281,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	m_children.push_back(p_child);
 
 	p_child->GetTransform().MakeDirty();
+	p_child->GetTransform().MakePhysicsDirty();
 	if (p_keepWorldPos)
 	{
 		p_child->GetTransform().SetMatrix(wMat, Transform::Space::World);
@@ -342,6 +344,7 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	m_scene.lock()->SetRoot(p_child, true);
 
 	p_child->GetTransform().MakeDirty();
+	p_child->GetTransform().MakePhysicsDirty();
 
 	if (p_keepWorldPos)
 	{
@@ -354,7 +357,13 @@ void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos
 	}
 }
 
-void Node::AttachComponent(std::unique_ptr<Component> &p_component)
+std::weak_ptr<Component> Node::AttachComponent(const std::string &p_componentType)
+{
+	auto component = ComponentFactory::CreateComponent(p_componentType);
+	return AttachComponent(component);
+}
+
+std::weak_ptr<Component> Node::AttachComponent(std::unique_ptr<Component> &p_component)
 {
 	if (!p_component)
 	{
@@ -365,11 +374,13 @@ void Node::AttachComponent(std::unique_ptr<Component> &p_component)
 	{
 		throw std::runtime_error("Invalid next component ID");
 	}
+
 	std::shared_ptr<Component> shared = std::move(p_component);
-	AttachComponent(shared, m_nextComponentID);
+	
+	return AttachComponent(shared, m_nextComponentID);
 }
 
-void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID)
+std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID)
 {
 	ZoneScoped;
 
@@ -399,20 +410,18 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 
 	p_component->m_id = p_componentID;
 	p_component->SetOwner(shared_from_this());
-	m_components.push_back((p_component));
-	
+	m_components.push_back(p_component);
 
+	// Check if the component being added provides bounds override.
 	if (p_component->HasBoundsOverride())
 	{
 		if (m_boundsOverride.expired())
 		{
+			m_transform.MakeDirty();
+			m_transform.MakePhysicsDirty();
 			m_boundsOverride = p_component;
 		}
-
-		
 	}
-
-	
 
 	if (p_componentID >= m_nextComponentID)
 	{
@@ -423,16 +432,38 @@ void Node::AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_
 	{
 		p_component->Start();
 	}
+
+	return p_component;
 }
 
-std::shared_ptr<Node> Node::GetParent() const // TODO: Make weak pointer
+std::weak_ptr<Node> Node::GetParent() const
 {
-	return m_parent.lock();
+	return m_parent;
 }
 
-const std::vector<std::shared_ptr<Node>> &Node::GetChildren() const // TODO: Make weak pointer
+const std::vector<std::shared_ptr<Node>> Node::GetChildren(bool p_recursive) const // TODO: Make weak pointer
 {
-	return m_children;
+	if (!p_recursive)
+	{
+		return m_children;
+	}
+
+	std::vector<std::shared_ptr<Node>> recursiveChildren;
+	std::function<void(const std::shared_ptr<Node> &)> collectChildren = [&](const std::shared_ptr<Node> &node) {
+		for (const auto &child : node->m_children)
+		{
+			recursiveChildren.push_back(child);
+			collectChildren(child);
+		}
+	};
+
+	for (const auto &child : m_children)
+	{
+		recursiveChildren.push_back(child);
+		collectChildren(child);
+	}
+
+	return recursiveChildren;
 }
 
 std::shared_ptr<Scene> Node::GetScene() const // TODO: Make weak pointer
@@ -448,33 +479,6 @@ const std::string &Node::GetName() const
 void Node::SetName(const std::string &p_name)
 {
 	m_name = p_name;
-}
-
-void Node::AddComponent(std::unique_ptr<Component> &p_component)
-{
-	if (!p_component)
-	{
-		throw std::invalid_argument("Cannot add nullptr Component.");
-	}
-
-	p_component->SetOwner(shared_from_this());
-
-	m_components.push_back(std::move(p_component));
-	std::shared_ptr<Component> addedComponent = m_components.back();
-
-	// Check if the component being added provides bounds override.
-	if (addedComponent->HasBoundsOverride())
-	{
-		if (m_boundsOverride.expired())
-		{
-			m_boundsOverride = addedComponent;
-		}
-	}
-
-	if (m_started)
-	{
-		addedComponent->Start();
-	}
 }
 
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
@@ -512,6 +516,8 @@ void Node::RemoveComponent(const Component *p_component) // TODO: Make weak poin
 	if (isBoundsOverride)
 	{
 		m_boundsOverride.reset();
+		m_transform.MakeDirty();
+		m_transform.MakePhysicsDirty();
 
 		for (const auto &component : m_components)
 		{
@@ -521,6 +527,109 @@ void Node::RemoveComponent(const Component *p_component) // TODO: Make weak poin
 				break;
 			}
 		}
+	}
+}
+
+void Node::MoveComponent(
+	const Component *p_component,
+	Node &p_destination,
+	std::size_t p_index)
+{
+	if (!p_component)
+	{
+		throw std::invalid_argument("Cannot move nullptr Component.");
+	}
+
+	auto it = std::find_if(
+		m_components.begin(),
+		m_components.end(),
+		[p_component](const std::shared_ptr<Component> &p_attachedComponent)
+		{
+			return p_attachedComponent.get() == p_component;
+		});
+
+	if (it == m_components.end())
+	{
+		throw std::runtime_error("Cannot move Component: Component is not attached to Node '" + m_name + "'.");
+	}
+
+	const std::size_t sourceIndex = static_cast<std::size_t>(it - m_components.begin());
+	if (&p_destination == this)
+	{
+		const std::size_t destinationIndex =
+			p_index == static_cast<std::size_t>(-1) ? m_components.size() - 1 : p_index;
+
+		if (destinationIndex >= m_components.size())
+		{
+			throw std::out_of_range("Component destination index is out of range.");
+		}
+
+		if (sourceIndex != destinationIndex)
+		{
+			auto component = std::move(*it);
+			m_components.erase(it);
+			m_components.insert(m_components.begin() + destinationIndex, std::move(component));
+		}
+		return;
+	}
+
+	const std::size_t destinationIndex =
+		p_index == static_cast<std::size_t>(-1) ? p_destination.m_components.size() : p_index;
+	if (destinationIndex > p_destination.m_components.size())
+	{
+		throw std::out_of_range("Component destination index is out of range.");
+	}
+
+	if (p_destination.m_nextComponentID == 0)
+	{
+		throw std::runtime_error("Invalid next component ID");
+	}
+
+	auto component = *it;
+	const bool wasActive = component->IsActive();
+	const bool wasBoundsOverride = component.get() == m_boundsOverride.lock().get();
+	const auto destinationShared = p_destination.shared_from_this();
+
+	p_destination.m_components.insert(
+		p_destination.m_components.begin() + destinationIndex,
+		component);
+	m_components.erase(it);
+
+	if (wasBoundsOverride)
+	{
+		m_boundsOverride.reset();
+		m_transform.MakeDirty();
+		m_transform.MakePhysicsDirty();
+
+		for (const auto &remainingComponent : m_components)
+		{
+			if (remainingComponent->HasBoundsOverride())
+			{
+				m_boundsOverride = remainingComponent;
+				break;
+			}
+		}
+	}
+
+	component->m_id = p_destination.m_nextComponentID++;
+	component->SetOwner(destinationShared);
+
+	if (component->HasBoundsOverride() && p_destination.m_boundsOverride.expired())
+	{
+		p_destination.m_transform.MakeDirty();
+		p_destination.m_transform.MakePhysicsDirty();
+		p_destination.m_boundsOverride = component;
+	}
+
+	const bool isActive = component->IsActive();
+	if (wasActive != isActive)
+	{
+		component->ActiveChanged(isActive);
+	}
+
+	if (p_destination.m_started)
+	{
+		component->Start();
 	}
 }
 
@@ -549,6 +658,8 @@ void Node::SetBounds(std::shared_ptr<NodeBounds> p_bounds)
 		throw std::invalid_argument("Node bounds cannot be null.");
 	}
 
+	m_transform.MakeDirty();
+	m_transform.MakePhysicsDirty();
 	m_bounds = std::move(p_bounds);
 }
 
@@ -607,7 +718,7 @@ bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Ma
 			return true;
 		}
 
-		parent = parent->GetParent();
+		parent = parent->GetParent().lock();
 	}
 
 	return false;

@@ -75,7 +75,7 @@ namespace Droplet::Graphics
 		{
 			// Ensure only one flag is set in the layer enum value
 			assert(
-				IsSingleLayer(p_layer),
+				IsSingleLayer(p_layer) &&
 				"p_layer must be a single layer flag, not a layer mask."
 			);
 
@@ -92,7 +92,7 @@ namespace Droplet::Graphics
 		{
 			// Ensure only one flag is set in the layer enum value
 			assert(
-				IsSingleLayer(p_layer),
+				IsSingleLayer(p_layer) &&
 				"p_layer must be a single layer flag, not a layer mask."
 			);
 

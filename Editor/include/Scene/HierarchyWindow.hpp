@@ -11,14 +11,6 @@
 
 namespace Droplet
 {
-    /// @brief This is the drop data received from the scene window
-    /// needed for drag and drop to load scenes from the saved gamedata window
-    struct SceneDragDropData
-    {
-        char path[256];
-        char name[128];
-    };
-
     namespace Scene
     {
 		// Forward declarations
@@ -39,13 +31,15 @@ namespace Droplet
             /// @brief Constructs a hierarchy window.
             /// @param p_instance The instance of the engine used to access scene data.
             /// @param p_interactionState The shared interaction state used to track selections.
-            explicit HierarchyWindow(EditorContext *p_editorContext);
+            explicit HierarchyWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
 
         protected:
             /// @brief Initializes the hierarchy window.
             /// 
             /// Creates temporary scene data used to test the hierarchy window.
             void InitImpl() override;
+
+			void RenderToolbar() override;
 
             /// @brief Renders the hierarchy window.
             /// 
@@ -67,7 +61,7 @@ namespace Droplet
             /// reparenting, and the node context menu.
             ///
             /// @param p_node The node to draw.
-            void DrawNode(const std::shared_ptr<Droplet::Scene::Node> &p_node); // TODO: Make weak pointer
+            void DrawNode(const std::weak_ptr<Droplet::Scene::Node> &p_node);
 
             /// @brief Handles rectangle (marquee) selection that is started in the empty area of the hierarchy.
             /// @param p_emptyAreaMin Top-left of the node area, in screen space.
@@ -78,7 +72,7 @@ namespace Droplet
             [[nodiscard]] bool IsOverNodeRow(const ImVec2 &p_pos) const;
 
             /// @brief Nodes drawn this frame in display order, used for shift-click range selection.
-            std::vector<std::shared_ptr<Droplet::Scene::Node>> m_visibleNodes; // TODO: Make weak pointer
+            std::vector<std::weak_ptr<Droplet::Scene::Node>> m_visibleNodes;
 
             /// @brief Screen-space row rectangles (min, max) matching m_visibleNodes, used for rectangle selection.
             std::vector<std::pair<ImVec2, ImVec2>> m_visibleNodeRects;
@@ -93,43 +87,39 @@ namespace Droplet
             std::weak_ptr<Droplet::Scene::Node> m_selectionAnchor;
 
             /// @brief Node that was shift-clicked this frame, resolved after all nodes are drawn.
-            std::shared_ptr<Droplet::Scene::Node> m_rangeSelectTarget; // TODO: Make weak pointer
+            std::weak_ptr<Droplet::Scene::Node> m_rangeSelectTarget;
 
             /// @brief Already-selected node that was pressed without modifiers. The selection collapses to it on release, unless dragged.
-            std::shared_ptr<Droplet::Scene::Node> m_pendingCollapseNode; // TODO: Make weak pointer
+            std::weak_ptr<Droplet::Scene::Node> m_pendingCollapseNode;
 
             /// @brief Whether the pending range selection should be added to the existing selection (ctrl+shift).
             bool m_rangeSelectAdditive = false;
 
             /// @brief Engine instance used to access engine systems.
-            std::shared_ptr<Engine> m_instance; // TODO: Make weak pointer
-            
-            /// @brief EditorContext that is used to access information from a scene between
-            /// different views
-            EditorContext *m_editorContext;
+            std::weak_ptr<Engine> m_instance;
             
 			/// @brief The currently selected scene in the hierarchy window.
-			std::shared_ptr<Droplet::Scene::Scene> m_selectedScene; // TODO: Make weak pointer
+			std::weak_ptr<Droplet::Scene::Scene> m_selectedScene;
 
             /// @brief Nodes that should be reparented after hierarchy traversal.
             ///
             /// Hierarchy modifications are deferred until the hierarchy has been
             /// fully rendered to avoid modifying node containers while they are
             /// being traversed.
-            std::vector<std::shared_ptr<Droplet::Scene::Node>> m_nodesToReparent; // TODO: Make weak pointer
+            std::vector<std::weak_ptr<Droplet::Scene::Node>> m_nodesToReparent;
 
             /// @brief New parent for the node being reparented.
             ///
             /// A null value indicates that the node should become a root node.
-            std::shared_ptr<Droplet::Scene::Node> m_newParent; // TODO: Make weak pointer
+            std::weak_ptr<Droplet::Scene::Node> m_newParent;
 
             /// @brief Node that should receive a newly created child.
             ///
             /// The child is created and added after the hierarchy has been fully
             /// rendered to avoid modifying the hierarchy while it is being traversed.
-            std::shared_ptr<Droplet::Scene::Node> m_nodeToAddChildTo; // TODO: Make weak pointer
+            std::weak_ptr<Droplet::Scene::Node> m_nodeToAddChildTo;
 
-            std::vector<std::shared_ptr<Droplet::Scene::Node>> m_nodesToRemove; // TODO: Make weak pointer
+            std::vector<std::weak_ptr<Droplet::Scene::Node>> m_nodesToRemove;
         };
     }
 }

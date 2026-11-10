@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <filesystem>
+#include <EditorContext.hpp>
+
 namespace Droplet::Editor
 {
 	enum class SavedDataType
@@ -11,16 +13,10 @@ namespace Droplet::Editor
 		Scene = 1
 	};
 
-	struct SceneDragDropData
-	{
-		char path[256];
-		char name[128];
-	};
-
 	class SavedDataWindow : public EditorWindow
 	{
 	public:
-		SavedDataWindow();
+		SavedDataWindow(EditorContext *p_editorContext);
 		~SavedDataWindow() = default;
 
 

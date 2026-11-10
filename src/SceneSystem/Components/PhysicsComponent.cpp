@@ -15,7 +15,6 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <SceneSystem/Physics/MeshColliderManager.hpp>
 #include <resource/GuidUtils.hpp>
-#include <IntermediaryStorage.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <Graphics/DebugDraw.hpp>
 
@@ -27,9 +26,9 @@ PhysicsComponent::~PhysicsComponent()
 	RemoveCollider();
 }
 
-void PhysicsComponent::Initialize(Physics *p_physics, Transform *p_transform)
+void PhysicsComponent::Initialize(const std::weak_ptr<Physics> p_physics, Transform *p_transform)
 {
-	m_physics = p_physics;
+	m_physics = p_physics.lock();
 	m_transform = p_transform;
 }
 
@@ -66,17 +65,17 @@ void PhysicsComponent::SetSphereCollider(const float p_radius, const JPH::Vec3 &
 	m_serializeData.r = p_radius;
 }
 
-void PhysicsComponent::SetCapsuleCollider(const float p_HalfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetCapsuleCollider(const float p_halfHeightOfCylinder, const float p_radius, const JPH::Vec3 &p_offset)
 {
 	if (!m_bodyID.IsInvalid())
 	{
 		RemoveCollider();
 	}
 
-	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_HalfHeightOfCylinder, p_radius);
+	JPH::Ref<JPH::CapsuleShapeSettings> capsuleSettings = new JPH::CapsuleShapeSettings(p_halfHeightOfCylinder, p_radius);
 	CreateCollider(capsuleSettings, p_offset);
 	m_shapeType = ShapeType::Capsule;
-	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.h = p_halfHeightOfCylinder;
 	m_serializeData.r = p_radius;
 }
 
@@ -125,7 +124,7 @@ void PhysicsComponent::SetCompoundCollider(const std::vector<CompoundShape> &p_s
 	m_shapeType = ShapeType::Compound;
 }
 
-void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, const float p_radius,
+void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, const float p_radius,
 	const JPH::Vec3& p_offset)
 {
 	if (!m_bodyID.IsInvalid())
@@ -134,7 +133,7 @@ void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, con
 	}
 	
 	JPH::Ref<JPH::CharacterSettings> characterSettings = new JPH::CharacterSettings();
-	characterSettings->mShape = new JPH::CapsuleShape(p_HalfHeightOfCylinder, p_radius);
+	characterSettings->mShape = new JPH::CapsuleShape(p_halfHeightOfCylinder, p_radius);
 	characterSettings->mLayer = Layers::MOVING;
 	characterSettings->mMass = 80.0f;
 	characterSettings->mFriction = 1.0f;
@@ -144,13 +143,13 @@ void PhysicsComponent::SetPlayerCollider(const float p_HalfHeightOfCylinder, con
 		GLMtoJPH(m_transform->GetPosition()),
 		GLMtoJPH(m_transform->GetRotation()),
 		0,
-		m_physics->GetPhyscisSystem());
+		m_physics->GetPhysicsSystem());
 	m_character->AddToPhysicsSystem(JPH::EActivation::Activate);
 	
 	m_bodyID = m_character->GetBodyID();
 	
 	m_shapeType = ShapeType::Player;
-	m_serializeData.h = p_HalfHeightOfCylinder;
+	m_serializeData.h = p_halfHeightOfCylinder;
 	m_serializeData.r = p_radius;
 	SetMotionType(JPH::EMotionType::Dynamic);
 	SetObjectLayer(Layers::MOVING);
@@ -205,13 +204,31 @@ void PhysicsComponent::RemoveCollider()
 	}
 }
 
+void PhysicsComponent::SetVelocity(const glm::vec3 &p_velocity)
+{
+	if (m_character != nullptr)
+	{
+		m_character->SetLinearVelocity(GLMtoJPH(p_velocity));
+	}
+	else
+	{
+		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+		bodyInterface->SetLinearVelocity(m_bodyID, GLMtoJPH(p_velocity));
+	}
+}
+
+glm::vec3 PhysicsComponent::GetVelocity() const
+{
+	return JPHtoGLM(m_physics->GetBodyInterface()->GetLinearVelocity(m_bodyID));
+}
+
 void PhysicsComponent::StartImpl()
 {
-	m_physics = GetOwner()->GetScene()->GetPhysics();
+	m_physics = GetOwner()->GetScene()->GetPhysics().lock();
 	if (m_physics == nullptr)
 	{
 		GetOwner()->GetScene()->InitializePhysics();
-		m_physics = GetOwner()->GetScene()->GetPhysics();
+		m_physics = GetOwner()->GetScene()->GetPhysics().lock();
 	}
 	m_transform = &GetOwner()->GetTransform();
 }
@@ -456,6 +473,9 @@ void PhysicsComponent::RenderUIImpl()
 	static float z = 0.0f;
 	static float r = 0.0f;
 	static float h = 0.0f;
+	static float offsetX = 0.0f;
+	static float offsetY = 0.0f;
+	static float offsetZ = 0.0f;
 	Droplet::GUID guid = 0;
 	std::shared_ptr<Node> node = GetOwner();
 	std::vector<std::shared_ptr<MeshComponent>> meshComponents = node->GetComponents<MeshComponent>();
@@ -465,10 +485,30 @@ void PhysicsComponent::RenderUIImpl()
 	{
 	case 0: // Box collider
 		{
-			ImGui::TextWrapped("Input half extents:");
-			ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
-			ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
+			static bool fitToBounds = false;
+			ImGui::Checkbox("Fit to Bounds", &fitToBounds);
+			
+			if (fitToBounds)
+			{
+				const NodeBounds *bounds = GetOwner()->GetBounds();
+				const Math::AABB &aabb = bounds->GetAABB();
+				const glm::vec3 center = aabb.center;
+				const glm::vec3 extents = aabb.extents;
+				x = extents.x;
+				y = extents.y;
+				z = extents.z;
+				
+				offsetX = center.x;
+				offsetY = center.y;
+				offsetZ = center.z;
+			}
+			else
+			{
+				ImGui::TextWrapped("Input half extents:");
+				ImGui::InputFloat("x##0", &x, 0.01f, 1.0f, "%.3f");
+				ImGui::InputFloat("y##0", &y, 0.01f, 1.0f, "%.3f");
+				ImGui::InputFloat("z##0", &z, 0.01f, 1.0f, "%.3f");
+			}
 			break;
 		}
 	case 1: // Sphere collider
@@ -781,9 +821,6 @@ void PhysicsComponent::RenderUIImpl()
 	
 	ImGui::Separator();
 	
-	static float offsetX = 0.0f;
-	static float offsetY = 0.0f;
-	static float offsetZ = 0.0f;
 	ImGui::Text("Input offset:");
 	ImGui::InputFloat("x##4", &offsetX, 0.01f, 1.0f, "%.3f");
 	ImGui::InputFloat("y##4", &offsetY, 0.01f, 1.0f, "%.3f");

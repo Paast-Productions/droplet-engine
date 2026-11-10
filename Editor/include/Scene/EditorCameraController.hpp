@@ -13,10 +13,9 @@ namespace Droplet::Editor::Scene
 		EditorCameraController(EditorCamera &p_camera) : m_editorCamera(p_camera){}
 
 		/// @brief Update functions that register movement of the editorCamera
-		/// @param p_window The SDL_window the camera cursor should apply its changes to
 		/// @param p_centerX X-axis position in screen space which to reset the cursor position to after rotation
 		/// @param p_centerY Y-axis position in screen space which to reset the cursor position to after rotation
-		void Update(SDL_Window* p_window, float p_centerX, float p_centerY);
+		void Update(float p_centerX, float p_centerY);
 
 		/// @brief Function that controls if the camera should follow the cursor
 		/// @param p_active Boolean if true sets the camera to follow the cursor
@@ -30,7 +29,7 @@ namespace Droplet::Editor::Scene
 	private:
 		EditorCamera &m_editorCamera;
 
-		float m_movementSpeed = 2.5f;
+		float m_movementSpeed = 5.0f;
 		float m_mouseSensitivity = 0.075f;
 
 		bool m_lookActive = false;

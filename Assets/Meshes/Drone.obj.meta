@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Drone",
+            "guid": 11502053657790986835,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Drone",
+            "type": 3
+        }
+    ]
+}

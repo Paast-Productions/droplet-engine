@@ -4,7 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <IntermediaryStorage.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
@@ -12,8 +12,6 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	// TODO: Construct camera and create render target
-
 	using namespace Graphics::VK;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
@@ -76,7 +74,7 @@ void CameraComponent::QueueRenderImpl()
 
 void CameraComponent::EditorUpdateImpl()
 {
-	if (!m_debugDraw && !m_uiSelected)
+	if (/*!m_debugDraw && */!m_uiSelected)
 	{
 		return;
 	}
@@ -134,23 +132,27 @@ void CameraComponent::RenderUIImpl()
 
 	Checkbox("Debug Draw", &m_debugDraw);
 
+	ColorEdit4("Clear Color", &m_clearColor.x);
+
 	if (Button("Trigger Render"))
 	{
 		TriggerRender();
 	}
 
-	Separator();
+	if (TreeNode("Preview"))
+	{
+		ImTextureRef camViewTexture = m_texture.Get();
+		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
-	ImTextureRef camViewTexture = m_texture.Get();
+		float availWidth = GetContentRegionAvail().x;
+		float imageWidth = availWidth * m_uiScale;
+		float imageHeight = imageWidth / m_camera.GetAspect();
 
-	SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
+		// Render the camera view texture to the scene view window
+		ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 
-	float availWidth = GetContentRegionAvail().x;
-	float imageWidth = availWidth * m_uiScale;
-	float imageHeight = imageWidth / m_camera.GetAspect();
-
-	// Render the camera view texture to the scene view window
-	ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+		TreePop();
+	}
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)
@@ -203,6 +205,8 @@ CameraRenderData CameraComponent::GetRenderData() const
 	renderData.priority = m_priority;
 	renderData.renderTarget = m_target;
 	renderData.renderData = m_renderData;
+	renderData.debug = m_debugDraw;
+	renderData.clearColor = m_clearColor;
 
 	return renderData;
 }

@@ -205,7 +205,10 @@ void Renderer::TransitionImageLayout(
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
 
-void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData)
+void Renderer::RecordRenderTargetCommandBuffer(
+	vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, 
+	const Camera &p_camera, std::vector<RenderData> &p_renderData, 
+	bool p_debug, glm::vec4 p_clearColor)
 {
 	ZoneScoped;
 
@@ -238,7 +241,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer
 	);
 
-	vk::ClearValue clearColor = vk::ClearColorValue(0.0f, 0.0f, 0.3f, 1.0f);
+	vk::ClearValue clearColor = vk::ClearColorValue(p_clearColor.x, p_clearColor.y, p_clearColor.z, p_clearColor.w);
 	vk::ClearValue clearDepth = vk::ClearDepthStencilValue(1.0f, 0);
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
@@ -260,12 +263,10 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	};
 
 
-	vk::RenderingInfo renderingInfo
-	{
+	vk::RenderingInfo renderingInfo {
 		.renderArea =
 		{
-			.offset =
-			{
+			.offset = {
 				.x = 0,
 				.y = 0
 			},
@@ -284,11 +285,11 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 	for (const RenderData& data : p_renderData)
 	{
 
-		const VK::Pipeline& pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
+		const VK::Pipeline *pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
 		if (pipeline == nullptr) { continue; }
 
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
-		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Get());
+		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
 
 		const VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(data);
 
@@ -299,8 +300,7 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 
 		if (!result) { continue; }
 
-		PushConstantData pcData
-		{
+		PushConstantData pcData {
 			.world = data.transform,
 			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
 			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
@@ -308,10 +308,9 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 			.textureID = texID
 		};
 
-		vk::PushConstantsInfo pcInfo
-		{
+		vk::PushConstantsInfo pcInfo {
 			.sType = vk::StructureType::ePushConstantsInfo,
-			.layout = pipeline.GetLayout(),
+			.layout = pipeline->GetLayout(),
 			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			.offset = 0,
 			.size = sizeof(PushConstantData),
@@ -324,7 +323,8 @@ void Renderer::RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_comman
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 
-	Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	if (p_debug)
+		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
@@ -489,13 +489,16 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		VK::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
 
-		Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
+		if (camRenderData.debug)
+			Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
 
 		RecordRenderTargetCommandBuffer(
 			commandBuffer,
 			camRenderData.renderTarget,
 			cam,
-			drawList
+			drawList,
+			camRenderData.debug,
+			camRenderData.clearColor
 		);
 	}
 

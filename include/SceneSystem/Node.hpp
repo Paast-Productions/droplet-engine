@@ -111,7 +111,7 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
         {
 			assert(
-                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer),
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
                 "p_drawLayer must be a single layer"
             );
 
@@ -176,12 +176,12 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the parent Node, or nullptr if this
         /// Node has no parent.
-        [[nodiscard]] std::shared_ptr<Node> GetParent() const; // TODO: Make weak pointer
+        [[nodiscard]] std::weak_ptr<Node> GetParent() const;
 
         /// @brief Gets the child Nodes.
         ///
-        /// @return A constant reference to the vector containing this Node's children.
-        [[nodiscard]] const std::vector<std::shared_ptr<Node>> &GetChildren() const; // TODO: Make weak pointer
+        /// @return A vector containing this Node's children.
+        [[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene that owns this Node.
         ///
@@ -214,9 +214,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
-		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
-		/// @param p_component Unique pointer to the Component to add.
-        void AddComponent(std::unique_ptr<Component> &p_component);
+		/// @brief Adds a Component of the specified type to the Node.
+		/// @param p_componentType The type of Component to add, specified as a string.
+		/// @return A weak pointer to the added Component.
+        std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -225,9 +226,9 @@ namespace Droplet::Scene
         /// It assigns a freshly new component id
         /// The overloaded function uses id from serialization
         ///       
-        /// @param p_component The comoponent to be attached
-        void AttachComponent(std::unique_ptr<Component> &p_component); 
-        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
+        /// @param p_component The component to be attached
+        std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
+        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -275,6 +276,18 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const Component *p_component);
+
+        /// @brief Moves a Component to a position on this Node or another Node.
+        ///
+        /// When moving to another Node, the Component receives a new ID unique
+        /// to that Node.
+        /// @param p_component Component to move.
+        /// @param p_destination Node that will own the Component.
+        /// @param p_index Position to insert the Component at. By default, it is appended.
+        void MoveComponent(
+            const Component *p_component,
+            Node &p_destination,
+            std::size_t p_index = static_cast<std::size_t>(-1));
 
         // --------------------------------------------------
         // Bounds
@@ -356,6 +369,7 @@ namespace Droplet::Scene
         const std::uint64_t m_id;
 
         std::uint64_t m_nextComponentID = 1;
+
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 

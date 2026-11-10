@@ -15,6 +15,16 @@
 
 using namespace Droplet::Scene;
 
+Droplet::Scene::SceneManager::SceneManager()
+{
+    m_audioSystem.Initialize();
+}
+
+Droplet::Scene::SceneManager::~SceneManager()
+{
+    m_audioSystem.ShutDown();
+}
+
 void SceneManager::LoadScene(const std::string &p_name)
 {
     ZoneScoped;
@@ -250,8 +260,8 @@ void SceneManager::Update()
 
             if (behaviour->IsActive())
             {
-                ZoneNamedN(behaviourPostUpdateZone, "Post-Update", true);
-                ZoneTextV(behaviourPostUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
+                ZoneNamedN(postUpdateZone, "Post-Update", true);
+                ZoneTextV(postUpdateZone, behaviour->GetTypeName().data(), behaviour->GetTypeName().size());
 
                 behaviour->PostUpdate();
             }

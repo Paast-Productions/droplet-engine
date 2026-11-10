@@ -21,13 +21,10 @@
 #endif
 
 #include <Graphics/VK/IndexBuffer.hpp>
-#include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/IntermediaryStorage.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/RenderData.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
@@ -70,7 +67,10 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, 
+			const Camera &p_camera, std::vector<RenderData> &p_renderData, 
+			bool p_debug, glm::vec4 p_clearColor);
+		
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates sync objects for preventing race conditions etc

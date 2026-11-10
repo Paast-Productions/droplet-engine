@@ -1,5 +1,6 @@
 #include "LuaBindings.hpp"
 #include <Node.hpp>
+#include <Scene.hpp>
 #include <Transform.hpp>
 #include <glm/glm.hpp>
 #include <GameInput.hpp>
@@ -56,8 +57,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterComponents(p_luaState);
 	RegisterOctree(p_luaState);
 
-	std::filesystem::path scriptDirectory = std::filesystem::current_path()
-		/ ".." / ".." / ".." / "src" / "Scripts";
+	std::filesystem::path scriptDirectory = std::filesystem::current_path() / ROOT_PATH "/src/Scripts";
 
 	std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);
@@ -97,9 +97,13 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"Node",
 		"GetName", &Scene::Node::GetName,
 		"GetID", &Scene::Node::GetID,
-		"GetTransform",
-		static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-
+		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		"GetParent", &Scene::Node::GetParent,
+		"GetScene",
+		[](Scene::Node &p_node) -> Scene::Scene *
+		{
+			return p_node.GetScene().get();
+		},
 		"GetCameraComponent",
 		[](Scene::Node &node)
 		{
@@ -152,6 +156,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
+		{"GetParent", "Node", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
 		{"GetPhysicsComponent", "PhysicsComponent", {}},

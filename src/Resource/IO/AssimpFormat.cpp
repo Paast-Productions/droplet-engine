@@ -22,107 +22,114 @@ using json = nlohmann::json;
 using namespace Droplet;
 using namespace Droplet::IO::AssimpFormat;
 
-static constexpr double C_EPSILON = 0.00001;
-    
-/// @brief Helper function that constructs a vertex buffer.
-/// @param p_meshData The imported mesh object.
-/// @param p_vertexByteSize The vertex byte size calculated in CreateVertexLayout()
-/// @return A vector of the vertex buffer per byte.
-[[nodiscard]] static std::vector<std::byte> BuildVertexData(const aiScene *&p_meshData, const std::size_t &p_vertexByteSize)
+namespace
 {
-	aiMesh *mesh = p_meshData->mMeshes[0];
-	std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
-	for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
+	static constexpr double C_EPSILON = 1e-5;
+
+	/// @brief Helper function that constructs a vertex buffer.
+	/// @param p_meshData The imported mesh object.
+	/// @param p_vertexByteSize The vertex byte size calculated in CreateVertexLayout()
+	/// @return A vector of the vertex buffer per byte.
+	[[nodiscard]] static std::vector<std::byte> BuildVertexData(const aiScene * &p_meshData, const std::size_t & p_vertexByteSize)
 	{
-		// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
-		const float attributes[8] = {
-			mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z,
-			mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z,
-			mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y
+		aiMesh *mesh = p_meshData->mMeshes[0];
+		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
+		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
+		{
+			// TODO: Make not hardcoded
+
+			// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
+			const float attributes[8] = {
+				mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z,
+				mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z,
+				mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y
+			};
+			std::memcpy(vertexData.data() + i * p_vertexByteSize, attributes, sizeof(attributes));
+		}
+
+		return vertexData;
+	}
+
+	/// @brief Converts an Assimp matrix (row-major, a1..a4 is the first row) to a GLM matrix (column-major, m[column][row]).
+	[[nodiscard]] static glm::mat4 ConvertMatrix(const aiMatrix4x4 & p_matrix)
+	{
+		glm::mat4 result(1.0f);
+		for (int row = 0; row < 4; ++row)
+		{
+			for (int column = 0; column < 4; ++column)
+			{
+				result[column][row] = p_matrix[row][column];
+			}
+		}
+		return result;
+	}
+
+	/// @brief Helper function that constructs a index buffer.
+	/// @param p_meshData The imported mesh object.
+	/// @return A vector of the index buffer.
+	[[nodiscard]] static std::vector<std::uint32_t> BuildIndexData(const aiScene * &p_meshData)
+	{
+		aiMesh *mesh = p_meshData->mMeshes[0];
+		std::vector<std::uint32_t> indices{};
+		indices.reserve(static_cast<std::size_t>(mesh->mNumFaces * 3)); // Assuming the mesh is triangulated
+		// Indices are stored in each face
+		for (std::uint32_t i = 0; i < mesh->mNumFaces; i++)
+		{
+			// Iterate through all indices of each face and push them to the vector
+			for (std::uint32_t j = 0; j < mesh->mFaces[i].mNumIndices; j++)
+			{
+				indices.push_back(mesh->mFaces[i].mIndices[j]);
+			}
+		}
+
+		return indices;
+	}
+
+	/// @brief Helper function that creates the vertex layout.
+	/// @param[out] p_vertexByteSize The size of the created vertex layout.
+	/// @return A vector of the vertex layout.
+	[[nodiscard]] static std::vector<MeshResource::VertexAttribute> CreateVertexLayout(std::size_t & p_vertexByteSize, bool p_skinned = false)
+	{
+		std::vector<MeshResource::VertexAttribute> vertexLayout = {
+			std::make_pair("POSITION", 3 * sizeof(float)),
+			std::make_pair("NORMAL",   3 * sizeof(float)),
+			std::make_pair("UV",       2 * sizeof(float))
 		};
-		std::memcpy(vertexData.data() + i * p_vertexByteSize, attributes, sizeof(attributes));
-	}
 
-	return vertexData;
-}
-
-/// @brief Converts an Assimp matrix (row-major, a1..a4 is the first row) to a GLM matrix (column-major, m[column][row]).
-[[nodiscard]] static glm::mat4 ConvertMatrix(const aiMatrix4x4 &p_matrix)
-{
-	glm::mat4 result(1.0f);
-	for (int row = 0; row < 4; ++row)
-	{
-		for (int column = 0; column < 4; ++column)
+		if (p_skinned)
 		{
-			result[column][row] = p_matrix[row][column];
+			vertexLayout.emplace_back("BONE_INDICES", 4 * sizeof(int));
+			vertexLayout.emplace_back("BONE_WEIGHTS", 4 * sizeof(float));
 		}
-	}
-	return result;
-}
 
-/// @brief Helper function that constructs a index buffer.
-/// @param p_meshData The imported mesh object.
-/// @return A vector of the index buffer.
-[[nodiscard]] static std::vector<std::uint32_t> BuildIndexData(const aiScene *&p_meshData)
-{
-	aiMesh *mesh = p_meshData->mMeshes[0];
-	std::vector<std::uint32_t> indices{};
-	indices.reserve(static_cast<std::size_t>(mesh->mNumFaces * 3)); // Assuming the mesh is triangulated
-	// Indices are stored in each face
-	for (std::uint32_t i = 0; i < mesh->mNumFaces; i++)
-	{
-		// Iterate through all indices of each face and push them to the vector
-		for (std::uint32_t j = 0; j < mesh->mFaces[i].mNumIndices; j++)
+		// Calculates the total size of a vertex based of what's set in vertexLayout
+		for (MeshResource::VertexAttribute attribute : vertexLayout)
 		{
-			indices.push_back(mesh->mFaces[i].mIndices[j]);
+			p_vertexByteSize += attribute.second;
 		}
-	}
 
-	return indices;
+		return vertexLayout;
+	}
 }
-    
-/// @brief Helper function that creates the vertex layout.
-/// @param[out] p_vertexByteSize The size of the created vertex layout.
-/// @return A vector of the vertex layout.
-[[nodiscard]] static std::vector<MeshResource::VertexAttribute> CreateVertexLayout(std::size_t &p_vertexByteSize, bool p_skinned = false)
-{
-	std::vector<MeshResource::VertexAttribute> vertexLayout = {
-		std::make_pair("POSITION", 3 * sizeof(float)),
-		std::make_pair("NORMAL",   3 * sizeof(float)),
-		std::make_pair("UV",       2 * sizeof(float))
-	};
+	
 
-	if (p_skinned)
-	{
-		vertexLayout.emplace_back("BONE_INDICES", 4 * sizeof(int));
-		vertexLayout.emplace_back("BONE_WEIGHTS", 4 * sizeof(float));
-	}
-
-	// Calculates the total size of a vertex based of what's set in vertexLayout
-	for (MeshResource::VertexAttribute attribute : vertexLayout)
-	{
-		p_vertexByteSize += attribute.second;
-	}
-
-	return vertexLayout;
-}
-    
-    
 std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 {
 	ZoneScoped;
 
 	thread_local Assimp::Importer s_importer;
-        
-    bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
-    bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
-    bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
-        
-    unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure;
-    if (generateNormals) flags |= aiProcess_ForceGenNormals;
-    if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
-    if (triangulate)     flags |= aiProcess_Triangulate;
-        
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+		
+	bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
+	bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
+	bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
+		
+	unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure;
+	if (generateNormals) flags |= aiProcess_ForceGenNormals;
+	if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
+	if (triangulate)     flags |= aiProcess_Triangulate;
+		
 	const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 	if (meshData == nullptr)
 	{
@@ -150,7 +157,7 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 
 	MeshResource mesh{};
 	mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-        
+		
 	std::println("Successfully loaded {}", p_assetPath.generic_string()); // TODO: Remove temp log
 
 	s_importer.FreeScene();
@@ -164,17 +171,19 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 {
 	ZoneScoped;
 
-    thread_local Assimp::Importer s_importer;
-        
-    bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
-    bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
-    bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
-        
-    unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure | aiProcess_LimitBoneWeights | aiProcess_PopulateArmatureData;
-    if (generateNormals) flags |= aiProcess_ForceGenNormals;
-    if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
-    if (triangulate)     flags |= aiProcess_Triangulate;
-        
+	thread_local Assimp::Importer s_importer;
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+		
+	bool generateNormals = p_loadSettings.value(MetaLoadSettings::C_GENERATE_NORMALS.key, MetaLoadSettings::C_GENERATE_NORMALS.defaultValue);
+	bool joinVertices    = p_loadSettings.value(MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key, MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue);
+	bool triangulate     = p_loadSettings.value(MetaLoadSettings::C_TRIANGULATE.key, MetaLoadSettings::C_TRIANGULATE.defaultValue);
+		
+	unsigned int flags = aiProcess_SortByPType | aiProcess_ValidateDataStructure | aiProcess_LimitBoneWeights | aiProcess_PopulateArmatureData;
+	if (generateNormals) flags |= aiProcess_ForceGenNormals;
+	if (joinVertices)    flags |= aiProcess_JoinIdenticalVertices;
+	if (triangulate)     flags |= aiProcess_Triangulate;
+		
 	const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 	if (meshData == nullptr)
 	{
@@ -303,22 +312,23 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 	return std::make_unique<SkinnedMeshResource>(skinnedMesh);
 }
 
-std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName,
-	const nlohmann::json &p_loadSettings)
+std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName, const nlohmann::json &p_loadSettings)
 {
 	ZoneScoped;
 
-    thread_local Assimp::Importer s_importer;
-        
-    bool generateNormals =  MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
-    bool joinVertices =     MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
-    bool triangulate =      MetaLoadSettings::C_TRIANGULATE.defaultValue;
-        
-    unsigned int flags = aiProcess_SortByPType | aiProcess_PopulateArmatureData;
-    if (generateNormals)    flags |= aiProcess_ForceGenNormals;
-    if (joinVertices)       flags |= aiProcess_JoinIdenticalVertices;
-    if (triangulate)        flags |= aiProcess_Triangulate;
-        
+	thread_local Assimp::Importer s_importer;
+
+	s_importer.SetPropertyInteger(AI_CONFIG_PP_SBP_REMOVE, aiPrimitiveType_POINT | aiPrimitiveType_LINE);
+		
+	bool generateNormals =  MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
+	bool joinVertices =     MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
+	bool triangulate =      MetaLoadSettings::C_TRIANGULATE.defaultValue;
+		
+	unsigned int flags = aiProcess_SortByPType | aiProcess_PopulateArmatureData;
+	if (generateNormals)    flags |= aiProcess_ForceGenNormals;
+	if (joinVertices)       flags |= aiProcess_JoinIdenticalVertices;
+	if (triangulate)        flags |= aiProcess_Triangulate;
+		
 	const aiScene *meshData = s_importer.ReadFile(p_assetPath.generic_string().c_str(), flags);
 
 	if (meshData == nullptr)

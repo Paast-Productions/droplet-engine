@@ -2,13 +2,14 @@
 
 #include <IconFontCppHeaders/IconsLucide.h>
 
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_stdlib.h>
+
 #include <core/FileExplorer.hpp>
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_stdlib.h>
-#include <resource/types/TextureResource.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 
 using namespace Droplet::Editor::Resource;
 
@@ -17,10 +18,36 @@ namespace
 	static bool s_isPreviewingResource = false;
 }
 
+ResourceBrowser::~ResourceBrowser()
+{
+	if (m_previewResourceHandle.IsValid())
+	{
+		m_texture = {};
+		m_previewResourceHandle = {};
+	}
+
+	m_previewCamera = {};
+}
+
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
 	BuildBrowserTree(ResourceManager::GetInstance().GetRegisteredResources());
+
+	m_previewCamera.camera = Graphics::Camera(
+		glm::vec3(0, 0, -10), // Position
+		glm::vec3(0, 0, 1), // Forward
+		glm::vec3(0, 1, 0), // Up
+		45.0f, // FOV
+		1.0f, // Aspect ratio
+		glm::vec2(0.1f, 100.0f) // Near and far planes
+	);
+
+	Graphics::VK::IntermediaryStorage &instance = Graphics::VK::IntermediaryStorage::GetInstance();
+	m_previewCamera.renderTarget = instance.CreateRenderTarget(m_previewCamera.resolution.x, m_previewCamera.resolution.y);
+	m_previewCamera.texture = instance.CreateImGuiTexture(
+		m_previewCamera.renderTarget
+	);
 }
 
 void ResourceBrowser::RenderImpl()
@@ -177,10 +204,17 @@ void ResourceBrowser::RenderImpl()
 	}
 	EndChild();
 
-	if (!s_isPreviewingResource && m_previewResourceHandle.IsValid())
+	if (!s_isPreviewingResource)
 	{
-		m_texture = {};
-		m_previewResourceHandle = {};
+		if (m_previewResourceHandle.IsValid())
+		{
+			m_texture = {};
+			m_previewResourceHandle = {};
+		}
+
+		m_previewCamera.texHandle = {};
+		m_previewCamera.vsHandle = {};
+		m_previewCamera.fsHandle = {};
 	}
 }
 
@@ -221,7 +255,7 @@ void ResourceBrowser::BuildBrowserTree(const std::vector<const MetaEntry *> &p_r
 	}
 }
 
-void ResourceBrowser::DrawResourceList(const std::vector<const MetaEntry *> &p_resources, BrowserNode *p_currentNode)
+void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const MetaEntry *> &p_resources, BrowserNode *p_currentNode)
 {
 	using namespace ImGui;
 
@@ -536,7 +570,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			StaticResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
 				p_entry.guid,
-				[this](StaticResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
+				[this]([[maybe_unused]] StaticResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
 			);
 
 			m_previewResourceHandle = StaticResourceHandle<IStaticResource>(textureHandle.GetGUID(), &resManInstance);
@@ -580,14 +614,115 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 		break;
 
+	case StaticResourceType::Mesh:
+		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
+		{
+			m_isPreviewResourceLoaded = false;
+
+			StaticResourceHandle<MeshResource> meshHandle = resManInstance.LoadResource<MeshResource>(
+				p_entry.guid,
+				[this]([[maybe_unused]] StaticResourceHandle<MeshResource> handle) { 
+					m_isPreviewResourceLoaded = true; 
+
+					// TODO: Calculate the bounding box of the mesh and adjust the preview camera accordingly
+				}
+			);
+
+			m_previewResourceHandle = StaticResourceHandle<IStaticResource>(meshHandle.GetGUID(), &resManInstance);
+
+			// Texture
+			if (!m_previewCamera.texHandle.IsValid())
+			{
+				if (MetaEntry entry; resManInstance.GetResourceMetaEntry("White", entry))
+				{
+					m_previewCamera.texHandle = ResourceManager::GetInstance().LoadResource<Texture2DResource>(entry.guid);
+				}
+			}
+
+			// Vertex Shader
+			if (!m_previewCamera.vsHandle.IsValid())
+			{
+				if (MetaEntry entry; resManInstance.GetResourceMetaEntry("Base.VS", entry))
+				{
+					m_previewCamera.vsHandle = ResourceManager::GetInstance().LoadResource<ShaderResource>(entry.guid);
+				}
+			}
+
+			// Fragment Shader
+			if (!m_previewCamera.fsHandle.IsValid())
+			{
+				if (MetaEntry entry; resManInstance.GetResourceMetaEntry("Base.FS", entry))
+				{
+					m_previewCamera.fsHandle = ResourceManager::GetInstance().LoadResource<ShaderResource>(entry.guid);
+				}
+			}
+		}
+
+		if (m_isPreviewResourceLoaded)
+		{
+			GUID guid = m_previewResourceHandle.GetGUID();
+
+			StaticResourceHandle<MeshResource> meshHandle = StaticResourceHandle<MeshResource>(guid, &resManInstance);
+
+			// Calculate the size to maintain aspect ratio
+			float previewSizeX = static_cast<float>(m_previewCamera.resolution.x);
+			float previewSizeY = static_cast<float>(m_previewCamera.resolution.y);
+
+			float imageAspect = previewSizeX / previewSizeY;
+			float regionAspect = regionSize.x / regionSize.y;
+
+			float imageScale = 1.0f;
+			if (imageAspect > regionAspect)
+			{
+				imageScale = regionSize.x / previewSizeX;
+			}
+			else
+			{
+				imageScale = regionSize.y / previewSizeY;
+			}
+
+			ImVec2 scaledImageSize = ImVec2(previewSizeX, previewSizeY) * imageScale;
+			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
+
+			ImTextureRef previewTexture = m_previewCamera.texture.Get();
+
+			SetCursorPos(previewPos);
+			BeginChild("Preview Image", scaledImageSize);
+			ImGui::Image(previewTexture, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
+
+			// TODO: Handle rotation through mouse interaction
+
+			EndChild();
+
+			{
+				Graphics::CameraRenderData camRenderData{};
+				camRenderData.camera = m_previewCamera.camera;
+				camRenderData.priority = 100;
+				camRenderData.renderTarget = m_previewCamera.renderTarget;
+				camRenderData.debug = false;
+
+				Graphics::RenderData renderData{
+					.vsData = Graphics::ShaderData(m_previewCamera.vsHandle.GetGUID()),
+					.fsData = Graphics::ShaderData(m_previewCamera.fsHandle.GetGUID()),
+					.meshData = Graphics::MeshData(guid),
+					.texData = Graphics::TextureData(m_previewCamera.texHandle.GetGUID()),
+					.transform = glm::mat4(1.0f)
+				};
+				camRenderData.renderData.push_back(renderData);
+
+				m_editorContext->QueueEditorCamera(camRenderData);
+			}
+		}
+		break;
+
 	default:
 	case StaticResourceType::None:
 	case StaticResourceType::Texture3D:
-	case StaticResourceType::Mesh:
 	case StaticResourceType::SkinnedMesh:
 	case StaticResourceType::Animation:
 	case StaticResourceType::Shader:
 	case StaticResourceType::Material:
+
 		// Draw text in center of the preview area
 		ImVec2 textSize = CalcTextSize("No Preview Available");
 		SetCursorPosX(regionCenter.x - textSize.x * 0.5f);

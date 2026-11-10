@@ -2,24 +2,17 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
-#include <SceneSystem/Components/MeshComponent.hpp>
-#include <SceneSystem/Components/SkeletonComponent.hpp>
-#include <SceneSystem/Components/ScriptComponent.hpp>
-#include <SceneSystem/Components/PhysicsComponent.hpp>
-#include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
-#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <SceneSystem/Components/HealthComponent.hpp>
-#include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/TriggerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
 #include <SceneSystem/Items/BaseItems.hpp>
+#include <RegisterGame.hpp>
+#include <RegisterEngine.hpp>
+#include <Time.hpp>
 
 using namespace Droplet;
 
@@ -88,14 +81,21 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	m_sceneManager.SetItemRegistry(&m_itemRegistry);
 
 	// Register engine behaviours
-	RegisterBehaviours();
+	Droplet::RegisterEngineBehaviours();
+
+	// Register game behaviours
+	Droplet::Game::RegisterGameBehaviours();
 
 	// Register engine components
-	RegisterComponents();
+	Droplet::RegisterEngineComponents();
+
+	//register game components
+	Droplet::Game::RegisterGameComponents();
 
 	// Script Init
 	Script::ScriptSystem::Get().Initialize(m_sceneManager);
 	GameInput::Get().SetMainWindow(m_window.Get());
+
 }
 
 Droplet::Engine::~Engine()
@@ -176,15 +176,23 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRenderData)
+DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderData> *camRenderDatas)
 {
 	ZoneScopedC(tracy::Color::SkyBlue1);
 
 	auto renderData = m_sceneManager.GetRenderData();
 
-	if (camRenderData)
+	if (camRenderDatas)
 	{
-		renderData.push_back(*camRenderData);
+		for (const auto &camRenderData : *camRenderDatas)
+		{
+			renderData.push_back(camRenderData);
+		}
+
+		// Sort the render data by priority, higher priority first
+		std::sort(renderData.begin(), renderData.end(), [](const Graphics::CameraRenderData &a, const Graphics::CameraRenderData &b) {
+			return a.priority > b.priority;
+		});
 	}
 
 	// Rendering
@@ -207,25 +215,4 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(Graphics::CameraRenderData *camRender
 	FrameMark;
 
 	return DROPLET_RETURNTYPE::OK;
-}
-
-void Engine::RegisterBehaviours()
-{
-	// Register engine behaviours
-	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
-	Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Scene::PlayerBehaviour>(); });
-}
-
-void Engine::RegisterComponents()
-{
-	// Register engine components
-	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Scene::DamageComponent>(); });
 }

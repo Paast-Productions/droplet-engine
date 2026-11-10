@@ -13,13 +13,9 @@
 #include <Engine/EngineFlags.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Renderer.hpp>
-#include <Resource/ResourceManager.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
-#include <SceneSystem/Behaviour.hpp>
 #include <GameInput.hpp>
-#include <Time.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet
@@ -56,8 +52,9 @@ namespace Droplet
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
 		
 		/// @brief Will render the subsystems. Is needed to run anything.
+		/// @brief If camRenderDatas is provided, the engine will render the provided camera render data in addition to the scene's render data.
 		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render(Graphics::CameraRenderData *camRenderData = nullptr);
+		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas = nullptr);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -67,6 +64,7 @@ namespace Droplet
 		/// @return A reference to engines scenemanager
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
+
 		/// @brief Getter for the window of the engine
 		/// @return An SDL window handle
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
@@ -109,6 +107,7 @@ namespace Droplet
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
 		
+
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 

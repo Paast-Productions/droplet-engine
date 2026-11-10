@@ -6,14 +6,21 @@
 #include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <Editor/DragDropFields.hpp>
+#include <cmath>
 
 using namespace Droplet::Editor;
 
-NodeInspectorWindow::NodeInspectorWindow(EditorContext *p_editorContext) 
-	: m_editorContext(p_editorContext)
-{ }
+namespace
+{
+	bool SameRotation(const glm::quat &p_left, const glm::quat &p_right)
+	{
+		return std::abs(glm::dot(glm::normalize(p_left), glm::normalize(p_right))) > 1.0f - 1.0e-7f;
+	}
+}
 
-void NodeInspectorWindow::SetCurrentNode(std::shared_ptr<Droplet::Scene::Node> p_nodeToInspect) // TODO: Make weak pointer
+void NodeInspectorWindow::SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
 	m_currentNode = p_nodeToInspect;
 }
@@ -40,10 +47,10 @@ void NodeInspectorWindow::RenderImpl()
 		return;
 	}
 
-	m_currentNode = selectedNodes.back();
+	m_currentNode = selectedNodes.back().lock();
 
 	// Push ID
-	uintptr_t nodeNumber = (uintptr_t)(m_currentNode.get());
+	uintptr_t nodeNumber = (uintptr_t)(m_currentNode.lock().get());
 	std::string nodeString = std::to_string(nodeNumber);
 	ImGui::PushID(nodeString.c_str());
 
@@ -53,25 +60,25 @@ void NodeInspectorWindow::RenderImpl()
 	ImGui::SetNextItemWidth(availWidth - iconButtonWidth - ImGui::GetStyle().ItemSpacing.x);
 
 	// Name
-	std::string stringNodeName = m_currentNode->GetName();
+	std::string stringNodeName = m_currentNode.lock()->GetName();
 	if (ImGui::InputText("##Node Name", &stringNodeName))
 	{
-		m_currentNode->SetName(stringNodeName);
+		m_currentNode.lock()->SetName(stringNodeName);
 	}
 
 	ImGui::SameLine();
 
 	// Active
-	bool active = m_currentNode->IsActiveSelf();
+	bool active = m_currentNode.lock()->IsActiveSelf();
 	if (ImGui::Checkbox("##Active", &active))
 	{
-		m_currentNode->SetActive(active);
+		m_currentNode.lock()->SetActive(active);
 	}
 
-	Graphics::DrawLayer drawLayer = m_currentNode->GetDrawLayer();
+	Graphics::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
 	if (Graphics::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
 	{
-		m_currentNode->SetDrawLayer(drawLayer);
+		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}
 
 	// Transform
@@ -82,7 +89,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
 
-		Transform &transform = m_currentNode->GetTransform();
+		Transform &transform = m_currentNode.lock()->GetTransform();
 		float drag_speed = 0.005f;
 
 		glm::vec3 pos = transform.GetPosition(space);
@@ -92,40 +99,83 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		// Displayed angles are only a readout; edits are applied as per-axis delta rotations
+		if (ImGui::BeginPopupContextItem("Position Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetPosition(glm::vec3(0.0f), space);
+			}
+			ImGui::EndPopup();
+		}
+
+		// Keep edited axis values independent while applying quaternion deltas to the transform.
 		glm::vec3 &rot = m_displayedRotation;
-		if (!m_rotationActive)
+		const glm::quat currentRotation = transform.GetRotation(space);
+		const Droplet::Scene::Node *currentNode = m_currentNode.lock().get();
+
+		if (!m_hasDisplayedRotation ||
+			m_rotationNode != currentNode ||
+			m_rotationSpace != space ||
+			!SameRotation(currentRotation, m_lastDisplayedRotation))
 		{
 			rot = glm::degrees(transform.GetEuler(space));
+			m_rotationNode = currentNode;
+			m_rotationSpace = space;
+			m_lastDisplayedRotation = currentRotation;
+			m_hasDisplayedRotation = true;
 		}
+
 		glm::vec3 prevRot = rot;
 		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
-			glm::vec3 normal = glm::vec3(0, 1, 0);
-			float deltaRot = 0.0f;
+			for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
+			{
+				const float deltaDegrees = rot[axisIndex] - prevRot[axisIndex];
+				if (deltaDegrees == 0.0f)
+				{
+					continue;
+				}
 
-			if (rot.x != prevRot.x)
-			{
-				normal = (space == TSpace::Local) ? transform.GetRight() : glm::vec3(1, 0, 0);
-				deltaRot = glm::radians(rot.x - prevRot.x);
-			}
-			else if (rot.y != prevRot.y)
-			{
-				normal = (space == TSpace::Local) ? transform.GetUp() : glm::vec3(0, 1, 0);
-				deltaRot = glm::radians(rot.y - prevRot.y);
-			}
-			else if (rot.z != prevRot.z)
-			{
-				normal = (space == TSpace::Local) ? transform.GetForward() : glm::vec3(0, 0, 1);
-				deltaRot = glm::radians(rot.z - prevRot.z);
-			}
+				glm::vec3 axis(0.0f);
+				if (space == TSpace::Local)
+				{
+					switch (axisIndex)
+					{
+					case 0:
+						axis = transform.GetRight(TSpace::Local);
+						break;
+					case 1:
+						axis = transform.GetUp(TSpace::Local);
+						break;
+					default:
+						axis = transform.GetForward(TSpace::Local);
+						break;
+					}
+				}
+				else
+				{
+					axis[axisIndex] = 1.0f;
+				}
 
-			glm::quat deltaQuat = glm::angleAxis(deltaRot, normal);
-			transform.Rotate(deltaQuat, space);
+				transform.RotateAxis(glm::radians(deltaDegrees), axis, space);
+			}
+			m_lastDisplayedRotation = transform.GetRotation(space);
 		}
 		ImGui::LockToItem();
 
-		m_rotationActive = ImGui::IsItemActive();
+		// HACK: Resetting rotation to zero doesn't consistently undo all rotation. 
+		// Added a right-click context menu to reset rotation to alleviate issue.
+
+		if (ImGui::BeginPopupContextItem("Rotation Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetRotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), space);
+				m_lastDisplayedRotation = transform.GetRotation(space);
+				m_displayedRotation = glm::degrees(transform.GetEuler(space));
+			}
+			ImGui::EndPopup();
+		}
 
 		glm::vec3 scl = transform.GetScale();
 		const glm::vec3 oldScl = scl;
@@ -158,6 +208,15 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
+		if (ImGui::BeginPopupContextItem("Scale Context Menu"))
+		{
+			if (ImGui::MenuItem("Reset"))
+			{
+				transform.SetScale(glm::vec3(1.0f));
+			}
+			ImGui::EndPopup();
+		}
+
 		// Lock scale
 		ImGui::Checkbox("Lock Scale", &m_lockScale);
 	}
@@ -168,10 +227,11 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonMargin = buttonWidth * 0.2f;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode->GetAllComponents(); // TODO: Make weak pointer
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: Make weak pointer
 
-	for (const auto &component : components)
+	for (std::size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex)
 	{
+		const auto &component = components[componentIndex];
 		if (!component)
 		{
 			continue;
@@ -182,22 +242,71 @@ void NodeInspectorWindow::RenderImpl()
 		ImGui::PushID(thisString.c_str());
 
 		// The actual header
-		std::string headerLabel = component->GetTypeName().data();
+		std::string headerLabel = "";
 
-		// Remove "component" suffix from name if it exists
-		if (headerLabel.size() >= 9 && headerLabel.compare(headerLabel.size() - 9, 9, "Component") == 0)
+		if (component->GetTypeName() == "ScriptComponent")
 		{
-			headerLabel = headerLabel.substr(0, headerLabel.size() - 9);
+			// Set name to the script name if it has a script
+			Droplet::Scene::ScriptComponent *scriptComp = dynamic_cast<Droplet::Scene::ScriptComponent *>(component.get());
+			std::string scriptPath = scriptComp->GetScriptPath();
+
+			if (!scriptPath.empty())
+			{
+				std::string scriptName = scriptPath.substr(scriptPath.find_last_of("/\\") + 1);
+				scriptName = scriptName.substr(0, scriptName.find_last_of('.'));
+				headerLabel = scriptName + " (script)";
+			}
+		}
+		
+		if (headerLabel.empty())
+		{
+			headerLabel = component->GetTypeName().data();
+
+			// Remove "component" suffix from name if it exists
+			if (headerLabel.size() >= 9 && headerLabel.compare(headerLabel.size() - 9, 9, "Component") == 0)
+			{
+				headerLabel = headerLabel.substr(0, headerLabel.size() - 9);
+			}
 		}
 
 		bool isOpen = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
+
+		if (ImGui::BeginDragDropSource())
+		{
+			ComponentDragDropData payloadData{m_currentNode.lock().get(), component.get()};
+			ImGui::SetDragDropPayload(PAYLOAD_COMPONENT.data(), &payloadData, sizeof(payloadData));
+			ImGui::TextUnformatted(headerLabel.c_str());
+			ImGui::EndDragDropSource();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_COMPONENT.data()))
+			{
+				if (payload->DataSize == sizeof(ComponentDragDropData))
+				{
+					const auto &data = *static_cast<const ComponentDragDropData *>(payload->Data);
+					auto sourceNode = data.sourceNode
+						? data.sourceNode->weak_from_this().lock()
+						: nullptr;
+					if (sourceNode && data.component)
+					{
+						sourceNode->MoveComponent(
+							data.component,
+							*m_currentNode.lock(),
+							componentIndex);
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		// The right click on header
 		if (ImGui::BeginPopupContextItem("popup"))
 		{
 			if (ImGui::MenuItem("Remove Component"))
 			{
-				m_currentNode->RemoveComponent(component.get());
+				m_currentNode.lock()->RemoveComponent(component.get());
 			}
 			ImGui::EndPopup();
 		}
@@ -223,7 +332,7 @@ void NodeInspectorWindow::RenderImpl()
 	if (Scene::ShowComponentList(&selectedComponentName))
 	{
 		auto newComp = Droplet::Scene::ComponentFactory::CreateComponent(selectedComponentName);
-		m_currentNode->AttachComponent(newComp);
+		m_currentNode.lock()->AttachComponent(newComp);
 	}
 
 	ImGui::PopID();
