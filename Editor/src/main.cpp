@@ -162,9 +162,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		HierarchyWindow hierarchyWindow(&editorContext);
 		NodeInspectorWindow nodeInspectorWindow(&editorContext);
 		BehaviourInspector behaviourInspector(&editorContext);
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
 		Resource::ResourceBrowser resourceBrowser(&editorContext);
-		ScriptsWindow scriptsWindow;
-		SavedDataWindow savedDataWindow;
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
 
 		hierarchyWindow.Init();
@@ -514,12 +514,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
 				!sceneViewWindow.IsRenderingGameView();
 
-			Droplet::Graphics::CameraRenderData camRenderData{ };
+			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+
 			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
 				using namespace Droplet::Graphics::VK;
+
+				Droplet::Graphics::CameraRenderData camRenderData{ };
+				camRenderData.debug = true;
 
 				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
@@ -568,10 +572,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 					camRenderData.renderData.emplace_back(component->GetRenderData());
 				}
+
+				if (renderEditorView)
+					queuedEditorCameras.push_back(camRenderData);
 			}
 
 			// Render the engine
-			switch (engine.Render(renderEditorView ? &camRenderData : nullptr))
+			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;
@@ -585,6 +592,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				run = false;
 				break;
 			}
+
+			editorContext.ClearQueuedEditorCameras();
 		}
 	}
 

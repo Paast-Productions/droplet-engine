@@ -7,9 +7,6 @@
 
 using namespace Droplet::Editor;
 
-BehaviourInspector::BehaviourInspector(EditorContext *editorContext) 
-    : m_editorContext(editorContext){}
-
 void BehaviourInspector::InitImpl()
 {
 	SetName("Behaviours");

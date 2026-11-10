@@ -25,6 +25,7 @@ namespace Droplet::Scene
     {
     public:
         ScriptComponent() = default;
+        ~ScriptComponent() = default;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
