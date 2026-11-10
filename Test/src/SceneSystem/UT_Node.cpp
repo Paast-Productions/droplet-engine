@@ -229,6 +229,46 @@ TEST_F(NodeTest, SupportsMultipleComponents)
     EXPECT_EQ(components.size(), 2);
 }
 
+TEST_F(NodeTest, ReorderComponents)
+{
+	auto component1 = ComponentFactory::CreateComponent("TComponent");
+	auto component2 = ComponentFactory::CreateComponent("TComponent");
+	auto component3 = ComponentFactory::CreateComponent("TComponent");
+
+	auto first = root->AttachComponent(component1).lock();
+    auto second = root->AttachComponent(component2).lock();
+    auto third = root->AttachComponent(component3).lock();
+
+    root->MoveComponent(first.get(), *root, 2);
+
+    const auto components = root->GetAllComponents();
+    ASSERT_EQ(components.size(), 3);
+    EXPECT_EQ(components[0].get(), second.get());
+    EXPECT_EQ(components[1].get(), third.get());
+    EXPECT_EQ(components[2].get(), first.get());
+}
+
+TEST_F(NodeTest, MoveComponentToAnotherNode)
+{
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    auto componentPtr = root->AttachComponent(component).lock();
+
+    auto destination = scene->AddNode("Destination");
+    auto existingComponent = ComponentFactory::CreateComponent("TComponent");
+    auto existingComponentPtr = destination->AttachComponent(existingComponent).lock();
+
+    root->MoveComponent(componentPtr.get(), *destination);
+
+    EXPECT_TRUE(root->GetAllComponents().empty());
+    const auto components = destination->GetAllComponents();
+    ASSERT_EQ(components.size(), 2);
+    EXPECT_EQ(components[0], existingComponentPtr);
+    EXPECT_EQ(components[1], componentPtr);
+    EXPECT_EQ(componentPtr->GetOwner(), destination);
+    EXPECT_EQ(componentPtr->GetID(), 2);
+}
+
+
 TEST_F(NodeTest, RemoveNonExistentComponentThrows)
 {
     auto component =

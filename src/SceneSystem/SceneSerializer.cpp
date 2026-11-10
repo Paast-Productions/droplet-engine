@@ -45,7 +45,7 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     context.ResolveAllReferences();
 }
 
-void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene, std::optional<glm::vec3> p_overridePosition)
+std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene, std::optional<glm::vec3> p_overridePosition)
 {
     if (!p_json.contains("name"))
     {
@@ -96,6 +96,8 @@ void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::j
     {
         DeserializeNode(childJson, node, scenePtr, nullContext);
     }
+
+    return node;
 }
 
 

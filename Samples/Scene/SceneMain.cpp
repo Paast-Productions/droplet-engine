@@ -220,7 +220,7 @@ static void PhysicsTest()
     }
 
     s->InitializePhysics();
-    s->GetPhysics()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
+    s->GetPhysics().lock()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
 
     sm.ActivateScene("Game");
 
@@ -229,13 +229,13 @@ static void PhysicsTest()
     player->GetTransform().SetPosition(glm::vec3(0.0f, 60.0f, 0.0f));
 
     std::unique_ptr<Component> seafloorComp = ComponentFactory::CreateComponent("PhysicsComponent");
-    seafloor->AddComponent(seafloorComp);
+    seafloor->AttachComponent(seafloorComp);
 	auto seafloorComponets = seafloor->GetComponents<PhysicsComponent>();
     seafloorComponets[0]->Initialize(s->GetPhysics(), &seafloor->GetTransform());
     seafloorComponets[0]->SetMeshCollider(rh.GetGUID());
 
     std::unique_ptr<Component> playerComp = ComponentFactory::CreateComponent("PhysicsComponent");
-    player->AddComponent(playerComp);
+    player->AttachComponent(playerComp);
 	auto playerComponets = player->GetComponents<PhysicsComponent>();
     playerComponets[0]->Initialize(s->GetPhysics(), &player->GetTransform());
     playerComponets[0]->SetCapsuleCollider(0.5f, 0.5f);

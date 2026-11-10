@@ -100,7 +100,21 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
 			m_selectedJsonScene = path;
 			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				OpenJson(p_node.relativePath);
+				if (p_type == SavedDataType::Scene)
+				{
+					const std::string sceneName = p_node.relativePath.stem().string();
+					const std::string scenePath = p_node.relativePath.string();
+					if (auto activeScene = m_editorContext->GetActiveScene().lock())
+					{
+						activeScene->SetActive(false);
+					}
+					m_editorContext->LoadFromFile(scenePath);
+					m_editorContext->SetActiveScene(sceneName);
+				}
+				else
+				{
+					OpenJson(p_node.relativePath);
+				}
 			}
 		}
 
@@ -145,24 +159,6 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
-		}
-
-		if (p_type == SavedDataType::Scene)
-		{
-			if (ImGui::BeginDragDropSource())
-			{
-				SceneDragDropData data{};
-
-				const std::string fullPath = p_node.relativePath.string();
-				const std::string sceneName = std::filesystem::path(p_node.name).stem().string();
-
-				strcpy_s(data.path, fullPath.c_str());
-				strcpy_s(data.name, sceneName.c_str());
-
-				ImGui::SetDragDropPayload("SCENE_PATH", &data, sizeof(data));
-				ImGui::TextUnformatted(sceneName.c_str());
-				ImGui::EndDragDropSource();
-			}
 		}
 
 		if (p_type == SavedDataType::Prefab)

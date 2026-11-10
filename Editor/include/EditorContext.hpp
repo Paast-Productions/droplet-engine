@@ -14,6 +14,12 @@ namespace Droplet::Scene
 
 namespace Droplet::Editor
 {
+
+	struct AudioMixerEditorState
+	{
+		std::optional <std::uint64_t> selectedAudioBusID;
+	};
+
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
 	class EditorContext 
 	{
@@ -42,6 +48,11 @@ namespace Droplet::Editor
 		/// @returns A scene from scenemanager
 		[[nodiscard]] std::weak_ptr<Droplet::Scene::Scene> GetActiveScene();
 
+		/// @brief Get the mixer
+		/// @return the mixer
+		[[nodiscard]] Audio::AudioSystem &GetAudioSystem();
+
+		AudioMixerEditorState &GetAudioMixerState() { return m_selectedBus; }
 		/// @breif Lets the context set a new active scene
 		/// @param p_sceneName The name of the scene to set as active
 		void SetActiveScene(std::string p_sceneName);
@@ -57,6 +68,7 @@ namespace Droplet::Editor
 		/// @brief Loads a scene from a file
 		/// @param p_filepath Filepath
 		void LoadFromFile(const std::string &p_filepath);
+
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
@@ -79,6 +91,13 @@ namespace Droplet::Editor
 		[[nodiscard]] const std::vector<Graphics::CameraRenderData> &GetQueuedEditorCameras() const { return m_camsToRender; }
 		void ClearQueuedEditorCameras() { m_camsToRender.clear(); }
 
+		void SetNodeScrollFocus(const std::weak_ptr<Droplet::Scene::Node> &p_node) { m_scrollFocusNode = p_node; }
+		[[nodiscard]] std::weak_ptr<Droplet::Scene::Node> GetNodeScrollFocus() const { return m_scrollFocusNode; }
+
+		void SetFocusCameraOnSelection(bool p_focus) { m_focusCameraOnSelection = p_focus; }
+		[[nodiscard]] bool ShouldFocusCameraOnSelection() const { return m_focusCameraOnSelection; }
+
+
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
@@ -89,5 +108,11 @@ namespace Droplet::Editor
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
 
 		std::vector<Graphics::CameraRenderData> m_camsToRender;
+
+		std::weak_ptr<Droplet::Scene::Node> m_scrollFocusNode;
+		bool m_focusCameraOnSelection{ false };
+		
+		//Audio::AudioSystem m_audioSystem;
+		AudioMixerEditorState m_selectedBus;
 	};
 }

@@ -1,36 +1,67 @@
 {
     "active": true,
-    "children": [],
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Fish",
+                        "meshGUID": 13422515732780036519,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WoodTexture",
+                        "textureGUID": 1466059150086384494,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 108,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -3.090856637300021e-08,
+                    -0.7071065306663513,
+                    -3.0908648085414825e-08,
+                    0.7071070671081543
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
     "components": [
         {
+            "active": true,
             "data": {
-                "fs": 13680123319807966343,
-                "fsName": "Base.FS",
-                "gs": 0,
-                "gsName": "",
-                "meshDisplayName": "Fish",
-                "meshGUID": 13422515732780036519,
-                "tcs": 0,
-                "tcsName": "",
-                "tes": 0,
-                "tesName": "",
-                "textureDisplayName": "WoodTexture",
-                "textureGUID": 1466059150086384494,
-                "vs": 7809030845991192100,
-                "vsName": "Base.VS"
+                "filepath": "Engine_Side/Fih.lua"
             },
             "id": 1,
-            "type": "MeshComponent"
-        },
-        {
-            "data": {
-                "filepath": "Fih.lua"
-            },
-            "id": 2,
             "type": "ScriptComponent"
         }
     ],
-    "id": 1,
+    "drawLayer": 1,
+    "id": 107,
     "name": "WoodRoach",
     "transform": {
         "position": [
@@ -39,10 +70,10 @@
             0.0
         ],
         "rotation": [
-            1.0,
+            -4.371138828673793e-08,
             0.0,
             0.0,
-            0.0
+            1.0
         ],
         "scale": [
             1.0,

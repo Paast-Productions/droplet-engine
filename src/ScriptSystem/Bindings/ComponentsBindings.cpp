@@ -1,11 +1,11 @@
 #include "ComponentsBindings.hpp"
-#include "SceneSystem/Components/CameraComponent.hpp"
-#include "SceneSystem/Components/MeshComponent.hpp"
-#include "SceneSystem/Components/PhysicsComponent.hpp"
-#include "SceneSystem/Components/HealthComponent.hpp"
-#include "SceneSystem/Components/DamageComponent.hpp"
-#include "SceneSystem/Components/PlayerComponent.hpp"
-#include "SceneSystem/Behaviours/PlayerBehaviour.hpp"
+#include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -21,6 +21,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
+    RegisterPhysicsComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -450,7 +451,10 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
         "SetMotionType", &PhysicsComponent::SetMotionType,
         "SetObjectLayer", &PhysicsComponent::SetObjectLayer,
         "SetActive", &PhysicsComponent::SetActive,
-        "RemoveCollider", &PhysicsComponent::RemoveCollider
+        "RemoveCollider", &PhysicsComponent::RemoveCollider,
+        
+        "SetVelocity", &PhysicsComponent::SetVelocity,
+        "GetVelocity", &PhysicsComponent::GetVelocity
     );
 
 
@@ -505,7 +509,13 @@ void Bindings::RegisterPhysicsComponent(sol::state_view p_luaState)
             {"active", "boolean"}
         }},
 
-        {"RemoveCollider", "void", {}}
+        {"RemoveCollider", "void", {}},
+                
+        {"SetVelocity", "void", {
+            {"velocity", "Vec3"}
+        }},
+                
+        {"GetVelocity", "Vec3", {}}
     };
 
 	LuaBindings::PushLuaClassDefinition(classDef);
