@@ -33,6 +33,7 @@ function OnTrigger(dt, node)
             else 
                 if KeyPressed == true and pb:CountItem(InventoryType.Player, RepairedPartId) == 1 then
                     print("Repaired")
+                    pb:RemoveItem(InventoryType.Player, RepairedPartId, 1)
                     KeyPressed = false
                 end
             end

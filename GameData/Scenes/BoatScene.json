@@ -163,6 +163,12 @@
                     },
                     "id": 4,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 5,
+                    "type": "PlayerComponent"
                 }
             ],
             "drawLayer": 1,
