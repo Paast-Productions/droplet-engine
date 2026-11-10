@@ -59,7 +59,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Get the extent of the texture
 		/// @returns A Vulkan Extent2D
-		[[nodiscard]] vk::Extent2D GetExtent() const { return m_extent; }
+		[[nodiscard]] vk::Extent2D GetExtent() const { return m_colourImageHandle->GetExtent(); }
 		
 		//
 		// TODO: </REFACTOR> 
@@ -86,8 +86,7 @@ namespace Droplet::Graphics
 		
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters
-		vk::Extent2D m_extent {};
-
+		
 		// Colour Attachment
 		vk::Format m_colourFormat {};
 		DynamicResourceHandle<VK::Image> m_colourImageHandle {};

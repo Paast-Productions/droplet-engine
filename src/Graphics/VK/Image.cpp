@@ -16,7 +16,8 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 			 vk::Format p_format, 
 			 vk::ImageTiling p_tiling, 
 			 vk::ImageUsageFlags p_usage, 
-			 vk::MemoryPropertyFlags p_properties)
+			 vk::MemoryPropertyFlags p_properties) :
+				m_extent(p_width, p_height)
 {
 	
 	// CREATE NECESSARY BUFFERS
@@ -188,7 +189,8 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 					 vk::Format p_format,
 					 vk::ImageTiling p_tiling, 
 					 vk::ImageUsageFlags p_usage, 
-					 vk::MemoryPropertyFlags p_properties)
+					 vk::MemoryPropertyFlags p_properties) :
+						m_extent(p_width, p_height)
 {
 	vk::ImageCreateInfo imageInfo
 	{

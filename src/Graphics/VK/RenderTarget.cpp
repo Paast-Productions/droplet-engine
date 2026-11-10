@@ -12,7 +12,4 @@ RenderTarget::RenderTarget(
 		m_colourImageHandle(p_colourImage),
 		m_depthImageHandle(p_depthImage),
 		m_colourImageViewHandle(p_colourImageView),
-		m_depthImageViewHandle(p_depthImageView),
-		m_extent(
-			p_width,
-			p_height) {}
+		m_depthImageViewHandle(p_depthImageView) {}

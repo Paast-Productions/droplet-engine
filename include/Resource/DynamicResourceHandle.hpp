@@ -26,6 +26,7 @@ namespace Droplet
 
         ~DynamicResourceHandle() override;
         
+        bool operator==(const DynamicResourceHandle &p_other) const;
         T* operator->() const;
         
         // TODO: Refactor to be private with intermediary storage friended.

@@ -322,7 +322,6 @@ namespace Droplet::Graphics::VK
         // TODO: Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
-        //std::vector<RenderTarget> m_renderTargets {};
         std::vector<PresentTarget> m_presentTargets {};
         std::vector<UniformBuffer> m_uniformBuffers {};
         
@@ -332,7 +331,6 @@ namespace Droplet::Graphics::VK
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};
  
         // NEW STUFF
-        
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
         std::queue<DynamicLiveResource> m_destroyQueue {};

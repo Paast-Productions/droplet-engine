@@ -30,7 +30,7 @@ namespace Droplet
     template <typename T>
     DynamicResourceHandle<T> &DynamicResourceHandle<T>::operator=(const DynamicResourceHandle &p_other)
     {
-        if (this == &p_other)
+        if (*this == p_other)
         {
             return *this;
         }
@@ -47,29 +47,28 @@ namespace Droplet
     }
 
     template <typename T>
-    DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept :
-        ResourceHandle<T>(p_other.m_guid)
-    {
-        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
+    DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept
+    { 
+        std::print(std::cout, "Swap (Move Constructor): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) - 1);
+        std::flush(std::cout);
+        std::exchange(ResourceHandle<T>::m_guid, p_other.m_guid);
+        p_other.m_guid = C_INVALID_GUID;
     }
 
     template <typename T>
     DynamicResourceHandle<T> &DynamicResourceHandle<T>::operator=(DynamicResourceHandle &&p_other) noexcept
     {
-        if (this == &p_other)
+        if (*this == p_other)
         {
             return *this;    
         }   
         
-        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
+        std::print(std::cout, "Swap (Move Assignment): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) - 1);
+        std::flush(std::cout);
+        std::exchange(ResourceHandle<T>::m_guid, p_other.m_guid);
+        p_other.m_guid = C_INVALID_GUID;
         
         return *this;
-    }
-
-    template <typename T>
-    T *DynamicResourceHandle<T>::operator->() const
-    {
-        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -83,6 +82,18 @@ namespace Droplet
         std::print(std::cout, "Decrement (Destructor): {0}, Current refcount: {1}\n", ResourceHandle<T>::m_guid, Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid) - 1);
         std::flush(std::cout);
         Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+    }
+
+    template <typename T>
+    bool DynamicResourceHandle<T>::operator==(const DynamicResourceHandle &p_other) const
+    {
+        return ResourceHandle<T>::m_guid == p_other.m_guid;
+    }
+
+    template <typename T>
+    T *DynamicResourceHandle<T>::operator->() const
+    {
+        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>

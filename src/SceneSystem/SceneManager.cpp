@@ -307,7 +307,7 @@ std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
             it = m_activeScenes.erase(it);
             continue;
         }
-
+        
         auto &renderers = scene->m_renderers;
 
 		for (std::shared_ptr<CameraComponent> &renderer : renderers)
