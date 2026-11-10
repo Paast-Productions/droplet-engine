@@ -26,16 +26,22 @@ project "Jolt"
         "-DENABLE_OBJECT_STREAM=OFF",
     }, " ")
 
-    filter "configurations:release"
+    filter "configurations:editor-deploy or configurations:game-deploy"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. "/Build" .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Distribution --target install",
         }
-    filter "configurations:debug"
+    filter "configurations:editor-release or configurations:game-release"
+        prebuildcommands{
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. "/Build" .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
+            "cmake --build " .. objDirectory .. " --config Release --target install",
+        }
+    filter "configurations:editor-debug or configurations:game-debug"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. "/Build" .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Debug --target install",
         }
-    filter {}
+    filter {} 

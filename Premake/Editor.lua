@@ -1,5 +1,5 @@
 project "Editor"
-    kind "ConsoleApp"
+    kind "WindowedApp"
 
     location(projectsPath)
 
@@ -12,7 +12,6 @@ project "Editor"
     UseEditorPCH()
 
     defines{ 
-		"_EDITOR",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -26,6 +25,8 @@ project "Editor"
 
         buildoptions {"/Zi"}
         
+        entrypoint "mainCRTStartup"
+
         includedirs
         {
             "../include",
@@ -113,8 +114,8 @@ project "Editor"
 		AddQuotation("Jolt")
     }
 
-    filter "configurations:debug"
+    filter "configurations:editor-debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:release"
+    filter "configurations:editor-release or configurations:editor-deploy"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}

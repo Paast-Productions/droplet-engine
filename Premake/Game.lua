@@ -12,7 +12,6 @@ project "Game"
     UseGamePCH()
 
     defines{ 
-		"_GAME",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -24,6 +23,8 @@ project "Game"
     if _TARGET_OS == "windows" then
 
         buildoptions {"/Zi"}
+
+        entrypoint "mainCRTStartup"
         
         includedirs
         {
@@ -105,8 +106,8 @@ project "Game"
 		AddQuotation("Jolt")
     }
 
-    filter "configurations:debug"
+    filter "configurations:game-debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:release"
+    filter "configurations:game-release or configurations:game-deploy"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}
