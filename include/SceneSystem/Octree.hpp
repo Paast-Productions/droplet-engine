@@ -203,10 +203,17 @@ namespace Droplet::Scene
 			std::array<std::unique_ptr<TreeNode>, 8> children;
 			bool isSubdivided = false;
 		};
+		
+		struct FatBounds
+		{
+			Math::AABB fatBounds;
+			bool hasUpdated = false;
+			GUID meshGuid = C_INVALID_GUID;
+		};
 
 		bool m_isInitialized = false;
 		std::unique_ptr<TreeNode> m_root;
 		
-		std::unordered_map<Node *, Math::AABB> m_placements; // Contains fat bounds
+		std::unordered_map<Node *, FatBounds> m_placements; // Contains fat bounds
 	};
 }
