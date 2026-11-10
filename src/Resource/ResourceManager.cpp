@@ -97,34 +97,7 @@ namespace Droplet
                 continue;
             }
             liveResource.resource.reset(loadRes.resource);
-            
-            switch (loadRes.loadFlags)
-            {
-                case ResourceLoadFlag::LoadCPU:
-                {
-                    liveResource.state = ResourceState::Ready;
-                    break;
-                }
-                case ResourceLoadFlag::LoadGPU:
-                {
-                    liveResource.state = ResourceState::Uploading;
-                                        
-                    // TODO: Implement upload to GPU upload queue or upload here directly
-                    
-                    liveResource.resource.reset(); // Release resource from RAM
-                    liveResource.state = ResourceState::Ready;
-                    break;
-                }
-                case ResourceLoadFlag::LoadBoth:
-                {
-                    liveResource.state = ResourceState::Uploading;
-                                        
-                    // TODO: Implement upload to GPU upload queue or upload here directly
-                                        
-                    liveResource.state = ResourceState::Ready;
-                    break;
-                }
-            }
+            liveResource.state = ResourceState::Ready;
             
             std::vector<std::function<void()>> callbacksToInvoke;
             callbacksToInvoke.swap(liveResource.loadCallbacks);

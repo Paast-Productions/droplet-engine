@@ -211,29 +211,4 @@ namespace Droplet
             return ShaderResource::CreateFallback();
         }
     };
-    
-    template<>
-    struct ResourceTraits<SoundResource>
-    {
-        static ResourceType GetType()
-        {
-            return ResourceType::Sound;
-        }
-        
-        static std::unique_ptr<ShaderResource> LoadCPU(
-            const std::filesystem::path &p_assetPath,
-            const std::string &p_sourceName,
-            const nlohmann::json &p_loadSettings)
-        {
-            try
-            {
-                return 
-            }
-            catch (std::exception &)
-            {
-                // TODO: Log error
-                return nullptr;
-            }
-        }
-    };
 }

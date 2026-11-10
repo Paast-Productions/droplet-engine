@@ -21,6 +21,9 @@ namespace Droplet::Audio
 	    bool Initialize();
 		void Shutdown();
 	    
+	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, dalia::SoundType p_type, 
+	         std::function<void(bool)> p_onLoad);
+	    
 		AudioMixer &GetMixer();
 		
 	private:

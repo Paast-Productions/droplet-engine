@@ -22,9 +22,8 @@ void Droplet::Scene::AudioEmitterComponent::StartImpl()
 	auto scene = owner->GetScene();
 	if (!scene)
 		return;
-
-	auto& audio = scene->GetAudioSystem();
-	m_mixer = &audio.GetMixer();
+    
+	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();
 }
 
 void AudioEmitterComponent::RenderUIImpl()

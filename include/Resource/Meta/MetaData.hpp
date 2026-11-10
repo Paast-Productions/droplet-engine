@@ -99,6 +99,9 @@ namespace Droplet
         // --- Shader Settings ---
         inline constexpr Setting<ShaderResource::ShaderType> C_SHADER_TYPE = { "shader_type", "Shader Type", ShaderResource::ShaderType::Vertex };
         
+        // --- Sound Settings ---
+        inline constexpr Setting<dalia::SoundType> C_SOUND_TYPE = { "sound_type", "Sound Type", dalia::SoundType::Resident };
+        
         /// @brief Defines the datatypes available in a resource's load settings.
         enum class Type
         {

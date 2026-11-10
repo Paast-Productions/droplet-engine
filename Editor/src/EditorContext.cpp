@@ -69,7 +69,7 @@ std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveSc
 
 Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()
 {
-	return  m_engine.GetSceneManager().GetAudioSystem();
+	return  Audio::AudioSystem::GetInstance();
 }
 
 Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractionState()

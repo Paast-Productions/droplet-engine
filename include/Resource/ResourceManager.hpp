@@ -15,6 +15,8 @@
 #include "core/ThreadSafeQueue.hpp"
 #include "core/ThreadPool.hpp"
 
+#include "Audio/AudioSystem.hpp"
+
 namespace Droplet
 {
 	/// @brief Represents all states that a resource can have.
@@ -152,7 +154,26 @@ namespace Droplet
 			
 			if (loadAsync)
 			{
-				PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    if constexpr (std::is_same_v<T, SoundResource>)
+			    {
+			        dalia::SoundType type = dalia::SoundType::Resident; // TODO: Extract this from loadsettings
+			        // Sound resources are handled by AudioSystem
+			        std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / metaEntry.relAssetPath;
+			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [&, this](bool success)
+			        {
+			            AsyncLoadResult res;
+                        res.succeeded = success;
+                        res.guid = metaEntry.guid;
+                        res.resource = loadedResource.release();
+                        res.loadFlags = metaEntry.loadFlags;
+								                        
+                        m_asyncLoadResults.Push(res);
+			        });
+			    }
+			    else
+			    {
+			        PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    }
 			}
 			
 			return handle;

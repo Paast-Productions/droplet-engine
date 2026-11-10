@@ -20,7 +20,7 @@
 #include <GameInput.hpp>
 #include <Time.hpp>
 #include <Graphics/VK/RenderTarget.hpp>
-#include <AudioSystem/AudioSystem.hpp>
+#include <Audio/AudioSystem.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet

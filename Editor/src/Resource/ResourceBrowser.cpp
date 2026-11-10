@@ -828,9 +828,11 @@ std::string ResourceBrowser::ResourceTypeToString(ResourceType p_type)
 		case ResourceType::SkinnedMesh:
 			return "Skinned Mesh";
 		case ResourceType::Texture2D:
-				return "2D Texture";
+	        return "2D Texture";
 		case ResourceType::Texture3D:
 			return "3D Texture";
+	    case ResourceType::Sound:
+	        return "Sound";
 		default:
 			return "None";
 	}

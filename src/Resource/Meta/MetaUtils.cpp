@@ -162,6 +162,8 @@ namespace Droplet::MetaUtils
         case ResourceType::Material:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
             break;
+        case ResourceType::Sound:
+            entry.loadSettings[MetaLoadSettings::C_SOUND_TYPE.key] = MetaLoadSettings::C_SOUND_TYPE.defaultValue;
         default: 
             break;
         }
@@ -217,6 +219,17 @@ namespace Droplet::MetaUtils
             };
         case ResourceType::Material:
             return {};
+        case ResourceType::Sound:
+            return {
+                {
+                    MetaLoadSettings::C_SOUND_TYPE.key,
+                    MetaLoadSettings::C_SOUND_TYPE.displayName,
+                    MetaLoadSettings::Type::Enum,
+                    0.0f,
+                    0.0f,
+                    { "None (don't pick this)", "Resident", "Stream"}
+                }
+            };
 
         default: 
             return {};
