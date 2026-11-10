@@ -3,6 +3,8 @@ project "Jolt"
     location(projectsPath)
 
     local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
+    local objDirectory = AddQuotation(objBuildPath .. "/%{prj.name}")
+    local installDirectory = AddQuotation(targetBuildPath .. "/External")
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
@@ -26,13 +28,14 @@ project "Jolt"
 
     filter "configurations:release"
         prebuildcommands{
-            "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. "/Build" .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
-            "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. "/Build" .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
         }
     filter "configurations:debug"
         prebuildcommands{
-            "{MKDIR} %{prj.objdir}",
-            "cmake -S " .. moduleDirectory .. "/Build" .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
-            "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. "/Build" .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DTARGET_UNIT_TESTS=OFF -DTARGET_HELLO_WORLD=OFF -DTARGET_PERFORMANCE_TEST=OFF -DTARGET_SAMPLES=OFF -DTARGET_VIEWER=OFF" .. joltOptions,
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
         }
+    filter {}

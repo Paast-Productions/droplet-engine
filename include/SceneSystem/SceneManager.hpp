@@ -145,6 +145,8 @@ namespace Droplet::Scene
 
         [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
 
+		[[nodiscard]] const std::unordered_map<std::string, std::shared_ptr<Scene>> &GetScenes() const { return m_scenes; }
+
         /// @brief Is meant to enable other classes to use functionality in the audiomixer
         /// @return A reference to the engines Audio mixer
         [[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }

@@ -125,13 +125,12 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, u
 
 }
 
-const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
+const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
     // TRY FINDING ALREADY CREATED PIPELINE
     
-    PipelineKey key 
-    {
+    PipelineKey key {
         .vsGuid = p_renderData.vsData.GUID,
         .tcsGuid = p_renderData.tcsData.GUID,
         .tesGuid = p_renderData.tesData.GUID,
@@ -140,10 +139,9 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     };
     
     auto it = m_pipelineMap.find(key);
-
     if (it != m_pipelineMap.end())
     {
-        return m_pipelineMap.at(key);
+        return &it->second;
     }
 
     // IF FAILED, CREATE NEW
@@ -154,12 +152,9 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     ResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
     ResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
 
-    if
-    (
-        !(vs.IsReady() || vs.HasFailed())
-    )
+    if (!(vs.IsReady() || vs.HasFailed()))
     {
-        return nullptr;
+		return nullptr;
     }
 
     std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec{};
@@ -240,8 +235,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         descriptorSetLayouts.push_back(*descriptorSet.GetLayout());
     }
 
-    m_pipelineMap[key] = Pipeline
-    {
+    m_pipelineMap[key] = Pipeline{
         p_device,
         p_physicalDevice,
         descriptorSetLayouts,
@@ -249,10 +243,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         p_surfaceFormat
     };
     
-    return m_pipelineMap.at(key);
+    return &m_pipelineMap.at(key);
 }
 
-const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
+const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
 {
     ZoneScoped;
 

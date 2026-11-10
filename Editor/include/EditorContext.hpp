@@ -68,6 +68,7 @@ namespace Droplet::Editor
 		/// @brief Loads a scene from a file
 		/// @param p_filepath Filepath
 		void LoadFromFile(const std::string &p_filepath);
+
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
@@ -90,6 +91,13 @@ namespace Droplet::Editor
 		[[nodiscard]] const std::vector<Graphics::CameraRenderData> &GetQueuedEditorCameras() const { return m_camsToRender; }
 		void ClearQueuedEditorCameras() { m_camsToRender.clear(); }
 
+		void SetNodeScrollFocus(const std::weak_ptr<Droplet::Scene::Node> &p_node) { m_scrollFocusNode = p_node; }
+		[[nodiscard]] std::weak_ptr<Droplet::Scene::Node> GetNodeScrollFocus() const { return m_scrollFocusNode; }
+
+		void SetFocusCameraOnSelection(bool p_focus) { m_focusCameraOnSelection = p_focus; }
+		[[nodiscard]] bool ShouldFocusCameraOnSelection() const { return m_focusCameraOnSelection; }
+
+
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;
@@ -100,6 +108,10 @@ namespace Droplet::Editor
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
 
 		std::vector<Graphics::CameraRenderData> m_camsToRender;
+
+		std::weak_ptr<Droplet::Scene::Node> m_scrollFocusNode;
+		bool m_focusCameraOnSelection{ false };
+		
 		//Audio::AudioSystem m_audioSystem;
 		AudioMixerEditorState m_selectedBus;
 	};
