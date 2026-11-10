@@ -30,8 +30,8 @@
                             "type": "MeshComponent"
                         }
                     ],
-                    "drawLayer": 1,
-                    "id": 55,
+                    "drawLayer": 32,
+                    "id": 96,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -55,7 +55,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 54,
+            "id": 95,
             "name": "Body",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 57,
+                    "id": 98,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -142,7 +142,7 @@
                                         100.0
                                     ]
                                 },
-                                "drawLayerMask": 65535,
+                                "drawLayerMask": 65503,
                                 "priority": 0,
                                 "resolution": [
                                     1280,
@@ -162,7 +162,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 58,
+                    "id": 99,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -186,7 +186,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 56,
+            "id": 97,
             "name": "Head",
             "transform": {
                 "position": [
@@ -238,7 +238,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 53,
+    "id": 94,
     "name": "Player",
     "transform": {
         "position": [
