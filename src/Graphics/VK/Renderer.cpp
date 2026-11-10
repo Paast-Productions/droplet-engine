@@ -338,6 +338,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	commandBuffer.endRendering();
 	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
+#ifdef _EDITOR
 	TransitionImageLayout(
 		p_renderTarget.GetColorImage(),
 		vk::ImageLayout::eColorAttachmentOptimal,
@@ -349,6 +350,21 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		vk::ImageAspectFlagBits::eColor,
 		commandBuffer
 	);
+#endif
+
+#ifdef _GAME
+	TransitionImageLayout(
+		p_renderTarget.GetColorImage(),
+		vk::ImageLayout::eColorAttachmentOptimal,
+		vk::ImageLayout::ePresentSrcKHR,
+		vk::AccessFlagBits2::eColorAttachmentWrite,
+		{},
+		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
+		vk::PipelineStageFlagBits2::eBottomOfPipe,
+		vk::ImageAspectFlagBits::eColor,
+		commandBuffer
+	);
+#endif
 
 	//commandBuffer.end();
 }
@@ -421,6 +437,13 @@ void Renderer::RecordImGuiCommandBuffer(
 		vk::ImageAspectFlagBits::eColor,
 		commandBuffer
 	);
+}
+
+static void CheckVkResult(VkResult p_err)
+{
+	if (p_err == VK_SUCCESS)
+		return;
+	throw ("[vulkan] Error: VkResult = %d\n", p_err);
 }
 
 void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
@@ -620,9 +643,3 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	m_frameIndex = (m_frameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
-static void CheckVkResult(VkResult p_err)
-{
-	if (p_err == VK_SUCCESS)
-		return;
-	throw ("[vulkan] Error: VkResult = %d\n", p_err);
-}
