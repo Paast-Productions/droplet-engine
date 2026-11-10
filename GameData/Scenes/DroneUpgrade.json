@@ -42,7 +42,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 20,
+            "id": 5,
             "name": "New Node",
             "transform": {
                 "position": [
@@ -90,14 +90,6 @@
                 },
                 {
                     "active": true,
-                    "data": {
-                        "filepath": "DroneMovement.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
                     "data": {},
                     "id": 3,
                     "type": "PlayerComponent"
@@ -122,10 +114,18 @@
                     },
                     "id": 4,
                     "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/DroneMovement.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 21,
+            "id": 6,
             "name": "New Node",
             "transform": {
                 "position": [

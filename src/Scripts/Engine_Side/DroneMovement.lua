@@ -6,6 +6,8 @@
 
 -- Movement settings
 local acceleration = 5.0
+local macspee
+--local maxSpeed = 8.0
 local drag = 1.5
 
 -- Runtime state
@@ -118,11 +120,13 @@ end
 function OnStart()
     tracy.ZoneBeginN("Drone_movement OnStart")
     local playerComponent = self:GetPlayerComponent()
+    player = playerComponent:GetPlayerBehaviour()
+    maxSpeed = player:GetDroneMaxSpeed()
+
     if playerComponent == nil then
         print("Error: PlayerComponent not found on entity.")
         return
     end
-    player = playerComponent:GetPlayerBehaviour()
 
     print("New Drone_movement")
 	trans = self:GetTransform()
@@ -147,8 +151,7 @@ function RenderUI()
     _, acceleration = ImGui.SliderFloat("Acceleration", acceleration, 0.5, 20.0)
     --_, maxSpeed = ImGui.SliderFloat("Maximum Speed", maxSpeed, 1.0, 30.0)
     _, drag = ImGui.SliderFloat("Drag", drag, 0.0, 5.0)
-    ImGui.Text("maxSpeed: " .. tostring(maxSpeed))
-
+    ImGui.Text("Current Speed: " .. maxSpeed)
 
     ImGui.Separator()
     ImGui.Text("W/S: Forward / Backward")

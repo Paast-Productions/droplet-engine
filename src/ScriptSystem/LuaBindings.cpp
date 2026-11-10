@@ -102,6 +102,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetHealthComponent", &Scene::Node::GetHealthComponent,
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetNodeRemovalCount", &Scene::Node::GetNodeRemovalCount,
+		"SetNodeRemovalCount", &Scene::Node::SetNodeRemovalCount,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,

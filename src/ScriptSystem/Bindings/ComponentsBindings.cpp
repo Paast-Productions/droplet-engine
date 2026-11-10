@@ -652,22 +652,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
 	);
 
-    // Inventory type.
-    p_luaState.new_enum(
-        "InventoryType",
-        "Player", Scene::InventoryType::Player,
-        "Drone", Scene::InventoryType::Drone
-    );
-
-    // Item registry.
-    p_luaState.new_usertype<Game::ItemRegistry>(
-        "ItemRegistry",
-        sol::no_constructor,
-        "Find", [](const Game::ItemRegistry &p_registry, const std::string &p_name)
-        {
-            return p_registry.Find(p_name);
-        }
-    );
 
     // PlayerBehaviour API metadata.
     LuaClassDefinition classDef;

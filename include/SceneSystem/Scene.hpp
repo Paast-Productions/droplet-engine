@@ -275,6 +275,11 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
         const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
 
+        void IncrementRemovalCounter();
+
+		uint32_t GetRemovalCounter();
+        void SetRemovalCounter(std::uint32_t p_counter);
+
     private:
 		friend class SceneManager;
 
@@ -291,5 +296,7 @@ namespace Droplet::Scene
         bool m_active = false;
 
 		SceneManager *m_sceneManager = nullptr;
+
+        std::uint32_t m_removalCounter = 0;
     };     
 }
