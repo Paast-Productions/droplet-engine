@@ -9,7 +9,7 @@ project "Game"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-    UseGraphicsPCH()
+    UseGamePCH()
 
     defines{ 
 		"_GAME",
@@ -43,16 +43,14 @@ project "Game"
             vkPath .. "/Lib"
         }
 
-        filter { "system:windows" }
-
         files 
         { 
             "../Game/resources.rc", 
-            "../Game/icon.ico" 
+            "../Game/drone-icon.ico" 
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_game_shaders.bat")
         }
 
     else

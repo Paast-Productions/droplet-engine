@@ -44,8 +44,6 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
-        filter { "system:windows" }
-
         files 
         { 
             "../Editor/resources.rc", 
@@ -53,7 +51,7 @@ project "Editor"
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_editor_shaders.bat")
         }
 
     else
