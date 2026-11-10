@@ -149,29 +149,6 @@ namespace Droplet::Scene
         [[nodiscard]] float GetPressureLevel() const { return m_data.pressureLevel; }
 
 
-        /// RADIATION  
-
-		/// @brief Sets the player's resistance to environmental radiation.
-		/// @param p_radiationResistance New radiation resistance value.
-        void SetRadiationResistance(float p_radiationResistance) { m_data.radiationResistance = p_radiationResistance; }
-
-        /// @brief Gets the player's resistance to environmental radiation.
-        /// @return Current radiation resistance value.
-        [[nodiscard]] float GetRadiationResistance() const { return m_data.radiationResistance; }
-
-        /// @brief Increases the player's current radiation level.
-        /// @param p_amount Amount to add to the current radiation level.
-        void IncreaseRadiationLevel(float p_amount) { m_data.radiationLevel += p_amount; }
-
-        /// @brief Sets the player's current radiation level.
-        /// @param p_radiation New radiation level value.
-        void SetRadiationLevel(float p_radiation) { m_data.radiationLevel = p_radiation; }
-
-        /// @brief Gets the player's current radiation level.
-        /// @return Current radiation level value.
-        [[nodiscard]] float GetRadiationLevel() const { return m_data.radiationLevel; }
-
-
 		///DroneInventory
         /// @brief The maximum inventory capacity of the drone.
         void SetDroneInventorySize(float p_droneinventorySize) { m_data.maxDroneInventorySlots = p_droneinventorySize; }

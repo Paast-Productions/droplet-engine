@@ -14,7 +14,6 @@ namespace Droplet::Game
         Items::Copper = p_registry.Register({ "resource:copper", "Copper", 16 });
         Items::Tin = p_registry.Register({ "resource:tin", "Tin", 16 });
         Items::Bronze = p_registry.Register({ "resource:bronze", "Bronze", 16 });
-        Items::Lead = p_registry.Register({ "resource:lead", "Lead", 16 });
 
         assert(Items::Wood);
         assert(Items::Stone);
@@ -24,6 +23,5 @@ namespace Droplet::Game
         assert(Items::Copper);
         assert(Items::Tin);
         assert(Items::Bronze);
-        assert(Items::Lead);
     }
 }

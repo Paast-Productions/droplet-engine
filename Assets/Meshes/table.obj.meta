@@ -1,15 +1,15 @@
 {
     "resources": [
         {
-            "displayName": "Cube.012",
-            "guid": 13626165034530630769,
+            "displayName": "Table",
+            "guid": 16491009524998547889,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
                 "join_identical_vertices": true,
                 "triangulate": true
             },
-            "sourceName": "Cube.012",
+            "sourceName": "Table",
             "type": 3
         }
     ]

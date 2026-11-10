@@ -610,7 +610,7 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     p_luaState.new_usertype<Game::ItemRegistry>(
         "ItemRegistry",
         sol::no_constructor,
-        "Find", [](const Game::ItemRegistry& p_registry, const std::string& p_name)
+        "Find", [](const Game::ItemRegistry &p_registry, const std::string& p_name)
         {
             return p_registry.Find(p_name);
         }
@@ -639,12 +639,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "GetPressureLevel", &Scene::PlayerBehaviour::GetPressureLevel,
         "SetPressureLevel", &Scene::PlayerBehaviour::SetPressureLevel,
         "IncreasePressureLevel", &Scene::PlayerBehaviour::IncreasePressureLevel,
-
-        "GetRadiationResistance", &Scene::PlayerBehaviour::GetRadiationResistance,
-        "SetRadiationResistance", &Scene::PlayerBehaviour::SetRadiationResistance,
-        "GetRadiationLevel", &Scene::PlayerBehaviour::GetRadiationLevel,
-        "SetRadiationLevel", &Scene::PlayerBehaviour::SetRadiationLevel,
-        "IncreaseRadiationLevel", &Scene::PlayerBehaviour::IncreaseRadiationLevel,
 
         "GetItemRegistry", &Scene::PlayerBehaviour::GetItemRegistry,
         "AddItem", &Scene::PlayerBehaviour::AddItem,
