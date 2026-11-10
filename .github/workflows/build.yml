@@ -16,6 +16,8 @@ on:
     branches:
       - main
       - dev
+      - game/dev
+      - game/main
     
   workflow_dispatch: 
     
