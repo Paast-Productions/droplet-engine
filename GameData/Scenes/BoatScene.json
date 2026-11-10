@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 10,
+            "id": 302,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 12,
+                    "id": 304,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -163,10 +163,24 @@
                     },
                     "id": 4,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 5,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "PlayerInteraction.lua"
+                    },
+                    "id": 6,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 11,
+            "id": 303,
             "name": "Player",
             "transform": {
                 "position": [
@@ -184,6 +198,96 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": null,
+                            "id": 1,
+                            "type": "TriggerComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "BoatEngine2.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 306,
+                    "name": "New Node",
+                    "transform": {
+                        "position": [
+                            0.0009728968143463135,
+                            0.7491855621337891,
+                            -0.6713123321533203
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            4.756875038146973,
+                            9.746965408325195,
+                            4.030043125152588
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 305,
+            "name": "New Node",
+            "transform": {
+                "position": [
+                    -0.13873201608657837,
+                    -2.034881591796875,
+                    3.771651029586792
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.45629557967185974,
+                    0.3319217562675476,
+                    0.4158320426940918
                 ]
             }
         }
