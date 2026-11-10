@@ -12,16 +12,40 @@ namespace Droplet
 		SkipNodeLogic = 1 << 0,			// Skip node logic
 		SkipBehaviourLogic = 1 << 1,	// Skip behaviour logic
 		SkipScriptLogic = 1 << 2,		// Skip script logic
-		SkipAutoRender = 1 << 3,		// Skip implicitly rendering cameras in active scenes. Cameras must be submitted to the renderer manually.
+		SkipAutoRender = 1 << 3,		// Skip implicitly rendering cameras in active scenes. Cameras must be submitted to the renderer manually each frame.
 		SkipHotReloadScripts = 1 << 4,	// Skip hot reloading scripts
 		InEditor = 1 << 5,				// Run in editor mode
+		InPlayMode = 1 << 6,			// Running play mode
 		// Add more flags as needed
 
-		EditorFlags = InEditor | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic | SkipAutoRender,
-		PlayModeFlags = InEditor | SkipAutoRender,
+		EditorFlags = InEditor | SkipAutoRender | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic,
+		PlayModeFlags = InEditor | InPlayMode,
 		GameFlags = SkipHotReloadScripts,
 		DefaultFlags = None
-	};
+	}; 
+	
+	constexpr UpdateFlags operator|(UpdateFlags lhs, UpdateFlags rhs)
+	{
+		return static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+	}
+	constexpr UpdateFlags operator|=(UpdateFlags &lhs, UpdateFlags rhs)
+	{
+		lhs = static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+		return lhs;
+	}
+	constexpr UpdateFlags operator&(UpdateFlags lhs, UpdateFlags rhs)
+	{
+		return static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+	}
+	constexpr UpdateFlags operator&=(UpdateFlags &lhs, UpdateFlags rhs)
+	{
+		lhs = static_cast<UpdateFlags>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+		return lhs;
+	}
+	constexpr UpdateFlags operator~(UpdateFlags lhs)
+	{
+		return static_cast<UpdateFlags>(~static_cast<uint32_t>(lhs));
+	}
 
 	class EngineFlagsOwner
 	{

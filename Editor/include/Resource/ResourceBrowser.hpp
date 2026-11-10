@@ -16,11 +16,25 @@ namespace Droplet::Editor::Resource
         std::map<std::string, BrowserNode> children; // If it's a directory
         std::vector<const MetaEntry*> resources;     // If it's an asset file
     };
+
+	struct PreviewCamera
+	{
+		Graphics::Camera camera{};
+
+		std::uint32_t targetIndex{ Graphics::VK::INVALID_INDEX };
+		std::uint32_t textureIndex{ Graphics::VK::INVALID_INDEX };
+		glm::ivec2 resolution{ 256, 256 };
+
+		ResourceHandle<Texture2DResource> texHandle{};
+		ResourceHandle<ShaderResource> vsHandle{};
+		ResourceHandle<ShaderResource> fsHandle{};
+	};
     
 	class ResourceBrowser : public EditorWindow
 	{
 	public:
-	    ResourceBrowser(EditorContext *p_editorContext);
+	    ResourceBrowser(EditorContext *p_editorContext) : EditorWindow(p_editorContext) {}
+		~ResourceBrowser();
 	     
 	protected:
 
@@ -56,8 +70,6 @@ namespace Droplet::Editor::Resource
         /// @param p_type The resource type to convert.
         /// @return String representing the resource type.
         std::string ResourceTypeToString(ResourceType p_type);
-
-	    EditorContext *m_editorContext { nullptr };
 	    
 	    BrowserNode m_rootBrowserNode {}; // The root node in the resource browser hierarchy
 	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser
@@ -65,6 +77,7 @@ namespace Droplet::Editor::Resource
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
 	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
+		PreviewCamera m_previewCamera{}; // The camera used for rendering previews of resources in the resource browser
 		ResourceHandle<IResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
 	    
@@ -73,5 +86,6 @@ namespace Droplet::Editor::Resource
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue {}; // Queued popups upon successful resource registration
 		
 		std::unordered_map<std::uint64_t, std::uint32_t> m_imGuiTexMap {};
+
 	};
 }

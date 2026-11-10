@@ -20,7 +20,7 @@
 
 using namespace Droplet::Editor;
 
-ScriptsWindow::ScriptsWindow()
+ScriptsWindow::ScriptsWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext)
 {
 	m_scriptPath = Droplet::Script::ScriptSystem::Get().GetScriptPath();
 	RefreshScripts();
@@ -310,6 +310,11 @@ end
 
 -- Called every frame
 function OnUpdate(dt)
+
+end
+
+-- Called to render variables in the script
+function RenderUI()
 
 end
 )lua";

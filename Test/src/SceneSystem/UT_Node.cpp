@@ -86,11 +86,11 @@ TEST_F(NodeTest, AddChildWithParent)
 
     parent1->AddChild(child);
 
-	EXPECT_EQ(child->GetParent(), parent1);
+	EXPECT_EQ(child->GetParent().lock(), parent1);
 
 	parent2->AddChild(child);
 
-	EXPECT_EQ(child->GetParent(), parent2);
+	EXPECT_EQ(child->GetParent().lock(), parent2);
 	EXPECT_EQ(parent1->GetChildren().size(), 0);
 	EXPECT_EQ(parent2->GetChildren().size(), 1);
 	EXPECT_EQ(parent2->GetChildren()[0], child);
@@ -125,7 +125,7 @@ TEST_F(NodeTest, ChildHasCorrectParent)
 
     ASSERT_NE(player, nullptr);
 
-    EXPECT_EQ(player->GetParent(), root);
+    EXPECT_EQ(player->GetParent().lock(), root);
 }
 
 
@@ -141,7 +141,7 @@ TEST_F(NodeTest, RemoveChild)
         root->RemoveChild(player));
 
     EXPECT_TRUE(root->GetChildren().empty());
-    EXPECT_EQ(player->GetParent(), nullptr);
+    EXPECT_EQ(player->GetParent().lock(), nullptr);
 }
 
 
@@ -228,6 +228,46 @@ TEST_F(NodeTest, SupportsMultipleComponents)
 
     EXPECT_EQ(components.size(), 2);
 }
+
+TEST_F(NodeTest, ReorderComponents)
+{
+	auto component1 = ComponentFactory::CreateComponent("TComponent");
+	auto component2 = ComponentFactory::CreateComponent("TComponent");
+	auto component3 = ComponentFactory::CreateComponent("TComponent");
+
+	auto first = root->AttachComponent(component1).lock();
+    auto second = root->AttachComponent(component2).lock();
+    auto third = root->AttachComponent(component3).lock();
+
+    root->MoveComponent(first.get(), *root, 2);
+
+    const auto components = root->GetAllComponents();
+    ASSERT_EQ(components.size(), 3);
+    EXPECT_EQ(components[0].get(), second.get());
+    EXPECT_EQ(components[1].get(), third.get());
+    EXPECT_EQ(components[2].get(), first.get());
+}
+
+TEST_F(NodeTest, MoveComponentToAnotherNode)
+{
+    auto component = ComponentFactory::CreateComponent("TComponent");
+    auto componentPtr = root->AttachComponent(component).lock();
+
+    auto destination = scene->AddNode("Destination");
+    auto existingComponent = ComponentFactory::CreateComponent("TComponent");
+    auto existingComponentPtr = destination->AttachComponent(existingComponent).lock();
+
+    root->MoveComponent(componentPtr.get(), *destination);
+
+    EXPECT_TRUE(root->GetAllComponents().empty());
+    const auto components = destination->GetAllComponents();
+    ASSERT_EQ(components.size(), 2);
+    EXPECT_EQ(components[0], existingComponentPtr);
+    EXPECT_EQ(components[1], componentPtr);
+    EXPECT_EQ(componentPtr->GetOwner(), destination);
+    EXPECT_EQ(componentPtr->GetID(), 2);
+}
+
 
 TEST_F(NodeTest, RemoveNonExistentComponentThrows)
 {
@@ -480,7 +520,7 @@ TEST_F(NodeTest, IDDoesNotChangeWhenReparented)
     parent2->AddChild(child);
 
     EXPECT_EQ(child->GetID(), originalID);
-    EXPECT_EQ(child->GetParent(), parent2);
+    EXPECT_EQ(child->GetParent().lock(), parent2);
 }
 
 TEST_F(NodeTest, IDsAreUniqueAcrossScenes)
@@ -502,5 +542,5 @@ TEST_F(NodeTest, IDDoesNotChangeWhenRemovedFromParent)
     root->RemoveChild(child);
 
     EXPECT_EQ(child->GetID(), originalID);
-    EXPECT_EQ(child->GetParent(), nullptr);
+    EXPECT_EQ(child->GetParent().lock(), nullptr);
 }

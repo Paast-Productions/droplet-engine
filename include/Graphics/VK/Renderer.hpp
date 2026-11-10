@@ -53,9 +53,8 @@ namespace Droplet::Graphics
 		/// @brief Destructor
 		~Renderer();
 		
-		/// @brief Renders a singular mesh with the data that is pushed into the function
-		/// @param p_renderData The struct of GUIDs with all relevant resources, shaders etc.
-		void Draw(const Camera& p_camera, std::vector<RenderData> p_renderData);
+		/// @brief Draws a list of cameras and their corresponding render data
+		void Draw(std::vector<CameraRenderData> p_renderData);
 		
 		/// @brief Resizes the window
 		void ResizeWindow();
@@ -68,7 +67,9 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, const Camera &p_camera, std::vector<RenderData> &p_renderData);
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
+			const Camera &p_camera, std::vector<RenderData> &p_renderData, 
+			bool p_debug, glm::vec4 p_clearColor);
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates sync objects for preventing race conditions etc

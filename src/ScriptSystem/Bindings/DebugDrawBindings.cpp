@@ -1,7 +1,7 @@
 #include "ScriptSystem/Bindings/DebugDrawBindings.hpp"
 #include "Graphics/DebugDraw.hpp"
 #include <glm/glm.hpp>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <LuaBindings.hpp>
 

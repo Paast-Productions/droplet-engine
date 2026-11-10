@@ -1,5 +1,6 @@
 #include "LuaBindings.hpp"
 #include <Node.hpp>
+#include <Scene.hpp>
 #include <Transform.hpp>
 #include <glm/glm.hpp>
 #include <GameInput.hpp>
@@ -10,8 +11,21 @@
 #include <DebugDrawBindings.hpp>
 #include <BoundsBindings.hpp>
 #include <SceneBindings.hpp>
+#include <ComponentsBindings.hpp>
+#include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <Component.hpp>
+#include <HealthComponent.hpp>
+#include <DamageComponent.hpp>
+#include <PlayerComponent.hpp>
+#include <CameraComponent.hpp>
+#include <MeshComponent.hpp>
+#include <PhysicsComponent.hpp>
+#include <Behaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Items/Item.hpp>
+#include <SceneSystem/Items/ItemRegistry.hpp>
 
 #include <print>
 #include <filesystem>
@@ -37,12 +51,13 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterInput(p_luaState);
 	RegisterImGui(p_luaState);
 	RegisterTracy(p_luaState);
-    RegisterBounds(p_luaState);
-    RegisterDebugDraw(p_luaState);
+	RegisterBounds(p_luaState);
+	RegisterDebugDraw(p_luaState);
 	RegisterScenes(p_luaState, p_sceneManager);
+	RegisterComponents(p_luaState);
+	RegisterOctree(p_luaState);
 
-	std::filesystem::path scriptDirectory = std::filesystem::current_path()
-		/ ".." / ".." / ".." / "src" / "Scripts";
+	std::filesystem::path scriptDirectory = std::filesystem::current_path() / ROOT_PATH "/src/Scripts";
 
 	std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);
@@ -63,6 +78,13 @@ void LuaBindings::RegisterGlobalFunctions()
 			{
 				{ "dt", "number" }
 			} 
+		},
+		{
+			"OnTrigger",
+			"void",
+			{
+				{ "dt", "number" }
+			} 
 		}
 	};
 }
@@ -73,8 +95,57 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
-		"GetName", &Droplet::Scene::Node::GetName,
-		"GetTransform", static_cast<Scene::Transform &(Scene::Node::*)()>(&Scene::Node::GetTransform)
+		"GetName", &Scene::Node::GetName,
+		"GetID", &Scene::Node::GetID,
+		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		"GetParent", &Scene::Node::GetParent,
+		"GetScene",
+		[](Scene::Node &p_node) -> Scene::Scene *
+		{
+			return p_node.GetScene().get();
+		},
+		"GetCameraComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CameraComponent>();
+		},
+		"GetMeshComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::MeshComponent>();
+		},
+		"GetPhysicsComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PhysicsComponent>();
+		},
+
+		"GetHealthComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::HealthComponent>();
+		},
+		"GetDamageComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::DamageComponent>();
+		},
+		"GetPlayerComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::PlayerComponent>();
+		},
+		"GetPlayerBehaviour",
+		[](Scene::Node &node)
+		{
+			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
+			if (playerComponent)
+			{
+				return playerComponent->GetPlayerBehaviourLua();
+			}
+			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		}
+
 	);
 
 	LuaClassDefinition classDef;
@@ -82,16 +153,16 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{
-			"GetName",
-			"string",
-			{}
-		},
-		{
-			"GetTransform",
-			"Transform",
-			{}
-		}
+		{"GetName", "string", {}},
+		{"GetID", "integer", {}},
+		{"GetTransform", "Transform", {}},
+		{"GetParent", "Node", {}},
+		{"GetCameraComponent", "CameraComponent", {}},
+		{"GetMeshComponent", "MeshComponent", {}},
+		{"GetPhysicsComponent", "PhysicsComponent", {}},
+		{"GetHealthComponent", "HealthComponent", {}},
+		{"GetPlayerComponent", "PlayerComponent", {}},
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
@@ -1963,20 +2034,20 @@ void LuaBindings::RegisterInput(sol::state_view p_luaState)
 		}
 	);
 
-    p_luaState.new_usertype<GameInput>(
-        "Input",
-        "KeyPressed", &GameInput::KeyPressed,
-        "KeyHeld", &GameInput::KeyHeld,
-        "KeyReleased", &GameInput::KeyReleased,
-        "KeyToggle", &GameInput::KeyToggle,
-        "MousePressed", &GameInput::MousePressed,
-        "MouseHeld", &GameInput::MouseHeld,
-        "MouseReleased", &GameInput::MouseReleased,
-        "GetCursorX", &GameInput::GetCursorX,
-        "GetCursorY", &GameInput::GetCursorY,
-        "GetDeltaMouseX", &GameInput::GetDeltaMouseX,
-        "GetDeltaMouseY", &GameInput::GetDeltaMouseY
-    );
+	p_luaState.new_usertype<GameInput>(
+		"Input",
+		"KeyPressed", &GameInput::KeyPressed,
+		"KeyHeld", &GameInput::KeyHeld,
+		"KeyReleased", &GameInput::KeyReleased,
+		"KeyToggle", &GameInput::KeyToggle,
+		"MousePressed", &GameInput::MousePressed,
+		"MouseHeld", &GameInput::MouseHeld,
+		"MouseReleased", &GameInput::MouseReleased,
+		"GetCursorX", &GameInput::GetCursorX,
+		"GetCursorY", &GameInput::GetCursorY,
+		"GetDeltaMouseX", &GameInput::GetDeltaMouseX,
+		"GetDeltaMouseY", &GameInput::GetDeltaMouseY
+	);
 
 	LuaClassDefinition keyDef;
 	keyDef.name = "Key";

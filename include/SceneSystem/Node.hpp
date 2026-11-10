@@ -16,6 +16,11 @@
 #include <Transform.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
+#include <Graphics/DrawLayer.hpp>
+
+#include <SceneSystem/Components/HealthComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -49,7 +54,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node.
         explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
 
-        ~Node() = default;
+        ~Node();
 
 		Node() = delete;                        // Default constructor
         Node(const Node &) = delete;			// Copy constructor
@@ -85,14 +90,33 @@ namespace Droplet::Scene
 		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
 		void EditorUpdate();
 
-        /// @brief Renders the Node.
-        ///
-        /// @note Currently unused and does not perform any rendering.
-        /// Rendering functionality may be moved.
-        void GetRenderData(std::vector<Graphics::RenderData> &p_renderData);
+        /// @brief Notifies the scene that the node wants to be rendered this frame.
+        void QueueRender();
 
 		/// @brief Renders the Node's UI as well as all attached Components.
         void RenderUI();
+
+		/// @brief Gets the Node's draw layer.
+		///
+		/// The draw layer determines which draw layer the Node and its
+		/// Components will be rendered in.
+		///
+		/// @return The draw layer the Node belongs to.
+		[[nodiscard]] Graphics::DrawLayer GetDrawLayer() const
+		{
+			return m_drawLayer;
+		}
+
+		/// @brief Sets the Node's draw layer.
+		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
+        {
+			assert(
+                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
+                "p_drawLayer must be a single layer"
+            );
+
+			m_drawLayer = p_drawLayer;
+		}
 
         /// @brief Sets whether the Node is active.
         ///
@@ -131,36 +155,33 @@ namespace Droplet::Scene
         ///
         /// Sets this Node as the parent of the specified child and adds
         /// the child to the Node hierarchy.
-        ///
         /// @param p_child Node to add as a child.
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @return A shared pointer to the added child Node.
-        ///
         /// @throws std::invalid_argument if p_child is nullptr.
-        /// @throws std::runtime_error if the Node already has a parent
         /// or belongs to a Scene.
-        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child); // TODO: Make weak pointer
+        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Removes a child Node.
         ///
         /// Removes the specified Node from the hierarchy and clears its
         /// parent reference.
-        ///
         /// @param p_child Node to remove.
-        ///
+		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
-        void RemoveChild(const std::shared_ptr<Node> &p_child); // TODO: Make weak pointer
+        void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
         /// @brief Gets the parent Node.
         ///
         /// @return A shared pointer to the parent Node, or nullptr if this
         /// Node has no parent.
-        [[nodiscard]] std::shared_ptr<Node> GetParent() const; // TODO: Make weak pointer
+        [[nodiscard]] std::weak_ptr<Node> GetParent() const;
 
         /// @brief Gets the child Nodes.
         ///
-        /// @return A constant reference to the vector containing this Node's children.
-        [[nodiscard]] const std::vector<std::shared_ptr<Node>> &GetChildren() const; // TODO: Make weak pointer
+        /// @return A vector containing this Node's children.
+        [[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene that owns this Node.
         ///
@@ -193,22 +214,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
-		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
-		/// @param p_component Unique pointer to the Component to add.
-        void AddComponent(std::unique_ptr<Component> &p_component);
-
-        /// @brief Adds a Component to the Node.
-        ///
-        /// Constructs the Component using the provided arguments, assigns this Node
-        /// as its owner, and stores it.
-        ///
-        /// If the Component provides a bounds override, it is registered as the
-        /// Node's bounds provider. A Node can only have one Component providing
-        /// a bounds override.
-        ///
-        /// If the Node has already been started, the Component is started immediately.
-        ///
-        /// Multiple Components of the same type can be attached to a Node.
+		/// @brief Adds a Component of the specified type to the Node.
+		/// @param p_componentType The type of Component to add, specified as a string.
+		/// @return A weak pointer to the added Component.
+        std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -217,9 +226,9 @@ namespace Droplet::Scene
         /// It assigns a freshly new component id
         /// The overloaded function uses id from serialization
         ///       
-        /// @param p_component The comoponent to be attached
-        void AttachComponent(std::unique_ptr<Component> &p_component); 
-        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
+        /// @param p_component The component to be attached
+        std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
+        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -251,8 +260,6 @@ namespace Droplet::Scene
             return components;
         }
 
-
-        
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
@@ -269,6 +276,18 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const Component *p_component);
+
+        /// @brief Moves a Component to a position on this Node or another Node.
+        ///
+        /// When moving to another Node, the Component receives a new ID unique
+        /// to that Node.
+        /// @param p_component Component to move.
+        /// @param p_destination Node that will own the Component.
+        /// @param p_index Position to insert the Component at. By default, it is appended.
+        void MoveComponent(
+            const Component *p_component,
+            Node &p_destination,
+            std::size_t p_index = static_cast<std::size_t>(-1));
 
         // --------------------------------------------------
         // Bounds
@@ -310,6 +329,39 @@ namespace Droplet::Scene
 		/// @return true if this Node is a descendant of p_node, otherwise false.
         [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
 
+		/// @brief Gets the first Component of the specified type attached to this Node.
+		/// @return The first Component of the specified type, or nullptr if none is attached.
+        template<typename T>
+        [[nodiscard]] std::shared_ptr<T> GetComponent()
+        {
+            const auto components = GetComponents<T>();
+            return components.empty() ? nullptr : components.front();
+        }
+
+        /// @brief Gets the HealthComponent attached to this Node.
+        /// @return The HealthComponent, or nullptr if none is attached.
+        [[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
+        {
+            const auto components = GetComponents<HealthComponent>();
+            return components.empty() ? nullptr : components.front();
+        }
+
+        /// @brief Gets the PlayerComponent attached to this Node.
+        /// @return The PlayerComponent, or nullptr if none is attached.
+        [[nodiscard]] std::shared_ptr<PlayerComponent> GetPlayerComponent()
+        {
+            const auto components = GetComponents<PlayerComponent>();
+            return components.empty() ? nullptr : components.front();
+        }
+    	
+    	/// @brief Gets the DamageComponent attached to this Node.
+    	/// @return The DamageComponent, or nullptr if none is attached.
+    	[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+        {
+        	const auto components = GetComponents<DamageComponent>();
+        	return components.empty() ? nullptr : components.front();
+        }
+
     private:
         std::string m_name;
         
@@ -317,8 +369,15 @@ namespace Droplet::Scene
         const std::uint64_t m_id;
 
         std::uint64_t m_nextComponentID = 1;
+
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
+
+        /// @brief Draw layer mask for the Node.
+        ///
+        /// The draw layer mask determines which draw layers the Node and its
+        /// Components will be rendered in.
+        Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
         /// @brief Indicates whether the Node has been started.
         bool m_started = false;
@@ -367,5 +426,7 @@ namespace Droplet::Scene
         ///
         /// Only one Component can provide a bounds override at a time.
         std::weak_ptr<Component> m_boundsOverride{};
+
+		void ActiveChanged(bool p_active);
     };
 }

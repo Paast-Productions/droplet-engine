@@ -77,15 +77,29 @@ std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage,
 
 std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
 {
-    m_imGuiTextures.emplace_back(
-        ImGui_ImplVulkan_AddTexture(
-            *m_textureSampler.Get(),
-            *p_renderTarget.GetColorImageView(),
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-        )
+	static std::uint32_t guidCounter = 0;
+	std::uint32_t guid = guidCounter++;
+
+    m_imGuiTextures[guid] = ImGui_ImplVulkan_AddTexture(
+        *m_textureSampler.Get(),
+        *p_renderTarget.GetColorImageView(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
     );
     
-    return static_cast<std::uint32_t>(m_imGuiTextures.size() - 1);
+    return guid;
+}
+
+void IntermediaryStorage::RemoveImGuiTexture(std::uint32_t p_index)
+{
+	if (m_imGuiTextures.find(p_index) == m_imGuiTextures.end())
+	{
+		throw std::out_of_range("Invalid ImGui texture index.");
+	}
+
+    m_context->GetDevice().waitIdle();
+
+    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_index));
+    m_imGuiTextures.erase(p_index);
 }
 
 void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
@@ -93,30 +107,30 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, u
     m_context->GetDevice().waitIdle();
     
     ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_textureIndex));
-    
-    m_renderTargets.emplace(m_renderTargets.begin() + p_targetIndex,
+
+    m_renderTargets.emplace(
+        m_renderTargets.begin() + p_targetIndex,
         m_allocator.Get(),
         m_context->GetDevice(),
         m_context->GetPhysicalDevice(),
         p_width,
-        p_height);
-    
-    m_imGuiTextures.emplace(m_imGuiTextures.begin() + p_textureIndex,
-        ImGui_ImplVulkan_AddTexture(
-            *m_textureSampler.Get(),
-            *m_renderTargets.at(p_targetIndex).GetColorImageView(),
-            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-        )
+        p_height
     );
+    
+    m_imGuiTextures[p_textureIndex] = ImGui_ImplVulkan_AddTexture(
+        *m_textureSampler.Get(),
+        *m_renderTargets.at(p_targetIndex).GetColorImageView(),
+        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+    );
+
 }
 
-const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
+const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
     // TRY FINDING ALREADY CREATED PIPELINE
     
-    PipelineKey key 
-    {
+    PipelineKey key {
         .vsGuid = p_renderData.vsData.GUID,
         .tcsGuid = p_renderData.tcsData.GUID,
         .tesGuid = p_renderData.tesData.GUID,
@@ -125,10 +139,9 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     };
     
     auto it = m_pipelineMap.find(key);
-
     if (it != m_pipelineMap.end())
     {
-        return m_pipelineMap.at(key);
+        return &it->second;
     }
 
     // IF FAILED, CREATE NEW
@@ -139,12 +152,9 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     ResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
     ResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
 
-    if
-    (
-        !(vs.IsReady() || vs.HasFailed())
-    )
+    if (!(vs.IsReady() || vs.HasFailed()))
     {
-        return nullptr;
+		return nullptr;
     }
 
     std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec{};
@@ -225,8 +235,7 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         descriptorSetLayouts.push_back(*descriptorSet.GetLayout());
     }
 
-    m_pipelineMap[key] = Pipeline
-    {
+    m_pipelineMap[key] = Pipeline{
         p_device,
         p_physicalDevice,
         descriptorSetLayouts,
@@ -234,10 +243,10 @@ const Pipeline &IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
         p_surfaceFormat
     };
     
-    return m_pipelineMap.at(key);
+    return &m_pipelineMap.at(key);
 }
 
-const Mesh &IntermediaryStorage::GetMesh(RenderData p_renderData)
+const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
 {
     ZoneScoped;
 

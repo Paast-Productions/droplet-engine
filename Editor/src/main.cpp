@@ -1,22 +1,27 @@
 #include <Engine/Engine.hpp>
-#include <cstdio>
 #include "HierarchyWindow.hpp"
 #include "NodeInspectorWindow.hpp"
+#include "SavedDataWindow.hpp"
 #include "ScriptsWindow.hpp"
+#include "Audio/MixerWindow.hpp"
+#include "Audio/BusInspectorWindow.hpp"
 #include "BehaviourInspector.hpp"
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
+#include <Graphics/VK/Camera.hpp>
 #include <Graphics/VK/TestData.hpp>
+#include <Graphics/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
 #include <EditorConfig.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
-#include <core/FileExplorer.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <ImGui/imgui_stdlib.h>
+#include <Math/Curves.hpp>
+#include <Editor/ImGuiCurve.hpp>
 
 using namespace Droplet::Editor;
 
@@ -24,370 +29,601 @@ const glm::vec2 C_INITSIZE = { 1280, 720 };
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-    // TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
-    ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
+	// TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+	ZoneScopedN("Editor"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-    glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", C_INITSIZE);
+	glm::vec2 windowSize = EditorConfig::LoadVec2("Editor.WindowSize", C_INITSIZE);
 
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    Droplet::EngineConfig config{
-        Droplet::Graphics::SDL::WindowConfig{
-            static_cast<int>(windowSize.x),
-            static_cast<int>(windowSize.y),
-            { SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
-            "Droplet Editor"
-        },
-        Droplet::UpdateFlags::EditorFlags
-    };
-    Droplet::Engine engine(config);
+	Droplet::EngineConfig config{
+		Droplet::Graphics::SDL::WindowConfig{
+			static_cast<int>(windowSize.x),
+			static_cast<int>(windowSize.y),
+			{ SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
+			"Droplet Editor"
+		},
+		Droplet::UpdateFlags::EditorFlags
+	};
+	Droplet::Engine engine(config);
 
-    SDL_Window *wnd = engine.GetWindow();
-    if (!wnd)
-    {
-        return 1;
-    }
-
-    // Set the script path for where the engine will look for scripts.
-    Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
-
-    // Setup SDL polling listener
-    engine.AddEventListener([](SDL_Event &event)
-    {
-        // ImGui listener callback
-        ImGui_ImplSDL3_ProcessEvent(&event);
-    });
-
-    engine.AddEventListener([](SDL_Event &event)
-    {
-        // Window state event callback
-        if (event.type == SDL_EVENT_WINDOW_RESIZED)
-        {
-            int width = event.window.data1;
-            int height = event.window.data2;
-            EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
-            return;
-        }
-
-        if (event.type == SDL_EVENT_WINDOW_MAXIMIZED)
-        {
-            EditorConfig::StoreBool("Editor.WindowMaximized", true);
-            return;
-        }
-
-        if (event.type == SDL_EVENT_WINDOW_RESTORED)
-        {
-            EditorConfig::StoreBool("Editor.WindowMaximized", false);
-            return;
-        }
-    });
-
-    // --- Font Setup ---
-    float baseFontSize = 13.0f; // This should match the size of our default font
-
-    ImGuiIO io = ImGui::GetIO();
-    ImFontConfig baseConfig;
-    baseConfig.SizePixels = baseFontSize;
-    io.Fonts->AddFontDefault(&baseConfig);
-
-    ImFontConfig iconsConfig;
-    iconsConfig.MergeMode = true;
-    iconsConfig.PixelSnapH = true;
-    iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
-    static const ImWchar iconsRanges[] = {ICON_MIN_LC, ICON_MAX_16_LC, 0};
-    io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
+	SDL_Window *wnd = engine.GetWindow();
+	if (!wnd)
+	{
+		return 1;
+	}
     
+	// Set the script path for where the engine will look for scripts.
+	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(ROOT_PATH "/Editor/Fonts/"))
-    {
-        if (dirEntry.path().extension() == ".ttf" && dirEntry.path().filename().generic_string() != "lucide.ttf")
-        {
-            io.Fonts->AddFontFromFileTTF(dirEntry.path().generic_string().c_str());   
-        }
-    }
-    
-    // ------
+	// Setup SDL polling listener
+	engine.AddEventListener([](SDL_Event &event)
+	{
+		// ImGui listener callback
+		ImGui_ImplSDL3_ProcessEvent(&event);
+	});
 
-    // Restore window maximized state
-    {
-        bool isMaximized = EditorConfig::LoadBool("Editor.WindowMaximized", false);
+	engine.AddEventListener([](SDL_Event &event)
+	{
+		// Window state event callback
+		if (event.type == SDL_EVENT_WINDOW_RESIZED)
+		{
+			int width = event.window.data1;
+			int height = event.window.data2;
+			EditorConfig::StoreVec2("Editor.WindowSize", glm::vec2(width, height));
+			return;
+		}
 
-        if (isMaximized)
-        {
-            SDL_MaximizeWindow(wnd);
-        }
-    }
+		if (event.type == SDL_EVENT_WINDOW_MAXIMIZED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", true);
+			return;
+		}
 
-    // Setup default ImGui Layout
-    {
-        std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
+		if (event.type == SDL_EVENT_WINDOW_RESTORED)
+		{
+			EditorConfig::StoreBool("Editor.WindowMaximized", false);
+			return;
+		}
+	});
 
-        try
-        {
-            UIStyle::LoadLayout(currLayout);
-        }
-        catch (...)
-        {
-            if (currLayout != "Default")
-            {
-                UIStyle::LoadLayout("Default");
-            }
-        }
-    }
+	// --- Font Setup ---
+	float baseFontSize = 13.0f; // This should match the size of our default font
 
-    // Setup default ImGui style
-    {
-        std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+	ImGuiIO io = ImGui::GetIO();
+	ImFontConfig baseConfig;
+	baseConfig.SizePixels = baseFontSize;
+	io.Fonts->AddFontDefault(&baseConfig);
 
-        try
-        {
-            UIStyle::LoadStyle(currStyle);
-        }
-        catch (...)
-        {
-            if (currStyle != "Default")
-            {
-                UIStyle::LoadStyle("Default");
-            }
-        }
-    }
+	ImFontConfig iconsConfig;
+	iconsConfig.MergeMode = true;
+	iconsConfig.PixelSnapH = true;
+	iconsConfig.GlyphOffset = ImVec2(0.0f, 3.0f);
+	static const ImWchar iconsRanges[] = {ICON_MIN_LC, ICON_MAX_16_LC, 0};
+	io.Fonts->AddFontFromFileTTF(ROOT_PATH "/Editor/Fonts/lucide.ttf", baseFontSize, &iconsConfig, iconsRanges);
+	
 
-    EditorContext editorContext(engine);
+	for (const auto& dirEntry : std::filesystem::recursive_directory_iterator(ROOT_PATH "/Editor/Fonts/"))
+	{
+		if (dirEntry.path().extension() == ".ttf" && dirEntry.path().filename().generic_string() != "lucide.ttf")
+		{
+			io.Fonts->AddFontFromFileTTF(dirEntry.path().generic_string().c_str());   
+		}
+	}
+	
+	// ------
 
-    HierarchyWindow hierarchyWindow(&editorContext);
-    NodeInspectorWindow nodeInspectorWindow(&editorContext);
-    BehaviourInspector behaviourInspector(&editorContext);
-    ScriptsWindow scriptsWindow;
-    Resource::ResourceBrowser resourceBrowser(&editorContext);
+	// Restore window maximized state
+	{
+		bool isMaximized = EditorConfig::LoadBool("Editor.WindowMaximized", false);
 
-    Scene::SceneViewWindow sceneViewWindow(&editorContext);
-    //sceneViewWindow.SetViewDescriptor(engine.RegisterImGuiTexture(sceneViewWindow.GetRenderTarget()));
+		if (isMaximized)
+		{
+			SDL_MaximizeWindow(wnd);
+		}
+	}
 
-    hierarchyWindow.Init();
-    nodeInspectorWindow.Init();
-    behaviourInspector.Init();
-    scriptsWindow.Init();
-    resourceBrowser.Init();
-    sceneViewWindow.Init();
+	// Setup default ImGui Layout
+	{
+		std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
 
-    FrameMark;
+		try
+		{
+			UIStyle::LoadLayout(currLayout);
+		}
+		catch (...)
+		{
+			if (currLayout != "Default")
+			{
+				UIStyle::LoadLayout("Default");
+			}
+		}
+	}
 
-    bool showStyleEditor = false;
+	// Setup default ImGui style
+	{
+		std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
 
-    std::string pendingLayoutChange = "";
+		try
+		{
+			UIStyle::LoadStyle(currStyle);
+		}
+		catch (...)
+		{
+			if (currStyle != "Default")
+			{
+				UIStyle::LoadStyle("Default");
+			}
+		}
+	}
 
-    ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
-    ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
+	// Editor Scope
+	{
+		EditorContext editorContext(engine);
 
-    // Run main loop
-    bool run = true;
-    while (run)
-    {
-        ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
+		HierarchyWindow hierarchyWindow(&editorContext);
+		NodeInspectorWindow nodeInspectorWindow(&editorContext);
+		BehaviourInspector behaviourInspector(&editorContext);
+		ScriptsWindow scriptsWindow(&editorContext);
+		SavedDataWindow savedDataWindow(&editorContext);
+		Resource::ResourceBrowser resourceBrowser(&editorContext);
+		Scene::SceneViewWindow sceneViewWindow(&editorContext);
+		MixerWindow mixerWindow(&editorContext);
+   		BusInspectorWindow busInspectorWindow(&editorContext);
+   		
+		hierarchyWindow.Init();
+		nodeInspectorWindow.Init();
+		behaviourInspector.Init();
+		scriptsWindow.Init();
+		savedDataWindow.Init();
+		resourceBrowser.Init();
+		sceneViewWindow.Init();
+		mixerWindow.Init();
+    	busInspectorWindow.Init();
+    	
+		FrameMark;
 
-        EditorConfig::Update();
+		bool showStyleEditor = false;
 
-        if (pendingLayoutChange != "")
-        {
-            try
-            {
-                UIStyle::LoadLayout(pendingLayoutChange);
-            }
-            catch (...)
-            {
-                if (pendingLayoutChange != "Default")
-                {
-                    UIStyle::LoadLayout("Default");
-                }
-            }
+		std::string pendingLayoutChange = "";
 
-            pendingLayoutChange = "";
-        }
+		ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
+		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
-        // ImGui
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplSDL3_NewFrame();
-        ImGui::NewFrame();
-        ImGui::DockSpaceOverViewport();
-        ImGuizmo::BeginFrame();
+		// Run main loop
+		bool run = true;
+		while (run)
+		{
+			ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-        bool openLayoutPopup = false;
+			switch (engine.Update())
+			{
+			case Droplet::DROPLET_RETURNTYPE::OK:
+				break;
 
-        // Main toolbar
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("File"))
-            {
-                if (ImGui::BeginMenu("Layout"))
-                {
-                    if (ImGui::BeginMenu("Set Layout"))
-                    {
-                        std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
+			case Droplet::DROPLET_RETURNTYPE::EXIT:
+				run = false;
+				break;
 
-                        std::vector<std::string> layouts;
-                        UIStyle::GetLayoutNames(layouts);
+			default:
+			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+				run = false;
+				break;
+			}
 
-                        for (const auto &layoutName : layouts)
-                        {
-                            bool isSelected = (layoutName == currLayout);
-                            if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
-                            {
-                                if (layoutName != currLayout)
-                                {
-                                    pendingLayoutChange = layoutName;
-                                }
-                            }
-                        }
+			EditorConfig::Update();
 
-                        ImGui::EndMenu();
-                    }
+			if (pendingLayoutChange != "")
+			{
+				try
+				{
+					UIStyle::LoadLayout(pendingLayoutChange);
+				}
+				catch (...)
+				{
+					if (pendingLayoutChange != "Default")
+					{
+						UIStyle::LoadLayout("Default");
+					}
+				}
 
-                    openLayoutPopup = ImGui::MenuItem("Save Layout");
+				pendingLayoutChange = "";
+			}
 
-                    ImGui::EndMenu();
-                }
+			// ImGui
+			ImGui_ImplVulkan_NewFrame();
+			ImGui_ImplSDL3_NewFrame();
+			ImGui::NewFrame();
+			ImGui::DockSpaceOverViewport();
+			ImGuizmo::BeginFrame();
 
-                if (ImGui::BeginMenu("Style"))
-                {
-                    if (ImGui::BeginMenu("Set Style"))
-                    {
-                        std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+			ImGui::Shortcut(ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
+			ImGui::Shortcut(ImGuiMod_Shift | ImGuiKey_Tab, ImGuiInputFlags_RouteGlobal);
 
-                        std::vector<std::string> styles;
-                        UIStyle::GetStyleNames(styles);
+			// Main toolbar
+			{
+				bool openLayoutPopup = false;
 
-                        for (const auto &styleName : styles)
-                        {
-                            bool isSelected = (styleName == currStyle);
-                            if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
-                            {
-                                if (styleName != currStyle)
-                                {
-                                    UIStyle::LoadStyle(styleName);
-                                }
-                            }
-                        }
+				if (ImGui::BeginMainMenuBar())
+				{
+					if (ImGui::BeginMenu("File"))
+					{
+						if (ImGui::BeginMenu("Layout"))
+						{
+							if (ImGui::BeginMenu("Set Layout"))
+							{
+								std::string currLayout = EditorConfig::LoadString("Editor.Layout", "Default");
 
-                        ImGui::EndMenu();
-                    }
+								std::vector<std::string> layouts;
+								UIStyle::GetLayoutNames(layouts);
 
-                    if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
-                    {
-                        showStyleEditor = !showStyleEditor;
-                    }
+								for (const auto &layoutName : layouts)
+								{
+									bool isSelected = (layoutName == currLayout);
+									if (ImGui::MenuItem(layoutName.c_str(), nullptr, isSelected))
+									{
+										if (layoutName != currLayout)
+										{
+											pendingLayoutChange = layoutName;
+										}
+									}
+								}
 
-                    ImGui::EndMenu();
-                }
+								ImGui::EndMenu();
+							}
 
-                ImGui::EndMenu();
-            }
+							openLayoutPopup = ImGui::MenuItem("Save Layout");
 
-            ImGui::EndMainMenuBar();
-        }
+							ImGui::EndMenu();
+						}
 
-        if (openLayoutPopup)
-        {
-            ImGui::OpenPopup("Save Layout");
-        }
+						if (ImGui::BeginMenu("Style"))
+						{
+							if (ImGui::BeginMenu("Set Style"))
+							{
+								std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
 
-        if (ImGui::BeginPopup("Save Layout"))
-        {
-            static std::string layoutName = "";
+								std::vector<std::string> styles;
+								UIStyle::GetStyleNames(styles);
 
-            ImGui::InputText("Layout Name", &layoutName);
+								for (const auto &styleName : styles)
+								{
+									bool isSelected = (styleName == currStyle);
+									if (ImGui::MenuItem(styleName.c_str(), nullptr, isSelected))
+									{
+										if (styleName != currStyle)
+										{
+											UIStyle::LoadStyle(styleName);
+										}
+									}
+								}
 
-            // Disable if the layout name is empty
-            ImGui::BeginDisabled(layoutName.empty());
+								ImGui::EndMenu();
+							}
 
-            if (ImGui::Button("Confirm"))
-            {
-                UIStyle::SaveLayout(layoutName);
-                ImGui::CloseCurrentPopup();
-            }
+							if (ImGui::MenuItem("Show Style Editor", nullptr, showStyleEditor))
+							{
+								showStyleEditor = !showStyleEditor;
+							}
 
-            ImGui::EndDisabled();
+							ImGui::EndMenu();
+						}
 
-            ImGui::SameLine();
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::EndPopup();
-        }
+						ImGui::EndMenu();
+					}
 
-        if (showStyleEditor)
-        {
-            ImGui::Begin("Style Editor", &showStyleEditor);
+					if (ImGui::BeginMenu("View"))
+					{
+						bool currState;
 
-            if (ImGui::Button("Save Style"))
-            {
-                ImGui::OpenPopup("Save Style");
-            }
+						currState = EditorConfig::LoadBool("Editor.ShowEditorView", true);
+						if (ImGui::MenuItem("Editor View", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowEditorView", !currState);
+						}
 
-            ImGui::SameLine();
-            if (ImGui::Button("Reset Style"))
-            {
-                std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+						currState = EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true);
+						if (ImGui::MenuItem("Node Hierarchy", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowNodeHierarchy", !currState);
+						}
 
-                UIStyle::LoadStyle(currStyle);
-            }
+						currState = EditorConfig::LoadBool("Editor.ShowNodeInspector", true);
+						if (ImGui::MenuItem("Node Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowNodeInspector", !currState);
+						}
 
-            if (ImGui::BeginPopup("Save Style"))
-            {
-                static std::string styleName = "";
+						currState = EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true);
+						if (ImGui::MenuItem("Behaviour Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowBehaviourInspector", !currState);
+						}
 
-                ImGui::InputText("Style Name", &styleName);
+						currState = EditorConfig::LoadBool("Editor.ShowResourceBrowser", true);
+						if (ImGui::MenuItem("Resource Browser", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowResourceBrowser", !currState);
+						}
 
-                // Disable if the style name is empty
-                ImGui::BeginDisabled(styleName.empty());
+						currState = EditorConfig::LoadBool("Editor.ShowScripts", true);
+						if (ImGui::MenuItem("Scripts", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowScripts", !currState);
+						}
 
-                if (ImGui::Button("Confirm"))
-                {
-                    UIStyle::SaveStyle(styleName);
-                    ImGui::CloseCurrentPopup();
-                }
+						currState = EditorConfig::LoadBool("Editor.ShowSavedData", true);
+						if (ImGui::MenuItem("Saved Data", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowSavedData", !currState);
+						}
 
-                ImGui::EndDisabled();
+						currState = EditorConfig::LoadBool("Editor.ShowAudioMixer", true);
+						if (ImGui::MenuItem("Audio Mixer", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowAudioMixer", !currState);
+						}
 
-                ImGui::SameLine();
-                if (ImGui::Button("Cancel"))
-                {
-                    ImGui::CloseCurrentPopup();
-                }
+						currState = EditorConfig::LoadBool("Editor.ShowBusInspector", true);
+						if (ImGui::MenuItem("Bus Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowBusInspector", !currState);
+						}
 
-                ImGui::EndPopup();
-            }
+						ImGui::EndMenu();
+					}
 
-            ImGui::Separator();
+					if (ImGui::BeginMenu("Help"))
+					{
+						ImGui::Text(
+							"Controls:\n"
+							"    - Tab:           Enter editor camera\n"
+							"    - Z:             Snap camera\n"
+							"    - B:             Show octree\n"
 
-            ImGui::ShowStyleEditor(nullptr);
-            ImGui::End();
-        }
+							"Guizmo:\n"
+							"    - Q:             None\n"
+							"    - W:             Translation\n"
+							"    - E:             Rotation\n"
+							"    - R:             Scale\n"
+							"    - T:             Bounds\n"
+							"    - Y:             Universal\n"
 
-        hierarchyWindow.Render();
-        nodeInspectorWindow.Render();
-        behaviourInspector.Render();
-        scriptsWindow.Render();
-        resourceBrowser.Render();
-        sceneViewWindow.Render();
+							"Camera Pivot:\n"
+							"    - F:             Focus view & pivot on selection\n"
+							"    - MMB:           Pan along view plane\n"
+							"    - Alt + LMB:     Rotate around pivot\n"
+							"    - Scroll:        Move along view normal at constant rate\n"
+							"    - Alt + Scroll:  Zoom towards pivot\n"
 
-        switch (engine.Update(editorContext.GetEditorCamera()))
-        {
-        case Droplet::DROPLET_RETURNTYPE::OK:
-            break;
-        
-        case Droplet::DROPLET_RETURNTYPE::EXIT:
-            run = false;
-            break;
+							"Nodes:\n"
+							"    - LMB:           Select node\n"
+							"    - LMB + drag:    Select multiple nodes\n"
+							"    - Del:           Remove node\n"
+							"    - CTRL + C:      Copy node(s)\n"
+							"    - CTRL + V:      Paste node(s)\n"
+						);
 
-        default:
-        case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
-            run = false;
-            break;
-        }
+						ImGui::EndMenu();
+					}
 
-        //engine->Endframe
-    }
+					ImGui::EndMainMenuBar();
+				}
 
-    return 0;
+				if (openLayoutPopup)
+				{
+					ImGui::OpenPopup("Save Layout");
+				}
+
+				if (ImGui::BeginPopup("Save Layout"))
+				{
+					static std::string layoutName = "";
+
+					ImGui::InputText("Layout Name", &layoutName);
+
+					// Disable if the layout name is empty
+					ImGui::BeginDisabled(layoutName.empty());
+
+					if (ImGui::Button("Confirm"))
+					{
+						UIStyle::SaveLayout(layoutName);
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndDisabled();
+
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel"))
+					{
+						ImGui::CloseCurrentPopup();
+					}
+					ImGui::EndPopup();
+				}
+
+				if (showStyleEditor)
+				{
+					ImGui::Begin("Style Editor", &showStyleEditor);
+
+					if (ImGui::Button("Save Style"))
+					{
+						ImGui::OpenPopup("Save Style");
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button("Reset Style"))
+					{
+						std::string currStyle = EditorConfig::LoadString("Editor.Style", "Default");
+
+						UIStyle::LoadStyle(currStyle);
+					}
+
+					if (ImGui::BeginPopup("Save Style"))
+					{
+						static std::string styleName = "";
+
+						ImGui::InputText("Style Name", &styleName);
+
+						// Disable if the style name is empty
+						ImGui::BeginDisabled(styleName.empty());
+
+						if (ImGui::Button("Confirm"))
+						{
+							UIStyle::SaveStyle(styleName);
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndDisabled();
+
+						ImGui::SameLine();
+						if (ImGui::Button("Cancel"))
+						{
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+
+					ImGui::Separator();
+
+					ImGui::ShowStyleEditor(nullptr);
+					ImGui::End();
+				}
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
+			{
+				hierarchyWindow.Render();
+			}
+			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
+			{
+				nodeInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			{
+				behaviourInspector.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowScripts", true))
+			{
+				scriptsWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowSavedData", true))
+			{
+				savedDataWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowResourceBrowser", true))
+			{
+				resourceBrowser.Render();
+			}
+
+
+			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
+			{
+				sceneViewWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
+			{
+				mixerWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
+			{
+				busInspectorWindow.Render();
+			}
+
+			// Set the game camera to the last camera in the active scene's camera stack before rendering
+			editorContext.SetGameCamera(engine.GetSceneManager().GetMainCamera());
+
+			bool renderEditorView = 
+				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
+				!sceneViewWindow.IsRenderingGameView();
+
+			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+
+			if (renderEditorView)
+			{
+				ZoneScopedN("Editor Camera Render Data");
+
+				using namespace Droplet::Graphics::VK;
+
+				Droplet::Graphics::CameraRenderData camRenderData{ };
+				camRenderData.debug = true;
+
+				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
+				auto &editorCamera = editorContext.GetEditorCamera();
+				auto activeScene = editorContext.GetActiveScene().lock();
+
+				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
+				camRenderData.renderTarget = editorCamera.GetTargetIndex();
+
+				auto &renderables = activeScene->GetRenderables();
+
+				Droplet::Math::Frustum frustum = editorCamera.GetFrustum();
+
+				auto visibleComponents = activeScene->GetNodesIntersectingFrustum(frustum);
+
+				std::vector<std::weak_ptr<Droplet::Scene::Component>> componentsToRender;
+
+				// Filter the renderables to only include those that are visible in the editor camera's frustum
+				for (const auto &[node, component] : renderables)
+				{
+					if (!node || !component)
+					{
+						continue;
+					}
+
+					// Check if the node is in the list of visible components
+					auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+						[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+							auto sharedNode = weakNode.lock();
+							return sharedNode && sharedNode == node;
+						});
+
+					if (it != visibleComponents.end())
+					{
+						componentsToRender.emplace_back(component);
+					}
+				}
+
+				camRenderData.renderData.reserve(componentsToRender.size());
+				for (const auto &componentWeak : componentsToRender)
+				{
+					auto component = componentWeak.lock();
+					if (!component)
+					{
+						continue;
+					}
+
+					camRenderData.renderData.emplace_back(component->GetRenderData());
+				}
+
+				if (renderEditorView)
+					queuedEditorCameras.push_back(camRenderData);
+			}
+
+			// Render the engine
+			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
+			{
+			case Droplet::DROPLET_RETURNTYPE::OK:
+				break;
+
+			case Droplet::DROPLET_RETURNTYPE::EXIT:
+				run = false;
+				break;
+
+			default:
+			case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
+				run = false;
+				break;
+			}
+
+			editorContext.ClearQueuedEditorCameras();
+		}
+	}
+
+	return 0;
 }

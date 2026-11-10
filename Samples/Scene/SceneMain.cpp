@@ -13,6 +13,7 @@
 #include "SceneSystem/Serialization/SerializationContext.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
+#include "SceneSystem/Components/PlayerComponent.hpp"
 #include "Core/IoManager.hpp"
 #include "GameInput.hpp"
 #include <SDL3/SDL_init.h>
@@ -85,10 +86,10 @@ static void OctreeTest()
             gi.ProcessEvent(event);
         }
 
-        if (gi.KeyPressed(Droplet::Key::KeyEscape))
-        {
-            break;
-        }
+        // if (gi.KeyPressed(Droplet::Key::KeyEscape))
+        // {
+        //     break;
+        // }
 
         if (gi.KeyPressed(Droplet::Key::KeyP))
         {
@@ -117,7 +118,7 @@ static void OctreeTest()
             s->PrintOctreeTree();
         }
 
-        sm.Update(1.0f / 60.0f);
+        sm.Update();
     }
 }
 
@@ -219,7 +220,7 @@ static void PhysicsTest()
     }
 
     s->InitializePhysics();
-    s->GetPhysics()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
+    s->GetPhysics().lock()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
 
     sm.ActivateScene("Game");
 
@@ -228,13 +229,13 @@ static void PhysicsTest()
     player->GetTransform().SetPosition(glm::vec3(0.0f, 60.0f, 0.0f));
 
     std::unique_ptr<Component> seafloorComp = ComponentFactory::CreateComponent("PhysicsComponent");
-    seafloor->AddComponent(seafloorComp);
+    seafloor->AttachComponent(seafloorComp);
 	auto seafloorComponets = seafloor->GetComponents<PhysicsComponent>();
     seafloorComponets[0]->Initialize(s->GetPhysics(), &seafloor->GetTransform());
     seafloorComponets[0]->SetMeshCollider(rh.GetGUID());
 
     std::unique_ptr<Component> playerComp = ComponentFactory::CreateComponent("PhysicsComponent");
-    player->AddComponent(playerComp);
+    player->AttachComponent(playerComp);
 	auto playerComponets = player->GetComponents<PhysicsComponent>();
     playerComponets[0]->Initialize(s->GetPhysics(), &player->GetTransform());
     playerComponets[0]->SetCapsuleCollider(0.5f, 0.5f);
@@ -284,7 +285,7 @@ static void PhysicsTest()
             player->GetTransform().SetPosition(glm::vec3(0.0f, 100.0f, 0.0f), Transform::Space::World);
         }
 
-        sm.Update(time.GetDeltaTime());
+        sm.Update();
 
         glm::vec3 p = player->GetTransform().GetPosition();
         glm::vec3 f = seafloor->GetTransform().GetPosition();
@@ -292,41 +293,6 @@ static void PhysicsTest()
     }
 }
 
-// --------------------------------------------------
-// Example Component
-// --------------------------------------------------
-
-class PlayerComponent : public Component
-{
-public:
-    std::string_view GetTypeName() const override { return "PlayerComponent"; }
-
-    void StartImpl() override
-    {
-        std::cout << "PlayerComponent started\n";
-    }
-
-    void UpdateImpl() override
-    {
-        std::cout
-            << "PlayerComponent updating: "
-            << Droplet::Time::Get().GetDeltaTime()
-            << " seconds\n";
-    }
-
-    nlohmann::json SerializeImpl() override
-    {
-        nlohmann::json json;
-        json["type"] = "PlayerComponent";
-        return json;
-    }
-
-    void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override
-    {
-
-    }
-
-};
 
 // --------------------------------------------------
 // Another Example Component

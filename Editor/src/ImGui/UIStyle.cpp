@@ -97,12 +97,35 @@ void UIStyle::GetStyleNames(std::vector<std::string> &styles)
 void UIStyle::SaveLayout(const std::string &name)
 {
 	// Save current ImGui ini settings to file
-	std::string path = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
+	std::string iniPath = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
 
-	ImGui::SaveIniSettingsToDisk(path.c_str());
+	ImGui::SaveIniSettingsToDisk(iniPath.c_str());
 
 	// Set the current layout name in the editor config
 	EditorConfig::StoreString("Editor.Layout", name);
+
+	// Save current window states to .layout file
+	std::string layoutPath = std::string(LAYOUTS_PATH) + "/" + name + ".layout";
+
+	json doc = json::object();
+	{
+		doc["ShowNodeHierarchy"] = EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true);
+		doc["ShowNodeInspector"] = EditorConfig::LoadBool("Editor.ShowNodeInspector", true);
+		doc["ShowBehaviourInspector"] = EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true);
+		doc["ShowScripts"] = EditorConfig::LoadBool("Editor.ShowScripts", true);
+		doc["ShowSavedData"] = EditorConfig::LoadBool("Editor.ShowSavedData", true);
+		doc["ShowResourceBrowser"] = EditorConfig::LoadBool("Editor.ShowResourceBrowser", true);
+		doc["ShowEditorView"] = EditorConfig::LoadBool("Editor.ShowEditorView", true);
+	}
+
+	try
+	{
+		Write(layoutPath, doc);
+	}
+	catch ([[maybe_unused]] const std::exception &e)
+	{
+		// TODO
+	}
 }
 
 void UIStyle::SaveStyle(const std::string &name)
@@ -221,7 +244,7 @@ void UIStyle::SaveStyle(const std::string &name)
 	{
 		Write(filePath, doc);
 	}
-	catch (const std::exception &e)
+	catch ([[maybe_unused]] const std::exception &e)
 	{
 		// TODO
 	}
@@ -233,18 +256,87 @@ void UIStyle::SaveStyle(const std::string &name)
 void UIStyle::LoadLayout(const std::string &name)
 {
 	// Load ImGui ini settings from file
-	std::string path = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
+	std::string iniPath = std::string(LAYOUTS_PATH) + "/" + name + ".ini";
 
 	// Check if the layout file exists
-	if (!std::filesystem::exists(path))
+	if (!std::filesystem::exists(iniPath))
 	{
-		throw std::runtime_error("Layout file does not exist: " + path);
+		throw std::runtime_error("Layout file does not exist: " + iniPath);
 	}
 
-	ImGui::LoadIniSettingsFromDisk(path.c_str());
+	ImGui::LoadIniSettingsFromDisk(iniPath.c_str());
 
 	// Set the current layout name in the editor config
 	EditorConfig::StoreString("Editor.Layout", name);
+
+	// Load window states from .layout file if it exists
+
+	json doc;
+	{
+		std::string layoutPath = std::string(LAYOUTS_PATH) + "/" + name + ".layout";
+
+		// Read JSON document from file
+		try
+		{
+			doc = Read(layoutPath);
+		}
+		catch ([[maybe_unused]] const std::exception &e)
+		{
+			return; // If the file doesn't exist, we can just return without throwing an error
+		}
+	}
+
+	{
+		if (doc.contains("ShowNodeHierarchy"))
+		{
+			bool show;
+			doc.at("ShowNodeHierarchy").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowNodeHierarchy", show);
+		}
+		
+		if (doc.contains("ShowNodeInspector"))
+		{
+			bool show;
+			doc.at("ShowNodeInspector").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowNodeInspector", show);
+		}
+		
+		if (doc.contains("ShowBehaviourInspector"))
+		{
+			bool show;
+			doc.at("ShowBehaviourInspector").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowBehaviourInspector", show);
+		}
+		
+		if (doc.contains("ShowScripts"))
+		{
+			bool show;
+			doc.at("ShowScripts").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowScripts", show);
+		}
+		
+		if (doc.contains("ShowSavedData"))
+		{
+			bool show;
+			doc.at("ShowSavedData").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowSavedData", show);
+		}
+		
+		if (doc.contains("ShowResourceBrowser"))
+		{
+			bool show;
+			doc.at("ShowResourceBrowser").get_to(show);
+			EditorConfig::StoreBool("Editor.ShowResourceBrowser", show);
+		}
+		
+		if (doc.contains("ShowEditorView"))
+		{
+			bool show;
+			doc.at("ShowEditorView").get_to(show);
+
+			EditorConfig::StoreBool("Editor.", show);
+		}
+	}
 }
 
 void UIStyle::LoadStyle(const std::string &name)
@@ -258,7 +350,7 @@ void UIStyle::LoadStyle(const std::string &name)
 		{
 			doc = Read(filePath);
 		}
-		catch (const std::exception &e)
+		catch ([[maybe_unused]] const std::exception &e)
 		{
 			// TODO
 		}

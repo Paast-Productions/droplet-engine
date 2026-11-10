@@ -40,22 +40,12 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
 
     for (const auto &rootJson : p_json["roots"])
     {
-        auto root = p_scene->AddNode(rootJson["name"]);
-        context.RegisterNode(rootJson["id"], root);
-        DeserializeTransform(rootJson["transform"], root->GetTransform());
-        for (const auto componentJson : rootJson["components"])
-        {
-            DeserializeComponent(componentJson, root, rootJson["id"], context);
-        }
-        for (const auto childJson : rootJson["children"])
-        {
-            DeserializeNode(childJson, root, p_scene,context);
-        }
+		DeserializeNode(rootJson, nullptr, p_scene, context);
     }
     context.ResolveAllReferences();
 }
 
-void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene, std::optional<glm::vec3> p_overridePosition)
+std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::json &p_json, Droplet::Scene::Scene& p_scene, std::optional<glm::vec3> p_overridePosition)
 {
     if (!p_json.contains("name"))
     {
@@ -106,6 +96,8 @@ void Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(const nlohmann::j
     {
         DeserializeNode(childJson, node, scenePtr, nullContext);
     }
+
+    return node;
 }
 
 
@@ -116,6 +108,7 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
     json["name"] = p_node.GetName();
     json["id"] = p_node.GetID();
     json["active"] = p_node.IsActive();
+	json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
     json["transform"] = SerializeTransform(p_node.GetTransform());
     json["components"] = nlohmann::json::array();
     
@@ -166,11 +159,20 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
         throw std::runtime_error("Node is missing required field 'active'");
     }
 
-    
+    std::shared_ptr<Node> node = p_scene->AddNode(p_json["name"]);
+    if (p_parentNode)
+    {
+        p_parentNode->AddChild(node);
+    }
 
-    auto node = p_parentNode->AddChild(p_scene->AddNode(p_json["name"]));
     p_context.RegisterNode(p_json["id"], node);
     node->SetActive(p_json["active"]);
+
+    if (p_json.contains("drawLayer"))
+    {
+		uint16_t drawLayerValue = p_json["drawLayer"];
+		node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+    }
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
 

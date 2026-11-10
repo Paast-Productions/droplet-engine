@@ -14,7 +14,7 @@ namespace Droplet::Editor
 	public:
 		/// @brief Constructs the behaviour inspector.
 		/// @param p_interactionState Shared editor interaction state.
-		BehaviourInspector(EditorContext *editorContext);
+		BehaviourInspector(EditorContext *editorContext) : EditorWindow(editorContext) { }
 
 		/// @brief Destroys the behaviour inspector.
 		~BehaviourInspector() = default;
@@ -35,8 +35,5 @@ namespace Droplet::Editor
 		/// @brief Renders the scripts window's toolbar.
 		/// Displays toolbar controls associated with the scripts window.
 		void RenderToolbar() override;
-
-	private:
-		Droplet::Editor::EditorContext *m_editorContext;
 	};
 }

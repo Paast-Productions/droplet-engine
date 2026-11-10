@@ -55,6 +55,13 @@ namespace Droplet::Script
 		/// the script is active.
 		/// @param deltatime Time elapsed since the previous update, in seconds.
 		void OnUpdate(float deltatime);
+		
+		/// @brief Calls the script's OnTrigger function
+		/// The OnTrigger fumction is intented to be called when a triggercomponent detects 
+		/// nodes inside its bounds.
+		/// @param deltatime Time elapsed since previous update, in seconds.
+		/// @param p_otherNode Other node that the script will affect
+		void OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode);
 
 		/// @brief Reloads the script instance with a new Lua script.
 		/// The script environment is updated using the provided loaded script.
@@ -89,6 +96,8 @@ namespace Droplet::Script
 
 		/// @brief Lua function used for the script's update lifecycle event.
 		sol::protected_function m_onUpdate;
+		
+		sol::protected_function m_onTrigger;
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.

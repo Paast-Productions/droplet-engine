@@ -18,6 +18,12 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 {
 	GameInput &input = GameInput::Get();
 
+	// If ImGui is currently capturing keyboard input, we should not process shortcuts to avoid conflicts with ImGui widgets.
+	if (ImGui::GetIO().WantTextInput)
+	{
+		return;
+	}
+
 	ImGuizmo::OPERATION noneOperation = (ImGuizmo::OPERATION)0;
 	ImGuizmo::OPERATION translationOperation = ImGuizmo::TRANSLATE;
 	ImGuizmo::OPERATION rotationOperation = ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z;
@@ -71,19 +77,19 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 	{
 		for (auto &node : p_editorContext.GetInteractionState().GetSelectedNodes())
 		{
-			if (!node)
+			if (node.expired())
 			{
 				continue;
 			}
 
-			auto oldParent = node->GetParent();
+			auto oldParent = node.lock()->GetParent();
 
-			if (oldParent)
+			if (!oldParent.expired())
 			{
-				oldParent->RemoveChild(node);
+				oldParent.lock()->RemoveChild(node.lock());
 			}
 
-			p_editorContext.GetActiveScene()->RemoveRoot(node);
+			p_editorContext.GetActiveScene().lock()->RemoveRoot(node.lock());
 		}
 
 		p_editorContext.GetInteractionState().ClearNodeSelection();
@@ -103,9 +109,9 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 			PasteNodes(p_editorContext);
 		}
 
-		if (input.KeyPressed(Key::KeyS))
+		if (input.KeyPressed(Key::KeyS) && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 		{
-			auto scene = p_editorContext.GetActiveScene();
+			auto scene = p_editorContext.GetActiveScene().lock();
 
 			if (scene)
 			{
@@ -123,13 +129,13 @@ void Droplet::Editor::EditorShortcuts::CopySelectedNodes(EditorContext &p_editor
 	std::vector<nlohmann::json> serializedNodes;
 	serializedNodes.reserve(p_editorContext.GetInteractionState().GetSelectedNodes().size());
 
-	for (const std::shared_ptr<Droplet::Scene::Node>& node : p_editorContext.GetInteractionState().GetSelectedNodes())
+	for (const std::weak_ptr<Droplet::Scene::Node>& node : p_editorContext.GetInteractionState().GetSelectedNodes())
 	{
-		if (!node)
+		if (node.expired())
 		{
 			continue;
 		}
-		nlohmann::json nodeJson = serializer.SerializeNode(*node);
+		nlohmann::json nodeJson = serializer.SerializeNode(*node.lock());
 		serializedNodes.push_back(std::move(nodeJson));
 	}
 	Editor::EditorClipboard::CopyNodes(serializedNodes);
@@ -145,7 +151,7 @@ void Droplet::Editor::EditorShortcuts::PasteNodes(EditorContext &p_editorContext
 		return;
 	}
 
-	auto scene = p_editorContext.GetActiveScene();
+	auto scene = p_editorContext.GetActiveScene().lock();
 	glm::vec3 objectPos = p_editorContext.GetEditorCamera().GetPosition() + p_editorContext.GetEditorCamera().GetForward() * 5.0f;
 
 	for (const nlohmann::json &nodeJson : *clipboardNodes)
