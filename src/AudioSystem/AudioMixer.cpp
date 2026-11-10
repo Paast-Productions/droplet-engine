@@ -53,7 +53,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 
 	dalia::Result res;
 	res = m_daliaEngine->CreateBus(busPointer->GetName().c_str());
-	if (res == dalia::Result::BusPoolExhausted)
+	if (res == dalia::Result::BusCapacityReached)
 	{
 		// Maximum number of buses are 63
 		throw std::runtime_error("Bus pool exhausted");
