@@ -167,7 +167,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
 		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
-	};
+	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }

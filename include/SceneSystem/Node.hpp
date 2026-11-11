@@ -412,7 +412,7 @@ namespace Droplet::Scene
         std::vector<std::shared_ptr<Node>> m_children;
 
         // Scene
-
+          
         friend class Scene;
 
         /// @brief Weak reference to the Scene containing this Node.
