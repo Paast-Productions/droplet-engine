@@ -621,7 +621,7 @@ void SceneViewWindow::RenderEditorView()
 
 		if (m_cameraLookToggled)
 		{
-			controller.Update(viewCenter.x, viewCenter.y);
+			controller.Update();
 		}
 
 		// Camera snaping
@@ -1435,7 +1435,6 @@ void SceneViewWindow::RenderOverlayQueue()
 	ImGui::PopID();
 
 	ImGui::Unindent(c_overlayIndent);
-	//ImGui::SetCursorPos(cPos);
 }
 
 void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
