@@ -209,7 +209,6 @@ void Renderer::TransitionImageLayout(
 		.pImageMemoryBarriers = &barrier 
 	};
 	
-	//const vk::raii::CommandBuffer& commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 	auto &commandBuffer = p_commandBuffer;
 	commandBuffer.pipelineBarrier2(dependencyInfo);
 }
@@ -221,12 +220,17 @@ void Renderer::RecordRenderTargetCommandBuffer(
 {
 	ZoneScoped;
 
-	auto &commandBuffer = p_commandBuffer;//m_commandPool.GetBufferAt(m_frameIndex);
+	auto &commandBuffer = /*p_commandBuffer;*/m_commandPool.GetBufferAt(m_frameIndex);
 
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
+#ifdef _GAME //HACK: Only the rendertarget should be used here, expected to be fixed once copying to the swapchain is solved
+		m_swapchain.GetPresentImage(),
+#endif
+#ifdef _EDITOR
 		p_renderTarget.GetColorImage(),
+#endif
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
 		{},
@@ -239,7 +243,12 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 
 	TransitionImageLayout(
+#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+		m_swapchain.GetDepthImage(),
+#endif
+#ifdef _EDITOR
 		p_renderTarget.GetDepthImage(),
+#endif
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eDepthAttachmentOptimal,
 		vk::AccessFlagBits2::eDepthStencilAttachmentWrite,
@@ -255,7 +264,12 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
+#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+		.imageView = m_swapchain.GetPresentImageView(),
+#endif
+#ifdef _EDITOR
 		.imageView = p_renderTarget.GetColorImageView(),
+#endif
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eStore,
@@ -264,7 +278,12 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo
 	{
+#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+		.imageView = m_swapchain.GetDepthImageView(),
+#endif
+#ifdef _EDITOR
 		.imageView = p_renderTarget.GetDepthImageView(),
+#endif
 		.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
 		.storeOp = vk::AttachmentStoreOp::eDontCare,
@@ -279,7 +298,12 @@ void Renderer::RecordRenderTargetCommandBuffer(
 				.x = 0,
 				.y = 0
 			},
+#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+			.extent = m_swapchain.GetExtent(),
+#endif
+#ifdef _EDITOR
 			.extent = p_renderTarget.GetExtent()
+#endif
 		},
 		.layerCount = 1,
 		.colorAttachmentCount = 1,
@@ -288,8 +312,8 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	};
 
 	commandBuffer.beginRendering(renderingInfo);
-	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
-	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
+	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(renderingInfo.renderArea.extent.height), static_cast<float>(renderingInfo.renderArea.extent.width), -static_cast<float>(renderingInfo.renderArea.extent.height), 0.0f, 1.0f));
+	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), renderingInfo.renderArea.extent));
 	
 	for (const RenderData& data : p_renderData)
 	{
@@ -333,12 +357,16 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	}
 
 	if (p_debug)
-		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, renderingInfo.renderArea.extent, m_frameIndex);
+	commandBuffer.endRendering();
 
-
-#ifdef _EDITOR
 	TransitionImageLayout(
+#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+		m_swapchain.GetPresentImage(),
+#endif
+#ifdef _EDITOR
 		p_renderTarget.GetColorImage(),
+#endif
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
@@ -348,59 +376,6 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		vk::ImageAspectFlagBits::eColor,
 		commandBuffer
 	);
-#endif
-
-#ifdef _GAME
-	TransitionImageLayout(
-		p_renderTarget.GetColorImage(),
-		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::eTransferSrcOptimal,
-		vk::AccessFlagBits2::eColorAttachmentWrite,
-		{},
-		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
-		vk::PipelineStageFlagBits2::eBottomOfPipe,
-		vk::ImageAspectFlagBits::eColor,
-		commandBuffer
-	);
-#endif
-
-	vk::ImageCopy2 copy
-	{
-		.srcSubresource =
-		{
-			.aspectMask = vk::ImageAspectFlagBits::eColor,
-			.mipLevel = 1,
-			.baseArrayLayer = 0,
-			.layerCount = 1
-		},
-		.srcOffset = 0,
-		.dstSubresource =
-		{
-			.aspectMask = vk::ImageAspectFlagBits::eColor,
-			.mipLevel = 1,
-			.baseArrayLayer = 0,
-			.layerCount = 1
-		},
-		.dstOffset = 0,
-		.extent = vk::Extent3D(1, 1, 1)
-	};
-
-	vk::CopyImageInfo2 copyInfo
-	{
-		.srcImage = p_renderTarget.GetColorImage(),
-		.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal,
-		.dstImage = m_swapchain.GetPresentImage(),
-		.dstImageLayout = vk::ImageLayout::eTransferDstOptimal,
-		.regionCount = 1,
-		.pRegions = &copy
-	};
-
-	commandBuffer.copyImage2(copyInfo);
-
-	commandBuffer.endRendering();
-
-
-	//commandBuffer.end();
 }
 
 #ifdef _EDITOR
@@ -652,6 +627,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	};
 
 	const vk::Result result = m_context.GetQueue().presentKHR(presentInfoKHR);
+
 
 	// Due to VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS being defined, eErrorOutOfDateKHR can be checked as a result
 	// here and does not need to be caught by an exception.
