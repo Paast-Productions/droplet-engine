@@ -8,19 +8,23 @@ project "Dalia"
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
+
+    print(objDirectory)
+    print(moduleDirectory)
+    print(installDirectory)
     
     kind "Utility"
 
-    filter "configurations:release"
+    filter "configurations:editor-release or editor-deploy or game-release or game-deploy"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Release --target install",
         }
-    filter "configurations:debug"
+    filter "configurations:editor-debug or game-debug"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DDALIA_BUILD_STUDIO=OFF -DDALIA_BUILD_SANDBOX=OFF",
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Debug --target install",
         }
     filter {}

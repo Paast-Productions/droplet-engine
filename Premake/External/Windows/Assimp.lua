@@ -12,22 +12,22 @@ project "Assimp"
     
     kind "Utility"
 
-    filter "configurations:release"
+    filter "configurations:editor-release or editor-deploy or game-release or game-deploy"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " " ..
                     "-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded' -DASSIMP_BUILD_TESTS=OFF -DLIBRARY_SUFFIX='-mt' "..
                     "-DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_FBX_IMPORTER=ON -DASSIMP_BUILD_GLTF_IMPORTER=ON -DASSIMP_BUILD_OBJ_IMPORTER=ON " ..
                     "-DASSIMP_NO_EXPORT=ON",
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config release --target install",
         }
-    filter "configurations:debug"
+    filter "configurations:editor-debug or game-debug"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " " ..
                     "-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug' -DASSIMP_BUILD_TESTS=OFF -DLIBRARY_SUFFIX='-mt' " ..
                     "-DASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT=OFF -DASSIMP_BUILD_FBX_IMPORTER=ON -DASSIMP_BUILD_GLTF_IMPORTER=ON -DASSIMP_BUILD_OBJ_IMPORTER=ON " ..
                     "-DASSIMP_NO_EXPORT=ON",
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config debug --target install",
         }
     filter {}

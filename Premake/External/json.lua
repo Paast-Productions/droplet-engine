@@ -20,14 +20,14 @@
     filter "system:linux"
         kind "Makefile"
 
-    filter { "system:linux", "configurations:debug" }
+    filter { "system:linux", "configurations:editor-debug or game-debug" }
         buildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),
             "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
         }
 
-    filter { "system:linux", "configurations:release" }
+    filter { "system:linux", "configurations:editor-release or editor-deploy or game-release or game-deploy" }
         buildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),
