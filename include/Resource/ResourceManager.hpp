@@ -158,19 +158,23 @@ namespace Droplet
 			    if constexpr (std::is_same_v<T, SoundResource>)
 			    {
 			        SoundType type = metaEntry.loadSettings.value(MetaLoadSettings::C_SOUND_TYPE.key, MetaLoadSettings::C_SOUND_TYPE.defaultValue);
+			        auto capturedGuid = metaEntry.guid;
+			        auto capturedFlags = metaEntry.loadFlags;
 			        
 			        // Sound resources are handled by AudioSystem
 			        std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / metaEntry.relAssetPath;
-			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [&, this](bool success)
+			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [this, capturedGuid, capturedFlags](bool success)
 			        {
 			            AsyncLoadResult res;
                         res.succeeded = success;
-                        res.guid = metaEntry.guid;
-                        res.resource = loadedResource.release();
-                        res.loadFlags = metaEntry.loadFlags;
+                        res.guid = capturedGuid;
+                        res.resource = nullptr;
+                        res.loadFlags = capturedFlags;
 								                        
                         m_asyncLoadResults.Push(res);
 			        });
+			        
+			        if (loadedResource) m_pendingSoundLoads[capturedGuid] = loadedResource.release();
 			    }
 			    else
 			    {
@@ -350,6 +354,8 @@ namespace Droplet
 		
 		ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
 		ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
+	    
+	    std::unordered_map<GUID, SoundResource*> m_pendingSoundLoads;
 	};
 	
 }

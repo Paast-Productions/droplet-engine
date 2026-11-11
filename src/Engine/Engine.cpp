@@ -183,6 +183,8 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	// ResourceManager
 
 	ResourceManager::Get().Update();
+    
+    Audio::AudioSystem::GetInstance().Update();
 
 	return DROPLET_RETURNTYPE::OK;
 }

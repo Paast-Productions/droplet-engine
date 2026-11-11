@@ -71,11 +71,19 @@ namespace Droplet
         AsyncLoadResult loadRes;
         while (m_asyncLoadResults.Pop(loadRes))
         {
+            void* resourcePtr = loadRes.resource;
+            auto soundIt = m_pendingSoundLoads.find(loadRes.guid);
+            if (soundIt != m_pendingSoundLoads.end())
+            {
+                resourcePtr = soundIt->second;
+                m_pendingSoundLoads.erase(soundIt);
+            }
+            
             auto it = m_liveResources.find(loadRes.guid);
             if (it == m_liveResources.end())
             {
                 // Resource was destroyed before load finished
-                delete loadRes.resource; // Release the allocated resource stored in the load result
+                delete static_cast<IResource*>(resourcePtr); // Release the allocated resource
                 continue;
             }
             
@@ -84,7 +92,7 @@ namespace Droplet
             if (!loadRes.succeeded)
             {
                 liveResource.state = ResourceState::Failed;
-                delete loadRes.resource; // Safety delete (resource should already be nullptr)
+                delete static_cast<IResource*>(resourcePtr);
                 
                 // Trigger callbacks
                 std::vector<std::function<void()>> callbacksToInvoke;
@@ -96,7 +104,8 @@ namespace Droplet
                 
                 continue;
             }
-            liveResource.resource.reset(loadRes.resource);
+
+            liveResource.resource.reset(static_cast<IResource*>(resourcePtr));
             liveResource.state = ResourceState::Ready;
             
             std::vector<std::function<void()>> callbacksToInvoke;

@@ -20,8 +20,13 @@ void Droplet::Audio::AudioSystem::Shutdown()
     // m_mixer.Shutdown(); // Don't we need this?
 }
 
+void AudioSystem::Update()
+{
+    m_daliaEngine.Update();
+}
+
 std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesystem::path &p_path, SoundType p_type,
-    std::function<void(bool)> p_onLoad)
+                                                               std::function<void(bool)> p_onLoad)
 {
     dalia::SoundType daliaSoundType;
     if (p_type == SoundType::Resident) daliaSoundType = dalia::SoundType::Resident;
@@ -29,10 +34,13 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
     
     dalia::SoundHandle handle = dalia::INVALID_SOUND_HANDLE;
     dalia::Result res = m_daliaEngine.LoadSoundAsync(handle, daliaSoundType, p_path.generic_string().c_str(), 
-        [&](uint32_t reqId, dalia::Result result)
+        [p_onLoad](uint32_t reqId, dalia::Result result)
     {
-        if (result == dalia::Result::Ok) p_onLoad(true);
-        else p_onLoad(false);
+        if (p_onLoad)
+        {
+            if (result == dalia::Result::Ok) p_onLoad(true);
+            else p_onLoad(false);
+        }
     });
     
     if (res == dalia::Result::Ok) return std::make_unique<SoundResource>(handle);
