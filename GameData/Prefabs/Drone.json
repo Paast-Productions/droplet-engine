@@ -1,0 +1,166 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Drone",
+                        "meshGUID": 11502053657790986835,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Drone",
+                        "textureGUID": 1365390299680718017,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 64,
+            "id": 95,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    -0.09999960660934448,
+                    -0.09999960660934448
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.5,
+                    0.5,
+                    0.5
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 75.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65471,
+                        "priority": 0,
+                        "resolution": [
+                            1024,
+                            1024
+                        ]
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 96,
+            "name": "Camera",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "components": [
+        {
+            "active": false,
+            "data": {
+                "h": 0.30000001192092896,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 0,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 1.0,
+                "shapeType": 2
+            },
+            "id": 2,
+            "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "filepath": "DroneControl2.lua"
+            },
+            "id": 3,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "health": 100.0,
+                "maxHealth": 100.0
+            },
+            "id": 4,
+            "type": "HealthComponent"
+        },
+        {
+            "active": true,
+            "data": {},
+            "id": 5,
+            "type": "PlayerComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 94,
+    "name": "Drone",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0000039339065552,
+            1.0000039339065552
+        ]
+    }
+}
