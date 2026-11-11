@@ -9,6 +9,7 @@
 #include <math/bounds/AABB.hpp>
 #include <math/bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
+#include <Resource/GuidUtils.hpp>
 
 namespace Droplet::Scene
 {
