@@ -1,5 +1,5 @@
 project "Editor"
-    kind "WindowedApp"
+    kind "ConsoleApp"
 
     location(projectsPath)
 
@@ -12,6 +12,7 @@ project "Editor"
     UseEditorPCH()
 
     defines{ 
+        "_EDITOR",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -45,8 +46,6 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
-        filter { "system:windows" }
-
         files 
         { 
             "../Editor/resources.rc", 
@@ -54,9 +53,8 @@ project "Editor"
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Editor " .. "%{cfg.buildcfg}"
         }
-
     else
 
         includedirs
@@ -120,8 +118,8 @@ project "Editor"
         AddQuotation("msvcrtd") -- DEBUG VERSION OF msvcrt.lib
     }
 
-    filter "configurations:editor-debug"
+    filter "configurations:debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:editor-release or configurations:editor-deploy"
+    filter "configurations:release or deploy"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}

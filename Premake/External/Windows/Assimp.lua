@@ -12,7 +12,7 @@ project "Assimp"
     
     kind "Utility"
 
-    filter "configurations:editor-release or editor-deploy or game-release or game-deploy"
+    filter "configurations:release or deploy"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " " ..
@@ -21,7 +21,7 @@ project "Assimp"
                     "-DASSIMP_NO_EXPORT=ON",
             "cmake --build " .. objDirectory .. " --config release --target install",
         }
-    filter "configurations:editor-debug or game-debug"
+    filter "configurations:debug"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " " ..
