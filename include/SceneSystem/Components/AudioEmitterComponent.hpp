@@ -13,6 +13,7 @@ namespace Droplet::Scene
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioEmitterComponent"; }
 
 		const std::string GetName() { return m_audioName; }
+		void PlaySound();
 
 	protected:
 		void StartImpl() override;
@@ -20,6 +21,8 @@ namespace Droplet::Scene
 
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
+
+
 
 	private:
 		float m_volume = 0.0f;
@@ -29,7 +32,7 @@ namespace Droplet::Scene
 		std::string m_audioBusName;
 		dalia::PlaybackHandle m_playHandle;
 		//ResourceHandle<SoundResource> m_handle
-		std::string m_audioName ="";
+		std::string m_audioName ="Gupta";
 		Audio::AudioMixer *m_mixer = nullptr;
 
 		dalia::AttenuationCurve m_attCurve;

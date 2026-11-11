@@ -9,22 +9,11 @@ using namespace Droplet::Scene;
 
 Droplet::Scene::AudioEmitterComponent::AudioEmitterComponent()
 {
-
-	
 }
 
 void Droplet::Scene::AudioEmitterComponent::StartImpl()
 {
-	auto owner = GetOwner();
-	if (!owner)
-		return;
-
-	auto scene = owner->GetScene();
-	if (!scene)
-		return;
-
-	auto& audio = scene->GetAudioSystem();
-	m_mixer = &audio.GetMixer();
+	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();
 }
 
 void AudioEmitterComponent::RenderUIImpl()
@@ -126,4 +115,9 @@ void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_com
 	{
 		m_attCurve = p_compJson["attenuationCurve"];
 	}
+}
+
+void Droplet::Scene::AudioEmitterComponent::PlaySound()
+{
+	std::cout << "Playing sound" << std::endl;
 }

@@ -6,6 +6,7 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -22,6 +23,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+    RegisterAudioEmitterComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -684,4 +686,22 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(registryDef);
+}
+
+void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::AudioEmitterComponent>(
+        "AudioEmitterComponent",
+        "PlaySound", &Scene::AudioEmitterComponent::PlaySound
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioEmitterComponent";
+
+    classDef.functions =
+    {
+        {"PlaySound", "void", {}}
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
 }

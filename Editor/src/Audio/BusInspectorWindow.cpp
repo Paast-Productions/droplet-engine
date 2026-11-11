@@ -17,7 +17,7 @@ void Droplet::Editor::BusInspectorWindow::CloseImpl()
 
 void Droplet::Editor::BusInspectorWindow::RenderImpl()
 {
-	const Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	const Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 

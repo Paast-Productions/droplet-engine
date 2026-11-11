@@ -22,3 +22,8 @@ AudioMixer &Droplet::Audio::AudioSystem::GetMixer()
 {
 	return m_mixer;
 }
+
+void Droplet::Audio::AudioSystem::TestPrint()
+{
+	std::cout << "We are playing sound " << std::endl;
+}

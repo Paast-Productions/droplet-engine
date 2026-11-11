@@ -269,7 +269,7 @@ namespace Droplet::Scene
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
         void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
-        Audio::AudioSystem &GetAudioSystem() { return m_sceneManager->GetAudioSystem(); }
+
 
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.

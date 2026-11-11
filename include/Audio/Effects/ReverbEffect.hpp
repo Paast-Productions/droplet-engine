@@ -1,5 +1,5 @@
 #pragma once
-#include <AudioSystem/Effect.hpp>
+#include <Audio/Effect.hpp>
 
 
 namespace Droplet::Audio

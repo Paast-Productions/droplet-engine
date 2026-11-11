@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 
-#include <AudioSystem/AudioSystem.hpp>
+#include <Audio/AudioSystem.hpp>
 
 namespace Droplet::Scene
 {
@@ -34,7 +34,7 @@ namespace Droplet::Scene
 
 		dalia::PlaybackHandle m_playback;
 		//ResourceHandle<SoundResource> m_handle
-		std::string m_audioName = "";
+		std::string m_audioName = "Gupta"; // HACK Just for us to find the emitter in the script
 
 
 	};

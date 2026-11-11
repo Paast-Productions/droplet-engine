@@ -1,5 +1,5 @@
 #include "MixerWindow.hpp"
-#include <AudioSystem/AudioBus.hpp>
+#include <Audio/AudioBus.hpp>
 
 using namespace Droplet;
 
@@ -14,7 +14,7 @@ void Droplet::Editor::MixerWindow::CloseImpl()
 
 void Droplet::Editor::MixerWindow::RenderImpl()
 {
-	Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 
 	Audio::AudioBus *selectedBus = nullptr;
@@ -113,7 +113,7 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 		return;
 	}
 
-	Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 
 	const std::uint64_t busID = p_bus->GetID();
@@ -192,7 +192,7 @@ void Droplet::Editor::MixerWindow::HandleBusDropTarget(Audio::AudioBus *p_parent
 			std::uint64_t draggedBusID = 0;
 			std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
 
-			Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+			Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 			Audio::AudioBus *draggedBus = mixer.FindAudioBus(draggedBusID);
 
 			if (draggedBus != nullptr && draggedBus != mixer.GetMasterBus() && !p_parent->IsDecendantOf(draggedBus))

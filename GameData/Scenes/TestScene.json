@@ -1,0 +1,41 @@
+{
+    "name": "TestScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "EmitterTest.lua"
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "Script Node",
+            "transform": {
+                "position": [
+                    13.57772445678711,
+                    9.405526161193848,
+                    -26.972749710083008
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

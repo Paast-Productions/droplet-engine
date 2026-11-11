@@ -148,7 +148,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetAudioEmitter",
 		[](Scene::Node &node, const std::string& p_name)
 		{
-			return node.GetAudioEmitter(p_name);
+			return node.GetAudioEmitter(p_name).lock();
 		}
 
 

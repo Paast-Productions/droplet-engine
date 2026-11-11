@@ -2,6 +2,7 @@
 #include <dalia/dalia.h>
 #include "AudioMixer.hpp"
 
+
 namespace Droplet::Audio
 {
 	class AudioSystem
@@ -22,7 +23,10 @@ namespace Droplet::Audio
 		void Shutdown();
 	    
 		AudioMixer &GetMixer();
+
+		void TestPrint();
 		
+
 	private:
 	    AudioSystem() = default;
 	    ~AudioSystem() = default;

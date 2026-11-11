@@ -8,18 +8,7 @@ Droplet::Scene::AudioPlayerComponent::AudioPlayerComponent()
 
 void Droplet::Scene::AudioPlayerComponent::StartImpl()
 {
-	auto owner = GetOwner();
-	if (!owner)
-	{
-		return;
-	}
-	auto scene = owner->GetScene();
-	if (!scene)
-	{
-		return;
-	}
-	auto &audio = scene->GetAudioSystem();
-	m_mixer = &audio.GetMixer();
+	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();
 }
 
 void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
