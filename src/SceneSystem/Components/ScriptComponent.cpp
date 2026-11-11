@@ -55,6 +55,8 @@ void ScriptComponent::DetachScript()
     }
 
     ScriptSystem::Get().DetachComponentScript(this);
+
+	m_scriptPath = "";
 }
 
 void ScriptComponent::RenderUIImpl()

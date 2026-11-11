@@ -32,8 +32,8 @@ workspace "DropletEngine"
     -- Paths
 
     rootPath = path.getdirectory(_SCRIPT)
-    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target"
-    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj"
+    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
+    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
     includePath = path.getdirectory(_SCRIPT) .. "/include"
     srcPath = path.getdirectory(_SCRIPT) .. "/src"
     externalPath = path.getdirectory(_SCRIPT) .. "/External"
