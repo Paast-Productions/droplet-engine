@@ -48,22 +48,26 @@ workspace "DropletEngine"
         symbols "Off"
     filter {}
 
-    -- Paths
+-- [[ PATHS ]] --
 
-    rootPath = path.getdirectory(_SCRIPT)
-    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
-    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
-    includePath = path.getdirectory(_SCRIPT) .. "/include"
-    srcPath = path.getdirectory(_SCRIPT) .. "/src"
-    externalPath = path.getdirectory(_SCRIPT) .. "/External"
-    projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
+rootPath = path.getdirectory(_SCRIPT)
+targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
+objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
+includePath = path.getdirectory(_SCRIPT) .. "/include"
+srcPath = path.getdirectory(_SCRIPT) .. "/src"
+externalPath = path.getdirectory(_SCRIPT) .. "/External"
+projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 -- [[ SOURCE ]] --
 
-include "Premake/Engine"
-include "Premake/Editor"
-include "Premake/Game"
+filter "configurations:editor-debug or editor-release or editor-deploy"
+    include "Premake/Editor"
+filter "configurations:game-debug or game-release or game-deploy"
+    include "Premake/Game"
+filter {}
+
 include "Premake/Test"
+include "Premake/Engine"
 
 -- [[ SAMPLES ]] --
 
