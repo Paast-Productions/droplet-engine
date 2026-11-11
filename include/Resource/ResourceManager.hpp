@@ -8,6 +8,7 @@
 #include <functional>
 #include <typeindex>
 
+#include "MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
@@ -156,7 +157,8 @@ namespace Droplet
 			{
 			    if constexpr (std::is_same_v<T, SoundResource>)
 			    {
-			        dalia::SoundType type = dalia::SoundType::Resident; // TODO: Extract this from loadsettings
+			        SoundType type = metaEntry.loadSettings.value(MetaLoadSettings::C_SOUND_TYPE.key, MetaLoadSettings::C_SOUND_TYPE.defaultValue);
+			        
 			        // Sound resources are handled by AudioSystem
 			        std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / metaEntry.relAssetPath;
 			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [&, this](bool success)
@@ -267,6 +269,13 @@ namespace Droplet
 			assert(m_isInitialized && "AssetManager is not initialized.");
 			
 			auto it = m_liveResources.find(p_guid);
+		    
+		    if constexpr (std::is_same_v<T, SoundResource>)
+		    {
+		        if (it == m_liveResources.end()) return nullptr;
+		        return static_cast<T*>(it->second.resource.get());
+		    }
+		    
 			if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
 			{
 				// Asset is ready to be used

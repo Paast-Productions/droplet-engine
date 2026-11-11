@@ -5,7 +5,7 @@
 namespace Droplet::Scene 
 {
 	
-	/// @brief Right now just outline class to start work with later
+	/// @brief 3D Audio player.
 	class AudioEmitterComponent : public Component
 	{
 	public:
@@ -20,11 +20,15 @@ namespace Droplet::Scene
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
 	private:
+	    GUID m_soundGuid = C_INVALID_GUID;
+	    std::string m_soundName;
+	    ResourceHandle<SoundResource> m_resourceHandle;
+	    
+	    dalia::PlaybackHandle m_daliaPlaybackHandle = dalia::INVALID_PLAYBACK_HANDLE;
 		float m_volume = 0;
 		bool m_looping = false;
 		
-		std::string m_audioBusName;
-		dalia::PlaybackHandle m_playHandle;
+		std::string m_busName;
 		Audio::AudioMixer *m_mixer = nullptr;
 
 		dalia::AttenuationCurve m_attCurve;

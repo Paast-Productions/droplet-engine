@@ -227,7 +227,7 @@ namespace Droplet::MetaUtils
                     MetaLoadSettings::Type::Enum,
                     0.0f,
                     0.0f,
-                    { "None (don't pick this)", "Resident", "Stream"}
+                    { "Resident", "Streaming"}
                 }
             };
 

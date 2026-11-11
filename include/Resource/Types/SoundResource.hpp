@@ -5,6 +5,12 @@
 
 namespace Droplet
 {
+    enum class SoundType : uint8_t
+    {
+        Resident = 0,
+        Streaming = 1
+    };
+    
     class SoundResource : public IResource
     {
     public:

@@ -2,6 +2,7 @@
 
 #include "resource/GuidUtils.hpp"
 #include "resource/IResource.hpp"
+#include "resource/types/SoundResource.hpp"
 #include "resource/types/ShaderResource.hpp"
 
 #include <json/json.hpp>
@@ -100,7 +101,7 @@ namespace Droplet
         inline constexpr Setting<ShaderResource::ShaderType> C_SHADER_TYPE = { "shader_type", "Shader Type", ShaderResource::ShaderType::Vertex };
         
         // --- Sound Settings ---
-        inline constexpr Setting<dalia::SoundType> C_SOUND_TYPE = { "sound_type", "Sound Type", dalia::SoundType::Resident };
+        inline constexpr Setting<SoundType> C_SOUND_TYPE = { "sound_type", "Sound Type", SoundType::Resident };
         
         /// @brief Defines the datatypes available in a resource's load settings.
         enum class Type
