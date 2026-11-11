@@ -16,7 +16,16 @@ local braking = 14.0         -- input opposes current motion: turning around
 
 local moveSpeed = 0.0
 
+-- Pulse-jet settings
+local pulseCooldown = 3.0 -- In seconds
+local currentPulseCooldown = 0.0 -- In seconds
+local pulseFadeOutTime = 0.5 -- In seconds
+local currentPulseFadeOutTime = 0.0 -- In seconds
+local pulseSpeed = 2.0
+local pulseDirection = Vec3.new(0.0, 0.0, 0.0)
+local pulseKey = Key.Space
 
+-- Camera settings
 local mouseSensitivity = 0.0025   -- radians per pixel
 local maxPitch = math.rad(80.0)   -- pitch limit up/down
 local invertY = false
@@ -120,6 +129,13 @@ function UpdateMovement(dt)
         )
     end
 
+	-- Pulse jet
+	if Input:KeyPressed(pulseKey) and currentPulseCooldown == 0.0 then
+		pulseDirection = inputDirection
+		currentPulseCooldown = pulseCooldown
+		currentPulseFadeOutTime = pulseFadeOutTime
+	end
+
     -- Dedicated vertical movement in world space
 
     if Input:KeyHeld(Key.Space) then
@@ -182,6 +198,24 @@ function UpdateMovement(dt)
     -- Apply movement in world space
 
     local movement = GLM.V3MulF(velocity, dt)
+    
+    if currentPulseFadeOutTime > 0.0 then
+		print("Calculate pulse ", currentPulseFadeOutTime)
+		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
+		movement = GLM.V3Add(
+			movement,
+			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime)
+		)
+	else
+		currentPulseFadeOutTime = 0.0
+	end
+
+	if currentPulseCooldown > 0.0 then
+		currentPulseCooldown = currentPulseCooldown - dt
+	else
+		currentPulseCooldown = 0.0
+	end
+    
     trans:Move(movement, TransformSpace.World)
 
     tracy.ZoneEnd()
