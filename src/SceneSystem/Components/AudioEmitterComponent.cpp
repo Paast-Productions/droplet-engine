@@ -49,8 +49,13 @@ void AudioEmitterComponent::RenderUIImpl()
             newName,
             ResourceType::Sound))
         {
-            m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(newGuid);
+            if (newGuid != C_INVALID_GUID)
+            {
+                m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(newGuid);
+            }
+            
             m_soundName = newName;
+            m_soundGuid = newGuid;
         }
         
         ImGui::EndTable();
