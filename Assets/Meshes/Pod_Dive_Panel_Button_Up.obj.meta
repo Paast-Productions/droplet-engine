@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Dive_Button_Panel_Up_Button",
+            "guid": 10887746034569240971,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Dive_Button_Panel_Up_Button",
+            "type": 3
+        }
+    ]
+}
