@@ -172,14 +172,16 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_bandTextureView.emplace(p_context.GetDevice(),m_bandTexture->Get(), vk::Format::eR16G16Uint, vk::ImageAspectFlagBits::eColor);
 	
 
-	constexpr float fontScale = 0.0008f;
-	constexpr float fixedAdvance = 0.48f;
+	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
+	
+	float fontSize = 48.0f;
+	float fontScale = emSize / static_cast<float>(m_fontHeader.unitsPerEm);
 
 	float penX = -0.75f;
 	float baselineY = -0.3f;
 	std::array<GlyphInstance, 7> instances;
 	int i = 0;
-	for (char character : std::string_view{"DROPLET"})
+	for (char character : std::string_view{"Droplet"})
 	{
 		const SlugCodePoint* glyph = GetGlyph(character);
 		if (glyph && glyph->bandCount > 0 && glyph->bandDimX && glyph->bandDimY)
@@ -190,12 +192,15 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 			const float quadWidth = width * fontScale;
 			const float quadHeight = height * fontScale;
 			
+			const float glyphX = penX + static_cast<float>(glyph->xMin) * fontScale;
+			const float glyphY = baselineY + static_cast<float>(glyph->yMin) * fontScale;
+			
 			GlyphInstance instance{
 				.scaleBias = {
 					quadWidth,
 					quadHeight,
-					penX + fixedAdvance * 0.5f,
-					baselineY + quadHeight * 0.5f
+					glyphX + quadWidth * 0.5f,
+					glyphY + quadHeight * 0.5f
 				},
 				.glyphBandScale = {
 					width,
@@ -214,7 +219,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 		}
 		
 		// p_commandBuffer.pushConstants<SlugGlyphData>(*m_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, glyphData);
-		penX += fixedAdvance;
+		penX += static_cast<float>(glyph->advanceWidth) * fontScale;
 	}
 	
 	m_storageBuffer = StorageBuffer(p_allocator, instances);

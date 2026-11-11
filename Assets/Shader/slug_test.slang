@@ -51,16 +51,14 @@ VertexOutput slugVertMain(uint vertexID : SV_VertexID, uint instanceID : SV_Inst
         float2(-0.5f,  0.5f)  // Top-left
     };
     
-    float fixedAdvance = 0.25;
-    float xOffset = (float)instanceID * fixedAdvance;
+    float2 localPosition = positions[vertexID] * instance.scaleBias.xy + instance.scaleBias.zw;
+
+    float4 worldPosition = float4(localPosition, 0.0f, 1.0f);
 
     
     VertexOutput output;
     
-    // output.position = mul(camera.projection, mul(camera.view, float4((positions[vertexID].x / camera.aspectRatio) + fixedAdvance, positions[vertexID].y, 0.5f, 1.0f)));
-    float2 position = positions[vertexID] * instance.scaleBias.xy + instance.scaleBias.zw;
-    position.x /= camera.aspectRatio;
-    output.position = mul(camera.projection, mul(camera.view, float4(position, 0.5f, 1.0f)));
+    output.position = mul(camera.projection, mul(camera.view, worldPosition));
     output.texCoords = positions[vertexID] + float2(0.5f, 0.5f);
     output.instanceID = instanceID;
     return output;
@@ -170,8 +168,8 @@ float4 slugFragMain(VertexOutput input) : SV_TARGET
     float2 glyphScale = instance.glyphBandScale.xy;
     float2 bandScale = instance.glyphBandScale.zw;
 
-    float2 bandMax = instance.bandMaxTexCoords.xy;
-    float2 bandsTexCoords = instance.bandMaxTexCoords.zw;
+    uint2 bandMax = instance.bandMaxTexCoords.xy;
+    uint2 bandsTexCoords = instance.bandMaxTexCoords.zw;
 
     float2 pixelsPerEm = 1.0 / fwidth(input.texCoords);
 
