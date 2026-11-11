@@ -100,6 +100,15 @@ namespace Droplet::Graphics::VK::Slug
 		/// @brief Height of the glyph's bounding box in font units.
 		uint32_t height;
 		
+		/// @brief Spacing to the next character.
+		int32_t advanceWidth;
+		
+		/// @brief Minimum x-value of the glyph bounding box.
+		int32_t xMin;
+		
+		/// @brief Minimum y-value of the glyph bounding box.
+		int32_t yMin;
+		
 		/// @brief Number of horizontal and vertical bands per glyph.
 		uint32_t bandCount;
 		

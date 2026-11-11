@@ -350,11 +350,17 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		}
 	}
 	
+	int advanceWidth, leftSideBearing;
+	stbtt_GetGlyphHMetrics(&m_fontInfo, glyphIdx, &advanceWidth, &leftSideBearing);
+	
 	// Store glyph metadata
 	SlugCodePoint cp;
 	cp.codePoint = p_codePoint;
 	cp.width = static_cast<uint32_t>(glyphBounds.xMax - glyphBounds.xMin);
 	cp.height = static_cast<uint32_t>(glyphBounds.yMax - glyphBounds.yMin);
+	cp.advanceWidth = advanceWidth;
+	cp.xMin = glyphBounds.xMin;
+	cp.yMin = glyphBounds.yMin;
 	cp.bandCount = bandCount;
 	cp.bandDimX = bandDimX;
 	cp.bandDimY = bandDimY;
