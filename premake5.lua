@@ -1,69 +1,72 @@
 require "Premake/Utilities/Clean"
 require "Premake/Utilities/Helper"
 require "Premake/Utilities/Doxygen"
+require "Premake/Utilities/GameOption"
 
 workspace "DropletEngine"
     
     location "Generated"
     cppdialect "C++23"
     multiprocessorcompile "On"
-	startproject "Engine"
+
+    if _OPTIONS["game"] then
+        startproject "Game"
+    else
+        startproject "Editor"
+    end
+    
     warnings "Extra"
     externalanglebrackets "On"
     externalwarnings "Off"
     --fatalwarnings { "All" }
     multiprocessorcompile "On"
-    configurations { "editor-debug", "editor-release", "editor-deploy", "game-debug", "game-release", "game-deploy" }
+    configurations { "debug", "release", "deploy" }
 
     architecture "x86_64"
     staticruntime "on"
 
-    filter "configurations:editor-debug"
+    filter "configurations:debug"
         runtime "Debug"
-        defines { "_EDITOR", "DEBUG" }
+        defines { "DEBUG" }
         symbols "On"
         optimize "Off"
-    filter "configurations:editor-release"
+    filter "configurations:release"
         runtime "Release"
-        defines { "_EDITOR", "NDEBUG" }
+        defines { "NDEBUG" }
         optimize "On"
-    filter "configurations:editor-deploy"
+    filter "configurations:deploy"
         runtime "Release"
-        defines { "_EDITOR", "NDEBUG", "DEPLOY" }
+        defines { "NDEBUG", "DEPLOY" }
 		optimize "Full"
 		symbols "Off"
-    filter "configurations:game-debug"
-        runtime "Debug"
-        defines { "_GAME", "DEBUG" }
-        symbols "On"
-        optimize "Off"
-    filter "configurations:game-release"
-        runtime "Release"
-        defines { "_GAME", "NDEBUG" }
-        optimize "On"
-    filter "configurations:game-deploy"
-        runtime "Release"
-        defines { "_GAME", "NDEBUG", "DEPLOY" }
-        optimize "Full"
-        symbols "Off"
     filter {}
 
-    -- Paths
+    if _OPTIONS["game"] then
+        defines { "_GAME" }
+    else
+        defines { "_EDITOR" }
+    end
 
-    rootPath = path.getdirectory(_SCRIPT)
-    targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
-    objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
-    includePath = path.getdirectory(_SCRIPT) .. "/include"
-    srcPath = path.getdirectory(_SCRIPT) .. "/src"
-    externalPath = path.getdirectory(_SCRIPT) .. "/External"
-    projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
+-- [[ PATHS ]] --
+
+rootPath = path.getdirectory(_SCRIPT)
+targetBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Target/%{cfg.buildcfg}"
+objBuildPath = path.getdirectory(_SCRIPT) .. "/Build/Obj/%{cfg.buildcfg}"
+includePath = path.getdirectory(_SCRIPT) .. "/include"
+srcPath = path.getdirectory(_SCRIPT) .. "/src"
+externalPath = path.getdirectory(_SCRIPT) .. "/External"
+projectsPath = path.getdirectory(_SCRIPT) .. "/Generated"
 
 -- [[ SOURCE ]] --
 
-include "Premake/Engine"
-include "Premake/Editor"
-include "Premake/Game"
+if _OPTIONS["game"] then
+    include "Premake/Game"
+else
+    include "Premake/Editor"
+end
+
 include "Premake/Test"
+include "Premake/Engine"
 
 -- [[ SAMPLES ]] --
 
