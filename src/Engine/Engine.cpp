@@ -23,6 +23,7 @@
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
 #include <SceneSystem/Items/BaseItems.hpp>
+#include <Resource/IO/AudioFormat.hpp>
 
 using namespace Droplet;
 
@@ -74,10 +75,11 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     ResourceManager &resManInstance = ResourceManager::GetInstance();
 	resManInstance.Initialize(assetDir);
     // Register scanners
-    // TODO: Don't hardcode accepted extensions in Engine constructor
+    // TODO: Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".ogg"}, IO::AudioFormat::ScanAssetResources);
 	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
@@ -85,6 +87,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
+    // Don't register SoundResource for now /Arvid
 
 	// Register base items and set the item registry for the scene manager
 	Droplet::Game::RegisterBaseItems(m_itemRegistry);

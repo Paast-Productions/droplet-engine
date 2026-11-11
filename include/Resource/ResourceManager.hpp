@@ -8,12 +8,15 @@
 #include <functional>
 #include <typeindex>
 
+#include "MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
 #include "resource/ResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
 #include "core/ThreadPool.hpp"
+
+#include "Audio/AudioSystem.hpp"
 
 namespace Droplet
 {
@@ -152,7 +155,27 @@ namespace Droplet
 			
 			if (loadAsync)
 			{
-				PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    if constexpr (std::is_same_v<T, SoundResource>)
+			    {
+			        SoundType type = metaEntry.loadSettings.value(MetaLoadSettings::C_SOUND_TYPE.key, MetaLoadSettings::C_SOUND_TYPE.defaultValue);
+			        
+			        // Sound resources are handled by AudioSystem
+			        std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / metaEntry.relAssetPath;
+			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [&, this](bool success)
+			        {
+			            AsyncLoadResult res;
+                        res.succeeded = success;
+                        res.guid = metaEntry.guid;
+                        res.resource = loadedResource.release();
+                        res.loadFlags = metaEntry.loadFlags;
+								                        
+                        m_asyncLoadResults.Push(res);
+			        });
+			    }
+			    else
+			    {
+			        PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    }
 			}
 			
 			return handle;
@@ -246,6 +269,13 @@ namespace Droplet
 			assert(m_isInitialized && "AssetManager is not initialized.");
 			
 			auto it = m_liveResources.find(p_guid);
+		    
+		    if constexpr (std::is_same_v<T, SoundResource>)
+		    {
+		        if (it == m_liveResources.end()) return nullptr;
+		        return static_cast<T*>(it->second.resource.get());
+		    }
+		    
 			if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
 			{
 				// Asset is ready to be used
