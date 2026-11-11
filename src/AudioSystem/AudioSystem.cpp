@@ -41,6 +41,12 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
 
 void Droplet::Audio::AudioSystem::PopulatePlayBack(dalia::PlaybackHandle p_playback, dalia::SoundHandle p_soundHandle)
 {
+    dalia::Result res; 
+    res = m_daliaEngine.CreatePlayback(p_playback, p_soundHandle);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not populate playback");
+    }
 }
 
 void Droplet::Audio::AudioSystem::ChangePlayBackVolume(dalia::PlaybackHandle p_playback, float p_volumeChange)
@@ -93,8 +99,18 @@ void Droplet::Audio::AudioSystem::StopSound(dalia::PlaybackHandle p_playback)
     }
 }
 
-void Droplet::Audio::AudioSystem::RoutePlaybackToBus(dalia::PlaybackHandle, std::string p_busName)
+void Droplet::Audio::AudioSystem::RoutePlaybackToBus(dalia::PlaybackHandle p_playback, std::string p_busName)
 {
+    if (!m_mixer.HasAudioBusWithName(p_busName))
+    {
+        return;
+    }
+    dalia::Result res;
+    res = m_daliaEngine.RoutePlayback(p_playback, p_busName.c_str());
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not route playback to bus:" + p_busName);
+    }
 }
 
 AudioMixer &Droplet::Audio::AudioSystem::GetMixer()

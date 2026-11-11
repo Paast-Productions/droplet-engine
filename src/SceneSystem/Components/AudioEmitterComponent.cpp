@@ -18,6 +18,12 @@ void AudioEmitterComponent::PlaySound()
     // what's this supposed to do?
 }
 
+void Droplet::Scene::AudioEmitterComponent::SetSoundGUID(GUID p_guid)
+{
+	m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
+
+}
+
 void Droplet::Scene::AudioEmitterComponent::StartImpl()
 {
 	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();

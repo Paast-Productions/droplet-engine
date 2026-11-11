@@ -16,6 +16,9 @@ namespace Droplet::Scene
 	    
 	    void PlaySound();
 
+		void SetSoundGUID(GUID p_guid);
+		[[nodiscard]] GUID GetSoundGUID() const { return m_soundGuid; }
+
 	protected:
 		void StartImpl() override;
 		void RenderUIImpl() override;
