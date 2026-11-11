@@ -133,8 +133,8 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	
 	// Glyph rendering
 	
-	uint32_t width = 1024;
-	uint32_t height = 1024;
+	// uint32_t width = 1024;
+	// uint32_t height = 1024;
 	if (!LoadFont(R"(C:\Users\linkl\Desktop\dev\droplet-engine\Assets\Fonts\JetBrainsMono-Regular.slug)"))
 	{
 		return;
@@ -172,7 +172,62 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_bandTextureView.emplace(p_context.GetDevice(),m_bandTexture->Get(), vk::Format::eR16G16Uint, vk::ImageAspectFlagBits::eColor);
 	
 
-	const std::array<vk::DescriptorSetLayoutBinding, 3> bindings {{
+	constexpr float fontScale = 0.0008f;
+	constexpr float fixedAdvance = 0.48f;
+
+	float penX = -0.75f;
+	float baselineY = -0.3f;
+	std::array<GlyphInstance, 7> instances;
+	int i = 0;
+	for (char character : std::string_view{"DROPLET"})
+	{
+		const SlugCodePoint* glyph = GetGlyph(character);
+		if (glyph && glyph->bandCount > 0 && glyph->bandDimX && glyph->bandDimY)
+		{
+			const float width = glyph->width;
+			const float height = glyph->height;
+			
+			const float quadWidth = width * fontScale;
+			const float quadHeight = height * fontScale;
+			
+			GlyphInstance instance{
+				.scaleBias = {
+					quadWidth,
+					quadHeight,
+					penX + fixedAdvance * 0.5f,
+					baselineY + quadHeight * 0.5f
+				},
+				.glyphBandScale = {
+					width,
+					height,
+					width / glyph->bandDimX,
+					height / glyph->bandDimY
+				},
+				.bandMaxTexCoords = {
+					glyph->bandCount - 1,
+					glyph->bandCount - 1,
+					glyph->bandsTexCoordX,
+					glyph->bandsTexCoordY
+				}
+			};
+			instances[i++] = instance;
+		}
+		
+		// p_commandBuffer.pushConstants<SlugGlyphData>(*m_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, glyphData);
+		penX += fixedAdvance;
+	}
+	
+	m_storageBuffer = StorageBuffer(p_allocator, instances);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	const std::array<vk::DescriptorSetLayoutBinding, 4> bindings {{
 		{
 				.binding = 0,
 				.descriptorType = vk::DescriptorType::eUniformBuffer,
@@ -190,6 +245,12 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
             	.descriptorCount = 1,
             	.stageFlags = vk::ShaderStageFlagBits::eFragment
             },
+			{
+				.binding = 3,
+				.descriptorType = vk::DescriptorType::eStorageBuffer,
+				.descriptorCount = 1,
+				.stageFlags = vk::ShaderStageFlagBits::eAllGraphics
+			}
 		}};
 	
 
@@ -256,7 +317,13 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
 		};
 		
-		const std::array<vk::WriteDescriptorSet, 3> descriptorWrites {{
+		const vk::DescriptorBufferInfo glyphBufferInfo {
+			.buffer = m_storageBuffer.Get(),
+			.offset = 0,
+			.range = VK_WHOLE_SIZE
+		};
+		
+		const std::array<vk::WriteDescriptorSet, 4> descriptorWrites {{
 				{
 					.dstSet = frame.descriptorSet,
 					.dstBinding = 0,
@@ -277,6 +344,13 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 					.descriptorCount = 1,
 					.descriptorType = vk::DescriptorType::eSampledImage,
 					.pImageInfo = &bandInfo
+				},
+				{
+					.dstSet = frame.descriptorSet,
+					.dstBinding = 3,
+					.descriptorCount = 1,
+					.descriptorType = vk::DescriptorType::eStorageBuffer,
+					.pBufferInfo = &glyphBufferInfo
 				}
 			}};
 
@@ -522,44 +596,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 	const auto drawIcons = [&](const std::vector<IconVertex> &p_vertices, std::size_t p_pipelineIndex, std::uint32_t p_firstVertex) {
 		drawMesh(p_pipelineIndex, frame.iconBuffer, 0, static_cast<std::uint32_t>(p_vertices.size()));
 	};
-
-	const auto it = std::find_if(
-		m_codePoints.begin(),
-		m_codePoints.end(),
-		[](const SlugCodePoint& glyph)
-		{
-			return glyph.codePoint == 'B';
-		}
-	);
-	
-	if (it == m_codePoints.end())
-		return;
-	
-	const SlugCodePoint& glyph = *it;
-	const SlugGlyphData glyphData {
-		.glyphScale = {
-			static_cast<float>(glyph.width),
-			static_cast<float>(glyph.height)
-		},
-		.bandScale = {
-			static_cast<float>(glyph.width) / glyph.bandDimX,
-			static_cast<float>(glyph.height) / glyph.bandDimY
-		},
-		.bandMax = {
-			static_cast<uint32_t>(glyph.bandCount - 1),
-			static_cast<uint32_t>(glyph.bandCount - 1)
-		},
-		.bandsTexCoords = {
-			glyph.bandsTexCoordX,
-			glyph.bandsTexCoordY
-		}
-	};
-	
-	p_commandBuffer.pushConstants<SlugGlyphData>(*m_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, glyphData);
-	
-	// drawIcons(iconVertices, 5, 0);
-	// drawIcons(m_iconDepthMeshes, 4, frame.iconDepthFirst);
-	p_commandBuffer.draw(6, 1, 0,0);
+	p_commandBuffer.draw(6, 7, 0,0);
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
@@ -585,6 +622,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
 	m_allocator = nullptr;
 	m_colorFormat = {};
 	m_depthFormat = {};
+	m_storageBuffer = {};
 	
 	m_curveTextureView.reset();
 	m_bandTextureView.reset();
@@ -658,6 +696,19 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	memset(m_bandsTextureData.data(), 0xAB, m_bandsTextureData.size() * sizeof(m_bandsTextureData.front()));
 	inFile.read(reinterpret_cast<char *>(m_bandsTextureData.data()), bandsTextureBytes);
 	
-	
 	return true;
+}
+
+const Droplet::Graphics::VK::Slug::SlugCodePoint* Droplet::Graphics::VK::Slug::SlugPrototype::GetGlyph(const char p_character) const
+{
+	const auto it = std::ranges::find(
+		m_codePoints,
+		static_cast<std::uint32_t>(p_character),
+		&SlugCodePoint::codePoint
+	);
+	
+	if (it == m_codePoints.end())
+		return nullptr;
+	
+	return &(*it);
 }

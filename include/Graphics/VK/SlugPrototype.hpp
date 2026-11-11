@@ -7,6 +7,7 @@
 #include "Context.hpp"
 #include "Image.hpp"
 #include "ImageView.hpp"
+#include "StorageBuffer.hpp"
 
 namespace Droplet::Graphics
 {
@@ -72,6 +73,13 @@ namespace Droplet::Graphics::VK::Slug
 		glm::uvec2 bandsTexCoords;
 	};
 	
+	struct GlyphInstance
+	{
+		glm::vec4 scaleBias;
+		glm::vec4 glyphBandScale;
+		glm::uvec4 bandMaxTexCoords;
+	};
+	
 // TODO: Move important definitions used by the generator and the renderer into a common space. (Linus)
 #pragma pack(push, 1)
 	/// @brief Metadata required to render a processed Slug glyph.
@@ -126,6 +134,7 @@ namespace Droplet::Graphics::VK::Slug
 	
 	private:
 		bool LoadFont(const char *p_inputPath);
+		const SlugCodePoint* GetGlyph(char p_character) const;
 		
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
@@ -152,6 +161,8 @@ namespace Droplet::Graphics::VK::Slug
 		std::vector<glm::vec4> m_curvesTextureData;
 		std::vector<glm::u16vec2> m_bandsTextureData;
 		
+		StorageBuffer m_storageBuffer {nullptr};
+				
 		uint16_t m_curveTextureWidth = 0;
 		uint16_t m_curveTextureHeight = 0;
 		

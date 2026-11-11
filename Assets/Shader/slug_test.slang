@@ -15,26 +15,29 @@ Texture2D<float4> curvesTexture;
 [[vk::image_format("rg16ui")]]
 Texture2D<uint4> bandsTexture;
 
-struct SlugGlyphData
+struct GlyphInstance
 {
-    float2 glyphScale;
-    float2 bandScale;
-    uint2 bandMax;
-    uint2 bandsTexCoords;
+    float4 scaleBias;
+    float4 glyphBandScale;
+    uint4 bandMaxTexCoords;
 };
 
-[[vk::push_constant]]
-ConstantBuffer<SlugGlyphData> glyph;
+[[vk::binding(3, 0)]]
+StructuredBuffer<GlyphInstance> glyphInstances;
 
 struct VertexOutput
 {
     float4 position : SV_Position;
     float2 texCoords : TEXCOORD0;
+    nointerpolation uint instanceID : TEXCOORD1;
 }
 
+
 [shader("vertex")]
-VertexOutput slugVertMain(uint vertexID : SV_VertexID)
+VertexOutput slugVertMain(uint vertexID : SV_VertexID, uint instanceID : SV_InstanceID)
 {
+    GlyphInstance instance = glyphInstances[instanceID];
+
     static const float2 positions[6] = 
     {
         // First triangle
@@ -48,10 +51,18 @@ VertexOutput slugVertMain(uint vertexID : SV_VertexID)
         float2(-0.5f,  0.5f)  // Top-left
     };
     
-    VertexOutput output;
+    float fixedAdvance = 0.25;
+    float xOffset = (float)instanceID * fixedAdvance;
 
-    output.position = float4(positions[vertexID].x / camera.aspectRatio, positions[vertexID].y, 0.5f, 1.0f);
+    
+    VertexOutput output;
+    
+    // output.position = mul(camera.projection, mul(camera.view, float4((positions[vertexID].x / camera.aspectRatio) + fixedAdvance, positions[vertexID].y, 0.5f, 1.0f)));
+    float2 position = positions[vertexID] * instance.scaleBias.xy + instance.scaleBias.zw;
+    position.x /= camera.aspectRatio;
+    output.position = mul(camera.projection, mul(camera.view, float4(position, 0.5f, 1.0f)));
     output.texCoords = positions[vertexID] + float2(0.5f, 0.5f);
+    output.instanceID = instanceID;
     return output;
 }
 
@@ -103,7 +114,7 @@ float TraceRayCurveH(float2 p1, float2 p2, float2 p3, float pixelsPerEm)
     return coverage;
 }
 
-float TraceRayBandH(uint2 bandData, float pixelsPerEm, float2 texCoords)
+float TraceRayBandH(uint2 bandData, float pixelsPerEm, float2 texCoords, float2 glyphScale)
 {
     float coverage = 0.0;
 
@@ -116,18 +127,18 @@ float TraceRayBandH(uint2 bandData, float pixelsPerEm, float2 texCoords)
 
         float4 p12 = curvesTexture.Load(
             int3(int2(curveLoc), 0)
-        ) / float4(glyph.glyphScale, glyph.glyphScale) - float4(texCoords, texCoords);
+        ) / float4(glyphScale, glyphScale) - float4(texCoords, texCoords);
 
         float2 p3 = curvesTexture.Load(
             int3(int2(curveLoc) + int2(1, 0), 0)
-        ).xy / glyph.glyphScale - texCoords;
+        ).xy / glyphScale - texCoords;
 
         coverage += TraceRayCurveH(p12.xy, p12.zw, p3.xy, pixelsPerEm);
     }
     return coverage;
 }
 
-float TraceRayBandV(uint2 bandData, float pixelsPerEm, float2 texCoords)
+float TraceRayBandV(uint2 bandData, float pixelsPerEm, float2 texCoords, float2 glyphScale)
 {
     float coverage = 0.0;
 
@@ -140,11 +151,11 @@ float TraceRayBandV(uint2 bandData, float pixelsPerEm, float2 texCoords)
 
         float4 p12 = curvesTexture.Load(
             int3(int2(curveLoc), 0)
-        ) / float4(glyph.glyphScale, glyph.glyphScale) - float4(texCoords, texCoords);
+        ) / float4(glyphScale, glyphScale) - float4(texCoords, texCoords);
 
         float2 p3 = curvesTexture.Load(
             int3(int2(curveLoc) + int2(1, 0), 0)
-        ).xy / glyph.glyphScale - texCoords;
+        ).xy / glyphScale - texCoords;
 
         coverage += TraceRayCurveH(p12.yx, p12.wz, p3.yx, pixelsPerEm);
     }
@@ -154,25 +165,33 @@ float TraceRayBandV(uint2 bandData, float pixelsPerEm, float2 texCoords)
 [shader("fragment")]
 float4 slugFragMain(VertexOutput input) : SV_TARGET
 {
+    GlyphInstance instance = glyphInstances[input.instanceID];
+
+    float2 glyphScale = instance.glyphBandScale.xy;
+    float2 bandScale = instance.glyphBandScale.zw;
+
+    float2 bandMax = instance.bandMaxTexCoords.xy;
+    float2 bandsTexCoords = instance.bandMaxTexCoords.zw;
+
     float2 pixelsPerEm = 1.0 / fwidth(input.texCoords);
 
     uint2 bandIndex = min(
-        uint2(max(input.texCoords * glyph.bandScale, float2(0.0, 0.0))),
-        glyph.bandMax
+        uint2(max(input.texCoords * bandScale, float2(0.0, 0.0))),
+        bandMax
     );
 
-    uint hBandOffset = glyph.bandsTexCoords.y * 4096U + glyph.bandsTexCoords.x + bandIndex.y;
+    uint hBandOffset = bandsTexCoords.y * 4096U + bandsTexCoords.x + bandIndex.y;
     uint2 hBandData = bandsTexture.Load(
         int3(int(hBandOffset & 0xFFFu), int(hBandOffset >> 12u), 0)
     ).xy;
 
-    uint vBandOffset = glyph.bandsTexCoords.y * 4096U + glyph.bandsTexCoords.x + glyph.bandMax.y + 1U + bandIndex.x;
+    uint vBandOffset = bandsTexCoords.y * 4096U + bandsTexCoords.x + bandMax.y + 1U + bandIndex.x;
     uint2 vBandData = bandsTexture.Load(
         int3(int(vBandOffset & 0xFFFu), int(vBandOffset >> 12u), 0)
     ).xy;
 
-    float coverageX = TraceRayBandH(hBandData, pixelsPerEm.x, input.texCoords);
-    float coverageY = TraceRayBandV(vBandData, pixelsPerEm.y, input.texCoords);
+    float coverageX = TraceRayBandH(hBandData, pixelsPerEm.x, input.texCoords, glyphScale);
+    float coverageY = TraceRayBandV(vBandData, pixelsPerEm.y, input.texCoords, glyphScale);
 
     coverageX = min(abs(coverageX), 1.0);
     coverageY = min(abs(coverageY), 1.0);

@@ -53,7 +53,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 	//         Debug       //
 	// - - - - - - - - - - //
 	
-	std::array<vk::DescriptorPoolSize, 2> poolSizes{{
+	std::array<vk::DescriptorPoolSize, 3> poolSizes{{
 			{
 				.type = vk::DescriptorType::eUniformBuffer,
 				.descriptorCount = 2
@@ -61,13 +61,17 @@ Renderer::Renderer(SDL_Window *p_window) :
 			{
 				.type = vk::DescriptorType::eSampledImage,
 				.descriptorCount = 4
+			},
+			{
+				.type = vk::DescriptorType::eStorageBuffer,
+				.descriptorCount = 2
 			}
 		}};
 	
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 6,
+		.maxSets = 8,
 		.poolSizeCount = poolSizes.size(),
 		.pPoolSizes = poolSizes.data()
 	};
