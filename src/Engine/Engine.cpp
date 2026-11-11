@@ -122,6 +122,7 @@ Droplet::Engine::~Engine()
 void Droplet::Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
+	ScriptSystem::Get().Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()

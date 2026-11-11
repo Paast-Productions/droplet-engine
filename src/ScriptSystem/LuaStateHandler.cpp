@@ -21,6 +21,25 @@ LuaStateHandler::LuaStateHandler()
 	std::flush(std::cout);
 }
 
+Droplet::Script::LuaStateHandler::~LuaStateHandler()
+{
+	ZoneScoped;
+
+	Shutdown();
+}
+
+void LuaStateHandler::Shutdown()
+{
+	if (m_isShutdown)
+	{
+		return;
+	}
+
+	m_isShutdown = true;
+
+	m_luaState = sol::state{};
+}
+
 sol::state& LuaStateHandler::GetState()
 {
 	return m_luaState;
