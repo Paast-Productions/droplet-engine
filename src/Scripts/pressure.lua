@@ -1,24 +1,18 @@
 local MovementModifiers = require("MovementModifiers")
 local presureDamage = nil
+--local player = nil
 
 -- this one is for the player gets damage each second
 local lastTimeGotDamage = 1
 
+local PressureZones = {}
+
 function OnStart()
     print("Pressure")
     -- local GetPlayerComponent = GetPlayerComponent()
-    -- player = GetPlayerComponent:GetPlayerBehaviour()
+
     local damage = self:GetDamageComponent()
-    if damage == nil then
-        print("There is no damage componenet")
-        return
-    end
     presureDamage = (damage:GetDamage()) * 0.25
-    if presureDamage == nil then
-        print("There is no presureDamage")
-        return
-    end
-    print(presureDamages)    
 end
 
 -- Called every frame
@@ -28,8 +22,16 @@ end
 function OnTrigger(dt, node)
     local trans = node:GetTransform() 
     local health = node:GetHealthComponent()
+    --local playerComponent = node:GetPlayerBehaviour()
 
     local gravityMultiplier = MovementModifiers.GetGravityPull()
+
+    -- player = playerComponent:GetPlayerBehaviour()
+    -- local pressureLevelResistance = player:GetPressureLevel()
+    -- local pressurResistance = player:GetPressureResistance()
+
+    -- print(pressureLevelResistance .. " <-pressure resistance")
+    -- print(pressurResistance .. " <-pressure resistance")
 
     lastTimeGotDamage = lastTimeGotDamage + dt
     if lastTimeGotDamage > 1.0 then 
