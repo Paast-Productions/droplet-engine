@@ -3,14 +3,24 @@ project "GoogleTest"
     location(projectsPath)
 
     local moduleDirectory = AddQuotation(externalPath .. "/%{prj.name}")
+    local objDirectory = AddQuotation(objBuildPath .. "/%{prj.name}")
+    local installDirectory = AddQuotation(targetBuildPath .. "/External")
 
     targetdir(targetBuildPath .. "/External")
     objdir(objBuildPath .. "/%{prj.name}")
     
     kind "Makefile"
 
-    buildcommands{
-        "{MKDIR} %{prj.objdir}",
-        "cmake -S " .. moduleDirectory .. " -B %{prj.objdir} -DCMAKE_INSTALL_PREFIX=%{prj.targetdir} -DBUILD_GMOCK=OFF",
-        "cmake --build %{prj.objdir} --config %{cfg.buildcfg} --target install",
-    }
+    filter "configurations:debug"
+        buildcommands{
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DBUILD_GMOCK=OFF",
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+        }
+    filter "configurations:release"
+        buildcommands{
+            "{MKDIR} " .. objDirectory,
+            "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=" .. installDirectory .. " -DBUILD_GMOCK=OFF",
+            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+        }
+    filter {}
