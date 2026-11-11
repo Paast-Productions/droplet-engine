@@ -195,8 +195,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	}
 	
 	// Calculate the glyph's dimensions
-	uint32_t sizeX = 1 + static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
-	uint32_t sizeY = 1 + static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
+	uint32_t sizeX = 1 + static_cast<uint32_t>(glyphBounds.xMax - glyphBounds.xMin);
+	uint32_t sizeY = 1 + static_cast<uint32_t>(glyphBounds.yMax - glyphBounds.yMin);
 	
 	uint32_t bandCount = m_bandCount;
 	if (sizeX < bandCount || sizeY < bandCount)
@@ -353,8 +353,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	// Store glyph metadata
 	SlugCodePoint cp;
 	cp.codePoint = p_codePoint;
-	cp.width = static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
-	cp.height = static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
+	cp.width = static_cast<uint32_t>(glyphBounds.xMax - glyphBounds.xMin);
+	cp.height = static_cast<uint32_t>(glyphBounds.yMax - glyphBounds.yMin);
 	cp.bandCount = bandCount;
 	cp.bandDimX = bandDimX;
 	cp.bandDimY = bandDimY;
@@ -470,7 +470,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::Error(const std::string &p
 Droplet::Devtools::SlugGenerator::GlyphBounds Droplet::Devtools::SlugGenerator::FontProcessor::GetGlyphBounds(int p_glyphIndex) const
 {
 	GlyphBounds bounds;
-    stbtt_GetGlyphBox(&m_fontInfo, p_glyphIndex, &bounds.x1, &bounds.y1, &bounds.x2, &bounds.y2);
+    stbtt_GetGlyphBox(&m_fontInfo, p_glyphIndex, &bounds.xMin, &bounds.yMin, &bounds.xMax, &bounds.yMax);
 	return bounds;
 }
 

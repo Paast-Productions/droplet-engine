@@ -50,22 +50,22 @@ namespace Droplet::Devtools::SlugGenerator
 	/// of a glyph, as returned by stb_truetype.
 	struct GlyphBounds
 	{
-		int x1;
-		int y1;
-		int x2;
-		int y2;
+		int xMin;
+		int yMin;
+		int xMax;
+		int yMax;
 		
 		/// @brief Returns the minimum X coordinate as a float.
-		[[nodiscard]] float GetMinX() const { return static_cast<float>(x1); }
+		[[nodiscard]] float GetMinX() const { return static_cast<float>(xMin); }
 		
 		/// @brief Returns the minimum Y coordinate as a float.
-		[[nodiscard]] float GetMinY() const { return static_cast<float>(y1); }
+		[[nodiscard]] float GetMinY() const { return static_cast<float>(yMin); }
 		
 		/// @brief Returns the maximum X coordinate as a float.
-		[[nodiscard]] float GetMaxX() const { return static_cast<float>(x2); }
+		[[nodiscard]] float GetMaxX() const { return static_cast<float>(xMax); }
 		
 		/// @brief Returns the maximum Y coordinate as a float.
-		[[nodiscard]] float GetMaxY() const { return static_cast<float>(y2); }
+		[[nodiscard]] float GetMaxY() const { return static_cast<float>(yMax); }
 	};
 	
 #pragma pack(push, 1)
