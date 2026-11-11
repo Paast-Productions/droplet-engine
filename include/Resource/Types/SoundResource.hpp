@@ -16,7 +16,7 @@ namespace Droplet
     public:
         SoundResource(dalia::SoundHandle p_handle);
         
-        dalia::SoundHandle GetSoundHandle() const { return m_sound; }
+        dalia::SoundHandle GetHandle() const { return m_sound; }
         
     private:
         dalia::SoundHandle m_sound;
