@@ -11,22 +11,42 @@ using namespace Droplet::Scene;
 
 Droplet::Scene::AudioEmitterComponent::AudioEmitterComponent()
 {
+    Audio::AudioSystem::GetInstance().RegisterEmitter(this);
 }
 
-void AudioEmitterComponent::PlaySound()
+AudioEmitterComponent::~AudioEmitterComponent()
 {
-    // what's this supposed to do?
+    Stop();
+    Audio::AudioSystem::GetInstance().UnregisterEmitter(this);
 }
 
-void Droplet::Scene::AudioEmitterComponent::SetSoundGUID(GUID p_guid)
+void AudioEmitterComponent::Play()
 {
-	m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
+    SoundResource* sound = m_resourceHandle.Get();
+    if (!sound)
+    {
+        Debug::Log(Debug::LogType::Warning, "AudioEmitterComponent: Failed to play. Unable to acquire sound resource.");
+        return;
+    }
+    
+    if (IsPlaying()) Stop();
+    m_playbackId = Audio::AudioSystem::GetInstance().Play3D(this, sound);
+    m_isDirty = false;
+}
 
+void AudioEmitterComponent::Pause()
+{
+    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID) Audio::AudioSystem::GetInstance().Pause(m_playbackId);
+}
+
+void AudioEmitterComponent::Stop()
+{
+    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID) Audio::AudioSystem::GetInstance().Stop(m_playbackId);
 }
 
 void Droplet::Scene::AudioEmitterComponent::StartImpl()
 {
-	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();
+
 }
 
 void AudioEmitterComponent::RenderUIImpl()
@@ -78,7 +98,7 @@ void AudioEmitterComponent::RenderUIImpl()
 
 	if (ImGui::TreeNode("Audio Settings" ICON_LC_SETTINGS))
 	{
-		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volume, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volumeDb, 0.0f, 1.0f, "%.2f");
 
 		ImGui::SliderFloat("Pitch", &m_pitch, 0.0f, 10.0f, " % .2f");
 		
