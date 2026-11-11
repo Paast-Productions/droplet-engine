@@ -1,10 +1,35 @@
 #pragma once
-#include <dalia/dalia.h>
 #include "AudioMixer.hpp"
+#include "Resource/Types/SoundResource.hpp"
 
+#include <unordered_map>
+#include <functional>
+#include <vector>
+#include <filesystem>
+
+namespace Droplet::Scene
+{
+    class AudioPlayerComponent;
+    class AudioEmitterComponent;
+    class AudioListenerComponent;
+}
 
 namespace Droplet::Audio
 {
+    using PlaybackID = uint32_t;
+    constexpr PlaybackID C_INVALID_PLAYBACK_ID = 0;
+    
+    class dalia::Engine;
+    class dalia::PlaybackHandle;
+    
+    // TODO: Do we need this?
+    enum class AudioState : uint8_t
+    {
+        Playing = 0,
+        Paused = 1, 
+        Inactive,
+    };
+    
 	class AudioSystem
 	{
 	public:
@@ -21,31 +46,44 @@ namespace Droplet::Audio
 	    
 	    bool Initialize();
 		void Shutdown();
+	    void Update();
 	    
 	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
 	         std::function<void(bool)> p_onLoad);
 	    
-		void PopulatePlayBack(dalia::PlaybackHandle p_playback, dalia::SoundHandle p_soundHandle);
-
-		void ChangePlayBackVolume(dalia::PlaybackHandle p_playback, float p_volumeChange);
-		void SetLooping(dalia::PlaybackHandle p_playback, bool p_looping);
-
-	    void PlaySound(dalia::PlaybackHandle p_playback);
-		void PauseSound(dalia::PlaybackHandle p_playback);
-		void StopSound(dalia::PlaybackHandle p_playback);
-
-		void RoutePlaybackToBus(dalia::PlaybackHandle, std::string p_busName);
-
-		AudioMixer &GetMixer();
-
-		void TestPrint();
-	
+	    // Component registration
+	    void RegisterPlayer(Scene::AudioPlayerComponent* player);
+	    void UnregisterPlayer(Scene::AudioPlayerComponent* player);
+	    
+	    void RegisterEmitter(Scene::AudioEmitterComponent* emitter);
+	    void UnregisterEmitter(Scene::AudioEmitterComponent* emitter);
+	    
+	    void RegisterListener(Scene::AudioListenerComponent* listener);
+	    void UnregisterListener(Scene::AudioListenerComponent* listener);
+	    
+	    PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
+	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
+	    void Pause(PlaybackID id);
+	    void Stop(PlaybackID id);
+	    void SetVolume(PlaybackID id, float volume);
 
 	private:
 	    AudioSystem() = default;
 	    ~AudioSystem() = default;
+	    
+	    void ProcessFinishedPlaybacks();
 
-		dalia::Engine m_daliaEngine;
+		std::unique_ptr<dalia::Engine> m_daliaEngine;
 		AudioMixer m_mixer;
+	    
+	    // Playback Management
+	    PlaybackID m_nextPlaybackId = 1;
+	    std::unordered_map<PlaybackID, dalia::PlaybackHandle> m_activePlaybacks;
+	    std::vector<PlaybackID> m_finishedPlaybacks;
+	    
+	    std::vector<Scene::AudioPlayerComponent*> m_activePlayers;
+	    std::vector<Scene::AudioEmitterComponent*> m_activeEmitters;
+	    std::vector<Scene::AudioListenerComponent*> m_activeListeners;
+	    
 	};
 }
