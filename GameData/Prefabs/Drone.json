@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 95,
+            "id": 4,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -76,7 +76,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 96,
+            "id": 5,
             "name": "Camera",
             "transform": {
                 "position": [
@@ -140,10 +140,18 @@
             "data": {},
             "id": 5,
             "type": "PlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "filepath": "FishInteraction.lua"
+            },
+            "id": 8,
+            "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 94,
+    "id": 3,
     "name": "Drone",
     "transform": {
         "position": [
