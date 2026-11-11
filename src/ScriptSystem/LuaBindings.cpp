@@ -15,6 +15,7 @@
 #include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
 #include <DamageComponent.hpp>
@@ -97,6 +98,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
+		"GetHealthComponent", &Scene::Node::GetHealthComponent,
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
@@ -159,6 +162,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
+		{"GetPlayerData","PlayerData",{}},
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
