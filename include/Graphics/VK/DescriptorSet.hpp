@@ -7,15 +7,6 @@
 
 namespace Droplet::Graphics::VK
 {
-    /// @enum DescriptorSetIndex
-    /// @brief Enum that describes the binding index for each type of descriptor
-    enum class DescriptorSetIndex : std::uint32_t
-    {
-        eUniformBuffer = 0,
-        eStorageBuffer = 1,
-        eCombinedImageSampler = 2
-    };
-    
     /// @class DescriptorSet
     /// @brief Wrapper class for Vulkan DescriptorSet. This class contains its own layout and set handles.
     /// It is responsible for adding descriptors to itself that then get appended to the pipeline. This results
@@ -106,17 +97,5 @@ namespace Droplet::Graphics::VK
         vk::DescriptorType m_descriptorType {};
         
         std::bitset<DESCRIPTOR_COUNT> m_available { 0 };
-        
-        inline const static std::vector<vk::DescriptorType> s_bufferTypes 
-        {
-            vk::DescriptorType::eUniformBuffer,
-            vk::DescriptorType::eStorageBuffer
-        };
-        
-        inline const static std::vector<vk::DescriptorType> s_textureTypes 
-        {
-            vk::DescriptorType::eCombinedImageSampler  
-        };
-        
     };
 }

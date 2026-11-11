@@ -310,7 +310,8 @@ namespace Droplet::Graphics::VK
         {
             { vk::DescriptorType::eUniformBuffer, 0 },
             { vk::DescriptorType::eStorageBuffer, 1 },
-            { vk::DescriptorType::eCombinedImageSampler, 2 }
+            { vk::DescriptorType::eSampler, 2 },
+            { vk::DescriptorType::eSampledImage, 3}
         };
         
         // Stored buffers etc

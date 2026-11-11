@@ -19,12 +19,29 @@ void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool
     m_commandPool = &p_commandPool;
     
     m_allocator = { m_context->GetInstance(), m_context->GetPhysicalDevice(), m_context->GetDevice() };
-    m_descriptorPool = { m_context->GetDevice() };
-    m_textureSampler = { m_context->GetPhysicalDevice(), m_context->GetDevice() };
+   
+    // eSampler = 0, eInputAttachment = 10
+    // Note: The next value in the enum (eInlineUniformBlock) is equal to 1000138000
+    std::vector<vk::DescriptorPoolSize> poolSizes {};
+    for (std::uint32_t type { std::to_underlying(vk::DescriptorType::eSampler) }; type <= std::to_underlying(vk::DescriptorType::eInputAttachment); ++type)
+    {
+        vk::DescriptorPoolSize poolSize
+        {
+            .type = static_cast<vk::DescriptorType>(type),
+            .descriptorCount = std::numeric_limits<std::uint32_t>::max()
+        };
+        
+        poolSizes.emplace_back(poolSize);
+    }
     
-    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
-    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
-    m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
+    m_descriptorPool = { m_context->GetDevice(), poolSizes };
+    
+    for (std::uint32_t type { std::to_underlying(vk::DescriptorType::eSampler) }; type <= std::to_underlying(vk::DescriptorType::eInputAttachment); ++type)
+    {
+        m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), static_cast<vk::DescriptorType>(type));
+    }
+    
+    m_textureSampler = { m_context->GetPhysicalDevice(), m_context->GetDevice() };
 }
 
 void IntermediaryStorage::Shutdown()
@@ -643,7 +660,7 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
 {
     ZoneScoped;
 
-    std::uint64_t guid = p_renderData.texData.GUID;
+    GUID guid = p_renderData.texData.GUID;
     
     auto it = m_textureGuidMap.find(guid);
 

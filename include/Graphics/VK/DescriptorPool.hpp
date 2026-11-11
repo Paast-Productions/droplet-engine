@@ -20,7 +20,8 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Constructor for the Descriptor Pool Class
 		/// @param p_device RAII pointer to the Vulkan device
-		DescriptorPool(const vk::raii::Device &p_device);
+		/// @param p_poolSizes Vector of Vulkan descriptor pool sizes
+		DescriptorPool(const vk::raii::Device &p_device, const std::vector<vk::DescriptorPoolSize> &p_poolSizes);
 		
 		~DescriptorPool() = default;
 		
