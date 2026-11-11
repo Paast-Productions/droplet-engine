@@ -22,7 +22,7 @@
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
-
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
 namespace Droplet::Scene
 {
 
@@ -261,8 +261,12 @@ namespace Droplet::Scene
             return components;
         }
 
+        /// @brief Finds the desired audio emitter, based on the file name that the emitter has
+        /// @param p_name Name of the emitter
+        /// @return A weakptr to the audioemitter
         std::weak_ptr<AudioEmitterComponent> GetAudioEmitter(const std::string &p_name);
 
+        std::weak_ptr<AudioPlayerComponent> GetAudioPlayer(const std::string &p_name);
 
         /// @brief Gets all components 
         /// 

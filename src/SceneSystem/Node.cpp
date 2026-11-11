@@ -494,6 +494,19 @@ std::weak_ptr<AudioEmitterComponent> Droplet::Scene::Node::GetAudioEmitter(const
 	return {};
 }
 
+std::weak_ptr<AudioPlayerComponent> Droplet::Scene::Node::GetAudioPlayer(const std::string &p_name)
+{
+	const auto audioPlay = GetComponents<AudioPlayerComponent>();
+	for (auto player : audioPlay)
+	{
+		if (player->GetName() == p_name)
+		{
+			return player;
+		}
+	}
+	return {};
+}
+
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
 {
 	return m_components;

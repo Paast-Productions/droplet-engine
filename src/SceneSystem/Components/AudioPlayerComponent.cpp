@@ -13,19 +13,20 @@ void Droplet::Scene::AudioPlayerComponent::StartImpl()
 
 void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 {
-	if (ImGui::Button("Play"))
+	ImVec2 buttonSize = ImVec2(30, 30);
+	if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 	{
 		//TODO: play the sound
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("Pause"))
+	if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
 	{
 		//TODO: Pause the sound
 	}
 
-	if (ImGui::TreeNode("Audio Settings"))
+	if (ImGui::TreeNode("Audio Settings " ICON_LC_SETTINGS))
 	{
-		ImGui::SliderFloat("volume", &m_volume, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volume, 0.0f, 1.0f, "%.2f");
 
 		ImGui::DragFloat("Pitch", &m_pitch, 0.1f, 0.0f, 2.0f, "%.2f");
 

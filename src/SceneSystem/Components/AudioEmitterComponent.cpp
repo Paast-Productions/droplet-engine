@@ -18,22 +18,27 @@ void Droplet::Scene::AudioEmitterComponent::StartImpl()
 
 void AudioEmitterComponent::RenderUIImpl()
 {
-
-	if (ImGui::Button("Play"))
+	ImVec2 buttonSize = ImVec2(30, 30);
+	if (ImGui::Button(ICON_LC_PLAY "##PlaySoundButton",buttonSize))
 	{
-		// TODO: Get the audio emitter from the audio system and play it
+		PlaySound();
 	}
 	ImGui::SameLine();
-	if (ImGui::Button("Stop"))
+	if (ImGui::Button(ICON_LC_PAUSE "##PausesoundButton", buttonSize))
 	{
 		// TODO: Get the audio emitter from the audio system and stop it
 	}
 
-	if (ImGui::TreeNode("Audio Settings"))
+	if (ImGui::TreeNode("Audio Settings" ICON_LC_SETTINGS))
 	{
-		ImGui::SliderFloat("volume", &m_volume, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volume, 0.0f, 1.0f, "%.2f");
 
+		ImGui::SliderFloat("Pitch", &m_pitch, 0.0f, 10.0f, " % .2f");
+		
 		ImGui::Checkbox("Looping", &m_looping);
+
+
+		ImGui::DragFloatRange2("Sound Distance", &m_minDistance, &m_maxDistance, 0.1f, 0.0f, 100.0f, "Min: %.1f", "Max: %.1f");
 
 		ImGui::TreePop();
 	}
@@ -97,6 +102,9 @@ nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
 	json["looping"] = m_looping;
 	json["attenuationCurve"] = m_attCurve;
 
+	json["minDistance"] = m_minDistance;
+	json["maxDistance"] = m_maxDistance;
+
 	return json;
 }
 
@@ -115,9 +123,21 @@ void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_com
 	{
 		m_attCurve = p_compJson["attenuationCurve"];
 	}
+
+	if (p_compJson.contains("minDistance"))
+	{
+		m_minDistance = p_compJson["minDistance"];
+	}
+
+	if (p_compJson.contains("maxDistance"))
+	{
+		m_maxDistance = p_compJson["maxDistance"];
+	}
 }
+	
 
 void Droplet::Scene::AudioEmitterComponent::PlaySound()
 {
+	
 	std::cout << "Playing sound" << std::endl;
 }

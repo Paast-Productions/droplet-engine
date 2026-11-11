@@ -37,7 +37,7 @@ namespace Droplet::Scene
 
 		dalia::AttenuationCurve m_attCurve;
 
-		float m_maxDistance = 0.0f;
-		float m_minDistance = 1.0f;
+		float m_maxDistance = 100.0f;
+		float m_minDistance = 0.0f;
 	};
 }
