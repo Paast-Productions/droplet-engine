@@ -1,7 +1,9 @@
+
 local interactionRange = 2.5
 local interactionAngle = 5.0
 
 local scene
+local debugDrawEnabled = false
 
 local function Normalize(v)
     local length = math.sqrt(
@@ -22,9 +24,11 @@ local function Normalize(v)
 end
 
 local function GetRayDirections()
-    local forward = self:GetTransform():GetForward()
-    local right = self:GetTransform():GetRight()
-    local up = self:GetTransform():GetUp()
+    local transform = self:GetTransform()
+
+    local forward = transform:GetForward(TransformSpace.World)
+    local right = transform:GetRight(TransformSpace.World)
+    local up = transform:GetUp(TransformSpace.World)
 
     local offset = math.tan(math.rad(interactionAngle))
 
@@ -58,7 +62,7 @@ local function GetRayDirections()
 end
 
 local function GetInteractionTarget()
-    local origin = self:GetTransform():GetPosition()
+    local origin = self:GetTransform():GetPosition(TransformSpace.World)
     local directions = GetRayDirections()
 
     local bestTarget = nil
@@ -66,29 +70,23 @@ local function GetInteractionTarget()
 
     for _, direction in ipairs(directions) do
         local ray = Ray.new(origin, direction)
-
-        -- Draw the ray.
-        DebugDraw.DrawRay(
-            ray,
-            Vec4.new(1, 0, 0, 1),
-            false
-        )
-
         local targets = scene:RaycastNodes(ray)
 
         for _, target in ipairs(targets) do
-            if target ~= nil then
+            if target ~= nil and target:IsActive() then
                 local interactable = target:GetInteractableComponent()
 
                 if interactable ~= nil then
-                    local position = target:GetTransform():GetPosition()
+                    local position = target:GetTransform():GetPosition(TransformSpace.World)
 
                     local dx = position.x - origin.x
                     local dy = position.y - origin.y
                     local dz = position.z - origin.z
 
                     local distance = math.sqrt(
-                        dx * dx + dy * dy + dz * dz
+                        dx * dx +
+                        dy * dy +
+                        dz * dz
                     )
 
                     if distance <= bestDistance then
@@ -108,18 +106,25 @@ function OnStart()
 end
 
 function OnUpdate(dt)
-    local origin = self:GetTransform():GetPosition()
+    -- Toggle debug drawing.
+    if Input:KeyPressed(Key.B) then
+        debugDrawEnabled = not debugDrawEnabled
+        print("Interaction debug draw:", debugDrawEnabled)
+    end
+
+    local origin = self:GetTransform():GetPosition(TransformSpace.World)
     local directions = GetRayDirections()
 
-    -- Draw all rays every frame.
-    for _, direction in ipairs(directions) do
-        local ray = Ray.new(origin, direction)
+    if debugDrawEnabled then
+        for _, direction in ipairs(directions) do
+            local ray = Ray.new(origin, direction)
 
-        DebugDraw.DrawRay(
-            ray,
-            Vec4.new(1, 0, 0, 1),
-            false
-        )
+            DebugDraw.DrawRay(
+                ray,
+                Vec4.new(1, 0, 0, 1),
+                false
+            )
+        end
     end
 
     if not Input:KeyPressed(Key.E) then
@@ -145,4 +150,6 @@ function RenderUI()
     _, interactionAngle = ImGui.SliderFloat(
         "Interaction Angle", interactionAngle, 1.0, 60.0
     )
+
+    ImGui.Text("Debug Draw (B): " .. tostring(debugDrawEnabled))
 end
