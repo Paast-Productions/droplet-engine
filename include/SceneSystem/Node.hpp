@@ -171,6 +171,7 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+ 
 
         /// @brief Gets the parent Node.
         ///
@@ -385,6 +386,9 @@ namespace Droplet::Scene
 		// Transform
 
         Transform m_transform;
+
+		//player data
+		PlayerBehaviour m_playerBehaviour;
 
 		// Hierarchy
 
