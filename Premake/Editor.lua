@@ -1,5 +1,5 @@
 project "Editor"
-    kind "WindowedApp"
+    kind "ConsoleApp"
 
     location(projectsPath)
 
@@ -114,8 +114,8 @@ project "Editor"
 		AddQuotation("Jolt")
     }
 
-    filter "configurations:editor-debug"
+    filter "configurations:debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:editor-release or editor-deploy"
+    filter "configurations:release or deploy"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}

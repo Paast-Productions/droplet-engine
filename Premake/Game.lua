@@ -107,8 +107,8 @@ project "Game"
 		AddQuotation("Jolt")
     }
 
-    filter "configurations:game-debug"
+    filter "configurations:debug"
 		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:game-release or configurations:game-deploy"
+    filter "configurations:release or deploy"
 		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
     filter {}
