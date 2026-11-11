@@ -50,7 +50,7 @@ void AudioEmitterComponent::RenderUIImpl()
         ImGui::EndTable();
     }
 	ImVec2 buttonSize = ImVec2(30, 30);
-	if (ImGui::Button((ICON_LC_PLAY "##PlaySoundButton",buttonSize))
+	if (ImGui::Button(ICON_LC_PLAY "##PlaySoundButton",buttonSize))
 	{
 		SoundResource *sound = m_resourceHandle.Get();
 	    if (sound != nullptr)
@@ -174,8 +174,3 @@ void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_com
 }
 	
 
-void Droplet::Scene::AudioEmitterComponent::PlaySound()
-{
-	
-	std::cout << "Playing sound" << std::endl;
-}

@@ -39,9 +39,62 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
     return nullptr;
 }
 
-void AudioSystem::PlaySound()
+void Droplet::Audio::AudioSystem::PopulatePlayBack(dalia::PlaybackHandle p_playback, dalia::SoundHandle p_soundHandle)
 {
-    // Yep
+}
+
+void Droplet::Audio::AudioSystem::ChangePlayBackVolume(dalia::PlaybackHandle p_playback, float p_volumeChange)
+{
+    dalia::Result res;
+    res = m_daliaEngine.SetPlaybackVolumeDb(p_playback, p_volumeChange);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not change volume on playback");
+    }
+}
+
+void Droplet::Audio::AudioSystem::SetLooping(dalia::PlaybackHandle p_playback, bool p_looping)
+{
+    dalia::Result res;
+    res = m_daliaEngine.SetPlaybackLooping(p_playback, p_looping);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not change playback too: " + p_looping);
+    }
+}
+
+void Droplet::Audio::AudioSystem::PlaySound(dalia::PlaybackHandle p_playback)
+{
+    dalia::Result res;
+    res = m_daliaEngine.PlayPlayback(p_playback);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not play playback");
+    }
+}
+
+void Droplet::Audio::AudioSystem::PauseSound(dalia::PlaybackHandle p_playback)
+{
+    dalia::Result res;
+    res = m_daliaEngine.PausePlayback(p_playback);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not pause playback");
+    }
+}
+
+void Droplet::Audio::AudioSystem::StopSound(dalia::PlaybackHandle p_playback)
+{
+    dalia::Result res;
+    res = m_daliaEngine.StopPlayback(p_playback);
+    if (res != dalia::Result::Ok)
+    {
+        throw std::runtime_error("Could not stop playback");
+    }
+}
+
+void Droplet::Audio::AudioSystem::RoutePlaybackToBus(dalia::PlaybackHandle, std::string p_busName)
+{
 }
 
 AudioMixer &Droplet::Audio::AudioSystem::GetMixer()

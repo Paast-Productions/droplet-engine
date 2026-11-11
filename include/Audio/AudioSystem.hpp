@@ -25,8 +25,17 @@ namespace Droplet::Audio
 	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
 	         std::function<void(bool)> p_onLoad);
 	    
-	    void PlaySound();
-	    
+		void PopulatePlayBack(dalia::PlaybackHandle p_playback, dalia::SoundHandle p_soundHandle);
+
+		void ChangePlayBackVolume(dalia::PlaybackHandle p_playback, float p_volumeChange);
+		void SetLooping(dalia::PlaybackHandle p_playback, bool p_looping);
+
+	    void PlaySound(dalia::PlaybackHandle p_playback);
+		void PauseSound(dalia::PlaybackHandle p_playback);
+		void StopSound(dalia::PlaybackHandle p_playback);
+
+		void RoutePlaybackToBus(dalia::PlaybackHandle, std::string p_busName);
+
 		AudioMixer &GetMixer();
 
 		void TestPrint();

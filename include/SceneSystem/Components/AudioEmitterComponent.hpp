@@ -1,7 +1,7 @@
 #pragma once
 #include <SceneSystem/Component.hpp>
 #include <Audio/AudioSystem.hpp>
-
+#include <Resource/Types/SoundResource.hpp>
 namespace Droplet::Scene 
 {
 	
@@ -31,9 +31,7 @@ namespace Droplet::Scene
 	    dalia::PlaybackHandle m_daliaPlaybackHandle = dalia::INVALID_PLAYBACK_HANDLE;
 		float m_volume = 0;
 		bool m_looping = false;
-
-	    float m_maxDistance = 0.0f;
-	    float m_minDistance = 1.0f;
+		float m_pitch = 0.0f;
 		
 		std::string m_busName;
 		Audio::AudioMixer *m_mixer = nullptr;
