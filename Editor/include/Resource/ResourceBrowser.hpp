@@ -77,12 +77,10 @@ namespace Droplet::Editor::Resource
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
 	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
-		PreviewCamera m_previewCamera{}; // The camera used for rendering previews of resources in the resource browser
+		PreviewCamera m_previewCamera {}; // The camera used for rendering previews of resources in the resource browser
 		StaticResourceHandle<IStaticResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
 		
-		Graphics::ImGuiTexture m_texture {};
-	    
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
 	    std::string m_unsupportedFilesList {}; // A list of unsupported assets in the latest registering attempt
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue {}; // Queued popups upon successful resource registration

@@ -22,7 +22,6 @@ ResourceBrowser::~ResourceBrowser()
 {
 	if (m_previewResourceHandle.IsValid())
 	{
-		m_texture = {};
 		m_previewResourceHandle = {};
 	}
 
@@ -208,7 +207,7 @@ void ResourceBrowser::RenderImpl()
 	{
 		if (m_previewResourceHandle.IsValid())
 		{
-			m_texture = {};
+			m_previewCamera.renderTarget = {};
 			m_previewResourceHandle = {};
 		}
 
@@ -563,7 +562,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		{
 			if (m_previewResourceHandle.IsValid())
 			{
-				m_texture = {};
+				m_previewCamera.texture = {};
 			}
 
 			m_isPreviewResourceLoaded = false;
@@ -603,8 +602,8 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
 			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			m_texture = Graphics::VK::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
-			ImTextureRef textureRef = m_texture.Get();
+			m_previewCamera.texture = Graphics::VK::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
+			ImTextureRef textureRef = m_previewCamera.texture.Get();
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);

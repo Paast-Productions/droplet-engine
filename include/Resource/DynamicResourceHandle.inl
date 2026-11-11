@@ -41,8 +41,8 @@ namespace Droplet
     template <typename T>
     DynamicResourceHandle<T>::DynamicResourceHandle(DynamicResourceHandle &&p_other) noexcept
     { 
-        std::exchange(ResourceHandle<T>::m_guid, p_other.m_guid);
-        p_other.m_guid = C_INVALID_GUID;
+        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
+        //p_other.m_guid = C_INVALID_GUID;
     }
 
     template <typename T>
@@ -52,9 +52,9 @@ namespace Droplet
         {
             return *this;    
         }   
-        
-        std::exchange(ResourceHandle<T>::m_guid, p_other.m_guid);
-        p_other.m_guid = C_INVALID_GUID;
+     
+        std::swap(ResourceHandle<T>::m_guid, p_other.m_guid);
+        //p_other.m_guid = C_INVALID_GUID;
         
         return *this;
     }
