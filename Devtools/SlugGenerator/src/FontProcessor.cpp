@@ -1,4 +1,4 @@
-// FontProcessor.cppo - Droplet Engine
+// FontProcessor.cpp - Droplet Engine
 //
 // Based on the Sluggish font generator by mightycow:
 // https://github.com/mightycow/Sluggish
@@ -353,6 +353,12 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	int advanceWidth, leftSideBearing;
 	stbtt_GetGlyphHMetrics(&m_fontInfo, glyphIdx, &advanceWidth, &leftSideBearing);
 	
+	const float scaleFactor = stbtt_ScaleForMappingEmToPixels(&m_fontInfo, 1.0f);
+	const uint16_t unitsPerEm = static_cast<uint16_t>(std::lround(1.0f / scaleFactor));
+	
+	// Store font metadata
+	m_fontHeader.unitsPerEm = unitsPerEm;
+	
 	// Store glyph metadata
 	SlugCodePoint cp;
 	cp.codePoint = p_codePoint;
@@ -434,9 +440,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
-	// TODO: Store glyph advances and bearings for runtime text layout. The current metadata is primarily intended for rendering individually positioned glyphs.
-	
 	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
+	
+	if (!outFile.WriteBytes(&m_fontHeader, sizeof(SlugFontHeader))) return false;
 	
 	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());
 	if (!outFile.WriteBytes(&codePointCount, sizeof(codePointCount))) return false;

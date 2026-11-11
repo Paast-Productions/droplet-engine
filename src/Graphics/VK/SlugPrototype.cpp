@@ -649,6 +649,8 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 		return false;
 	}
 	
+	inFile.read(reinterpret_cast<char *>(&m_fontHeader), sizeof(SlugFontHeader));
+	
 	uint16_t codePointCount = 0;
 	inFile.read(reinterpret_cast<char *>(&codePointCount), sizeof(codePointCount));
 	if (codePointCount == 0)

@@ -69,13 +69,24 @@ namespace Droplet::Devtools::SlugGenerator
 	};
 	
 #pragma pack(push, 1)
+	/// @brief Font metadata
+	/// 
+	/// Contains information that is common for all glyphs within the font.
+	/// 
+	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
+	struct SlugFontHeader
+	{
+		uint16_t unitsPerEm = 0;
+	};
+#pragma pack(pop)
+	
+#pragma pack(push, 1)
 	/// @brief Metadata required to render a processed Slug glyph.
 	///
 	/// Describes the glyph's dimensions, band configuration, and
 	/// location of its band headers within the shared band texture.
 	///
-	/// @note Serialized directly into the Slug binary file.
-	///       The structure must retain its expected 28-byte layout.
+	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
 	struct SlugCodePoint
 	{
         /// @brief Unicode code point represented by the glyph.

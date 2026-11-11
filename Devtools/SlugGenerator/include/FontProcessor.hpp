@@ -167,6 +167,9 @@ namespace Droplet::Devtools::SlugGenerator
 		
 		/// @brief Metadata describing successfully processed code points.
 		std::vector<SlugCodePoint> m_codePoints;
+		
+		/// @brief Metadata describing common font information
+		SlugFontHeader m_fontHeader;
 	};
 	
 	/// @brief Custom deleter for glyph vertices allocated by stb_truetype.

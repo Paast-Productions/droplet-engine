@@ -82,13 +82,24 @@ namespace Droplet::Graphics::VK::Slug
 	
 // TODO: Move important definitions used by the generator and the renderer into a common space. (Linus)
 #pragma pack(push, 1)
+	/// @brief Font metadata
+	/// 
+	/// Contains information that is common for all glyphs within the font.
+	/// 
+	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
+	struct SlugFontHeader
+	{
+		uint16_t unitsPerEm = 0;
+	};
+#pragma pack(pop)
+	
+#pragma pack(push, 1)
 	/// @brief Metadata required to render a processed Slug glyph.
 	///
 	/// Describes the glyph's dimensions, band configuration, and
 	/// location of its band headers within the shared band texture.
 	///
-	/// @note Serialized directly into the Slug binary file.
-	///       The structure must retain its expected 28-byte layout.
+	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
 	struct SlugCodePoint
 	{
 		/// @brief Unicode code point represented by the glyph.
@@ -169,6 +180,7 @@ namespace Droplet::Graphics::VK::Slug
 		std::vector<SlugCodePoint> m_codePoints;
 		std::vector<glm::vec4> m_curvesTextureData;
 		std::vector<glm::u16vec2> m_bandsTextureData;
+		SlugFontHeader m_fontHeader;
 		
 		StorageBuffer m_storageBuffer {nullptr};
 				
