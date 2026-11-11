@@ -1,10 +1,10 @@
-﻿local damageComp = nil
+﻿local hazardComp = nil
 local heatDamage = nil
 
 function OnStart()
-    damageComp = self:GetDamageComponent()
+    hazardComp = self:GetHazardComponent()
     
-    heatDamage = damageComp:GetDamage()
+    heatDamage = hazardComp:GetDamage()
 end
 
 function OnTrigger(dt, node)
@@ -17,7 +17,7 @@ function OnTrigger(dt, node)
         pb = player:GetPlayerBehaviour()
     end
     
-    if damageComp ~= nil and pb ~= nil and health ~= nil then
+    if hazardComp ~= nil and pb ~= nil and health ~= nil then
 
         pb:IncreaseHeatLevel(1)
 
