@@ -36,6 +36,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 
+    bool mouseLock = true;
+
+    Droplet::GameInput::Get().LockCursor(mouseLock, windowSize.x / 2, windowSize.y / 2, engine.GetWindow());
+
     FrameMark;
 
     // Run main loop
@@ -44,7 +48,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     {
         ZoneScopedN("Main Loop"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
-        //Get game camera?
         switch (engine.Update())
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
@@ -60,7 +63,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
             break;
         }
 
-        //Get game camera?
         switch (engine.Render())
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
@@ -74,6 +76,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         case Droplet::DROPLET_RETURNTYPE::EXIT_ERROR:
             run = false;
             break;
+        }
+
+        
+
+        if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeyEscape))
+        {
+            Droplet::GameInput::Get().LockCursor(mouseLock, windowSize.x / 2, windowSize.y / 2, engine.GetWindow());
+            mouseLock = !mouseLock;
         }
     }
 
