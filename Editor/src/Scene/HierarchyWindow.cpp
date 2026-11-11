@@ -96,30 +96,30 @@ void HierarchyWindow::RenderToolbar()
     {
         std::weak_ptr<Node> newNode{};
 
-        if (ImGui::Button("Add Empty Node " ICON_LC_CIRCLE_PLUS))
+        if (ImGui::Button(ICON_LC_CIRCLE_PLUS" Add Empty Node " ))
         {
             newNode = scene->AddNode("Empty Node");
         }
 
-        if (ImGui::Button("Add Mesh Node " ICON_LC_FILE_BOX))
+        if (ImGui::Button(ICON_LC_FILE_BOX " Add Mesh Node " ))
         {
             newNode = scene->AddNode("Mesh Node");
 			newNode.lock()->AttachComponent("MeshComponent");
         }
 
-        if (ImGui::Button("Add Camera Node " ICON_LC_CAMERA))
+        if (ImGui::Button(ICON_LC_CAMERA" Add Camera Node " ))
         {
             newNode = scene->AddNode("Camera Node");
 			newNode.lock()->AttachComponent("CameraComponent");
         }
 
-        if (ImGui::Button("Add Script Node " ICON_LC_FILE_CODE_CORNER))
+        if (ImGui::Button(ICON_LC_FILE_CODE_CORNER " Add Script Node " ))
         {
             newNode = scene->AddNode("Script Node");
 			newNode.lock()->AttachComponent("ScriptComponent");
         }
 
-        if (ImGui::Button("Add Physics Node " ICON_LC_ATOM))
+        if (ImGui::Button(ICON_LC_ATOM " Add Physics Node " ))
         {
             newNode = scene->AddNode("Physics Node");
 			newNode.lock()->AttachComponent("PhysicsComponent");
@@ -140,7 +140,7 @@ void HierarchyWindow::RenderToolbar()
 		ImGui::EndMenu();
     }
 
-    if (ImGui::MenuItem("Add Empty Node " ICON_LC_CIRCLE_PLUS, nullptr,false,isEnabled))
+    if (ImGui::MenuItem(ICON_LC_CIRCLE_PLUS" Add Empty Node " , nullptr,false,isEnabled))
     {
         std::weak_ptr<Node> newNode{};
         newNode = scene->AddNode("Empty Node");
