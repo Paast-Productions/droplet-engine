@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <Resource/IStaticResource.hpp>
 #include <Resource/IDynamicResource.hpp>
@@ -9,6 +9,7 @@ namespace Droplet
     class ResourceHandle
     {
     public:
+        using GUID = std::uint64_t;
         static_assert(std::derived_from<T, IStaticResource> || std::derived_from<T, IDynamicResource>);
         
         ResourceHandle() = default;
