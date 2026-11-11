@@ -12,6 +12,7 @@ project "Game"
     UseGamePCH()
 
     defines{ 
+        "_GAME",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -51,7 +52,7 @@ project "Game"
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_game_shaders.bat")
+            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Game " .. "%{cfg.buildcfg}"
         }
 
     else
