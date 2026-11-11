@@ -13,6 +13,8 @@ namespace Droplet::Scene
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioEmitterComponent"; }
 
 		const std::string GetName() { return m_soundName; }
+	    
+	    void PlaySound();
 
 	protected:
 		void StartImpl() override;

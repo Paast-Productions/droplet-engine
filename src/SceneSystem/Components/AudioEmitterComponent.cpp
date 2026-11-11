@@ -13,6 +13,11 @@ Droplet::Scene::AudioEmitterComponent::AudioEmitterComponent()
 {
 }
 
+void AudioEmitterComponent::PlaySound()
+{
+    // what's this supposed to do?
+}
+
 void Droplet::Scene::AudioEmitterComponent::StartImpl()
 {
 	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();

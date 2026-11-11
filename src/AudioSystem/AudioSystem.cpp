@@ -39,6 +39,11 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
     return nullptr;
 }
 
+void AudioSystem::PlaySound()
+{
+    // Yep
+}
+
 AudioMixer &Droplet::Audio::AudioSystem::GetMixer()
 {
 	return m_mixer;
