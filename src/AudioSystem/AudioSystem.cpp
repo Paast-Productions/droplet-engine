@@ -1,4 +1,6 @@
 #include "Audio/AudioSystem.hpp"
+
+#include "Allocator.hpp"
 using namespace Droplet::Audio;
 
 bool Droplet::Audio::AudioSystem::Initialize()
@@ -16,6 +18,25 @@ void Droplet::Audio::AudioSystem::Shutdown()
 {
 	m_daliaEngine.Shutdown();
     // m_mixer.Shutdown(); // Don't we need this?
+}
+
+std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesystem::path &p_path, SoundType p_type,
+    std::function<void(bool)> p_onLoad)
+{
+    dalia::SoundType daliaSoundType;
+    if (p_type == SoundType::Resident) daliaSoundType = dalia::SoundType::Resident;
+    else daliaSoundType = dalia::SoundType::Stream;
+    
+    dalia::SoundHandle handle = dalia::INVALID_SOUND_HANDLE;
+    dalia::Result res = m_daliaEngine.LoadSoundAsync(handle, daliaSoundType, p_path.generic_string().c_str(), 
+        [&](uint32_t reqId, dalia::Result result)
+    {
+        if (result == dalia::Result::Ok) p_onLoad(true);
+        else p_onLoad(false);
+    });
+    
+    if (res == dalia::Result::Ok) return std::make_unique<SoundResource>(handle);
+    return nullptr;
 }
 
 AudioMixer &Droplet::Audio::AudioSystem::GetMixer()
