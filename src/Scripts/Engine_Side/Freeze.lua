@@ -1,6 +1,6 @@
 local MovementModifiers = require("MovementModifiers")
 
-local damageComp = nil
+local hazardComp = nil
 local freezeDamage = 0
 
 -- Freeze configuration
@@ -18,12 +18,12 @@ freezeConfig.minSpeedMultiplier = 0.2
 local damageScaling = 0.65
 
 function OnStart()
-    damageComp = self:GetDamageComponent()
-        if damageComp == nil then
-            print("ERROR: DamageComponent missing!")
+    hazardComp = self:GetHazardComponent()
+        if hazardComp == nil then
+            print("ERROR: HazardComponent missing!")
             return
         end
-    freezeDamage = (damageComp:GetDamage()) * 0.25
+    freezeDamage = (hazardComp:GetDamage()) * 0.25
 end
 
 -- This trigger function slows down and damages the player
@@ -32,7 +32,7 @@ function OnTrigger(dt, node)
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
 
-    if health == nil or player == nil or damageComp == nil then
+    if health == nil or player == nil or hazardComp == nil then
         return
     end
 
