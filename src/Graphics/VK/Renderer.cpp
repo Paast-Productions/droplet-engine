@@ -335,8 +335,6 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	if (p_debug)
 		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
 
-	commandBuffer.endRendering();
-	// After rendering, transition the swapchain image to vk::ImageLayout::ePresentSrcKHR
 
 #ifdef _EDITOR
 	TransitionImageLayout(
@@ -356,7 +354,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	TransitionImageLayout(
 		p_renderTarget.GetColorImage(),
 		vk::ImageLayout::eColorAttachmentOptimal,
-		vk::ImageLayout::ePresentSrcKHR,
+		vk::ImageLayout::eTransferSrcOptimal,
 		vk::AccessFlagBits2::eColorAttachmentWrite,
 		{},
 		vk::PipelineStageFlagBits2::eColorAttachmentOutput,
@@ -365,6 +363,42 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		commandBuffer
 	);
 #endif
+
+	vk::ImageCopy2 copy
+	{
+		.srcSubresource =
+		{
+			.aspectMask = vk::ImageAspectFlagBits::eColor,
+			.mipLevel = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		},
+		.srcOffset = 0,
+		.dstSubresource =
+		{
+			.aspectMask = vk::ImageAspectFlagBits::eColor,
+			.mipLevel = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		},
+		.dstOffset = 0,
+		.extent = vk::Extent3D(1, 1, 1)
+	};
+
+	vk::CopyImageInfo2 copyInfo
+	{
+		.srcImage = p_renderTarget.GetColorImage(),
+		.srcImageLayout = vk::ImageLayout::eTransferSrcOptimal,
+		.dstImage = m_swapchain.GetPresentImage(),
+		.dstImageLayout = vk::ImageLayout::eTransferDstOptimal,
+		.regionCount = 1,
+		.pRegions = &copy
+	};
+
+	commandBuffer.copyImage2(copyInfo);
+
+	commandBuffer.endRendering();
+
 
 	//commandBuffer.end();
 }
