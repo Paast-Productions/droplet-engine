@@ -327,7 +327,14 @@
                     }
                 }
             ],
-            "components": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 1,
+                    "type": "PodComponent"
+                }
+            ],
             "drawLayer": 1,
             "id": 24,
             "name": "Pod",
