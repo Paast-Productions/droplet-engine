@@ -31,7 +31,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 7,
+                    "id": 10,
                     "name": "Button Up",
                     "transform": {
                         "position": [
@@ -79,7 +79,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 8,
+                    "id": 11,
                     "name": "Button Down",
                     "transform": {
                         "position": [
@@ -125,7 +125,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 6,
+            "id": 9,
             "name": "Dive Panel",
             "transform": {
                 "position": [
@@ -169,8 +169,8 @@
                                         "tcsName": "",
                                         "tes": 0,
                                         "tesName": "",
-                                        "textureDisplayName": "Test",
-                                        "textureGUID": 8173859370960447319,
+                                        "textureDisplayName": "screenshot",
+                                        "textureGUID": 15328768961354679266,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
                                     },
@@ -179,7 +179,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 10,
+                            "id": 14,
                             "name": "Drone Monitor Screen",
                             "transform": {
                                 "position": [
@@ -225,7 +225,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 9,
+                    "id": 13,
                     "name": "Drone Monitor",
                     "transform": {
                         "position": [
@@ -273,7 +273,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 12,
+                    "id": 15,
                     "name": "Keyboard",
                     "transform": {
                         "position": [
@@ -321,7 +321,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 13,
+                    "id": 16,
                     "name": "Joystick",
                     "transform": {
                         "position": [
@@ -345,7 +345,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 11,
+            "id": 12,
             "name": "Drone Control",
             "transform": {
                 "position": [
@@ -410,7 +410,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 4,
+    "id": 8,
     "name": "Pod Interior",
     "transform": {
         "position": [
