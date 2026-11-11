@@ -11,6 +11,8 @@ namespace Droplet::Game
         static inline ItemId Wood = InvalidItemId;
         static inline ItemId Stone = InvalidItemId;
         static inline ItemId Iron = InvalidItemId;
+        static inline ItemId BrokenEnginePart = InvalidItemId;
+		static inline ItemId RepairedEnginePart = InvalidItemId;
     };
 
     /// Registers the built-in items and fills the Items:: cache. Call once at startup.

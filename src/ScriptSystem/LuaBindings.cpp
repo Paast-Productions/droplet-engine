@@ -26,6 +26,7 @@
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -144,8 +145,13 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 				return playerComponent->GetPlayerBehaviourLua();
 			}
 			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		},
+		"GetInteractableComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::InteractableComponent>();
 		}
-
+				
 	);
 
 	LuaClassDefinition classDef;

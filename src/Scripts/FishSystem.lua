@@ -11,6 +11,7 @@ function RenderUI()
 end
 
 function FishSystem.RegisterFish(node)
+    print("Interacable fish:", node)
     table.insert(FishSystem.fishes, node)
 end
 
