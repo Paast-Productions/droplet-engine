@@ -1,54 +1,72 @@
-local KeyPressed = false
--- Called when script starts
-function OnStart()
 
+local InteractableSystem = require("InteractableSystem")
+
+function OnStart()
+    InteractableSystem.RegisterInteractable(self)
 end
 
--- Called every frame
-function OnUpdate(dt)
-    if Input:KeyPressed(Key.E) then
-        if (KeyPressed == false) then
-            KeyPressed = true
-        end
-    end
+function OnDestroy()
+    InteractableSystem.UnregisterInteractable(self)
 end
 
 function OnTrigger(dt, node)
     tracy.ZoneBeginN("RepairBench OnTrigger")
+
     local player = node:GetPlayerComponent()
-    local pb = nil
-    if player ~= nil then
-        pb = player:GetPlayerBehaviour()
-        local registry = pb:GetItemRegistry()
-        if registry == nil then
-            print("Item registry is unavailable!")
-        else
-            BrokenPartId = registry:Find("upgrade:broken_engine_part")
-            RepairedPartId = registry:Find("upgrade:repaired_engine_part")
-            WoodId = registry:Find("resource:wood")
-            
-            if KeyPressed == true and pb:CountItem(InventoryType.Player, BrokenPartId) == 1 then
-                if pb:CountItem(InventoryType.Player, WoodId) >= 5 then
-                    print("used 5 wood and repaired engine part")
-                    pb:RemoveItem(InventoryType.Player, WoodId, 5)
-                    pb:RemoveItem(InventoryType.Player, BrokenPartId, 1)
-                    pb:AddItem(InventoryType.Player, RepairedPartId, 1)
-                else
-                    print("Not enough wood ")
-                end
-                print("")
-                KeyPressed = false
-            else
-                if KeyPressed == true then
-                print("cant do nathan")
-                end
-            end
-        end
+
+    if player == nil then
+        tracy.ZoneEnd()
+        return
     end
+
+    local pb = player:GetPlayerBehaviour()
+
+    if pb == nil then
+        tracy.ZoneEnd()
+        return
+    end
+
+    local registry = pb:GetItemRegistry()
+
+    if registry == nil then
+        print("Item registry is unavailable!")
+        tracy.ZoneEnd()
+        return
+    end
+
+    local brokenPartId = registry:Find("upgrade:broken_engine_part")
+    local repairedPartId = registry:Find("upgrade:repaired_engine_part")
+    local woodId = registry:Find("resource:wood")
+
+    if not brokenPartId:IsValid()
+        or not repairedPartId:IsValid()
+        or not woodId:IsValid() then
+
+        print("One or more required item IDs are invalid!")
+        tracy.ZoneEnd()
+        return
+    end
+
+    if pb:CountItem(InventoryType.Player, brokenPartId) >= 1 then
+
+        if pb:CountItem(InventoryType.Player, woodId) >= 5 then
+
+            print("Used 5 wood and repaired engine part")
+
+            pb:RemoveItem(InventoryType.Player, woodId, 5)
+            pb:RemoveItem(InventoryType.Player, brokenPartId, 1)
+            pb:AddItem(InventoryType.Player, repairedPartId, 1)
+
+        else
+            print("Not enough wood")
+        end
+
+    else
+        print("You don't have a broken engine part")
+    end
+
     tracy.ZoneEnd()
 end
 
--- Called to render variables in the script
 function RenderUI()
-
 end

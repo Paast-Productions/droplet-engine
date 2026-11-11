@@ -6,10 +6,11 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <LuaBindings.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
+#include <LuaBindings.hpp>  
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
-
+#include <SceneSystem/Node.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -22,6 +23,8 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+	RegisterMeshComponent(p_luaState);
+    RegisterInteractableComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -684,4 +687,41 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(registryDef);
+}
+
+
+void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::InteractableComponent>(
+        "InteractableComponent",
+        "Interact",
+        [](Scene::InteractableComponent &p_component, Scene::Node *p_node)
+        {
+            if (p_node == nullptr)
+            {
+                return;
+            }
+
+            auto node = p_node->shared_from_this();
+
+            p_component.Interact(node);
+        }
+    );
+
+
+    LuaClassDefinition classDef;
+    classDef.name = "InteractableComponent";
+
+    classDef.functions =
+    {
+        {
+            "Interact",
+            "void",
+            {
+                {"interactingNode", "Node"}
+            }
+        }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
 }
