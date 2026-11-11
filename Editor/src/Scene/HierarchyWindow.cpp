@@ -96,30 +96,30 @@ void HierarchyWindow::RenderToolbar()
     {
         std::weak_ptr<Node> newNode{};
 
-        if (ImGui::Button("Add Empty Node"))
+        if (ImGui::Button("Add Empty Node " ICON_LC_CIRCLE_PLUS))
         {
             newNode = scene->AddNode("Empty Node");
         }
 
-        if (ImGui::Button("Add Mesh Node"))
+        if (ImGui::Button("Add Mesh Node " ICON_LC_FILE_BOX))
         {
             newNode = scene->AddNode("Mesh Node");
 			newNode.lock()->AttachComponent("MeshComponent");
         }
 
-        if (ImGui::Button("Add Camera Node"))
+        if (ImGui::Button("Add Camera Node " ICON_LC_CAMERA))
         {
             newNode = scene->AddNode("Camera Node");
 			newNode.lock()->AttachComponent("CameraComponent");
         }
 
-        if (ImGui::Button("Add Script Node"))
+        if (ImGui::Button("Add Script Node " ICON_LC_FILE_CODE_CORNER))
         {
             newNode = scene->AddNode("Script Node");
 			newNode.lock()->AttachComponent("ScriptComponent");
         }
 
-        if (ImGui::Button("Add Physics Node"))
+        if (ImGui::Button("Add Physics Node " ICON_LC_ATOM))
         {
             newNode = scene->AddNode("Physics Node");
 			newNode.lock()->AttachComponent("PhysicsComponent");
@@ -138,6 +138,20 @@ void HierarchyWindow::RenderToolbar()
 		}
 
 		ImGui::EndMenu();
+    }
+
+    if (ImGui::MenuItem("Add Empty Node " ICON_LC_CIRCLE_PLUS, nullptr,false,isEnabled))
+    {
+        std::weak_ptr<Node> newNode{};
+        newNode = scene->AddNode("Empty Node");
+
+        m_editorContext->GetInteractionState().SelectNode(newNode, true);
+        m_editorContext->SetNodeScrollFocus(newNode);
+
+        // Move the new node to the center of the view
+        auto &editorCamera = m_editorContext->GetEditorCamera();
+        glm::vec3 position = editorCamera.GetPosition() + editorCamera.GetForward() * EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+        newNode.lock()->GetTransform().SetPosition(position, Transform::Space::World);
     }
 }
 
