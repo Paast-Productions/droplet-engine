@@ -489,15 +489,7 @@ void Transform::ResetFrame()
 
 void Transform::ResetPhysicsDirty()
 {
-	ZoneScoped;
-
 	m_physicsDirty = false;
-
-	// Recursively reset children
-	for (const auto &child : m_owner->GetChildren())
-	{
-		child->GetTransform().ResetPhysicsDirty();
-	}
 }
 
 void Transform::RecalculateMatrices()

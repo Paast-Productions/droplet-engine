@@ -135,7 +135,13 @@ void Droplet::Editor::EditorShortcuts::CopySelectedNodes(EditorContext &p_editor
 		{
 			continue;
 		}
-		nlohmann::json nodeJson = serializer.SerializeNode(*node.lock());
+		nlohmann::json nodeJson = serializer.SerializeNode(*node.lock(), true);
+
+		if (node.lock()->IsPrefab())
+		{
+			nodeJson["prefab"] = node.lock()->GetPrefabPath();
+		}
+
 		serializedNodes.push_back(std::move(nodeJson));
 	}
 	Editor::EditorClipboard::CopyNodes(serializedNodes);
@@ -156,7 +162,15 @@ void Droplet::Editor::EditorShortcuts::PasteNodes(EditorContext &p_editorContext
 
 	for (const nlohmann::json &nodeJson : *clipboardNodes)
 	{
-		serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
+		std::string prefabPath = "";
+		if (nodeJson.contains("prefab"))
+		{
+			prefabPath = nodeJson["prefab"];
+		}
+
+		auto node = serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
+
+		node->SetPrefabPath(prefabPath);
 	}
 
 }
