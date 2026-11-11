@@ -59,12 +59,6 @@ namespace Droplet::Editor::Scene
 		/// @brief Bool indicating whether the SDL Window has been resized
 		bool m_hasBeenResized = false;
 
-		/// @brief The handle of the texture that the renderer will render to
-		Graphics::RenderTarget m_renderTarget {};
-
-		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		std::uint32_t m_textureIndex { Graphics::VK::C_INVALID_INDEX };
-		
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };
 		CameraDrag m_cameraDrag = CameraDrag::None;
