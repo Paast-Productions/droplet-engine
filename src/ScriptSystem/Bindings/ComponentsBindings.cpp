@@ -69,13 +69,7 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 
 		"IsAutoRenderEnabled", &Scene::CameraComponent::IsAutoRenderEnabled,
 		"SetAutoRender", &Scene::CameraComponent::SetAutoRender,
-		"TriggerRender", &Scene::CameraComponent::TriggerRender,
-
-		"GetTargetIndex", &Scene::CameraComponent::GetTargetIndex,
-		"SetTargetIndex", &Scene::CameraComponent::SetTargetIndex,
-
-		"GetTextureIndex", &Scene::CameraComponent::GetTextureIndex,
-		"SetTextureIndex", &Scene::CameraComponent::SetTextureIndex
+		"TriggerRender", &Scene::CameraComponent::TriggerRender
 	);
 
     LuaClassDefinition classDef;

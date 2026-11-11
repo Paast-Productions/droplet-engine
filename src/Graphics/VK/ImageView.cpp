@@ -22,7 +22,7 @@ ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image)
     m_imageView = vk::raii::ImageView { p_device, viewInfo };
 }
 
-ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image, const vk::Format p_format, const vk::ImageAspectFlagBits p_aspectFlagBits)
+ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image, const vk::Format p_format, const vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits)
 {
     const vk::ImageViewCreateInfo viewInfo 
     {

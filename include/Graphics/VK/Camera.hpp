@@ -124,10 +124,10 @@ namespace Droplet::Graphics
 
 	struct CameraRenderData
 	{
-		Camera camera;
+		Camera camera {};
+		RenderTarget renderTarget {};
 		std::int32_t priority = 0;
-		std::uint32_t renderTarget;
-		std::vector<RenderData> renderData;
+		std::vector<RenderData> renderData {};
 		bool debug = false;
 		glm::vec4 clearColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 	};

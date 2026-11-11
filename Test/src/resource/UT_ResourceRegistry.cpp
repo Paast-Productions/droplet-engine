@@ -13,7 +13,7 @@ TEST(ResourceRegistryTest, RegisterAndGetByGUID)
     
     MetaEntry texEntry;
     texEntry.guid = 100;
-    texEntry.type = ResourceType::Texture2D;
+    texEntry.type = StaticResourceType::Texture2D;
     texEntry.sourceName = "MyTexture";
     
     registry.RegisterMetaEntry("Assets/Tex.png", texEntry);
@@ -21,7 +21,7 @@ TEST(ResourceRegistryTest, RegisterAndGetByGUID)
     // Valid GUID should return the entry
     MetaEntry retrieved;
     EXPECT_TRUE(registry.GetResourceMetaData(100, retrieved));
-    EXPECT_EQ(retrieved.type, ResourceType::Texture2D);
+    EXPECT_EQ(retrieved.type, StaticResourceType::Texture2D);
     EXPECT_EQ(retrieved.sourceName, "MyTexture");
     
     // Invalid GUID should throw
@@ -33,8 +33,8 @@ TEST(ResourceRegistryTest, RegisterAndGetByAssetPath)
     ResourceRegistry registry;
     
     // Simulate an FBX file that contains TWO resources (a mesh and an animation)
-    MetaEntry meshEntry; meshEntry.guid = 1; meshEntry.type = ResourceType::Mesh;
-    MetaEntry animEntry; animEntry.guid = 2; animEntry.type = ResourceType::Animation;
+    MetaEntry meshEntry; meshEntry.guid = 1; meshEntry.type = StaticResourceType::Mesh;
+    MetaEntry animEntry; animEntry.guid = 2; animEntry.type = StaticResourceType::Animation;
     
     registry.RegisterMetaEntry("Assets/Hero.fbx", meshEntry);
     registry.RegisterMetaEntry("Assets/Hero.fbx", animEntry);
@@ -55,9 +55,9 @@ TEST(ResourceRegistryTest, GetEntriesFilteredByType)
 {
     ResourceRegistry registry;
     
-    MetaEntry tex1; tex1.guid = 1; tex1.type = ResourceType::Texture2D;
-    MetaEntry tex2; tex2.guid = 2; tex2.type = ResourceType::Texture2D;
-    MetaEntry mesh1; mesh1.guid = 3; mesh1.type = ResourceType::Mesh;
+    MetaEntry tex1; tex1.guid = 1; tex1.type = StaticResourceType::Texture2D;
+    MetaEntry tex2; tex2.guid = 2; tex2.type = StaticResourceType::Texture2D;
+    MetaEntry mesh1; mesh1.guid = 3; mesh1.type = StaticResourceType::Mesh;
     
     registry.RegisterMetaEntry("Tex1.png", tex1);
     registry.RegisterMetaEntry("Tex2.png", tex2);
@@ -68,15 +68,15 @@ TEST(ResourceRegistryTest, GetEntriesFilteredByType)
     EXPECT_EQ(allEntries.size(), 3);
     
     // Test Type Filter (Only Textures)
-    auto texEntries = registry.GetEntries(ResourceType::Texture2D);
+    auto texEntries = registry.GetEntries(StaticResourceType::Texture2D);
     EXPECT_EQ(texEntries.size(), 2);
     
     // Test Type Filter (Only Meshes)
-    auto meshEntries = registry.GetEntries(ResourceType::Mesh);
+    auto meshEntries = registry.GetEntries(StaticResourceType::Mesh);
     EXPECT_EQ(meshEntries.size(), 1);
     
     // Test Type Filter (Empty result)
-    auto shaderEntries = registry.GetEntries(ResourceType::Shader);
+    auto shaderEntries = registry.GetEntries(StaticResourceType::Shader);
     EXPECT_TRUE(shaderEntries.empty());
 }
 
@@ -112,13 +112,13 @@ TEST_F(ResourceRegistryScanTest, ScanDirectoryValid)
     MetaEntry texEntry;
     EXPECT_TRUE(registry.GetResourceMetaData(500, texEntry));
     EXPECT_EQ(texEntry.relAssetPath, "Textures/Test_BlackPixel.png");
-    EXPECT_EQ(static_cast<uint8_t>(texEntry.type), static_cast<uint8_t>(ResourceType::Texture2D)); 
+    EXPECT_EQ(static_cast<uint8_t>(texEntry.type), static_cast<uint8_t>(StaticResourceType::Texture2D)); 
     EXPECT_EQ(texEntry.loadSettings["generate_mipmaps"], false);
 
     MetaEntry shaderEntry;
     EXPECT_TRUE(registry.GetResourceMetaData(600, shaderEntry));
     EXPECT_EQ(shaderEntry.relAssetPath, "Shaders/Test_Valid.slang");
-    EXPECT_EQ(static_cast<uint8_t>(shaderEntry.type), static_cast<uint8_t>(ResourceType::Shader));
+    EXPECT_EQ(static_cast<uint8_t>(shaderEntry.type), static_cast<uint8_t>(StaticResourceType::Shader));
 }
 
 TEST_F(ResourceRegistryScanTest, ScanDirectoryInvalidThrows)

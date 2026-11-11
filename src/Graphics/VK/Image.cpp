@@ -16,7 +16,9 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 			 vk::Format p_format, 
 			 vk::ImageTiling p_tiling, 
 			 vk::ImageUsageFlags p_usage, 
-			 vk::MemoryPropertyFlags p_properties)
+			 vk::MemoryPropertyFlags p_properties) :
+				m_extent(p_width, p_height),
+				m_format(p_format)
 {
 	
 	// CREATE NECESSARY BUFFERS
@@ -35,7 +37,7 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.usage = vma::MemoryUsage::eAuto,
 	};
 	
-	vma::raii::Buffer stagingBuffer = vma::raii::Buffer {p_allocator, bufferCreateInfo, allocationCreateInfo};
+	vma::raii::Buffer stagingBuffer = vma::raii::Buffer { p_allocator, bufferCreateInfo, allocationCreateInfo };
 	const vma::raii::Allocation &allocation = stagingBuffer.getAllocation();
 	
 	allocation.copyFromMemory(p_pixels, 0, imageSize);
@@ -67,7 +69,7 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.preferredFlags = p_properties, 
 	};
 	
-	m_image = vma::raii::Image {p_allocator, imageInfo, allocCreateInfo};
+	m_image = vma::raii::Image { p_allocator, imageInfo, allocCreateInfo };
 	
 	// SETUP DEVICE BARRIERS
 	
@@ -188,7 +190,9 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 					 vk::Format p_format,
 					 vk::ImageTiling p_tiling, 
 					 vk::ImageUsageFlags p_usage, 
-					 vk::MemoryPropertyFlags p_properties)
+					 vk::MemoryPropertyFlags p_properties) :
+						m_extent(p_width, p_height),
+						m_format(p_format)
 {
 	vk::ImageCreateInfo imageInfo
 	{

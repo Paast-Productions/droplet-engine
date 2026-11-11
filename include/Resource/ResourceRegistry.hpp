@@ -30,16 +30,16 @@ namespace Droplet
 		/// @return True if meta entry was found, else false.
 		bool GetResourceMetaData(const std::string &p_resourceName, MetaEntry &p_metaEntry) const;
 
+        /// @brief Retrieves a list of all resources in the registry, optionally filtered by type.
+        /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
+        /// @return A vector of pointers to the registered metadata entries.
+        std::vector<const MetaEntry *> GetEntries(StaticResourceType p_type = StaticResourceType::None) const;
+		
 		/// @brief Fetches all metadata bodies associated with a specific asset.
 		/// @param p_assetPath The path to the asset (not its .meta file)
 		/// @param p_metaData The list of resources in that asset. 
 		/// @return True if the asset is registered and contains resources, otherwise false.
 		bool GetCachedMetaDataForAsset(const std::string &p_assetPath, std::vector<MetaEntry> &p_metaData);
-
-		/// @brief Retrieves a list of all resources in the registry, optionally filtered by type.
-		/// @param p_type The resource type to filter by. Default is None (this returns all resource types).
-		/// @return A vector of pointers to the registered metadata entries.
-		std::vector<const MetaEntry *> GetEntries(ResourceType p_type = ResourceType::None) const;
 
 		/// @brief Registers and updates a resource in the registry.
 		/// @param p_relAssetPath The path to the asset file relative to the directory that was scanned for meta entries.

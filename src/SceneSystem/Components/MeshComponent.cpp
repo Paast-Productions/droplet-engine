@@ -101,30 +101,30 @@ void MeshComponent::RenderUIImpl()
 		// Retrieve the existing resource names from ResourceManager here.
 		// Replace these examples with your actual lookup API.
 
-		if (ResourceSlot(
-			"Mesh",
-			m_mesh.GetGUID(),
-			m_meshDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Mesh))
-		{
-			SetMeshGUID(newGUID);
+        if (ResourceSlot(
+            "Mesh",
+            m_mesh.GetGUID(),
+            m_meshDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Mesh))
+        {
+            SetMeshGUID(newGUID);
 			m_meshDisplayName = newName;
 		}
 
 		newGUID = C_INVALID_GUID;
 		newName.clear();
 
-		if (ResourceSlot(
-			"Texture",
-			m_2dTexture.GetGUID(),
-			m_textureDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Texture2D))
-		{
-			SetTextureGUID(newGUID);
+        if (ResourceSlot(
+            "Texture",
+            m_2dTexture.GetGUID(),
+            m_textureDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Texture2D))
+        {
+            SetTextureGUID(newGUID);
 			m_textureDisplayName = newName;
 		}
 		
@@ -133,82 +133,82 @@ void MeshComponent::RenderUIImpl()
 		newGUID = C_INVALID_GUID;
 		newName.clear();
 
-		if (ResourceSlot(
-			"Vertex Shader",
-			m_shaderData.vs.GetGUID(),
-			m_vsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::Vertex))
-		{
-			SetVSGUID(newGUID);
-			m_vsDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();
+        if (ResourceSlot(
+            "Vertex Shader",
+            m_shaderData.vs.GetGUID(),
+            m_vsDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Vertex))
+        {
+            SetVSGUID(newGUID);
+            m_vsDisplayName = newName;
+        }
+        newGUID = C_INVALID_GUID;
+        newName.clear();
 
-		if (ResourceSlot(
-			"Fragment Shader",
-			m_shaderData.fs.GetGUID(),
-			m_fsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::Fragment))
-		{
-			SetFSGUID(newGUID);
-			m_fsDisplayName = newName;
-		}
+        if (ResourceSlot(
+            "Tes Control Shader",
+            m_shaderData.tcs.GetGUID(),
+            m_tcsDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationControl))
+        {
+            SetTCSGUID(newGUID);
+            m_tcsDisplayName = newName;
+        }
+        newGUID = C_INVALID_GUID;
+        newName.clear();
 
-		/*if (ResourceSlot(
-			"Tes Control Shader",
-			m_shaderData.tcs.GetGUID(),
-			m_tcsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::TessellationControl))
-		{
-			SetTCSGUID(newGUID);
-			m_tcsDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();
+        if (ResourceSlot(
+            "Tes Evaluation Shader",
+            m_shaderData.tes.GetGUID(),
+            m_tesDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::TessellationEvaluation))
+        {
+            SetTESGUID(newGUID);
+            m_tesDisplayName = newName;
+        }
+        newGUID = C_INVALID_GUID;
+        newName.clear();
 
-		if (ResourceSlot(
-			"Tes Evaluation Shader",
-			m_shaderData.tes.GetGUID(),
-			m_tesDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::TessellationEvaluation))
-		{
-			SetTESGUID(newGUID);
-			m_tesDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();
+        if (ResourceSlot(
+            "Geometry Shader",
+            m_shaderData.gs.GetGUID(),
+            m_gsDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Geometry))
+        {
+            SetGSGUID(newGUID);
+            m_gsDisplayName = newName;
+        }
+        newGUID = C_INVALID_GUID;
+        newName.clear();
 
-		if (ResourceSlot(
-			"Geometry Shader",
-			m_shaderData.gs.GetGUID(),
-			m_gsDisplayName,
-			newGUID,
-			newName,
-			Droplet::ResourceType::Shader,
-			Droplet::ShaderResource::ShaderType::Geometry))
-		{
-			SetGSGUID(newGUID);
-			m_gsDisplayName = newName;
-		}
-		newGUID = C_INVALID_GUID;
-		newName.clear();*/
-		
-		EndTable();
-	}
-
+        if (ResourceSlot(
+            "Fragment Shader",
+            m_shaderData.fs.GetGUID(),
+            m_fsDisplayName,
+            newGUID,
+            newName,
+            Droplet::StaticResourceType::Shader,
+            Droplet::ShaderResource::ShaderType::Fragment))
+        {
+            SetFSGUID(newGUID);
+            m_fsDisplayName = newName;
+        }
+        
+        EndTable();
+    }
+	
 	PopID();
 }
 

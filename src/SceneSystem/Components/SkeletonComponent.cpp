@@ -61,7 +61,7 @@ namespace
     }
 }
 
-void SkeletonComponent::SetSkinnedMeshResource(ResourceHandle<SkinnedMeshResource> p_handle)
+void SkeletonComponent::SetSkinnedMeshResource(StaticResourceHandle<SkinnedMeshResource> p_handle)
 {
     if (p_handle.GetGUID() != m_skinnedMesh.GetGUID())
     {
@@ -75,9 +75,9 @@ void SkeletonComponent::SetSkinnedMeshResource(ResourceHandle<SkinnedMeshResourc
 void SkeletonComponent::SetSkinnedMeshGUID(Droplet::GUID p_guid)
 {
     const std::weak_ptr<bool> alive = m_alive;
-    ResourceHandle<SkinnedMeshResource> handle = ResourceManager::GetInstance().LoadResource<Droplet::SkinnedMeshResource>(
+    StaticResourceHandle<SkinnedMeshResource> handle = ResourceManager::GetInstance().LoadResource<Droplet::SkinnedMeshResource>(
         p_guid,
-        [this, alive](ResourceHandle<SkinnedMeshResource> p_loaded)
+        [this, alive](StaticResourceHandle<SkinnedMeshResource> p_loaded)
         {
             // The component may have been destroyed or retargeted before the load completed
             if (alive.expired() || p_loaded.GetGUID() != m_skinnedMesh.GetGUID())
@@ -267,7 +267,7 @@ void SkeletonComponent::RenderUIImpl()
             m_meshDisplayName,
             newGUID,
             newName,
-            Droplet::ResourceType::SkinnedMesh))
+            Droplet::StaticResourceType::SkinnedMesh))
         {
             SetSkinnedMeshGUID(newGUID);
             m_meshDisplayName = newName;

@@ -232,9 +232,9 @@ void SceneViewWindow::InitImpl()
 	using namespace Graphics::VK;
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
-	m_editorContext->GetEditorCamera().SetTargetIndex(instance.CreateRenderTarget(720, 720));
-	m_editorContext->GetEditorCamera().SetTextureIndex(instance.CreateImGuiTexture(
-		instance.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex()))
+	m_editorContext->GetEditorCamera().SetTarget(instance.CreateRenderTarget(720, 720));
+	m_editorContext->GetEditorCamera().SetTexture(instance.CreateImGuiTexture(
+		m_editorContext->GetEditorCamera().GetTarget())
 	);
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
@@ -400,7 +400,6 @@ void SceneViewWindow::RenderImpl()
 	ImVec2 contentRegion = ImGui::GetContentRegionAvail();
 	ImVec2 cursorScreenPos = ImGui::GetCursorScreenPos();
 	ImVec2 windowPos = ImGui::GetWindowPos();
-
 	ImVec2 camSize = contentRegion;
 
 	ImVec2 camViewRectMin = {
@@ -454,9 +453,7 @@ void SceneViewWindow::RenderEditorView()
 	};
 
 	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = IntermediaryStorage::GetInstance()
-		.GetRenderTargetAt(m_editorContext->GetEditorCamera().GetTargetIndex())
-		.GetExtent();
+	vk::Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().GetExtent();
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -500,9 +497,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-		Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_editorContext->GetEditorCamera().GetTextureIndex())
-	);
+	ImTextureRef camViewTexture = m_editorContext->GetEditorCamera().GetTexture().Get();
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1076,9 +1071,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-				Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(camera->GetTextureIndex())
-				);
+			ImTextureRef camViewTexture = camera->GetTexture().Get();
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1618,8 +1611,8 @@ void SceneViewWindow::FocusCameraOnSelection()
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
 	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-		m_editorContext->GetEditorCamera().GetTargetIndex(), 
-		m_editorContext->GetEditorCamera().GetTextureIndex(), 
+		m_editorContext->GetEditorCamera().GetTarget(), 
+		m_editorContext->GetEditorCamera().GetTexture(), 
 		width, height
 	);
 }

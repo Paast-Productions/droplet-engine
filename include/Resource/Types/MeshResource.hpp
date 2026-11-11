@@ -1,5 +1,5 @@
 #pragma once
-#include <resource/IResource.hpp>
+#include <resource/IStaticResource.hpp>
 #include <math/bounds/MeshBVH.hpp>
 
 #include <string>
@@ -8,7 +8,7 @@
 namespace Droplet
 {
     /// @brief Class for mesh resources.
-	class MeshResource : public IResource
+	class MeshResource : public IStaticResource
 	{
 		friend class BvhLoader;
 

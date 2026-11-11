@@ -12,6 +12,7 @@
 #include <SceneSystem/Items/BaseItems.hpp>
 #include <RegisterGame.hpp>
 #include <RegisterEngine.hpp>
+#include <Time.hpp>
 
 using namespace Droplet;
 
@@ -92,8 +93,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	Droplet::Game::RegisterGameComponents();
 
 	// Script Init
-	ScriptSystem::Get().Initialize(m_sceneManager);
-
+	Script::ScriptSystem::Get().Initialize(m_sceneManager);
 	GameInput::Get().SetMainWindow(m_window.Get());
 
 }
@@ -171,7 +171,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// ResourceManager
 
-	ResourceManager::Get().Update();
+	ResourceManager::GetInstance().Update();
 
 	return DROPLET_RETURNTYPE::OK;
 }
@@ -210,6 +210,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderDat
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
+	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
 	FrameMark;
 

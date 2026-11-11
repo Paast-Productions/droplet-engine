@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Node.hpp>
-#include <resource/ResourceHandle.hpp>
+#include <resource/StaticResourceHandle.hpp>
 #include <resource/types/SkinnedMeshResource.hpp>
 
 #include <cstddef>
@@ -28,10 +28,10 @@ namespace Droplet::Scene
         [[nodiscard]] std::string_view GetTypeName() const override { return "SkeletonComponent"; }
 
         /// @brief Gets the skinned mesh resource handle.
-        [[nodiscard]] const ResourceHandle<SkinnedMeshResource> &GetSkinnedMeshResource() const { return m_skinnedMesh; }
+        [[nodiscard]] const StaticResourceHandle<SkinnedMeshResource> &GetSkinnedMeshResource() const { return m_skinnedMesh; }
 
         /// @brief Sets the skinned mesh resource handle. The skeleton is built if the resource is already ready; otherwise use SetSkinnedMeshGUID, which builds it from the resource's onLoad callback.
-        void SetSkinnedMeshResource(ResourceHandle<SkinnedMeshResource> p_handle);
+        void SetSkinnedMeshResource(StaticResourceHandle<SkinnedMeshResource> p_handle);
 
         /// @brief Sets the skinned mesh resource using its GUID.
         void SetSkinnedMeshGUID(GUID p_guid);
@@ -75,7 +75,7 @@ namespace Droplet::Scene
         /// @brief Liveness token so resource load callbacks do not touch a destroyed component.
         std::shared_ptr<bool> m_alive = std::make_shared<bool>(true);
 
-        ResourceHandle<SkinnedMeshResource> m_skinnedMesh{};
+        StaticResourceHandle<SkinnedMeshResource> m_skinnedMesh{};
         std::string m_meshDisplayName;
 
         /// @brief Resource the current skeleton was built from (nullptr if built manually or not built).

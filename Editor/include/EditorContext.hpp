@@ -3,7 +3,6 @@
 #include "SceneSystem/Scene.hpp"
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
-#include <Graphics/VK/Renderer.hpp>
 #include <Engine/Engine.hpp>
 #include <SceneSystem/Node.hpp>
 
