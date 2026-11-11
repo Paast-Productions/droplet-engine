@@ -403,15 +403,22 @@ void SceneManager::LoadFromFile(const std::string &p_filePath)
     m_scenes[json["name"]] = scene;
 }
 
-void SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePath)
 {
     ZoneScoped;
 
     SceneSerializer serializer;
     nlohmann::json json;
 
-    json = serializer.SerializeNode(p_node);
+    json = serializer.SerializeNode(p_node, true);
     Droplet::Core::JsonIO::Write(p_filePath, json);
+
+    std::string relativePath = std::filesystem::relative(
+        std::filesystem::absolute(p_filePath),
+        std::filesystem::path(ROOT_PATH)
+    ).string();
+
+    p_node.SetPrefabPath(relativePath);
 }
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)

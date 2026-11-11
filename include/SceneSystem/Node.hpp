@@ -363,8 +363,24 @@ namespace Droplet::Scene
         	return components.empty() ? nullptr : components.front();
         }
 
+		[[nodiscard]] bool IsPrefab() const
+		{
+			return !m_prefabPath.empty();
+		}
+
+		[[nodiscard]] const std::string &GetPrefabPath() const
+		{
+			return m_prefabPath;
+		}
+
+		void SetPrefabPath(const std::string &p_prefabPath)
+		{
+			m_prefabPath = p_prefabPath;
+		}
+
     private:
         std::string m_name;
+        std::string m_prefabPath = "";
         
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;

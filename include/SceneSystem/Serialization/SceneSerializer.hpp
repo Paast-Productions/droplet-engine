@@ -42,8 +42,10 @@ namespace Droplet::Scene
 
 		/// @brief Serializes a node
 		/// @param p_node The node you want to serialize
+		/// @param p_undoPrefab Whether to undo the prefab path
+		/// @param p_undoPrefabRecursively Whether to undo the prefab path recursively for all children
 		/// @return Returns a json to be stored in the scene json
-		nlohmann::json SerializeNode(const Droplet::Scene::Node& p_node);
+		nlohmann::json SerializeNode(const Droplet::Scene::Node& p_node, bool p_undoPrefab = false, bool p_undoPrefabRecursively = false);
 
 		/// @brief Deserializes a node, Creating it, its transform, and its children
 		/// @param p_json the saved node saved as a json
@@ -51,6 +53,7 @@ namespace Droplet::Scene
 		/// @param p_scene The scene the node belongs to
 		//void DeserializeNode(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
 		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext &p_context);
+
 	private:
 		/// @brief Desereliazes Components,
 		/// It needs to check the components type to be able to either deserialize them here or call their own deserializations
