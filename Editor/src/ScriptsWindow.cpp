@@ -32,10 +32,26 @@ void ScriptsWindow::InitImpl()
 	ToggleToolbar(true);
 }
 
-void ScriptsWindow::CloseImpl()
+void ScriptsWindow::RenderToolbar()
 {
-	// Cleanup for the node inspector window
+	if (ImGui::MenuItem("Refresh"))
+	{
+		RefreshScripts();
+	}
+	ImGui::Separator();
+
+	if (ImGui::MenuItem("Add+"))
+	{
+		ImGui::OpenPopup("Create Lua Script");
+	}
+
+	RenderAddScript();
+
+	ImGui::Separator();
+
+	ImGui::SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
 }
+
 
 void ScriptsWindow::RenderImpl()
 {
@@ -63,23 +79,6 @@ void ScriptsWindow::RenderImpl()
 
 }
 
-void ScriptsWindow::RenderToolbar()
-{
-	if (ImGui::MenuItem("Refresh"))
-	{
-		RefreshScripts();
-	}
-	ImGui::Separator();
-
-	if (ImGui::MenuItem("Add+"))
-	{
-		ImGui::OpenPopup("Create Lua Script");
-	}
-
-	RenderAddScript();
-	ImGui::Separator();
-}
-
 void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 {
 	const std::string id = p_node.relativePath.generic_string();
@@ -98,6 +97,17 @@ void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 	}
 	else
 	{
+		if (!m_searchFilter.empty())
+		{
+			std::string lowerName = p_node.name;
+			std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+			if (lowerName.find(m_searchFilter) == std::string::npos)
+			{
+				return;
+			}
+		}
+
 		const std::string path = p_node.relativePath.generic_string();
 		const bool isSelected = m_selectedScript == path;
 

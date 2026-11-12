@@ -10,47 +10,66 @@
 #undef WIN32_LEAN_AND_MEAN
 #endif
 
+using namespace Droplet::Editor;
 
-Droplet::Editor::SavedDataWindow::SavedDataWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext)
+SavedDataWindow::SavedDataWindow(EditorContext *p_editorContext) : EditorWindow(p_editorContext)
 {
 	m_scenePath = ROOT_PATH "/GameData/Scenes/";
 	m_prefabPath = ROOT_PATH "/GameData/Prefabs/";
 	RefreshScannedFiles(m_sceneFiles);
 }
 
-void Droplet::Editor::SavedDataWindow::InitImpl()
+void SavedDataWindow::InitImpl()
 {
 	SetName("Saved Gamedata");
 	ToggleToolbar(true);
 }
 
-void Droplet::Editor::SavedDataWindow::RenderImpl()
+void SavedDataWindow::RenderToolbar()
 {
-	ImGui::SeparatorText("Scenes");
-
-	if (m_sceneTree.empty())
+	if (ImGui::MenuItem("Refresh"))
 	{
-		ImGui::TextDisabled("No scenes found in this folder");
+		RefreshScannedFiles(m_sceneFiles);
 	}
-	else
+
+	ImGui::Separator();
+
+	ImGui::SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
+}
+
+void SavedDataWindow::RenderImpl()
+{
+	if (ImGui::TreeNode("Scenes"))
 	{
-		for (const SceneTreeNode &node : m_sceneTree)
+		if (m_sceneTree.empty())
 		{
-			RenderTreeHelper(node, SavedDataType::Scene);
+			ImGui::TextDisabled("No scenes found in this folder");
 		}
+		else
+		{
+			for (const SceneTreeNode &node : m_sceneTree)
+			{
+				RenderTreeHelper(node, SavedDataType::Scene);
+			}
+		}
+
+		ImGui::TreePop();
 	}
 
-	ImGui::SeparatorText("Prefabs");
-
-	if (m_prefabTree.empty())
+	if (ImGui::TreeNode("Prefabs"))
 	{
-		ImGui::TextDisabled("No prefabs found in this folder");
-		return;
-	}
+		if (m_prefabTree.empty())
+		{
+			ImGui::TextDisabled("No prefabs found in this folder");
+			return;
+		}
 
-	for (const SceneTreeNode &node : m_prefabTree)
-	{
-		RenderTreeHelper(node, SavedDataType::Prefab);
+		for (const SceneTreeNode &node : m_prefabTree)
+		{
+			RenderTreeHelper(node, SavedDataType::Prefab);
+		}
+
+		ImGui::TreePop();
 	}
 
 	if (m_needsRefresh)
@@ -60,21 +79,8 @@ void Droplet::Editor::SavedDataWindow::RenderImpl()
 	}
 }
 
-void Droplet::Editor::SavedDataWindow::CloseImpl()
-{
-}
 
-void Droplet::Editor::SavedDataWindow::RenderToolbar()
-{
-	if (ImGui::MenuItem("Refresh"))
-	{
-		RefreshScannedFiles(m_sceneFiles);
-	}
-	ImGui::Separator();
-	
-}
-
-void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataType p_type)
+void SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataType p_type)
 {
 	const std::string id = p_node.relativePath.generic_string();
 	ImGui::PushID(id.c_str());
@@ -85,13 +91,24 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
 		{
 			for (const SceneTreeNode &child : p_node.children)
 			{
-				RenderTreeHelper(child,p_type);
+				RenderTreeHelper(child, p_type);
 			}
 			ImGui::TreePop();
 		}
 	}
 	else
 	{
+		if (!m_searchFilter.empty())
+		{
+			std::string lowerName = p_node.name;
+			std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+			if (lowerName.find(m_searchFilter) == std::string::npos)
+			{
+				return;
+			}
+		}
+
 		const std::string path = p_node.relativePath.string();
 		const bool isSelected = m_selectedJsonScene == path;
 
@@ -171,10 +188,11 @@ void Droplet::Editor::SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_n
 			}
 		}
 	}
+
 	ImGui::PopID();
 }
 
-void Droplet::Editor::SavedDataWindow::DeleteSelectedFile()
+void SavedDataWindow::DeleteSelectedFile()
 {
 	if (m_selectedJsonScene.empty())
 	{
@@ -200,7 +218,7 @@ void Droplet::Editor::SavedDataWindow::DeleteSelectedFile()
 }
 
 
-void Droplet::Editor::SavedDataWindow::OpenJson(const std::filesystem::path &p_path)
+void SavedDataWindow::OpenJson(const std::filesystem::path &p_path)
 {
 #ifdef _WIN32
 	std::error_code errorCode;
@@ -225,7 +243,7 @@ void Droplet::Editor::SavedDataWindow::OpenJson(const std::filesystem::path &p_p
 #endif
 }
 
-void Droplet::Editor::SavedDataWindow::RefreshScannedFiles(std::vector<std::string> &p_sceneFiles)
+void SavedDataWindow::RefreshScannedFiles(std::vector<std::string> &p_sceneFiles)
 {
 	m_sceneTree.clear();
 	m_prefabTree.clear();
