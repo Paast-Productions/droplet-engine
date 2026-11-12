@@ -1,7 +1,7 @@
 #pragma once
 #include <dalia/dalia.h>
 #include "AudioMixer.hpp"
-
+#include <Resource/Types/SoundResource.hpp>
 
 namespace Droplet::Audio
 {
@@ -21,7 +21,7 @@ namespace Droplet::Audio
 	    
 	    bool Initialize();
 		void Shutdown();
-	    
+		void Update();
 	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
 	         std::function<void(bool)> p_onLoad);
 	    
