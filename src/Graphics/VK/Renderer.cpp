@@ -571,7 +571,7 @@ static void CheckVkResult(VkResult p_err)
 {
 	if (p_err == VK_SUCCESS)
 		return;
-	throw ("[vulkan] Error: VkResult = %d\n", p_err);
+ 	throw ("[vulkan] Error: VkResult = %d\n", p_err);
 }
 
 void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
