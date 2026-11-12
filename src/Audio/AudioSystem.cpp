@@ -202,6 +202,15 @@ void AudioSystem::Stop(PlaybackID id)
 void AudioSystem::SetEditorListenerActive(bool p_active)
 {
     m_daliaEngine->SetListenerActive(0, p_active);
+    
+    // Activate/deactivate listeners based if editor camera listener is active/inactive
+    for (uint32_t i = 1; i < 4; i++)
+    {
+        if (m_listenerSlots[i] != false)
+        {
+            m_daliaEngine->SetListenerActive(i, !p_active);
+        }
+    }
 }
 
 void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
