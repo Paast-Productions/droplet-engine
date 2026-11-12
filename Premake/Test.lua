@@ -82,7 +82,7 @@ project "Test"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
+		AddQuotation("lua51"),
         AddQuotation("Jolt")
     }
 
