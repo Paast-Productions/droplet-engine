@@ -35,7 +35,7 @@
                 "damage": 2.0
             },
             "id": 4,
-            "type": "DamageComponent"
+            "type": "HazardComponent"
         },
         {
             "active": true,
