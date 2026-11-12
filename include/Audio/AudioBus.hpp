@@ -8,6 +8,7 @@
 
 namespace Droplet::Audio
 {
+	class Effect;
 	class AudioMixer;
 
 
@@ -23,7 +24,7 @@ namespace Droplet::Audio
 		/// @param p_name Name
 		/// @param p_id ID
 		explicit AudioBus(const std::string& p_name, std::uint64_t p_id);
-		~AudioBus() = default;
+		~AudioBus();
 		AudioBus() = delete;
 		AudioBus(AudioBus &&) = delete;
 		AudioBus &operator=(const AudioBus &) = delete;
@@ -100,6 +101,22 @@ namespace Droplet::Audio
 		void DeserializeAudioBus(nlohmann::json p_json, std::weak_ptr<AudioBus> p_parentBus);
 		
 
+
+		//----------------------------------------
+		// Effects
+		//----------------------------------------
+		
+		/// @brief Adds a effect of the specified type to the audiobus.
+		Effect *AttachEffect(const std::string &p_effectType);
+
+		Effect *AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<int> p_effecSlot = std::nullopt);
+
+		void RemoveEffect(Effect *p_effect);
+
+		void MoveEffect(int p_fromSlot, int p_toSlot);
+
+		Effect *GetEffect(int p_slot);
+
 	private:
 
 		friend class AudioMixer;
@@ -114,5 +131,9 @@ namespace Droplet::Audio
 		std::vector<AudioBus*> m_children;
 
 		float m_volume = 1.0f;
+
+		//Effects
+		static constexpr std::size_t MAX_EFFECTS = 4; //Dalia limits the amount of effects on each bus to 4
+		std::array<std::unique_ptr<Effect>, MAX_EFFECTS> m_effects;
 	};
 }

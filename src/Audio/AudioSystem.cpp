@@ -122,3 +122,8 @@ void Droplet::Audio::AudioSystem::TestPrint()
 {
 	std::cout << "We are playing sound " << std::endl;
 }
+
+void Droplet::Audio::AudioSystem::RegisterEffects()
+{
+    //TODO Every effect type that we create in droplet gets registered here to be used later
+}

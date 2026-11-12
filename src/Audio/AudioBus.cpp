@@ -1,10 +1,17 @@
 #include "Audio/AudioBus.hpp"
 #include "Audio/AudioMixer.hpp"
+#include "Audio/EffectFactory.hpp"
+#include "Audio/Effect.hpp"
+
 
 using namespace Droplet::Audio;
 
 
 Droplet::Audio::AudioBus::AudioBus(const std::string& p_name, uint64_t p_id) : m_name(p_name), m_id(p_id)
+{
+}
+
+Droplet::Audio::AudioBus::~AudioBus()
 {
 }
 
@@ -146,4 +153,64 @@ nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()
 
 void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, std::weak_ptr<AudioBus> p_parentBus)
 {
+}
+
+Effect *Droplet::Audio::AudioBus::AttachEffect(const std::string &p_effectType)
+{
+	std::unique_ptr<Effect> effect = EffectFactory::CreateEffect(p_effectType);
+	return AttachEffect(std::move(effect));
+}
+
+Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<int> p_effecSlot)
+{
+	ZoneScoped;
+
+	if (!p_effect)
+	{
+		throw std::runtime_error("Cannot add a null effect");
+	}
+
+	int p_slot;
+
+	if (!p_effecSlot.has_value())
+	{
+		//TODO Find a free slot in the effect chain
+	}
+	else
+	{
+		p_slot = p_effecSlot.value();
+	}
+	
+	if (p_slot >= MAX_EFFECTS)
+	{
+		return nullptr;
+	}
+	
+	
+
+	m_effects[p_slot] = std::move(p_effect);
+
+	Effect *effect = p_effect.get();
+
+	effect->SetOwner(this);
+
+	if (m_effects.size() == 4)
+	{
+		// No more space for an effect ):
+	}
+
+	return nullptr;
+}
+
+void Droplet::Audio::AudioBus::RemoveEffect(Effect *p_effect)
+{
+}
+
+void Droplet::Audio::AudioBus::MoveEffect(int p_fromSlot, int p_toSlot)
+{
+}
+
+Effect *Droplet::Audio::AudioBus::GetEffect(int p_slot)
+{
+	return nullptr;
 }
