@@ -2,28 +2,108 @@
 #include "EffectRegistry.hpp"
 #include "Effects/ReverbEffect.hpp"
 #include "Allocator.hpp"
+#include "Resource/Types/SoundResource.hpp"
+#include "SceneSystem/Components/AudioEmitterComponent.hpp"
+#include <dalia/dalia.h>
+
 using namespace Droplet::Audio;
+
+void LogDaliaError(const std::string& message, dalia::Result error)
+{   
+    std::string messageStr = message + std::string(dalia::GetResultString(error));
+    Droplet::Debug::Log(Droplet::Debug::LogType::Error, messageStr);
+}
 
 bool Droplet::Audio::AudioSystem::Initialize()
 {
+    m_daliaEngine = std::make_unique<dalia::Engine>();
+    
 	dalia::EngineConfig config;
-	dalia::Result res = m_daliaEngine.Initialize(config);
+    config.coordinateSystem = dalia::CoordinateSystem::RightHanded;
+    config.listenerCapacity = 4;
+	dalia::Result res = m_daliaEngine->Initialize(config);
 	if (res != dalia::Result::Ok) return false;
     
-	m_mixer.Initialize(m_daliaEngine);
+    m_mixer.Initialize(*m_daliaEngine);
     RegisterEffects();
+    
     return true;
 }
 
 void Droplet::Audio::AudioSystem::Shutdown()
 {
-	m_daliaEngine.Shutdown();
+	m_daliaEngine->Shutdown();
     // m_mixer.Shutdown(); // Don't we need this?
 }
 
 void AudioSystem::Update()
 {
-    m_daliaEngine.Update();
+    ProcessFinishedPlaybacks(); // Clean up finished handles
+    
+    // Sync listeners
+    // for (auto* listener : m_activeListeners)
+    // {
+    //     auto pos = listener->GetWorldPosition();
+    //     auto fwd = listener->GetForwardVector();
+    //     auto up = listener->GetUpVector();
+    //     auto vel = listener->GetVelocity();
+    //     
+    //     dalia::Listener3DAttributes attributes {
+    //         .position = { pos.x, pos.y, pos.z },
+    //         .forward = { fwd.x, fwd.y, fwd.z },
+    //         .up = { up.x, up.y, up.z },
+    //         .velocity = { vel.x, vel.y, vel.z }
+    //     };
+    //     m_daliaEngine->SetListener3DAttributes(listener->GetIndex(), attributes);
+    // }
+    
+    // Sync players
+    // for (auto* player : m_activePlayers)
+    // {
+    //     PlaybackID id = player->GetPlaybackID();
+    //     auto it = m_activePlaybacks.find(id);
+    //     if (it != m_activePlaybacks.end())
+    //     {
+    //         if (player->IsDirty())
+    //         {
+    //             m_daliaEngine->SetPlaybackVolumeDb(it->second, player->GetVolumeDb);
+    //             player->ClearDirtyFlag();
+    //         }
+    //     }
+    // }
+    
+    // Sync emitters
+    for (auto* emitter : m_activeEmitters)
+    {
+        PlaybackID id = emitter->GetPlaybackID();
+        auto it = m_activePlaybacks.find(id);
+        if (it != m_activePlaybacks.end())
+        {
+            dalia::PlaybackHandle daliaHandle = it->second;
+            // Update spatial properties
+            auto pos = emitter->GetWorldPosition();
+            m_daliaEngine->SetPlaybackPosition(it->second, { pos.x, pos.y, pos.z });
+            
+            auto vel = emitter->GetVelocity();
+            m_daliaEngine->SetPlaybackVelocity(it->second, { vel.x, vel.y, vel.z });
+            
+            if (emitter->IsDirty())
+            {
+                m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, emitter->GetVolumeDb());
+                m_daliaEngine->SetPlaybackRate(daliaHandle, emitter->GetPitch());
+                m_daliaEngine->SetPlaybackLooping(daliaHandle, emitter->IsLooping());
+                m_daliaEngine->SetPlaybackMinMaxDistance(daliaHandle, emitter->GetMinDistance(), emitter->GetMaxDistance());
+                m_daliaEngine->SetPlaybackAttenuationCurve(daliaHandle, emitter->GetAttenuationCurve());
+                if (!emitter->GetBusName().empty())
+                {
+                    m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
+                }
+                emitter->ClearDirtyFlag();
+            }
+        }
+    }
+    
+    m_daliaEngine->Update();
 }
 
 std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesystem::path &p_path, SoundType p_type,
@@ -34,7 +114,7 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
     else daliaSoundType = dalia::SoundType::Stream;
     
     dalia::SoundHandle handle = dalia::INVALID_SOUND_HANDLE;
-    dalia::Result res = m_daliaEngine.LoadSoundAsync(handle, daliaSoundType, p_path.generic_string().c_str(), 
+    dalia::Result res = m_daliaEngine->LoadSoundAsync(handle, daliaSoundType, p_path.generic_string().c_str(), 
         [p_onLoad](uint32_t reqId, dalia::Result result)
     {
         if (p_onLoad)
@@ -48,94 +128,110 @@ std::unique_ptr<Droplet::SoundResource> AudioSystem::LoadSound(const std::filesy
     return nullptr;
 }
 
-void Droplet::Audio::AudioSystem::PopulatePlayBack(dalia::PlaybackHandle p_playback, dalia::SoundHandle p_soundHandle)
+void AudioSystem::UnloadSound(SoundResource *sound)
 {
-    dalia::Result res; 
-    res = m_daliaEngine.CreatePlayback(p_playback, p_soundHandle);
+    if (!sound) return;
+    m_daliaEngine->UnloadSound(sound->GetHandle());
+}
+
+void AudioSystem::RegisterEmitter(Scene::AudioEmitterComponent *emitter)
+{
+    m_activeEmitters.push_back(emitter);
+}
+
+void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
+{
+    auto it = std::find(m_activeEmitters.begin(), m_activeEmitters.end(), emitter);
+    if (it != m_activeEmitters.end()) m_activeEmitters.erase(it);
+}
+
+void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
+{
+    // for (uint32_t i = 1; i < 4; i++)
+    // {
+    //     if (!m_listenerSlots[i])
+    //     {
+    //         m_listenerSlots[i] = true;
+    //         listener->SetListenerIndex(i);
+    //         m_activeListeners.push_back(listener);
+    //         m_daliaEngine->SetListenerActive(i, true);
+    //         return;
+    //     }
+    // }
+    // Debug::Log(Debug::LogType::Error, "AudioSystem: Maximum number of listeners (3) are already in use.");
+}
+
+PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
+{
+    PlaybackID newId = m_nextPlaybackId++;
+    dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
+    
+    // Callback that fires once the playback has finished
+    auto exitCallback = [this, newId] (dalia::PlaybackHandle handle, dalia::PlaybackExitCondition condition)
+    {
+        m_finishedPlaybacks.push_back(newId);
+    };
+    
+    dalia::Result res = m_daliaEngine->CreatePlayback(daliaHandle, sound->GetHandle(), exitCallback);
     if (res != dalia::Result::Ok)
     {
-        throw std::runtime_error("Could not populate playback");
+        LogDaliaError("Failed to play 3D sound.", res);
+        return C_INVALID_PLAYBACK_ID;
     }
+    m_daliaEngine->SetPlaybackSpatial(daliaHandle, true);
+    
+    m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, emitter->GetVolumeDb());
+    m_daliaEngine->SetPlaybackRate(daliaHandle, emitter->GetPitch());
+    m_daliaEngine->SetPlaybackLooping(daliaHandle, emitter->IsLooping());
+    m_daliaEngine->SetPlaybackMinMaxDistance(daliaHandle, emitter->GetMinDistance(), emitter->GetMaxDistance());
+    m_daliaEngine->SetPlaybackAttenuationCurve(daliaHandle, emitter->GetAttenuationCurve());
+    
+    m_daliaEngine->PlayPlayback(daliaHandle);
+    m_activePlaybacks[newId] = daliaHandle;
+    return newId;
 }
 
-void Droplet::Audio::AudioSystem::ChangePlayBackVolume(dalia::PlaybackHandle p_playback, float p_volumeChange)
+void AudioSystem::Pause(PlaybackID id)
 {
-    dalia::Result res;
-    res = m_daliaEngine.SetPlaybackVolumeDb(p_playback, p_volumeChange);
-    if (res != dalia::Result::Ok)
+    auto it = m_activePlaybacks.find(id);
+    if (it != m_activePlaybacks.end()) m_daliaEngine->PausePlayback(it->second);
+}
+
+void AudioSystem::Stop(PlaybackID id)
+{
+    auto it = m_activePlaybacks.find(id);
+    if (it != m_activePlaybacks.end()) m_daliaEngine->StopPlayback(it->second);
+}
+
+void AudioSystem::SetEditorListenerActive(bool p_active)
+{
+    m_daliaEngine->SetListenerActive(0, p_active);
+    
+    // Activate/deactivate listeners based if editor camera listener is active/inactive
+    for (uint32_t i = 1; i < 4; i++)
     {
-        throw std::runtime_error("Could not change volume on playback");
+        if (m_listenerSlots[i] != false)
+        {
+            m_daliaEngine->SetListenerActive(i, !p_active);
+        }
     }
 }
 
-void Droplet::Audio::AudioSystem::SetLooping(dalia::PlaybackHandle p_playback, bool p_looping)
+void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
+    const glm::vec3 &p_up, const glm::vec3 &p_vel)
 {
-    dalia::Result res;
-    res = m_daliaEngine.SetPlaybackLooping(p_playback, p_looping);
-    if (res != dalia::Result::Ok)
-    {
-        throw std::runtime_error("Could not change playback too: " + p_looping);
-    }
-}
-
-void Droplet::Audio::AudioSystem::PlaySound(dalia::PlaybackHandle p_playback)
-{
-    dalia::Result res;
-    res = m_daliaEngine.PlayPlayback(p_playback);
-    if (res != dalia::Result::Ok)
-    {
-        throw std::runtime_error("Could not play playback");
-    }
-}
-
-void Droplet::Audio::AudioSystem::PauseSound(dalia::PlaybackHandle p_playback)
-{
-    dalia::Result res;
-    res = m_daliaEngine.PausePlayback(p_playback);
-    if (res != dalia::Result::Ok)
-    {
-        throw std::runtime_error("Could not pause playback");
-    }
-}
-
-void Droplet::Audio::AudioSystem::StopSound(dalia::PlaybackHandle p_playback)
-{
-    dalia::Result res;
-    res = m_daliaEngine.StopPlayback(p_playback);
-    if (res != dalia::Result::Ok)
-    {
-        throw std::runtime_error("Could not stop playback");
-    }
-}
-
-void Droplet::Audio::AudioSystem::RoutePlaybackToBus(dalia::PlaybackHandle p_playback, std::string p_busName)
-{
-    if (!m_mixer.HasAudioBusWithName(p_busName))
-    {
-        return;
-    }
-    dalia::Result res;
-    res = m_daliaEngine.RoutePlayback(p_playback, p_busName.c_str());
-    if (res != dalia::Result::Ok)
-    {
-        throw std::runtime_error("Could not route playback to bus:" + p_busName);
-    }
-}
-
-AudioMixer &Droplet::Audio::AudioSystem::GetMixer()
-{
-	return m_mixer;
-}
-
-void Droplet::Audio::AudioSystem::TestPrint()
-{
-	std::cout << "We are playing sound " << std::endl;
+    m_daliaEngine->SetListener3DAttributes(C_EDITOR_LISTENER_INDEX, { 
+        .position = { p_pos.x, p_pos.y, p_pos.z },
+        .forward = { p_fwd.x, p_fwd.y, p_fwd.z },
+        .up = { p_up.x, p_up.y, p_up.z },
+        .velocity = { p_vel.x, p_vel.y, p_vel.z }
+    });
 }
 
 bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params)
 {
     dalia::Result res;
-    res = m_daliaEngine.CreateEffect(p_handle, p_params);
+    res = m_daliaEngine->CreateEffect(p_handle, p_params);
     if (res != dalia::Result::Ok)
     {
         std::cout << "failed to creaate handle" << std::endl;
@@ -145,12 +241,10 @@ bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, da
     return true;
 }
 
-
-
 bool Droplet::Audio::AudioSystem::AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot)
 {
     dalia::Result res;
-    res = m_daliaEngine.AttachEffect(p_effect, p_busname.c_str(), p_slot);
+    res = m_daliaEngine->AttachEffect(p_effect, p_busname.c_str(), p_slot);
 
     if (res == dalia::Result::ExpiredHandle)
     {
@@ -170,10 +264,28 @@ bool Droplet::Audio::AudioSystem::AttachEffect(dalia::EffectHandle &p_effect, co
     return true;
 }
 
+void AudioSystem::ProcessFinishedPlaybacks()
+{
+    for (PlaybackID id : m_finishedPlaybacks)
+    {
+        m_activePlaybacks.erase(id);
+        
+        // Notify players
+        // if (auto* player : m_activePlayers) if (player->GetPlaybackID() == id) player->NotifyStopped();
+        
+        // Notify emitters
+        for (auto* emitter : m_activeEmitters)
+        {
+            if (emitter->GetPlaybackID() == id) emitter->OnPlaybackFinished();
+        }
+    }
+    
+}
+
 bool Droplet::Audio::AudioSystem::DetachEffect(dalia::EffectHandle &p_effect)
 {
     dalia::Result res;
-    res = m_daliaEngine.DetachEffect(p_effect);
+    res = m_daliaEngine->DetachEffect(p_effect);
     if (res != dalia::Result::Ok)
     {
         return false;

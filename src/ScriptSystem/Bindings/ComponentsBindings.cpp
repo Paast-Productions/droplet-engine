@@ -692,7 +692,7 @@ void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_
 {
     p_luaState.new_usertype<Scene::AudioEmitterComponent>(
         "AudioEmitterComponent",
-        "PlaySound", &Scene::AudioEmitterComponent::PlaySound
+        "PlaySound", &Scene::AudioEmitterComponent::Play
     );
 
     LuaClassDefinition classDef;

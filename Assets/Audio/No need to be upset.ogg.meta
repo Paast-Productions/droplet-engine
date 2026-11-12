@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "No need to be upset",
+            "guid": 9697576650600336670,
+            "loadFlags": 1,
+            "loadSettings": {
+                "sound_type": 1
+            },
+            "sourceName": "No need to be upset",
+            "type": 8
+        }
+    ]
+}
