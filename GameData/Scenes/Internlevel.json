@@ -1,0 +1,251 @@
+{
+    "name": "Internlevel",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor_internlevel",
+                        "meshGUID": 4598941969821183147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 175,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.5,
+                    1.5,
+                    1.5
+                ]
+            }
+        },
+        {
+            "active": true,
+            "drawLayer": 1,
+            "id": 176,
+            "name": "Prefab",
+            "prefab": "GameData\\Prefabs\\Prefab.json",
+            "transform": {
+                "position": [
+                    -4.744847297668457,
+                    -37.05613708496094,
+                    -30.758705139160156
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "drawLayer": 1,
+            "id": 178,
+            "name": "Prefab",
+            "prefab": "GameData\\Prefabs\\Prefab.json",
+            "transform": {
+                "position": [
+                    24.96713638305664,
+                    1.7561845779418945,
+                    76.82272338867188
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Exterior",
+                                "meshGUID": 7445482948709711179,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Door",
+                                "meshGUID": 10773550875263732350,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WoodTexture",
+                                "textureGUID": 1466059150086384494,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 2,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 181,
+                    "name": "Pod",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            -2.0
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "drawLayer": 1,
+                    "id": 182,
+                    "name": "Drone",
+                    "prefab": "GameData\\Prefabs\\Drone.json",
+                    "transform": {
+                        "position": [
+                            -3.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0000039339065552,
+                            1.0000039339065552
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 185,
+                    "name": "HillSeagrass",
+                    "transform": {
+                        "position": [
+                            14.77944564819336,
+                            7.4308319091796875,
+                            -6.994636535644531
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 180,
+            "name": "Spawn",
+            "transform": {
+                "position": [
+                    46.0,
+                    12.0,
+                    -20.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
