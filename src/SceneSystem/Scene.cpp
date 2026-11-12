@@ -393,11 +393,19 @@ std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frust
     return nodes;
 }
 
-std::vector<std::weak_ptr<Node>> Scene::GetNodesInBoundingBox(const Math::OBB &p_obb)
+void Scene::GetNodesInShape(const Math::AABB& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
 {
-    std::vector<std::weak_ptr<Node>> nodes;
-    nodes = m_octree.GetNodesFromOBB(p_obb);
-    return nodes;
+    m_octree.GetNodesFromAABB(p_shape, p_nodes);
+}
+
+void Scene::GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes)
+{
+    m_octree.GetNodesFromOBB(p_shape, p_nodes);
+}
+
+void Scene::GetNodesInShape(const Math::Sphere& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
+{
+    m_octree.GetNodesFromSphere(p_shape, p_nodes);
 }
 
 void Scene::InitializePhysics(const Physics::Initializer p_initializer)

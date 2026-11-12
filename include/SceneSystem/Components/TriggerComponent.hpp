@@ -1,8 +1,9 @@
 ﻿#pragma once
 
 #include <Component.hpp>
-#include <SceneSystem/Bounds/DefaultNodeBounds.hpp>
-//#include <SceneSystem/Node.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/OBB.hpp>
+#include <Math/Bounds/Sphere.hpp>
 
 namespace Droplet::Scene
 {
@@ -33,5 +34,10 @@ namespace Droplet::Scene
     private:
         bool m_isColliding = false;
         std::vector<std::weak_ptr<Node>> m_collidingNodes;
+        
+        // Trigger shapes
+        std::vector<Math::AABB> m_AABBs;
+        std::vector<Math::OBB> m_OBBs;
+        std::vector<Math::Sphere> m_spheres;
     };
 } 
