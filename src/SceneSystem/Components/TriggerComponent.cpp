@@ -197,6 +197,104 @@ void TriggerComponent::RenderUIImpl()
     }
 }
 
+nlohmann::json TriggerComponent::SerializeImpl()
+{
+    nlohmann::json json;
+    
+    json["numAabb"] = m_AABBs.size();
+    json["numObb"] = m_OBBs.size();
+    json["numSphere"] = m_spheres.size();
+    
+    for (int i = 0; i < m_AABBs.size(); i++)
+    {
+        json[std::string("aabbOffX" + std::to_string(i))] = m_AABBs[i].offset.x;
+        json[std::string("aabbOffY" + std::to_string(i))] = m_AABBs[i].offset.y;
+        json[std::string("aabbOffZ" + std::to_string(i))] = m_AABBs[i].offset.z;
+        
+        json[std::string("aabbExtX" + std::to_string(i))] = m_AABBs[i].aabb.extents.x;
+        json[std::string("aabbExtY" + std::to_string(i))] = m_AABBs[i].aabb.extents.y;
+        json[std::string("aabbExtZ" + std::to_string(i))] = m_AABBs[i].aabb.extents.z;
+    }
+    for (int i = 0; i < m_OBBs.size(); i++)
+    {
+        json[std::string("obbOffX" + std::to_string(i))] = m_OBBs[i].offset.x;
+        json[std::string("obbOffY" + std::to_string(i))] = m_OBBs[i].offset.y;
+        json[std::string("obbOffZ" + std::to_string(i))] = m_OBBs[i].offset.z;
+        
+        json[std::string("obbExtX" + std::to_string(i))] = m_OBBs[i].obb.extents.x;
+        json[std::string("obbExtY" + std::to_string(i))] = m_OBBs[i].obb.extents.y;
+        json[std::string("obbExtZ" + std::to_string(i))] = m_OBBs[i].obb.extents.z;
+        
+        glm::vec3 rot = glm::eulerAngles(glm::quat_cast(m_OBBs[i].obb.orientation));
+        json[std::string("obbRotX" + std::to_string(i))] = rot.x;
+        json[std::string("obbRotY" + std::to_string(i))] = rot.y;
+        json[std::string("obbRotZ" + std::to_string(i))] = rot.z;
+    }
+    for (int i = 0; i < m_spheres.size(); i++)
+    {
+        json[std::string("sphereOffX" + std::to_string(i))] = m_spheres[i].offset.x;
+        json[std::string("sphereOffY" + std::to_string(i))] = m_spheres[i].offset.y;
+        json[std::string("sphereOffZ" + std::to_string(i))] = m_spheres[i].offset.z;
+    
+        json[std::string("sphereRadZ" + std::to_string(i))] = m_spheres[i].sphere.radius;
+    }
+    
+    return json; 
+}
+
+void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
+{
+    m_AABBs.resize(p_compJson["numAabb"]);
+    m_OBBs.resize(p_compJson["numObb"]);
+    m_spheres.resize(p_compJson["numSphere"]);
+    
+    glm::vec3 pos = GetOwner()->GetTransform().GetPosition();
+    for (int i = 0; i < m_AABBs.size(); i++)
+    {
+        std::string idx = std::to_string(i);
+        m_AABBs[i].offset.x = p_compJson[std::string("aabbOffX" + idx)];
+        m_AABBs[i].offset.y = p_compJson[std::string("aabbOffY" + idx)];
+        m_AABBs[i].offset.z = p_compJson[std::string("aabbOffZ" + idx)];
+        
+        m_AABBs[i].aabb.extents.x = p_compJson[std::string("aabbExtX" + idx)];
+        m_AABBs[i].aabb.extents.y = p_compJson[std::string("aabbExtY" + idx)];
+        m_AABBs[i].aabb.extents.z = p_compJson[std::string("aabbExtZ" + idx)];
+        
+        m_AABBs[i].aabb.center = pos + m_AABBs[i].offset;
+    }
+    for (int i = 0; i < m_OBBs.size(); i++)
+    {
+        std::string idx = std::to_string(i);
+        m_OBBs[i].offset.x = p_compJson[std::string("obbOffX" + idx)];
+        m_OBBs[i].offset.y = p_compJson[std::string("obbOffY" + idx)];
+        m_OBBs[i].offset.z = p_compJson[std::string("obbOffZ" + idx)];
+
+        m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtX" + idx)];
+        m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtY" + idx)];
+        m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtZ" + idx)];
+        
+        glm::vec3 rot = glm::vec3(0.0f, 0.0f, 0.0f);
+        rot.x = p_compJson[std::string("obbRotX" + idx)];
+        rot.y = p_compJson[std::string("obbRotY" + idx)];
+        rot.z = p_compJson[std::string("obbRotZ" + idx)];
+        
+        m_OBBs[i].obb.orientation = glm::mat3_cast(glm::quat(rot));
+        
+        m_OBBs[i].obb.center = pos + m_OBBs[i].offset;
+    }
+    for (int i = 0; i < m_spheres.size(); i++)
+    {
+        std::string idx = std::to_string(i);
+        m_spheres[i].offset.x = p_compJson[std::string("sphereOffX" + idx)];
+        m_spheres[i].offset.y = p_compJson[std::string("sphereOffY" + idx)];
+        m_spheres[i].offset.z = p_compJson[std::string("sphereOffZ" + idx)];
+
+        m_spheres[i].sphere.radius = p_compJson[std::string("sphereRadZ" + idx)];
+        
+        m_spheres[i].sphere.center = pos + m_spheres[i].offset;
+    }
+}
+
 void TriggerComponent::AddShape(int& p_currentShape)
 {
     glm::vec3 nodePos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);

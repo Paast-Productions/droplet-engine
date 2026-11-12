@@ -30,6 +30,18 @@ namespace Droplet::Scene
         /// displays the script path. Derived components can override this
         /// function to implement their own UI rendering logic.
         void RenderUIImpl() override;
+        
+        /// @brief Internal serialization function for the component's state.
+        /// 
+        /// Overloaded by derived components to implement their own serialization logic.
+        /// @return A JSON object representing the component's state.
+        [[nodiscard]] nlohmann::json SerializeImpl() override;
+
+        /// @brief Internal deserialization function for the component's state.
+        /// 
+        /// Overloaded by derived components to implement their own deserialization logic.
+        /// @param p_compJson A JSON object containing the component's state.
+        void DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson) override;
     
     private:
         struct Trigger
