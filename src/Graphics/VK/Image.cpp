@@ -7,8 +7,7 @@
 using namespace Droplet::Graphics::VK;
 
 Image::Image(const vma::raii::Allocator &p_allocator,
-			 const Droplet::Graphics::VK::CommandPool &p_commandPool,
-			 const Droplet::Graphics::VK::Context &p_context,
+			 const vk::raii::CommandBuffer &p_commandBuffer,
 			 const std::byte *p_pixels,
 			 const std::size_t p_size,
 			 std::uint32_t p_width, 
@@ -16,14 +15,20 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 			 vk::Format p_format, 
 			 vk::ImageTiling p_tiling, 
 			 vk::ImageUsageFlags p_usage, 
-			 vk::MemoryPropertyFlags p_properties) :
+			 vk::MemoryPropertyFlags p_properties,
+			 vk::PipelineStageFlagBits2 p_dstStage,
+			 vk::AccessFlagBits2 p_dstAccess,
+			 vk::ImageLayout p_newLayout) :
 				m_extent(p_width, p_height),
 				m_format(p_format)
 {
 	
-	// CREATE NECESSARY BUFFERS
 	
 	vk::DeviceSize imageSize = p_size;
+	
+	// --------------
+	// Staging Buffer
+	// --------------
 	
 	vk::BufferCreateInfo bufferCreateInfo
 	{
@@ -33,14 +38,22 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	vma::AllocationCreateInfo allocationCreateInfo
 	{
-		.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite,
-		.usage = vma::MemoryUsage::eAuto,
+		.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite | vma::AllocationCreateFlagBits::eMapped,
+		.usage = vma::MemoryUsage::eAutoPreferHost,
 	};
 	
 	vma::raii::Buffer stagingBuffer = vma::raii::Buffer { p_allocator, bufferCreateInfo, allocationCreateInfo };
-	const vma::raii::Allocation &allocation = stagingBuffer.getAllocation();
 	
-	allocation.copyFromMemory(p_pixels, 0, imageSize);
+	{
+		const vma::raii::Allocation &stagingAllocation = stagingBuffer.getAllocation();
+		void* mappedMemory { stagingAllocation.map() };
+		std::memcpy(mappedMemory, p_pixels, p_size);
+		stagingAllocation.unmap();
+	}
+	
+	// -----
+	// Image
+	// -----
 	
 	const vk::ImageCreateInfo imageInfo
 	{ 
@@ -63,48 +76,24 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	
 	const vma::AllocationCreateInfo allocCreateInfo 
 	{
-		.flags = vma::AllocationCreateFlagBits::eHostAccessSequentialWrite | vma::AllocationCreateFlagBits::eHostAccessAllowTransferInstead | vma::AllocationCreateFlagBits::eMapped,
-		.usage = vma::MemoryUsage::eAuto,
-		.requiredFlags = p_properties,
-		.preferredFlags = p_properties, 
+		.usage = vma::MemoryUsage::eAutoPreferDevice,
+		.requiredFlags = p_properties | vk::MemoryPropertyFlagBits::eDeviceLocal,
 	};
 	
 	m_image = vma::raii::Image { p_allocator, imageInfo, allocCreateInfo };
 	
-	// SETUP DEVICE BARRIERS
+	// ---------------
+	// Memory Barriers
+	// ---------------
 	
-	vk::BufferMemoryBarrier2 stagingBufferBarrier
+	vk::ImageMemoryBarrier2 preCopyBarrier
 	{
-		.sType = vk::StructureType::eBufferMemoryBarrier2,
-		.srcStageMask = vk::PipelineStageFlagBits2::eHost,
-		.srcAccessMask = vk::AccessFlagBits2::eHostWrite,
-		.dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
-		.dstAccessMask = vk::AccessFlagBits2::eTransferRead,
-		.srcQueueFamilyIndex = vk::QueueFamilyIgnored,
-		.dstQueueFamilyIndex = vk::QueueFamilyIgnored,
-		.buffer = stagingBuffer,
-		.offset = 0,
-		.size = vk::WholeSize
-	};
-	
-	std::array<vk::BufferMemoryBarrier2, 1> bufferMemoryBarriers { stagingBufferBarrier }; 
-	
-	vk::DependencyInfo stagingDependencyInfo
-	{
-		.sType = vk::StructureType::eDependencyInfo,
-		.bufferMemoryBarrierCount = 1,
-		.pBufferMemoryBarriers = bufferMemoryBarriers.data(),
-	};
-	
-	vk::ImageMemoryBarrier2 imageBarrier 
-	{
-		.sType = vk::StructureType::eImageMemoryBarrier2,
-		.srcStageMask = vk::PipelineStageFlagBits2::eTopOfPipe,
+		.srcStageMask = {},
 		.srcAccessMask = {},
 		.dstStageMask = vk::PipelineStageFlagBits2::eTransfer,
 		.dstAccessMask = vk::AccessFlagBits2::eTransferWrite,
-		.oldLayout = vk::ImageLayout::eTransferDstOptimal,
-		.newLayout = vk::ImageLayout::eShaderReadOnlyOptimal,
+		.oldLayout = {},
+		.newLayout = vk::ImageLayout::eTransferDstOptimal,
 		.srcQueueFamilyIndex = vk::QueueFamilyIgnored,
 		.dstQueueFamilyIndex = vk::QueueFamilyIgnored,
 		.image = m_image,
@@ -118,21 +107,43 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		}
 	};
 	
-	std::array<vk::ImageMemoryBarrier2, 1> imageMemoryBarriers { imageBarrier };
+	vk::ImageMemoryBarrier2 postCopyBarrier 
+	{
+		.srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+		.srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+		.dstStageMask = p_dstStage,
+		.dstAccessMask = p_dstAccess,
+		.oldLayout = vk::ImageLayout::eTransferDstOptimal,
+		.newLayout = p_newLayout,
+		.srcQueueFamilyIndex = vk::QueueFamilyIgnored,
+		.dstQueueFamilyIndex = vk::QueueFamilyIgnored,
+		.image = m_image,
+		.subresourceRange =
+		{
+			.aspectMask = vk::ImageAspectFlagBits::eColor,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		}
+	};
+	
+	std::vector<vk::ImageMemoryBarrier2> barriers { preCopyBarrier, postCopyBarrier };
 	
 	vk::DependencyInfo imageDependencyInfo
 	{
-		.sType = vk::StructureType::eDependencyInfo,
-		.imageMemoryBarrierCount = 1,
-		.pImageMemoryBarriers = imageMemoryBarriers.data(),
+		.imageMemoryBarrierCount = 2,
+		.pImageMemoryBarriers = barriers.data(),
 	};
 	
+	p_commandBuffer.pipelineBarrier2(imageDependencyInfo);
 	
-	// PREPARE DEVICE TO DEVICE COPY
+	// ------------
+	// Copy Command
+	// ------------
 	
 	vk::BufferImageCopy2 bufferImageCopy 
 	{
-		.sType = vk::StructureType::eBufferImageCopy2,
 		.bufferOffset = 0,
 		.imageSubresource = 
 		{
@@ -155,8 +166,6 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		}
 	};
 	
-	std::array<vk::BufferImageCopy2, 1> bufferImageCopies { bufferImageCopy };
-	
 	vk::CopyBufferToImageInfo2 copyBufferToImageInfo
 	{
 		.sType = vk::StructureType::eCopyBufferToImageInfo2,
@@ -164,24 +173,10 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		.dstImage = m_image,
 		.dstImageLayout = vk::ImageLayout::eTransferDstOptimal,
 		.regionCount = 1,
-		.pRegions = bufferImageCopies.data()
+		.pRegions = &bufferImageCopy
 	};
-
-	p_commandPool.ImmediateSubmit(p_context.GetDevice(), p_context.GetQueue(),
-		[&](Droplet::Graphics::VK::CommandBuffer &p_commandBuffer)
-		{
-			TransitionImageLayout(p_commandBuffer.Get(), m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-
-			vk::BufferImageCopy region{ .bufferOffset = 0,
-									   .bufferRowLength = 0,
-									   .bufferImageHeight = 0,
-									   .imageSubresource = {.aspectMask = vk::ImageAspectFlagBits::eColor, .mipLevel = 0, .baseArrayLayer = 0, .layerCount = 1},
-									   .imageOffset = {0, 0, 0},
-									   .imageExtent = {p_width, p_height, 1} };
-			p_commandBuffer.Get().copyBufferToImage(stagingBuffer, m_image, vk::ImageLayout::eTransferDstOptimal, region);
-
-			TransitionImageLayout(p_commandBuffer.Get(), m_image, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-		});
+	
+	p_commandBuffer.copyBufferToImage2(copyBufferToImageInfo);
 }
 
 Image::Image(const vma::raii::Allocator &p_allocator,
@@ -227,4 +222,44 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 		std::print(std::cerr, "Error: {0}", e.what());
 		std::flush(std::cerr);
 	}
+}
+
+void Image::TransitionLayout(
+	const vk::raii::CommandBuffer &p_commandBuffer,
+	vk::ImageLayout p_newLayout, 
+	vk::PipelineStageFlagBits2 p_srcStage,
+	vk::PipelineStageFlagBits2 p_dstStage,
+	vk::AccessFlagBits2 p_srcAccess,
+	vk::AccessFlagBits2 p_dstAccess)
+{
+	vk::ImageMemoryBarrier2 barrier
+	{ 
+		.srcStageMask = p_srcStage,
+		.srcAccessMask = p_srcAccess,
+		.dstStageMask = p_dstStage,
+		.dstAccessMask = p_dstAccess,
+		.oldLayout = m_currentLayout,
+		.newLayout = p_newLayout,
+		.srcQueueFamilyIndex = vk::QueueFamilyIgnored,
+		.dstQueueFamilyIndex = vk::QueueFamilyIgnored,
+		.image = m_image,
+		.subresourceRange = 
+		{
+			.aspectMask = vk::ImageAspectFlagBits::eColor,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1
+		} 
+	};
+
+	vk::DependencyInfo dependencyInfo
+	{
+		.imageMemoryBarrierCount = 1,
+		.pImageMemoryBarriers = &barrier
+	};
+	
+	p_commandBuffer.pipelineBarrier2(dependencyInfo);
+	
+	m_currentLayout = p_newLayout;
 }

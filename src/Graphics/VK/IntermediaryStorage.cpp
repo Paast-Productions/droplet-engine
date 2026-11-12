@@ -13,10 +13,10 @@
 
 using namespace Droplet::Graphics::VK;
 
-void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool &p_commandPool)
+void IntermediaryStorage::Initialise(const Context &p_context, const CommandBuffer &p_commandBuffer)
 {
     m_context = &p_context;
-    m_commandPool = &p_commandPool;
+    m_commandPool = &p_commandBuffer;
     
     m_allocator = { m_context->GetInstance(), m_context->GetPhysicalDevice(), m_context->GetDevice() };
    
@@ -335,7 +335,7 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
         .type = DynamicResourceType::Image,
         .resource = std::make_unique<Image>(
             m_allocator.Get(),
-            *m_commandPool,
+            
             *m_context,
             texRes.Get()->GetPixelData().data(),
             texRes.Get()->GetPixelData().size(),
@@ -344,7 +344,10 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             vk::Format::eR8G8B8A8Unorm,
             vk::ImageTiling::eOptimal,
             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-            vk::MemoryPropertyFlagBits::eDeviceLocal)
+            vk::MemoryPropertyFlagBits::eDeviceLocal,
+            vk::AccessFlagBits2::eShaderRead,
+            vk::PipelineStageFlagBits2::eFragmentShader,
+            vk::ImageLayout::eShaderReadOnlyOptimal)
     };
     
     GUID imageGuid { GuidUtils::Generate() };

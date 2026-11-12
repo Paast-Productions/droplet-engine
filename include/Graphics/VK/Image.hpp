@@ -44,8 +44,7 @@ namespace Droplet::Graphics::VK
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
 		Image(const vma::raii::Allocator &p_allocator,
-			const CommandPool &p_commandPool,
-			const Context &p_context,
+			const vk::raii::CommandBuffer &p_commandBuffer,
 			const std::byte *p_pixels,
 			std::size_t p_size,
 			std::uint32_t p_width,
@@ -53,7 +52,10 @@ namespace Droplet::Graphics::VK
 			vk::Format p_format,
 			vk::ImageTiling p_tiling,
 			vk::ImageUsageFlags p_usage,
-			vk::MemoryPropertyFlags p_properties);
+			vk::MemoryPropertyFlags p_properties,
+			vk::PipelineStageFlagBits2 p_dstStage,
+			vk::AccessFlagBits2 p_dstAccess,
+			vk::ImageLayout p_newLayout);
 		
 		/// @brief Constructor for creating an imageview
 		/// @param p_allocator VMA RAII Allocator
@@ -103,6 +105,14 @@ namespace Droplet::Graphics::VK
 			return m_image == p_other.m_image;
 		}
 		
+		void TransitionLayout(
+			const vk::raii::CommandBuffer &p_commandBuffer,
+			vk::ImageLayout p_newLayout, 
+			vk::PipelineStageFlagBits2 p_srcStage,
+			vk::PipelineStageFlagBits2 p_dstStage,
+			vk::AccessFlagBits2 p_srcAccess,
+			vk::AccessFlagBits2 p_dstAccess);
+		
 		/// @brief Image getter
 		/// @return pointer to the image
 		[[nodiscard]] const vma::raii::Image &Get() const { return m_image; }
@@ -113,8 +123,9 @@ namespace Droplet::Graphics::VK
 
 	private:
 		vma::raii::Image m_image { nullptr };
-		vk::Extent2D m_extent { 960, 480 };
+		vk::Extent2D m_extent { 854, 480 };
 		vk::Format m_format {};
+		vk::ImageLayout m_currentLayout {};
 		
 	};
 }

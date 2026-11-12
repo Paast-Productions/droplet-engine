@@ -263,8 +263,8 @@ namespace Droplet::Graphics::VK
         
         /// @brief Initialise the intermediary storage layer
         /// @param p_context Vulkan Context
-        /// @param p_commandPool
-        void Initialise(const Context &p_context, const CommandPool &p_commandPool);
+        /// @param p_commandBuffer
+        void Initialise(const Context &p_context, const CommandBuffer &p_commandBuffer);
         
         /// @brief Shutdown and clear all vulkan memory allocations  
         void Shutdown();
@@ -298,8 +298,8 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] std::vector<vk::DescriptorSet> GetDescriptorSets() const; 
         
         // Vulkan Context Pointer (non-owning)
-        const Context *m_context = nullptr;
-        const CommandPool *m_commandPool = nullptr;
+        const Context *m_context { nullptr };
+        const CommandBuffer *m_commandBuffer { nullptr };
         
         // Vulkan thingies
         Allocator m_allocator { nullptr };
