@@ -1265,6 +1265,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
 
+			ImGuizmo::AllowAxisFlip(false);
+
 			bool result = ImGuizmo::Manipulate(
 				&(camViewMat[0][0]),	// View matrix
 				&(camProjMat[0][0]),	// Projection matrix
