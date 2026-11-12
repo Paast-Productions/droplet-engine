@@ -9,6 +9,10 @@
 
 using namespace Droplet::Scene;
 
+void Component::Construct()
+{
+}
+
 void Component::Start()
 {
 	[[unlikely]]

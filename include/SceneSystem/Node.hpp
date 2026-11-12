@@ -64,6 +64,9 @@ namespace Droplet::Scene
         // Copy & Move is disabled to ensure pointers always remain valid
         // Copying/Moving a Node should be explicit and manual
 
+        /// @brief Called when the Node is constructed.
+        void Construct();
+
         /// @brief Starts the Node, its Components, and its children.
         ///
         /// Calls OnStart() on all Components attached to this Node and then

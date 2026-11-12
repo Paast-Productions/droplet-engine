@@ -6,6 +6,14 @@
 
 using namespace Droplet::Scene;
 
+void Behaviour::Construct()
+{
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	ConstructImpl();
+}
+
 void Behaviour::Start()
 {
 	if (IsSingleton())

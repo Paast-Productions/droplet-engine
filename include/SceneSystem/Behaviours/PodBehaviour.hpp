@@ -17,16 +17,26 @@ namespace Droplet::Scene
 
         [[nodiscard]] bool IsSingleton() override { return true; }
 
-        void AddPodComponent(std::weak_ptr<PodComponent> podComponent);
-		void RemovePodComponent(PodComponent *podComponent);
+        void AddPodComponent(std::weak_ptr<PodComponent> p_podComponent);
+		void RemovePodComponent(PodComponent *p_podComponent);
 
-		std::weak_ptr<PodComponent> GetPodInScene(std::weak_ptr<Scene> scene) const;
+		std::weak_ptr<PodComponent> GetPodInScene(std::weak_ptr<Scene> p_scene) const;
+		std::weak_ptr<PodComponent> GetPodInScene(std::string p_sceneName);
+
+		void BeginTransition(std::weak_ptr<Scene> p_targetScene, std::weak_ptr<Scene> p_currentScene);
 
     protected:
+
+		void PreUpdateImpl() override;
         void RenderUIImpl() override;
 
     private:
         std::vector<std::weak_ptr<PodComponent>> m_podComponents;
-        //std::weak_ptr<Node> m_player;
+
+        std::weak_ptr<Scene> m_podScene;
+        std::weak_ptr<Scene> m_targetScene;
+
+		float m_transitionTime = 5.0f;
+		float m_transitionTimer = 0.0f;
     };
 }

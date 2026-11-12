@@ -25,11 +25,30 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "meshGUID": 783955779018406974,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 21,
-            "name": "Mesh Node",
+            "id": 28,
+            "name": "Seafloor",
             "transform": {
                 "position": [
                     0.0,
@@ -51,10 +70,113 @@
         },
         {
             "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "drawLayer": 1,
+                    "id": 30,
+                    "name": "Exterior",
+                    "prefab": "GameData\\Prefabs\\Pod Exterior.json",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Door",
+                                "meshGUID": 10773550875263732350,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "meshGUID": 10773550875263732350,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 31,
+                    "name": "Door",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "drone": 32
+                    },
+                    "id": 1,
+                    "type": "PodComponent"
+                }
+            ],
             "drawLayer": 1,
-            "id": 23,
+            "id": 29,
             "name": "Seafloor Pod",
-            "prefab": "GameData\\Prefabs\\Seafloor Pod.json",
             "transform": {
                 "position": [
                     12.871041297912598,
@@ -71,6 +193,31 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "drawLayer": 1,
+            "id": 32,
+            "name": "BaseDrone",
+            "prefab": "GameData\\Prefabs\\BaseDrone.json",
+            "transform": {
+                "position": [
+                    12.871041297912598,
+                    8.646636962890625,
+                    -0.05177447199821472
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
                 ]
             }
         }

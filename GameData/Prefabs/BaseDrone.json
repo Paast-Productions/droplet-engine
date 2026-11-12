@@ -28,13 +28,13 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 92,
+            "id": 13,
             "name": "Mesh",
             "transform": {
                 "position": [
-                    0.0,
-                    -0.09999960660934448,
-                    -0.09999960660934448
+                    -0.00014019012451171875,
+                    0.42750000953674316,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -43,9 +43,9 @@
                     0.0
                 ],
                 "scale": [
-                    0.5,
-                    0.5,
-                    0.5
+                    0.25,
+                    0.25,
+                    0.25
                 ]
             }
         },
@@ -58,7 +58,7 @@
                     "data": {
                         "autoRender": true,
                         "camera": {
-                            "fov": 45.0,
+                            "fov": 80.0,
                             "planes": [
                                 0.10000000149011612,
                                 100.0
@@ -67,8 +67,8 @@
                         "drawLayerMask": 65471,
                         "priority": 0,
                         "resolution": [
-                            256,
-                            256
+                            512,
+                            512
                         ]
                     },
                     "id": 1,
@@ -76,12 +76,12 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 93,
+            "id": 14,
             "name": "Camera",
             "transform": {
                 "position": [
-                    0.0,
-                    0.0,
+                    -0.0001468658447265625,
+                    0.550000011920929,
                     0.0
                 ],
                 "rotation": [
@@ -110,9 +110,9 @@
                 "meshGUID": 0,
                 "motionType": 2,
                 "offsetX": 0.0,
-                "offsetY": 0.0,
+                "offsetY": 0.4999998211860657,
                 "offsetZ": 0.0,
-                "r": 1.0,
+                "r": 0.7499995827674866,
                 "shapeType": 2
             },
             "id": 2,
@@ -121,20 +121,20 @@
         {
             "active": true,
             "data": {
-                "filepath": "Engine_Side/DroneControl2.lua"
+                "filepath": "DroneControl2.lua"
             },
             "id": 3,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 91,
+    "id": 12,
     "name": "BaseDrone",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            12.871041297912598,
+            8.646636962890625,
+            -0.05177447199821472
         ],
         "rotation": [
             1.0,

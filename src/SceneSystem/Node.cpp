@@ -30,6 +30,29 @@ Node::~Node()
 	}
 }
 
+void Node::Construct()
+{
+	auto scene = m_scene.lock();
+
+	if (!scene || !scene->IsActive())
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
+	for (auto &component : m_components)
+	{
+		component->Construct();
+	}
+
+	for (auto &child : m_children)
+	{
+		child->Construct();
+	}
+}
+
 void Node::Start()
 {
 	if (!m_active || m_started)
@@ -58,6 +81,7 @@ void Node::Start()
 	{
 		child->Start();
 	}
+
 }
 
 void Node::Update()

@@ -35,6 +35,9 @@ namespace Droplet::Scene
 		/// @return True if the Behaviour is a singleton, false otherwise.
 		virtual bool IsSingleton() { return false; }
 
+        /// @brief Called when the Behaviour is constructed.
+        void Construct();
+
         /// @brief Called when the Behaviour is started.
         void Start();
 
@@ -99,6 +102,11 @@ namespace Droplet::Scene
         }
 
     protected:
+
+        /// @brief Called when the Behaviour is constructed.
+        ///
+        /// Derived behaviours can override this function to perform construction logic.
+        virtual void ConstructImpl() {}
 
         /// @brief Called when the Behaviour is started.
         ///

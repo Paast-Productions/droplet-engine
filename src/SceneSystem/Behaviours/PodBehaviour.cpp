@@ -2,12 +2,13 @@
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Components/PodComponent.hpp>
+#include <Time.hpp>
 
 using namespace Droplet::Scene;
 
-void PodBehaviour::AddPodComponent(std::weak_ptr<PodComponent> podComponent)
+void PodBehaviour::AddPodComponent(std::weak_ptr<PodComponent> p_podComponent)
 {
-	if (podComponent.expired())
+	if (p_podComponent.expired())
 	{
 		return; // Invalid PodComponent
 	}
@@ -20,43 +21,43 @@ void PodBehaviour::AddPodComponent(std::weak_ptr<PodComponent> podComponent)
 			continue; // Skip expired weak pointers
 		}
 
-		if (existingPodComponentShared == podComponent.lock())
+		if (existingPodComponentShared == p_podComponent.lock())
 		{
 			return; // Already added
 		}
 
-		if (existingPodComponentShared->GetOwner()->GetScene() == podComponent.lock()->GetOwner()->GetScene())
+		if (existingPodComponentShared->GetOwner()->GetScene() == p_podComponent.lock()->GetOwner()->GetScene())
 		{
 			return; // A PodComponent from the same scene is already registered
 		}
 	}
 
-	m_podComponents.push_back(podComponent);
+	m_podComponents.push_back(p_podComponent);
 }
 
-void PodBehaviour::RemovePodComponent(PodComponent *podComponent)
+void PodBehaviour::RemovePodComponent(PodComponent *p_podComponent)
 {
-	if (!podComponent)
+	if (!p_podComponent)
 	{
 		return; // Invalid PodComponent
 	}
 
 	auto it = std::remove_if(m_podComponents.begin(), m_podComponents.end(),
-		[&podComponent](const std::weak_ptr<PodComponent> &existingPodComponent) {
+		[&p_podComponent](const std::weak_ptr<PodComponent> &existingPodComponent) {
 			auto existingPodComponentShared = existingPodComponent.lock();
 			if (!existingPodComponentShared)
 			{
 				return true; // Remove expired weak pointers
 			}
-			return existingPodComponentShared.get() == podComponent;
+			return existingPodComponentShared.get() == p_podComponent;
 		});
 
 	m_podComponents.erase(it, m_podComponents.end());
 }
 
-std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::weak_ptr<Scene> scene) const
+std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::weak_ptr<Scene> p_scene) const
 {
-	auto sceneShared = scene.lock();
+	auto sceneShared = p_scene.lock();
 	if (!sceneShared)
 	{
 		return std::weak_ptr<PodComponent>();
@@ -77,6 +78,137 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::weak_ptr<Scene> sce
 	}
 
 	return std::weak_ptr<PodComponent>();
+}
+
+std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::string p_sceneName)
+{
+	// Try to find the scene by name, if failed, load the scene
+
+	for (const auto &podComponent : m_podComponents)
+	{
+		auto podComponentShared = podComponent.lock();
+		if (!podComponentShared)
+		{
+			continue;
+		}
+
+		if (podComponentShared->GetOwner()->GetScene()->GetName() == p_sceneName)
+		{
+			return podComponent;
+		}
+	}
+
+	GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/" + p_sceneName + ".json");
+	GetSceneManager()->GetScene(p_sceneName);
+
+	return std::weak_ptr<PodComponent>();
+}
+
+void PodBehaviour::BeginTransition(std::weak_ptr<Scene> p_targetScene, std::weak_ptr<Scene> p_currentScene)
+{
+	auto podInTargetScene = GetPodInScene(p_targetScene).lock();
+
+	if (!podInTargetScene)
+	{
+		return; // No pod in the target scene, cannot transition
+	}
+
+	// If moving from the boat scene, set the pod player node's position and rotation 
+	// to match the boat player node's position and rotation relative to the pod node.
+	if (auto currentSceneShared = p_currentScene.lock())
+	{
+		if (currentSceneShared->GetName() == "BoatScene")
+		{
+			auto boatPod = GetPodInScene(currentSceneShared).lock();
+			auto podPod = GetPodInScene(m_podScene).lock();
+
+			auto boatPodNode = boatPod->GetOwner();
+			auto podPodNode = podPod->GetOwner();
+
+			auto boatPlayerNode = boatPod->GetPlayerNode().lock();
+			auto podPlayerNode = podPod->GetPlayerNode().lock();
+
+			// Ensure all nodes are valid before proceeding
+			if (boatPlayerNode && podPlayerNode && boatPodNode && podPodNode)
+			{
+				// Set the pod player node's position and rotation to match the boat 
+				// player node's position and rotation relative to the boat pod node.
+
+				glm::mat4 boatPodWorld = boatPodNode->GetTransform().GetMatrix(Transform::Space::World);
+				glm::mat4 podPodWorld = podPodNode->GetTransform().GetMatrix(Transform::Space::World);
+
+				glm::mat4 boatPlayerLocal = glm::inverse(boatPodWorld) * boatPlayerNode->GetTransform().GetMatrix(Transform::Space::World);
+				glm::mat4 podPlayerWorld = podPodWorld * boatPlayerLocal;
+
+				podPlayerNode->GetTransform().SetMatrix(podPlayerWorld, Transform::Space::World);
+			}
+		}
+	}
+
+	// Set the current scene to inactive and activate the pod scene
+
+
+	m_targetScene = p_targetScene;
+	m_transitionTimer = m_transitionTime; // Start the transition timer
+}
+
+void PodBehaviour::PreUpdateImpl()
+{
+	if (m_transitionTimer > 0.0f)
+	{
+		m_transitionTimer -= Time::Get().GetDeltaTime();
+
+		if (m_transitionTimer <= 0.0f)
+		{
+			// Transition complete, activate the target scene and deactivate the current scene
+
+			// If moving to the boat scene, set the boat player node's position and rotation
+			// to match the pod player node's position and rotation relative to the pod node.
+			if (auto targetScene = m_targetScene.lock())
+			{
+				if (targetScene->GetName() == "BoatScene")
+				{
+					auto boatPod = GetPodInScene(targetScene).lock();
+					auto podPod = GetPodInScene(m_podScene).lock();
+
+					auto boatPodNode = boatPod->GetOwner();
+					auto podPodNode = podPod->GetOwner();
+
+					auto boatPlayerNode = boatPod->GetPlayerNode().lock();
+					auto podPlayerNode = podPod->GetPlayerNode().lock();
+
+					// Ensure all nodes are valid before proceeding
+					if (boatPlayerNode && podPlayerNode && boatPodNode && podPodNode)
+					{
+						// Set the boat player node's position and rotation to match the pod 
+						// player node's position and rotation relative to the pod node.
+
+						glm::mat4 podPodWorld = podPodNode->GetTransform().GetMatrix(Transform::Space::World);
+						glm::mat4 boatPodWorld = boatPodNode->GetTransform().GetMatrix(Transform::Space::World);
+
+						glm::mat4 podPlayerLocal = glm::inverse(podPodWorld) * podPlayerNode->GetTransform().GetMatrix(Transform::Space::World);
+						glm::mat4 boatPlayerWorld = boatPodWorld * podPlayerLocal;
+
+						boatPlayerNode->GetTransform().SetMatrix(boatPlayerWorld, Transform::Space::World);
+					}
+				}
+
+				// Activate the target scene
+				targetScene->SetActive(true);
+
+				// Deactivate the current scene (the pod scene)
+				if (auto podScene = m_podScene.lock())
+				{
+					podScene->SetActive(false);
+				}
+			}
+
+			// Clear the target scene and reset the transition timer
+			m_transitionTimer = 0.0f;
+			m_targetScene = {};
+		}
+	}
+
 }
 
 void PodBehaviour::RenderUIImpl()

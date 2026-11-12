@@ -40,6 +40,9 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         virtual std::string_view GetTypeName() const = 0;
 
+		/// @brief Called when the Component is constructed.
+        void Construct();
+
         /// @brief Called when the owning Node starts.
         ///
         /// Called when the owning Node starts participating in an active Scene.
@@ -151,6 +154,8 @@ namespace Droplet::Scene
         virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
 
     protected:
+
+        virtual void ConstructImpl() {}
 
         virtual void StartImpl() {}
 
