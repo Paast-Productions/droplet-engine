@@ -8,7 +8,6 @@ Droplet::Scene::AudioPlayerComponent::AudioPlayerComponent()
 
 void Droplet::Scene::AudioPlayerComponent::StartImpl()
 {
-	m_mixer = &Audio::AudioSystem::GetInstance().GetMixer();
 }
 
 void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
