@@ -501,7 +501,10 @@ void HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("New Scene"))
     {
         std::string name = "New Scene";
-        m_editorContext->GetActiveScene().lock()->SetActive(false);
+
+		auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+        sceneManager.DeactivateScene(m_editorContext->GetActiveScene().lock()->GetName());
+
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
 
@@ -519,7 +522,9 @@ void HierarchyWindow::DrawSceneWindow()
 		{
 			if (ImGui::MenuItem(sceneName.c_str()))
 			{
-                m_editorContext->GetActiveScene().lock()->SetActive(false);
+                auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+                sceneManager.DeactivateScene(m_editorContext->GetActiveScene().lock()->GetName());
+
 				m_editorContext->SetActiveScene(sceneName);
 
                 std::strncpy(fileName, sceneName.c_str(), sceneName.size() - 1);
@@ -579,7 +584,10 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 	// Only handle interactions if the item is visible to avoid unnecessary processing for off-screen items
     if (visible)
     {
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Left) && !ImGui::IsItemToggledOpen())
+		bool pressedThis = ImGui::IsMouseReleased(ImGuiMouseButton_Left) && ImGui::IsItemHovered(ImGuiHoveredFlags_None);
+		bool hasPayload = ImGui::GetDragDropPayload() != nullptr;
+
+        if (pressedThis && !hasPayload && !ImGui::IsItemToggledOpen())
         {
             InteractionState &interactionState = m_editorContext->GetInteractionState();
             const ImGuiIO &io = ImGui::GetIO();
@@ -653,8 +661,6 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 
             ImGui::EndDragDropSource();
         }
-
-
 
         if (ImGui::BeginPopupContextItem())
         {
