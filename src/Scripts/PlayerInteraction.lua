@@ -73,7 +73,7 @@ local function GetInteractionTarget()
         local targets = scene:RaycastNodes(ray)
 
         for _, target in ipairs(targets) do
-            if target ~= nil and target:IsActive() then
+            if target ~= nil then
                 local interactable = target:GetInteractableComponent()
 
                 if interactable ~= nil then
