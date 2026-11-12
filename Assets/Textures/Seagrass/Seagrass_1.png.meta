@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "kelp_base",
-            "guid": 14395557324987730134,
+            "displayName": "Seagrass_1",
+            "guid": 2607725849735900435,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "kelp_base",
+            "sourceName": "Seagrass_1",
             "type": 1
         }
     ]

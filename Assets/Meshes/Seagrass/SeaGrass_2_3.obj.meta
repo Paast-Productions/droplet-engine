@@ -1,15 +1,15 @@
 {
     "resources": [
         {
-            "displayName": "Cube",
-            "guid": 11826856059252580296,
+            "displayName": "Seagrass_2_3",
+            "guid": 3081441314991358938,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
                 "join_identical_vertices": true,
                 "triangulate": true
             },
-            "sourceName": "Cube",
+            "sourceName": "Seagrass_2_3",
             "type": 3
         }
     ]
