@@ -13,6 +13,10 @@ namespace Droplet::Audio
 
 		[[nodiscard]] std::string GetEffectTypeName() const override { return "ReverbEffect"; }
 		void Initilize();
+
+	protected:
+		void StartImpl();
+
 	private:
 
 	};

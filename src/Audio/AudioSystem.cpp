@@ -1,5 +1,6 @@
 #include "Audio/AudioSystem.hpp"
-
+#include "EffectRegistry.hpp"
+#include "Effects/ReverbEffect.hpp"
 #include "Allocator.hpp"
 using namespace Droplet::Audio;
 
@@ -10,7 +11,7 @@ bool Droplet::Audio::AudioSystem::Initialize()
 	if (res != dalia::Result::Ok) return false;
     
 	m_mixer.Initialize(m_daliaEngine);
-    
+    RegisterEffects();
     return true;
 }
 
@@ -131,7 +132,57 @@ void Droplet::Audio::AudioSystem::TestPrint()
 	std::cout << "We are playing sound " << std::endl;
 }
 
+bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params)
+{
+    dalia::Result res;
+    res = m_daliaEngine.CreateEffect(p_handle, p_params);
+    if (res != dalia::Result::Ok)
+    {
+        std::cout << "failed to creaate handle" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
+
+
+bool Droplet::Audio::AudioSystem::AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot)
+{
+    dalia::Result res;
+    res = m_daliaEngine.AttachEffect(p_effect, p_busname.c_str(), p_slot);
+
+    if (res == dalia::Result::ExpiredHandle)
+    {
+        std::cout << "Expired" << std::endl;
+    }
+
+    if (res == dalia::Result::InvalidHandle)
+    {
+        std::cout << "Invalid" << std::endl;
+    }
+
+    if (res != dalia::Result::Ok)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool Droplet::Audio::AudioSystem::DetachEffect(dalia::EffectHandle &p_effect)
+{
+    dalia::Result res;
+    res = m_daliaEngine.DetachEffect(p_effect);
+    if (res != dalia::Result::Ok)
+    {
+        return false;
+    }
+    return true;
+}
+
 void Droplet::Audio::AudioSystem::RegisterEffects()
 {
     //TODO Every effect type that we create in droplet gets registered here to be used later
+    EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
 }

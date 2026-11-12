@@ -19,7 +19,7 @@ namespace Droplet::Audio
 	class AudioBus
 	{
 	public:
-
+		static constexpr std::size_t MAX_EFFECTS = 4; //Dalia limits the amount of effects on each bus to 4
 		/// @brief Bus initilization, setting the name and id for that audiobus
 		/// @param p_name Name
 		/// @param p_id ID
@@ -109,13 +109,16 @@ namespace Droplet::Audio
 		/// @brief Adds a effect of the specified type to the audiobus.
 		Effect *AttachEffect(const std::string &p_effectType);
 
-		Effect *AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<int> p_effecSlot = std::nullopt);
+		Effect *AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<uint32_t> p_effecSlot = std::nullopt);
 
 		void RemoveEffect(Effect *p_effect);
+		void RemoveEffect(uint32_t p_slot);
 
 		void MoveEffect(int p_fromSlot, int p_toSlot);
 
 		Effect *GetEffect(int p_slot);
+
+		const std::array<std::unique_ptr<Effect>, MAX_EFFECTS> &GetAllEffects() const { return m_effects; }
 
 	private:
 
@@ -126,6 +129,8 @@ namespace Droplet::Audio
 
 		bool m_active = false;
 
+		bool m_started = false;
+
 		//Family
 		AudioBus* m_parent = nullptr;
 		std::vector<AudioBus*> m_children;
@@ -133,7 +138,7 @@ namespace Droplet::Audio
 		float m_volume = 1.0f;
 
 		//Effects
-		static constexpr std::size_t MAX_EFFECTS = 4; //Dalia limits the amount of effects on each bus to 4
+
 		std::array<std::unique_ptr<Effect>, MAX_EFFECTS> m_effects;
 	};
 }

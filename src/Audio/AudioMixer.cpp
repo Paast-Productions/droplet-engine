@@ -11,6 +11,7 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 	m_daliaEngine = &p_dalia;
 	const uint64_t masterID = m_nextBusID++;
 	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID);
+	master->m_started = true;
 	m_masterBus = master.get();
 	m_buses.emplace(masterID, std::move(master));
 
@@ -67,7 +68,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 	}
 
 	SetBusParent(busPointer, p_parent);
-
+	busPointer->m_started = true; //HACK Maybe change this when doing deserialization of different mixes
 	m_nextBusID++;
 
 	return busPointer;

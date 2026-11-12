@@ -161,7 +161,7 @@ Effect *Droplet::Audio::AudioBus::AttachEffect(const std::string &p_effectType)
 	return AttachEffect(std::move(effect));
 }
 
-Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<int> p_effecSlot)
+Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<uint32_t> p_effecSlot)
 {
 	ZoneScoped;
 
@@ -170,40 +170,97 @@ Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect,
 		throw std::runtime_error("Cannot add a null effect");
 	}
 
-	int p_slot;
+	uint32_t slot = MAX_EFFECTS + 1;
+
+	bool foundSlot = false;
 
 	if (!p_effecSlot.has_value())
 	{
-		//TODO Find a free slot in the effect chain
+		for (uint32_t i = 0; i < MAX_EFFECTS; ++i)
+		{
+			if (!m_effects[i])
+			{
+				slot = i;
+				break;
+			}
+		}
 	}
 	else
 	{
-		p_slot = p_effecSlot.value();
+		slot = p_effecSlot.value();
+
 	}
 	
-	if (p_slot >= MAX_EFFECTS)
+	if (slot >= MAX_EFFECTS)
 	{
 		return nullptr;
 	}
+
+	m_effects[slot] = std::move(p_effect); // HACK This would replace the effect in the spot that is selected, do we want this or should we reject new effect?
 	
-	
-
-	m_effects[p_slot] = std::move(p_effect);
-
-	Effect *effect = p_effect.get();
-
-	effect->SetOwner(this);
-
-	if (m_effects.size() == 4)
+	if (m_started)
 	{
-		// No more space for an effect ):
+		m_effects[slot].get()->Start();
 	}
 
-	return nullptr;
+	m_effects[slot]->SetOwner(this);
+	if (!AudioSystem::GetInstance().AttachEffect(m_effects[slot]->GetEffectHandle(), m_name, slot))
+	{
+		return nullptr;
+	}
+
+
+	return m_effects[slot].get();
 }
 
 void Droplet::Audio::AudioBus::RemoveEffect(Effect *p_effect)
 {
+	if (!p_effect)
+	{
+		return;
+	}
+	uint32_t slot = MAX_EFFECTS + 1;
+	for (uint32_t i = 0; i < MAX_EFFECTS; ++i)
+	{
+		if (m_effects[i].get() == p_effect)
+		{
+			slot = i;
+			break;
+		}
+	}
+
+	if (slot >= MAX_EFFECTS)
+	{
+		return;
+	}
+
+	if (!AudioSystem::GetInstance().DetachEffect(p_effect->GetEffectHandle()))
+	{
+		return;
+	}
+
+	m_effects[slot].reset();
+
+}
+
+void Droplet::Audio::AudioBus::RemoveEffect(uint32_t p_slot)
+{
+	if (p_slot >= MAX_EFFECTS)
+	{
+		return;
+	}
+
+	if (!m_effects[p_slot])
+	{
+		return;
+	}
+
+	if (!AudioSystem::GetInstance().DetachEffect(m_effects[p_slot]->GetEffectHandle()))
+	{
+		return;
+	}
+
+	m_effects[p_slot].reset();
 }
 
 void Droplet::Audio::AudioBus::MoveEffect(int p_fromSlot, int p_toSlot)

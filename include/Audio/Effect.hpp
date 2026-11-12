@@ -26,7 +26,16 @@ namespace Droplet::Audio
 
 		[[nodiscard]] AudioBus *GetOwner() const;
 
-		dalia::EffectHandle GetEffectHandle() { return m_effectHandle; }
+		dalia::EffectHandle &GetEffectHandle() { return m_effectHandle; }
+
+		void Start();
+
+		void RenderUI();
+
+		bool IsActive() { return m_active; }
+		void SetActive(bool p_active);
+
+		
 
 	protected:
 
@@ -48,6 +57,9 @@ namespace Droplet::Audio
 		void SetOwner(AudioBus *p_owner);
 
 		dalia::EffectHandle m_effectHandle;
+
+		bool m_active = false;
+		bool m_started = false;
 
 	};
 }

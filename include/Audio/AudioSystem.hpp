@@ -39,7 +39,9 @@ namespace Droplet::Audio
 		AudioMixer &GetMixer();
 
 		void TestPrint();
-	
+		bool CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params);
+		bool AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot);
+		bool DetachEffect(dalia::EffectHandle &p_effect);
 
 	private:
 	    AudioSystem() = default;
