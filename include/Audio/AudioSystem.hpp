@@ -23,7 +23,7 @@ namespace Droplet::Audio
     class dalia::PlaybackHandle;
     
     // TODO: Do we need this?
-    enum class AudioState : uint8_t
+    enum class PlaybackState : uint8_t
     {
         Playing = 0,
         Paused = 1, 
@@ -50,6 +50,7 @@ namespace Droplet::Audio
 	    
 	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
 	         std::function<void(bool)> p_onLoad);
+	    void UnloadSound(SoundResource* sound);
 	    
 	    // Component registration
 	    void RegisterPlayer(Scene::AudioPlayerComponent* player);
@@ -66,6 +67,8 @@ namespace Droplet::Audio
 	    void Pause(PlaybackID id);
 	    void Stop(PlaybackID id);
 	    void SetVolume(PlaybackID id, float volume);
+	    
+	    AudioMixer& GetMixer() { return m_mixer; }
 
 	private:
 	    AudioSystem() = default;
@@ -83,7 +86,8 @@ namespace Droplet::Audio
 	    
 	    std::vector<Scene::AudioPlayerComponent*> m_activePlayers;
 	    std::vector<Scene::AudioEmitterComponent*> m_activeEmitters;
-	    std::vector<Scene::AudioListenerComponent*> m_activeListeners;
 	    
+	    std::vector<Scene::AudioListenerComponent*> m_activeListeners;
+	    bool m_listenerSlots[4] = { false, false, false, false };
 	};
 }

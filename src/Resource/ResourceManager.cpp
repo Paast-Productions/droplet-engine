@@ -275,6 +275,11 @@ namespace Droplet
         {
             if (--it->second.refCount == 0)
             {
+                if (it->second.type == ResourceType::Sound)
+                {
+                    Audio::AudioSystem::GetInstance().UnloadSound(reinterpret_cast<SoundResource*>(it->second.resource.get()));
+                }
+                
                 m_liveResources.erase(it);
             }
         }

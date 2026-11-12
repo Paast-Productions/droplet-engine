@@ -36,6 +36,7 @@ namespace Droplet
 	{
 		std::unique_ptr<IResource> resource = nullptr;
 		ResourceState state = ResourceState::Unloaded;
+	    ResourceType type = ResourceType::None;
 		uint32_t refCount = 0;
 		
 		std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
@@ -129,6 +130,8 @@ namespace Droplet
 			{
 				// Resource was just created in-place -> Update its state
 				it->second.state = ResourceState::LoadingAsync;
+			    if constexpr (std::is_same_v<T, SoundResource>) it->second.type = ResourceType::Sound;
+			    else it->second.type = ResourceTraits<T>::GetType();
 				it->second.refCount = 0; // Incremented when handle is constructed
 				loadAsync = true;
 			}
@@ -147,15 +150,15 @@ namespace Droplet
 					// Resource is not loaded and has not failed -> Store callback until loaded
 					// Capture handle by value inside lambda to guarantee that ref count is >= 1
 					it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
-						{
-							p_onLoadCallback(handle);
-						});
+					{
+						p_onLoadCallback(handle);
+					});
 				}
 			}
 			
 			if (loadAsync)
 			{
-			    if constexpr (std::is_same_v<T, SoundResource>)
+			    if constexpr (std::is_same_v<T, SoundResource>) 
 			    {
 			        SoundType type = metaEntry.loadSettings.value(MetaLoadSettings::C_SOUND_TYPE.key, MetaLoadSettings::C_SOUND_TYPE.defaultValue);
 			        auto capturedGuid = metaEntry.guid;
