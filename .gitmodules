@@ -45,4 +45,4 @@
 	url = git@github.com:Paast-Productions/Droplet-ImGuizmo.git
 [submodule "External/LuaJIT"]
 	path = External/LuaJIT
-	url = https://luajit.org/git/luajit.git
+	url = git@github.com:LuaJIT/LuaJIT.git
