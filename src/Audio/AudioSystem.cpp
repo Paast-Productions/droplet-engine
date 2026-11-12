@@ -141,6 +141,22 @@ void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
     if (it != m_activeEmitters.end()) m_activeEmitters.erase(it);
 }
 
+void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
+{
+    // for (uint32_t i = 1; i < 4; i++)
+    // {
+    //     if (!m_listenerSlots[i])
+    //     {
+    //         m_listenerSlots[i] = true;
+    //         listener->SetListenerIndex(i);
+    //         m_activeListeners.push_back(listener);
+    //         m_daliaEngine->SetListenerActive(i, true);
+    //         return;
+    //     }
+    // }
+    // Debug::Log(Debug::LogType::Error, "AudioSystem: Maximum number of listeners (3) are already in use.");
+}
+
 PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
 {
     PlaybackID newId = m_nextPlaybackId++;
