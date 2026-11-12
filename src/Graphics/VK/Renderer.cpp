@@ -90,7 +90,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 	
-	m_slugPrototype = Slug::SlugPrototype();
+	m_slugPrototype = VK::Slug::SlugPrototype();
 	m_slugPrototype.Initialize(m_context, VK::IntermediaryStorage::GetInstance().GetAllocator(), m_debugDescriptorPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat(), m_commandPool);
 
 	constexpr VK::ViewProjectionBuffer vpb

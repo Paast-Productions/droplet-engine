@@ -130,6 +130,6 @@ namespace Droplet::Graphics
 
 		VkFormat m_imGuiColorFormat {};
 
-		Slug::SlugPrototype m_slugPrototype;
+		VK::Slug::SlugPrototype m_slugPrototype;
 	};
 }
