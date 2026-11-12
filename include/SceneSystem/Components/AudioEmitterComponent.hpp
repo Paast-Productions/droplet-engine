@@ -74,6 +74,7 @@ namespace Droplet::Scene
         dalia::AttenuationCurve m_attenuationCurve = dalia::AttenuationCurve::InverseSquare;
 	    float m_minDistance = 1.0f;
 		float m_maxDistance = 100.0f;
+	    bool m_doppler = false;
 	    
 	    std::string m_busName = "Master";
 	};

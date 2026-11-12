@@ -219,6 +219,7 @@ void AudioEmitterComponent::RenderUIImpl()
 	{
 		m_attenuationCurve = curves[current];
 	}
+    if (ImGui::Checkbox("Doppler", &m_doppler)) m_isDirty = true;
     
     ImGui::PopID();
 }
@@ -239,6 +240,7 @@ nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
     json["minDistance"] = m_minDistance;
     json["maxDistance"] = m_maxDistance;
 	json["attenuationCurve"] = m_attenuationCurve;
+    json["doppler"] = m_doppler;
 
 	return json;
 }
@@ -256,6 +258,7 @@ void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_com
 	if (p_compJson.contains("minDistance")) m_minDistance = p_compJson["minDistance"];
 	if (p_compJson.contains("maxDistance")) m_maxDistance = p_compJson["maxDistance"];
 	if (p_compJson.contains("attenuationCurve")) m_attenuationCurve = p_compJson["attenuationCurve"];
+    if (p_compJson.contains("doppler")) m_doppler = p_compJson["doppler"];
 }
 	
 
