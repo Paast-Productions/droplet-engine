@@ -172,6 +172,8 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
         {
             node->SetActive(p_json["active"]);
         }
+	    
+	    DeserializeTransform(p_json["transform"], node->GetTransform());
 	}
     else
     {
@@ -201,6 +203,8 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
                 DeserializeNode(childJson, node, p_scene, p_context);
             }
         }
+        
+        DeserializeTransform(p_json["transform"], node->GetTransform());
 
         if (p_json.contains("components"))
         {
@@ -210,8 +214,6 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
             }
         }
     }
-    
-    DeserializeTransform(p_json["transform"], node->GetTransform());
 }
 
 void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, std::uint64_t p_serializedNodeID,SerializationContext& p_context)
