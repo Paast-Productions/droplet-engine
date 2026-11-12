@@ -32,12 +32,29 @@ namespace Droplet::Scene
         void RenderUIImpl() override;
     
     private:
+        struct Trigger
+        {
+            glm::vec3 offset; // Offset from node position
+        };
+        struct TriggerAABB : Trigger
+        {
+            Math::AABB aabb;
+        };
+        struct TriggerOBB : Trigger
+        {
+            Math::OBB obb;
+        };
+        struct TriggerSphere : Trigger
+        {
+            Math::Sphere sphere;
+        };
+        
         bool m_isColliding = false;
         std::vector<std::weak_ptr<Node>> m_collidingNodes;
         
         // Trigger shapes
-        std::vector<Math::AABB> m_AABBs;
-        std::vector<Math::OBB> m_OBBs;
-        std::vector<Math::Sphere> m_spheres;
+        std::vector<TriggerAABB> m_AABBs;
+        std::vector<TriggerOBB> m_OBBs;
+        std::vector<TriggerSphere> m_spheres;
     };
 } 
