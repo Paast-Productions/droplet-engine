@@ -2,11 +2,11 @@
 
 namespace Droplet::IO::AudioFormat
 {
-    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath)
+    std::vector<std::pair<StaticResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;
         
-        std::vector<std::pair<ResourceType, std::string>> resourceList{};
+        std::vector<std::pair<StaticResourceType, std::string>> resourceList{};
         
         if (!std::filesystem::is_regular_file(p_assetPath))
         {
@@ -14,7 +14,7 @@ namespace Droplet::IO::AudioFormat
         }
         
         std::string resourceName = p_assetPath.stem().string();
-        resourceList.emplace_back(ResourceType::Sound, resourceName);
+        resourceList.emplace_back(StaticResourceType::Sound, resourceName);
         
         return resourceList;
     }

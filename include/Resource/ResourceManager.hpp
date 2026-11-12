@@ -126,7 +126,7 @@ namespace Droplet
             {
                 // Resource was just created in-place -> Update its state
                 it->second.state = ResourceState::LoadingAsync;
-                if constexpr (std::is_same_v<T, SoundResource>) it->second.type = ResourceType::Sound;
+                if constexpr (std::is_same_v<T, SoundResource>) it->second.type = StaticResourceType::Sound;
                 else it->second.type = ResourceTraits<T>::GetType();
                 it->second.refCount = 0; // Incremented when handle is constructed
                 loadAsync = true;

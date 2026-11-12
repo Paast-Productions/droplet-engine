@@ -2,6 +2,9 @@
 #include <SceneSystem/Component.hpp>
 #include <Audio/AudioSystem.hpp>
 #include <Resource/Types/SoundResource.hpp>
+
+#include "StaticResourceHandle.hpp"
+
 namespace Droplet::Scene 
 {
 	
@@ -61,7 +64,7 @@ namespace Droplet::Scene
 	private:
 	    GUID m_soundGuid = C_INVALID_GUID;
 	    std::string m_soundName = "Gupta";
-	    ResourceHandle<SoundResource> m_resourceHandle;
+	    StaticResourceHandle<SoundResource> m_resourceHandle;
 	    
 	    Audio::PlaybackID m_playbackId = Audio::C_INVALID_PLAYBACK_ID;
 	    Audio::PlaybackState m_playbackState = Audio::PlaybackState::Playing;

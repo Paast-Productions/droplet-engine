@@ -105,7 +105,7 @@ namespace Droplet
                 continue;
             }
 
-            liveResource.resource.reset(static_cast<IResource*>(resourcePtr));
+            liveResource.resource.reset(static_cast<IStaticResource*>(resourcePtr));
             liveResource.state = ResourceState::Ready;
             
             std::vector<std::function<void()>> callbacksToInvoke;
@@ -275,7 +275,7 @@ namespace Droplet
         {
             if (--it->second.refCount == 0)
             {
-                if (it->second.type == ResourceType::Sound)
+                if (it->second.type == StaticResourceType::Sound)
                 {
                     Audio::AudioSystem::GetInstance().UnloadSound(reinterpret_cast<SoundResource*>(it->second.resource.get()));
                 }

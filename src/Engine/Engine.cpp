@@ -226,27 +226,3 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderDat
 
 	return DROPLET_RETURNTYPE::OK;
 }
-
-void Engine::RegisterBehaviours()
-{
-	// Register engine behaviours
-	Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour",	[]() { return std::make_unique<Scene::ScriptBehaviour>(); });
-	Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Scene::PlayerBehaviour>(); });
-}
-
-void Engine::RegisterComponents()
-{
-	// Register engine components
-	Scene::ComponentRegistry::RegisterComponent("MeshComponent",	[]() { return std::make_unique<Scene::MeshComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("ScriptComponent",	[]() { return std::make_unique<Scene::ScriptComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Scene::AudioListenerComponent>();});
-	Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Scene::AudioEmitterComponent>();});
-	Scene::ComponentRegistry::RegisterComponent("AudioPlayerComponent", []() {return std::make_unique<Scene::AudioPlayerComponent>();});
-	Scene::ComponentRegistry::RegisterComponent("PhysicsComponent",	[]() { return std::make_unique<Scene::PhysicsComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
-	Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Scene::DamageComponent>(); });
-}

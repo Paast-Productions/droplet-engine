@@ -1,4 +1,5 @@
 #include <Audio/Effects/ReverbEffect.hpp>
+#include "Audio/AudioSystem.hpp"
 
 void Droplet::Audio::ReverbEffect::Initilize()
 {

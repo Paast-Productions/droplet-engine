@@ -45,7 +45,7 @@ namespace Droplet::Audio
 	    }
 
 	    AudioSystem(const AudioSystem &) = delete;
-	    ResourceManager &operator=(const ResourceManager &) = delete;
+	    AudioSystem &operator=(const AudioSystem &) = delete;
 	    
 	    bool Initialize();
 		void Shutdown();

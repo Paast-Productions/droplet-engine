@@ -139,7 +139,7 @@ void AudioEmitterComponent::RenderUIImpl()
             m_soundName,
             newGuid,
             newName,
-            ResourceType::Sound))
+            StaticResourceType::Sound))
         {
             if (newGuid != C_INVALID_GUID)
             {

@@ -2,6 +2,7 @@
 #include "Audio/AudioMixer.hpp"
 #include "Audio/EffectFactory.hpp"
 #include "Audio/Effect.hpp"
+#include "Audio/AudioSystem.hpp"
 
 
 using namespace Droplet::Audio;

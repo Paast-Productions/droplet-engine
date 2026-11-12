@@ -11,7 +11,7 @@ namespace Droplet
         Streaming = 1
     };
     
-    class SoundResource : public IResource
+    class SoundResource : public IStaticResource
     {
     public:
         SoundResource(dalia::SoundHandle p_handle);
