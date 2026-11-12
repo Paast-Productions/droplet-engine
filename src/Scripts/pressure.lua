@@ -73,13 +73,13 @@ function OnTrigger(dt, node)
     local dronePos = trans:GetPosition()
     -- 0.1 is the strength of gravity, making the drone easy to control
     dronePos.y = dronePos.y - (gravityMultiplier * 0.1 * dt)
+
+    local shakeIntensity = gravityMultiplier * 0.05
+    dronePos.x = dronePos.x + (math.random() - 0.5) * shakeIntensity
+    dronePos.z = dronePos.z + (math.random() - 0.5) * shakeIntensity
+
     trans:SetPosition(dronePos)
 
-    local droneRot = trans:GetRotation()
-    droneRot.x = droneRot.x + (0.1 * dt)
-    print(droneRot.x)
-    
-    trans:SetRotation(droneRot)
 end
 
 function RenderUI()
