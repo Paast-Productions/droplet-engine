@@ -39,15 +39,47 @@ namespace Droplet::Scene
         struct TriggerAABB : Trigger
         {
             Math::AABB aabb;
+            void Draw(const glm::vec4 p_color, const bool p_depth = true, const bool p_wire = true) const
+            {
+                Graphics::Debug::DebugDraw::DrawBox(aabb, p_color, p_depth, p_wire);
+            }
         };
         struct TriggerOBB : Trigger
         {
             Math::OBB obb;
+            void Draw(const glm::vec4 p_color, const bool p_depth = true, const bool p_wire = true) const
+            {
+                Graphics::Debug::DebugDraw::DrawBox(obb, p_color, p_depth, p_wire);
+            }
         };
         struct TriggerSphere : Trigger
         {
             Math::Sphere sphere;
+            void Draw(const glm::vec4 p_color, const bool p_depth = true, const bool p_wire = true) const
+            {
+                if (p_wire)
+                {
+                    Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 0.0f), sphere.radius, p_color, 16, p_depth, true);
+                    Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 1.0f, 0.0f), sphere.radius, p_color, 16, p_depth, true);
+                    Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 0.0f, 1.0f), sphere.radius, p_color, 16, p_depth, true);
+                    Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 1.0f), sphere.radius, p_color, 16, p_depth, true);
+                    Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, -1.0f), sphere.radius, p_color, 16, p_depth, true);
+                }
+                else
+                {
+                    Graphics::Debug::DebugDraw::DrawSphere(sphere,p_color, 1, p_depth);
+                }
+            }
         };
+        
+        /// @brief Add a type of shape
+        /// @param p_currentShape Chosen shape type
+        void AddShape(int &p_currentShape);
+        
+        /// @brief Lists shapes and option to remove shape
+        /// @param p_currentShape Chosen shape type
+        /// @return Index of selected shape
+        int ListShapes(const int p_currentShape);
         
         bool m_isColliding = false;
         std::vector<std::weak_ptr<Node>> m_collidingNodes;
