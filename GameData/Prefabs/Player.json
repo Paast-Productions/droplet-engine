@@ -1,0 +1,276 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cube",
+                                "meshGUID": 15104664662864096133,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 32,
+                    "id": 29,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.25,
+                            0.5,
+                            0.25
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 28,
+            "name": "Body",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cube",
+                                "meshGUID": 15104664662864096133,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 31,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.20000000298023224,
+                            0.19999998807907104,
+                            0.19999998807907104
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 90.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65503,
+                                "priority": 0,
+                                "resolution": [
+                                    1280,
+                                    720
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "CameraController.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 32,
+                    "name": "Camera",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 30,
+            "name": "Head",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.800000011920929,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "filepath": "Engine_Side/PlayerController.lua"
+            },
+            "id": 5,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "h": 0.5,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 0,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 0.30000001192092896,
+                "shapeType": 7
+            },
+            "id": 6,
+            "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "health": 100.0,
+                "maxHealth": 100.0
+            },
+            "id": 7,
+            "type": "HealthComponent"
+        },
+        {
+            "active": true,
+            "data": {},
+            "id": 8,
+            "type": "PlayerComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 27,
+    "name": "Player",
+    "transform": {
+        "position": [
+            0.0,
+            10.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}
