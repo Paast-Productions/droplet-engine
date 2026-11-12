@@ -16,7 +16,7 @@ bool Droplet::Audio::AudioSystem::Initialize()
     m_daliaEngine = std::make_unique<dalia::Engine>();
     
 	dalia::EngineConfig config;
-    config.coordinateSystem = dalia::CoordinateSystem::LeftHanded;
+    config.coordinateSystem = dalia::CoordinateSystem::RightHanded;
     config.listenerCapacity = 4;
 	dalia::Result res = m_daliaEngine->Initialize(config);
 	if (res != dalia::Result::Ok) return false;
