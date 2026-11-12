@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 56,
+            "id": 115,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -80,7 +80,7 @@
                         "damage": 2.0
                     },
                     "id": 3,
-                    "type": "DamageComponent"
+                    "type": "HazardComponent"
                 },
                 {
                     "active": true,
@@ -98,7 +98,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 57,
+            "id": 116,
             "name": "Heat",
             "transform": {
                 "position": [
@@ -121,159 +121,10 @@
         },
         {
             "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Drone",
-                                "meshGUID": 11502053657790986835,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "Drone",
-                                "textureGUID": 1365390299680718017,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 64,
-                    "id": 59,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            -0.09999960660934448,
-                            -0.09999960660934448
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "autoRender": true,
-                                "camera": {
-                                    "fov": 75.0,
-                                    "planes": [
-                                        0.10000000149011612,
-                                        100.0
-                                    ]
-                                },
-                                "drawLayerMask": 65471,
-                                "priority": 0,
-                                "resolution": [
-                                    1024,
-                                    1024
-                                ]
-                            },
-                            "id": 1,
-                            "type": "CameraComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 60,
-                    "name": "Camera",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": false,
-                    "data": {
-                        "h": 0.30000001192092896,
-                        "halfExtentsX": 0.0,
-                        "halfExtentsY": 0.0,
-                        "halfExtentsZ": 0.0,
-                        "layer": 1,
-                        "meshGUID": 0,
-                        "motionType": 2,
-                        "offsetX": 0.0,
-                        "offsetY": 0.0,
-                        "offsetZ": 0.0,
-                        "r": 1.0,
-                        "shapeType": 2
-                    },
-                    "id": 2,
-                    "type": "PhysicsComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "DroneControl2.lua"
-                    },
-                    "id": 3,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "health": 100.0,
-                        "maxHealth": 100.0
-                    },
-                    "id": 4,
-                    "type": "HealthComponent"
-                },
-                {
-                    "active": true,
-                    "data": {},
-                    "id": 5,
-                    "type": "PlayerComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "FishInteraction.lua"
-                    },
-                    "id": 8,
-                    "type": "ScriptComponent"
-                }
-            ],
             "drawLayer": 1,
-            "id": 58,
+            "id": 117,
             "name": "Drone",
+            "prefab": "GameData\\Prefabs\\Drone.json",
             "transform": {
                 "position": [
                     0.0,
@@ -326,7 +177,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 63,
+                            "id": 122,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -359,11 +210,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 62,
+                    "id": 121,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            -0.6200351715087891,
+                            -0.5799999833106995,
                             0.15989947319030762,
                             0.9916191101074219
                         ],
@@ -410,7 +261,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 65,
+                            "id": 124,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -443,11 +294,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 64,
+                    "id": 123,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            -1.0283946990966797,
+                            -0.9580000042915344,
                             0.15989941358566284,
                             -0.14116668701171875
                         ],
@@ -494,7 +345,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 67,
+                            "id": 126,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -527,11 +378,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 66,
+                    "id": 125,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            1.5155229568481445,
+                            1.5609999895095825,
                             0.1598992943763733,
                             0.5439109802246094
                         ],
@@ -578,7 +429,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 69,
+                            "id": 128,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -611,11 +462,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 68,
+                    "id": 127,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            1.3920679092407227,
+                            1.4869999885559082,
                             0.15989911556243896,
                             -0.4980506896972656
                         ],
@@ -662,7 +513,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 71,
+                            "id": 130,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -695,11 +546,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 70,
+                    "id": 129,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            -0.8099441528320313,
+                            -0.8149999976158142,
                             -0.8522140979766846,
                             1.0376338958740234
                         ],
@@ -746,7 +597,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 73,
+                            "id": 132,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -779,11 +630,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 72,
+                    "id": 131,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            0.6139955520629883,
+                            0.5839999914169312,
                             -1.6566253900527954,
                             -0.7472419738769531
                         ],
@@ -830,7 +681,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 75,
+                            "id": 134,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -863,11 +714,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 74,
+                    "id": 133,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            -1.2240285873413086,
+                            -1.253999948501587,
                             0.6087961196899414,
                             2.213125228881836
                         ],
@@ -914,7 +765,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 77,
+                            "id": 136,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -947,11 +798,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 76,
+                    "id": 135,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            -1.939572811126709,
+                            -1.8350000381469727,
                             -2.170931816101074,
                             -0.07896804809570313
                         ],
@@ -998,7 +849,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 79,
+                            "id": 138,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -1031,11 +882,11 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 78,
+                    "id": 137,
                     "name": "Fish",
                     "transform": {
                         "position": [
-                            1.879145622253418,
+                            1.843999981880188,
                             -1.2737826108932495,
                             2.6277542114257813
                         ],
@@ -1055,7 +906,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 61,
+            "id": 120,
             "name": "FishSchool",
             "transform": {
                 "position": [
@@ -1112,7 +963,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 83,
+                                    "id": 142,
                                     "name": "Mesh",
                                     "transform": {
                                         "position": [
@@ -1136,7 +987,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 82,
+                            "id": 141,
                             "name": "FixedSeagrass",
                             "transform": {
                                 "position": [
@@ -1187,7 +1038,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 85,
+                                    "id": 144,
                                     "name": "Mesh",
                                     "transform": {
                                         "position": [
@@ -1211,7 +1062,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 84,
+                            "id": 143,
                             "name": "FixedSeagrass",
                             "transform": {
                                 "position": [
@@ -1262,7 +1113,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 87,
+                                    "id": 146,
                                     "name": "Mesh",
                                     "transform": {
                                         "position": [
@@ -1286,7 +1137,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 86,
+                            "id": 145,
                             "name": "FixedSeagrass",
                             "transform": {
                                 "position": [
@@ -1337,7 +1188,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 89,
+                                    "id": 148,
                                     "name": "Mesh",
                                     "transform": {
                                         "position": [
@@ -1361,7 +1212,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 88,
+                            "id": 147,
                             "name": "FixedSeagrass",
                             "transform": {
                                 "position": [
@@ -1385,7 +1236,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 81,
+                    "id": 140,
                     "name": "Seagrass",
                     "transform": {
                         "position": [
@@ -1439,7 +1290,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 92,
+                                    "id": 151,
                                     "name": "BottomMesh",
                                     "transform": {
                                         "position": [
@@ -1487,7 +1338,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 93,
+                                    "id": 152,
                                     "name": "MiddleMesh",
                                     "transform": {
                                         "position": [
@@ -1535,7 +1386,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 94,
+                                    "id": 153,
                                     "name": "TopMesh",
                                     "transform": {
                                         "position": [
@@ -1559,7 +1410,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 91,
+                            "id": 150,
                             "name": "Kelp",
                             "transform": {
                                 "position": [
@@ -1610,7 +1461,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 96,
+                                    "id": 155,
                                     "name": "BottomMesh",
                                     "transform": {
                                         "position": [
@@ -1658,7 +1509,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 97,
+                                    "id": 156,
                                     "name": "MiddleMesh",
                                     "transform": {
                                         "position": [
@@ -1706,7 +1557,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 98,
+                                    "id": 157,
                                     "name": "TopMesh",
                                     "transform": {
                                         "position": [
@@ -1730,7 +1581,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 95,
+                            "id": 154,
                             "name": "Kelp",
                             "transform": {
                                 "position": [
@@ -1781,7 +1632,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 100,
+                                    "id": 159,
                                     "name": "BottomMesh",
                                     "transform": {
                                         "position": [
@@ -1829,7 +1680,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 101,
+                                    "id": 160,
                                     "name": "MiddleMesh",
                                     "transform": {
                                         "position": [
@@ -1877,7 +1728,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 102,
+                                    "id": 161,
                                     "name": "TopMesh",
                                     "transform": {
                                         "position": [
@@ -1901,7 +1752,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 99,
+                            "id": 158,
                             "name": "Kelp",
                             "transform": {
                                 "position": [
@@ -1952,7 +1803,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 104,
+                                    "id": 163,
                                     "name": "BottomMesh",
                                     "transform": {
                                         "position": [
@@ -2000,7 +1851,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 105,
+                                    "id": 164,
                                     "name": "MiddleMesh",
                                     "transform": {
                                         "position": [
@@ -2048,7 +1899,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 106,
+                                    "id": 165,
                                     "name": "TopMesh",
                                     "transform": {
                                         "position": [
@@ -2072,7 +1923,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 103,
+                            "id": 162,
                             "name": "Kelp",
                             "transform": {
                                 "position": [
@@ -2096,7 +1947,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 90,
+                    "id": 149,
                     "name": "Kelp",
                     "transform": {
                         "position": [
@@ -2120,7 +1971,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 80,
+            "id": 139,
             "name": "SmallEnvironment",
             "transform": {
                 "position": [
@@ -2178,7 +2029,7 @@
                         "damage": 2.0
                     },
                     "id": 4,
-                    "type": "DamageComponent"
+                    "type": "HazardComponent"
                 },
                 {
                     "active": true,
@@ -2190,7 +2041,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 107,
+            "id": 166,
             "name": "FreezeBlock",
             "transform": {
                 "position": [
@@ -2248,7 +2099,7 @@
                         "damage": 2.0
                     },
                     "id": 3,
-                    "type": "DamageComponent"
+                    "type": "HazardComponent"
                 },
                 {
                     "active": true,
@@ -2260,7 +2111,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 108,
+            "id": 167,
             "name": "Pressure",
             "transform": {
                 "position": [
@@ -2311,7 +2162,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 110,
+                    "id": 169,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -2344,7 +2195,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 109,
+            "id": 168,
             "name": "WoodRoach",
             "transform": {
                 "position": [
@@ -2395,7 +2246,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 112,
+                    "id": 171,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -2428,7 +2279,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 111,
+            "id": 170,
             "name": "Fish",
             "transform": {
                 "position": [
