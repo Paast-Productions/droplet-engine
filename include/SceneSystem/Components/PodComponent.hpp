@@ -12,6 +12,8 @@ namespace Droplet::Scene
 	public:
 		[[nodiscard]] std::string_view GetTypeName() const override { return "PodComponent"; }
 
+		~PodComponent();
+
 	protected:
 		void StartImpl() override;
 

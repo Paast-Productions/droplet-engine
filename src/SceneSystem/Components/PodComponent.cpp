@@ -5,6 +5,14 @@
 
 using namespace Droplet::Scene;
 
+PodComponent::~PodComponent()
+{
+	if (auto podBehaviourShared = m_podBehaviour.lock())
+	{
+		podBehaviourShared->RemovePodComponent(this);
+	}
+}
+
 void PodComponent::StartImpl()
 {
 	// Search for the PodBehaviour. If none was found, create one.
@@ -19,7 +27,7 @@ void PodComponent::StartImpl()
 	m_podBehaviour = podBehaviour;
 
 	std::shared_ptr<PodComponent> sharedThis = std::dynamic_pointer_cast<PodComponent>(shared_from_this());
-	podBehaviour->SetPodComponent(sharedThis);
+	podBehaviour->AddPodComponent(sharedThis);
 }
 
 void PodComponent::RenderUIImpl()

@@ -18,7 +18,7 @@ namespace Droplet::Scene
     /// 
 	/// As behaviours are not serialized with scenes, they are not automatically
     /// suited for tasks that require persistent data across runtimes.
-    class Behaviour
+	class Behaviour : public std::enable_shared_from_this<Behaviour>
     {
     public:
 		Behaviour() = default;
@@ -31,21 +31,22 @@ namespace Droplet::Scene
         /// @return The type name of the behaviour.
         virtual std::string_view GetTypeName() = 0;
 
-        /// @brief Called when the Behaviour is started.
-        ///
-        /// Derived behaviours can override this function to perform
-        /// initialization that should occur when the game starts.
-        virtual void Start() {}
+		/// @brief Checks if the Behaviour is a singleton.
+		/// @return True if the Behaviour is a singleton, false otherwise.
+		virtual bool IsSingleton() { return false; }
 
-        /// @brief Updates the Behaviour before the scenes' update.
+        /// @brief Called when the Behaviour is started.
+        void Start();
+
+        /// @brief Updates the Behaviour before the scene's update.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void PreUpdate() {}
+        void PreUpdate();
 
         /// @brief Updates the Behaviour after the scene's update.
         ///
         /// @param p_deltaTime Time elapsed since the previous update, in seconds.
-        virtual void PostUpdate() {}
+        void PostUpdate();
 
         /// @brief Renders this behaviour's editor UI.
         ///
@@ -86,6 +87,9 @@ namespace Droplet::Scene
 
             if (m_isActive) 
             {
+                if (!m_isStarted)
+					Start();
+
                 OnActivate();
             }
             else
@@ -95,6 +99,22 @@ namespace Droplet::Scene
         }
 
     protected:
+
+        /// @brief Called when the Behaviour is started.
+        ///
+        /// Derived behaviours can override this function to perform initialization logic.
+        virtual void StartImpl() {}
+
+        /// @brief Updates the Behaviour before the scene's update.
+        ///
+		/// Overloaded by derived behaviours to implement their own pre-update logic.
+        virtual void PreUpdateImpl() {}
+
+        /// @brief Updates the Behaviour after the scene's update.
+        ///
+		/// Overloaded by derived behaviours to implement their own post-update logic.
+        virtual void PostUpdateImpl() {}
+
         /// @brief Internal rendering function for the behaviour's UI.
         /// 
         /// Overloaded by derived behaviours to implement their own UI rendering logic.
@@ -126,5 +146,6 @@ namespace Droplet::Scene
         SceneManager *m_sceneManager = nullptr;
 
 		bool m_isActive = true;
+		bool m_isStarted = false;
     };
 }
