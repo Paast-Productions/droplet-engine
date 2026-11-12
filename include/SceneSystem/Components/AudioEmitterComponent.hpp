@@ -41,11 +41,15 @@ namespace Droplet::Scene
 	    [[nodiscard]] bool IsDirty() const { return m_isDirty;}
 	    void ClearDirtyFlag() { m_isDirty = false; }
 	    
+	    // --- Spatial Getters ---
+	    [[nodiscard]] glm::vec3 GetWorldPosition() const;
+	    [[nodiscard]] glm::vec3 GetVelocity() const;
+	    
 	    // --- Resource ---
 	    void SetSoundGUID(GUID p_guid);
 	    [[nodiscard]] GUID GetSoundGUID() const { return m_soundGuid; }
 
-	    void OnPlaybackFinished() { m_playbackId = Audio::C_INVALID_PLAYBACK_ID; }
+	    void OnPlaybackFinished();
 
 	protected:
 		void StartImpl() override;
@@ -60,11 +64,11 @@ namespace Droplet::Scene
 	    ResourceHandle<SoundResource> m_resourceHandle;
 	    
 	    Audio::PlaybackID m_playbackId = Audio::C_INVALID_PLAYBACK_ID;
+	    Audio::PlaybackState m_playbackState = Audio::PlaybackState::Playing;
 	    bool m_isDirty = false;
 	    
-	    
 		float m_volumeDb = 0.0f;
-		float m_pitch = 0.0f;
+		float m_pitch = 1.0f;
 	    bool m_looping = false;
 	    
         dalia::AttenuationCurve m_attenuationCurve = dalia::AttenuationCurve::InverseSquare;
