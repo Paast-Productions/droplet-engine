@@ -20,15 +20,15 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
+                        "vs": 6846475175127286139,
+                        "vsName": "wavy.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 49,
+            "id": 2,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -52,13 +52,13 @@
     ],
     "components": [],
     "drawLayer": 1,
-    "id": 48,
+    "id": 1,
     "name": "FixedSeagrass",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            -0.7497048377990723,
+            10.463067054748535,
+            0.09054964780807495
         ],
         "rotation": [
             1.0,
