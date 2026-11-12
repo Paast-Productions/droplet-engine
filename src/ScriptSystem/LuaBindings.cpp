@@ -18,7 +18,7 @@
 #include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
-#include <DamageComponent.hpp>
+#include <HazardComponent.hpp>
 #include <PlayerComponent.hpp>
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
@@ -129,10 +129,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetComponent<Scene::HealthComponent>();
 		},
-		"GetDamageComponent",
+		"GetHazardComponent",
 		[](Scene::Node &node)
 		{
-			return node.GetComponent<Scene::DamageComponent>();
+			return node.GetComponent<Scene::HazardComponent>();
 		},
 		"GetPlayerComponent",
 		[](Scene::Node &node)
