@@ -971,6 +971,7 @@ void SceneViewWindow::RenderEditorView()
 			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene().lock());
 
 			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+		    m_editorContext->GetEditorCameraController().SetListenerActive(false);
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1039,6 +1040,7 @@ void SceneViewWindow::RenderGameView()
 	else
 	{
 		m_renderingGameView = true;
+	    
 
 		ImVec2 camRawSize = ImVec2((float)camera->GetResolution().x, (float)camera->GetResolution().y);
 		ImVec2 camAspect = ImVec2(camRawSize.x / camRawSize.y, 1.0f);
@@ -1183,6 +1185,7 @@ void SceneViewWindow::RenderGameView()
 			m_editorContext->CreateNewScene(sceneName);
 			m_editorContext->SetActiveScene(sceneName);
 			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
+		    m_editorContext->GetEditorCameraController().SetListenerActive(true);
 		}
 
 		ImGui::PopStyleColor(4);

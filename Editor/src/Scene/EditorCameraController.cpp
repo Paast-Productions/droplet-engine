@@ -77,3 +77,8 @@ void EditorCameraController::CameraLock(bool p_enabled, float p_centerX, float p
 	//input.HideCursor(m_lookActive);
 	input.LockCursor(m_lookActive, p_centerX, p_centerY);
 }
+
+void EditorCameraController::SetListenerActive(bool p_active)
+{
+    Audio::AudioSystem::GetInstance().SetEditorListenerActive(p_active);
+}

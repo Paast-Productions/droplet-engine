@@ -25,6 +25,8 @@ namespace Droplet::Editor::Scene
 
 		void SetMovementSpeed(float p_speed) { m_movementSpeed = p_speed; }
 		float GetMovementSpeed() const { return m_movementSpeed; }
+	    
+	    void SetListenerActive(bool p_active);
 
 	private:
 		EditorCamera &m_editorCamera;
