@@ -7,15 +7,19 @@
 name: Build
 
 on:
-# Uncommenting the lines below will allow for testing of the build system on push - just add the branch name.
-#  push:
-#    branches:
-#      - 
+  push:
+    branches: # If testing the workflow on a separate branch, add the branch name below.
+      - dev
+      - main
+      - game/main
+      - game/dev
     
   pull_request: 
     branches:
       - main
       - dev
+      - game/dev
+      - game/main
     
   workflow_dispatch: 
     

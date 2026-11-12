@@ -124,7 +124,7 @@ namespace Droplet::Scene
         /// @brief Serializes a lonesome node to a josn file
         /// @param p_node the node to be serialized
         /// @param p_filePath the filepath
-        void SerializeNodeToFile(const Node &p_node, const std::string &p_filePath);
+        void SerializeNodeToFile(Node &p_node, const std::string &p_filePath);
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.

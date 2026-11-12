@@ -4,7 +4,7 @@
 
 namespace Droplet
 {
-    using GUID = uint64_t;
+    using GUID = std::uint64_t;
     static constexpr GUID C_INVALID_GUID = 0;
     
     namespace GuidUtils

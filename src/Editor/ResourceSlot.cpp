@@ -5,7 +5,7 @@
 #include <string>
 #include <Editor/DragDropFields.hpp>
 #include <Resource/GuidUtils.hpp>
-#include <Resource/IResource.hpp>
+#include <Resource/IStaticResource.hpp>
 #include <Resource/Meta/MetaData.hpp>
 
 namespace Droplet
@@ -16,7 +16,7 @@ namespace Droplet
         const std::string &p_currentDisplayName,
         Droplet::GUID &p_outGUID,
         std::string &p_outDisplayName,
-        Droplet::ResourceType p_expectedType,
+        Droplet::StaticResourceType p_expectedType,
         Droplet::ShaderResource::ShaderType p_expectedShader)
     {
         using namespace ImGui;

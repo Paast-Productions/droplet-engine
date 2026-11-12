@@ -5,10 +5,12 @@
 #include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
+#include <Resource/IDynamicResource.hpp>
+
 namespace Droplet::Graphics::VK
 {
     /// @brief Vulkan Image View wrapper class
-    class ImageView
+    class ImageView : public Droplet::IDynamicResource
     {
     public:
         ImageView()
@@ -40,7 +42,7 @@ namespace Droplet::Graphics::VK
         ImageView(const vk::raii::Device &p_device, 
             vk::Image p_image, 
             vk::Format p_format,
-            vk::ImageAspectFlagBits p_aspectFlagBits);
+            vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits);
         
         // TODO: </REFACTOR>
         
@@ -64,7 +66,7 @@ namespace Droplet::Graphics::VK
             return *this;
         }
     
-        ~ImageView() = default;
+        ~ImageView() final = default;
     
         bool operator==(const ImageView &p_other) const
         {

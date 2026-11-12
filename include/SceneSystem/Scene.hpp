@@ -235,7 +235,7 @@ namespace Droplet::Scene
     	/// @return A vector of all Node instances fully contained in the frustum
     	[[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesInBoundingBox(const Math::OBB &p_obb); 
 
-        [[nodiscard]] Physics *GetPhysics();
+        [[nodiscard]] std::weak_ptr<Physics> GetPhysics();
         
         std::shared_ptr<Node> LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
@@ -274,7 +274,6 @@ namespace Droplet::Scene
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
         const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
-
     private:
 		friend class SceneManager;
 
@@ -282,7 +281,7 @@ namespace Droplet::Scene
         std::vector<std::shared_ptr<Node>> m_roots;
 
         Octree m_octree;
-        std::unique_ptr<Physics> m_physics;
+        std::shared_ptr<Physics> m_physics;
 
         std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> m_renderables;
         std::vector<std::shared_ptr<CameraComponent>> m_renderers;

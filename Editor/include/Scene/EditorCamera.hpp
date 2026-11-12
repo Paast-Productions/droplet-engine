@@ -2,6 +2,8 @@
 #include <vector>
 #include <memory>
 #include <ImGui/imgui.h>
+#include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/VK/ImGuiTexture.hpp>
 #include <Graphics/VK/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 
@@ -14,18 +16,18 @@ namespace Droplet::Editor::Scene
 		EditorCamera();
 		~EditorCamera();
 
-		[[nodiscard]] std::uint32_t GetTargetIndex() const { return m_targetIndex; }
-		void SetTargetIndex(std::uint32_t p_renderTarget) { m_targetIndex = p_renderTarget; }
+		[[nodiscard]] Graphics::RenderTarget GetTarget() const { return m_target; }
+		void SetTarget(Graphics::RenderTarget p_target) { m_target = p_target; }
 
-		[[nodiscard]] std::uint32_t GetTextureIndex() const { return m_textureIndex; }
-		void SetTextureIndex(std::uint32_t p_textureIndex) { m_textureIndex = p_textureIndex; }
+		[[nodiscard]] Graphics::ImGuiTexture GetTexture() const { return m_texture; }
+		void SetTexture(Graphics::ImGuiTexture p_texture) { m_texture = p_texture; }
 
 	private:
 
 		/// @brief The index of the texture that the renderer will render to
-		std::uint32_t m_targetIndex{ Graphics::VK::INVALID_INDEX };
+		Graphics::RenderTarget m_target {};
 
 		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		std::uint32_t m_textureIndex{ Graphics::VK::INVALID_INDEX };
+		Graphics::ImGuiTexture m_texture {};
 	};
 }

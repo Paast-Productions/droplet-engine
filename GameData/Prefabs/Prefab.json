@@ -1,0 +1,97 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 4,
+            "name": "Child",
+            "transform": {
+                "position": [
+                    0.0,
+                    1.2224235534667969,
+                    0.0
+                ],
+                "rotation": [
+                    0.7631891965866089,
+                    -0.2932230234146118,
+                    -0.20651450753211975,
+                    -0.5375074148178101
+                ],
+                "scale": [
+                    0.4450003206729889,
+                    0.4450002908706665,
+                    0.4450000822544098
+                ]
+            }
+        }
+    ],
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 15104664662864096133,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 3,
+    "name": "Prefab",
+    "transform": {
+        "position": [
+            0.8768350481987,
+            2.292344808578491,
+            7.301274299621582
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

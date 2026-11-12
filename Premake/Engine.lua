@@ -48,6 +48,7 @@ project "Engine"
     {
         --"GoogleTest",
         "ImGui",
+        "IconFontCppHeaders",
         "Sol2",
         "json",
         "tracy",

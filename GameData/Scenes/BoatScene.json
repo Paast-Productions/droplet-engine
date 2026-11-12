@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 10,
+            "id": 21,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 12,
+                    "id": 23,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -132,9 +132,9 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": "PlayerController.lua"
+                        "filepath": "Engine_Side/PlayerController.lua"
                     },
-                    "id": 1,
+                    "id": 5,
                     "type": "ScriptComponent"
                 },
                 {
@@ -150,29 +150,21 @@
                         "offsetX": 0.0,
                         "offsetY": 0.0,
                         "offsetZ": 0.0,
-                        "r": 0.5,
+                        "r": 0.30000001192092896,
                         "shapeType": 7
                     },
-                    "id": 2,
+                    "id": 6,
                     "type": "PhysicsComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "PlayerController.lua"
-                    },
-                    "id": 4,
-                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 11,
+            "id": 22,
             "name": "Player",
             "transform": {
                 "position": [
                     0.0,
-                    10.768192291259766,
-                    0.0
+                    1.2585127353668213,
+                    1.0785971879959106
                 ],
                 "rotation": [
                     1.0,
@@ -184,6 +176,348 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "children": [],
+                            "components": [
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "fs": 13680123319807966343,
+                                        "fsName": "Base.FS",
+                                        "gs": 0,
+                                        "gsName": "",
+                                        "meshDisplayName": "Pod_Door",
+                                        "meshGUID": 10773550875263732350,
+                                        "tcs": 0,
+                                        "tcsName": "",
+                                        "tes": 0,
+                                        "tesName": "",
+                                        "textureDisplayName": "White",
+                                        "textureGUID": 13855953862202670664,
+                                        "vs": 7809030845991192100,
+                                        "vsName": "Base.VS"
+                                    },
+                                    "id": 1,
+                                    "type": "MeshComponent"
+                                },
+                                {
+                                    "active": true,
+                                    "data": {
+                                        "h": 0.0,
+                                        "halfExtentsX": 0.0,
+                                        "halfExtentsY": 0.0,
+                                        "halfExtentsZ": 0.0,
+                                        "layer": 0,
+                                        "meshGUID": 10773550875263732350,
+                                        "motionType": 0,
+                                        "offsetX": 0.0,
+                                        "offsetY": 0.0,
+                                        "offsetZ": 0.0,
+                                        "r": 0.0,
+                                        "shapeType": 4
+                                    },
+                                    "id": 2,
+                                    "type": "PhysicsComponent"
+                                }
+                            ],
+                            "drawLayer": 1,
+                            "id": 26,
+                            "name": "Door",
+                            "transform": {
+                                "position": [
+                                    0.5377653241157532,
+                                    0.0,
+                                    1.242548942565918
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 25,
+                    "name": "Pod Door",
+                    "transform": {
+                        "position": [
+                            -0.5377653241157532,
+                            0.0,
+                            -1.242548942565918
+                        ],
+                        "rotation": [
+                            0.3361026346683502,
+                            0.0,
+                            0.9418253898620605,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000019073486328,
+                            1.0,
+                            1.0000019073486328
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "drawLayer": 1,
+                    "id": 27,
+                    "name": "Pod Exterior",
+                    "prefab": "GameData\\Prefabs\\Pod Exterior.json",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "drawLayer": 1,
+                    "id": 28,
+                    "name": "Pod Interior",
+                    "prefab": "GameData\\Prefabs\\Pod Interior.json",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 24,
+            "name": "Pod",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    6.670833110809326
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "WaterColor",
+                        "textureGUID": 15353692435168822611,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 37,
+            "name": "Sea",
+            "transform": {
+                "position": [
+                    0.0,
+                    -2.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1000.0,
+                    1.0,
+                    1000.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 39,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            -1.0728440713592136e-07,
+                            0.0,
+                            0.0,
+                            -1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 38,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    1.6546109914779663,
+                    -0.8641805052757263,
+                    6.21113395690918
+                ],
+                "rotation": [
+                    -0.33959150314331055,
+                    0.8891011476516724,
+                    -0.10633542388677597,
+                    -0.2878706753253937
+                ],
+                "scale": [
+                    2.0,
+                    2.0000007152557373,
+                    2.0000014305114746
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Portrait",
+                        "meshGUID": 5941031221448030531,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Portrait",
+                        "textureGUID": 10240792835275847271,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 40,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    0.9875221848487854,
+                    0.8413428068161011,
+                    -3.7070560455322266
+                ],
+                "rotation": [
+                    -0.24673239886760712,
+                    9.224583408240505e-08,
+                    0.9690836668014526,
+                    5.269587197154202e-11
+                ],
+                "scale": [
+                    1.5000005960464478,
+                    1.5,
+                    1.5000005960464478
                 ]
             }
         }

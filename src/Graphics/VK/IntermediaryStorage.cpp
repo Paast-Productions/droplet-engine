@@ -7,6 +7,9 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
 #include <Graphics/VK/ShaderModule.hpp> 
+#include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/VK/ImGuiTexture.hpp>
+#include <Resource/DynamicResourceHandle.hpp>
 
 using namespace Droplet::Graphics::VK;
 
@@ -26,16 +29,15 @@ void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool
 
 void IntermediaryStorage::Shutdown()
 {
-#ifdef _EDITOR
-    m_imGuiTextures.clear();
-#endif
+    DestroyUnusedResources();
+    m_liveObjects.clear();
     
     m_textureSampler = { nullptr };
     
     // STORAGE
     m_presentTargets.clear();
     m_uniformBuffers.clear();
-    m_renderTargets.clear();
+    //m_renderTargets.clear();
     m_viewMap.clear();
     m_imageMap.clear();
     m_worldMap.clear();
@@ -51,30 +53,233 @@ void IntermediaryStorage::Shutdown()
     m_context = { nullptr };
 }
 
-std::uint32_t IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+
+std::uint32_t IntermediaryStorage::GetLiveObjectRefCount(GUID p_guid) const
 {
-    m_renderTargets.emplace_back(
-        m_allocator.Get(),
-        m_context->GetDevice(),
-        m_context->GetPhysicalDevice(),
-        p_width,
-        p_height);
+    if (p_guid == C_INVALID_GUID)
+    {
+        return 0;
+    }
     
-    return static_cast<std::uint32_t>(m_renderTargets.size() - 1);
+    return m_liveObjects.at(p_guid).refCount;
 }
 
-std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height)
+void IntermediaryStorage::IncrementRef(GUID p_guid)
 {
-    m_presentTargets.emplace_back(
-        m_allocator.Get(),
-        m_context->GetDevice(),
-        m_context->GetPhysicalDevice(),
-        p_presentImage,
-        p_format,
-        p_width,
-        p_height);
+    auto refCount = ++m_liveObjects.at(p_guid).refCount;
     
-    return static_cast<std::uint32_t>(m_presentTargets.size() - 1);
+    if (refCount == 1)
+    {
+        TracyPlot("Vulkan Objects", static_cast<std::int64_t>(m_liveObjects.size()));   
+    }
+}
+
+void IntermediaryStorage::DecrementRef(GUID p_guid)
+{
+    auto it = m_liveObjects.find(p_guid);
+    if (it == m_liveObjects.end())
+    {
+        std::print(std::cerr, "Tried to decrement a non-existing Vulkan object at GUID: {0}\n", p_guid);
+        std::flush(std::cerr);
+        return;   
+    }
+    if (--m_liveObjects.at(p_guid).refCount == 0)
+    {
+        MoveToDestructionQueue(p_guid);
+        return;
+    }
+}
+
+void IntermediaryStorage::MoveToDestructionQueue(GUID p_guid)
+{
+    // Move unused object to a destroy queue. It will be popped once the 
+    m_destroyQueue.push(std::move(m_liveObjects[p_guid]));
+    m_liveObjects.erase(p_guid);
+}
+
+void IntermediaryStorage::DestroyUnusedResources()
+{
+    m_context->GetDevice().waitIdle();
+    
+    while (!m_destroyQueue.empty())
+    {
+        DynamicLiveResource resource = std::move(m_destroyQueue.front());
+        
+        // If we have specific removal rules for each object type, add them here
+        switch (resource.type)
+        {
+            case DynamicResourceType::Buffer:
+            case DynamicResourceType::Image:
+            case DynamicResourceType::ImageView:
+                break;
+            case DynamicResourceType::ImGuiTexture:
+#ifdef _EDITOR
+                ImGui_ImplVulkan_RemoveTexture(dynamic_cast<ImGuiTextureResource*>(resource.resource.get())->Get());
+#endif
+                break;
+            
+            case DynamicResourceType::INVALID:
+                throw std::runtime_error("[Intermediary Storage]: Failed To Destroy Object With Invalid Type");
+        }
+        
+        m_destroyQueue.pop();
+    }
+    
+    TracyPlot("Vulkan Objects", static_cast<std::int64_t>(m_liveObjects.size()));
+}
+
+Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
+{
+    // Create Colour Image
+    
+    DynamicLiveResource colourImage 
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    GUID colourImageGuid { GuidUtils::Generate() };
+    m_liveObjects[colourImageGuid] = std::move(colourImage);
+    
+    DynamicResourceHandle<Image> colourImageHandle { colourImageGuid };
+    
+    // Create Colour Image View
+    
+    DynamicLiveResource colourImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())
+    };
+    
+    GUID colourImageViewGuid { GuidUtils::Generate() };
+    m_liveObjects[colourImageViewGuid] = std::move(colourImageView);
+    
+    DynamicResourceHandle<ImageView> colourImageViewHandle { colourImageViewGuid };
+    
+    // Create Depth Image
+    
+    DynamicLiveResource depthImage
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD32Sfloat, 
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    GUID depthImageGuid { GuidUtils::Generate() };
+    m_liveObjects[depthImageGuid] = std::move(depthImage);
+    
+    DynamicResourceHandle<Image> depthImageHandle { depthImageGuid };
+    
+    // Create Depth Image View
+    
+    DynamicLiveResource depthImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD32Sfloat,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+    
+    GUID depthImageViewGuid { GuidUtils::Generate() };
+    m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
+    
+    DynamicResourceHandle<ImageView> depthImageViewHandle { depthImageViewGuid };
+    
+    return RenderTarget 
+    {
+        colourImageHandle,
+        colourImageViewHandle,
+        depthImageHandle,
+        depthImageViewHandle
+    };
+}
+
+Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_colourImageGuid, GUID p_colourImageViewGuid, GUID p_depthImageGuid, GUID p_depthImageViewGuid, std::uint32_t p_width, std::uint32_t p_height)
+{
+    // Create Colour Image
+    
+    DynamicLiveResource colourImage 
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    m_liveObjects[p_colourImageGuid] = std::move(colourImage);
+    
+    DynamicResourceHandle<Image> colourImageHandle { p_colourImageGuid };
+    
+    // Create Colour Image View
+    
+    DynamicLiveResource colourImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())
+    };
+    
+    m_liveObjects[p_colourImageViewGuid] = std::move(colourImageView);
+    
+    DynamicResourceHandle<ImageView> colourImageViewHandle { p_colourImageViewGuid };
+    
+    // Create Depth Image
+    
+    DynamicLiveResource depthImage
+    {
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD32Sfloat, 
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+    
+    m_liveObjects[p_depthImageGuid] = std::move(depthImage);
+    
+    DynamicResourceHandle<Image> depthImageHandle { p_depthImageGuid };
+    
+    // Create Depth Image View
+    
+    DynamicLiveResource depthImageView 
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD32Sfloat,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+    
+    m_liveObjects[p_depthImageViewGuid] = std::move(depthImageView);
+    
+    DynamicResourceHandle<ImageView> depthImageViewHandle { p_depthImageViewGuid };
+    
+    return RenderTarget 
+    {
+        colourImageHandle,
+        colourImageViewHandle,
+        depthImageHandle,
+        depthImageViewHandle
+    };
 }
 
 const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
@@ -98,11 +303,11 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
 
     // IF FAILED, CREATE NEW
     ResourceManager& RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
-    ResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
-    ResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
-    ResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
-    ResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
+    StaticResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
+    StaticResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
+    StaticResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
+    StaticResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
+    StaticResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
 
     if (!(vs.IsReady() || vs.HasFailed()))
     {
@@ -212,7 +417,7 @@ const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
     if (it == m_indexMap.end())
     {
         ResourceManager& RMInstance = ResourceManager::GetInstance();
-        ResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
+        StaticResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
 
         if (!(meshRes.IsReady() || meshRes.HasFailed()))
         {
@@ -262,7 +467,7 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     }
 
     ResourceManager& RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_renderData.texData.GUID);
+    StaticResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_renderData.texData.GUID);
 
     if (!(texRes.IsReady() || texRes.HasFailed()))
     {
@@ -314,117 +519,208 @@ std::vector<vk::DescriptorSet> IntermediaryStorage::GetDescriptorSets() const
     return descriptorSets; 
 }
 
-#ifdef _EDITOR
-std::uint32_t IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
+std::uint32_t IntermediaryStorage::CreatePresentTarget(vk::Image p_presentImage, vk::Format p_format, std::uint32_t p_width, std::uint32_t p_height)
 {
-	static std::uint32_t guidCounter = 0;
-	std::uint32_t guid = guidCounter++;
-
-    m_imGuiTextures[guid] = ImGui_ImplVulkan_AddTexture(
-        *m_textureSampler.Get(),
-        *p_renderTarget.GetColorImageView(),
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-    );
-    
-    return guid;
-}
-
-void IntermediaryStorage::RemoveImGuiTexture(std::uint32_t p_index)
-{
-	if (m_imGuiTextures.find(p_index) == m_imGuiTextures.end())
-	{
-		throw std::out_of_range("Invalid ImGui texture index.");
-	}
-
-    m_context->GetDevice().waitIdle();
-
-    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_index));
-    m_imGuiTextures.erase(p_index);
-}
-
-void IntermediaryStorage::UpdateImGuiRenderTarget(std::uint32_t p_targetIndex, uint32_t p_textureIndex, std::uint32_t p_width, std::uint32_t p_height)
-{
-    m_context->GetDevice().waitIdle();
-    
-    ImGui_ImplVulkan_RemoveTexture(m_imGuiTextures.at(p_textureIndex));
-
-    m_renderTargets.emplace(
-        m_renderTargets.begin() + p_targetIndex,
+    m_presentTargets.emplace_back(
         m_allocator.Get(),
         m_context->GetDevice(),
         m_context->GetPhysicalDevice(),
+        p_presentImage,
+        p_format,
         p_width,
-        p_height
-    );
+        p_height);
     
-    m_imGuiTextures[p_textureIndex] = ImGui_ImplVulkan_AddTexture(
-        *m_textureSampler.Get(),
-        *m_renderTargets.at(p_targetIndex).GetColorImageView(),
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-    );
-
+    return static_cast<std::uint32_t>(m_presentTargets.size() - 1);
 }
 
-VkDescriptorSet IntermediaryStorage::GetOrCreateImGuiTexture(GUID p_guid)
+#ifdef _EDITOR
+
+Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(const RenderTarget &p_renderTarget)
+{
+    DynamicLiveResource imGuiTexture
+    {
+        .type = DynamicResourceType::ImGuiTexture,
+        .resource = std::make_unique<ImGuiTextureResource>(ImGui_ImplVulkan_AddTexture(
+            *m_textureSampler.Get(),
+            *p_renderTarget.GetColourImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        )
+    };
+
+    GUID imGuiTextureGuid{ GuidUtils::Generate() };
+    m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
+
+    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureHandle{ imGuiTextureGuid };
+
+    return ImGuiTexture{ imGuiTextureHandle };
+}
+
+Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_guid)
 {
     ZoneScoped;
 
-    auto it = m_imGuiTexMap.find(p_guid);
-
-    if (it != m_imGuiTexMap.end())
-    {
-        return m_imGuiTexMap[p_guid].descriptorSet;
-    }
-
     ResourceManager &RMInstance = ResourceManager::GetInstance();
-    ResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
+    StaticResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
 
     if (!(texRes.IsReady() || texRes.HasFailed()))
     {
-        return VK_NULL_HANDLE;
+        return {};
     }
 
-    ImGuiTexture &imguiTex = m_imGuiTexMap[p_guid];
-
-    imguiTex.image = Image(
-        m_allocator.Get(),
-        *m_commandPool,
-        *m_context,
-        texRes.Get()->GetPixelData().data(),
-        texRes.Get()->GetPixelData().size(),
-        texRes.Get()->GetWidth(),
-        texRes.Get()->GetHeight(),
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageTiling::eOptimal,
-        vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-        vk::MemoryPropertyFlagBits::eDeviceLocal
-    );
-
-    imguiTex.view = ImageView(
-        m_context->GetDevice(),
-        imguiTex.image.Get(),
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageAspectFlagBits::eColor
-    );
-
-    imguiTex.descriptorSet = ImGui_ImplVulkan_AddTexture(
-        *m_textureSampler.Get(),
-        *imguiTex.view.Get(),
-        VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-    );
-
-    return imguiTex.descriptorSet;
-}
-
-void IntermediaryStorage::RemoveImGuiTexture(GUID p_guid)
-{
-    auto it = m_imGuiTexMap.find(p_guid);
-    if (it == m_imGuiTexMap.end())
+    DynamicLiveResource imGuiImage
     {
-        return;
-    }
+        .type = DynamicResourceType::Image,
+        .resource = std::make_unique<Image>(
+            m_allocator.Get(),
+            *m_commandPool,
+            *m_context,
+            texRes.Get()->GetPixelData().data(),
+            texRes.Get()->GetPixelData().size(),
+            texRes.Get()->GetWidth(),
+            texRes.Get()->GetHeight(),
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
 
-    ImGui_ImplVulkan_RemoveTexture(it->second.descriptorSet);
-    m_imGuiTexMap.erase(it);
+    GUID imageGuid{ GuidUtils::Generate() };
+    m_liveObjects[imageGuid] = std::move(imGuiImage);
+
+    DynamicResourceHandle<Image> imGuiImageHandle{ imageGuid };
+
+    DynamicLiveResource imGuiImageView
+    {
+        .type = DynamicResourceType::ImageView,
+        .resource = std::make_unique<ImageView>(
+            m_context->GetDevice(),
+            imGuiImageHandle->Get(),
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageAspectFlagBits::eColor)
+    };
+
+    GUID imageViewGuid{ GuidUtils::Generate() };
+    m_liveObjects[imageViewGuid] = std::move(imGuiImageView);
+
+    DynamicResourceHandle<ImageView> imGuiImageViewHandle{ imageViewGuid };
+
+    DynamicLiveResource imGuiTexture
+    {
+        .type = DynamicResourceType::ImGuiTexture,
+        .resource = std::make_unique<ImGuiTextureResource>(
+            ImGui_ImplVulkan_AddTexture(
+                *m_textureSampler.Get(),
+                *imGuiImageViewHandle->Get(),
+                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+            )
+        )
+    };
+
+    GUID textureGuid{ GuidUtils::Generate() };
+    m_liveObjects[textureGuid] = std::move(imGuiTexture);
+
+    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureResourceHandle{ textureGuid };
+
+    return ImGuiTexture
+    {
+        imGuiTextureResourceHandle,
+        imGuiImageHandle,
+        imGuiImageViewHandle
+    };
 }
+
+void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height)
+{
+    ZoneScoped;
+
+    // Create Colour Image
+
+    GUID colourImageGuid{ p_target.GetColourImageGuid() };
+    DynamicLiveResource colourImage
+    {
+        .type = DynamicResourceType::Image,
+        .refCount = m_liveObjects[colourImageGuid].refCount,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+            p_width,
+            p_height,
+            vk::Format::eR8G8B8A8Unorm,
+            vk::ImageTiling::eOptimal,
+            vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
+            vk::MemoryPropertyFlagBits::eDeviceLocal),
+    };
+
+    MoveToDestructionQueue(colourImageGuid);
+    m_liveObjects[colourImageGuid] = std::move(colourImage);
+
+    DynamicResourceHandle<Image> colourImageHandle{ colourImageGuid };
+
+    // Create Colour Image View
+
+    GUID colourImageViewGuid{ p_target.GetColourImageViewGuid() };
+    DynamicLiveResource colourImageView
+    {
+        .type = DynamicResourceType::ImageView,
+        .refCount = m_liveObjects[colourImageViewGuid].refCount,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+            colourImageHandle->Get())
+    };
+
+    MoveToDestructionQueue(colourImageViewGuid);
+    m_liveObjects[colourImageViewGuid] = std::move(colourImageView);
+
+    // Create Depth Image
+
+    GUID depthImageGuid{ p_target.GetDepthImageGuid() };
+    DynamicLiveResource depthImage
+    {
+        .type = DynamicResourceType::Image,
+        .refCount = m_liveObjects[depthImageGuid].refCount,
+        .resource = std::make_unique<Image>(m_allocator.Get(),
+        p_width,
+        p_height,
+        vk::Format::eD32Sfloat,
+        vk::ImageTiling::eOptimal,
+        vk::ImageUsageFlagBits::eDepthStencilAttachment,
+        vk::MemoryPropertyFlagBits::eDeviceLocal)
+    };
+
+    MoveToDestructionQueue(depthImageGuid);
+    m_liveObjects[depthImageGuid] = std::move(depthImage);
+
+    DynamicResourceHandle<Image> depthImageHandle{ depthImageGuid };
+
+    // Create Depth Image View
+
+    GUID depthImageViewGuid{ p_target.GetDepthImageViewGuid() };
+    DynamicLiveResource depthImageView
+    {
+        .type = DynamicResourceType::ImageView,
+        .refCount = m_liveObjects[depthImageViewGuid].refCount,
+        .resource = std::make_unique<ImageView>(m_context->GetDevice(),
+        depthImageHandle->Get(),
+        vk::Format::eD32Sfloat,
+        vk::ImageAspectFlagBits::eDepth)
+    };
+
+    MoveToDestructionQueue(depthImageViewGuid);
+    m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
+
+    // Create ImGui Texture
+
+    GUID imGuiTextureGuid{ p_texture.GetGUID() };
+    DynamicLiveResource imGuiTexture
+    {
+        .type = DynamicResourceType::ImGuiTexture,
+        .refCount = m_liveObjects[imGuiTextureGuid].refCount,
+        .resource = std::make_unique<ImGuiTextureResource>(ImGui_ImplVulkan_AddTexture(
+            *m_textureSampler.Get(),
+            *p_target.GetColourImageView(),
+            VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+        )
+    };
+
+    MoveToDestructionQueue(imGuiTextureGuid);
+    m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
+}
+
 #endif

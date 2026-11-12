@@ -1,5 +1,5 @@
 project "Game"
-    kind "WindowedApp"
+    kind "ConsoleApp"
 
     location(projectsPath)
 

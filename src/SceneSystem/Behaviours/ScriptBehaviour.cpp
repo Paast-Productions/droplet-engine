@@ -4,6 +4,7 @@
 #include <print>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Script;
 
 void Droplet::Scene::ScriptBehaviour::PostUpdate()
 {

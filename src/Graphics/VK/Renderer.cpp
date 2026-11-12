@@ -104,11 +104,11 @@ Renderer::Renderer(SDL_Window *p_window) :
 		{
 			{ 
 				.type = vk::DescriptorType::eSampledImage,
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE * 10
 			},
 			{ 
 				.type = vk::DescriptorType::eSampler, 
-				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE
+				.descriptorCount = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLER_POOL_SIZE * 10
 			},
 		}
 	};
@@ -214,7 +214,7 @@ void Renderer::TransitionImageLayout(
 }
 
 void Renderer::RecordRenderTargetCommandBuffer(
-	vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
+	vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, 
 	const Camera &p_camera, std::vector<RenderData> &p_renderData, 
 	bool p_debug, glm::vec4 p_clearColor)
 {
@@ -229,7 +229,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
-		p_renderTarget.GetColorImage(),
+		p_renderTarget.GetColourImage(),
 #endif
 		vk::ImageLayout::eUndefined,
 		vk::ImageLayout::eColorAttachmentOptimal,
@@ -268,7 +268,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		.imageView = m_swapchain.GetPresentImageView(),
 #endif
 #ifdef _EDITOR
-		.imageView = p_renderTarget.GetColorImageView(),
+		.imageView = p_renderTarget.GetColourImageView(),
 #endif
 		.imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
 		.loadOp = vk::AttachmentLoadOp::eClear,
@@ -365,7 +365,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
-		p_renderTarget.GetColorImage(),
+		p_renderTarget.GetColourImage(),
 #endif
 		vk::ImageLayout::eColorAttachmentOptimal,
 		vk::ImageLayout::eShaderReadOnlyOptimal,
@@ -547,7 +547,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 		m_context.GetDevice().waitIdle();
 
 		m_swapchain = nullptr;
-		IntermediaryStorage::GetInstance().ClearPresentTargets();
+		VK::IntermediaryStorage::GetInstance().ClearPresentTargets();
 		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 		return;
 	}
@@ -577,7 +577,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		RecordRenderTargetCommandBuffer(
 			commandBuffer,
-			VK::IntermediaryStorage::GetInstance().GetRenderTargetAt(camRenderData.renderTarget),
+			camRenderData.renderTarget,
 			cam,
 			drawList,
 			camRenderData.debug,
@@ -641,7 +641,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		m_context.GetDevice().waitIdle();
 		m_swapchain = nullptr;
-		IntermediaryStorage::GetInstance().ClearPresentTargets();
+		VK::IntermediaryStorage::GetInstance().ClearPresentTargets();
 		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	}
 	else

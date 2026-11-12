@@ -35,6 +35,7 @@ namespace Droplet::Graphics::VK
         /// @param p_device Vulkan Device
         /// @param p_descriptorPool Vulkan Descriptor Pool
         /// @param p_descriptorType Vulkan Descriptor Type
+        /// @param p_descriptorCount Max num descriptors in the set
         DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool, vk::DescriptorType p_descriptorType);
         
         DescriptorSet(const DescriptorSet &p_other) = delete;
@@ -86,6 +87,9 @@ namespace Droplet::Graphics::VK
         void WriteDescriptor(const vk::raii::Device &p_device, const vk::raii::Sampler &p_sampler, const vk::raii::ImageView &p_imageView, uint32_t
                              p_dstIndex) const;
         
+        std::uint32_t GetNextAvailableIndex();
+        void ClearIndex(std::uint32_t p_index);
+        
         /// @brief Getter-function for the descriptor set
         /// @return Vulkan DescriptorSet
         [[nodiscard]] const vk::raii::DescriptorSet &Get() const { return m_descriptorSet; }
@@ -95,9 +99,13 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] const vk::raii::DescriptorSetLayout &GetLayout() const { return m_descriptorSetLayout; }
         
     private:
+        static constexpr std::uint32_t DESCRIPTOR_COUNT { 512 };
+        
         vk::raii::DescriptorSet m_descriptorSet { nullptr };
         vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
         vk::DescriptorType m_descriptorType {};
+        
+        std::bitset<DESCRIPTOR_COUNT> m_available { 0 };
         
         inline const static std::vector<vk::DescriptorType> s_bufferTypes 
         {

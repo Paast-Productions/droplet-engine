@@ -192,7 +192,7 @@ static void PhysicsTest()
     rm.Initialize(ROOT_PATH "/Assets");
     rm.RegisterResourceType<Droplet::MeshResource>();
     rm.RegisterAsset("Seafloor.fbx");
-    const Droplet::ResourceHandle<Droplet::MeshResource> rh = rm.LoadResource<Droplet::MeshResource>(12751091778080588892);
+    const Droplet::StaticResourceHandle<Droplet::MeshResource> rh = rm.LoadResource<Droplet::MeshResource>(12751091778080588892);
 
     Droplet::Time &time = Droplet::Time::Get();
     float timePassed = 0.0f;
@@ -220,7 +220,7 @@ static void PhysicsTest()
     }
 
     s->InitializePhysics();
-    s->GetPhysics()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
+    s->GetPhysics().lock()->SetGravity(glm::vec3(0.0f, -9.82f, 0.0f));
 
     sm.ActivateScene("Game");
 

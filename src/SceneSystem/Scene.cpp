@@ -411,9 +411,9 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 }
 
 
-Droplet::Physics *Scene::GetPhysics()
+std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
-    return m_physics.get();
+    return std::weak_ptr<Droplet::Physics>(m_physics);
 }
 
 std::shared_ptr<Node> Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
@@ -421,7 +421,16 @@ std::shared_ptr<Node> Scene::LoadNodeFromFile(const std::string& p_filepath, std
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    return serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
+	auto node = serializer.DeserializeLonsesomeNode(json, *this, p_overridePosition);
+
+	std::string relativePath = std::filesystem::relative(
+        std::filesystem::absolute(p_filepath), 
+        std::filesystem::path(ROOT_PATH)
+    ).string();
+
+	node->SetPrefabPath(relativePath);
+
+    return node;
 }
 
 void Scene::QueueRenderable(std::shared_ptr<Component> p_comp)

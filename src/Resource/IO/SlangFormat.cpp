@@ -25,15 +25,15 @@ namespace Droplet::IO::SlangFormat
         }
     }
 
-    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(
+    std::vector<std::pair<StaticResourceType, std::string>> ScanAssetResources(
         const std::filesystem::path &p_shaderPath)
     {
         ZoneScoped;
 
-        std::vector<std::pair<ResourceType, std::string>> resources{};
+        std::vector<std::pair<StaticResourceType, std::string>> resources{};
         
         std::string resourceName = p_shaderPath.stem().string();
-        resources.emplace_back(ResourceType::Shader, resourceName);
+        resources.emplace_back(StaticResourceType::Shader, resourceName);
         return resources;
     }
 }

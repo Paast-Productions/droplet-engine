@@ -4,6 +4,7 @@
 #include <Graphics/VK/TestData.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
+#include <chrono>
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
@@ -29,12 +30,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         return 1;
     }
 
+    //Droplet::EngineFlagsOwner::SetUpdateFlagBits();
+
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/MyScene.json");
 
-    engine.GetSceneManager().ActivateScene("BoatScene");
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    engine.GetSceneManager().ActivateScene("MyScene");
 
     bool mouseLock = true;
 
@@ -77,8 +82,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
             run = false;
             break;
         }
-
-        
 
         if (Droplet::GameInput::Get().KeyPressed(Droplet::Key::KeyEscape))
         {
