@@ -21,12 +21,13 @@ namespace Droplet::Scene
 		void RemovePodComponent(PodComponent *p_podComponent);
 
 		std::weak_ptr<PodComponent> GetPodInScene(std::weak_ptr<Scene> p_scene) const;
-		std::weak_ptr<PodComponent> GetPodInScene(std::string p_sceneName);
+		std::weak_ptr<PodComponent> GetPodInScene(const std::string &p_sceneName);
 
-		void BeginTransition(std::weak_ptr<Scene> p_targetScene, std::weak_ptr<Scene> p_currentScene);
+		void BeginTransition(const std::string &p_targetSceneName, std::weak_ptr<Scene> p_currentScene);
 
     protected:
-
+        
+		void StartImpl() override;
 		void PreUpdateImpl() override;
         void RenderUIImpl() override;
 
@@ -36,7 +37,7 @@ namespace Droplet::Scene
         std::weak_ptr<Scene> m_podScene;
         std::weak_ptr<Scene> m_targetScene;
 
-		float m_transitionTime = 5.0f;
+		float m_transitionTime = 1.0f;
 		float m_transitionTimer = 0.0f;
     };
 }

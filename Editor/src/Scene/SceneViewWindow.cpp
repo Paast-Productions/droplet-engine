@@ -1179,7 +1179,9 @@ void SceneViewWindow::RenderGameView()
 
 			// Reset the scene
 			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
-			m_editorContext->GetActiveScene().lock()->SetActive(false);
+			auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+			sceneManager.DeactivateScene(sceneName);
+
 			m_editorContext->CreateNewScene(sceneName);
 			m_editorContext->SetActiveScene(sceneName);
 			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());

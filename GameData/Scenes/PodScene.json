@@ -7,7 +7,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 36,
+                    "id": 35,
                     "name": "Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -75,7 +75,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 45,
+                    "id": 44,
                     "name": "Door",
                     "transform": {
                         "position": [
@@ -101,20 +101,21 @@
                 {
                     "active": true,
                     "data": {
-                        "player": 46
+                        "player": 45,
+                        "targetSceneName": ""
                     },
                     "id": 1,
                     "type": "PodComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 35,
+            "id": 34,
             "name": "Pod",
             "transform": {
                 "position": [
                     0.0,
                     0.0,
-                    0.0
+                    6.671000003814697
                 ],
                 "rotation": [
                     1.0,
@@ -131,15 +132,101 @@
         },
         {
             "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 90.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65535,
+                                "priority": 0,
+                                "resolution": [
+                                    1280,
+                                    720
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "CameraController.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 46,
+                    "name": "Camera",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.800000011920929,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/PlayerController.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.5,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.30000001192092896,
+                        "shapeType": 7
+                    },
+                    "id": 6,
+                    "type": "PhysicsComponent"
+                }
+            ],
             "drawLayer": 1,
-            "id": 46,
-            "name": "BasePlayer",
-            "prefab": "GameData\\Prefabs\\BasePlayer.json",
+            "id": 45,
+            "name": "Player",
             "transform": {
                 "position": [
                     0.0,
-                    0.5,
-                    0.0
+                    1.0,
+                    6.671000003814697
                 ],
                 "rotation": [
                     1.0,

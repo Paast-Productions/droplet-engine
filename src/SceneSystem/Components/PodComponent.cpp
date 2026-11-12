@@ -4,6 +4,7 @@
 #include <SceneSystem/Serialization/SerializationContext.hpp>
 #include <SceneSystem/Behaviours/PodBehaviour.hpp>
 #include <Editor/NodeSlot.hpp>
+#include <GameInput.hpp>
 
 using namespace Droplet::Scene;
 
@@ -15,7 +16,7 @@ PodComponent::~PodComponent()
 	}
 }
 
-void PodComponent::StartImpl()
+void PodComponent::ConstructImpl()
 {
 	// Search for the PodBehaviour. If none was found, create one.
 	auto scene = GetOwner()->GetScene();
@@ -30,6 +31,26 @@ void PodComponent::StartImpl()
 
 	std::shared_ptr<PodComponent> sharedThis = std::dynamic_pointer_cast<PodComponent>(shared_from_this());
 	podBehaviour->AddPodComponent(sharedThis);
+}
+
+void PodComponent::UpdateImpl()
+{
+	GameInput input = GameInput::Get();
+
+	if (input.KeyPressed(Key::KeyArrowUP) && m_targetSceneName == "BoatScene")
+	{
+		if (auto podBehaviourShared = m_podBehaviour.lock())
+		{
+			podBehaviourShared->BeginTransition(m_targetSceneName, GetOwner()->GetScene());
+		}
+	}
+	else if (input.KeyPressed(Key::KeyArrowDown) && m_targetSceneName == "Seafloor")
+	{
+		if (auto podBehaviourShared = m_podBehaviour.lock())
+		{
+			podBehaviourShared->BeginTransition(m_targetSceneName, GetOwner()->GetScene());
+		}
+	}
 }
 
 void PodComponent::RenderUIImpl()
@@ -50,6 +71,15 @@ void PodComponent::RenderUIImpl()
 		m_droneNode.SetTarget(droneNode.lock());
 	}
 
+	ImGui::InputText("Target Scene Name", &m_targetSceneName);
+
+	if (ImGui::Button("Transition"))
+	{
+		if (auto podBehaviourShared = m_podBehaviour.lock())
+		{
+			podBehaviourShared->BeginTransition(m_targetSceneName, GetOwner()->GetScene());
+		}
+	}
 #endif
 }
 
@@ -66,6 +96,8 @@ nlohmann::json PodComponent::SerializeImpl()
 	{
 		json["drone"] = m_droneNode.GetTarget()->GetID();
 	}
+
+	json["targetSceneName"] = m_targetSceneName;
 
 	return json;
 }
@@ -84,6 +116,11 @@ void PodComponent::DeserializeImpl(const nlohmann::json p_compJson)
 		SceneObjectID droneID;
 		droneID.nodeID = p_compJson["drone"];
 		m_droneNode.SetSerializedID(droneID);
+	}
+
+	if (p_compJson.contains("targetSceneName"))
+	{
+		m_targetSceneName = p_compJson["targetSceneName"];
 	}
 }
 

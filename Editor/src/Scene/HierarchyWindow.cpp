@@ -487,7 +487,10 @@ void HierarchyWindow::DrawSceneWindow()
     if (ImGui::Button("New Scene"))
     {
         std::string name = "New Scene";
-        m_editorContext->GetActiveScene().lock()->SetActive(false);
+
+		auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+        sceneManager.DeactivateScene(m_editorContext->GetActiveScene().lock()->GetName());
+
         m_editorContext->CreateNewScene(name);
         m_editorContext->SetActiveScene(name);
 
@@ -505,7 +508,9 @@ void HierarchyWindow::DrawSceneWindow()
 		{
 			if (ImGui::MenuItem(sceneName.c_str()))
 			{
-                m_editorContext->GetActiveScene().lock()->SetActive(false);
+                auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+                sceneManager.DeactivateScene(m_editorContext->GetActiveScene().lock()->GetName());
+
 				m_editorContext->SetActiveScene(sceneName);
 
                 std::strncpy(fileName, sceneName.c_str(), sceneName.size() - 1);

@@ -19,7 +19,9 @@ namespace Droplet::Scene
 		std::weak_ptr<Node> GetDroneNode() const { return m_droneNode.GetTarget(); }
 
 	protected:
-		void StartImpl() override;
+		void ConstructImpl() override;
+
+		void UpdateImpl() override;
 
 		void RenderUIImpl() override;
 
@@ -31,5 +33,7 @@ namespace Droplet::Scene
 		std::weak_ptr<PodBehaviour> m_podBehaviour;
 		SceneReference<Node> m_playerNode;
 		SceneReference<Node> m_droneNode;
+
+		std::string m_targetSceneName = "";
 	};
 }

@@ -399,7 +399,7 @@ namespace Droplet::Scene
         /// Components will be rendered in.
         Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-        /// @brief Indicates whether the Node has been started.
+        bool m_constructed = false;
         bool m_started = false;
 
 		// Transform

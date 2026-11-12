@@ -11,6 +11,16 @@ using namespace Droplet::Scene;
 
 void Component::Construct()
 {
+	if (m_constructed)
+	{
+		return;
+	}
+	m_constructed = true;
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	ConstructImpl();
 }
 
 void Component::Start()
@@ -36,6 +46,8 @@ void Component::Start()
 
 void Component::Update()
 {
+	assert(m_constructed && "Component must be constructed before calling Update().");
+
 	if (!IsActiveSelf() || !m_started)
 	{
 		return;
@@ -75,6 +87,8 @@ void Component::FixedUpdate()
 
 void Component::EditorUpdate()
 {
+	assert(m_constructed && "Component must be constructed before calling EditorUpdate().");
+
 	if (!m_started)
 	{
 		return;

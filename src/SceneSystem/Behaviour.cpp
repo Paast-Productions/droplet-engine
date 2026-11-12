@@ -56,7 +56,7 @@ void Behaviour::Start()
 
 void Behaviour::PreUpdate()
 {
-	if (m_isStarted)
+	if (!m_isStarted)
 	{
 		return;
 	}
@@ -75,7 +75,7 @@ void Behaviour::PreUpdate()
 
 void Behaviour::PostUpdate()
 {
-	if (m_isStarted)
+	if (!m_isStarted)
 	{
 		return;
 	}

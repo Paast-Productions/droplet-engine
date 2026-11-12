@@ -32,12 +32,12 @@ Node::~Node()
 
 void Node::Construct()
 {
-	auto scene = m_scene.lock();
-
-	if (!scene || !scene->IsActive())
+	if (m_constructed)
 	{
 		return;
 	}
+
+	m_constructed = true;
 
 	ZoneScoped;
 	ZoneText(m_name.c_str(), m_name.size());
@@ -86,6 +86,8 @@ void Node::Start()
 
 void Node::Update()
 {
+	assert(m_constructed && "Node must be constructed before calling Update().");
+
 	if (!m_active)
 	{
 		return;
@@ -150,6 +152,8 @@ void Node::FixedUpdate()
 
 void Node::EditorUpdate()
 {
+	assert(m_constructed && "Node must be constructed before calling EditorUpdate().");
+
 	ZoneScoped;
 	ZoneText(m_name.c_str(), m_name.size());
 
@@ -451,6 +455,8 @@ std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> p_comp
 	{
 		m_nextComponentID = p_componentID + 1;
 	}
+
+	p_component->Construct();
 
 	if (m_started)
 	{

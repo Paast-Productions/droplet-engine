@@ -196,6 +196,7 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_constructed = false;
 		bool m_started = false;
 		bool m_active = true;
         bool m_renderable = false;
