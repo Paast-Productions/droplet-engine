@@ -1,12 +1,12 @@
 #include "IndexBuffer.hpp"
-#include <iostream>
-
 
 using namespace Droplet::Graphics::VK;
 
 IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::CommandBuffer &p_commandBuffer, const std::vector<std::uint32_t> &p_indices)
 {
 	const vk::DeviceSize bufferSize { sizeof(p_indices[0]) * p_indices.size() };
+	
+	m_indexCount = static_cast<std::uint32_t>(p_indices.size());
 	
 	// --------------
 	// Staging Buffer

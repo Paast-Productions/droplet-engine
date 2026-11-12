@@ -615,28 +615,16 @@ const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_command
 
         m_vertexMap[key] = VertexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetVertexData() };
         m_indexMap[key] = IndexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetIndexData() };
-
-        Mesh mesh
-        {
-            .valid = true,
-            .vertexBuffer = m_vertexMap.at(key).Get(),
-            .indexBuffer = m_indexMap.at(key).Get(),
-            .indexCount = m_indexMap.at(key).GetIndexCount()
-        };
-
-        return mesh;
     }
-    else
+    
+    Mesh mesh
     {
-        Mesh mesh
-        {
-            .valid = true,
-            .vertexBuffer = m_vertexMap.at(key).Get(),
-            .indexBuffer = m_indexMap.at(key).Get(),
-            .indexCount = m_indexMap.at(key).GetIndexCount()
-        };
-        return mesh;
-    }
+        .valid = true,
+        .vertexBuffer = m_vertexMap.at(key).Get(),
+        .indexBuffer = m_indexMap.at(key).Get(),
+        .indexCount = m_indexMap.at(key).GetIndexCount()
+    };
+    return mesh;
 }
 
 std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result)

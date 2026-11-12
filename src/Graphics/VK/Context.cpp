@@ -129,7 +129,7 @@ void Context::CreateLogicalDevice()
 			},	
 			{	// vk::PhysicalDeviceVulkan14Features
 				.bresenhamLines = true,
-				.dynamicRenderingLocalRead = true
+				//.dynamicRenderingLocalRead = true
 			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
 				.extendedDynamicState = true

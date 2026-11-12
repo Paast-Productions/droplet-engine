@@ -36,7 +36,7 @@ namespace Droplet::Graphics::VK
 		
 		IndexBuffer(IndexBuffer &&p_other) noexcept
 		{
-			m_indexCount = p_other.m_indexCount;
+			std::swap(m_indexCount, p_other.m_indexCount);
 			std::swap(m_indexBuffer, p_other.m_indexBuffer);
 			std::swap(m_stagingBuffer, p_other.m_stagingBuffer);
 		}
@@ -48,7 +48,7 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_indexCount = p_other.m_indexCount;
+			std::swap(m_indexCount, p_other.m_indexCount);
 			std::swap(m_indexBuffer, p_other.m_indexBuffer);
 			std::swap(m_stagingBuffer, p_other.m_stagingBuffer);
 			
