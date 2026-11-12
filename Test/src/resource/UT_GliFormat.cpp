@@ -40,7 +40,7 @@ TEST_F(GliFormatTest, ScanAssetResources)
 	auto resources = IO::GliFormat::ScanAssetResources(m_validKtxPath);
     
     ASSERT_EQ(resources.size(), 1);
-    EXPECT_EQ(resources[0].first, ResourceType::Texture2D);
+    EXPECT_EQ(resources[0].first, StaticResourceType::Texture2D);
 }
 
 TEST_F(GliFormatTest, Load2DValidKtx)

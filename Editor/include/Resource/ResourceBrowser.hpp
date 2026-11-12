@@ -1,9 +1,9 @@
 #pragma once
+
+#include <string>
+
 #include <EditorWindow.hpp>
 #include <ResourceManager.hpp>
-#include <string>
-#include <Engine/Engine.hpp>
-#include <core/FileExplorer.hpp>
 #include <EditorContext.hpp>
 
 namespace Droplet::Editor::Resource
@@ -21,13 +21,13 @@ namespace Droplet::Editor::Resource
 	{
 		Graphics::Camera camera{};
 
-		std::uint32_t targetIndex{ Graphics::VK::INVALID_INDEX };
-		std::uint32_t textureIndex{ Graphics::VK::INVALID_INDEX };
+		Droplet::Graphics::RenderTarget renderTarget {};
+		Droplet::Graphics::ImGuiTexture texture {};
 		glm::ivec2 resolution{ 256, 256 };
 
-		ResourceHandle<Texture2DResource> texHandle{};
-		ResourceHandle<ShaderResource> vsHandle{};
-		ResourceHandle<ShaderResource> fsHandle{};
+		StaticResourceHandle<Texture2DResource> texHandle {};
+		StaticResourceHandle<ShaderResource> vsHandle {};
+		StaticResourceHandle<ShaderResource> fsHandle {};
 	};
     
 	class ResourceBrowser : public EditorWindow
@@ -69,7 +69,7 @@ namespace Droplet::Editor::Resource
         /// @brief Converts a resource type enum to a string.
         /// @param p_type The resource type to convert.
         /// @return String representing the resource type.
-        std::string ResourceTypeToString(ResourceType p_type);
+        std::string ResourceTypeToString(StaticResourceType p_type);
 	    
 	    BrowserNode m_rootBrowserNode {}; // The root node in the resource browser hierarchy
 	    std::filesystem::path m_currentBrowserPath; // The current directory of the resource browser
@@ -77,10 +77,10 @@ namespace Droplet::Editor::Resource
 		GUID m_selectedResourceGuid = C_INVALID_GUID; // The GUID of the currently selected resource in the resource browser.
 	    MetaEntry m_inspectedEntry {}; // The current entry being inspected
 
-		PreviewCamera m_previewCamera{}; // The camera used for rendering previews of resources in the resource browser
-		ResourceHandle<IResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
+		PreviewCamera m_previewCamera {}; // The camera used for rendering previews of resources in the resource browser
+		StaticResourceHandle<IStaticResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
-	    
+		
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
 	    std::string m_unsupportedFilesList {}; // A list of unsupported assets in the latest registering attempt
 	    std::queue<std::vector<MetaEntry>> m_registerPopupQueue {}; // Queued popups upon successful resource registration

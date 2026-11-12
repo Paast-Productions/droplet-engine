@@ -6,6 +6,7 @@
 
 #include "CommandPool.hpp"
 
+// TODO: MOVE
 /// @brief Helper function to find memory properties of the hardware
 /// @param p_physDevice RAII pointer reference to hardware device
 /// @param p_typeFilter Type bits of the hardwares memory requirements
@@ -16,6 +17,7 @@ std::uint32_t FindMemoryType(
 	uint32_t p_typeFilter, 
 	vk::MemoryPropertyFlags p_properties);
 
+// TODO: REMOVE
 /// @brief Helper function to allocate and create a buffer
 /// @param p_device RAII pointer reference to the device
 /// @param p_physDevice RAII pointer reference to hardware device
@@ -30,6 +32,7 @@ std::pair<vk::raii::Buffer, vk::raii::DeviceMemory> CreateBuffer(
 	vk::BufferUsageFlags p_usage, 
 	vk::MemoryPropertyFlags p_properties);
 
+// TODO: REMOVE
 /// @brief Submits a copy command to the queue
 /// @param p_queue RAII pointer reference to the Vulkan Queue
 /// @param p_commandPool Pointer reference to a CommandPool instance
@@ -43,6 +46,7 @@ void CopyBuffer(
 	const vk::raii::Buffer &p_dstBuffer, 
 	vk::DeviceSize p_size);
 
+// TODO: MOVE
 /// @brief Translates image data from one layout to another
 /// @param p_commandBuffer RAII pointer to a command buffer
 /// @param p_image RAII pointer to the image

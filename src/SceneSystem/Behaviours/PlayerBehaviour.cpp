@@ -10,7 +10,6 @@
 
 namespace Droplet::Scene
 {
-
     namespace
     {
         using Droplet::Game::ItemDef;
@@ -67,17 +66,20 @@ namespace Droplet::Scene
 
                 ImGui::TableSetColumnIndex(0);
                 if (def)
+                    //name
                     ImGui::TextUnformatted(def->displayName.c_str());
                 else
                     ImGui::TextDisabled("<unknown #%u>", stack.item.value);
 
                 ImGui::TableSetColumnIndex(1);
                 if (def)
+                    //item
                     ImGui::TextUnformatted(def->name.c_str());
                 else
                     ImGui::TextDisabled("-");
 
                 ImGui::TableSetColumnIndex(2);
+                //count
                 ImGui::Text("%u", stack.count);
             }
 
@@ -199,6 +201,22 @@ namespace Droplet::Scene
         {
             // Log with your logger: "Player save referenced <skipped> unknown item(s), dropped."
         }
+    }
+
+    std::vector<Droplet::Game::ItemId> PlayerBehaviour::GetUniqueID() const
+    {
+        std::vector<Droplet::Game::ItemId> uniqueVlues;
+        std::unordered_set<std::uint32_t> seenValues;
+		std::uint32_t counter = 0;
+        for (const auto& stack : m_data.playerInventory)
+        {
+            if (seenValues.find(stack.item.value) == seenValues.end())
+            {
+                seenValues.insert(stack.item.value);
+                uniqueVlues.push_back(stack.item);
+            }
+        }
+        return uniqueVlues;
     }
 
     void PlayerBehaviour::RenderUIImpl()

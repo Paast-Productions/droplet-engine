@@ -172,6 +172,7 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+ 
 
         /// @brief Gets the parent Node.
         ///
@@ -370,8 +371,24 @@ namespace Droplet::Scene
         	return components.empty() ? nullptr : components.front();
         }
 
+		[[nodiscard]] bool IsPrefab() const
+		{
+			return !m_prefabPath.empty();
+		}
+
+		[[nodiscard]] const std::string &GetPrefabPath() const
+		{
+			return m_prefabPath;
+		}
+
+		void SetPrefabPath(const std::string &p_prefabPath)
+		{
+			m_prefabPath = p_prefabPath;
+		}
+
     private:
         std::string m_name;
+        std::string m_prefabPath = "";
         
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
@@ -393,6 +410,9 @@ namespace Droplet::Scene
 		// Transform
 
         Transform m_transform;
+
+		//player data
+		PlayerBehaviour m_playerBehaviour;
 
 		// Hierarchy
 

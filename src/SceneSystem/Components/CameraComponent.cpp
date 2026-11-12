@@ -4,37 +4,22 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <IntermediaryStorage.hpp>
+#include <Graphics/VK/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
-CameraComponent::~CameraComponent()
-{
-	if (m_textureIndex != Graphics::VK::INVALID_INDEX)
-	{
-		try // HACK: Until destruction order has been corrected
-		{
-			Graphics::VK::IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_textureIndex);
-		}
-		catch (...)
-		{
-			
-		}
-	}
-}
-
 void CameraComponent::StartImpl()
 {
 	using namespace Graphics::VK;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
-	m_targetIndex = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
+	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
 	{
-		m_textureIndex = instance.CreateImGuiTexture(
-			instance.GetRenderTargetAt(m_targetIndex)
+		m_texture = instance.CreateImGuiTexture(
+			m_target
 		);
 	}
 }
@@ -56,7 +41,7 @@ void CameraComponent::QueueRenderImpl()
 		// TODO
 
 		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-			m_targetIndex, m_textureIndex,
+			m_target, m_texture,
 			m_resolution.x, m_resolution.y
 		);
 
@@ -156,10 +141,7 @@ void CameraComponent::RenderUIImpl()
 
 	if (TreeNode("Preview"))
 	{
-		ImTextureRef camViewTexture = static_cast<VkDescriptorSet>(
-			Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_textureIndex)
-		);
-
+		ImTextureRef camViewTexture = m_texture.Get();
 		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
 		float availWidth = GetContentRegionAvail().x;
@@ -221,7 +203,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
 	renderData.priority = m_priority;
-	renderData.renderTarget = m_targetIndex;
+	renderData.renderTarget = m_target;
 	renderData.renderData = m_renderData;
 	renderData.debug = m_debugDraw;
 	renderData.clearColor = m_clearColor;

@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "Test_BrandNewAsset",
-            "guid": 1816302908189813529,
+            "displayName": "WaterColor",
+            "guid": 15353692435168822611,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "Test_BrandNewAsset",
+            "sourceName": "WaterColor",
             "type": 1
         }
     ]

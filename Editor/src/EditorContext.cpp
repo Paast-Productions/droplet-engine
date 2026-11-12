@@ -42,14 +42,14 @@ void Droplet::Editor::EditorContext::LoadFromFile( const std::string &p_filepath
 	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
 
-void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, const Droplet::Scene::Node &p_node)
+void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, Droplet::Scene::Node &p_node)
 {
 	m_engine.GetSceneManager().SerializeNodeToFile(p_node, p_filepath);
 }
 
 void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
-	GetActiveScene().lock()->LoadNodeFromFile(p_filepath,p_overridePosition);
+	GetActiveScene().lock()->LoadNodeFromFile(p_filepath, p_overridePosition);
 }
 
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()

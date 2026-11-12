@@ -81,6 +81,31 @@ void NodeInspectorWindow::RenderImpl()
 		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}
 
+	if (m_currentNode.lock()->IsPrefab())
+	{
+		std::string prefabPath = m_currentNode.lock()->GetPrefabPath();
+
+		float undoPrefabButtonPosX = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - iconButtonWidth;
+
+		ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.1f, 1.0f), "Prefab: %s", prefabPath.c_str());
+
+		ImGui::SameLine();
+
+		ImGui::SetCursorPosX(undoPrefabButtonPosX);
+
+		// Make red
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+		
+		if (ImGui::Button(ICON_LC_X))
+		{
+			m_currentNode.lock()->SetPrefabPath("");
+		}
+
+		ImGui::PopStyleColor(3);
+	}
+
 	// Transform
 	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 	{

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "resource/GuidUtils.hpp"
-#include "resource/IResource.hpp"
 #include "resource/types/SoundResource.hpp"
+#include "resource/IStaticResource.hpp"
 #include "resource/types/ShaderResource.hpp"
 
 #include <json/json.hpp>
@@ -51,7 +51,7 @@ namespace Droplet
     struct MetaEntry
     {
         GUID guid = C_INVALID_GUID; // The globally unique identifier of this resource
-        ResourceType type = ResourceType::None; // The type of resource this entry represents
+        StaticResourceType type = StaticResourceType::None; // The type of resource this entry represents
         std::string sourceName; // The name of the resource (found in the asset file or generated based on the asset file name)
         std::string displayName; // Defaults to sourceName but can be altered afterwards 
         std::string relAssetPath; // Not written to metafile

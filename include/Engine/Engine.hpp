@@ -13,13 +13,9 @@
 #include <Engine/EngineFlags.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/VK/Renderer.hpp>
-#include <Resource/ResourceManager.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
-#include <SceneSystem/Behaviour.hpp>
 #include <GameInput.hpp>
-#include <Time.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
 #include <Audio/AudioSystem.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 

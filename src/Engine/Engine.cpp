@@ -2,27 +2,17 @@
 #include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <SceneSystem/ComponentRegistry.hpp>
-#include <SceneSystem/Components/MeshComponent.hpp>
-#include <SceneSystem/Components/SkeletonComponent.hpp>
-#include <SceneSystem/Components/ScriptComponent.hpp>
-#include <SceneSystem/Components/AudioEmitterComponent.hpp>
-#include <SceneSystem/Components/AudioPlayerComponent.hpp>
-#include <SceneSystem/Components/AudioListenerComponent.hpp>
-#include <SceneSystem/Components/PhysicsComponent.hpp>
-#include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
-#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <SceneSystem/Components/HealthComponent.hpp>
-#include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/TriggerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
 #include <SceneSystem/Items/BaseItems.hpp>
+#include <RegisterGame.hpp>
+#include <RegisterEngine.hpp>
+#include <Time.hpp>
 #include <Resource/IO/AudioFormat.hpp>
 
 using namespace Droplet;
@@ -94,16 +84,23 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	m_sceneManager.SetItemRegistry(&m_itemRegistry);
 
 	// Register engine behaviours
-	RegisterBehaviours();
+	Droplet::RegisterEngineBehaviours();
+
+	// Register game behaviours
+	Droplet::Game::RegisterGameBehaviours();
 
 	// Register engine components
-	RegisterComponents();
+	Droplet::RegisterEngineComponents();
+
+	//register game components
+	Droplet::Game::RegisterGameComponents();
 
 	// Script Init
-	ScriptSystem::Get().Initialize(m_sceneManager);
+	Script::ScriptSystem::Get().Initialize(m_sceneManager);
     
+    // Audio Init
     Audio::AudioSystem::GetInstance().Initialize();
-
+    
 	GameInput::Get().SetMainWindow(m_window.Get());
 
 }
@@ -182,7 +179,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 
 	// ResourceManager
 
-	ResourceManager::Get().Update();
+	ResourceManager::GetInstance().Update();
     
     Audio::AudioSystem::GetInstance().Update();
 
@@ -223,6 +220,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderDat
 
 	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
+	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
 	FrameMark;
 

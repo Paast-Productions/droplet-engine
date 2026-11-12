@@ -3,19 +3,20 @@
     "children": [],
     "components": [
         {
+            "active": true,
             "data": {
                 "fs": 13680123319807966343,
                 "fsName": "Base.FS",
                 "gs": 0,
                 "gsName": "",
-                "meshDisplayName": "Cube.004",
-                "meshGUID": 12885130674664679680,
+                "meshDisplayName": "Pod_Exterior",
+                "meshGUID": 7445482948709711179,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
-                "textureDisplayName": "Drone",
-                "textureGUID": 1365390299680718017,
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -23,30 +24,32 @@
             "type": "MeshComponent"
         },
         {
+            "active": true,
             "data": {
-                "h": 1.0,
+                "h": 0.0,
                 "halfExtentsX": 0.0,
                 "halfExtentsY": 0.0,
                 "halfExtentsZ": 0.0,
-                "layer": 1,
-                "meshGUID": 0,
-                "motionType": 2,
+                "layer": 0,
+                "meshGUID": 7445482948709711179,
+                "motionType": 0,
                 "offsetX": 0.0,
                 "offsetY": 0.0,
                 "offsetZ": 0.0,
-                "r": 1.0,
-                "shapeType": 7
+                "r": 0.0,
+                "shapeType": 4
             },
             "id": 2,
             "type": "PhysicsComponent"
         }
     ],
-    "id": 1,
-    "name": "Drone",
+    "drawLayer": 1,
+    "id": 3,
+    "name": "Pod Exterior",
     "transform": {
         "position": [
             0.0,
-            17.699125289916992,
+            0.0,
             0.0
         ],
         "rotation": [

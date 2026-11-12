@@ -101,42 +101,45 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
 }
 
 
-nlohmann::json SceneSerializer::SerializeNode(const Node &p_node)
+nlohmann::json SceneSerializer::SerializeNode(const Node &p_node, bool p_undoPrefab, bool p_undoPrefabRecursively)
 {
     nlohmann::json json;
-    
+
     json["name"] = p_node.GetName();
     json["id"] = p_node.GetID();
     json["active"] = p_node.IsActive();
-	json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
+    json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
     json["transform"] = SerializeTransform(p_node.GetTransform());
-    json["components"] = nlohmann::json::array();
-    
-    for (const auto& component : p_node.GetAllComponents())
-    {
-        json["components"].push_back(component->Serialize());
-    }
 
-    json["children"] = nlohmann::json::array();
-
-    for (const auto& child : p_node.GetChildren())
+    if (p_node.IsPrefab() && !p_undoPrefab)
     {
-        json["children"].push_back(SerializeNode(*child));
+		json["prefab"] = p_node.GetPrefabPath();
+	}
+    else
+    {
+        json["components"] = nlohmann::json::array();
+
+        for (const auto &component : p_node.GetAllComponents())
+        {
+            json["components"].push_back(component->Serialize());
+        }
+
+        json["children"] = nlohmann::json::array();
+
+        for (const auto &child : p_node.GetChildren())
+        {
+            json["children"].push_back(SerializeNode(*child, p_undoPrefabRecursively, p_undoPrefabRecursively));
+        }
     }
 
     return json;
 }
 
-void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext& p_context)
+void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext& p_context)
 {
     if (!p_json.contains("name"))
     {
         throw std::runtime_error("Node is missing required field 'name'");
-    }
-
-    if (!p_json.contains("components"))
-    {
-        throw std::runtime_error("Node is missing required field 'components'");
     }
 
     if (!p_json.contains("transform"))
@@ -144,48 +147,71 @@ void SceneSerializer::DeserializeNode( const nlohmann::json& p_json, std::shared
         throw std::runtime_error("Node is missing required field 'transform'");
     }
 
-    if (!p_json.contains("children"))
-    {
-        throw std::runtime_error("Node is missing required field 'name'");
-    }
-
     if (!p_json.contains("id"))
     {
         throw std::runtime_error("Node is missing required field 'id'");
     }
 
-    if (!p_json.contains("active"))
-    {
-        throw std::runtime_error("Node is missing required field 'active'");
-    }
+	std::shared_ptr<Node> node = nullptr;
 
-    std::shared_ptr<Node> node = p_scene->AddNode(p_json["name"]);
-    if (p_parentNode)
-    {
-        p_parentNode->AddChild(node);
-    }
+	if (p_json.contains("prefab"))
+	{
+		std::string prefabPath = p_json["prefab"];
 
-    p_context.RegisterNode(p_json["id"], node);
-    node->SetActive(p_json["active"]);
+        node = p_scene->LoadNodeFromFile(ROOT_PATH "/" + prefabPath);
+		node->SetName(p_json["name"]);
 
-    if (p_json.contains("drawLayer"))
+        if (p_parentNode)
+        {
+            p_parentNode->AddChild(node);
+        }
+
+        p_context.RegisterNode(p_json["id"], node);
+
+        if (p_json.contains("active"))
+        {
+            node->SetActive(p_json["active"]);
+        }
+	}
+    else
     {
-		uint16_t drawLayerValue = p_json["drawLayer"];
-		node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+        node = p_scene->AddNode(p_json["name"]);
+        if (p_parentNode)
+        {
+            p_parentNode->AddChild(node);
+        }
+
+        p_context.RegisterNode(p_json["id"], node);
+
+        if (p_json.contains("active"))
+        {
+            node->SetActive(p_json["active"]);
+        }
+
+        if (p_json.contains("drawLayer"))
+        {
+            uint16_t drawLayerValue = p_json["drawLayer"];
+            node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+        }
+
+        if (p_json.contains("children"))
+        {
+            for (const auto &childJson : p_json["children"])
+            {
+                DeserializeNode(childJson, node, p_scene, p_context);
+            }
+        }
+
+        if (p_json.contains("components"))
+        {
+            for (const auto &componentJson : p_json["components"])
+            {
+                DeserializeComponent(componentJson, node, p_json["id"], p_context);
+            }
+        }
     }
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
-
-    for (const auto &componentJson : p_json["components"])
-    {
-        DeserializeComponent(componentJson, node, p_json["id"], p_context);
-
-    }
-
-    for (const auto &childJson : p_json["children"])
-    {
-        DeserializeNode(childJson, node, p_scene, p_context);
-    }
 }
 
 void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_node, std::uint64_t p_serializedNodeID,SerializationContext& p_context)

@@ -21,6 +21,7 @@ namespace Droplet
         m_prevMouseY = m_mouseY;
         m_deltaMouseX = 0.0f;
         m_deltaMouseY = 0.0f;
+		m_mouseScroll = 0.0f;
 
 		if (m_cursorLockWindow)
 		{
@@ -69,6 +70,10 @@ namespace Droplet
 
 		case SDL_EVENT_MOUSE_BUTTON_UP:
             m_currentMouse[static_cast<std::size_t>(p_event.button.button)] = false;
+			break;
+
+		case SDL_EVENT_MOUSE_WHEEL:
+			m_mouseScroll += p_event.wheel.y;
 			break;
 
         default:
@@ -130,14 +135,17 @@ namespace Droplet
 
     float GameInput::GetDeltaMouseX() const
     {
-        //return m_mouseX - m_prevMouseX;
 		return m_deltaMouseX;
     }
 
     float GameInput::GetDeltaMouseY() const
     {
-        //return m_mouseY - m_prevMouseY;
 		return m_deltaMouseY;
+    }
+
+    float GameInput::GetMouseScroll() const
+    {
+		return m_mouseScroll;
     }
 
     glm::vec2 GameInput::GetDeltaMouse() const

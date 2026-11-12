@@ -10,7 +10,7 @@
 
 #include "MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
-#include "resource/ResourceHandle.hpp"
+#include "resource/StaticResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
@@ -31,38 +31,38 @@ namespace Droplet
 		Failed
 	};
 
-	/// @brief Contains relevant information about a specific loaded resource.
-	struct LiveResource
-	{
-		std::unique_ptr<IResource> resource = nullptr;
-		ResourceState state = ResourceState::Unloaded;
-	    ResourceType type = ResourceType::None;
-		uint32_t refCount = 0;
-		
-		std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
-	};
+    /// @brief Contains relevant information about a specific loaded resource.
+    struct LiveResource
+    {
+        std::unique_ptr<IStaticResource> resource = nullptr;
+        ResourceState state = ResourceState::Unloaded;
+        StaticResourceType type = StaticResourceType::None;
+        uint32_t refCount = 0;
+        
+        std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
+    };
 
-	/// @brief The package sent back from a worker thread after a load operation has been completed.
-	struct AsyncLoadResult
-	{
-		bool succeeded = true;
-		
-		GUID guid;
-		IResource* resource = nullptr;
-		ResourceLoadFlag loadFlags;
-	};
+    /// @brief The package sent back from a worker thread after a load operation has been completed.
+    struct AsyncLoadResult
+    {
+        bool succeeded = true;
+        
+        GUID guid;
+        IStaticResource* resource = nullptr;
+        ResourceLoadFlag loadFlags;
+    };
 
-	/// @brief The package sent back from a worker thread after a register operation has been completed.
-	struct AsyncRegisterResult
-	{
-		std::filesystem::path relAssetPath;
-		std::filesystem::path absoluteMetaPath;
-		std::vector<std::pair<ResourceType, std::string>> foundResources;
-		bool succeeded = false;
-		std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
-	};
-	
-	using AssetScannerFunc = std::vector<std::pair<ResourceType, std::string>>(*)(const std::filesystem::path &);
+    /// @brief The package sent back from a worker thread after a register operation has been completed.
+    struct AsyncRegisterResult
+    {
+        std::filesystem::path relAssetPath;
+        std::filesystem::path absoluteMetaPath;
+        std::vector<std::pair<StaticResourceType, std::string>> foundResources;
+        bool succeeded = false;
+        std::function<void(bool p_succeeded, const std::vector<MetaEntry>&)> onCompleteCallback = nullptr;
+    };
+    
+    using AssetScannerFunc = std::vector<std::pair<StaticResourceType, std::string>>(*)(const std::filesystem::path &);
 
 	/// @brief Universal resource manager class.
 	class ResourceManager
@@ -74,10 +74,6 @@ namespace Droplet
 		{
 			static ResourceManager instance {};
 			return instance;
-		}
-		[[nodiscard]] static ResourceManager &Get()
-		{
-			return ResourceManager::GetInstance();
 		}
 
 		ResourceManager(const ResourceManager &) = delete;
@@ -105,38 +101,38 @@ namespace Droplet
 		void RegisterAsset(const std::filesystem::path &p_relAssetPath, 
 			std::function<void(bool p_success, const std::vector<MetaEntry>&)> p_onComplete = nullptr);
 
-		/// @brief Loads a resource specified by a guid.
-		/// @tparam T The resource type.
-		/// @param p_guid The guid of the resource.
-		/// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
-		/// @return A handle to the resource. Make sure to check its validity before use.
-		template<typename T>
-		[[nodiscard]] ResourceHandle<T> LoadResource(GUID p_guid, std::function<void(ResourceHandle<T>)> p_onLoadCallback = nullptr)
-		{
-			static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource");
-			assert(m_isInitialized && "ResourceManager is not initialized.");
+        /// @brief Loads a resource specified by a guid.
+        /// @tparam T The resource type.
+        /// @param p_guid The guid of the resource.
+        /// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
+        /// @return A handle to the resource. Make sure to check its validity before use.
+        template<typename T>
+        [[nodiscard]] StaticResourceHandle<T> LoadResource(GUID p_guid, std::function<void(StaticResourceHandle<T>)> p_onLoadCallback = nullptr)
+        {
+            static_assert(std::is_base_of_v<IStaticResource, T>, "T must inherit from IResource");
+            assert(m_isInitialized && "ResourceManager is not initialized.");
 
-			MetaEntry metaEntry;
-			if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
-			{
-				// Handle missing resource
-				// TODO: Log this as a warning/error
-				return ResourceHandle<T>(C_INVALID_GUID, this);
-			}
-			
-			bool loadAsync = false;
-			auto [it, wasInserted] = m_liveResources.try_emplace(p_guid);
-			if (wasInserted)
-			{
-				// Resource was just created in-place -> Update its state
-				it->second.state = ResourceState::LoadingAsync;
-			    if constexpr (std::is_same_v<T, SoundResource>) it->second.type = ResourceType::Sound;
-			    else it->second.type = ResourceTraits<T>::GetType();
-				it->second.refCount = 0; // Incremented when handle is constructed
-				loadAsync = true;
-			}
-			
-			ResourceHandle<T> handle(p_guid, this);
+            MetaEntry metaEntry;
+            if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
+            {
+                // Handle missing resource
+                            // TODO: Log this as a warning/error
+                return StaticResourceHandle<T>(C_INVALID_GUID, this);
+            }
+            
+            bool loadAsync = false;
+            auto [it, wasInserted] = m_liveResources.try_emplace(p_guid);
+            if (wasInserted)
+            {
+                // Resource was just created in-place -> Update its state
+                it->second.state = ResourceState::LoadingAsync;
+                if constexpr (std::is_same_v<T, SoundResource>) it->second.type = ResourceType::Sound;
+                else it->second.type = ResourceTraits<T>::GetType();
+                it->second.refCount = 0; // Incremented when handle is constructed
+                loadAsync = true;
+            }
+            
+            StaticResourceHandle<T> handle(p_guid, this);
 
 			// Handle callback
 			if (p_onLoadCallback)
@@ -188,27 +184,27 @@ namespace Droplet
 			return handle;
 		}
 
-		/// @brief Retrieves a list of registered resources, optionally filtered by type.
-		/// @param p_type The resource type to filter by. Default is None (this returns all resource types).
-		/// @return A vector of pointers to the registered metadata entries.
-		[[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(ResourceType p_type = ResourceType::None) const;
-		
-		/// @brief Meta entry data for a specific resource.
-		/// @param p_guid The GUID of the resource.
-		/// @param[out] p_metaEntry The meta entry result.
-		/// @return True if meta entry was found, else false.
-		[[nodiscard]] bool GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const;
+        /// @brief Retrieves a list of registered resources, optionally filtered by type.
+        /// @param p_type The resource type to filter by. Default is None (this returns all resource types).
+        /// @return A vector of pointers to the registered metadata entries.
+        [[nodiscard]] std::vector<const MetaEntry *> GetRegisteredResources(StaticResourceType p_type = StaticResourceType::None) const;
+        
+        /// @brief Meta entry data for a specific resource.
+        /// @param p_guid The GUID of the resource.
+        /// @param[out] p_metaEntry The meta entry result.
+        /// @return True if meta entry was found, else false.
+        [[nodiscard]] bool GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const;
 
 		/// @brief Meta entry data for a specific resource by its display name.
 		/// @param p_resourceName The display name of the resource.
 		/// @param[out] p_metaEntry The meta entry result.
 		/// @return True if meta entry was found, else false.
 		[[nodiscard]] bool GetResourceMetaEntry(const std::string &p_resourceName, MetaEntry &p_metaEntry) const;
-
+		
 		/// @brief Retrieves the schema descriptor for the load settings of a specific resource.
-		/// @param p_type The resource type to get the schema for.
-		/// @return A list of descriptors detailing the valid fields, types and values.
-		[[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type) const;
+        /// @param p_type The resource type to get the schema for.
+        /// @return A list of descriptors detailing the valid fields, types and values.
+        [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(StaticResourceType p_type) const;
 
 		/// @brief Updated the meta entry for a specific resource and optionally triggers a hot-reload of that resource.
 		/// @note This function will reject updates if the resource is currently being loaded or uploaded.
@@ -237,22 +233,22 @@ namespace Droplet
 		/// @return The state that the resource is currently in.
 		[[nodiscard]] ResourceState GetState(GUID p_guid);
 
-		/// @brief Registers a resource type, initializes its fallback instance and maps its load function.
-		/// @note This function must be called during engine startup for every resource type the engine supports.
-		/// @tparam T The resource class to register. Must inherit from IResource.
-		template<typename T>
-		void RegisterResourceType()
-		{
-			static_assert(std::is_base_of_v<IResource, T>, "T must inherit from IResource.");
-			
-			m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback(); // Create fallback resource
-			
-			ResourceType type = ResourceTraits<T>::GetType();
-			m_loadDispatchers[type] = [this](GUID p_guid, MetaEntry p_metaEntry)
-			{
-				PushWorkerLoadTask<T>(p_guid, p_metaEntry);
-			};
-		}
+        /// @brief Registers a resource type, initializes its fallback instance and maps its load function.
+        /// @note This function must be called during engine startup for every resource type the engine supports.
+        /// @tparam T The resource class to register. Must inherit from IResource.
+        template<typename T>
+        void RegisterResourceType()
+        {
+            static_assert(std::is_base_of_v<IStaticResource, T>, "T must inherit from IResource.");
+            
+            m_fallbackResources[typeid(T)] = ResourceTraits<T>::CreateFallback(); // Create fallback resource
+            
+            StaticResourceType type = ResourceTraits<T>::GetType();
+            m_loadDispatchers[type] = [this](GUID p_guid, MetaEntry p_metaEntry)
+            {
+                PushWorkerLoadTask<T>(p_guid, p_metaEntry);
+            };
+        }
 
 		/// @brief Registers a scanner function to a list of extensions.
 		/// @param p_extensions The list of file extensions the scanner supports.
@@ -299,9 +295,9 @@ namespace Droplet
 			return nullptr; // Worst case scenario return nullptr
 		}
 
-		/// @brief Forces a live resource to reload its data from disk.
-		/// @param p_guid The globally unique identifier for the resource.
-		void HotReload(GUID p_guid);
+        /// @brief Forces a live resource to reload its data from disk.
+        /// @param p_guid The globally unique identifier for the resource.
+        void HotReload(GUID p_guid);
 		
 		/// @brief Removes metadata and file of a resource
 		/// @param p_guid The GUID of the resource to be removed
@@ -309,60 +305,59 @@ namespace Droplet
 		/// reference count is greater than zero. If true, the resource metadata and file will
 		/// be removed regardless.
 		void RemoveResourceMeta(const GUID p_guid, bool p_forceRemove = false);
-	
-	private:
-		
-		ResourceManager() = default;
-		~ResourceManager() = default;
-		
-		/// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
-		/// were found in the asset file.
-		/// @param p_relAssetPath The path to the asset file that the resource is stored in.
-		/// @param p_foundResources The resources found in the asset file.
-		/// @return The updated list of resources that should be listed for the asset.
-		std::vector<MetaEntry> CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath, 
-			const std::vector<std::pair<ResourceType, std::string>> &p_foundResources);
+    
+    private:
+        
+        ResourceManager() = default;
+        ~ResourceManager() = default;
+        
+        /// @brief Compiles a new set of meta entries for an asset based on previously known resources and what entries 
+        /// were found in the asset file.
+        /// @param p_relAssetPath The path to the asset file that the resource is stored in.
+        /// @param p_foundResources The resources found in the asset file.
+        /// @return The updated list of resources that should be listed for the asset.
+        std::vector<MetaEntry> CompareAndCompileMetaData(const std::filesystem::path &p_relAssetPath, 
+            const std::vector<std::pair<StaticResourceType, std::string>> &p_foundResources);
 
-		/// @brief Pushes a load task to the worker thread pool.
-		/// @tparam T The resource to load.
-		/// @param p_guid The guid of the resource.
-		/// @param p_metaEntry The meta entry of the resource.
-		template<typename T>
-		void PushWorkerLoadTask(GUID p_guid, MetaEntry p_metaEntry)
-		{
-			ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
-			{
-				std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / p_metaEntry.relAssetPath;
-				std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.sourceName, p_metaEntry.loadSettings);
-								
-				AsyncLoadResult res;
-				res.succeeded = (loadedResource != nullptr);
-				res.guid = p_guid;
-				res.resource = loadedResource.release();
-				res.loadFlags = p_metaEntry.loadFlags;
-								
-				m_asyncLoadResults.Push(res);
-			});
-		}
-		
-		bool m_isInitialized = false;
-		std::filesystem::path m_rootDirectory; // Absolute path to the root directory
-		
-		ResourceRegistry m_registry;
-		std::unordered_map<GUID, LiveResource> m_liveResources;
-		
-		std::unordered_map<std::type_index, std::unique_ptr<IResource>> m_fallbackResources;
-		std::unordered_map<ResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
-		std::unordered_map<std::string, AssetScannerFunc> m_assetScanners;
-		
-		ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
-		ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
+        /// @brief Pushes a load task to the worker thread pool.
+        /// @tparam T The resource to load.
+        /// @param p_guid The guid of the resource.
+        /// @param p_metaEntry The meta entry of the resource.
+        template<typename T>
+        void PushWorkerLoadTask(GUID p_guid, MetaEntry p_metaEntry)
+        {
+            ThreadPool::GetInstance().PushTask([this, p_guid, p_metaEntry]()
+            {
+                std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / p_metaEntry.relAssetPath;
+                std::unique_ptr<T> loadedResource = ResourceTraits<T>::LoadCPU(absAssetPath, p_metaEntry.sourceName, p_metaEntry.loadSettings);
+                                
+                AsyncLoadResult res;
+                res.succeeded = (loadedResource != nullptr);
+                res.guid = p_guid;
+                res.resource = loadedResource.release();
+                res.loadFlags = p_metaEntry.loadFlags;
+                                
+                m_asyncLoadResults.Push(res);
+            });
+        }
+        
+        bool m_isInitialized = false;
+        std::filesystem::path m_rootDirectory; // Absolute path to the root directory
+        
+        ResourceRegistry m_registry;
+        std::unordered_map<GUID, LiveResource> m_liveResources;
+        
+        std::unordered_map<std::type_index, std::unique_ptr<IStaticResource>> m_fallbackResources;
+        std::unordered_map<StaticResourceType, std::function<void(GUID, MetaEntry)>> m_loadDispatchers;
+        std::unordered_map<std::string, AssetScannerFunc> m_assetScanners;
+        
+        ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
+        ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
 	    
 	    std::unordered_map<GUID, SoundResource*> m_pendingSoundLoads;
-	};
-	
+    };
 }
 
-#include "resource/ResourceHandle.inl" // Included here to avoid circular definitions
+#include "resource/StaticResourceHandle.inl" // Included here to avoid circular definitions
 
 
