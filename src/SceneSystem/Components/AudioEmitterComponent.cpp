@@ -248,6 +248,8 @@ nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
 void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
     if (p_compJson.contains("soundGuid")) m_soundGuid = p_compJson["soundGuid"];
+    m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(m_soundGuid);
+    
     if (p_compJson.contains("soundName")) m_soundName = p_compJson["soundName"];
     if (p_compJson.contains("busName")) m_busName = p_compJson["busName"];
     
