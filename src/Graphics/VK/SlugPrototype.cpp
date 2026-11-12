@@ -172,7 +172,14 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_bandTextureView.emplace(p_context.GetDevice(),m_bandTexture->Get(), vk::Format::eR16G16Uint, vk::ImageAspectFlagBits::eColor);
 	
 
-	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
+	// Alternative way of calculating text size. This is a bit weird, though, since font size in pt traditionally uses
+	// DPI and does not refer to a "unit" size. Keeping this here for future reference.
+	//
+	// constexpr float referenceFontSizePt = 24.0f;
+	// constexpr float referenceEmSize = 0.5f;
+	//
+	// float fontSizePt = 48.0f;
+	// float emSize = (fontSizePt / referenceFontSizePt) * referenceEmSize;
 	
 	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
 	float fontScale = emSize / static_cast<float>(m_fontHeader.unitsPerEm);
