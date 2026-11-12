@@ -45,6 +45,8 @@ namespace Droplet::Audio
 	    AudioSystem() = default;
 	    ~AudioSystem() = default;
 
+		void RegisterEffects();
+
 		dalia::Engine m_daliaEngine;
 		AudioMixer m_mixer;
 	};
