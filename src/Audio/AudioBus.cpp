@@ -38,7 +38,6 @@ bool Droplet::Audio::AudioBus::IsActive() const
 
 void Droplet::Audio::AudioBus::SetVolume(float p_volume)
 {
-	// TODO Discuss (if gupta with arvid, if arvid with gupta) how bus hierachy affects each others volume
 	m_volume = p_volume;
 }
 
@@ -235,7 +234,7 @@ void Droplet::Audio::AudioBus::RemoveEffect(Effect *p_effect)
 		return;
 	}
 
-	if (!AudioSystem::GetInstance().DetachEffect(p_effect->GetEffectHandle()))
+	if (!Audio::AudioSystem::GetInstance().DetachEffect(p_effect->GetEffectHandle()))
 	{
 		return;
 	}

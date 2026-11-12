@@ -70,7 +70,7 @@ namespace Droplet::Scene
 	    Audio::PlaybackState m_playbackState = Audio::PlaybackState::Playing;
 	    bool m_isDirty = false;
 	    
-		float m_volumeDb = 0.0f;
+		float m_volumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
 		float m_pitch = 1.0f;
 	    bool m_looping = false;
 	    

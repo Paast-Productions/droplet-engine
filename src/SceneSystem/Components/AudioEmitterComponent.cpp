@@ -191,7 +191,7 @@ void AudioEmitterComponent::RenderUIImpl()
     // --- General Settings ---
 	ImGui::SeparatorText("General Settings" ICON_LC_SETTINGS);
     // TODO: Make non-linear
-	if (ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volumeDb, -60.0f, 12.0f, "%.2f"))
+	if (ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
 	{
 	    m_isDirty = true;
 	}

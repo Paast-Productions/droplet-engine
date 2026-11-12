@@ -1,5 +1,5 @@
 #include "Audio/AudioMixer.hpp"
-#include "Audio/AudioBus.hpp"
+
 using namespace Droplet::Audio;
 
 Droplet::Audio::AudioMixer::AudioMixer()
@@ -17,8 +17,6 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 
 	// Using 'Master' as our bus identifier for dalia gives this waring :
 	// [DALIA WARNING] [API] CreateBus() - CreateBus called for existing bus (Master) with conflicting parent. Ignoring new parent.
-
-
 
 	dalia::Result res;
 	res = m_daliaEngine->CreateBus(m_masterBus->GetName().c_str()); // "Droplets master bus has the ID 0

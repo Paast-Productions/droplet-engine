@@ -52,7 +52,8 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 
 	//Volume
 	float volume = m_currentBus->GetVolume();
-	if (ImGui::SliderFloat("Bus Volume", &volume, 0.0f, 2.0f, "%.3f"))
+	if (ImGui::SliderFloat("Bus Volume", &volume, Audio::C_VOLUME_DECIBEL_MIN, 
+	    Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
 	{
 		m_currentBus->SetVolume(volume);
 	}

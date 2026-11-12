@@ -37,30 +37,30 @@ void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 	const std::string preview = m_audioBusName.empty() ? "Drop Audio Bus Here" : m_audioBusName;
 	ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
 
-	if (ImGui::BeginDragDropTarget())
-	{
-		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
-
-
-		if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
-		{
-			std::uint64_t draggedBusID = 0;
-			std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
-
-			Audio::AudioBus *draggedBus = m_mixer->FindAudioBus(draggedBusID);
-
-			if (draggedBus != nullptr)
-			{
-				m_audioBusName = draggedBus->GetName();
-			}
-		}
-		ImGui::EndDragDropTarget();
-	}
-
-	if (!m_mixer->HasAudioBusWithName(m_audioBusName))
-	{
-		m_audioBusName = "Drop Audio Bus Here";
-	}
+	// if (ImGui::BeginDragDropTarget())
+	// {
+	// 	const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+	//
+	//
+	// 	if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
+	// 	{
+	// 		std::uint64_t draggedBusID = 0;
+	// 		std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
+	//
+	// 		Audio::AudioBus *draggedBus = m_mixer->FindAudioBus(draggedBusID);
+	//
+	// 		if (draggedBus != nullptr)
+	// 		{
+	// 			m_audioBusName = draggedBus->GetName();
+	// 		}
+	// 	}
+	// 	ImGui::EndDragDropTarget();
+	// }
+	//
+	// if (!m_mixer->HasAudioBusWithName(m_audioBusName))
+	// {
+	// 	m_audioBusName = "Drop Audio Bus Here";
+	// }
 
 }
 

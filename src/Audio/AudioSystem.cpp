@@ -1,7 +1,7 @@
 #include "Audio/AudioSystem.hpp"
 #include "EffectRegistry.hpp"
 #include "Effects/ReverbEffect.hpp"
-#include "Allocator.hpp"
+#include "SceneSystem/Components/AudioListenerComponent.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include "SceneSystem/Components/AudioEmitterComponent.hpp"
 #include <dalia/dalia.h>
@@ -25,6 +25,7 @@ bool Droplet::Audio::AudioSystem::Initialize()
 	if (res != dalia::Result::Ok) return false;
     
     m_mixer.Initialize(*m_daliaEngine);
+    
     RegisterEffects();
     
     return true;
@@ -39,23 +40,6 @@ void Droplet::Audio::AudioSystem::Shutdown()
 void AudioSystem::Update()
 {
     ProcessFinishedPlaybacks(); // Clean up finished handles
-    
-    // Sync listeners
-    // for (auto* listener : m_activeListeners)
-    // {
-    //     auto pos = listener->GetWorldPosition();
-    //     auto fwd = listener->GetForwardVector();
-    //     auto up = listener->GetUpVector();
-    //     auto vel = listener->GetVelocity();
-    //     
-    //     dalia::Listener3DAttributes attributes {
-    //         .position = { pos.x, pos.y, pos.z },
-    //         .forward = { fwd.x, fwd.y, fwd.z },
-    //         .up = { up.x, up.y, up.z },
-    //         .velocity = { vel.x, vel.y, vel.z }
-    //     };
-    //     m_daliaEngine->SetListener3DAttributes(listener->GetIndex(), attributes);
-    // }
     
     // Sync players
     // for (auto* player : m_activePlayers)
@@ -73,7 +57,7 @@ void AudioSystem::Update()
     // }
     
     // Sync emitters
-    for (auto* emitter : m_activeEmitters)
+    for (auto* emitter : m_registeredEmitters)
     {
         PlaybackID id = emitter->GetPlaybackID();
         auto it = m_activePlaybacks.find(id);
@@ -100,6 +84,23 @@ void AudioSystem::Update()
                 }
                 emitter->ClearDirtyFlag();
             }
+        }
+        
+        // Sync listeners
+        for (auto* listener : m_registeredListeners)
+        {
+            auto pos = listener->GetWorldPosition();
+            auto fwd = listener->GetForward();
+            auto up = listener->GetUp();
+            auto vel = listener->GetVelocity();
+        
+            dalia::Listener3DAttributes attributes {
+                .position = { pos.x, pos.y, pos.z },
+                .forward = { fwd.x, fwd.y, fwd.z },
+                .up = { up.x, up.y, up.z },
+                .velocity = { vel.x, vel.y, vel.z }
+            };
+            m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), attributes);
         }
     }
     
@@ -136,29 +137,39 @@ void AudioSystem::UnloadSound(SoundResource *sound)
 
 void AudioSystem::RegisterEmitter(Scene::AudioEmitterComponent *emitter)
 {
-    m_activeEmitters.push_back(emitter);
+    m_registeredEmitters.push_back(emitter);
 }
 
 void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
 {
-    auto it = std::find(m_activeEmitters.begin(), m_activeEmitters.end(), emitter);
-    if (it != m_activeEmitters.end()) m_activeEmitters.erase(it);
+    auto it = std::find(m_registeredEmitters.begin(), m_registeredEmitters.end(), emitter);
+    if (it != m_registeredEmitters.end()) m_registeredEmitters.erase(it);
 }
 
 void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
 {
-    // for (uint32_t i = 1; i < 4; i++)
-    // {
-    //     if (!m_listenerSlots[i])
-    //     {
-    //         m_listenerSlots[i] = true;
-    //         listener->SetListenerIndex(i);
-    //         m_activeListeners.push_back(listener);
-    //         m_daliaEngine->SetListenerActive(i, true);
-    //         return;
-    //     }
-    // }
-    // Debug::Log(Debug::LogType::Error, "AudioSystem: Maximum number of listeners (3) are already in use.");
+    for (uint32_t i = 1; i < 4; i++)
+    {
+        if (!m_listenerSlots[i])
+        {
+            m_listenerSlots[i] = true;
+            listener->SetListenerId(i);
+            m_registeredListeners.push_back(listener);
+            m_daliaEngine->SetListenerActive(i, true);
+            return;
+        }
+    }
+    Debug::Log(Debug::LogType::Error, "AudioSystem: Maximum number of listeners (3) are already in use.");
+}
+
+void AudioSystem::UnregisterListener(Scene::AudioListenerComponent *listener)
+{
+    auto it = std::find(m_registeredListeners.begin(), m_registeredListeners.end(), listener);
+    if (it != m_registeredListeners.end())
+    {
+        m_listenerSlots[listener->GetListenerId()] = false;
+        m_registeredListeners.erase(it);
+    }
 }
 
 PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
@@ -274,7 +285,7 @@ void AudioSystem::ProcessFinishedPlaybacks()
         // if (auto* player : m_activePlayers) if (player->GetPlaybackID() == id) player->NotifyStopped();
         
         // Notify emitters
-        for (auto* emitter : m_activeEmitters)
+        for (auto* emitter : m_registeredEmitters)
         {
             if (emitter->GetPlaybackID() == id) emitter->OnPlaybackFinished();
         }

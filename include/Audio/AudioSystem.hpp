@@ -1,5 +1,5 @@
 #pragma once
-#include "AudioMixer.hpp"
+#include "Audio/AudioMixer.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include <dalia/dalia.h> // Ideally we don't include this here
 
@@ -20,18 +20,24 @@ namespace Droplet::Audio
     using PlaybackID = uint32_t;
     constexpr PlaybackID C_INVALID_PLAYBACK_ID = 0;
     
+    using ListenerID = uint32_t;
+    constexpr ListenerID C_INVALID_LISTENER_ID = UINT32_MAX;
+    
     constexpr uint32_t C_EDITOR_LISTENER_INDEX = 0;
     
-    class dalia::Engine;
-    class dalia::PlaybackHandle;
+    constexpr float C_VOLUME_DECIBEL_DEFAULT = 0.0f;
+    constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
+    constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
     
-    // TODO: Do we need this?
     enum class PlaybackState : uint8_t
     {
-        Playing = 0,
-        Paused = 1, 
-        Inactive,
+        Playing     = 0,
+        Paused      = 1, 
+        Inactive    = 2,
     };
+    
+    class dalia::Engine;
+    struct dalia::PlaybackHandle;
     
 	class AudioSystem
 	{
@@ -69,7 +75,6 @@ namespace Droplet::Audio
 	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
 	    void Pause(PlaybackID id);
 	    void Stop(PlaybackID id);
-	    void SetVolume(PlaybackID id, float volume);
 	    
 	    AudioMixer& GetMixer() { return m_mixer; }
 	    
@@ -98,10 +103,10 @@ namespace Droplet::Audio
 	    std::unordered_map<PlaybackID, dalia::PlaybackHandle> m_activePlaybacks;
 	    std::vector<PlaybackID> m_finishedPlaybacks;
 	    
-	    std::vector<Scene::AudioPlayerComponent*> m_activePlayers;
-	    std::vector<Scene::AudioEmitterComponent*> m_activeEmitters;
+	    std::vector<Scene::AudioPlayerComponent*> m_registeredPlayers;
+	    std::vector<Scene::AudioEmitterComponent*> m_registeredEmitters;
 	    
-	    std::vector<Scene::AudioListenerComponent*> m_activeListeners;
+	    std::vector<Scene::AudioListenerComponent*> m_registeredListeners;
 	    bool m_listenerSlots[4] = { false, false, false, false };
 	};
 }

@@ -1,14 +1,17 @@
 #pragma once
+#include "Audio/AudioBus.hpp"
 #include <json/json.hpp>
 #include <dalia/dalia.h>
-#include <Audio/AudioBus.hpp>
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
+
 namespace Droplet::Audio
 {
+    class AudioBus;
+    
 	/// @brief The audiomixer controls the mixing hierarchy
 	/// The audio mixer can add remove and route audiobuses for the required mix
 	class AudioMixer
