@@ -102,6 +102,11 @@ void ScriptSystem::CreateBehaviourScript(Scene::Behaviour *p_scriptBehaviour, co
 	m_scriptManager.CreateBehaviourScript(p_scriptBehaviour, p_scriptFile);
 }
 
+void Droplet::Script::ScriptSystem::DeleteComponentScript(Droplet::Scene::Component *p_scriptComponent)
+{
+	m_scriptManager.DestoryComponentScript(p_scriptComponent);
+}
+
 void ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;

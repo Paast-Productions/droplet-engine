@@ -55,6 +55,11 @@ namespace Droplet::Script
 		/// the script is active.
 		/// @param deltatime Time elapsed since the previous update, in seconds.
 		void OnUpdate(float deltatime);
+
+		/// @brief Calls the script's OnDestroy lifecycle function.
+		/// The OnDestroy function is intended to be called when the script instance
+		/// is about to be destroyed.
+		void OnDestroy();
 		
 		/// @brief Calls the script's OnTrigger function
 		/// The OnTrigger fumction is intented to be called when a triggercomponent detects 
@@ -96,6 +101,8 @@ namespace Droplet::Script
 
 		/// @brief Lua function used for the script's update lifecycle event.
 		sol::protected_function m_onUpdate;
+
+		sol::protected_function m_onDestroy;
 		
 		sol::protected_function m_onTrigger;
 	};

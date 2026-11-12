@@ -36,6 +36,7 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_environment["Input"] = &p_input;
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
+	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
 }
 
@@ -76,6 +77,26 @@ void ScriptInstance::OnUpdate(float deltatime)
 				m_scriptPath, err.what());
 		}
 	}
+}
+
+void Droplet::Script::ScriptInstance::OnDestroy()
+{
+	ZoneScoped;
+	if (m_onDestroy.valid())
+	{
+		sol::protected_function_result result = m_onDestroy();
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::print("ScriptInstance: Error in OnDestroy for script {}\n", m_scriptPath, err.what());
+		}
+	}
+
+	m_environment = sol::nil;
+	m_onStart = sol::nil;
+	m_onUpdate = sol::nil;
+	m_onTrigger = sol::nil;
+	m_onDestroy = sol::nil;
 }
 
 void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)

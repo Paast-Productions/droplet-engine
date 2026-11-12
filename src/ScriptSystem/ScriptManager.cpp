@@ -427,6 +427,17 @@ void ScriptManager::CheckForFileChanges()
 	}
 }
 
+void Droplet::Script::ScriptManager::DestoryComponentScript(Droplet::Scene::Component *p_scriptComponent)
+{
+	auto *instance = GetComponentsScript(p_scriptComponent);
+
+	if (instance)
+	{
+		instance->OnDestroy();
+		DestroyInstance(instance);
+	}
+}
+
 LoadedScript *Droplet::Script::ScriptManager::GetLoadedScriptInfo(const std::string &p_scriptFile)
 {
 	auto it = m_loadedScripts.find(p_scriptFile);

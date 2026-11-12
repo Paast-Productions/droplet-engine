@@ -158,6 +158,8 @@ namespace Droplet::Script
 		/// can be reloaded by the script manager.
 		void CheckForFileChanges();
 
+		void DestoryComponentScript(Droplet::Scene::Component *p_scriptComponent);
+
 		/// @brief Retrieves a loaded Lua script
 		/// @param p_scriptFile Path or name of the loaded Lua script.
 		/// @return LoadedScript that holds the scripts path and when it was last loaded.
