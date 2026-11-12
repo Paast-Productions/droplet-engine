@@ -2,7 +2,7 @@
 
 using namespace Droplet::Graphics::VK;
 
-VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<std::byte> &p_vertices)
+VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::CommandBuffer &p_commandBuffer, const std::vector<std::byte> &p_vertices)
 {
 	const vk::DeviceSize bufferSize { sizeof(std::byte) * p_vertices.size() };
 	
@@ -22,11 +22,18 @@ VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::v
 		.usage = vma::MemoryUsage::eAutoPreferHost,
 	};
 		
-	vma::raii::Buffer stagingBuffer { p_allocator, stagingBufferCreateInfo, stagingBufferAllocationInfo };
+	m_stagingBuffer = vma::raii::Buffer { p_allocator, stagingBufferCreateInfo, stagingBufferAllocationInfo };
 	
-	const vma::Allocation stagingAllocation = stagingBuffer.getAllocation();
-	stagingAllocation.map();
-	//std::memcpy(stagingBuffer.getAllocation().getInfo().pMappedData, p_vertices.data(), bufferSize);
+#ifdef DEBUG
+	p_device.setDebugUtilsObjectNameEXT(*m_stagingBuffer, "Staging Buffer (Vertex Buffer)");
+#endif
+	
+	{
+		const vma::raii::Allocation &stagingAllocation = m_stagingBuffer.getAllocation();
+		void* mappedMem = stagingAllocation.map();
+		std::memcpy(mappedMem, p_vertices.data(), bufferSize);
+		stagingAllocation.unmap();
+	}
 	
 	// -------------
 	// Vertex Buffer
@@ -46,9 +53,36 @@ VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::v
 		.requiredFlags = vk::MemoryPropertyFlagBits::eDeviceLocal
 	};
 	
-	m_vertexBuffer = vma::raii::Buffer {p_allocator, vertexBufferCreateInfo, vertexBufferAllocationInfo};
+	m_vertexBuffer = vma::raii::Buffer { p_allocator, vertexBufferCreateInfo, vertexBufferAllocationInfo };
 	
-	// Barriers
+#ifdef DEBUG
+	p_device.setDebugUtilsObjectNameEXT(*m_vertexBuffer, "Vertex Buffer");
+#endif
+	
+	// -----------
+	// Device Copy
+	// -----------
+	
+	vk::BufferCopy2 copyRegion
+	{
+		.srcOffset = 0,
+		.dstOffset = 0,
+		.size = bufferSize
+	};
+	
+	vk::CopyBufferInfo2 copyBufferInfo 
+	{
+		.srcBuffer = m_stagingBuffer,
+		.dstBuffer = m_vertexBuffer,
+		.regionCount = 1,
+		.pRegions = &copyRegion
+	};
+	
+	p_commandBuffer.copyBuffer2(copyBufferInfo);
+	
+	// ---------------
+	// Memory Barriers
+	// ---------------
 	
 	vk::BufferMemoryBarrier2 copyBarrier
 	{
@@ -66,4 +100,6 @@ VertexBuffer::VertexBuffer(const vma::raii::Allocator &p_allocator, const std::v
 		.bufferMemoryBarrierCount = 1,
 		.pBufferMemoryBarriers = &copyBarrier,
 	};
+	
+	p_commandBuffer.pipelineBarrier2(dependencyInfo);
 }

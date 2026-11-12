@@ -469,7 +469,7 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
     m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
 }
 
-const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
+Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
     // TRY FINDING ALREADY CREATED PIPELINE
@@ -509,7 +509,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (vs.IsReady())
     {
         ShaderResource* vsRes = vs.Get();
-        vsModule = ShaderModule{ p_device, vsRes->GetByteCode() };
+        vsModule = ShaderModule{ m_context->GetDevice(), vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     else if (vs.IsValid())
@@ -523,7 +523,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (tcs.IsReady())
     {
         ShaderResource* tcsRes = tcs.Get();
-        tcsModule = ShaderModule{ p_device, tcsRes->GetByteCode() };
+        tcsModule = ShaderModule{ m_context->GetDevice(), tcsRes->GetByteCode() };
         shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     else if (tcs.IsValid())
@@ -537,7 +537,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (tes.IsReady())
     {
         ShaderResource* tesRes = tes.Get();
-        tesModule = ShaderModule{ p_device, tesRes->GetByteCode() };
+        tesModule = ShaderModule{ m_context->GetDevice(), tesRes->GetByteCode() };
         shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     else if (tes.IsValid())
@@ -551,7 +551,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (gs.IsReady())
     {
         ShaderResource* gsRes = gs.Get();
-        gsModule = ShaderModule{ p_device, gsRes->GetByteCode() };
+        gsModule = ShaderModule{ m_context->GetDevice(), gsRes->GetByteCode() };
         shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     else if (gs.IsValid())
@@ -565,7 +565,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (fs.IsReady())
     {
         ShaderResource* fsRes = fs.Get();
-        fsModule = ShaderModule{ p_device, fsRes->GetByteCode() };
+        fsModule = ShaderModule{ m_context->GetDevice(), fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
     }
     else if (fs.IsValid())
@@ -580,8 +580,8 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     }
 
     m_pipelineMap[key] = Pipeline{
-        p_device,
-        p_physicalDevice,
+        m_context->GetDevice(), 
+        m_context->GetPhysicalDevice(),
         descriptorSetLayouts,
         shaderVec,
         p_surfaceFormat
@@ -590,7 +590,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     return &m_pipelineMap.at(key);
 }
 
-const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
+const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_commandBuffer, RenderData p_renderData)
 {
     ZoneScoped;
 
@@ -613,8 +613,8 @@ const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
             return m;
         }
 
-        m_vertexMap[key] = VertexBuffer{ m_allocator.Get(), meshRes.Get()->GetVertexData() };
-        m_indexMap[key] = IndexBuffer{ m_allocator.Get(), meshRes.Get()->GetIndexData() };
+        m_vertexMap[key] = VertexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetVertexData() };
+        m_indexMap[key] = IndexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetIndexData() };
 
         Mesh mesh
         {
