@@ -63,7 +63,7 @@ void TriggerComponent::UpdateImpl()
         const Droplet::Math::OBB& otherObb = otherBounds->GetTransformedOBB(otherVM);
             
         Droplet::Graphics::Debug::DebugDraw::DrawBox(otherObb, glm::vec4(0.0 ,0.0,1.0f,1.0f), true, true );
-        
+       
     }
 }
 
@@ -99,7 +99,7 @@ void TriggerComponent::FixedUpdateImpl()
         
         for (const auto &script : scripts)
         {
-            ScriptSystem::Get().TriggerComponentScript(script.get(), Droplet::Time::Get().GetFixedDeltaTime(), otherNode);
+            Script::ScriptSystem::Get().TriggerComponentScript(script.get(), Droplet::Time::Get().GetFixedDeltaTime(), otherNode);
         }
     }
 }

@@ -61,7 +61,7 @@ protected:
 
 TEST_F(ResourceManagerTest, InitializationScansDirectory)
 {
-    auto textures = ResourceManager::GetInstance().GetRegisteredResources(ResourceType::Texture2D);
+    auto textures = ResourceManager::GetInstance().GetRegisteredResources(StaticResourceType::Texture2D);
     EXPECT_GE(textures.size(), 1); // Should have found at least Test_BlackPixel.png.meta during setup
 }
 
@@ -74,7 +74,7 @@ TEST_F(ResourceManagerTest, LoadInvalidGUID)
 
 TEST_F(ResourceManagerTest, UnregisteredFallbackReturnsNull)
 {
-    ResourceHandle<Texture2DResource> handle = ResourceManager::GetInstance().LoadResource<Texture2DResource>(C_INVALID_GUID);
+    StaticResourceHandle<Texture2DResource> handle = ResourceManager::GetInstance().LoadResource<Texture2DResource>(C_INVALID_GUID);
     
     // Because no fallback was registered, it must return nullptr
     EXPECT_EQ(handle.Get(), nullptr);
@@ -87,7 +87,7 @@ TEST_F(ResourceManagerTest, RegisteredFallbackReturnedOnInvalidLoad)
     resourceManager.RegisterResourceType<Texture2DResource>();
 
     // Request an invalid handle
-    ResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(C_INVALID_GUID);
+    StaticResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(C_INVALID_GUID);
 
     // 3. The handle itself is not ready (because it doesn't exist)
     EXPECT_FALSE(handle.IsReady());
@@ -115,9 +115,9 @@ TEST_F(ResourceManagerTest, AsyncLoadResource_LoadCPU_RetainsRAM)
     auto& resourceManager = ResourceManager::GetInstance();
 
     // Trigger the load (Texture is set to LoadCPU, so RAM should not be cleared)
-    ResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
+    StaticResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
         textureGuid, 
-        [&callbackFired](ResourceHandle<Texture2DResource> h) {
+        [&callbackFired](StaticResourceHandle<Texture2DResource> h) {
             callbackFired = true;
             EXPECT_TRUE(h.IsReady());
             EXPECT_NE(h.Get(), nullptr); // Ensure RAM was kept
@@ -140,9 +140,9 @@ TEST_F(ResourceManagerTest, AsyncLoadResource_LoadGPU_FreesRAM)
     auto& resourceManager = ResourceManager::GetInstance();
 
     // Trigger the load (Shader is set to LoadGPU, so RAM should be cleared after upload)
-    ResourceHandle<ShaderResource> handle = resourceManager.LoadResource<ShaderResource>(
+    StaticResourceHandle<ShaderResource> handle = resourceManager.LoadResource<ShaderResource>(
         shaderGuid, 
-        [&callbackFired](ResourceHandle<ShaderResource> h) {
+        [&callbackFired](StaticResourceHandle<ShaderResource> h) {
             callbackFired = true;
             EXPECT_TRUE(h.IsReady()); // The resource is still considered Ready
             EXPECT_EQ(h.Get(), nullptr); // But the CPU pointer should be NULL
@@ -165,16 +165,16 @@ TEST_F(ResourceManagerTest, HandleReferenceCounting)
     
     {
         // Load the resource
-        ResourceHandle<Texture2DResource> handle1 = resourceManager.LoadResource<Texture2DResource>(textureGuid);
+        StaticResourceHandle<Texture2DResource> handle1 = resourceManager.LoadResource<Texture2DResource>(textureGuid);
         EXPECT_EQ(resourceManager.GetRef(textureGuid), 1);
         
         {
             // Copy the handle
-            ResourceHandle<Texture2DResource> handle2 = handle1;
+            StaticResourceHandle<Texture2DResource> handle2 = handle1;
             EXPECT_EQ(resourceManager.GetRef(textureGuid), 2);
             
             // Move the handle
-            ResourceHandle<Texture2DResource> handle3 = std::move(handle2);
+            StaticResourceHandle<Texture2DResource> handle3 = std::move(handle2);
             EXPECT_EQ(resourceManager.GetRef(textureGuid), 2); // Still 2, because handle2 was hollowed out
         }
         
@@ -208,7 +208,7 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration)
     
     // If CompareAndCompileMetaData worked correctly, it preserved our GUID 500
     // and correctly identified it as a Texture2D.
-    auto textures = resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    auto textures = resourceManager.GetRegisteredResources(StaticResourceType::Texture2D);
     bool found = false;
     
     for (const MetaEntry* entry : textures)
@@ -267,7 +267,7 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
     EXPECT_EQ(returnedEntries[0].relAssetPath, newAssetRel);
 
     // Check the internal registry
-    auto textures = resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    auto textures = resourceManager.GetRegisteredResources(StaticResourceType::Texture2D);
     const MetaEntry* foundEntry = nullptr;
 
     for (const MetaEntry* entry : textures)
@@ -281,7 +281,7 @@ TEST_F(ResourceManagerTest, AsyncAssetRegistration_NewAssetGeneratesMeta)
 
     ASSERT_NE(foundEntry, nullptr) << "Failed to register brand new asset";
     EXPECT_NE(foundEntry->guid, C_INVALID_GUID) << "Failed to generate a valid GUID";
-    EXPECT_EQ(foundEntry->type, ResourceType::Texture2D) << "Failed to detect the correct resource type";
+    EXPECT_EQ(foundEntry->type, StaticResourceType::Texture2D) << "Failed to detect the correct resource type";
 
     // The disk write was just dispatched to a background thread. Wait for it to be written.
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -301,15 +301,15 @@ TEST_F(ResourceManagerTest, LoadSameResourceMultipleTimesQueuesCallbacks)
 
     auto& resourceManager = ResourceManager::GetInstance();
 
-    auto callback = [&callbacksFired](ResourceHandle<Texture2DResource> h) {
+    auto callback = [&callbacksFired](StaticResourceHandle<Texture2DResource> h) {
         callbacksFired++;
         EXPECT_TRUE(h.IsReady());
     };
 
     // Request the same resource 3 times before it finishes loading
-    ResourceHandle<Texture2DResource> h1 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
-    ResourceHandle<Texture2DResource> h2 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
-    ResourceHandle<Texture2DResource> h3 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
+    StaticResourceHandle<Texture2DResource> h1 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
+    StaticResourceHandle<Texture2DResource> h2 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
+    StaticResourceHandle<Texture2DResource> h3 = resourceManager.LoadResource<Texture2DResource>(textureGuid, callback);
 
     // EXPECT 6: 3 returned to the user + 3 captured by the pending lambdas
     EXPECT_EQ(resourceManager.GetState(textureGuid), ResourceState::LoadingAsync);
@@ -331,16 +331,16 @@ TEST_F(ResourceManagerTest, LoadAlreadyLoadedResourceFiresImmediately)
     auto& resourceManager = ResourceManager::GetInstance();
 
     // Fully load the resource first
-    ResourceHandle<Texture2DResource> h1 = resourceManager.LoadResource<Texture2DResource>(textureGuid);
+    StaticResourceHandle<Texture2DResource> h1 = resourceManager.LoadResource<Texture2DResource>(textureGuid);
     UpdateUntilResolved(textureGuid);
     EXPECT_EQ(resourceManager.GetState(textureGuid), ResourceState::Ready);
 
     bool instantCallbackFired = false;
 
     // Request it again. The callback should fire immediately inline
-    ResourceHandle<Texture2DResource> h2 = resourceManager.LoadResource<Texture2DResource>(
+    StaticResourceHandle<Texture2DResource> h2 = resourceManager.LoadResource<Texture2DResource>(
         textureGuid, 
-        [&instantCallbackFired](ResourceHandle<Texture2DResource> h) {
+        [&instantCallbackFired](StaticResourceHandle<Texture2DResource> h) {
             instantCallbackFired = true;
             EXPECT_TRUE(h.IsReady());
         }
@@ -357,20 +357,20 @@ TEST_F(ResourceManagerTest, HandleAssignmentManagesReferences)
 
     auto& resourceManager = ResourceManager::GetInstance();
 
-    ResourceHandle<Texture2DResource> texHandle = resourceManager.LoadResource<Texture2DResource>(texGuid);
-    ResourceHandle<ShaderResource> shaderHandle = resourceManager.LoadResource<ShaderResource>(shaderGuid);
+    StaticResourceHandle<Texture2DResource> texHandle = resourceManager.LoadResource<Texture2DResource>(texGuid);
+    StaticResourceHandle<ShaderResource> shaderHandle = resourceManager.LoadResource<ShaderResource>(shaderGuid);
 
     EXPECT_EQ(resourceManager.GetRef(texGuid), 1);
     EXPECT_EQ(resourceManager.GetRef(shaderGuid), 1);
 
     // Reassign the texture handle to a new texture handle
-    ResourceHandle<Texture2DResource> texHandle2;
+    StaticResourceHandle<Texture2DResource> texHandle2;
     texHandle2 = texHandle; // Ref count should go to 2
 
     EXPECT_EQ(resourceManager.GetRef(texGuid), 2);
 
     // Overwrite texHandle2 with an empty handle
-    texHandle2 = ResourceHandle<Texture2DResource>(); // Ref count drops back to 1
+    texHandle2 = StaticResourceHandle<Texture2DResource>(); // Ref count drops back to 1
     
     EXPECT_EQ(resourceManager.GetRef(texGuid), 1);
 }
@@ -383,9 +383,9 @@ TEST_F(ResourceManagerTest, AsyncLoadFailureTriggersCallbackAndState)
 
     auto& resourceManager = ResourceManager::GetInstance();
 
-    ResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
+    StaticResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
         missingGuid, 
-        [&callbackFired](ResourceHandle<Texture2DResource> h) {
+        [&callbackFired](StaticResourceHandle<Texture2DResource> h) {
             callbackFired = true;
             
             // The handle should exist, but be marked as failed
@@ -409,9 +409,9 @@ TEST_F(ResourceManagerTest, AsyncLoadFailureReturnsFallback)
     constexpr GUID missingGuid = 700; // A GUID registered to a file that doesn't exist
 
     bool callbackFired = false;
-    ResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
+    StaticResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(
         missingGuid, 
-        [&callbackFired](ResourceHandle<Texture2DResource> h) {
+        [&callbackFired](StaticResourceHandle<Texture2DResource> h) {
             callbackFired = true;
             
             // State should be failed inside the callback
@@ -438,13 +438,13 @@ TEST_F(ResourceManagerTest, GetSettingsSchema_ReturnsCorrectDescriptors)
 {
     auto& resourceManager = ResourceManager::GetInstance();
 
-    auto schema = resourceManager.GetSettingsSchema(ResourceType::Texture2D);
+    auto schema = resourceManager.GetSettingsSchema(StaticResourceType::Texture2D);
     
     ASSERT_EQ(schema.size(), 1);
     EXPECT_EQ(schema[0].key, MetaLoadSettings::C_GENERATE_MIPMAPS.key);
     EXPECT_EQ(schema[0].type, MetaLoadSettings::Type::Bool);
     
-    auto shaderSchema = resourceManager.GetSettingsSchema(ResourceType::Shader);
+    auto shaderSchema = resourceManager.GetSettingsSchema(StaticResourceType::Shader);
     ASSERT_EQ(shaderSchema.size(), 1);
     EXPECT_EQ(shaderSchema[0].key, MetaLoadSettings::C_SHADER_TYPE.key);
     EXPECT_EQ(shaderSchema[0].type, MetaLoadSettings::Type::Enum);
@@ -455,7 +455,7 @@ TEST_F(ResourceManagerTest, UpdateMetaEntry_UpdatesRegistry)
     auto& resourceManager = ResourceManager::GetInstance();
 
     constexpr GUID textureGuid = 500;
-    auto textures = resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    auto textures = resourceManager.GetRegisteredResources(StaticResourceType::Texture2D);
     ASSERT_FALSE(textures.empty());
     
     // Create a local copy to modify
@@ -485,7 +485,7 @@ TEST_F(ResourceManagerTest, UpdateMetaEntry_UpdatesRegistry)
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     
     // Ensure RAM registry was correctly updated
-    auto newTextures = resourceManager.GetRegisteredResources(ResourceType::Texture2D);
+    auto newTextures = resourceManager.GetRegisteredResources(StaticResourceType::Texture2D);
     EXPECT_EQ(newTextures[0]->loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key].get<bool>(), true);
     
     // --- Restore State ---
@@ -504,7 +504,7 @@ TEST_F(ResourceManagerTest, HotReload_EvictsAndReloads)
     constexpr GUID textureGuid = 500;
     
     // Fully load the resource normally
-    ResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(textureGuid);
+    StaticResourceHandle<Texture2DResource> handle = resourceManager.LoadResource<Texture2DResource>(textureGuid);
     UpdateUntilResolved(textureGuid);
     EXPECT_EQ(resourceManager.GetState(textureGuid), ResourceState::Ready);
     

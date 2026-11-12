@@ -4,8 +4,6 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <string>
 
-using namespace Droplet::Script;
-
 namespace Droplet::Scene
 {
     /// @brief Behaviour that attaches a Lua script to game.

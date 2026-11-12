@@ -3,7 +3,7 @@
 #include <string>
 #include <string_view>
 #include <Resource/GuidUtils.hpp>
-#include <Resource/IResource.hpp>
+#include <Resource/IStaticResource.hpp>
 
 namespace Droplet::Scene
 {
@@ -30,7 +30,7 @@ namespace Droplet::Editor
     struct ResourcePayload
     {
         GUID guid;
-        ResourceType type;
+        StaticResourceType type;
         char name[256];
     };
 }

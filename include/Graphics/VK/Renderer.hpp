@@ -21,20 +21,20 @@
 #endif
 
 #include <Graphics/VK/IndexBuffer.hpp>
-#include <Graphics/VK/UniformBuffer.hpp>
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/IntermediaryStorage.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
 #include <Graphics/RenderData.hpp>
 
 #define IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 #include <ImGui/imgui_impl_vulkan.h>
 #undef IMGUI_IMPL_VULKAN_HAS_DYNAMIC_RENDERING
 
-namespace Droplet{class Engine;}
+namespace Droplet
+{
+	class Engine;
+}
 
 // HACK: Implementation subject to change
 
@@ -67,9 +67,10 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, RenderTarget &p_renderTarget, 
+		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, 
 			const Camera &p_camera, std::vector<RenderData> &p_renderData, 
 			bool p_debug, glm::vec4 p_clearColor);
+		
 		void RecordImGuiCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, uint32_t p_imageIndex);
 		
 		/// @brief Creates sync objects for preventing race conditions etc
@@ -113,7 +114,7 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 		
-		std::uint32_t m_vpBufferIndex { INVALID_INDEX };
+		std::uint32_t m_vpBufferIndex { Droplet::Graphics::VK::C_INVALID_INDEX };
 		
 		bool m_framebufferResized { false };
 		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 
