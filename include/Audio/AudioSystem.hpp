@@ -19,6 +19,8 @@ namespace Droplet::Audio
     using PlaybackID = uint32_t;
     constexpr PlaybackID C_INVALID_PLAYBACK_ID = 0;
     
+    constexpr uint32_t C_EDITOR_LISTENER_INDEX = 0;
+    
     class dalia::Engine;
     class dalia::PlaybackHandle;
     
@@ -69,6 +71,11 @@ namespace Droplet::Audio
 	    void SetVolume(PlaybackID id, float volume);
 	    
 	    AudioMixer& GetMixer() { return m_mixer; }
+	    
+	    // --- Editor ---
+	    void SetEditorListenerActive(bool p_active);
+	    void UpdateEditorListener3DAttributes(const glm::vec3& p_pos, const glm::vec3& p_fwd, const glm::vec3& p_up, 
+	        const glm::vec3& p_vel);
 
 	private:
 	    AudioSystem() = default;
