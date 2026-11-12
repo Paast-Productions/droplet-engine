@@ -19,6 +19,7 @@ struct GlyphInstance
 {
     float4 scaleBias;
     float4 glyphBandScale;
+    float4 glyphColor;
     uint4 bandMaxTexCoords;
 };
 
@@ -194,5 +195,6 @@ float4 slugFragMain(VertexOutput input) : SV_TARGET
     coverageX = min(abs(coverageX), 1.0);
     coverageY = min(abs(coverageY), 1.0);
     
-    return float4(1.0, 1.0, 1.0, (coverageX + coverageY) * 0.5);
+    float glyphCoverage = (coverageX + coverageY) * 0.5;
+    return float4(instance.glyphColor.xyz, instance.glyphColor.w * glyphCoverage);
 }

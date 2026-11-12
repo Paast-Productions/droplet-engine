@@ -77,6 +77,7 @@ namespace Droplet::Graphics::VK::Slug
 	{
 		glm::vec4 scaleBias;
 		glm::vec4 glyphBandScale;
+		glm::vec4 glyphColor;
 		glm::uvec4 bandMaxTexCoords;
 	};
 	

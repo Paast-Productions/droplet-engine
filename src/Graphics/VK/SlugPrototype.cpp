@@ -174,11 +174,12 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 
 	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
 	
-	float fontSize = 48.0f;
+	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
 	float fontScale = emSize / static_cast<float>(m_fontHeader.unitsPerEm);
 
-	float penX = -0.75f;
-	float baselineY = -0.3f;
+	glm::vec4 textColor = glm::vec4(1.f, 1.f, 1.f, 1.f);
+	
+	float penX = 0.0f;
 	std::array<GlyphInstance, 7> instances;
 	int i = 0;
 	for (char character : std::string_view{"Droplet"})
@@ -193,7 +194,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 			const float quadHeight = height * fontScale;
 			
 			const float glyphX = penX + static_cast<float>(glyph->xMin) * fontScale;
-			const float glyphY = baselineY + static_cast<float>(glyph->yMin) * fontScale;
+			const float glyphY = static_cast<float>(glyph->yMin) * fontScale;
 			
 			GlyphInstance instance{
 				.scaleBias = {
@@ -208,6 +209,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 					width / glyph->bandDimX,
 					height / glyph->bandDimY
 				},
+				.glyphColor = textColor,
 				.bandMaxTexCoords = {
 					glyph->bandCount - 1,
 					glyph->bandCount - 1,
