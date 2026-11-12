@@ -183,6 +183,22 @@ void AudioSystem::Stop(PlaybackID id)
     if (it != m_activePlaybacks.end()) m_daliaEngine->StopPlayback(it->second);
 }
 
+void AudioSystem::SetEditorListenerActive(bool p_active)
+{
+    m_daliaEngine->SetListenerActive(0, p_active);
+}
+
+void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
+    const glm::vec3 &p_up, const glm::vec3 &p_vel)
+{
+    m_daliaEngine->SetListener3DAttributes(C_EDITOR_LISTENER_INDEX, { 
+        .position = { p_pos.x, p_pos.y, p_pos.z },
+        .forward = { p_fwd.x, p_fwd.y, p_fwd.z },
+        .up = { p_up.x, p_up.y, p_up.z },
+        .velocity = { p_vel.x, p_vel.y, p_vel.z }
+    });
+}
+
 void AudioSystem::ProcessFinishedPlaybacks()
 {
     for (PlaybackID id : m_finishedPlaybacks)
