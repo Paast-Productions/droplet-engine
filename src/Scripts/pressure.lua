@@ -21,13 +21,9 @@ local lastApplied = 0
 function OnStart()
     print("Pressure")
 
-    local damage = self:GetDamageComponent()
-    baseDamage = damage:GetDamage()
+    local haz = self:GetHazardComponent()
+    baseDamage = haz:GetDamage()
     presureDamage = baseDamage * 0.25
-end
-
--- Called every frame
-function OnUpdate(dt)
 end
 
 function CheckPressureZone(pressureLevelResistance)
@@ -78,6 +74,12 @@ function OnTrigger(dt, node)
     -- 0.1 is the strength of gravity, making the drone easy to control
     dronePos.y = dronePos.y - (gravityMultiplier * 0.1 * dt)
     trans:SetPosition(dronePos)
+
+    local droneRot = trans:GetRotation()
+    droneRot.x = droneRot.x + (0.1 * dt)
+    print(droneRot.x)
+    
+    trans:SetRotation(droneRot)
 end
 
 function RenderUI()

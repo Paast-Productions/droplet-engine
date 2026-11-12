@@ -1,5 +1,5 @@
 {
-    "name": "Pressure ",
+    "name": "pressure",
     "roots": [
         {
             "active": true,
@@ -7,30 +7,51 @@
             "components": [
                 {
                     "active": true,
-                    "data": null,
+                    "data": {
+                        "damage": 1.0
+                    },
                     "id": 1,
+                    "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 2,
                     "type": "TriggerComponent"
                 },
                 {
                     "active": true,
                     "data": {
-                        "damage": 1.2000000476837158
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 1448650563753099256,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
-                    "id": 4,
-                    "type": "DamageComponent"
+                    "id": 3,
+                    "type": "MeshComponent"
                 },
                 {
                     "active": true,
                     "data": {
                         "filepath": "pressure.lua"
                     },
-                    "id": 3,
+                    "id": 4,
                     "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 15,
-            "name": "empty space",
+            "id": 9,
+            "name": "pressure hazzard",
             "transform": {
                 "position": [
                     0.0,
@@ -44,9 +65,9 @@
                     0.0
                 ],
                 "scale": [
-                    10.0,
-                    10.0,
-                    10.0
+                    20.0,
+                    20.0,
+                    20.0
                 ]
             }
         },
@@ -57,23 +78,11 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Drone",
-                        "meshGUID": 11502053657790986835,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
+                        "health": 100.0,
+                        "maxHealth": 100.0
                     },
                     "id": 1,
-                    "type": "MeshComponent"
+                    "type": "HealthComponent"
                 },
                 {
                     "active": true,
@@ -93,22 +102,13 @@
                             256
                         ]
                     },
-                    "id": 4,
+                    "id": 2,
                     "type": "CameraComponent"
                 },
                 {
                     "active": true,
-                    "data": {
-                        "health": 100.0,
-                        "maxHealth": 100.0
-                    },
-                    "id": 5,
-                    "type": "HealthComponent"
-                },
-                {
-                    "active": true,
                     "data": {},
-                    "id": 6,
+                    "id": 3,
                     "type": "PlayerComponent"
                 },
                 {
@@ -116,17 +116,38 @@
                     "data": {
                         "filepath": "Engine_Side/DroneMovement.lua"
                     },
-                    "id": 3,
+                    "id": 4,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Drone",
+                        "meshGUID": 11502053657790986835,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 5,
+                    "type": "MeshComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 16,
-            "name": "Mesh Node",
+            "id": 10,
+            "name": "drone",
             "transform": {
                 "position": [
                     0.0,
-                    8.0,
+                    10.0,
                     0.0
                 ],
                 "rotation": [
