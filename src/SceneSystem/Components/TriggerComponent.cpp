@@ -88,6 +88,11 @@ void TriggerComponent::FixedUpdateImpl()
 
 void TriggerComponent::RenderUIImpl()
 {
+    if (m_AABBs.empty() && m_OBBs.empty() && m_spheres.empty())
+    {
+        ImGui::TextWrapped("TriggerComponent currently has no trigger shape!");
+    }
+    
     static bool drawShapes = true;
     ImGui::Checkbox("Draw trigger shapes", &drawShapes);
     if (drawShapes)
@@ -104,11 +109,11 @@ void TriggerComponent::RenderUIImpl()
     
         for (Sphere sphere : m_spheres)
         {        
-            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 0.0f), sphere.radius, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 16, true, true);
-            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 1.0f, 0.0f), sphere.radius, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 16, true, true);
-            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 0.0f, 1.0f), sphere.radius, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 16, true, true);
-            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 1.0f), sphere.radius, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 16, true, true);
-            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, -1.0f), sphere.radius, glm::vec4(0.0f, 1.0f, 1.0f, 1.0f), 16, true, true);
+            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 0.0f), sphere.radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 16, true, true);
+            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 1.0f, 0.0f), sphere.radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 16, true, true);
+            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(0.0f, 0.0f, 1.0f), sphere.radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 16, true, true);
+            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, 1.0f), sphere.radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 16, true, true);
+            Graphics::Debug::DebugDraw::DrawCircle(sphere.center, glm::vec3(1.0f, 0.0f, -1.0f), sphere.radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 16, true, true);
         }
     }
     
