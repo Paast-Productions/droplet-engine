@@ -9,7 +9,7 @@ namespace Droplet::Script::Bindings
 	void RegisterMeshComponent(sol::state_view p_luaState);
 	void RegisterPhysicsComponent(sol::state_view p_luaState);
 	void RegisterHealthComponent(sol::state_view p_luaState);
-	void RegisterDamageComponent(sol::state_view p_luaState);
+	void RegisterHazardComponent(sol::state_view p_luaState);
 	void RegisterPlayerComponent(sol::state_view p_luaState);
 	void RegisterPlayerBehaviour(sol::state_view p_luaState);
 	void RegisterInteractableComponent(sol::state_view p_luaState);
