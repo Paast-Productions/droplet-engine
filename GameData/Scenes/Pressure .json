@@ -29,7 +29,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 21,
+            "id": 15,
             "name": "empty space",
             "transform": {
                 "position": [
@@ -107,6 +107,12 @@
                 },
                 {
                     "active": true,
+                    "data": {},
+                    "id": 6,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
                     "data": {
                         "filepath": "Engine_Side/DroneMovement.lua"
                     },
@@ -115,7 +121,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 22,
+            "id": 16,
             "name": "Mesh Node",
             "transform": {
                 "position": [
