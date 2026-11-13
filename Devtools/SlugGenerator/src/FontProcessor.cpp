@@ -394,10 +394,19 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		cp.bandDimY = 0;
 	}
 
-	// Font metadata	
+	// Get the font scaling factor
 	const float scaleFactor = stbtt_ScaleForMappingEmToPixels(&m_fontInfo, 1.0f);
 	const uint16_t unitsPerEm = static_cast<uint16_t>(std::lround(1.0f / scaleFactor));
+	
+	int ascent, descent, lineGap;
+	stbtt_GetFontVMetrics(&m_fontInfo, &ascent, &descent, &lineGap);
+	
+	// Store font metadata	
 	m_fontHeader.unitsPerEm = unitsPerEm;
+	m_fontHeader.ascent = ascent;
+	m_fontHeader.descent = descent;
+	m_fontHeader.lineGap = lineGap;
+	
 	
 	m_codePoints.push_back(cp);
 	transaction.Commit();

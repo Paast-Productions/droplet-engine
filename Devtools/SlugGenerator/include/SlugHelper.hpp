@@ -77,6 +77,10 @@ namespace Droplet::Devtools::SlugGenerator
 	struct SlugFontHeader
 	{
 		uint16_t unitsPerEm = 0;
+		
+		uint32_t ascent = 0;
+		uint32_t descent = 0;
+		uint32_t lineGap = 0;
 	};
 #pragma pack(pop)
 	

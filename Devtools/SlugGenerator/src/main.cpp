@@ -35,7 +35,7 @@ int main()
 	
 	for (const auto& sourceFile : sourceFiles)
 	{
-		FontProcessor font(sourceFile, destinationDir);
+		FontProcessor font(sourceFile, destinationDir, 32, 255);
 		if (!font.IsValid())
 		{
 			Logger::PrintError("Failed to process font at {} - {}", sourceFile.string(), font.GetError());
