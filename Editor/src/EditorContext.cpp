@@ -64,7 +64,36 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 
 std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
 {
-	return m_selectedScene;
+	if (m_selectedScene.expired())
+	{
+		return {};
+	}
+
+	if (m_selectedScene.lock()->IsActive())
+	{
+		return m_selectedScene;
+	}
+
+	std::weak_ptr<Droplet::Scene::Scene> firstActiveScene = {};
+
+	for (const auto &sceneWeak : m_engine.GetSceneManager().GetActiveScenes())
+	{
+		auto scene = sceneWeak.lock();
+		if (!scene)
+		{
+			continue;
+		}
+
+		firstActiveScene = scene;
+		break;
+	}
+
+	if (firstActiveScene.expired())
+	{
+		return m_selectedScene;
+	}
+
+	return firstActiveScene;
 }
 
 Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()
