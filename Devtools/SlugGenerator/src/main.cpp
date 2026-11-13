@@ -11,7 +11,7 @@ int main()
 {
 	// Get all .ttf files from the Assets/Fonts directory.
 	// TODO: Add command-line option to only generate binary files for fonts which don't have a corresponding binary, and another for generating only for a specific file.
-	std::filesystem::path fontPath =  "../../../Assets/Fonts";
+	std::filesystem::path fontPath =  "../../../../Assets/Fonts";
 	if (!std::filesystem::is_directory(fontPath))
 	{
 		Logger::PrintError("Font directory does not exist.");
