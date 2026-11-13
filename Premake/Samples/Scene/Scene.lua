@@ -74,7 +74,7 @@ project "SceneSystem"
         "Engine",
         "ImGui",
         "tracy",
-        "lua_static",
+        "lua51",
         "winmm",
         "gdi32",
         "shell32",
