@@ -94,6 +94,8 @@ void Octree::Update()
 	{
 		Render();
 	}
+	
+	
 }
 
 void Octree::AddNode(const std::weak_ptr<Node> &p_node)
@@ -107,6 +109,7 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 
 	if (p_node.expired())
 	{
+		std::cerr << "ERROR: ADDED NODE WAS EXPIERED" << std::endl;
 		return;
 	}
 		
@@ -656,6 +659,15 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 
 	// Otherwise, store the node in this leaf
 	p_treeNode->nodes.push_back(p_node);
+	
+	if (nodePtr->GetID() == 18)
+	{
+		std::cout << "INSERTED NODE: "
+				  << nodePtr->GetName()
+				  << " | ID: " << nodePtr->GetID()
+				  << " | Level: " << static_cast<int>(p_treeNode->level)
+				  << '\n';
+	}
 
 	// Subdivide if capacity is exceeded and max depth is not reached
 	if (p_treeNode->nodes.size() > C_MAX_NODES && p_treeNode->level < C_MAX_DEPTH)
@@ -679,6 +691,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 		for (const std::weak_ptr<Node> &node : existingNodes)
 		{
 			auto existingNodePtr = node.lock();
+			
 			if (existingNodePtr == nullptr)
 			{
 				continue;
@@ -1218,3 +1231,17 @@ void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode)
 	}
 }
 
+void Octree::Clear()
+{
+	m_placements.clear();
+	
+	if (!m_root)
+	{
+		return;
+	}
+	
+	const AABB rootBounds = m_root->octant;
+	
+	m_root = std::make_unique<TreeNode>(rootBounds);
+	m_root->level = 0;
+}

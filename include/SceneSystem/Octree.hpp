@@ -91,10 +91,13 @@ namespace Droplet::Scene
 		
 		/// @brief Render the octree octants and nodes 
 		void Render();
-
+		
+		/// @brief Clear outs the octree so that the scene can rebuild it from scratch
+		void Clear();
 	private:
+		
 		struct TreeNode;
-
+		
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
 		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
@@ -210,7 +213,7 @@ namespace Droplet::Scene
 		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_NODES = 32;
-		static constexpr std::uint8_t C_MAX_DEPTH = 6;
+		static constexpr std::uint8_t C_MAX_DEPTH = 8;//6;
 		static constexpr std::uint8_t C_MERGE_THRESHOLD = 16;
 		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
 

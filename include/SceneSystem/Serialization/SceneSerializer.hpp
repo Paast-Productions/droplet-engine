@@ -53,6 +53,8 @@ namespace Droplet::Scene
 		/// @param p_scene The scene the node belongs to
 		//void DeserializeNode(const nlohmann::json &p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene);
 		void DeserializeNode(const nlohmann::json& p_json, std::shared_ptr<Droplet::Scene::Node> p_parentNode, std::shared_ptr<Droplet::Scene::Scene> p_scene, SerializationContext &p_context);
+		
+		//void CheckNodeOccurrences(const std::shared_ptr<Node>& p_node, const std::shared_ptr<Scene>& p_scene);
 
 	private:
 		/// @brief Desereliazes Components,
