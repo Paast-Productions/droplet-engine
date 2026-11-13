@@ -42,6 +42,8 @@ namespace Droplet::Script
 
 		void Initialize(Scene::SceneManager &p_sceneManager);
 
+		void Shutdown();
+
 		/// @brief Starts the components.
 		/// This should be called once the scene starts with the script system.
 		/// @param ScriptComponent to call its script instance
@@ -147,6 +149,8 @@ namespace Droplet::Script
 
 		/// @brief Manages script instances and their interaction with Lua.
 		ScriptManager m_scriptManager;
+
+		bool m_isShutdown = false;
 	};
 
 	/// @brief Calls a Lua function through the ScriptManager.

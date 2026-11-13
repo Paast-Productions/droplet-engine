@@ -1,7 +1,9 @@
 #pragma once
 #define SOL_ALL_SAFETIES_ON 1
-
+#define SOL_LUAJIT 1
 #include <sol/sol.hpp>
+#undef SOL_LUAJIT
+#undef SOL_ALL_SAFETIES_ON
 
 namespace Droplet::Script
 {
@@ -16,7 +18,9 @@ namespace Droplet::Script
 		LuaStateHandler();
 
 		/// @brief Destroys the Lua state.
-		~LuaStateHandler() = default;
+		~LuaStateHandler();
+
+		void Shutdown();
 
 		/// @brief Gets the underlying Lua state.
 		/// @return Reference to the managed Lua state.
@@ -25,5 +29,7 @@ namespace Droplet::Script
 	private:
 		/// @brief The Lua state managed by this handler.
 		sol::state m_luaState;
+
+		bool m_isShutdown = false;
 	};
 }

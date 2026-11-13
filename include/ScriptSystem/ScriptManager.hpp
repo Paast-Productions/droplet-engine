@@ -43,8 +43,10 @@ namespace Droplet::Script
 		ScriptManager(LuaStateHandler &p_luaState);
 
 		/// @brief Destroys the ScriptManager.
-		~ScriptManager() = default;
+		~ScriptManager();
 
+		void Shutdown();
+		
 		/// @brief Starts components script instance.
 		/// @param ScriptComponent to call its script instance
 		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
@@ -226,6 +228,8 @@ namespace Droplet::Script
 		/// @brief Is the path from the working directory to the map that 
 		/// contains all the lua script files
 		std::filesystem::path m_scriptDirectoryPath;
+
+		bool m_isShutdown = false;
 
 	};
 

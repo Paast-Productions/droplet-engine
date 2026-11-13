@@ -38,12 +38,11 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_onUpdate = m_environment["OnUpdate"];
 	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
+	m_onDestory = m_environment["OnDestory"];
 }
 
 ScriptInstance::~ScriptInstance()
 {
-	ZoneScoped;
-
 }
 
 void ScriptInstance::OnStart()
@@ -73,8 +72,7 @@ void ScriptInstance::OnUpdate(float deltatime)
 		if (!result.valid())
 		{
 			sol::error err = result;
-			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n",
-				m_scriptPath, err.what());
+			std::print("ScriptInstance: Error in onUpdate for script {}: {}\n", m_scriptPath, err.what());
 		}
 	}
 }
@@ -111,6 +109,26 @@ void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::S
 			std::print("ScriptInstance: Error in OnTrigger for script {}\n", m_scriptPath, err.what());
 		}
 	}
+}
+
+void Droplet::Script::ScriptInstance::OnDestory()
+{
+	ZoneScoped;
+	if (m_onDestory.valid())
+	{
+		sol::protected_function_result result = m_onDestory();
+		if (!result.valid())
+		{
+			sol::error err = result;
+			std::print("ScriptInstance: Error in OnDestory for script {}\n", m_scriptPath, err.what());
+		}
+	}
+
+	m_environment = sol::nil;
+	m_onStart = sol::nil;
+	m_onUpdate = sol::nil;
+	m_onTrigger = sol::nil;
+	m_onDestory = sol::nil;
 }
 
 bool ScriptInstance::Reload(sol::load_result &p_script)

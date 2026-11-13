@@ -16,6 +16,31 @@ ScriptManager::ScriptManager(LuaStateHandler &p_statehandler) : m_StateHandler(p
 {
 }
 
+Droplet::Script::ScriptManager::~ScriptManager()
+{
+	Shutdown();
+}
+
+void Droplet::Script::ScriptManager::Shutdown()
+{
+	if (m_isShutdown)
+	{
+		return;
+	}
+
+	m_isShutdown = true;
+
+	for (auto &instance : m_scriptInstances)
+	{
+		instance->OnDestory();
+	}
+
+	m_scriptInstances.clear();
+	m_componentScripts.clear();
+	m_behaviourScripts.clear();
+	m_loadedScripts.clear();
+}
+
 void ScriptManager::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
 	ZoneScoped;
