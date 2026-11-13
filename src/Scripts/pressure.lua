@@ -8,6 +8,25 @@ local pressureThreshold = 200.0
 pressureTier = 1.0
 damageScaling = 0.1
 
+local PressureZones =
+{
+    {pressureLevel = 1, gravityMultiplier = 1.0, damageMultiplier = 1.0},
+    {pressureLevel = 2, gravityMultiplier = 2.0, damageMultiplier = 1.5},
+    {pressureLevel = 3, gravityMultiplier = 3.0, damageMultiplier = 2.0},
+    {pressureLevel = 4, gravityMultiplier = 4.0, damageMultiplier = 2.5},
+    {pressureLevel = 5, gravityMultiplier = 5.0, damageMultiplier = 3.0}
+}
+
+function CheckPressureZone(pressureLevelResistance)
+    for x = 1, #PressureZones do 
+        if pressureLevelResistance == PressureZones[x].pressureLevel then
+            MovementModifiers.SetGravityPull(PressureZones[x].gravityMultiplier)
+            presureDamage = PressureZones[x].damageMultiplier + baseDamage * 0.25
+            break
+        end
+    end
+end
+
 function OnStart()
     print("Pressure")
 

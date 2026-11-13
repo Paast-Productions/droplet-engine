@@ -72,6 +72,20 @@ namespace Droplet::Scene
         /// @return Current maximum health value.
         [[nodiscard]] float GetMaxHealth() const { return m_data.maxHealth; }
 
+        //HULL INTERGRITY 
+        
+        /// @brief Sets the maximum hull integrity of the player.
+        /// @param p_hullIntegrity New maximum health value.
+        void SetHullIntegrity(float p_hullIntegrity) { m_data.maxHullIntegrity = p_hullIntegrity; }
+
+        /// @brief Sets the maximum hull integrity of the player.
+        /// @param p_amount Amount to add to the current hull integrity level.
+        void IncreaseHullIntegrity(float p_amount) { m_data.maxHullIntegrity += p_amount; }
+
+        /// @brief Sets the maximum hull integrity of the player.
+        /// @return Current maximum hull integrity value.
+        [[nodiscard]] float GetHullIntegrity() const { return m_data.maxHullIntegrity; }
+
         // HEAT
 
         /// @brief Sets the player's resistance to environmental heat.
