@@ -21,9 +21,11 @@ namespace Droplet::Scene
 	    // --- Playback Controls ---
 	    void Play();
 	    void Pause();
+	    void Resume();
 	    void Stop();
 	    [[nodiscard]] bool IsPlaying() const;
 	    
+	    void SetStartTimeSeconds(double p_startTimeSeconds);
 	    void SetVolumeDb(float p_volume);
 	    void SetPitch(float p_pitch);
 	    void SetLooping(bool p_looping);
@@ -33,6 +35,7 @@ namespace Droplet::Scene
 	    
 	    // --- Parameter Getters ---
 	    [[nodiscard]] Audio::PlaybackID GetPlaybackID() const { return m_playbackId; }
+	    [[nodiscard]] double GetStartTimeSeconds() const { return m_startTimeSeconds; }
 	    [[nodiscard]] float GetVolumeDb() const { return m_volumeDb; }
 	    [[nodiscard]] float GetPitch() const { return m_pitch; }
 	    [[nodiscard]] bool IsLooping() const { return m_looping; }
@@ -63,13 +66,13 @@ namespace Droplet::Scene
 
 	private:
 	    GUID m_soundGuid = C_INVALID_GUID;
-	    std::string m_soundName = "Gupta";
+	    std::string m_soundName = "None";
 	    StaticResourceHandle<SoundResource> m_resourceHandle;
 	    
 	    Audio::PlaybackID m_playbackId = Audio::C_INVALID_PLAYBACK_ID;
-	    Audio::PlaybackState m_playbackState = Audio::PlaybackState::Playing;
 	    bool m_isDirty = false;
 	    
+	    double m_startTimeSeconds = 0.0;
 		float m_volumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
 		float m_pitch = 1.0f;
 	    bool m_looping = false;

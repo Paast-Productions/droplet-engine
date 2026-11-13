@@ -22,12 +22,15 @@ namespace Droplet::Audio
     
     using ListenerID = uint32_t;
     constexpr ListenerID C_INVALID_LISTENER_ID = UINT32_MAX;
-    
-    constexpr uint32_t C_EDITOR_LISTENER_INDEX = 0;
+    constexpr ListenerID C_EDITOR_LISTENER_ID = 0;
     
     constexpr float C_VOLUME_DECIBEL_DEFAULT = 0.0f;
     constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
     constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
+    
+    constexpr float C_PITCH_DEFAULT = 1.0f;
+    constexpr float C_PITCH_MIN = 0.1f;
+    constexpr float C_PITCH_MAX = 4.0f;
     
     enum class PlaybackState : uint8_t
     {
@@ -60,6 +63,7 @@ namespace Droplet::Audio
 	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
 	         std::function<void(bool)> p_onLoad);
 	    void UnloadSound(SoundResource* sound);
+	    double GetSoundLenghtInSeconds(SoundResource* sound) const;
 	    
 	    // Component registration
 	    void RegisterPlayer(Scene::AudioPlayerComponent* player);
@@ -74,7 +78,10 @@ namespace Droplet::Audio
 	    PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
 	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
 	    void Pause(PlaybackID id);
+	    void Resume(PlaybackID id);
 	    void Stop(PlaybackID id);
+	    
+	    [[nodiscard]] PlaybackState GetPlaybackState(PlaybackID id) const;
 	    
 	    AudioMixer& GetMixer() { return m_mixer; }
 	    
@@ -91,18 +98,27 @@ namespace Droplet::Audio
 	    bool DetachEffect(dalia::EffectHandle &p_effect);
 
 	private:
+	    struct PlaybackData
+	    {
+	        dalia::PlaybackHandle handle = dalia::INVALID_PLAYBACK_HANDLE;
+	        PlaybackState state = PlaybackState::Inactive;
+	    };
+	    
 	    AudioSystem() = default;
 	    ~AudioSystem() = default;
 	    
 	    void ProcessFinishedPlaybacks();
 	    void RegisterEffects();
+	    
+	    bool m_isGameMode = false;
+	    bool m_isGamePaused = false;
 
 		std::unique_ptr<dalia::Engine> m_daliaEngine;
 		AudioMixer m_mixer;
 	    
 	    // Playback Management
 	    PlaybackID m_nextPlaybackId = 1;
-	    std::unordered_map<PlaybackID, dalia::PlaybackHandle> m_activePlaybacks;
+	    std::unordered_map<PlaybackID, PlaybackData> m_activePlaybacks;
 	    std::vector<PlaybackID> m_finishedPlaybacks;
 	    
 	    std::vector<Scene::AudioPlayerComponent*> m_registeredPlayers;
