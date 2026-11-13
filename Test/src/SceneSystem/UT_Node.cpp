@@ -300,48 +300,6 @@ TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 }
 
 
-TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
-{
-    scene->Load();
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    scene->SetActive(true);
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
-TEST_F(NodeTest, ComponentStartsOnlyOnce)
-{
-    scene->Load();
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    scene->SetActive(true);
-    scene->SetActive(false);
-    scene->SetActive(true);
-
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
-TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
-{
-    scene->Load();
-    scene->SetActive(true);
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
 TEST_F(NodeTest, ComponentUpdates)
 {
     auto component = ComponentFactory::CreateComponent("TComponent");

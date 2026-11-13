@@ -124,11 +124,13 @@ void SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataTyp
 				{
 					if (p_type == SavedDataType::Scene)
 					{
+					auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+
 						const std::string sceneName = p_node.relativePath.stem().string();
 						const std::string scenePath = p_node.relativePath.string();
 						if (auto activeScene = m_editorContext->GetActiveScene().lock())
 						{
-							activeScene->SetActive(false);
+							sceneManager.DeactivateScene(activeScene->GetName());
 						}
 						m_editorContext->LoadFromFile(scenePath);
 						m_editorContext->SetActiveScene(sceneName);
