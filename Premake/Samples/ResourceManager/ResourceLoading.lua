@@ -45,17 +45,18 @@ project "ResourceManager-ResourceLoading"
     }
 
     links {
-        "Engine",
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd"),
-        AddQuotation("Slangd"),
-	AddQuotation("zlibstaticd"),
- 	AddQuotation("assimp-mtd")
+        "Engine"
     }
+
+    filter "configurations:debug"
+        links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
+    filter "configurations:release"
+        links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
+    filter {}
 
     defines {
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation("../../../..")
     }
 
     postbuildcommands {

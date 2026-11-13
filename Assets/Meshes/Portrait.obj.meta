@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Portrait",
+            "guid": 5941031221448030531,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Portrait",
+            "type": 3
+        }
+    ]
+}

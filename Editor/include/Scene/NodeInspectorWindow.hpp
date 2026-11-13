@@ -35,10 +35,12 @@ namespace Droplet::Editor
 		/// @brief A variable to remember if the scale should be locked
 		bool m_lockScale = false;
 
-		/// @brief Euler angles (degrees) shown in the rotation control; refreshed from the transform when not being dragged.
+		/// @brief Independent axis angles (degrees) shown in the rotation control.
 		glm::vec3 m_displayedRotation = glm::vec3(0.0f);
 
-		/// @brief Whether the rotation control was being dragged last frame.
-		bool m_rotationActive = false;
+		const Droplet::Scene::Node *m_rotationNode = nullptr;
+		Droplet::Scene::Transform::Space m_rotationSpace = Droplet::Scene::Transform::Space::World;
+		glm::quat m_lastDisplayedRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+		bool m_hasDisplayedRotation = false;
 	};
 }

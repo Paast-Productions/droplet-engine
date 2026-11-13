@@ -29,7 +29,7 @@
                 "damage": 2.0
             },
             "id": 3,
-            "type": "DamageComponent"
+            "type": "HazardComponent"
         },
         {
             "active": true,
@@ -40,14 +40,14 @@
         {
             "active": true,
             "data": {
-                "filepath": "HeatHazard.lua"
+                "filepath": "Heat.lua"
             },
-            "id": 6,
+            "id": 5,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 1,
+    "id": 291,
     "name": "Heat",
     "transform": {
         "position": [

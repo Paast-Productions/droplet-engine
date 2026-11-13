@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Drone_Camera_Monitor_Screen",
+            "guid": 14897551395876017893,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Drone_Camera_Monitor_Screen",
+            "type": 3
+        }
+    ]
+}

@@ -15,9 +15,10 @@
 #include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
+#include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
-#include <DamageComponent.hpp>
+#include <HazardComponent.hpp>
 #include <PlayerComponent.hpp>
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
@@ -26,6 +27,7 @@
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -57,8 +59,7 @@ void LuaBindings::RegisterBindings(sol::state_view p_luaState, Droplet::Scene::S
 	RegisterComponents(p_luaState);
 	RegisterOctree(p_luaState);
 
-	std::filesystem::path scriptDirectory = std::filesystem::current_path()
-		/ ".." / ".." / ".." / "src" / "Scripts";
+	std::filesystem::path scriptDirectory = std::filesystem::current_path() / ROOT_PATH "/src/Scripts";
 
 	std::filesystem::path path = scriptDirectory / "LuaHelper.d.lua";
 	LuaApiGenerator::Generate(path, m_luaGlobalDefinitions, m_luaClassDefinitions, m_luaEnumDefinitions);
@@ -97,6 +98,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::Node>(
 		"Node",
 		"GetName", &Scene::Node::GetName,
+		"GetHealthComponent", &Scene::Node::GetHealthComponent,
+		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
@@ -126,10 +129,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetComponent<Scene::HealthComponent>();
 		},
-		"GetDamageComponent",
+		"GetHazardComponent",
 		[](Scene::Node &node)
 		{
-			return node.GetComponent<Scene::DamageComponent>();
+			return node.GetComponent<Scene::HazardComponent>();
 		},
 		"GetPlayerComponent",
 		[](Scene::Node &node)
@@ -145,8 +148,13 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 				return playerComponent->GetPlayerBehaviourLua();
 			}
 			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		},
+		"GetInteractableComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::InteractableComponent>();
 		}
-
+				
 	);
 
 	LuaClassDefinition classDef;
@@ -154,6 +162,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
+		{"GetPlayerData","PlayerData",{}},
 		{"GetName", "string", {}},
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
@@ -164,7 +173,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
 		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
-	};
+	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
 }

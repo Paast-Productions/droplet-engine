@@ -197,6 +197,7 @@ namespace Droplet::Scene
 
         std::weak_ptr<Node> m_owner{};
         std::uint64_t m_id = 0;
+
         /// @brief Sets the Node that owns this component.
         ///     
         /// Only Node can set the owner of a Component. This is used when

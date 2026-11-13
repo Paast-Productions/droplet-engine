@@ -2,6 +2,7 @@
 --
 -- Member Variables
 --
+local fishSystem = require("FishSystem")
 
 local trans = nil
 
@@ -216,9 +217,10 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
-    local scene = SceneManagerInstance:GetScene("MainScene")
-
 	print("New Fih")
+
+    fishSystem.RegisterFish(self)
+
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()

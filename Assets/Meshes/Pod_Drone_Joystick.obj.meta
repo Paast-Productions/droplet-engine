@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Drone_Control_Joystick",
+            "guid": 491672134965601999,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Drone_Control_Joystick",
+            "type": 3
+        }
+    ]
+}

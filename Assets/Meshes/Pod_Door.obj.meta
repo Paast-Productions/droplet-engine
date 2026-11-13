@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Pod_Door",
+            "guid": 10773550875263732350,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Pod_Door",
+            "type": 3
+        }
+    ]
+}

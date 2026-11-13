@@ -18,7 +18,7 @@ project "Editor"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../..")
+        "ROOT_PATH=" .. AddQuotation("../../../..")
 	}
 
     if _TARGET_OS == "windows" then
@@ -85,7 +85,8 @@ project "Editor"
         "IconFontCppHeaders",
         "PortableFileDialogs",
         "Lua",
-        "Jolt"
+        "Jolt",
+        "Dalia"
     }
 
     files 
@@ -103,12 +104,18 @@ project "Editor"
         "tracy",
         "IconFontCppHeaders",
         "PortableFileDialogs",
+        "dalia_engine",
+        "ole32",
+        "avrt",
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-        AddQuotation("Slangd"),
-        AddQuotation("zlibstaticd"),
-        AddQuotation("assimp-mtd"),
 		AddQuotation("lua_static"),
 		AddQuotation("Jolt")
     }
+
+    filter "configurations:debug"
+		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
+    filter "configurations:release"
+		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
+    filter {}

@@ -13,12 +13,6 @@ namespace Droplet::Editor
 		Scene = 1
 	};
 
-	struct SceneDragDropData
-	{
-		char path[256];
-		char name[128];
-	};
-
 	class SavedDataWindow : public EditorWindow
 	{
 	public:

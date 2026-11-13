@@ -94,7 +94,7 @@ namespace Droplet::Scene
         /// @return Current heat level value.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
         
-        /// Freeze
+        /// FREEZE
         
         /// @brief Sets the player's resistance to environmental heat.
         /// @param p_heatResistance New heat resistance value.
@@ -124,6 +124,55 @@ namespace Droplet::Scene
         /// @returns Time since last time player was affected by freeze
         [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
         
+
+        /// PRESSURE 
+
+        /// @brief Sets the player's resistance to environmental pressure.
+        /// @param p_pressureResistance New pressure resistance value.
+        void SetPressureResistance(float p_pressureResistance) { m_data.pressureResistance = p_pressureResistance; }
+
+        /// @brief Gets the player's resistance to environmental pressure.
+        /// @return Current pressure resistance value.
+        [[nodiscard]] float GetPressureResistance() const { return m_data.pressureResistance; }
+
+        /// @brief Increases the player's current pressure level.
+        /// @param p_amount Amount to add to the current pressure level.
+        void IncreasePressureLevel(float p_amount) { m_data.pressureLevel += p_amount; }
+
+        /// @brief Sets the player's current pressure level.
+        /// @param p_pressure New pressure level value.
+        void SetPressureLevel(float p_pressure) { m_data.pressureLevel = p_pressure; }
+
+        /// @brief Gets the player's current pressure level.
+        /// @return Current pressure level value.
+        [[nodiscard]] float GetPressureLevel() const { return m_data.pressureLevel; }
+
+
+		///DroneInventory
+        /// @brief The maximum inventory capacity of the drone.
+        void SetDroneInventorySize(float p_droneinventorySize) { m_data.maxDroneInventorySlots = p_droneinventorySize; }
+
+        /// @brief The maximum inventory capacity of the drone.
+        /// @return The maximum number of items the drone can carry.
+        [[nodiscard]] float GetDroneInventorySize() const { return m_data.maxDroneInventorySlots; }
+
+
+        /// Speed/range of the drone
+        /// @brief The maximum speed of the drone.
+        void SetDroneMaxSpeed(float p_droneMaxSpeed) { m_data.DroneMaxSpeed = p_droneMaxSpeed; }
+
+        /// @brief The maximum speed of the drone.
+		/// @return The maximum speed of the drone.
+		[[nodiscard]] float GetDroneMaxSpeed() const { return m_data.DroneMaxSpeed; }
+
+
+        /// @brief The maximum range of the drone.
+        void SetDroneMaxRange(float p_droneMaxRange) { m_data.DroneMaxRange = p_droneMaxRange; }
+
+        /// @brief The maximum range of the drone.
+		/// @return The maximum range of the drone.
+        [[nodiscard]] float GetDroneMaxRange() const { return m_data.DroneMaxRange; }
+
         // ITEMS
 
         /// @brief Gets the item registry assigned to the SceneManager.
@@ -177,6 +226,17 @@ namespace Droplet::Scene
         [[nodiscard]] std::uint32_t CountItem(
             InventoryType p_inv,
             Droplet::Game::ItemId p_id) const;
+
+        /// @brief Gets the size of the player's inventory.
+        /// @return The number of slots in the player's inventory.
+        [[nodiscard]] std::uint32_t GetPlayerInventorySize() const
+        {
+            return m_data.playerInventory.size();
+        }
+
+        [[nodiscard]] std::vector<Droplet::Game::ItemId> GetUniqueID() const;
+
+        
 
     protected:
         /// @brief Renders the behaviour's properties in the editor.

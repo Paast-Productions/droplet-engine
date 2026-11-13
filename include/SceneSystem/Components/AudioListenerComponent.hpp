@@ -1,0 +1,24 @@
+#pragma once
+#include <SceneSystem/Component.hpp>
+
+
+namespace Droplet::Scene
+{
+	/// @brief Right now just outline class to start work with later
+	class AudioListenerComponent : public Component
+	{
+	public:
+
+		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioListenerComponent"; }
+
+
+	protected:
+		void RenderUIImpl() override;
+
+		nlohmann::json SerializeImpl() override;
+		void DeserializeImpl(nlohmann::json p_compJson) override;
+
+	private:
+		
+	};
+}

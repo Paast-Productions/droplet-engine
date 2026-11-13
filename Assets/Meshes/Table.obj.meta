@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Table",
+            "guid": 6417566881658024141,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Table",
+            "type": 3
+        }
+    ]
+}

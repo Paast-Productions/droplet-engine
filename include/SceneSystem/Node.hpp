@@ -20,7 +20,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -171,6 +171,7 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+ 
 
         /// @brief Gets the parent Node.
         ///
@@ -180,8 +181,8 @@ namespace Droplet::Scene
 
         /// @brief Gets the child Nodes.
         ///
-        /// @return A constant reference to the vector containing this Node's children.
-        [[nodiscard]] const std::vector<std::shared_ptr<Node>> &GetChildren() const; // TODO: Make weak pointer
+        /// @return A vector containing this Node's children.
+        [[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
 
         /// @brief Gets the Scene that owns this Node.
         ///
@@ -214,9 +215,10 @@ namespace Droplet::Scene
         // Components
         // --------------------------------------------------
 
-		/// @brief Adds a Component to the Node by taking ownership of a unique pointer.
-		/// @param p_component Unique pointer to the Component to add.
-        void AddComponent(std::unique_ptr<Component> &p_component);
+		/// @brief Adds a Component of the specified type to the Node.
+		/// @param p_componentType The type of Component to add, specified as a string.
+		/// @return A weak pointer to the added Component.
+        std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
 
         /// @brief Adds an exisiting component to the node
         /// 
@@ -225,9 +227,9 @@ namespace Droplet::Scene
         /// It assigns a freshly new component id
         /// The overloaded function uses id from serialization
         ///       
-        /// @param p_component The comoponent to be attached
-        void AttachComponent(std::unique_ptr<Component> &p_component); 
-        void AttachComponent(std::shared_ptr<Component> &p_component, std::uint64_t p_componentID);
+        /// @param p_component The component to be attached
+        std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
+        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
         /// @brief Gets all Components of the specified type.
         ///
@@ -275,6 +277,18 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_component is nullptr.
         /// @throws std::runtime_error if the Component is not attached to this Node.
         void RemoveComponent(const Component *p_component);
+
+        /// @brief Moves a Component to a position on this Node or another Node.
+        ///
+        /// When moving to another Node, the Component receives a new ID unique
+        /// to that Node.
+        /// @param p_component Component to move.
+        /// @param p_destination Node that will own the Component.
+        /// @param p_index Position to insert the Component at. By default, it is appended.
+        void MoveComponent(
+            const Component *p_component,
+            Node &p_destination,
+            std::size_t p_index = static_cast<std::size_t>(-1));
 
         // --------------------------------------------------
         // Bounds
@@ -341,21 +355,38 @@ namespace Droplet::Scene
             return components.empty() ? nullptr : components.front();
         }
     	
-    	/// @brief Gets the DamageComponent attached to this Node.
-    	/// @return The DamageComponent, or nullptr if none is attached.
-    	[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+    	/// @brief Gets the HazardComponent attached to this Node.
+    	/// @return The HazardComponent, or nullptr if none is attached.
+    	[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
         {
-        	const auto components = GetComponents<DamageComponent>();
+        	const auto components = GetComponents<HazardComponent>();
         	return components.empty() ? nullptr : components.front();
         }
 
+		[[nodiscard]] bool IsPrefab() const
+		{
+			return !m_prefabPath.empty();
+		}
+
+		[[nodiscard]] const std::string &GetPrefabPath() const
+		{
+			return m_prefabPath;
+		}
+
+		void SetPrefabPath(const std::string &p_prefabPath)
+		{
+			m_prefabPath = p_prefabPath;
+		}
+
     private:
         std::string m_name;
+        std::string m_prefabPath = "";
         
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
 
         std::uint64_t m_nextComponentID = 1;
+
 		/// @brief Indicates whether the Node is active.
         bool m_active = true;
 
@@ -372,13 +403,16 @@ namespace Droplet::Scene
 
         Transform m_transform;
 
+		//player data
+		PlayerBehaviour m_playerBehaviour;
+
 		// Hierarchy
 
         std::weak_ptr<Node> m_parent;
         std::vector<std::shared_ptr<Node>> m_children;
 
         // Scene
-
+          
         friend class Scene;
 
         /// @brief Weak reference to the Scene containing this Node.

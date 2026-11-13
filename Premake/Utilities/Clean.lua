@@ -49,7 +49,11 @@ newaction {
                 print("Cleaning Engine")
                 
                 os.execute("{RMDIR} ./Build/Obj/Engine/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Engine/")
+                os.execute("{RMDIR} ./Build/Obj/release/Engine/")
                 os.execute("{RMDIR} ./Build/Target/Engine/")
+                os.execute("{RMDIR} ./Build/Target/debug/Engine/")
+                os.execute("{RMDIR} ./Build/Target/release/Engine/")
                 os.remove("./Generated/Engine.vcxproj")
                 os.remove("./Generated/Engine.vcxproj.filters")
 
@@ -57,7 +61,11 @@ newaction {
                 print("Cleaning Editor")
                 
                 os.execute("{RMDIR} ./Build/Obj/Editor/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Editor/")
+                os.execute("{RMDIR} ./Build/Obj/release/Editor/")
                 os.execute("{RMDIR} ./Build/Target/Editor/")
+                os.execute("{RMDIR} ./Build/Target/debug/Editor/")
+                os.execute("{RMDIR} ./Build/Target/release/Editor/")
                 os.remove("./Generated/Editor.vcxproj")
                 os.remove("./Generated/Editor.vcxproj.filters")
                 
@@ -73,7 +81,11 @@ newaction {
                 print("Cleaning Test")
 
                 os.execute("{RMDIR} ./Build/Obj/Test/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Test/")
+                os.execute("{RMDIR} ./Build/Obj/release/Test/")
                 os.execute("{RMDIR} ./Build/Target/Test/")
+                os.execute("{RMDIR} ./Build/Target/debug/Test/")
+                os.execute("{RMDIR} ./Build/Target/release/Test/")
                 os.remove("./Generated/Test.vcxproj")
                 os.remove("./Generated/Test.vcxproj.filters")
 
@@ -82,19 +94,31 @@ newaction {
                 
                 -- Engine
                 os.execute("{RMDIR} ./Build/Obj/Engine/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Engine/")
+                os.execute("{RMDIR} ./Build/Obj/release/Engine/")
                 os.execute("{RMDIR} ./Build/Target/Engine/")
+                os.execute("{RMDIR} ./Build/Target/debug/Engine/")
+                os.execute("{RMDIR} ./Build/Target/release/Engine/")
                 os.remove("./Generated/Engine.vcxproj")
                 os.remove("./Generated/Engine.vcxproj.filters")
 
                 -- Editor
                 os.execute("{RMDIR} ./Build/Obj/Editor/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Editor/")
+                os.execute("{RMDIR} ./Build/Obj/release/Editor/")
                 os.execute("{RMDIR} ./Build/Target/Editor/")
+                os.execute("{RMDIR} ./Build/Target/debug/Editor/")
+                os.execute("{RMDIR} ./Build/Target/release/Editor/")
                 os.remove("./Generated/Editor.vcxproj")
                 os.remove("./Generated/Editor.vcxproj.filters")
 
                 -- Test
                 os.execute("{RMDIR} ./Build/Obj/Test/")
+                os.execute("{RMDIR} ./Build/Obj/debug/Test/")
+                os.execute("{RMDIR} ./Build/Obj/release/Test/")
                 os.execute("{RMDIR} ./Build/Target/Test/")
+                os.execute("{RMDIR} ./Build/Target/debug/Test/")
+                os.execute("{RMDIR} ./Build/Target/release/Test/")
                 os.remove("./Generated/Test.vcxproj")
                 os.remove("./Generated/Test.vcxproj.filters")
 

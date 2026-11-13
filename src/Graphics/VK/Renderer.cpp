@@ -263,12 +263,10 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	};
 
 
-	vk::RenderingInfo renderingInfo
-	{
+	vk::RenderingInfo renderingInfo {
 		.renderArea =
 		{
-			.offset =
-			{
+			.offset = {
 				.x = 0,
 				.y = 0
 			},
@@ -287,11 +285,11 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	for (const RenderData& data : p_renderData)
 	{
 
-		const VK::Pipeline& pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
+		const VK::Pipeline *pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
 		if (pipeline == nullptr) { continue; }
 
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, *pipeline.Get());
-		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline.GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Get());
+		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
 
 		const VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(data);
 
@@ -302,8 +300,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 		if (!result) { continue; }
 
-		PushConstantData pcData
-		{
+		PushConstantData pcData {
 			.world = data.transform,
 			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
 			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
@@ -311,10 +308,9 @@ void Renderer::RecordRenderTargetCommandBuffer(
 			.textureID = texID
 		};
 
-		vk::PushConstantsInfo pcInfo
-		{
+		vk::PushConstantsInfo pcInfo {
 			.sType = vk::StructureType::ePushConstantsInfo,
-			.layout = pipeline.GetLayout(),
+			.layout = pipeline->GetLayout(),
 			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			.offset = 0,
 			.size = sizeof(PushConstantData),

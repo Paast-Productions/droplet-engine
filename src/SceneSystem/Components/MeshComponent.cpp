@@ -262,46 +262,40 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
 	// Shader GUIDS
 
-	if (!p_compJson.contains("vs"))
-	{
-		throw std::runtime_error("Meshcomponent missing required field 'vs'");
-	}
-	if (!p_compJson.contains("tcs"))
-	{
-		throw std::runtime_error("Meshcomponent missing required field 'tcs'");
-	}
-	if (!p_compJson.contains("tes"))
-	{
-		throw std::runtime_error("Meshcomponent missing required field 'tes'");
-	}
-	if (!p_compJson.contains("gs"))
-	{
-		throw std::runtime_error("Meshcomponent missing required field 'gs'");
-	}
-	if (!p_compJson.contains("fs"))
-	{
-		throw std::runtime_error("Meshcomponent missing required field 'fs'");
-	}
+    if (p_compJson.contains("vs"))
+    {
+        SetVSGUID(p_compJson["vs"]);
+    }
+    if (p_compJson.contains("tcs"))
+    {
+        SetTCSGUID(p_compJson["tcs"]);
+    }
+    if (p_compJson.contains("tes"))
+    {
+        SetTESGUID(p_compJson["tes"]);
+    }
+    if (p_compJson.contains("gs"))
+    {
+        SetGSGUID(p_compJson["gs"]);
+    }
+    if (p_compJson.contains("fs"))
+    {
+        SetFSGUID(p_compJson["fs"]);
 
-	SetVSGUID(p_compJson["vs"]);
-	SetTCSGUID(p_compJson["tcs"]);
-	SetTESGUID(p_compJson["tes"]);
-	SetGSGUID(p_compJson["gs"]);
-	SetFSGUID(p_compJson["fs"]);
+    }
+
 
 	// Names
 
-	if (!p_compJson.contains("meshDisplayName"))
+	if (p_compJson.contains("meshDisplayName"))
 	{
-		throw std::runtime_error("Meshcomponent missing required field 'meshDisplayName'");
-	}
-	m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+        m_meshDisplayName = p_compJson["meshDisplayName"].get<std::string>();
+    }
 
-	if (!p_compJson.contains("textureDisplayName"))
+	if (p_compJson.contains("textureDisplayName"))
 	{
-		throw std::runtime_error("Meshcomponent missing required field 'textureDisplayName'");
-	}
-	m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+        m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+    }
 
 
 	// Shader Names

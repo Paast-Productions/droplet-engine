@@ -168,6 +168,10 @@ namespace Droplet
 		/// @returns The cursor y delta.
 		[[nodiscard]] float GetDeltaMouseY() const;
 
+		/// @brief Get the mouse scroll value.
+		/// @return The mouse scroll value.
+		[[nodiscard]] float GetMouseScroll() const;
+
 		/// @brief Get the delta mouse position as a glm::vec2.
 		[[nodiscard]] glm::vec2 GetDeltaMouse() const;
 
@@ -207,6 +211,7 @@ namespace Droplet
 		float m_prevMouseY = 0.0f;
 		float m_deltaMouseX = 0.0f;
 		float m_deltaMouseY = 0.0f;
+		float m_mouseScroll = 0.0f;
 		std::array<bool, (size_t)Mouse::Count> m_currentMouse = { false };
 		std::array<bool, (size_t)Mouse::Count> m_previousMouse = { false };
 

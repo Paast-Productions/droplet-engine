@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Drone_Control_Keyboard",
+            "guid": 231537602037856420,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Drone_Control_Keyboard",
+            "type": 3
+        }
+    ]
+}

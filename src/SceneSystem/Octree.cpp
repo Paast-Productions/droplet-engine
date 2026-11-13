@@ -14,6 +14,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
 
 using namespace Droplet::Math;
 using namespace Droplet::Scene;
@@ -71,7 +72,7 @@ void Octree::Update()
 		// the tree's placements are still conservative and no reinsertion is needed.
 		if (m_placements.contains(nodePtr.get()))
 		{
-			if (Intersects(m_placements[nodePtr.get()], nodeBounds) == IntersectType::Contains)
+			if (Intersects(m_placements[nodePtr.get()].fatBounds, nodeBounds) == IntersectType::Contains)
 			{
 				continue;
 			}
@@ -85,7 +86,7 @@ void Octree::Update()
 
 		fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
 
-		m_placements[nodePtr.get()] = fatBounds;
+		m_placements[nodePtr.get()].fatBounds = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
 	}
 		
@@ -118,7 +119,7 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 
 	fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
 
-	m_placements[nodePtr.get()] = fatBounds;
+	m_placements[nodePtr.get()].fatBounds = fatBounds;
 	AddToTreeNode(p_node, m_root, fatBounds);
 }
 
@@ -419,14 +420,27 @@ void Octree::CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std:
 	// Check stored Nodes in the current TreeNode
 	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 	{
+		if (node.expired())
+		{
+			continue;
+		}
+		
 		auto nodePtr = node.lock();
 		Transform &t = nodePtr->GetTransform();
-		if (nodePtr != nullptr && 
+		std::shared_ptr<MeshComponent> meshComp = nodePtr->GetComponent<MeshComponent>();
+			if (nodePtr != nullptr && 
 			(t.HasBeenChanged() || t.HasPhysicsChanged()))
 		{
 			p_dirtyNodes.push_back(node);
 			t.ResetPhysicsDirty();
 		}
+		else if (meshComp != nullptr && !m_placements[nodePtr.get()].hasUpdated && meshComp->GetMeshResource().IsReady())
+		{
+			p_dirtyNodes.push_back(node);
+			m_placements[nodePtr.get()].hasUpdated = true;
+			m_placements[nodePtr.get()].meshGuid = meshComp->GetMeshResource().GetGUID();
+		}
+		meshComp = nullptr;
 	}
 
 	// Recurse into children if subdivided
@@ -548,7 +562,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 			}
 				
 			auto placement = m_placements.find(existingNodePtr.get());
-			const AABB nodePlacement = placement != m_placements.end() ? placement->second : 
+			const AABB nodePlacement = placement != m_placements.end() ? placement->second.fatBounds : 
 				AABB::Transform(existingNodePtr->GetBounds()->GetAABB(), existingNodePtr->GetTransform().GetMatrix(Transform::Space::World));
 				
 			for (std::unique_ptr<TreeNode> &child : p_treeNode->children)
@@ -1070,7 +1084,7 @@ void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode)
 				
 			if (m_placements.contains(nodePtr.get()))
 			{
-				Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()], glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()].fatBounds, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
 			}
 		}
 	}
