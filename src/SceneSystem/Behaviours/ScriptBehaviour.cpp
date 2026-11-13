@@ -21,6 +21,11 @@ void ScriptBehaviour::DetachScript()
 	ScriptSystem::Get().DetachBehaviourScript(this);
 }
 
+void Droplet::Scene::ScriptBehaviour::StartImpl()
+{
+	ScriptSystem::Get().StartBehaviour(this);
+}
+
 void ScriptBehaviour::PostUpdateImpl()
 {
 	float deltaTime = Time::Get().GetDeltaTime();
@@ -81,6 +86,4 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
     }
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-
-	ScriptSystem::Get().StartBehaviour(this);
 }
