@@ -738,6 +738,45 @@ void SceneViewWindow::RenderEditorView()
 				}
 
 				n->GetTransform().SetPosition(putPos, DTransform::Space::World);
+
+				// Rotate after snap
+				if (input.KeyHeld(Key::KeyShift) && hit.didHit)
+				{
+					glm::vec3 newUp = glm::normalize(hit.normal);
+					glm::vec3 oldForward = glm::vec3(0.0f, 0.0f, 1.0f);
+
+					// Project old forward onto the new surface plane
+					glm::vec3 newForward = oldForward - glm::dot(oldForward, newUp) * newUp;
+					if (glm::length(newForward) < 0.001f)
+					{
+						// Edge case where forward was parallel to normal
+						glm::vec3 oldRight = glm::vec3(1.0f, 0.0f, 0.0f);
+						newForward = glm::cross(newUp, oldRight);
+					}
+					newForward = glm::normalize(newForward);
+
+					// Calcualte the new right vector and recalculate new forwad
+					glm::vec3 newRight = glm::normalize(glm::cross(newForward, newUp));
+					newForward = glm::normalize(glm::cross(newUp, newRight));
+
+					glm::mat3 rotationMatrix(newRight, newUp, -newForward);
+					glm::quat newRotation = glm::quat_cast(rotationMatrix);
+
+					// Apply rotation
+					n->GetTransform().SetRotation(newRotation);
+
+					DebugDraw::DrawRay(
+						n->GetTransform().GetPosition(),
+						n->GetTransform().GetUp(),
+						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+						false
+					);
+				}
+				else if (input.KeyHeld(Key::KeyShift) && !hit.didHit)
+				{
+					// Apply rotation
+					n->GetTransform().SetRotation(n->GetTransform().GetUp());
+				}
 			}
 		}
 	}
