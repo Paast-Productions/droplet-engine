@@ -42,6 +42,11 @@ namespace Droplet::Scene
 
 	protected:
 
+        /// @brief Starts the associated Lua script.
+        /// Called when the component is started and forwards the start
+        /// operation to the scripting system.
+        void StartImpl() override;
+
         void PostUpdateImpl() override;
 
 		/// @brief Internal rendering function for the component's UI.
