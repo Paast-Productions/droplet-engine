@@ -1,69 +1,46 @@
 local MovementModifiers = require("MovementModifiers")
 local presureDamage = nil
-local baseDamage = 0
---local player = nil
+local baseDamage = nil
+local haz = nil
+local PressureRate = 50
+local pressureThreshold = 200.0
 
--- this one is for the player gets damage each second
-local lastTimeGotDamage = 1
-
---This may need to be changed depending on whether the group or player designer decides otherwise.
-local PressureZones =
-{
-    {pressureLevel = 1, gravityMultiplier = 1.0, damageMultiplier = 1.0},
-    {pressureLevel = 2, gravityMultiplier = 2.0, damageMultiplier = 1.5},
-    {pressureLevel = 3, gravityMultiplier = 3.0, damageMultiplier = 2.0},
-    {pressureLevel = 4, gravityMultiplier = 4.0, damageMultiplier = 2.5},
-    {pressureLevel = 5, gravityMultiplier = 5.0, damageMultiplier = 3.0}
-}
-local lastApplied = 0
-
+pressureTier = 1.0
+damageScaling = 0.1
 
 function OnStart()
     print("Pressure")
 
-    local haz = self:GetHazardComponent()
+    haz = self:GetHazardComponent()
     baseDamage = haz:GetDamage()
     presureDamage = baseDamage * 0.25
 end
-
-function CheckPressureZone(pressureLevelResistance)
-    for x = 1, #PressureZones do 
-        if pressureLevelResistance == PressureZones[x].pressureLevel then
-            MovementModifiers.SetGravityPull(PressureZones[x].gravityMultiplier)
-            presureDamage = PressureZones[x].damageMultiplier + baseDamage * 0.25
-            break
-        end
-    end
-end
-
 
 function OnTrigger(dt, node)
     local trans = node:GetTransform() 
     local health = node:GetHealthComponent()
     local playerComponent = node:GetPlayerComponent()
     local player = playerComponent:GetPlayerBehaviour()
-
     local gravityMultiplier = MovementModifiers.GetGravityPull()
+    local zone = haz:GetZone()
+
+    print(zone .. " <- zone")
+    local getCurrentLevel = player:GetPressureLevel()
+    local pressureIncrease = PressureRate * dt
     
-    -- It is used to determine the pressure level required for the drone to access the area.
-    -- TODO: Another component should be added to check the bounding box's in other word the node PressureLevel and other levels and determine whether the pressure is too high or safe for the player.
-    local pressureLevelResistance = player:GetPressureLevel()
-    if lastApplied ~= pressureLevelResistance then
-        CheckPressureZone(pressureLevelResistance)
-        lastApplied = pressureLevelResistance
+    if getCurrentLevel < 1000 then
+        player:IncreasePressureLevel(pressureIncrease * (0.5 * pressureTier)^2)
     end
-    
 
-    lastTimeGotDamage = lastTimeGotDamage + dt
-    if lastTimeGotDamage > 1.0 then 
-       lastTimeGotDamage = 0
+    pressureTier = math.floor(getCurrentLevel / pressureThreshold) + 1
+    print(getCurrentLevel .. " <- currentlevel")
+    print(pressureThreshold .. " <- PressureThreshold")
+    print(pressureTier .. "<- tier")
 
-        local givinDamage = presureDamage
+    if getCurrentLevel > player:GetPressureResistance() then 
+        local givinDamage = presureDamage * (presureDamage + (pressureTier * damageScaling))
         print(givinDamage .. " <- damage")
-
-
-        local positionOfDrone = trans:GetPosition()
-
+    
         health = node:GetHealthComponent()
         health:TakeDamage(givinDamage)
         local Ghealth = health:GetHealth()
@@ -83,5 +60,17 @@ function OnTrigger(dt, node)
 end
 
 function RenderUI()
-
 end
+
+
+--
+-- spelar 2
+-- om spalaren befinner sig i samma level som zonen armon inte skada och bara spealaren
+
+-- spelaren 1  
+--level zonen 2 mycket skada + armor skad
+
+-- Hull integrity == armor
+-- get och set
+
+

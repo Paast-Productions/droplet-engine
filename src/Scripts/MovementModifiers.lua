@@ -17,7 +17,7 @@ function MovementModifiers.GetSpeedMultiplier()
 end
 
 function MovementModifiers.SetGravityPull(multiplier)
-    MovementModifiers.gravityMultiplier = math.max(1.0, multiplier)
+    MovementModifiers.gravityMultiplier = multiplier
 end
 
 function MovementModifiers.ClearGravityPull()
