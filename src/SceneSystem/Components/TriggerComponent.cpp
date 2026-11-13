@@ -244,6 +244,17 @@ nlohmann::json TriggerComponent::SerializeImpl()
 
 void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
 {
+    if (p_compJson.empty())
+    {
+        TriggerOBB newObb;
+        const std::shared_ptr<Node> node = GetOwner();
+        const glm::mat4 worldMat = node->GetTransform().GetMatrix(Transform::Space::World);
+        newObb.obb = node->GetBounds()->GetTransformedOBB(worldMat);
+        newObb.offset = glm::vec3(0.0f, 0.0f, 0.0f);
+        m_OBBs.push_back(newObb);
+        return;
+    }
+    
     m_AABBs.resize(p_compJson["numAabb"]);
     m_OBBs.resize(p_compJson["numObb"]);
     m_spheres.resize(p_compJson["numSphere"]);
