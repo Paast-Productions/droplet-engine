@@ -17,7 +17,7 @@
 
 #include "SlugHelper.hpp"
 
-Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const std::filesystem::path &p_destination, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
+Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const std::filesystem::path &p_destination, const int p_asciiRangeStart, const int p_asciiRangeEnd, const uint32_t p_bandCount)
 	: m_path(p_path), m_bandCount(p_bandCount)
 {
 	if (p_bandCount == 0)
