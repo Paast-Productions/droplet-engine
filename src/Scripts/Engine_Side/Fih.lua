@@ -219,7 +219,7 @@ function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
 	print("New Fih")
 
-    fishSystem.RegisterFish(self)
+    fishSystem.RegisterFish(self, "fish")
 
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)

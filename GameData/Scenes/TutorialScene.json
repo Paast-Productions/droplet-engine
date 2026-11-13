@@ -1405,7 +1405,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -1501,7 +1501,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -1597,7 +1597,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -1645,7 +1645,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -1693,7 +1693,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -2077,7 +2077,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -2125,7 +2125,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -2317,7 +2317,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3373,7 +3373,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3421,7 +3421,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3709,7 +3709,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3757,7 +3757,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3805,7 +3805,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3853,7 +3853,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3901,7 +3901,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3949,7 +3949,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -3997,7 +3997,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -4045,7 +4045,7 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 11929133566856826472,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -6141,17 +6141,17 @@
                 },
                 {
                     "active": true,
-                    "data": {
-                        "filepath": "FishInteraction.lua"
-                    },
-                    "id": 4,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
                     "data": {},
                     "id": 6,
                     "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "FishInteraction.lua"
+                    },
+                    "id": 7,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
@@ -6162,6 +6162,62 @@
                     0.0,
                     17.699125289916992,
                     0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "UpgradeItem.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 133,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    6.677900314331055,
+                    -9.703133583068848
                 ],
                 "rotation": [
                     1.0,

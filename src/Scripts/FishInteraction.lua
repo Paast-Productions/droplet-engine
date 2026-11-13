@@ -17,7 +17,7 @@ local woodId
 
 function InteractWithFish(target)
     local playerPosition = self:GetTransform():GetPosition()
-    local targetPosition = target:GetTransform():GetPosition()
+    local targetPosition = target.node:GetTransform():GetPosition()
 
     local forward = self:GetTransform():GetForward()
 
@@ -77,7 +77,7 @@ function SuctionUpdate(dt)
     suctionElapsed = suctionElapsed + dt
 
     local playerPosition = self:GetTransform():GetPosition()
-    local fishTransform = currentTarget:GetTransform()
+    local fishTransform = currentTarget.node:GetTransform()
     local fishPosition = fishTransform:GetPosition()
 
     local direction = Vec3.new( 
@@ -121,8 +121,8 @@ function SuctionEnd()
     currentTarget = nil
     suctionElapsed = 0.0
 
-    fishSystem.UnregisterFish(fish)
-    scene:RemoveNode(fish)
+    fishSystem.UnregisterFish(fish.node, fish.type)
+    scene:RemoveNode(fish.node)
     
     playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
     print("Fish is yum: ")
@@ -133,13 +133,30 @@ function SuctionCancel()
     suctionElapsed = 0.0
 end
 
-
 function OnStart()
     scene = self:GetScene()
-    playerBehaviour = self:GetPlayerComponent():GetPlayerBehaviour()
+
+    local playerComponent = self:GetPlayerComponent()
+    if not playerComponent then
+        print("GetPlayerComponent returned nil")
+        return
+    end
+
+    playerBehaviour = playerComponent:GetPlayerBehaviour()
+    if not playerBehaviour then
+        print("GetPlayerBehaviour returned nil")
+        return
+    end
+
     local registry = playerBehaviour:GetItemRegistry()
+    if not registry then
+        print("GetItemRegistry returned nil")
+        return
+    end
+
     woodId = registry:Find("resource:wood")
-    if woodId == nil or not woodId:IsValid() then
+
+    if not woodId or not woodId:IsValid() then
         print("Wood item is not registered!")
         woodId = nil
     end
@@ -153,9 +170,17 @@ function OnUpdate(dt)
     end
 
     for _, fish in ipairs(fishSystem.GetFishes()) do
-        if InteractWithFish(fish) then
-           if Input:KeyPressed(Key.E) then
+        if Input:KeyPressed(Key.E) then
+            if InteractWithFish(fish) then
                 SuctionStart(fish)
+                return
+           end
+        end
+    end
+    for _, upgrade in ipairs(fishSystem.GetUpgrads()) do        
+        if Input:KeyPressed(Key.E) then
+            if InteractWithFish(upgrade) then
+                SuctionStart(upgrade)
                 return
            end
         end
