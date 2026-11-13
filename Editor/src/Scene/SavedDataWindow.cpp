@@ -61,12 +61,13 @@ void SavedDataWindow::RenderImpl()
 		if (m_prefabTree.empty())
 		{
 			ImGui::TextDisabled("No prefabs found in this folder");
-			return;
 		}
-
-		for (const SceneTreeNode &node : m_prefabTree)
+		else
 		{
-			RenderTreeHelper(node, SavedDataType::Prefab);
+			for (const SceneTreeNode &node : m_prefabTree)
+			{
+				RenderTreeHelper(node, SavedDataType::Prefab);
+			}
 		}
 
 		ImGui::TreePop();
@@ -93,11 +94,13 @@ void SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataTyp
 			{
 				RenderTreeHelper(child, p_type);
 			}
+
 			ImGui::TreePop();
 		}
 	}
 	else
 	{
+		bool skip = false;
 		if (!m_searchFilter.empty())
 		{
 			std::string lowerName = p_node.name;
@@ -105,86 +108,89 @@ void SavedDataWindow::RenderTreeHelper(const SceneTreeNode &p_node, SavedDataTyp
 
 			if (lowerName.find(m_searchFilter) == std::string::npos)
 			{
-				return;
+				skip = true;
 			}
 		}
 
-		const std::string path = p_node.relativePath.string();
-		const bool isSelected = m_selectedJsonScene == path;
-
-		if (ImGui::Selectable(p_node.name.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
+		if (!skip)
 		{
-			m_selectedJsonScene = path;
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
-			{
-				if (p_type == SavedDataType::Scene)
-				{
-					const std::string sceneName = p_node.relativePath.stem().string();
-					const std::string scenePath = p_node.relativePath.string();
-					if (auto activeScene = m_editorContext->GetActiveScene().lock())
-					{
-						activeScene->SetActive(false);
-					}
-					m_editorContext->LoadFromFile(scenePath);
-					m_editorContext->SetActiveScene(sceneName);
-				}
-				else
-				{
-					OpenJson(p_node.relativePath);
-				}
-			}
-		}
+			const std::string path = p_node.relativePath.string();
+			const bool isSelected = m_selectedJsonScene == path;
 
-		if (ImGui::BeginPopupContextItem("SceneContextMenu"))
-		{
-
-			if (ImGui::MenuItem("Delete"))
+			if (ImGui::Selectable(p_node.name.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
 			{
 				m_selectedJsonScene = path;
-				m_openDelete = true;
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					if (p_type == SavedDataType::Scene)
+					{
+						const std::string sceneName = p_node.relativePath.stem().string();
+						const std::string scenePath = p_node.relativePath.string();
+						if (auto activeScene = m_editorContext->GetActiveScene().lock())
+						{
+							activeScene->SetActive(false);
+						}
+						m_editorContext->LoadFromFile(scenePath);
+						m_editorContext->SetActiveScene(sceneName);
+					}
+					else
+					{
+						OpenJson(p_node.relativePath);
+					}
+				}
 			}
 
-			ImGui::EndPopup();
-		}
-
-		if (m_openDelete)
-		{
-			ImGui::OpenPopup("DeleteSceneConfirm");
-			m_openDelete = false;
-		}
-
-		if (ImGui::BeginPopupModal("DeleteSceneConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::Text("Are you SURE you want to DELETE the file %s\n", m_selectedJsonScene.c_str());
-
-			const float buttonWidth = 80.0f;
-			const float spacing = ImGui::GetStyle().ItemSpacing.x;
-			const float totalWidth = buttonWidth * 2.0f + spacing;
-
-			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
-			
-			if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+			if (ImGui::BeginPopupContextItem("SceneContextMenu"))
 			{
-				DeleteSelectedFile();
-				ImGui::CloseCurrentPopup();
+
+				if (ImGui::MenuItem("Delete"))
+				{
+					m_selectedJsonScene = path;
+					m_openDelete = true;
+				}
+
+				ImGui::EndPopup();
 			}
 
-			ImGui::SameLine();
-
-			if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+			if (m_openDelete)
 			{
-				ImGui::CloseCurrentPopup();
+				ImGui::OpenPopup("DeleteSceneConfirm");
+				m_openDelete = false;
 			}
-			ImGui::EndPopup();
-		}
 
-		if (p_type == SavedDataType::Prefab)
-		{
-			if (ImGui::BeginDragDropSource())
+			if (ImGui::BeginPopupModal("DeleteSceneConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				ImGui::SetDragDropPayload("PREFAB_PATH", path.c_str(), path.size() + 1);
-				ImGui::TextUnformatted(p_node.name.c_str());
-				ImGui::EndDragDropSource();
+				ImGui::Text("Are you SURE you want to DELETE the file %s\n", m_selectedJsonScene.c_str());
+
+				const float buttonWidth = 80.0f;
+				const float spacing = ImGui::GetStyle().ItemSpacing.x;
+				const float totalWidth = buttonWidth * 2.0f + spacing;
+
+				ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
+
+				if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+				{
+					DeleteSelectedFile();
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			if (p_type == SavedDataType::Prefab)
+			{
+				if (ImGui::BeginDragDropSource())
+				{
+					ImGui::SetDragDropPayload("PREFAB_PATH", path.c_str(), path.size() + 1);
+					ImGui::TextUnformatted(p_node.name.c_str());
+					ImGui::EndDragDropSource();
+				}
 			}
 		}
 	}
