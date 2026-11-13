@@ -14,13 +14,27 @@ ScriptSystem::ScriptSystem(): m_luaStateHandler(), m_scriptManager(m_luaStateHan
 ScriptSystem::~ScriptSystem()
 {
 	ZoneScoped;
+
+	Shutdown();
 }
 
-void Droplet::Script::ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
+void ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
 
 	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState(), p_sceneManager);
+}
+
+void ScriptSystem::Shutdown()
+{
+	if (m_isShutdown)
+	{
+		return;
+	}
+	m_isShutdown = true;
+
+	m_scriptManager.Shutdown();
+	m_luaStateHandler.Shutdown();
 }
 
 void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
@@ -30,7 +44,7 @@ void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 	m_scriptManager.StartComponent(p_scriptComponent);
 }
 
-void Droplet::Script::ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
+void ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
 	ZoneScoped;
 
@@ -50,7 +64,7 @@ void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent,
 	}
 }
 
-void Droplet::Script::ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
+void ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
 {
 	ZoneScoped;
 

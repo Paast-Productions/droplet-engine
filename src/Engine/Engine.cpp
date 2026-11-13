@@ -126,6 +126,7 @@ void Droplet::Engine::Shutdown()
 {
     Audio::AudioSystem::GetInstance().Shutdown();
 	ThreadPool::GetInstance().Shutdown();
+	Script::ScriptSystem::Get().Shutdown();
 }
 
 DROPLET_RETURNTYPE Droplet::Engine::Update()
