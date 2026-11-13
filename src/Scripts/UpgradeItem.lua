@@ -1,10 +1,10 @@
 
-local fishSystem = require("FishSystem")
+local suctionSystem = require("SuctionSystem")
 
 -- Called when script starts
 function OnStart()
     print("UpdgradeItem", self)
-    fishSystem.RegisterFish(self, "speed")
+    suctionSystem.RegisterCollectible(self, "speed")
 end
 
 -- Called every frame

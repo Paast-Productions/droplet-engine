@@ -1,6 +1,6 @@
-FishSystem = FishSystem or {}
-FishSystem.fishes = FishSystem.fishes or {}
-FishSystem.upgrades = FishSystem.upgrades or {}
+SuctionSystem = SuctionSystem or {}
+SuctionSystem.fishes = SuctionSystem.fishes or {}
+SuctionSystem.upgrades = SuctionSystem.upgrades or {}
 
 function OnStart()
 end
@@ -11,7 +11,7 @@ end
 function RenderUI()
 end
 
-function FishSystem.RegisterFish(node, type)
+function SuctionSystem.RegisterCollectible(node, type)
     if not node or not type then
         return
     end
@@ -20,9 +20,9 @@ function FishSystem.RegisterFish(node, type)
 
 
     if type == "fish" then
-        registry = FishSystem.fishes
+        registry = SuctionSystem.fishes
     else
-        registry = FishSystem.upgrades
+        registry = SuctionSystem.upgrades
     end
 
     for _, entry in ipairs(registry) do
@@ -38,7 +38,7 @@ function FishSystem.RegisterFish(node, type)
     })
 end
 
-function FishSystem.UnregisterFish(node, type)
+function SuctionSystem.UnregisterCollectible(node, type)
     if not node then
         return
     end
@@ -46,9 +46,9 @@ function FishSystem.UnregisterFish(node, type)
     local registry
 
     if type == "fish" then
-        registry = FishSystem.fishes
+        registry = SuctionSystem.fishes
     else
-        registry = FishSystem.upgrades
+        registry = SuctionSystem.upgrades
     end
     
     for i = #registry, 1, -1 do
@@ -61,12 +61,12 @@ function FishSystem.UnregisterFish(node, type)
     print("Collectible was not registered")
 end
 
-function FishSystem.GetFishes()
-    return FishSystem.fishes
+function SuctionSystem.GetFishes()
+    return SuctionSystem.fishes
 end
 
-function FishSystem.GetUpgrads()
-    return FishSystem.upgrades
+function SuctionSystem.GetUpgrads()
+    return SuctionSystem.upgrades
 end
 
-return FishSystem
+return SuctionSystem

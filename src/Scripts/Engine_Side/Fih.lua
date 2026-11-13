@@ -2,7 +2,7 @@
 --
 -- Member Variables
 --
-local fishSystem = require("FishSystem")
+local suctionSystem = require("SuctionSystem")
 
 local trans = nil
 
@@ -219,7 +219,7 @@ function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
 	print("New Fih")
 
-    fishSystem.RegisterFish(self, "fish")
+    suctionSystem.RegisterCollectible(self, "fish")
 
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)

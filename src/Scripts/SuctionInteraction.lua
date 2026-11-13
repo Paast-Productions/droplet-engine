@@ -1,5 +1,5 @@
 
-local fishSystem = require("FishSystem")
+local suctionSystem = require("SuctionSystem")
 local scene
 
 local interactionRange = 30.0
@@ -14,8 +14,9 @@ local suctionElapsed = 0.0
 
 local playerBehaviour
 local woodId
+local upgrade1
 
-function InteractWithFish(target)
+function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
     local targetPosition = target.node:GetTransform():GetPosition()
 
@@ -121,11 +122,16 @@ function SuctionEnd()
     currentTarget = nil
     suctionElapsed = 0.0
 
-    fishSystem.UnregisterFish(fish.node, fish.type)
+    suctionSystem.UnregisterCollectible(fish.node, fish.type)
     scene:RemoveNode(fish.node)
     
-    playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
-    print("Fish is yum: ")
+    if fish.type == "fish" then
+        playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
+        print("Fish is yum: ")
+    elseif fish.type == "speed" then
+        playerBehaviour:AddItem(InventoryType.Player, woodId, 1)
+        print("Upgrade1 optained")
+    end
 end
 
 function SuctionCancel()
@@ -155,6 +161,7 @@ function OnStart()
     end
 
     woodId = registry:Find("resource:wood")
+    --upgrade1 = registry:Find("")
 
     if not woodId or not woodId:IsValid() then
         print("Wood item is not registered!")
@@ -169,17 +176,17 @@ function OnUpdate(dt)
         return
     end
 
-    for _, fish in ipairs(fishSystem.GetFishes()) do
+    for _, fish in ipairs(suctionSystem.GetFishes()) do
         if Input:KeyPressed(Key.E) then
-            if InteractWithFish(fish) then
+            if InteractWith(fish) then
                 SuctionStart(fish)
                 return
            end
         end
     end
-    for _, upgrade in ipairs(fishSystem.GetUpgrads()) do        
+    for _, upgrade in ipairs(suctionSystem.GetUpgrads()) do        
         if Input:KeyPressed(Key.E) then
-            if InteractWithFish(upgrade) then
+            if InteractWith(upgrade) then
                 SuctionStart(upgrade)
                 return
            end
