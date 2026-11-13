@@ -281,8 +281,8 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
         m_OBBs[i].offset.z = p_compJson[std::string("obbOffZ" + idx)];
 
         m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtX" + idx)];
-        m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtY" + idx)];
-        m_OBBs[i].obb.extents.x = p_compJson[std::string("obbExtZ" + idx)];
+        m_OBBs[i].obb.extents.y = p_compJson[std::string("obbExtY" + idx)];
+        m_OBBs[i].obb.extents.z = p_compJson[std::string("obbExtZ" + idx)];
         
         glm::vec3 rot = glm::vec3(0.0f, 0.0f, 0.0f);
         rot.x = p_compJson[std::string("obbRotX" + idx)];
@@ -355,7 +355,7 @@ void TriggerComponent::AddShape(int& p_currentShape)
             newObb.offset = pos;
             newObb.obb.center = pos + nodePos;
             newObb.obb.extents = ext;
-            newObb.obb.orientation = glm::mat3_cast(glm::quat(rot));
+            newObb.obb.orientation = glm::mat3_cast(glm::quat(glm::radians(rot)));
         }
         newObb.Draw(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
         break;
