@@ -96,9 +96,8 @@ namespace Droplet::Scene
 		struct TreeNode;
 
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
-		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
-		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
+		void CollectDirtyNodes(std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
 		
 		/// @brief Helper function finding unique weak pointers in a vector.
 		/// @param[in] p_inNodes The in vector containing all weak pointers of Node
@@ -234,6 +233,7 @@ namespace Droplet::Scene
 		bool m_isInitialized = false;
 		std::unique_ptr<TreeNode> m_root;
 		
+		std::vector<std::weak_ptr<Node>> m_containedNodes;
 		std::unordered_map<Node *, FatBounds> m_placements; // Contains fat bounds
 	};
 }

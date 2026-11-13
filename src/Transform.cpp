@@ -455,6 +455,7 @@ void Transform::MakeDirty()
 {
 	m_isDirty = true;
 	m_wasChanged = true;
+	m_version++;
 
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())
