@@ -30,16 +30,17 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         return 1;
     }
 
-    //Droplet::EngineFlagsOwner::SetUpdateFlagBits();
-
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/MyScene.json");
+    Droplet::EngineFlagsOwner::SetUpdateFlagBits(Droplet::UpdateFlags::SkipAutoRender | Droplet::UpdateFlags::SkipNodeLogic | Droplet::UpdateFlags::SkipBehaviourLogic | Droplet::UpdateFlags::SkipScriptLogic, true);
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
 
-    engine.GetSceneManager().ActivateScene("MyScene");
+    engine.GetSceneManager().ActivateScene("BoatScene");
+
+    //wait for scene to be loaded before starting node logic
+    Droplet::EngineFlagsOwner::SetUpdateFlagBits(Droplet::UpdateFlags::SkipAutoRender | Droplet::UpdateFlags::SkipNodeLogic | Droplet::UpdateFlags::SkipBehaviourLogic | Droplet::UpdateFlags::SkipScriptLogic, false);
 
     bool mouseLock = true;
 

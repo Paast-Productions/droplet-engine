@@ -141,6 +141,7 @@ Engine::~Engine()
 void Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
+	Script::ScriptSystem::Get().Shutdown();
 }
 
 DROPLET_RETURNTYPE Engine::Update()

@@ -31,6 +31,8 @@ ResourceBrowser::~ResourceBrowser()
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
+	ToggleToolbar(true);
+
 	BuildBrowserTree(ResourceManager::GetInstance().GetRegisteredResources());
 
 	m_previewCamera.camera = Graphics::Camera(
@@ -49,6 +51,20 @@ void ResourceBrowser::InitImpl()
 	);
 }
 
+void ResourceBrowser::RenderToolbar()
+{
+	using namespace ImGui;
+	
+	if (Button("Register Resource"))
+	{
+		RegisterAsset();
+	}
+
+	Separator();
+
+	SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
+}
+
 void ResourceBrowser::RenderImpl()
 {
 	using namespace ImGui;
@@ -59,12 +75,6 @@ void ResourceBrowser::RenderImpl()
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 	
 	// --- Registering Resources ---
-	
-	if (Button("Register Resource"))
-	{
-		RegisterAsset();
-	}
-	SameLine();
 	TextDisabled(std::filesystem::absolute(resManInstance.GetRootDirectory()).string().c_str());
 	Separator();
 	
@@ -293,6 +303,17 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 	{
 		if (!childNode.isDirectory)
 		{
+			if (!m_searchFilter.empty())
+			{
+				std::string lowerName = childName;
+				std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+				if (lowerName.find(m_searchFilter) == std::string::npos)
+				{
+					continue;
+				}
+			}
+
 			// --- Asset ---
 			std::string fileLabel = ICON_LC_FILE " " + childName;
 			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);

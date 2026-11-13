@@ -80,7 +80,7 @@ project "Game"
         "Engine",
         "json",
         "tracy",
-        "Lua",
+        "LuaJIT",
         "Jolt",
         "Dalia"
     }
@@ -103,7 +103,7 @@ project "Game"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
+		AddQuotation("lua51"),
 		AddQuotation("Jolt")
     }
 

@@ -1,9 +1,11 @@
 #ifdef _EDITOR
 #include "Editor/ImGuiUtils.hpp"
 #include <ImGui/imgui.h>
+#include <ImGui/imgui_stdlib.h>
 #include <ImGui/imgui_internal.h>
 
 using namespace ImGui;
+
 
 static void WrapMousePosEx(int axises_mask, const ImRect &wrap_rect)
 {
@@ -79,6 +81,32 @@ void ImGui::LockToItem(bool p_hideMouse)
 		TeleportMousePos(prev_mous_pos);
 		target_item = 0;
 	}
+}
+
+
+void ImGui::SearchBar(std::string &p_outFilter, ImVec2 p_minMax, bool p_focusOnAppearing)
+{
+	if (p_minMax.y <= 0.0)
+		p_minMax.y = std::numeric_limits<float>::max();
+
+	ImVec2 currSize = ImGui::GetContentRegionMax();
+	float padding = ImGui::GetStyle().WindowPadding.x;
+	float popupWidth = std::clamp(currSize.x - padding, p_minMax.x, p_minMax.y);
+	float inputBoxPosX = ImGui::GetCursorPosX();
+
+	if (p_focusOnAppearing && ImGui::IsWindowAppearing())
+		ImGui::SetKeyboardFocusHere(0);
+
+	ImGui::SetNextItemWidth(popupWidth - padding);
+	ImGui::InputText("##Filter", &p_outFilter, ImGuiInputTextFlags_AutoSelectAll);
+	if (!ImGui::IsItemActive() && p_outFilter.empty())
+	{
+		ImGui::SameLine(inputBoxPosX + padding);
+		ImGui::TextDisabled("Search");
+	}
+
+	if (!p_outFilter.empty())
+		std::transform(p_outFilter.begin(), p_outFilter.end(), p_outFilter.begin(), ::tolower);
 }
 
 #endif

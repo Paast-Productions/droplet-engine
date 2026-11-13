@@ -282,7 +282,7 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_c
     };
 }
 
-const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat)
+Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
     // TRY FINDING ALREADY CREATED PIPELINE
@@ -322,7 +322,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (vs.IsReady())
     {
         ShaderResource* vsRes = vs.Get();
-        vsModule = ShaderModule{ p_device, vsRes->GetByteCode() };
+        vsModule = ShaderModule{ m_context->GetDevice(), vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
     }
     else if (vs.IsValid())
@@ -336,7 +336,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (tcs.IsReady())
     {
         ShaderResource* tcsRes = tcs.Get();
-        tcsModule = ShaderModule{ p_device, tcsRes->GetByteCode() };
+        tcsModule = ShaderModule{ m_context->GetDevice(), tcsRes->GetByteCode() };
         shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
     else if (tcs.IsValid())
@@ -350,7 +350,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (tes.IsReady())
     {
         ShaderResource* tesRes = tes.Get();
-        tesModule = ShaderModule{ p_device, tesRes->GetByteCode() };
+        tesModule = ShaderModule{ m_context->GetDevice(), tesRes->GetByteCode() };
         shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
     else if (tes.IsValid())
@@ -364,7 +364,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (gs.IsReady())
     {
         ShaderResource* gsRes = gs.Get();
-        gsModule = ShaderModule{ p_device, gsRes->GetByteCode() };
+        gsModule = ShaderModule{ m_context->GetDevice(), gsRes->GetByteCode() };
         shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
     else if (gs.IsValid())
@@ -378,7 +378,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     if (fs.IsReady())
     {
         ShaderResource* fsRes = fs.Get();
-        fsModule = ShaderModule{ p_device, fsRes->GetByteCode() };
+        fsModule = ShaderModule{ m_context->GetDevice(), fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
     }
     else if (fs.IsValid())
@@ -393,8 +393,8 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     }
 
     m_pipelineMap[key] = Pipeline{
-        p_device,
-        p_physicalDevice,
+        m_context->GetDevice(), 
+        m_context->GetPhysicalDevice(),
         descriptorSetLayouts,
         shaderVec,
         p_surfaceFormat
@@ -403,7 +403,7 @@ const Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, const 
     return &m_pipelineMap.at(key);
 }
 
-const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
+const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_commandBuffer, RenderData p_renderData)
 {
     ZoneScoped;
 
@@ -426,30 +426,18 @@ const Mesh IntermediaryStorage::GetMesh(RenderData p_renderData)
             return m;
         }
 
-        m_vertexMap[key] = VertexBuffer{ m_allocator.Get(), meshRes.Get()->GetVertexData() };
-        m_indexMap[key] = IndexBuffer{ m_allocator.Get(), meshRes.Get()->GetIndexData() };
-
-        Mesh mesh
-        {
-            .valid = true,
-            .vertexBuffer = m_vertexMap.at(key).Get(),
-            .indexBuffer = m_indexMap.at(key).Get(),
-            .indexCount = m_indexMap.at(key).GetIndexCount()
-        };
-
-        return mesh;
+        m_vertexMap[key] = VertexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetVertexData() };
+        m_indexMap[key] = IndexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetIndexData() };
     }
-    else
+    
+    Mesh mesh
     {
-        Mesh mesh
-        {
-            .valid = true,
-            .vertexBuffer = m_vertexMap.at(key).Get(),
-            .indexBuffer = m_indexMap.at(key).Get(),
-            .indexCount = m_indexMap.at(key).GetIndexCount()
-        };
-        return mesh;
-    }
+        .valid = true,
+        .vertexBuffer = m_vertexMap.at(key).Get(),
+        .indexBuffer = m_indexMap.at(key).Get(),
+        .indexCount = m_indexMap.at(key).GetIndexCount()
+    };
+    return mesh;
 }
 
 std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result)
@@ -546,19 +534,19 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(const Re
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         )
     };
-
-    GUID imGuiTextureGuid{ GuidUtils::Generate() };
+    
+    GUID imGuiTextureGuid { GuidUtils::Generate() };
     m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
-
-    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureHandle{ imGuiTextureGuid };
-
-    return ImGuiTexture{ imGuiTextureHandle };
+    
+    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureHandle { imGuiTextureGuid }; 
+    
+    return ImGuiTexture { imGuiTextureHandle };
 }
 
 Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_guid)
 {
     ZoneScoped;
-
+    
     ResourceManager &RMInstance = ResourceManager::GetInstance();
     StaticResourceHandle<Texture2DResource> texRes = RMInstance.LoadResource<Texture2DResource>(p_guid);
 
@@ -566,7 +554,7 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
     {
         return {};
     }
-
+    
     DynamicLiveResource imGuiImage
     {
         .type = DynamicResourceType::Image,
@@ -583,13 +571,13 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
             vk::MemoryPropertyFlagBits::eDeviceLocal)
     };
-
-    GUID imageGuid{ GuidUtils::Generate() };
+    
+    GUID imageGuid { GuidUtils::Generate() };
     m_liveObjects[imageGuid] = std::move(imGuiImage);
-
-    DynamicResourceHandle<Image> imGuiImageHandle{ imageGuid };
-
-    DynamicLiveResource imGuiImageView
+    
+    DynamicResourceHandle<Image> imGuiImageHandle { imageGuid };
+    
+    DynamicLiveResource imGuiImageView 
     {
         .type = DynamicResourceType::ImageView,
         .resource = std::make_unique<ImageView>(
@@ -598,13 +586,13 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             vk::Format::eR8G8B8A8Unorm,
             vk::ImageAspectFlagBits::eColor)
     };
-
-    GUID imageViewGuid{ GuidUtils::Generate() };
+    
+    GUID imageViewGuid { GuidUtils::Generate() };
     m_liveObjects[imageViewGuid] = std::move(imGuiImageView);
-
-    DynamicResourceHandle<ImageView> imGuiImageViewHandle{ imageViewGuid };
-
-    DynamicLiveResource imGuiTexture
+    
+    DynamicResourceHandle<ImageView> imGuiImageViewHandle { imageViewGuid }; 
+    
+    DynamicLiveResource imGuiTexture 
     {
         .type = DynamicResourceType::ImGuiTexture,
         .resource = std::make_unique<ImGuiTextureResource>(
@@ -615,13 +603,13 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             )
         )
     };
-
-    GUID textureGuid{ GuidUtils::Generate() };
+    
+    GUID textureGuid { GuidUtils::Generate() };
     m_liveObjects[textureGuid] = std::move(imGuiTexture);
-
-    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureResourceHandle{ textureGuid };
-
-    return ImGuiTexture
+    
+    DynamicResourceHandle<ImGuiTextureResource> imGuiTextureResourceHandle { textureGuid };
+    
+    return ImGuiTexture 
     {
         imGuiTextureResourceHandle,
         imGuiImageHandle,
@@ -632,11 +620,11 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
 void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height)
 {
     ZoneScoped;
-
+    
     // Create Colour Image
-
-    GUID colourImageGuid{ p_target.GetColourImageGuid() };
-    DynamicLiveResource colourImage
+    
+    GUID colourImageGuid { p_target.GetColourImageGuid() };
+    DynamicLiveResource colourImage 
     {
         .type = DynamicResourceType::Image,
         .refCount = m_liveObjects[colourImageGuid].refCount,
@@ -648,29 +636,29 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
             vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eSampled,
             vk::MemoryPropertyFlagBits::eDeviceLocal),
     };
-
+    
     MoveToDestructionQueue(colourImageGuid);
     m_liveObjects[colourImageGuid] = std::move(colourImage);
-
-    DynamicResourceHandle<Image> colourImageHandle{ colourImageGuid };
-
+    
+    DynamicResourceHandle<Image> colourImageHandle { colourImageGuid };
+    
     // Create Colour Image View
-
-    GUID colourImageViewGuid{ p_target.GetColourImageViewGuid() };
-    DynamicLiveResource colourImageView
+    
+    GUID colourImageViewGuid { p_target.GetColourImageViewGuid() };
+    DynamicLiveResource colourImageView 
     {
         .type = DynamicResourceType::ImageView,
         .refCount = m_liveObjects[colourImageViewGuid].refCount,
         .resource = std::make_unique<ImageView>(m_context->GetDevice(),
-            colourImageHandle->Get())
+            colourImageHandle->Get())       
     };
-
+    
     MoveToDestructionQueue(colourImageViewGuid);
     m_liveObjects[colourImageViewGuid] = std::move(colourImageView);
-
+    
     // Create Depth Image
-
-    GUID depthImageGuid{ p_target.GetDepthImageGuid() };
+    
+    GUID depthImageGuid { p_target.GetDepthImageGuid() };
     DynamicLiveResource depthImage
     {
         .type = DynamicResourceType::Image,
@@ -678,21 +666,21 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
         .resource = std::make_unique<Image>(m_allocator.Get(),
         p_width,
         p_height,
-        vk::Format::eD32Sfloat,
+        vk::Format::eD32Sfloat, 
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eDepthStencilAttachment,
         vk::MemoryPropertyFlagBits::eDeviceLocal)
     };
-
+    
     MoveToDestructionQueue(depthImageGuid);
     m_liveObjects[depthImageGuid] = std::move(depthImage);
-
-    DynamicResourceHandle<Image> depthImageHandle{ depthImageGuid };
-
+    
+    DynamicResourceHandle<Image> depthImageHandle { depthImageGuid };
+    
     // Create Depth Image View
-
-    GUID depthImageViewGuid{ p_target.GetDepthImageViewGuid() };
-    DynamicLiveResource depthImageView
+    
+    GUID depthImageViewGuid { p_target.GetDepthImageViewGuid() };
+    DynamicLiveResource depthImageView 
     {
         .type = DynamicResourceType::ImageView,
         .refCount = m_liveObjects[depthImageViewGuid].refCount,
@@ -701,24 +689,24 @@ void IntermediaryStorage::UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTe
         vk::Format::eD32Sfloat,
         vk::ImageAspectFlagBits::eDepth)
     };
-
+    
     MoveToDestructionQueue(depthImageViewGuid);
     m_liveObjects[depthImageViewGuid] = std::move(depthImageView);
-
+    
     // Create ImGui Texture
-
-    GUID imGuiTextureGuid{ p_texture.GetGUID() };
+    
+    GUID imGuiTextureGuid { p_texture.GetGUID() };
     DynamicLiveResource imGuiTexture
     {
         .type = DynamicResourceType::ImGuiTexture,
-        .refCount = m_liveObjects[imGuiTextureGuid].refCount,
+        .refCount = m_liveObjects[imGuiTextureGuid].refCount, 
         .resource = std::make_unique<ImGuiTextureResource>(ImGui_ImplVulkan_AddTexture(
             *m_textureSampler.Get(),
             *p_target.GetColourImageView(),
             VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
         )
     };
-
+    
     MoveToDestructionQueue(imGuiTextureGuid);
     m_liveObjects[imGuiTextureGuid] = std::move(imGuiTexture);
 }

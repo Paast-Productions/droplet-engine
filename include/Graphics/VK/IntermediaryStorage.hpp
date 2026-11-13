@@ -284,16 +284,14 @@ namespace Droplet::Graphics::VK
         
         /// @brief Gets (and possibly creates uncached) Vulkan pipelines 
         /// @param p_renderData Render data with shader information
-        /// @param p_device Vulkan device
-        /// @param p_physicalDevice Vulkan physical device
         /// @param p_surfaceFormat Vulkan surface format
         /// @returns Vulkan Pipeline
-        [[nodiscard]] const Pipeline *GetPipeline(RenderData p_renderData, const vk::raii::Device& p_device, const vk::raii::PhysicalDevice& p_physicalDevice, vk::SurfaceFormatKHR p_surfaceFormat);
+        [[nodiscard]] Pipeline *GetPipeline(RenderData p_renderData, vk::SurfaceFormatKHR p_surfaceFormat);
         
         // TODO: </REFACTOR>
             
         /// TODO: Write doxygen (Lio)
-        [[nodiscard]] const Mesh GetMesh(RenderData p_renderData);
+        [[nodiscard]] const Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer, RenderData p_renderData);
 
         /// TODO: Write doxygen (Lio)
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData, CommandPool &p_commandPool, bool &result);
