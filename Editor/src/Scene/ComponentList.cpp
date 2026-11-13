@@ -26,10 +26,26 @@ bool Droplet::Editor::Scene::ShowComponentList(std::string *p_outName)
 
 	if (BeginPopup("Component List"))
 	{
+		static std::string filter = "";
+		SearchBar(filter, ImVec2(100.0f, 0.0f), true);
+
+		Separator();
+
 		const auto &registry = ComponentRegistry::GetRegistry();
 
 		for (const auto &[name, _] : registry)
 		{
+			if (!filter.empty())
+			{
+				std::string lowerName = name;
+				std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+				if (lowerName.find(filter) == std::string::npos)
+				{
+					continue;
+				}
+			}
+
 			if (Selectable(name.c_str()))
 			{
 				if (p_outName)

@@ -23,6 +23,7 @@ namespace Droplet::Scene
     {
     public:
         ScriptComponent() = default;
+        ~ScriptComponent() = default;
 
         /// @brief Gets the type name of the component.
         /// @return The type name of the component.
@@ -74,6 +75,8 @@ namespace Droplet::Scene
 		/// displays the script path. Derived components can override this
 		/// function to implement their own UI rendering logic.
 		void RenderUIImpl() override;
+
+		void DestroyImpl() override;
 
         void AttachScript(const std::string p_scriptPath);
 

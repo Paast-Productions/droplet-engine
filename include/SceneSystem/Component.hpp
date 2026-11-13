@@ -40,6 +40,9 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         virtual std::string_view GetTypeName() const = 0;
 
+		/// @brief Called when the Component is constructed.
+        void Construct();
+
         /// @brief Called when the owning Node starts.
         ///
         /// Called when the owning Node starts participating in an active Scene.
@@ -77,6 +80,8 @@ namespace Droplet::Scene
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
+
+        void Destroy();
 
         /// @brief Gets the Node that owns this component.
         /// @return A shared pointer to the owning Node, or nullptr if the
@@ -152,6 +157,8 @@ namespace Droplet::Scene
 
     protected:
 
+        virtual void ConstructImpl() {}
+
         virtual void StartImpl() {}
 
         virtual void UpdateImpl() {}
@@ -165,6 +172,8 @@ namespace Droplet::Scene
     	virtual void ActiveChangedImpl(const bool p_active) {}
 
         virtual void QueueRenderImpl() {}
+
+		virtual void DestroyImpl() {}
 
         [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
 
@@ -191,6 +200,7 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_constructed = false;
 		bool m_started = false;
 		bool m_active = true;
         bool m_renderable = false;

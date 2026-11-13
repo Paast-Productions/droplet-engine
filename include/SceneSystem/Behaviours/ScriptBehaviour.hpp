@@ -21,8 +21,6 @@ namespace Droplet::Scene
     public:
         ScriptBehaviour() = default;
 
-        void PostUpdate() override;
-
         /// @brief Gets the type name of the behaviour.
         /// @return The type name of the behaviour.
         std::string_view GetTypeName() override { return "ScriptBehaviour"; }
@@ -43,6 +41,14 @@ namespace Droplet::Scene
         void DetachScript();
 
 	protected:
+
+        /// @brief Starts the associated Lua script.
+        /// Called when the component is started and forwards the start
+        /// operation to the scripting system.
+        void StartImpl() override;
+
+        void PostUpdateImpl() override;
+
 		/// @brief Internal rendering function for the component's UI.
 		/// Overloaded by derived components to implement their own UI rendering logic.
 		void RenderUIImpl() override;

@@ -6,12 +6,6 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
 
-void Droplet::Scene::ScriptBehaviour::PostUpdate()
-{
-	float deltaTime = Time::Get().GetDeltaTime();
-	ScriptSystem::Get().UpdateBehaviour(this, deltaTime);
-}
-
 const std::string &ScriptBehaviour::GetScriptPath() const
 {
 	return m_scriptPath;
@@ -25,6 +19,17 @@ void ScriptBehaviour::SetScriptPath(const std::string &p_scriptPath)
 void ScriptBehaviour::DetachScript()
 {
 	ScriptSystem::Get().DetachBehaviourScript(this);
+}
+
+void Droplet::Scene::ScriptBehaviour::StartImpl()
+{
+	ScriptSystem::Get().StartBehaviour(this);
+}
+
+void ScriptBehaviour::PostUpdateImpl()
+{
+	float deltaTime = Time::Get().GetDeltaTime();
+	ScriptSystem::Get().UpdateBehaviour(this, deltaTime);
 }
 
 void ScriptBehaviour::RenderUIImpl()
@@ -81,6 +86,4 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
     }
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-
-	ScriptSystem::Get().StartBehaviour(this);
 }

@@ -9,7 +9,7 @@ using namespace Droplet;
 void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
-
+     
 	p_luaState.new_usertype<Scene::Scene>(
 		"Scene",
 		"RemoveNode",
@@ -86,6 +86,13 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 				{"node", "Node"}
 			}
 	    },
+        {
+			"RemoveNode",
+			"void",
+			{
+				{"node", "Node"}
+			}
+        },
         {
             "FindNodeById",
             "Node | nil",

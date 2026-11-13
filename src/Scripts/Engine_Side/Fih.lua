@@ -4,6 +4,15 @@
 --
 
 local trans = nil
+local ffi = require("ffi")
+
+ffi.cdef[[
+double sin(double x);
+double cos(double x);
+double atan(double x);
+double acos(double x);
+double sqrt(double x);
+]]
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
@@ -53,15 +62,15 @@ function NewTargetPoint()
     
 	-- Random point on a sphere using spherical coordinates
 	local theta = math.random() * 2 * math.pi
-    local phi = math.acos(2 * math.random() - 1)
+    local phi = ffi.C.acos(2 * math.random() - 1)
 
     -- Random distance, uniform by volume
     local r = targetRadius * math.random()^(1/3)
 
 	local v = Vec3.new(0.0, 0.0, 0.0)
-    v.x = r * math.sin(phi) * math.cos(theta)
-    v.y = r * math.sin(phi) * math.sin(theta)
-    v.z = r * math.cos(phi)
+    v.x = r * ffi.C.sin(phi) * ffi.C.cos(theta)
+    v.y = r * ffi.C.sin(phi) * ffi.C.sin(theta)
+    v.z = r * ffi.C.cos(phi)
 
 	targetPoint = GLM.V3Add(orbitPoint, v)
 
@@ -70,7 +79,7 @@ end
 
 function IsWithinTarget()
     tracy.ZoneBeginN("IsWithinTarget")
-
+    
 	local pos = trans:GetPosition(TransformSpace.World)
 	local dist = GLM.V3Distance(pos, targetPoint)
     
@@ -80,13 +89,14 @@ end
 
 function UpdateVelocity(dt)
     tracy.ZoneBeginN("UpdateVelocity")
-
 	-- TODO: Steering behavior to move forwards and turn towards target point
 	 local pos = trans:GetPosition(TransformSpace.World)
 
     -- Direction towards the target
-    local toTarget = GLM.V3Sub(targetPoint, pos)
-    local distance = GLM.V3Length(toTarget)
+    local dx = targetPoint.x - pos.x
+    local dy = targetPoint.y - pos.y
+    local dz = targetPoint.z - pos.z
+    local distance = math.sqrt(dx*dx + dy*dy + dz*dz)
 
     if distance < 0.0001 then
         moveSpeed = MoveTowards(
@@ -98,29 +108,31 @@ function UpdateVelocity(dt)
         turnSpeedY = MoveTowards(
             turnSpeedY, 0.0, turnSpeedRateOfChange * dt
         )
-
-        tracy.ZoneEnd()
         return
     end
 
-    toTarget = GLM.V3MulF(toTarget, 1.0 / distance)
-
+    local invDistance = 1.0 / distance
+    dx = dx * invDistance
+    dy = dy * invDistance
+    dz = dz * invDistance
+    
     local forward = trans:GetForward()
+    
 
-    -- Calculate yaw error around global Y.
-    local currentYaw = math.atan(forward.x, forward.z)
-    local targetYaw = math.atan(toTarget.x, toTarget.z)
+    local currentYaw = math.atan2(forward.x, forward.z)
+    local targetYaw = math.atan2(dx, dz)
+    
     local yawError = WrapAngle(targetYaw - currentYaw)
 
     -- Calculate pitch error.
-    local currentPitch = math.atan(
+    local currentPitch = math.atan2(
         forward.y,
         math.sqrt(forward.x * forward.x + forward.z * forward.z)
     )
 
-    local targetPitch = math.atan(
-        toTarget.y,
-        math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z)
+    local targetPitch = math.atan2(
+        dy,
+        math.sqrt(dx * dx + dz * dz)
     )
 
     local pitchError = targetPitch - currentPitch
@@ -197,7 +209,7 @@ end
 function ApplyVelocity(dt)
     tracy.ZoneBeginN("ApplyVelocity")
 
-	local toMove = GLM.V3MulF(GLM.V3MulF(trans:GetForward(), moveSpeed), dt)
+	local toMove = GLM.V3MulF(trans:GetForward(), moveSpeed * dt)
 	trans:Move(toMove, TransformSpace.World)
 
 	local toRotateY = GLM.AngleAxis(trans:GetRight(), turnSpeedY * dt)
@@ -216,8 +228,9 @@ end
 
 function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
-    local scene = SceneManagerInstance:GetScene("MainScene")
-
+    jit.on()
+    jit.flush()
+    
 	print("New Fih")
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
@@ -228,7 +241,7 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Fih OnUpdate")
-
+    
 	if IsWithinTarget() then
 		NewTargetPoint()
 	end
@@ -249,7 +262,8 @@ end
 
 function RenderUI()
     tracy.ZoneBeginN("Fih RenderUI")
-
+	trans = self:GetTransform()
+	orbitPoint = trans:GetPosition(TransformSpace.World)
 	ImGui.Spacing()
 
 	_, orbitPoint = ImGui.DragFloat3("Orbit Point", orbitPoint, 0.2)

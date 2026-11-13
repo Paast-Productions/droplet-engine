@@ -181,21 +181,6 @@ namespace Droplet::Scene
         /// @return true if the Scene is active, otherwise false.
         bool IsActive() const;
 
-        /// @brief Sets whether the Scene is active.
-        ///
-        /// Activating a loaded Scene starts all root Nodes and their
-        /// hierarchies. An active Scene is updated and rendered by the
-        /// SceneManager.
-        ///
-        /// Deactivating a Scene prevents its Node hierarchies from being
-        /// updated or rendered.
-        ///
-        /// @param p_active true to activate the Scene, false to deactivate it.
-        ///
-        /// @throws std::runtime_error if attempting to activate a Scene
-        /// that has not been loaded.
-        void SetActive(bool p_active);
-
         [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
 
         /// @brief Prints graphviz code for visualizing the octree top-down
@@ -230,10 +215,14 @@ namespace Droplet::Scene
         /// @return A vector of all Node instances fully contained in the frustum
         [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
     	
-    	/// @brief Finds all Node instances whose world-space bounds are fully contained within a OBB
-    	/// @param p_obb The OBB that contain the nodes
-    	/// @return A vector of all Node instances fully contained in the frustum
-    	[[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesInBoundingBox(const Math::OBB &p_obb); 
+    	/// @brief Finds all Node instances whose world-space bounds are fully contained within a shape
+    	/// @param p_shape The shape that contain the nodes
+    	/// @param[out] p_nodes The out vector containing nodes inside the shape
+    	void GetNodesInShape(const Math::AABB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
+    	/// @copydoc GetNodesInShape()
+    	void GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
+    	/// @copydoc GetNodesInShape()
+    	void GetNodesInShape(const Math::Sphere &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
 
         [[nodiscard]] std::weak_ptr<Physics> GetPhysics();
         
@@ -274,6 +263,7 @@ namespace Droplet::Scene
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
         const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
+
     private:
 		friend class SceneManager;
 
@@ -290,5 +280,20 @@ namespace Droplet::Scene
         bool m_active = false;
 
 		SceneManager *m_sceneManager = nullptr;
+
+        /// @brief Sets whether the Scene is active.
+        ///
+        /// Activating a loaded Scene starts all root Nodes and their
+        /// hierarchies. An active Scene is updated and rendered by the
+        /// SceneManager.
+        ///
+        /// Deactivating a Scene prevents its Node hierarchies from being
+        /// updated or rendered.
+        ///
+        /// @param p_active true to activate the Scene, false to deactivate it.
+        ///
+        /// @throws std::runtime_error if attempting to activate a Scene
+        /// that has not been loaded.
+        void SetActive(bool p_active);
     };     
 }

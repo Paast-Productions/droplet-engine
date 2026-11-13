@@ -277,31 +277,45 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		.pColorAttachments = &colorAttachmentInfo,
 		.pDepthAttachment = &depthAttachmentInfo
 	};
+	
+	std::vector<VK::Mesh> meshes {};
+	std::vector<VK::Pipeline*> pipelines {};
+	std::vector<std::uint32_t> textureIDs {};
+	std::vector<glm::mat4> transforms {};
+	for (const RenderData& data : p_renderData)
+	{
+		VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(commandBuffer, data);
+		if (!mesh.valid) { continue; }
+		
+		VK::Pipeline *pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_swapchain.GetSurfaceFormat());
+		if (pipeline == nullptr) { continue; }
+		
+		bool result = false;
+		std::uint32_t texID = VK::IntermediaryStorage::GetInstance().GetTextureID(data, m_commandPool, result);
+		if (!result) { continue; }
+		
+		meshes.emplace_back(mesh);
+		pipelines.emplace_back(pipeline);
+		textureIDs.emplace_back(texID);
+		transforms.emplace_back(data.transform);
+	}
 
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(p_renderTarget.GetExtent().height), static_cast<float>(p_renderTarget.GetExtent().width), -static_cast<float>(p_renderTarget.GetExtent().height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), p_renderTarget.GetExtent()));
 	
-	for (const RenderData& data : p_renderData)
+	for (std::size_t i {0}; i < meshes.size(); ++i)
 	{
-
-		const VK::Pipeline *pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_context.GetDevice(), m_context.GetPhysicalDevice(), m_swapchain.GetSurfaceFormat());
-		if (pipeline == nullptr) { continue; }
-
+		VK::Mesh mesh { meshes[i] };
+		VK::Pipeline *pipeline { pipelines[i] };
+		std::uint32_t texID { textureIDs[i] };
+		glm::mat4 transform { transforms[i] };
+		
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Get());
 		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
 
-		const VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(data);
-
-		if (!mesh.valid) { continue; }
-
-		bool result = false;
-		std::uint32_t texID = VK::IntermediaryStorage::GetInstance().GetTextureID(data, m_commandPool, result);
-
-		if (!result) { continue; }
-
 		PushConstantData pcData {
-			.world = data.transform,
+			.world = transform,
 			.cameraDir = { p_camera.GetForward().x, p_camera.GetForward().y, p_camera.GetForward().z, 0.0 },
 			.cameraPos = { p_camera.GetPosition().x, p_camera.GetPosition().y, p_camera.GetPosition().z, 1.0 },
 			.time = Time::Get().GetRuntime(),

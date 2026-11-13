@@ -55,6 +55,11 @@ namespace Droplet::Script
 		/// the script is active.
 		/// @param deltatime Time elapsed since the previous update, in seconds.
 		void OnUpdate(float deltatime);
+
+		/// @brief Calls the script's OnDestroy lifecycle function.
+		/// The OnDestroy function is intended to be called when the script instance
+		/// is about to be destroyed.
+		void OnDestroy();
 		
 		/// @brief Calls the script's OnTrigger function
 		/// The OnTrigger fumction is intented to be called when a triggercomponent detects 
@@ -62,6 +67,8 @@ namespace Droplet::Script
 		/// @param deltatime Time elapsed since previous update, in seconds.
 		/// @param p_otherNode Other node that the script will affect
 		void OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode);
+
+		void OnDestory();
 
 		/// @brief Reloads the script instance with a new Lua script.
 		/// The script environment is updated using the provided loaded script.
@@ -96,8 +103,14 @@ namespace Droplet::Script
 
 		/// @brief Lua function used for the script's update lifecycle event.
 		sol::protected_function m_onUpdate;
+
+		sol::protected_function m_onDestroy;
 		
 		sol::protected_function m_onTrigger;
+
+		sol::protected_function m_onDestory;
+
+		bool m_isShutdown = false;
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.
