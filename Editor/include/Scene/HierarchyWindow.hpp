@@ -120,6 +120,8 @@ namespace Droplet
             std::weak_ptr<Droplet::Scene::Node> m_nodeToAddChildTo;
 
             std::vector<std::weak_ptr<Droplet::Scene::Node>> m_nodesToRemove;
+
+            std::string m_searchFilter = "";
         };
     }
 }

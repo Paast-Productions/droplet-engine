@@ -153,6 +153,10 @@ void HierarchyWindow::RenderToolbar()
         glm::vec3 position = editorCamera.GetPosition() + editorCamera.GetForward() * EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
         newNode.lock()->GetTransform().SetPosition(position, Transform::Space::World);
     }
+
+    ImGui::Separator();
+
+    ImGui::SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
 }
 
 void HierarchyWindow::RenderImpl()
@@ -244,6 +248,17 @@ void HierarchyWindow::RenderImpl()
 
     for (const auto &root : scene->GetRoots())
     {
+        if (!m_searchFilter.empty())
+        {
+            std::string lowerName = root->GetName();
+            std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+            if (lowerName.find(m_searchFilter) == std::string::npos)
+            {
+                continue;
+            }
+        }
+
         DrawNode(root);
     }
 
