@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 113,
+            "id": 235,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -101,7 +101,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 116,
+                            "id": 238,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -125,7 +125,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 115,
+                    "id": 237,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -176,7 +176,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 118,
+                            "id": 240,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -232,7 +232,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 119,
+                            "id": 241,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -256,7 +256,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 117,
+                    "id": 239,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -322,7 +322,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 114,
+            "id": 236,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -384,7 +384,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 120,
+            "id": 242,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -407,7 +407,160 @@
         },
         {
             "active": true,
-            "children": [],
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": false,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Enginewheel",
+                                "meshGUID": 15157891947836158343,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "MeshToggle.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 244,
+                    "name": "wheel",
+                    "transform": {
+                        "position": [
+                            0.00011491776240291074,
+                            -0.00010123849642695859,
+                            -6.234646571101621e-05
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            1.4901162614933128e-07,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0001174211502075,
+                            1.0,
+                            1.0001174211502075
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "piston",
+                                "meshGUID": 1403122509824485770,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 245,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            0.00011491776240291074,
+                            -0.00010123849642695859,
+                            -6.234646571101621e-05
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            1.4901162614933128e-07,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0001174211502075,
+                            1.0,
+                            1.0001174211502075
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "pipe",
+                                "meshGUID": 14947082584196746576,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 246,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            0.00011467934382380918,
+                            -0.00010123849642695859,
+                            -6.234646571101621e-05
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            1.4901162614933128e-07,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0001174211502075,
+                            1.0,
+                            1.0001174211502075
+                        ]
+                    }
+                }
+            ],
             "components": [
                 {
                     "active": true,
@@ -465,7 +618,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 121,
+            "id": 243,
             "name": "engine",
             "transform": {
                 "position": [
@@ -474,9 +627,9 @@
                     5.268229961395264
                 ],
                 "rotation": [
-                    0.7072288990020752,
+                    0.7071068286895752,
                     0.0,
-                    0.7069846391677856,
+                    0.7071067094802856,
                     0.0
                 ],
                 "scale": [
@@ -513,7 +666,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 122,
+            "id": 247,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -578,7 +731,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 124,
+                    "id": 249,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -626,7 +779,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 125,
+                    "id": 250,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -693,7 +846,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 126,
+                    "id": 251,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -717,7 +870,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 123,
+            "id": 248,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -735,6 +888,32 @@
                     1.119971752166748,
                     1.1200000047683716,
                     1.119971752166748
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [],
+            "drawLayer": 1,
+            "id": 252,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -2.36899995803833,
+                    -0.1509999930858612,
+                    5.26800012588501
+                ],
+                "rotation": [
+                    0.7071068286895752,
+                    0.0,
+                    0.7071068286895752,
+                    0.0
+                ],
+                "scale": [
+                    2.0,
+                    2.0,
+                    2.0
                 ]
             }
         }

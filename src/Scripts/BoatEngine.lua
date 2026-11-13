@@ -1,8 +1,12 @@
-
 local InteractableSystem = require("InteractableSystem")
+local MeshToggleSystem = require("MeshToggleSystem")
+
+local brokenEngine
+local repairedEngine
 
 function OnStart()
     InteractableSystem.RegisterInteractable(self)
+
 end
 
 function OnDestroy()
@@ -37,6 +41,16 @@ function OnTrigger(dt, node)
     local brokenPartId = registry:Find("upgrade:broken_engine_part")
     local repairedPartId = registry:Find("upgrade:repaired_engine_part")
 
+    if repairedEngine == nil then
+        repairedEngine = MeshToggleSystem.GetByName("wheel")
+    end
+
+    if repairedEngine == nil then
+        print("BoatEngine: Engine meshes have not been registered!")
+        tracy.ZoneEnd()
+        return
+    end
+
     if not brokenPartId:IsValid() or not repairedPartId:IsValid() then
         print("Engine part item IDs are invalid!")
         tracy.ZoneEnd()
@@ -51,7 +65,12 @@ function OnTrigger(dt, node)
     elseif pb:CountItem(InventoryType.Player, repairedPartId) == 1 then
 
         print("Repaired")
+
         pb:RemoveItem(InventoryType.Player, repairedPartId, 1)
+
+        -- Switch engine meshes.
+        --MeshToggleSystem.SetActive(brokenEngine, false)
+        MeshToggleSystem.SetActive(repairedEngine, true)
 
     else
         print("Can't do anything with the engine")

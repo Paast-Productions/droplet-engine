@@ -10,7 +10,7 @@
 #include <LuaBindings.hpp>  
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
-
+#include <Component.hpp>
 #include "ItemRegistry.hpp"
 
 #include <SceneSystem/Node.hpp>
@@ -307,23 +307,27 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 
 void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::MeshComponent>(
-		"MeshComponent",
-		"SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
-		"GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
-		"SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
-		"GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
-		"SetVSGUID", &Scene::MeshComponent::SetVSGUID,
-		"GetVSGUID", &Scene::MeshComponent::GetVSGUID,
-		"SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
-		"GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
-		"SetTESGUID", &Scene::MeshComponent::SetTESGUID,
+    p_luaState.new_usertype<Scene::MeshComponent>(
+        "MeshComponent",
+        "SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
+        "GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
+        "SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
+        "GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
+        "SetVSGUID", &Scene::MeshComponent::SetVSGUID,
+        "GetVSGUID", &Scene::MeshComponent::GetVSGUID,
+        "SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
+        "GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
+        "SetTESGUID", &Scene::MeshComponent::SetTESGUID,
         "GetTESGUID", &Scene::MeshComponent::GetTESGUID,
-		"SetGSGUID", &Scene::MeshComponent::SetGSGUID,
-		"GetGSGUID", &Scene::MeshComponent::GetGSGUID,
-		"HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
-		"GetsBounds", &Scene::MeshComponent::GetBounds
-	);
+        "SetGSGUID", &Scene::MeshComponent::SetGSGUID,
+        "GetGSGUID", &Scene::MeshComponent::GetGSGUID,
+        "HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
+        "GetBounds", &Scene::MeshComponent::GetBounds,
+
+        // Inherited Component functionality.
+        "SetActiveSelf", &Scene::Component::SetActiveSelf,
+        "IsActive", &Scene::Component::IsActive
+    );
 
     LuaClassDefinition classDef;
     classDef.name = "MeshComponent";
@@ -349,11 +353,11 @@ void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
         {"SetGSGUID", "void", {{"guid", "GUID"}}},
         {"GetGSGUID", "GUID", {}},
 
-        {"SetFSGUID", "void", {{"guid", "GUID"}}},
-        {"GetFSGUID", "GUID", {}},
-
         {"HasBoundsOverride", "boolean", {}},
-        {"GetBounds", "NodeBounds", {}}
+        {"GetBounds", "NodeBounds", {}},
+
+        {"SetActiveSelf", "void", {{"active", "boolean"}}},
+        {"IsActive", "boolean", {}}
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
