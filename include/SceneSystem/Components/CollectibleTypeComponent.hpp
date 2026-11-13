@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <SceneSyste/Items/BaseItems.hpp>
+#include <SceneSystem/Items/BaseItems.hpp>
 
 namespace Droplet::Scene
 {
@@ -16,12 +16,18 @@ namespace Droplet::Scene
     class CollectibleTypeComponent : public Component
     {
     public:
-        CollectibleTypeComponent() = default;
+		CollectibleTypeComponent() = default;
 
         std::string_view GetTypeName() const override { return "CollectibleTypeComponent"; }
 
-        void SetCollectibleType(const std::string &p_collectibleType);
-		[[nodiscard]] std::string &GetCollectibleType() const;
+        void SetCollectibleType(CollectibleType p_collectibleType);
+		[[nodiscard]] CollectibleType GetCollectibleType() const;
+
+		void SetItemId(Game::ItemId p_itemId);
+		[[nodiscard]] Game::ItemId GetItemId() const;
+
+		void SetAmount(int p_amount);
+		[[nodiscard]] int GetAmount() const;
 
     protected:
         void StartImpl() override;
@@ -29,8 +35,8 @@ namespace Droplet::Scene
         void RenderUIImpl() override;
 
     private:
-		CollectibleType m_collectibleType;
-        ItemRegistry &m_items;
-	    int m_collectibleAmount;
+		CollectibleType m_collectibleType = CollectibleType::Fish;
+		Game::ItemId m_itemId = Game::InvalidItemId;
+	    int m_amount = 0;
     };
 }

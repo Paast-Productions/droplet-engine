@@ -7,10 +7,9 @@
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
+//#include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 #include <LuaBindings.hpp>  
 #include <Item.hpp>
-#include <ItemRegistry.hpp>
-
 #include "ItemRegistry.hpp"
 
 #include <SceneSystem/Node.hpp>
@@ -28,6 +27,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
     RegisterPhysicsComponent(p_luaState);
 	RegisterMeshComponent(p_luaState);
     RegisterInteractableComponent(p_luaState);
+	//RegisterCollectibleTypeComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -750,3 +750,29 @@ void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
 
     LuaBindings::PushLuaClassDefinition(classDef);
 }
+
+//void Droplet::Script::Bindings::RegisterCollectibleTypeComponent(sol::state_view p_luaState)
+//{
+//	p_luaState.new_usertype<Scene::CollectibleTypeComponent>(
+//		"CollectibleTypeComponent",
+//		"GetCollectibleType", &Scene::CollectibleTypeComponent::GetCollectibleType,
+//		"SetCollectibleType", &Scene::CollectibleTypeComponent::SetCollectibleType,
+//		"GetItemId", &Scene::CollectibleTypeComponent::GetItemId,
+//		"SetItemId", &Scene::CollectibleTypeComponent::SetItemId,
+//		"GetAmount", &Scene::CollectibleTypeComponent::GetAmount,
+//		"SetAmount", &Scene::CollectibleTypeComponent::SetAmount
+//	);
+//	LuaClassDefinition classDef;
+//	classDef.name = "CollectibleTypeComponent";
+//	classDef.functions =
+//	{
+//		{ "GetCollectibleType", "string", {} },
+//		{ "SetCollectibleType", "void", { { "collectibleType", "string" } } },
+//		{ "GetItemId", "ItemId", {} },
+//		{ "SetItemId", "void", { { "itemId", "ItemId" } } },
+//		{ "GetAmount", "integer", {} },
+//		{ "SetAmount", "void", { { "amount", "integer" } } }
+//	};
+//	LuaBindings::PushLuaClassDefinition(classDef);
+//}
+
