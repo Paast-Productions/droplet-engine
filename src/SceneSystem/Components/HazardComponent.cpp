@@ -13,16 +13,24 @@ glm::vec3 HazardComponent::GetDirection()
     return glm::normalize(m_direction);
 }
 
+void HazardComponent::SetDirection(glm::vec3 p_direction)
+{
+    if (glm::length(p_direction) == 0.0f)
+    {
+        p_direction = glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+    m_direction = glm::normalize(p_direction);
+}
+
 void HazardComponent::RenderUIImpl()
 {
-    ImGui::DragFloat("Damage", &m_damage, 0.1f, 0.0f, FLT_MAX);
+    std::string text = "Damage: " + std::to_string(m_damage) + "/s";
+    ImGui::Text(text.c_str());
     
+    std::string directionStr = "Direction (" + std::to_string(m_direction.x) + ", " + std::to_string(m_direction.y) + ", " + std::to_string(m_direction.z) + ")";
+    ImGui::Text(directionStr.c_str());
     static bool drawDir = false;
     ImGui::Checkbox("Draw direction", &drawDir);
-    static glm::vec3 dir = glm::vec3(0.0f, 0.0f, 1.0f);
-    ImGui::DragFloat3("Direction", &dir.x, 0.1f, FLT_MIN, FLT_MAX);
-    m_direction = dir;
-    m_direction = GetDirection();
     if (drawDir)
     {
         glm::vec3 start = GetOwner()->GetTransform().GetPosition(Transform::Space::World);

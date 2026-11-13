@@ -23,7 +23,7 @@ namespace Droplet::Scene
         
         /// @brief Set the direction
         /// @param p_direction The direction vector
-        void SetDirection(glm::vec3 p_direction) { m_direction = glm::normalize(p_direction); }
+        void SetDirection(glm::vec3 p_direction);
         
     protected:
         void RenderUIImpl() override;
