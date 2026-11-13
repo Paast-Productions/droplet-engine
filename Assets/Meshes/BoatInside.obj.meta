@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "BoatInside",
+            "guid": 16344741396283457377,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "BoatInside",
+            "type": 3
+        }
+    ]
+}

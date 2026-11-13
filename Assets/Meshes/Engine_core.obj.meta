@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Boat_engine",
+            "guid": 5634276424321119754,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Boat_engine",
+            "type": 3
+        }
+    ]
+}
