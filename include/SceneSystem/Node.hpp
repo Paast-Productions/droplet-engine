@@ -64,6 +64,9 @@ namespace Droplet::Scene
         // Copy & Move is disabled to ensure pointers always remain valid
         // Copying/Moving a Node should be explicit and manual
 
+        /// @brief Called when the Node is constructed.
+        void Construct();
+
         /// @brief Starts the Node, its Components, and its children.
         ///
         /// Calls OnStart() on all Components attached to this Node and then
@@ -171,6 +174,7 @@ namespace Droplet::Scene
         /// @throws std::invalid_argument if p_child is nullptr.
         /// @throws std::runtime_error if the Node is not a child of this Node.
         void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+ 
 
         /// @brief Gets the parent Node.
         ///
@@ -362,8 +366,24 @@ namespace Droplet::Scene
         	return components.empty() ? nullptr : components.front();
         }
 
+		[[nodiscard]] bool IsPrefab() const
+		{
+			return !m_prefabPath.empty();
+		}
+
+		[[nodiscard]] const std::string &GetPrefabPath() const
+		{
+			return m_prefabPath;
+		}
+
+		void SetPrefabPath(const std::string &p_prefabPath)
+		{
+			m_prefabPath = p_prefabPath;
+		}
+
     private:
         std::string m_name;
+        std::string m_prefabPath = "";
         
         inline static std::atomic<std::uint64_t> s_nextID{1};
         const std::uint64_t m_id;
@@ -379,12 +399,15 @@ namespace Droplet::Scene
         /// Components will be rendered in.
         Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-        /// @brief Indicates whether the Node has been started.
+        bool m_constructed = false;
         bool m_started = false;
 
 		// Transform
 
         Transform m_transform;
+
+		//player data
+		PlayerBehaviour m_playerBehaviour;
 
 		// Hierarchy
 
@@ -392,7 +415,7 @@ namespace Droplet::Scene
         std::vector<std::shared_ptr<Node>> m_children;
 
         // Scene
-
+          
         friend class Scene;
 
         /// @brief Weak reference to the Scene containing this Node.

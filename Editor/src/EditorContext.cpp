@@ -42,14 +42,14 @@ void Droplet::Editor::EditorContext::LoadFromFile( const std::string &p_filepath
 	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
 
-void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, const Droplet::Scene::Node &p_node)
+void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, Droplet::Scene::Node &p_node)
 {
 	m_engine.GetSceneManager().SerializeNodeToFile(p_node, p_filepath);
 }
 
 void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
-	GetActiveScene().lock()->LoadNodeFromFile(p_filepath,p_overridePosition);
+	GetActiveScene().lock()->LoadNodeFromFile(p_filepath, p_overridePosition);
 }
 
 Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
@@ -64,7 +64,36 @@ Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::
 
 std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
 {
-	return m_selectedScene;
+	if (m_selectedScene.expired())
+	{
+		return {};
+	}
+
+	if (m_selectedScene.lock()->IsActive())
+	{
+		return m_selectedScene;
+	}
+
+	std::weak_ptr<Droplet::Scene::Scene> firstActiveScene = {};
+
+	for (const auto &sceneWeak : m_engine.GetSceneManager().GetActiveScenes())
+	{
+		auto scene = sceneWeak.lock();
+		if (!scene)
+		{
+			continue;
+		}
+
+		firstActiveScene = scene;
+		break;
+	}
+
+	if (firstActiveScene.expired())
+	{
+		return m_selectedScene;
+	}
+
+	return firstActiveScene;
 }
 
 Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()

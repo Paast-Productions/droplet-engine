@@ -18,7 +18,7 @@ project "Editor"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../../..")
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then
@@ -84,7 +84,7 @@ project "Editor"
         "tracy",
         "IconFontCppHeaders",
         "PortableFileDialogs",
-        "Lua",
+        "LuaJIT",
         "Jolt",
         "Dalia"
     }
@@ -110,8 +110,12 @@ project "Editor"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
-		AddQuotation("Jolt")
+		AddQuotation("Jolt"),
+		AddQuotation("Slangd"),
+        AddQuotation("zlibstaticd"),
+        AddQuotation("assimp-mtd"),
+		AddQuotation("lua51"),
+        AddQuotation("msvcrtd") -- DEBUG VERSION OF msvcrt.lib
     }
 
     filter "configurations:debug"

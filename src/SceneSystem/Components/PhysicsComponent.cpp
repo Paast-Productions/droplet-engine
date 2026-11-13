@@ -1087,8 +1087,8 @@ void PhysicsComponent::PullTransformFromPhysics()
 	const glm::vec3 pos = JPHtoGLM(joltTransform.GetTranslation());
 	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
 
-	m_transform->SetPosition(pos);
-	m_transform->SetRotation(rot);
+	m_transform->SetPosition(pos, Transform::Space::World);
+	m_transform->SetRotation(rot, Transform::Space::World);
 	m_transform->MakePhysicsDirty();
 }
 

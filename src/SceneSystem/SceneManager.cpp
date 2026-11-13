@@ -184,23 +184,22 @@ void SceneManager::Update()
         }
     }
 
+    // Copy the active scenes to avoid iterator invalidation
+    std::vector<std::weak_ptr<Scene>> activeScenesCopy = m_activeScenes; 
+
 	// Update all active Scenes
     {
         ZoneNamedNC(sceneUpdateZone, "Scene Update", tracy::Color::DarkSeaGreen1, true);
 
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->Update();
-
-            ++it;
         }
     }
 
@@ -210,20 +209,15 @@ void SceneManager::Update()
     {
         ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
 
-        // Update all active Scenes
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->FixedUpdate();
-
-            ++it;
         }
 
         time.ConsumeFixedTime();
@@ -233,19 +227,15 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(sceneLateUpdateZone, "Scene Late Update", tracy::Color::Blue, true);
 
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->LateUpdate();
-
-            ++it;
         }
     }
 
@@ -403,15 +393,22 @@ void SceneManager::LoadFromFile(const std::string &p_filePath)
     m_scenes[json["name"]] = scene;
 }
 
-void SceneManager::SerializeNodeToFile( const Node &p_node, const std::string &p_filePath)
+void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePath)
 {
     ZoneScoped;
 
     SceneSerializer serializer;
     nlohmann::json json;
 
-    json = serializer.SerializeNode(p_node);
+    json = serializer.SerializeNode(p_node, true);
     Droplet::Core::JsonIO::Write(p_filePath, json);
+
+    std::string relativePath = std::filesystem::relative(
+        std::filesystem::absolute(p_filePath),
+        std::filesystem::path(ROOT_PATH)
+    ).string();
+
+    p_node.SetPrefabPath(relativePath);
 }
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)

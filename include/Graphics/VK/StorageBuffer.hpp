@@ -18,49 +18,40 @@ namespace Droplet::Graphics::VK
         /// @param p_allocator VMA Allocator
         /// @param p_data Data to write
         template <typename T>
-        StorageBuffer(const vma::raii::Allocator &p_allocator, const T &p_data)
+        StorageBuffer(
+            const vma::raii::Allocator &p_allocator,
+            const T &p_data)
+            : StorageBuffer(p_allocator, &p_data, sizeof(T))
         {
-            static_assert(sizeof(p_data) % sizeof(std::uint32_t) * 4 == 0, "[ERROR: Uniform Buffer]\nSize of p_data must be a multiple of 16 bytes");
-                
-            m_bufferMaxSize = sizeof(p_data);
-                
-            const vk::BufferCreateInfo bufferCreateInfo
-            {
-                .size = m_bufferMaxSize, 
-                .usage = vk::BufferUsageFlagBits::eStorageBuffer,
-                .sharingMode = vk::SharingMode::eExclusive
-            };
-
-            constexpr vma::AllocationCreateInfo allocCreateInfo
-            {
-                .flags = vma::AllocationCreateFlagBits::eHostAccessRandom,
-                .usage = vma::MemoryUsage::eAuto,
-                .requiredFlags = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent
-            };
+            static_assert(std::is_trivially_copyable_v<T>);
+        }
         
-            m_buffer = vma::raii::Buffer {p_allocator, bufferCreateInfo, allocCreateInfo};
-        
-            UpdateBuffer(p_data);
+        /// @brief StorageBuffer Constructor
+        /// @param p_allocator VMA Allocator
+        /// @param p_data Data to write
+        template <typename T>
+        StorageBuffer(
+            const vma::raii::Allocator &p_allocator,
+            const std::vector<T> &p_data)
+            : StorageBuffer(p_allocator, p_data.data(), p_data.size() * sizeof(T))
+        {
+            static_assert(std::is_trivially_copyable_v<T>, "[ERROR: Storage Buffer]\nStorage buffer data must be trivially copyable.");
         }
         
         StorageBuffer(const StorageBuffer &p_other) = delete;
         StorageBuffer &operator=(const StorageBuffer &p_other) = delete;
         
-        StorageBuffer(StorageBuffer &&p_other) noexcept
-        {
-            std::swap(m_buffer, p_other.m_buffer);
-            m_bufferMaxSize = p_other.m_bufferMaxSize;
-        }
+        StorageBuffer(StorageBuffer &&p_other) noexcept : m_buffer(std::move(p_other.m_buffer)), m_bufferCapacity(std::exchange(p_other.m_bufferCapacity, 0)) { }
         
         StorageBuffer &operator=(StorageBuffer &&p_other) noexcept
         {
-            if (*this == p_other)
+            if (this == &p_other)
             {
                 return *this;
             }
             
-            std::swap(m_buffer, p_other.m_buffer);
-            m_bufferMaxSize = p_other.m_bufferMaxSize;
+            m_buffer = std::move(p_other.m_buffer);
+            m_bufferCapacity = std::exchange(p_other.m_bufferCapacity, 0);
             
             return *this;
         }
@@ -70,7 +61,7 @@ namespace Droplet::Graphics::VK
         bool operator==(const StorageBuffer &p_other) const
         {
             if (m_buffer == p_other.m_buffer				&&
-                m_bufferMaxSize == p_other.m_bufferMaxSize)
+                m_bufferCapacity == p_other.m_bufferCapacity)
             {
                 return true;
             }
@@ -81,17 +72,19 @@ namespace Droplet::Graphics::VK
         /// @brief Update buffer with new data
         /// @param p_data New data to update to
         template <typename T>
-        void UpdateBuffer(const T& p_data) const
+        void UpdateBuffer(const T& p_data)
         {
-            static_assert(sizeof(p_data) % sizeof(std::uint32_t) * 4 == 0, "[ERROR: Storage Buffer]\nSize of p_data must be a multiple of 16 bytes");
-                
-            if (sizeof(p_data) > m_bufferMaxSize)
-            {
-                throw std::runtime_error(std::format("[ERROR: Storage Buffer]\nData to be copied into buffer is bigger than the buffer!\nSize of buffer: {0}\nSize of data: {1}", m_bufferMaxSize, sizeof p_data));
-            }
-                
-            const vma::raii::Allocation &allocation = m_buffer.getAllocation();
-            allocation.copyFromMemory(&p_data, 0, sizeof(p_data));
+            static_assert(std::is_trivially_copyable_v<T>, "[ERROR: Storage Buffer]\nStorage buffer data must be trivially copyable.");
+            UpdateBytes(&p_data, sizeof(T));
+        }
+        
+        /// @brief Update buffer with new data
+        /// @param p_data New data to update to
+        template <typename T>
+        void UpdateBuffer(const std::vector<T> &p_data)
+        {
+            static_assert(std::is_trivially_copyable_v<T>, "[ERROR: Storage Buffer]\nStorage buffer data must be trivially copyable.");
+            UpdateBytes(p_data.data(), p_data.size() * sizeof(T));
         }
         
         /// @brief Getter-function for the buffer
@@ -99,9 +92,11 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] const vma::raii::Buffer &Get() const { return m_buffer; } 
         
     private:
+        StorageBuffer(const vma::raii::Allocator &p_allocator, const void* p_data, size_t p_size);
+        void UpdateBytes(const void* p_data, std::size_t p_size);
         
         vma::raii::Buffer m_buffer { nullptr }; 
-        std::size_t m_bufferMaxSize { 0 };
+        std::size_t m_bufferCapacity { 0 };
     };
 }
 

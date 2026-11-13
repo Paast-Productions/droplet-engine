@@ -181,21 +181,6 @@ namespace Droplet::Scene
         /// @return true if the Scene is active, otherwise false.
         bool IsActive() const;
 
-        /// @brief Sets whether the Scene is active.
-        ///
-        /// Activating a loaded Scene starts all root Nodes and their
-        /// hierarchies. An active Scene is updated and rendered by the
-        /// SceneManager.
-        ///
-        /// Deactivating a Scene prevents its Node hierarchies from being
-        /// updated or rendered.
-        ///
-        /// @param p_active true to activate the Scene, false to deactivate it.
-        ///
-        /// @throws std::runtime_error if attempting to activate a Scene
-        /// that has not been loaded.
-        void SetActive(bool p_active);
-
         [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
 
         /// @brief Prints graphviz code for visualizing the octree top-down
@@ -291,5 +276,20 @@ namespace Droplet::Scene
         bool m_active = false;
 
 		SceneManager *m_sceneManager = nullptr;
+
+        /// @brief Sets whether the Scene is active.
+        ///
+        /// Activating a loaded Scene starts all root Nodes and their
+        /// hierarchies. An active Scene is updated and rendered by the
+        /// SceneManager.
+        ///
+        /// Deactivating a Scene prevents its Node hierarchies from being
+        /// updated or rendered.
+        ///
+        /// @param p_active true to activate the Scene, false to deactivate it.
+        ///
+        /// @throws std::runtime_error if attempting to activate a Scene
+        /// that has not been loaded.
+        void SetActive(bool p_active);
     };     
 }

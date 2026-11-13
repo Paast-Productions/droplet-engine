@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Pod_Exterior",
+            "guid": 7445482948709711179,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Pod_Exterior",
+            "type": 3
+        }
+    ]
+}

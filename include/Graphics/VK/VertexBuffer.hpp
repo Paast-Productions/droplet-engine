@@ -55,15 +55,17 @@ namespace Droplet::Graphics::VK
 
 		/// @brief Constructor for the VertexBuffer class
 		/// @param p_allocator VMA RAII Allocator 
+		/// @param p_commandBuffer Vulkan Command Buffer
 		/// @param p_vertices vector containing Vertex struct data
-		VertexBuffer(const vma::raii::Allocator &p_allocator, const std::vector<std::byte> &p_vertices);
+		VertexBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::CommandBuffer &p_commandBuffer, const std::vector<std::byte> &p_vertices);
 		
 		VertexBuffer(const VertexBuffer &) = delete;
 		VertexBuffer &operator=(const VertexBuffer &) = delete;
 		
 		VertexBuffer(VertexBuffer &&p_other) noexcept
 		{
-			m_vertexBuffer = std::move(p_other.m_vertexBuffer);
+			std::swap(m_vertexBuffer, p_other.m_vertexBuffer);
+			std::swap(m_stagingBuffer, p_other.m_stagingBuffer);
 		}
 		
 		VertexBuffer &operator=(VertexBuffer &&p_other) noexcept
@@ -73,7 +75,8 @@ namespace Droplet::Graphics::VK
 				return *this;
 			}
 			
-			m_vertexBuffer = std::move(p_other.m_vertexBuffer);
+			std::swap(m_vertexBuffer, p_other.m_vertexBuffer);
+			std::swap(m_stagingBuffer, p_other.m_stagingBuffer);
 			
 			return *this;
 		}
@@ -82,7 +85,8 @@ namespace Droplet::Graphics::VK
 		
 		bool operator==(const VertexBuffer &p_other) const
 		{
-			return m_vertexBuffer == p_other.m_vertexBuffer;
+			return m_vertexBuffer == p_other.m_vertexBuffer &&
+				   m_stagingBuffer == p_other.m_stagingBuffer;
 		}
 		
 		/// @brief VertexBuffer Getter
@@ -91,5 +95,6 @@ namespace Droplet::Graphics::VK
 		
 	private:
 		vma::raii::Buffer m_vertexBuffer { nullptr };
+		vma::raii::Buffer m_stagingBuffer { nullptr };
 	};
 }

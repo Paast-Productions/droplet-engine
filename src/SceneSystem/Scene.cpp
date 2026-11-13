@@ -205,6 +205,8 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make we
     m_roots.push_back(node);
     m_octree.AddNode(node);
 
+    node->Construct();
+
     if (m_active)
     {
         node->Start();
@@ -421,7 +423,16 @@ std::shared_ptr<Node> Scene::LoadNodeFromFile(const std::string& p_filepath, std
     SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
 
-    return serializer.DeserializeLonsesomeNode(json, *this,p_overridePosition);
+	auto node = serializer.DeserializeLonsesomeNode(json, *this, p_overridePosition);
+
+	std::string relativePath = std::filesystem::relative(
+        std::filesystem::absolute(p_filepath), 
+        std::filesystem::path(ROOT_PATH)
+    ).string();
+
+	node->SetPrefabPath(relativePath);
+
+    return node;
 }
 
 void Scene::QueueRenderable(std::shared_ptr<Component> p_comp)

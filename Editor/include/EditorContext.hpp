@@ -71,7 +71,7 @@ namespace Droplet::Editor
 		/// @brief Serializes a node
 		/// @param filepath Filepath to save node to
 		/// @param p_node The node to serialize
-		void SaveNode(const std::string &filepath, const Droplet::Scene::Node &p_node);
+		void SaveNode(const std::string &filepath, Droplet::Scene::Node &p_node);
 
 		/// @brief Loads a node from a pre-existing file
 		/// @param filepath File
