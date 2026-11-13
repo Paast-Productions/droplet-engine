@@ -109,6 +109,7 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node, bool p_undoPre
     json["id"] = p_node.GetID();
     json["active"] = p_node.IsActive();
     json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
+    json["collisionLayerMask"] = static_cast<uint16_t>(p_node.GetCollisionLayerMask());
     json["transform"] = SerializeTransform(p_node.GetTransform());
 
     if (p_node.IsPrefab() && !p_undoPrefab)
@@ -194,6 +195,12 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
         {
             uint16_t drawLayerValue = p_json["drawLayer"];
             node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+        }
+
+        if (p_json.contains("collisionLayerMask"))
+        {
+            uint16_t collisionLayerMaskValue = p_json["collisionLayerMask"];
+            node->SetCollisionLayerMask(static_cast<CollisionLayer>(collisionLayerMaskValue));
         }
 
         if (p_json.contains("children"))

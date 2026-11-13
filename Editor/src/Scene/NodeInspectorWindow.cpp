@@ -81,6 +81,12 @@ void NodeInspectorWindow::RenderImpl()
 		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}
 
+	CollisionLayer collisionLayerMask = m_currentNode.lock()->GetCollisionLayerMask();
+	if (CollisionLayerUtility::SetLayerMaskUI("Collision Layers", collisionLayerMask))
+	{
+		m_currentNode.lock()->SetCollisionLayerMask(collisionLayerMask);
+	}
+
 	if (m_currentNode.lock()->IsPrefab())
 	{
 		std::string prefabPath = m_currentNode.lock()->GetPrefabPath();

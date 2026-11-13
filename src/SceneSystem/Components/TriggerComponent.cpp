@@ -367,6 +367,7 @@ void TriggerComponent::AddShape(int& p_currentShape)
         newSphere.Draw(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
         break;
     default:
+        break;
     }
 
     if (ImGui::Button("Add shape"))
@@ -383,6 +384,7 @@ void TriggerComponent::AddShape(int& p_currentShape)
             m_spheres.push_back(newSphere);
             break;
         default:
+            break;
         }
     }
 }
@@ -466,6 +468,7 @@ int TriggerComponent::ListShapes(const int p_currentShape)
         break;
     }
     default:
+        break;
     }
     
     return returnSelected;
