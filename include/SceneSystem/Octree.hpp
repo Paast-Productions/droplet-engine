@@ -213,7 +213,7 @@ namespace Droplet::Scene
 		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
 
 		static constexpr std::uint8_t C_MAX_NODES = 32;
-		static constexpr std::uint8_t C_MAX_DEPTH = 8;//6;
+		static constexpr std::uint8_t C_MAX_DEPTH = 6;
 		static constexpr std::uint8_t C_MERGE_THRESHOLD = 16;
 		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
 
