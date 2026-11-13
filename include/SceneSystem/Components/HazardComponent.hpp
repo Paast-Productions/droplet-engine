@@ -14,6 +14,7 @@ namespace Droplet::Scene
         /// @brief Gets the amount of damage per second, only used in Lua scripts
         /// @return The amount of damage
         [[nodiscard]] float GetDamageLua() const { return m_damage; }
+        [[nodiscard]] int GetZoneLua() const { return m_zone; }
         
     protected:
         void RenderUIImpl() override;
@@ -24,6 +25,6 @@ namespace Droplet::Scene
         
     private:
         float m_damage{ 1.0f }; // Amount of damage per second
-        
+        int m_zone{};
     };
 }

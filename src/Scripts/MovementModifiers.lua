@@ -1,6 +1,7 @@
 local MovementModifiers = {}
 
 MovementModifiers.speedMultiplier = 1.0
+MovementModifiers.gravityMultiplier = 1.0
 
 function MovementModifiers.SetSlow(multiplier)
     MovementModifiers.speedMultiplier = 
@@ -13,6 +14,18 @@ end
 
 function MovementModifiers.GetSpeedMultiplier()
     return MovementModifiers.speedMultiplier
+end
+
+function MovementModifiers.SetGravityPull(multiplier)
+    MovementModifiers.gravityMultiplier = multiplier
+end
+
+function MovementModifiers.ClearGravityPull()
+    MovementModifiers.gravityMultiplier = 1.0
+end
+
+function MovementModifiers.GetGravityPull()
+    return MovementModifiers.gravityMultiplier
 end
 
 return MovementModifiers

@@ -553,14 +553,14 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
-
 }
 
 void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::HazardComponent>(
 		"HazardComponent",
-		"GetDamage", &Scene::HazardComponent::GetDamageLua
+		"GetDamage", &Scene::HazardComponent::GetDamageLua,
+        "GetZone", &Scene::HazardComponent::GetZoneLua
 	);
 
     LuaClassDefinition classDef;
@@ -569,6 +569,7 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetDamage", "float", {} },
+        { "GetZone", "int",{} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -623,6 +624,10 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+
+        "GetHullIntegrity", &Scene::PlayerBehaviour::GetHullIntegrity,
+        "SetHullIntegrity", &Scene::PlayerBehaviour::SetHullIntegrity,
+        "IncreaseHullIntegrity", &Scene::PlayerBehaviour::IncreaseHullIntegrity,
 		
         "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"SetHeatResistance", & Scene::PlayerBehaviour::SetHeatResistance,
@@ -666,6 +671,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetMaxHealth", "float", {} },
+        { "GetHullIntegrity", "float",{} },
+        { "SetHullIntegrity", "void",{ { "resistance", "number" } } },
+        { "IncreaseHullIntegrity",   "void",{ { "amount", "number" } } },
         { "GetHeatResistance", "float", {} },
         { "GetHeatLevel", "float", {} },
         { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
@@ -686,18 +694,12 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetPressureLevel", "float", {} },
         { "SetPressureLevel", "void", { { "amount", "number" } } },
         { "IncreasePressureLevel", "void", { { "amount", "number" } } },
-        { "GetRadiationResistance", "float", {} },
-        { "SetRadiationResistance", "void", { { "amount", "number" } } },
-        { "GetRadiationLevel", "float", {} },
-        { "SetRadiationLevel", "void", { { "amount", "number" } } },
-		{ "IncreaseRadiationLevel", "void", { { "amount", "number" } } },
 		{ "SetDroneInventorySize", "void", { { "amount", "number" } } },
 		{ "GetDroneInventorySize", "float", {} },
 		{ "SetDroneMaxSpeed", "void", { { "amount", "number" } } },
         { "GetDroneMaxSpeed", "float", {} },
 		{ "SetDroneMaxRange", "void", { { "amount", "number" } } },
         { "GetDroneMaxRange", "float", {} },
-		
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
@@ -713,7 +715,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
     LuaBindings::PushLuaClassDefinition(registryDef);
 }
-
 
 void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
 {
