@@ -561,6 +561,9 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::HazardComponent>(
 		"HazardComponent",
 		"GetDamage", &Scene::HazardComponent::GetDamageLua
+		"GetDirection", &HazardComponent::GetDirection,
+		
+		"SetDirection", &HazardComponent::SetDirection
 	);
 
     LuaClassDefinition classDef;
@@ -569,6 +572,9 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetDamage", "float", {} },
+        { "GetDirection", "float", {} },
+        
+        { "SetDirection", "void", {{"direction", "Vec3"}} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);

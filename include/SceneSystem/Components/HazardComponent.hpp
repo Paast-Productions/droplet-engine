@@ -15,6 +15,14 @@ namespace Droplet::Scene
         /// @return The amount of damage
         [[nodiscard]] float GetDamageLua() const { return m_damage; }
         
+        /// @brief Gets the direction vector
+        /// @return The vector of direction
+        [[nodiscard]] glm::vec3 GetDirection();
+        
+        /// @brief Set the direction
+        /// @param p_direction The direction vector
+        void SetDirection(glm::vec3 p_direction) { m_direction = glm::normalize(p_direction); }
+        
     protected:
         void RenderUIImpl() override;
         
@@ -24,6 +32,7 @@ namespace Droplet::Scene
         
     private:
         float m_damage{ 1.0f }; // Amount of damage per second
+        glm::vec3 m_direction{ glm::vec3(0.0f, 0.0f, 1.0f) };
         
     };
 }
