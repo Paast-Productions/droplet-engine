@@ -166,6 +166,19 @@ float4 slugFragMain(VertexOutput input) : SV_TARGET
 {
     GlyphInstance instance = glyphInstances[input.instanceID];
 
+    if (instance.glyphBandScale.x == 0.0f)
+    {
+        float2 edge = min(input.texCoords, 1.0f - input.texCoords);
+        float distanceToEdge = min(edge.x, edge.y);
+
+        float border = 1.0f - smoothstep(0.03f, 0.05f, distanceToEdge);
+
+        return float4(
+            instance.glyphColor.rgb,
+            instance.glyphColor.a * border
+        );
+    }
+
     float2 glyphScale = instance.glyphBandScale.xy;
     float2 bandScale = instance.glyphBandScale.zw;
 

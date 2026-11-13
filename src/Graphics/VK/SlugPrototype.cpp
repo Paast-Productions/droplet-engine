@@ -132,9 +132,6 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_allocator = &p_allocator;
 	
 	// Glyph rendering
-	
-	// uint32_t width = 1024;
-	// uint32_t height = 1024;
 	if (!LoadFont(R"(C:\Users\linkl\Desktop\dev\droplet-engine\Assets\Fonts\JetBrainsMono-Regular.slug)"))
 	{
 		return;
@@ -183,16 +180,49 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	
 	constexpr float emSize = 0.5f; // em-to-world conversion (1 em = 0.5 units)
 	float fontScale = emSize / static_cast<float>(m_fontHeader.unitsPerEm);
+	
+	const float lineHeight = static_cast<float>(m_fontHeader.ascent - m_fontHeader.descent + m_fontHeader.lineGap) * fontScale;
 
 	glm::vec4 textColor = glm::vec4(1.f, 1.f, 1.f, 1.f);
-	
-	float penX = 0.0f;
-	std::array<GlyphInstance, 7> instances;
+	glm::vec2 pen{0.0f};
 	int i = 0;
-	for (char character : std::string_view{"Droplet"})
+	m_glyphInstances.clear();
+	m_glyphInstances.reserve((m_text.size()));
+	for (uint32_t codePoint : DecodeUTF8(m_text))
 	{
-		const SlugCodePoint* glyph = GetGlyph(character);
-		if (glyph && glyph->bandCount > 0 && glyph->bandDimX && glyph->bandDimY)
+		if (codePoint == U'\n')
+		{
+			pen.x = 0.0f;
+			pen.y -= lineHeight;
+			continue;
+		}
+		
+		const SlugCodePoint* glyph = GetGlyph(codePoint);
+		
+		float advance = 0.0f;
+		bool shouldRender = false;
+		GlyphInstance instance{};
+		
+		if (!glyph)
+		{
+			advance = emSize * 0.6f;
+			const float width = emSize * 0.5f;
+			const float height = emSize * 0.7f;
+			
+			instance = {
+				.scaleBias = {
+					width,
+					height,
+					pen.x + advance * 0.5f,
+					pen.y + height * 0.5f,
+				},
+				.glyphBandScale = glm::vec4(0.0f),
+				.glyphColor = textColor,
+				.bandMaxTexCoords = glm::uvec4(0)
+			};
+			shouldRender = true; // We want to render a "missing char" glyph
+		}
+		else if (glyph->bandCount > 0 && glyph->bandDimX && glyph->bandDimY)
 		{
 			const float width = glyph->width;
 			const float height = glyph->height;
@@ -200,10 +230,10 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 			const float quadWidth = width * fontScale;
 			const float quadHeight = height * fontScale;
 			
-			const float glyphX = penX + static_cast<float>(glyph->xMin) * fontScale;
-			const float glyphY = static_cast<float>(glyph->yMin) * fontScale;
+			const float glyphX = pen.x + static_cast<float>(glyph->xMin) * fontScale;
+			const float glyphY = pen.y + static_cast<float>(glyph->yMin) * fontScale;
 			
-			GlyphInstance instance{
+			instance = {
 				.scaleBias = {
 					quadWidth,
 					quadHeight,
@@ -224,20 +254,20 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 					glyph->bandsTexCoordY
 				}
 			};
-			instances[i++] = instance;
+			
+			shouldRender = true;
 		}
 		
-		// p_commandBuffer.pushConstants<SlugGlyphData>(*m_pipelineLayout, vk::ShaderStageFlagBits::eFragment, 0, glyphData);
-		penX += static_cast<float>(glyph->advanceWidth) * fontScale;
+		if (glyph)
+			advance = static_cast<float>(glyph->advanceWidth) * fontScale;
+		
+		pen.x += advance;
+		
+		if (shouldRender)
+			m_glyphInstances.push_back(instance);
 	}
 	
-	m_storageBuffer = StorageBuffer(p_allocator, instances);
-	
-	
-	
-	
-	
-	
+	m_storageBuffer = StorageBuffer(p_allocator, m_glyphInstances);
 	
 	
 	
@@ -385,23 +415,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 				.pName = "slugFragMain"
 			}
 		}};
-
-		const std::array<vk::VertexInputAttributeDescription, 3> iconAttributes {{
-			{ .location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat, .offset = offsetof(IconVertex, position) },
-			{ .location = 1, .binding = 0, .format = vk::Format::eR32G32B32A32Sfloat, .offset = offsetof(IconVertex, color) },
-			{ .location = 2, .binding = 0, .format = vk::Format::eR32G32Sfloat, .offset = offsetof(IconVertex, texCoord) }
-		}};
-
-		const vk::VertexInputBindingDescription binding {
-			.binding = 0,
-			.stride = static_cast<std::uint32_t>(sizeof(IconVertex)),
-			.inputRate = vk::VertexInputRate::eVertex
-		};
-
-		const vk::VertexInputAttributeDescription *attributeData = iconAttributes.data();
-
-		const std::uint32_t attributeCount = static_cast<std::uint32_t>(iconAttributes.size());
-
+		
 		const vk::PipelineVertexInputStateCreateInfo vertexInput {
 			.vertexBindingDescriptionCount = 0,
 			.pVertexBindingDescriptions = nullptr,
@@ -517,62 +531,6 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 	};
 
 	frame.cameraBuffer.getAllocation().copyFromMemory(&cameraUniform, 0, sizeof(cameraUniform));
-
-	glm::vec3 cameraRight = -p_camera.GetRight();
-	glm::vec3 cameraUp = p_camera.GetUp();
-
-	// std::map<GUID, std::vector<IconVertex>> iconMeshes, iconDepthMeshes;
-	// std::map<GUID, std::vector<IconVertex>> iconMeshes;
-	//
-	// for (const auto &[opt, icons] : m_iconLists)
-	// {
-	// 	AppendToMesh(iconMeshes[opt.icon], icons, opt.color, cameraRight, cameraUp);
-	// }
-	//
-	// m_iconMeshes = std::move(iconMeshes);
-	// m_iconDepthMeshes = std::move(iconDepthMeshes);
-	
-	// const glm::vec4 color{1.0f, 1.0f, 1.0f, 1.0f};
-	//
-	// std::vector<IconVertex> iconVertices
-	// {
-	// 	// First triangle
-	// 	{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
-	// 	{{ 0.5f, -0.5f, 0.0f}, color, {1.0f, 1.0f}}, // Bottom-right
-	// 	{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
-	//
-	// 	// Second triangle
-	// 	{{-0.5f, -0.5f, 0.0f}, color, {0.0f, 1.0f}}, // Bottom-left
-	// 	{{ 0.5f,  0.5f, 0.0f}, color, {1.0f, 0.0f}}, // Top-right
-	// 	{{-0.5f,  0.5f, 0.0f}, color, {0.0f, 0.0f}}  // Top-left
-	// };
-	// for (const auto &[icon, vertices] : m_iconMeshes)
-	// {
-	// 	(void)icon;
-	// 	iconVertices.insert(iconVertices.end(), vertices.begin(), vertices.end());
-	// }
-
-	// frame.iconDepthFirst = static_cast<std::uint32_t>(iconVertices.size());
-	// for (const auto &[icon, vertices] : m_iconDepthMeshes)
-	// {
-	// 	(void)icon;
-	// 	iconVertices.insert(iconVertices.end(), vertices.begin(), vertices.end());
-	// }
-
-	// EnsureBuffer<IconVertex>(*m_allocator, frame.iconBuffer, frame.iconCapacity, iconVertices.size(), vk::BufferUsageFlagBits::eVertexBuffer);
-	// UploadBuffer(frame.iconBuffer, iconVertices);
-	//
-	// const std::size_t indexCount = iconVertices.size();
-	//
-	// std::vector<std::uint32_t> indices(indexCount);
-	// for (std::uint32_t i = 0; i < indices.size(); ++i)
-	// {
-	// 	indices[i] = i;
-	// }
-	//
-	// EnsureBuffer<std::uint32_t>(*m_allocator, frame.indexBuffer, frame.indexCapacity, indices.size(), vk::BufferUsageFlagBits::eIndexBuffer);
-	// UploadBuffer(frame.indexBuffer, indices);
-	//
 	const vk::Viewport viewport {
 		.x = 0.0f,
 		.y = static_cast<float>(p_extent.height),
@@ -586,31 +544,12 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 		vk::Offset2D(0, 0), 
 		p_extent 
 	};
-
-	const auto drawMesh = [&](std::size_t p_pipelineIndex, const vma::raii::Buffer &p_buffer, std::uint32_t p_firstVertex, std::uint32_t p_vertexCount) {
-		if (p_vertexCount == 0 || p_buffer == nullptr || frame.indexBuffer == nullptr)
-		{
-			return;
-		}
-
-		p_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
-
-		const vk::DeviceSize offset = 0;
-		p_commandBuffer.bindVertexBuffers(0, *p_buffer, { offset });
-		p_commandBuffer.bindIndexBuffer(*frame.indexBuffer, 0, vk::IndexType::eUint32);
-
-		p_commandBuffer.drawIndexed(p_vertexCount, 1, p_firstVertex, 0, 0);
-	};
 	
 	p_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
 	p_commandBuffer.setViewport(0, viewport);
 	p_commandBuffer.setScissor(0, scissor);
 	p_commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *frame.descriptorSet, nullptr);
-
-	const auto drawIcons = [&](const std::vector<IconVertex> &p_vertices, std::size_t p_pipelineIndex, std::uint32_t p_firstVertex) {
-		drawMesh(p_pipelineIndex, frame.iconBuffer, 0, static_cast<std::uint32_t>(p_vertices.size()));
-	};
-	p_commandBuffer.draw(6, 7, 0,0);
+	p_commandBuffer.draw(6, m_glyphInstances.size(), 0,0);
 }
 
 void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
@@ -715,16 +654,78 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	return true;
 }
 
-const Droplet::Graphics::VK::Slug::SlugCodePoint* Droplet::Graphics::VK::Slug::SlugPrototype::GetGlyph(const char p_character) const
+const Droplet::Graphics::VK::Slug::SlugCodePoint* Droplet::Graphics::VK::Slug::SlugPrototype::GetGlyph(const uint32_t p_codePoint) const
 {
 	const auto it = std::ranges::find(
 		m_codePoints,
-		static_cast<std::uint32_t>(p_character),
+		p_codePoint,
 		&SlugCodePoint::codePoint
 	);
 	
-	if (it == m_codePoints.end())
-		return nullptr;
-	
-	return &(*it);
+	return it != m_codePoints.end() ? &(*it) : nullptr;
+}
+
+std::vector<std::uint32_t> Droplet::Graphics::VK::Slug::SlugPrototype::DecodeUTF8(std::string_view p_text)
+{
+	std::vector<std::uint32_t> codePoints;
+
+	for (std::size_t i = 0; i < p_text.size();)
+	{
+		const auto first = static_cast<std::uint8_t>(p_text[i]);
+
+		std::uint32_t codePoint = 0;
+		std::size_t length = 0;
+
+		if (first < 0x80)
+		{
+			codePoint = first;
+			length = 1;
+		}
+		else if ((first & 0xE0) == 0xC0)
+		{
+			codePoint = first & 0x1F;
+			length = 2;
+		}
+		else if ((first & 0xF0) == 0xE0)
+		{
+			codePoint = first & 0x0F;
+			length = 3;
+		}
+		else if ((first & 0xF8) == 0xF0)
+		{
+			codePoint = first & 0x07;
+			length = 4;
+		}
+		else
+		{
+			throw std::runtime_error("Invalid UTF-8");
+		}
+
+		if (i + length > p_text.size())
+			throw std::runtime_error("Incomplete UTF-8 sequence");
+
+		for (std::size_t j = 1; j < length; ++j)
+		{
+			const auto byte = static_cast<std::uint8_t>(p_text[i + j]);
+
+			if ((byte & 0xC0) != 0x80)
+				throw std::runtime_error("Invalid UTF-8 continuation byte");
+
+			codePoint = (codePoint << 6) | (byte & 0x3F);
+		}
+
+		if ((length == 2 && codePoint < 0x80) ||
+			(length == 3 && codePoint < 0x800) ||
+			(length == 4 && codePoint < 0x10000) ||
+			(codePoint >= 0xD800 && codePoint <= 0xDFFF) ||
+			codePoint > 0x10FFFF)
+		{
+			throw std::runtime_error("Invalid UTF-8 code point");
+		}
+
+		codePoints.push_back(codePoint);
+		i += length;
+	}
+
+	return codePoints;
 }
