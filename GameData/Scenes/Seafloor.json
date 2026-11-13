@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 58,
+            "id": 43,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -74,7 +74,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 60,
+                    "id": 45,
                     "name": "Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -142,7 +142,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 61,
+                    "id": 46,
                     "name": "Door",
                     "transform": {
                         "position": [
@@ -162,13 +162,41 @@
                             1.0
                         ]
                     }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 50,
+                    "name": "Interaction Button",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.2702655792236328,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            2.5330190658569336,
+                            2.704094171524048,
+                            2.589350461959839
+                        ]
+                    }
                 }
             ],
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "drone": 62,
+                        "button": 50,
+                        "drone": 47,
+                        "reach": 2.0,
                         "targetSceneName": "BoatScene"
                     },
                     "id": 1,
@@ -176,7 +204,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 59,
+            "id": 44,
             "name": "Seafloor Pod",
             "transform": {
                 "position": [
@@ -200,7 +228,7 @@
         {
             "active": true,
             "drawLayer": 1,
-            "id": 62,
+            "id": 47,
             "name": "BaseDrone",
             "prefab": "GameData\\Prefabs\\BaseDrone.json",
             "transform": {

@@ -3,6 +3,7 @@
 #include <string_view>
 #include <memory>
 #include <SceneSystem/Scene.hpp>
+#include <GameInput.hpp>
 
 namespace Droplet::Scene
 {
@@ -33,6 +34,10 @@ namespace Droplet::Scene
 		std::weak_ptr<PodBehaviour> m_podBehaviour;
 		SceneReference<Node> m_playerNode;
 		SceneReference<Node> m_droneNode;
+
+		SceneReference<Node> m_transitionButton;
+		float m_transitionButtonReach = 1.0f;
+		Key m_transitionButtonKey = Key::KeyE;
 
 		std::string m_targetSceneName = "";
 	};

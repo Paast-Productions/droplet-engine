@@ -25,79 +25,79 @@
 namespace Droplet::Scene
 {
 
-    // TODO: Refactor after Material implementation
-    struct NodeData
-    {
-        std::uint32_t meshID;
-        std::uint32_t textureID;
+	// TODO: Refactor after Material implementation
+	struct NodeData
+	{
+		std::uint32_t meshID;
+		std::uint32_t textureID;
 
-        glm::mat4 world;
-    };
+		glm::mat4 world;
+	};
 
-    /// Forward declarations to avoid circular dependencies
-    class Component;
-    class Scene;
+	/// Forward declarations to avoid circular dependencies
+	class Component;
+	class Scene;
 
-    /// @brief Represents a game object in a scene hierarchy.
-    ///
-    /// A Node can contain child Nodes and Components and has a local
-    /// transform relative to its parent. Its world transform is calculated
-    /// from its local transform and the transform of its parent.
-    ///
-    /// Nodes are managed using shared ownership and maintain a weak
-    /// reference to their parent to avoid ownership cycles.
-    class Node : public std::enable_shared_from_this<Node>
-    {
-    public:
-        /// @brief Constructs a Node with the specified name and Scene.
+	/// @brief Represents a game object in a scene hierarchy.
+	///
+	/// A Node can contain child Nodes and Components and has a local
+	/// transform relative to its parent. Its world transform is calculated
+	/// from its local transform and the transform of its parent.
+	///
+	/// Nodes are managed using shared ownership and maintain a weak
+	/// reference to their parent to avoid ownership cycles.
+	class Node : public std::enable_shared_from_this<Node>
+	{
+	public:
+		/// @brief Constructs a Node with the specified name and Scene.
 		/// @param p_scene Shared pointer to the Scene that owns this Node.
-        /// @param p_name Name of the Node.
-        explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
+		/// @param p_name Name of the Node.
+		explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
 
-        ~Node();
+		~Node();
 
 		Node() = delete;                        // Default constructor
-        Node(const Node &) = delete;			// Copy constructor
-        Node(Node &&) = delete;					// Move constructor
-        Node &operator=(const Node &) = delete;	// Copy assignment operator
-        Node &operator=(Node &&) = delete;		// Move assignment operator
-        // Copy & Move is disabled to ensure pointers always remain valid
-        // Copying/Moving a Node should be explicit and manual
+		Node(const Node &) = delete;			// Copy constructor
+		Node(Node &&) = delete;					// Move constructor
+		Node &operator=(const Node &) = delete;	// Copy assignment operator
+		Node &operator=(Node &&) = delete;		// Move assignment operator
+		// Copy & Move is disabled to ensure pointers always remain valid
+		// Copying/Moving a Node should be explicit and manual
 
-        /// @brief Called when the Node is constructed.
-        void Construct();
+		/// @brief Called when the Node is constructed.
+		void Construct();
 
-        /// @brief Starts the Node, its Components, and its children.
-        ///
-        /// Calls OnStart() on all Components attached to this Node and then
-        /// starts all child Nodes.
-        ///
-        /// OnStart() is called at most once for each Node. Nodes that are
-        /// added to an already started Node are started immediately.
-        ///
-        /// @note The Node's Start() function can be overridden by derived Nodes.
-        void Start();
+		/// @brief Starts the Node, its Components, and its children.
+		///
+		/// Calls OnStart() on all Components attached to this Node and then
+		/// starts all child Nodes.
+		///
+		/// OnStart() is called at most once for each Node. Nodes that are
+		/// added to an already started Node are started immediately.
+		///
+		/// @note The Node's Start() function can be overridden by derived Nodes.
+		void Start();
 
-        /// @brief Updates the Node, its Components, and its children.
-        ///
-        /// Updates the Node's transforms, followed by its Components
-        /// and child Nodes.
-        void Update();
+		/// @brief Updates the Node, its Components, and its children.
+		///
+		/// Updates the Node's transforms, followed by its Components
+		/// and child Nodes.
+		void Update();
 
-        /// @brief Updates the Node, its Components, and its children late.
-        void LateUpdate();
+		/// @brief Updates the Node, its Components, and its children late.
+		void LateUpdate();
 
-        /// @brief Updates the Node, its Components, and its children in fixed time.
-        void FixedUpdate();
+		/// @brief Updates the Node, its Components, and its children in fixed time.
+		void FixedUpdate();
 
 		/// @brief Updates the Node, its Components, and its children in editor mode, regardless of wether in play mode or not.
 		void EditorUpdate();
 
-        /// @brief Notifies the scene that the node wants to be rendered this frame.
-        void QueueRender();
+		/// @brief Notifies the scene that the node wants to be rendered this frame.
+		void QueueRender();
 
 		/// @brief Renders the Node's UI as well as all attached Components.
-        void RenderUI();
+		void RenderUI();
 
 		/// @brief Gets the Node's draw layer.
 		///
@@ -112,259 +112,290 @@ namespace Droplet::Scene
 
 		/// @brief Sets the Node's draw layer.
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
-        {
+		{
 			assert(
-                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
-                "p_drawLayer must be a single layer"
-            );
+				Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
+				"p_drawLayer must be a single layer"
+			);
 
 			m_drawLayer = p_drawLayer;
 		}
 
-        /// @brief Sets whether the Node is active.
-        ///
-        /// An inactive Node does not update its Components or child Nodes.
-        ///
-        /// If the Node is activated after its Scene has already started,
-        /// OnStart is called automatically.
-        ///
-        /// @param p_active true to activate the Node, false to deactivate it.
-        void SetActive(bool p_active);
-
-        /// @brief Checks whether the Node is active.
-        ///
-        /// @return true if the Node is active, otherwise false.
-        [[nodiscard]] bool IsActive() const;
+		/// @brief Sets whether the Node is active.
+		///
+		/// An inactive Node does not update its Components or child Nodes.
+		///
+		/// If the Node is activated after its Scene has already started,
+		/// OnStart is called automatically.
+		///
+		/// @param p_active true to activate the Node, false to deactivate it.
+		void SetActiveSelf(bool p_active);
 
 		/// @brief Checks whether the Node is active.
-        ///
+		///
 		/// @return true if the Node is active, otherwise false.
-        [[nodiscard]] bool IsActiveSelf() const;
+		[[nodiscard]] bool IsActive() const;
 
-        // --------------------------------------------------
-        // Transform
-        // --------------------------------------------------
+		/// @brief Checks whether the Node is active.
+		///
+		/// @return true if the Node is active, otherwise false.
+		[[nodiscard]] bool IsActiveSelf() const;
+
+		// --------------------------------------------------
+		// Transform
+		// --------------------------------------------------
 
 		/// @brief Gets the Node's Transform.
 		/// @return A reference to the Node's Transform.
-        [[nodiscard]] Transform &GetTransform() { return m_transform; } // TODO: Make weak pointer
+		[[nodiscard]] Transform &GetTransform() { return m_transform; } // TODO: Make weak pointer
 		[[nodiscard]] const Transform &GetTransform() const { return m_transform; } // TODO: Make weak pointer
 
-        // --------------------------------------------------
-        // Children 
-        // --------------------------------------------------
+		// --------------------------------------------------
+		// Children 
+		// --------------------------------------------------
 
-        /// @brief Adds a child Node.
-        ///
-        /// Sets this Node as the parent of the specified child and adds
-        /// the child to the Node hierarchy.
-        /// @param p_child Node to add as a child.
+		/// @brief Adds a child Node.
+		///
+		/// Sets this Node as the parent of the specified child and adds
+		/// the child to the Node hierarchy.
+		/// @param p_child Node to add as a child.
 		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
-        /// @return A shared pointer to the added child Node.
-        /// @throws std::invalid_argument if p_child is nullptr.
-        /// or belongs to a Scene.
-        std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+		/// @return A shared pointer to the added child Node.
+		/// @throws std::invalid_argument if p_child is nullptr.
+		/// or belongs to a Scene.
+		std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
 
-        /// @brief Removes a child Node.
-        ///
-        /// Removes the specified Node from the hierarchy and clears its
-        /// parent reference.
-        /// @param p_child Node to remove.
+		/// @brief Removes a child Node.
+		///
+		/// Removes the specified Node from the hierarchy and clears its
+		/// parent reference.
+		/// @param p_child Node to remove.
 		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
-        /// @throws std::invalid_argument if p_child is nullptr.
-        /// @throws std::runtime_error if the Node is not a child of this Node.
-        void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+		/// @throws std::invalid_argument if p_child is nullptr.
+		/// @throws std::runtime_error if the Node is not a child of this Node.
+		void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
  
 
-        /// @brief Gets the parent Node.
-        ///
-        /// @return A shared pointer to the parent Node, or nullptr if this
-        /// Node has no parent.
-        [[nodiscard]] std::weak_ptr<Node> GetParent() const;
+		/// @brief Gets the parent Node.
+		///
+		/// @return A shared pointer to the parent Node, or nullptr if this
+		/// Node has no parent.
+		[[nodiscard]] std::weak_ptr<Node> GetParent() const;
 
-        /// @brief Gets the child Nodes.
-        ///
-        /// @return A vector containing this Node's children.
-        [[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
+		/// @brief Gets the child Nodes.
+		///
+		/// @return A vector containing this Node's children.
+		[[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
 
-        /// @brief Gets the Scene that owns this Node.
-        ///
-        /// @return A shared pointer to the Scene, or nullptr if the Node
-        /// does not currently belong to a Scene.
-        [[nodiscard]] std::shared_ptr<Scene> GetScene() const; // TODO: Make weak pointer
+		/// @brief Gets the Scene that owns this Node.
+		///
+		/// @return A shared pointer to the Scene, or nullptr if the Node
+		/// does not currently belong to a Scene.
+		[[nodiscard]] std::shared_ptr<Scene> GetScene() const; // TODO: Make weak pointer
 
-        // --------------------------------------------------
-        // Name
-        // --------------------------------------------------
+		// --------------------------------------------------
+		// Name
+		// --------------------------------------------------
 
-        /// @brief Gets the Node's name.
-        ///
-        /// @return A constant reference to the Node's name.
-        [[nodiscard]] const std::string &GetName() const;
+		/// @brief Gets the Node's name.
+		///
+		/// @return A constant reference to the Node's name.
+		[[nodiscard]] const std::string &GetName() const;
 
-        /// @brief Sets the Node's name.
-        void SetName(const std::string &p_name);
+		/// @brief Sets the Node's name.
+		void SetName(const std::string &p_name);
 
-        // --------------------------------------------------
-        // ID
-        // --------------------------------------------------
+		// --------------------------------------------------
+		// ID
+		// --------------------------------------------------
 
-        [[nodiscard]] std::uint64_t GetID() const noexcept
-        {
-            return m_id;
-        }
+		[[nodiscard]] std::uint64_t GetID() const noexcept
+		{
+			return m_id;
+		}
 
-        // --------------------------------------------------
-        // Components
-        // --------------------------------------------------
+		// --------------------------------------------------
+		// Components
+		// --------------------------------------------------
 
 		/// @brief Adds a Component of the specified type to the Node.
 		/// @param p_componentType The type of Component to add, specified as a string.
 		/// @return A weak pointer to the added Component.
-        std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
+		std::weak_ptr<Component> AttachComponent(const std::string &p_componentType);
 
-        /// @brief Adds an exisiting component to the node
-        /// 
-        /// Attached an already created comoponent of any type
-        /// adds it to the member vector of component the node owns.
-        /// It assigns a freshly new component id
-        /// The overloaded function uses id from serialization
-        ///       
-        /// @param p_component The component to be attached
-        std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
-        std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
+		/// @brief Adds an exisiting component to the node
+		/// 
+		/// Attached an already created comoponent of any type
+		/// adds it to the member vector of component the node owns.
+		/// It assigns a freshly new component id
+		/// The overloaded function uses id from serialization
+		///       
+		/// @param p_component The component to be attached
+		std::weak_ptr<Component> AttachComponent(std::unique_ptr<Component> &p_component);
+		std::weak_ptr<Component> AttachComponent(std::shared_ptr<Component> p_component, std::uint64_t p_componentID);
 
-        /// @brief Gets all Components of the specified type.
-        ///
-        /// Searches the Components attached to this Node and returns all
-        /// Components that can be cast to the requested type.
-        ///
-        /// @tparam T Type of Component to search for.
-        ///
-        /// @return A vector of shared pointers to the Components, or an empty
-        /// vector if no Components of the requested type were found.
-        template<typename T>
-        [[nodiscard]] std::vector<std::shared_ptr<T>> GetComponents() const // TODO: Make weak pointer
-        {
-            // Ensure that T is derived from Component
-            static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
+		/// @brief Gets all Components of the specified type.
+		///
+		/// Searches the Components attached to this Node and returns all
+		/// Components that can be cast to the requested type.
+		///
+		/// @tparam T Type of Component to search for.
+		///
+		/// @return A vector of shared pointers to the Components, or an empty
+		/// vector if no Components of the requested type were found.
+		template<typename T>
+		[[nodiscard]] std::vector<std::shared_ptr<T>> GetComponents() const // TODO: Make weak pointer
+		{
+			// Ensure that T is derived from Component
+			static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-            std::vector<std::shared_ptr<T>> components; // TODO: Make weak pointer
+			std::vector<std::shared_ptr<T>> components; // TODO: Make weak pointer
 
-            for (const auto &component : m_components)
-            {
-                auto result = std::dynamic_pointer_cast<T>(component);
+			for (const auto &component : m_components)
+			{
+				auto result = std::dynamic_pointer_cast<T>(component);
 
-                if (result)
-                {
-                    components.push_back(result);
-                }
-            }
+				if (result)
+				{
+					components.push_back(result);
+				}
+			}
 
-            return components;
-        }
+			return components;
+		}
 
-        /// @brief Gets all components 
-        /// 
-        /// @return A vector of shared pointers to the components, the member variable of this class
-        [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const; // TODO: Make weak pointer
+		/// @brief Gets all components 
+		/// 
+		/// @return A vector of shared pointers to the components, the member variable of this class
+		[[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const; // TODO: Make weak pointer
 
-        /// @brief Removes a specific Component from the Node.
-        ///
-        /// Removes the specified Component from the Node's list of Components.
-        /// Components are removed by instance, allowing multiple Components
-        /// of the same type to exist on the same Node.
-        ///
-        /// @param p_component Component to remove.
-        ///
-        /// @throws std::invalid_argument if p_component is nullptr.
-        /// @throws std::runtime_error if the Component is not attached to this Node.
-        void RemoveComponent(const Component *p_component);
+		/// @brief Removes a specific Component from the Node.
+		///
+		/// Removes the specified Component from the Node's list of Components.
+		/// Components are removed by instance, allowing multiple Components
+		/// of the same type to exist on the same Node.
+		///
+		/// @param p_component Component to remove.
+		///
+		/// @throws std::invalid_argument if p_component is nullptr.
+		/// @throws std::runtime_error if the Component is not attached to this Node.
+		void RemoveComponent(const Component *p_component);
 
-        /// @brief Moves a Component to a position on this Node or another Node.
-        ///
-        /// When moving to another Node, the Component receives a new ID unique
-        /// to that Node.
-        /// @param p_component Component to move.
-        /// @param p_destination Node that will own the Component.
-        /// @param p_index Position to insert the Component at. By default, it is appended.
-        void MoveComponent(
-            const Component *p_component,
-            Node &p_destination,
-            std::size_t p_index = static_cast<std::size_t>(-1));
+		/// @brief Moves a Component to a position on this Node or another Node.
+		///
+		/// When moving to another Node, the Component receives a new ID unique
+		/// to that Node.
+		/// @param p_component Component to move.
+		/// @param p_destination Node that will own the Component.
+		/// @param p_index Position to insert the Component at. By default, it is appended.
+		void MoveComponent(
+			const Component *p_component,
+			Node &p_destination,
+			std::size_t p_index = static_cast<std::size_t>(-1));
 
-        // --------------------------------------------------
-        // Bounds
-        // --------------------------------------------------
+		// --------------------------------------------------
+		// Bounds
+		// --------------------------------------------------
 
-        /// @brief Gets the Node's effective local-space bounding box.
-        ///
-        /// Returns the bounds provided by a Component if a bounds override is
-        /// registered. Otherwise, returns the Node's default bounding box.
-        ///
-        /// @return A constant reference to the effective local-space bounding box.
-        [[nodiscard]] const NodeBounds *GetBounds() const;
+		/// @brief Gets the Node's effective local-space bounding box.
+		///
+		/// Returns the bounds provided by a Component if a bounds override is
+		/// registered. Otherwise, returns the Node's default bounding box.
+		///
+		/// @return A constant reference to the effective local-space bounding box.
+		[[nodiscard]] const NodeBounds *GetBounds() const;
 
-        /// @brief Sets the Node's default local-space bounding box.
-        ///
-        /// The specified bounds are used when no Component provides a bounds
-        /// override.
-        ///
-        /// @param p_bounds Local-space bounding box to use as the Node's default.
-        void SetBounds(std::shared_ptr<NodeBounds> p_bounds); // TODO: Make weak pointer
+		/// @brief Sets the Node's default local-space bounding box.
+		///
+		/// The specified bounds are used when no Component provides a bounds
+		/// override.
+		///
+		/// @param p_bounds Local-space bounding box to use as the Node's default.
+		void SetBounds(std::shared_ptr<NodeBounds> p_bounds); // TODO: Make weak pointer
 
-        /// @brief Checks whether bounds checks are enabled for the Node.
-        ///
-        /// @return true if the Node should participate in bounds checks, otherwise false.
-        [[nodiscard]] bool IsBoundsEnabled() const;
+		/// @brief Checks whether bounds checks are enabled for the Node.
+		///
+		/// @return true if the Node should participate in bounds checks, otherwise false.
+		[[nodiscard]] bool IsBoundsEnabled() const;
 
-        /// @brief Enables or disables bounds checks for the Node.
-        ///
-        /// When disabled, the Node is ignored by systems that use Node bounds for
-        /// collision or raycast checks.
-        ///
-        /// @param p_enabled true to enable bounds checks, false to disable them.
-        void SetBoundsEnabled(bool p_enabled);
+		/// @brief Enables or disables bounds checks for the Node.
+		///
+		/// When disabled, the Node is ignored by systems that use Node bounds for
+		/// collision or raycast checks.
+		///
+		/// @param p_enabled true to enable bounds checks, false to disable them.
+		void SetBoundsEnabled(bool p_enabled);
 
 		/// @brief Checks if this Node is a descendant of the specified Node.
-        ///
+		///
 		/// @param p_node Node to check against.
-        /// 
+		/// 
 		/// @return true if this Node is a descendant of p_node, otherwise false.
-        [[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
+		[[nodiscard]] bool IsDescendantOf(const std::shared_ptr<Node> &p_node) const; // TODO: Make weak pointer
 
 		/// @brief Gets the first Component of the specified type attached to this Node.
 		/// @return The first Component of the specified type, or nullptr if none is attached.
-        template<typename T>
-        [[nodiscard]] std::shared_ptr<T> GetComponent()
-        {
-            const auto components = GetComponents<T>();
-            return components.empty() ? nullptr : components.front();
-        }
+		template<typename T>
+		[[nodiscard]] std::shared_ptr<T> GetComponent()
+		{
+			const auto components = GetComponents<T>();
+			return components.empty() ? nullptr : components.front();
+		}
 
-        /// @brief Gets the HealthComponent attached to this Node.
-        /// @return The HealthComponent, or nullptr if none is attached.
-        [[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
-        {
-            const auto components = GetComponents<HealthComponent>();
-            return components.empty() ? nullptr : components.front();
-        }
+		template<typename T>
+		[[nodiscard]] std::shared_ptr<T> GetComponentInChildren(bool p_recursive, bool p_skipThis = false)
+		{
+			if (!p_skipThis)
+			{
+				if (auto component = GetComponent<T>())
+				{
+					return component;
+				}
+			}
 
-        /// @brief Gets the PlayerComponent attached to this Node.
-        /// @return The PlayerComponent, or nullptr if none is attached.
-        [[nodiscard]] std::shared_ptr<PlayerComponent> GetPlayerComponent()
-        {
-            const auto components = GetComponents<PlayerComponent>();
-            return components.empty() ? nullptr : components.front();
-        }
-    	
-    	/// @brief Gets the HazardComponent attached to this Node.
-    	/// @return The HazardComponent, or nullptr if none is attached.
-    	[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
-        {
-        	const auto components = GetComponents<HazardComponent>();
-        	return components.empty() ? nullptr : components.front();
-        }
+			for (const auto &child : m_children)
+			{
+				if (auto component = child->GetComponent<T>())
+				{
+					return component;
+				}
+			}
+
+			if (p_recursive)
+			{
+				for (const auto &child : m_children)
+				{
+					if (auto component = child->GetComponentInChildren<T>(true, false))
+					{
+						return component;
+					}
+				}
+			}
+		}
+
+		/// @brief Gets the HealthComponent attached to this Node.
+		/// @return The HealthComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
+		{
+			const auto components = GetComponents<HealthComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
+
+		/// @brief Gets the PlayerComponent attached to this Node.
+		/// @return The PlayerComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<PlayerComponent> GetPlayerComponent()
+		{
+			const auto components = GetComponents<PlayerComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
+		
+		/// @brief Gets the HazardComponent attached to this Node.
+		/// @return The HazardComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
+		{
+			const auto components = GetComponents<HazardComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
 
 		[[nodiscard]] bool IsPrefab() const
 		{
@@ -381,75 +412,75 @@ namespace Droplet::Scene
 			m_prefabPath = p_prefabPath;
 		}
 
-    private:
-        std::string m_name;
-        std::string m_prefabPath = "";
-        
-        inline static std::atomic<std::uint64_t> s_nextID{1};
-        const std::uint64_t m_id;
+	private:
+		std::string m_name;
+		std::string m_prefabPath = "";
+		
+		inline static std::atomic<std::uint64_t> s_nextID{1};
+		const std::uint64_t m_id;
 
-        std::uint64_t m_nextComponentID = 1;
+		std::uint64_t m_nextComponentID = 1;
 
 		/// @brief Indicates whether the Node is active.
-        bool m_active = true;
+		bool m_active = true;
 
-        /// @brief Draw layer mask for the Node.
-        ///
-        /// The draw layer mask determines which draw layers the Node and its
-        /// Components will be rendered in.
-        Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
+		/// @brief Draw layer mask for the Node.
+		///
+		/// The draw layer mask determines which draw layers the Node and its
+		/// Components will be rendered in.
+		Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-        bool m_constructed = false;
-        bool m_started = false;
+		bool m_constructed = false;
+		bool m_started = false;
 
 		// Transform
 
-        Transform m_transform;
+		Transform m_transform;
 
 		//player data
 		PlayerBehaviour m_playerBehaviour;
 
 		// Hierarchy
 
-        std::weak_ptr<Node> m_parent;
-        std::vector<std::shared_ptr<Node>> m_children;
+		std::weak_ptr<Node> m_parent;
+		std::vector<std::shared_ptr<Node>> m_children;
 
-        // Scene
-          
-        friend class Scene;
+		// Scene
+		  
+		friend class Scene;
 
-        /// @brief Weak reference to the Scene containing this Node.
-        ///
-        /// The Scene owns the Node hierarchy, so the Node stores only a
-        /// weak reference to avoid creating an ownership cycle.
-        std::weak_ptr<Scene> m_scene{};
+		/// @brief Weak reference to the Scene containing this Node.
+		///
+		/// The Scene owns the Node hierarchy, so the Node stores only a
+		/// weak reference to avoid creating an ownership cycle.
+		std::weak_ptr<Scene> m_scene{};
 
-        /// @brief Sets the Scene that this Node belongs to.
-        ///
-        /// The Scene reference is also propagated to all child Nodes.
-        ///
-        /// @param p_scene Scene that owns this Node.
-        void SetScene(std::shared_ptr<Scene> p_scene); // TODO: Make weak pointer
+		/// @brief Sets the Scene that this Node belongs to.
+		///
+		/// The Scene reference is also propagated to all child Nodes.
+		///
+		/// @param p_scene Scene that owns this Node.
+		void SetScene(std::shared_ptr<Scene> p_scene); // TODO: Make weak pointer
 
-        // Components
+		// Components
 
-        std::vector<std::shared_ptr<Component>> m_components{};
+		std::vector<std::shared_ptr<Component>> m_components{};
 
-        // Bounds
+		// Bounds
 
-        /// @brief Default local-space bounding box for this Node.
-        ///
-        /// Used when no Component provides a bounds override.
-        std::shared_ptr<NodeBounds> m_bounds{};
+		/// @brief Default local-space bounding box for this Node.
+		///
+		/// Used when no Component provides a bounds override.
+		std::shared_ptr<NodeBounds> m_bounds{};
 
-        /// @brief Indicates whether this Node participates in bounds checks.
-        bool m_boundsEnabled = true;
+		/// @brief Indicates whether this Node participates in bounds checks.
+		bool m_boundsEnabled = true;
 
-        /// @brief Component currently providing the Node's bounds override.
-        ///
-        /// Only one Component can provide a bounds override at a time.
-        std::weak_ptr<Component> m_boundsOverride{};
+		/// @brief Component currently providing the Node's bounds override.
+		///
+		/// Only one Component can provide a bounds override at a time.
+		std::weak_ptr<Component> m_boundsOverride{};
 
 		void ActiveChanged(bool p_active);
-    };
+	};
 }

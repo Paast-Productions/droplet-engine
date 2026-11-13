@@ -198,7 +198,7 @@ void Node::RenderUI()
 	}
 }
 
-void Node::SetActive(bool p_active)
+void Node::SetActiveSelf(bool p_active)
 {
 	if (m_active == p_active)
 	{

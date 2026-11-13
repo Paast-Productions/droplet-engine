@@ -36,8 +36,11 @@ namespace Droplet::Scene
 
         std::weak_ptr<Scene> m_podScene;
         std::weak_ptr<Scene> m_targetScene;
+        std::weak_ptr<Scene> m_pendingUnloadScene;
 
-		float m_transitionTime = 1.0f;
+		float m_transitionTime = 3.0f;
 		float m_transitionTimer = 0.0f;
+
+        void LoadPodScene();
     };
 }

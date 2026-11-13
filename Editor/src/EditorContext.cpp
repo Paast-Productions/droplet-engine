@@ -1,7 +1,9 @@
 #include <EditorContext.hpp>
 #include <SceneSystem/Node.hpp>
 
-Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
+using namespace Droplet::Editor;
+
+EditorContext::EditorContext(Droplet::Engine &p_engine)
 	: m_engine(p_engine),
 	  m_interactionState(),
 	  m_editorCameraController(m_editorCamera)
@@ -14,7 +16,7 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
 }
 
-void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
+void EditorContext::SetActiveScene(std::string p_sceneName)
 {
 	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
 	m_engine.GetSceneManager().ActivateScene(p_sceneName); // TODO: Set active is not set active??
@@ -27,42 +29,42 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	m_selectedScene = std::move(newScene);
 }
 
-void Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
+void EditorContext::CreateNewScene(std::string p_sceneName)
 {
 	m_engine.GetSceneManager().LoadScene(p_sceneName);
 }
 
-void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
+void EditorContext::SaveScene(const std::string &p_filepath)
 {
 	m_engine.GetSceneManager().SerializeToFile(GetActiveScene().lock(), p_filepath);
 }
 
-void Droplet::Editor::EditorContext::LoadFromFile( const std::string &p_filepath)
+void EditorContext::LoadFromFile( const std::string &p_filepath)
 {
 	m_engine.GetSceneManager().LoadFromFile(p_filepath);
 }
 
-void Droplet::Editor::EditorContext::SaveNode(const std::string &p_filepath, Droplet::Scene::Node &p_node)
+void EditorContext::SaveNode(const std::string &p_filepath, Droplet::Scene::Node &p_node)
 {
 	m_engine.GetSceneManager().SerializeNodeToFile(p_node, p_filepath);
 }
 
-void Droplet::Editor::EditorContext::LoadNodeFromFile(std::string &p_filepath, std::optional<glm::vec3> p_overridePosition)
+void EditorContext::LoadNodeFromFile(std::string &p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
 	GetActiveScene().lock()->LoadNodeFromFile(p_filepath, p_overridePosition);
 }
 
-Droplet::Editor::Scene::EditorCamera &Droplet::Editor::EditorContext::GetEditorCamera()
+Scene::EditorCamera &EditorContext::GetEditorCamera()
 {
 	return m_editorCamera;
 }
 
-Droplet::Editor::Scene::EditorCameraController &Droplet::Editor::EditorContext::GetEditorCameraController()
+Scene::EditorCameraController &EditorContext::GetEditorCameraController()
 {
 	return m_editorCameraController;
 }
 
-std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveScene()
+std::weak_ptr<Droplet::Scene::Scene> EditorContext::GetActiveScene()
 {
 	if (m_selectedScene.expired())
 	{
@@ -96,17 +98,122 @@ std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveSc
 	return firstActiveScene;
 }
 
-Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()
+Droplet::Audio::AudioSystem& EditorContext::GetAudioSystem()
 {
 	return  m_engine.GetSceneManager().GetAudioSystem();
 }
 
-Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractionState()
+InteractionState &EditorContext::GetInteractionState()
 {
 	return m_interactionState;
 }
 
-Droplet::Engine &Droplet::Editor::EditorContext::GetEngine()
+Droplet::Engine &EditorContext::GetEngine()
 {
 	return m_engine;
+}
+
+void EditorContext::EnterPlayMode()
+{
+	if (m_isInPlayMode)
+	{
+		return; // Already in play mode
+	}
+
+	m_isInPlayMode = true;
+	m_isPaused = false;
+
+	// Fetch list of currently loaded and active scenes
+	auto &sceneManager = m_engine.GetSceneManager();
+	auto &loadedScenes = sceneManager.GetScenes();
+
+	// Store the current state of each loaded scene
+	m_sceneStatesOnPlay.clear();
+	for (const auto &[name, scene] : loadedScenes)
+	{
+		SceneState &state = m_sceneStatesOnPlay[name];
+
+		state.isActive = scene->IsActive();
+		state.isMain = (scene == GetActiveScene().lock());
+
+		state.json = state.serializer.SerializeScene(scene);
+	}
+
+	EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+}
+
+void EditorContext::PausePlayMode()
+{
+	if (!m_isInPlayMode)
+	{
+		return; // Not in play mode
+	}
+
+	if (m_isPaused)
+	{
+		EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+		m_isPaused = false;
+	}
+	else
+	{
+		auto flags = UpdateFlags::EditorFlags;
+		flags |= UpdateFlags::InPlayMode;		// Enable InPlayMode flag so that the game state is preserved when paused
+		flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
+
+		EngineFlagsOwner::SetUpdateFlags(flags);
+		m_isPaused = true;
+	}
+}
+
+void EditorContext::ExitPlayMode()
+{
+	if (!m_isInPlayMode)
+	{
+		return; // Not in play mode
+	}
+
+	EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
+	m_isInPlayMode = false;
+	m_isPaused = false;
+
+	auto &sceneManager = m_engine.GetSceneManager();
+
+	// Unload all scenes
+	std::unordered_map<std::string, std::shared_ptr<Droplet::Scene::Scene>> loadedScenes = sceneManager.GetScenes();
+	if (!loadedScenes.empty())
+	{
+		for (const auto &[name, scene] : loadedScenes)
+		{
+			sceneManager.UnloadScene(name);
+		}
+	}
+
+	// Restore to the state of each scene before entering play mode
+	for (auto &[name, state] : m_sceneStatesOnPlay)
+	{
+		CreateNewScene(name);
+
+		auto scene = sceneManager.GetScene(name);
+
+		if (state.isActive != scene->IsActive())
+		{
+			if (state.isActive)
+			{
+				sceneManager.ActivateScene(name);
+			}
+			else
+			{
+				sceneManager.DeactivateScene(name);
+			}
+		}
+
+		if (state.isMain)
+		{
+			SetActiveScene(name);
+		}
+
+		state.serializer.DeserializeScene(state.json, scene);
+	}
+
+	m_sceneStatesOnPlay.clear();
 }

@@ -1,5 +1,6 @@
 #include "PodBehaviour.hpp"
 #include <SceneSystem/Scene.hpp>
+#include <SceneSystem/SceneManager.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Components/PodComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
@@ -9,20 +10,19 @@ using namespace Droplet::Scene;
 
 void PodBehaviour::StartImpl()
 {
-	// Load the pod scene if not already loaded
-	if (m_podScene.expired())
-	{
-		m_podScene = GetSceneManager()->GetScene("PodScene");
-		if (m_podScene.expired())
-		{
-			GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
-			m_podScene = GetSceneManager()->GetScene("PodScene");
-		}
-	}
+	LoadPodScene();
 }
 
 void PodBehaviour::PreUpdateImpl()
 {
+	LoadPodScene();
+
+	if (!m_pendingUnloadScene.expired())
+	{
+		GetSceneManager()->UnloadScene(m_pendingUnloadScene.lock()->GetName());
+		m_pendingUnloadScene = {};
+	}
+
 	if (m_transitionTimer > 0.0f)
 	{
 		m_transitionTimer -= Time::Get().GetDeltaTime();
@@ -140,6 +140,21 @@ void PodBehaviour::RenderUIImpl()
 }
 
 
+void PodBehaviour::LoadPodScene()
+{
+	// Load the pod scene if not already loaded
+	if (m_podScene.expired())
+	{
+		m_podScene = GetSceneManager()->GetScene("PodScene");
+
+		if (m_podScene.expired())
+		{
+			GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
+			m_podScene = GetSceneManager()->GetScene("PodScene");
+		}
+	}
+}
+
 void PodBehaviour::AddPodComponent(std::weak_ptr<PodComponent> p_podComponent)
 {
 	if (p_podComponent.expired())
@@ -250,8 +265,10 @@ void PodBehaviour::BeginTransition(const std::string &p_targetSceneName, std::we
 		return; // Invalid scenes
 	}
 
+	auto &sceneManager = *GetSceneManager();
+
 	auto podInTargetScene = GetPodInScene(p_targetSceneName).lock();
-	auto targetScene = GetSceneManager()->GetScene(p_targetSceneName);
+	auto targetScene = sceneManager.GetScene(p_targetSceneName);
 
 	if (!podInTargetScene)
 	{
@@ -312,12 +329,13 @@ void PodBehaviour::BeginTransition(const std::string &p_targetSceneName, std::we
 	// Set the current scene to inactive and activate the pod scene
 	if (auto currentSceneShared = p_currentScene.lock())
 	{
-		GetSceneManager()->DeactivateScene(currentSceneShared->GetName());
+		sceneManager.DeactivateScene(currentSceneShared->GetName());
+		m_pendingUnloadScene = currentSceneShared;
 	}
 
 	if (auto podSceneShared = m_podScene.lock())
 	{
-		GetSceneManager()->ActivateScene(podSceneShared->GetName());
+		sceneManager.ActivateScene(podSceneShared->GetName());
 	}
 
 	m_targetScene = targetScene;

@@ -6,6 +6,7 @@
 #include <Graphics/VK/Renderer.hpp>
 #include <Engine/Engine.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSerializer.hpp>
 
 namespace Droplet::Scene
 {
@@ -97,6 +98,12 @@ namespace Droplet::Editor
 		void SetFocusCameraOnSelection(bool p_focus) { m_focusCameraOnSelection = p_focus; }
 		[[nodiscard]] bool ShouldFocusCameraOnSelection() const { return m_focusCameraOnSelection; }
 
+		void EnterPlayMode();
+		void PausePlayMode();
+		void ExitPlayMode();
+
+		bool IsInPlayMode() const { return m_isInPlayMode; }
+		bool IsPaused() const { return m_isPaused; }
 
 	private:
 		Droplet::Engine &m_engine;
@@ -114,5 +121,17 @@ namespace Droplet::Editor
 		
 		//Audio::AudioSystem m_audioSystem;
 		AudioMixerEditorState m_selectedBus;
+
+		struct SceneState
+		{
+			Droplet::Scene::SceneSerializer serializer;
+			nlohmann::json json;
+			bool isActive;
+			bool isMain;
+		};
+
+		std::unordered_map<std::string, SceneState> m_sceneStatesOnPlay;
+		bool m_isInPlayMode{ false };
+		bool m_isPaused{ false };
 	};
 }
