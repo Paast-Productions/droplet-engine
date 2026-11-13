@@ -233,14 +233,6 @@ void PhysicsComponent::StartImpl()
 
 void PhysicsComponent::UpdateImpl()
 {
-	if (m_uploadTransformNextFrame)
-	{
-		JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
-		JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));
-		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
-		m_uploadTransformNextFrame = false;
-	}
-
 	if (!m_isDeserialized && m_function != nullptr)
 	{
 		if (ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshGuid).IsReady())
@@ -258,7 +250,6 @@ void PhysicsComponent::UpdateImpl()
 	if (GetOwner()->GetTransform().IsOutdated(m_transformVersion))
 	{
 		PushTransformToPhysics();
-		m_skipSyncFrame = true;
 	}
 }
 
@@ -1019,9 +1010,11 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	
 		SetMotionType(m_motion);
 		SetObjectLayer(m_layer);
-	}
 
-	m_uploadTransformNextFrame = true;
+		JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
+		JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));
+		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+	}
 }
 
 void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset)
@@ -1109,6 +1102,7 @@ void PhysicsComponent::PullTransformFromPhysics()
 	GetOwner()->GetTransform().SetPosition(pos, Transform::Space::World);
 	GetOwner()->GetTransform().SetRotation(rot, Transform::Space::World);
 	GetOwner()->GetTransform().MakePhysicsDirty();
+
 	m_transformVersion = GetOwner()->GetTransform().GetVersion();
 }
 

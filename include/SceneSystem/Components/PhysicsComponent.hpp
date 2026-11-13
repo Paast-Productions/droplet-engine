@@ -208,8 +208,7 @@ namespace Droplet::Scene
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
-		bool m_skipSyncFrame = true;
-		bool m_uploadTransformNextFrame = false;
+		bool m_skipSyncFrame = false;
 
 		ShapeType m_shapeType = ShapeType::None;
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
