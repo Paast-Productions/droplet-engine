@@ -14,6 +14,13 @@ namespace Droplet::Devtools::SlugGenerator
 	/// @brief Number of bytes written for the Slug file identifier.
 	inline constexpr size_t SLUG_HEADER_LEN = 4;
 	
+	/// @brief Identifier updated when the binary layout of the file is changed.
+	/// @note Make sure to update this upon changes to the metadata structs.
+	inline constexpr char SLUG_FILE_VERSION[] = "1";
+	
+	/// @brief Number of bytes that the version number consists of
+	/// @note Update when the file version changes in a way that changes the byte count.
+	inline constexpr size_t SLUG_FILE_VERSION_LEN = 1;
 	
 
 	/// @brief Represents a quadratic Bézier curve.

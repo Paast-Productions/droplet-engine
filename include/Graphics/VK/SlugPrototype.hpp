@@ -27,6 +27,9 @@ namespace Droplet::Graphics::VK::Slug
 	/// @brief Number of bytes written for the Slug file identifier.
 	inline constexpr size_t SLUG_HEADER_LEN = 4;
 	
+	inline constexpr char SLUG_FILE_VERSION[] = "1";
+	inline constexpr size_t SLUG_FILE_VERSION_LEN = 1;
+	
 	
 	std::vector<char> ReadShader(const std::filesystem::path &p_path);
 	vk::raii::ShaderModule CreateShaderModule(const vk::raii::Device &p_device, const std::filesystem::path &p_path);

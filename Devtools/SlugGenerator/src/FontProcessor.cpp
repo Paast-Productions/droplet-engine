@@ -456,6 +456,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	
 	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
 	
+	if (!outFile.WriteBytes(SLUG_FILE_VERSION, SLUG_FILE_VERSION_LEN)) return false;
+	
 	if (!outFile.WriteBytes(&m_fontHeader, sizeof(SlugFontHeader))) return false;
 	
 	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());

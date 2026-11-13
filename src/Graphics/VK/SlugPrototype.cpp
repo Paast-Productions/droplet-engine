@@ -84,44 +84,6 @@ vma::raii::Buffer CreateHostBuffer(const vma::raii::Allocator &p_allocator, vk::
 	return vma::raii::Buffer(p_allocator, bufferInfo, allocationInfo);
 }
 
-template<typename T>
-void EnsureBuffer(const vma::raii::Allocator &p_allocator, vma::raii::Buffer &p_buffer, vk::DeviceSize &p_capacity, std::size_t p_count, vk::BufferUsageFlags p_usage)
-{
-	ZoneScoped;
-
-	const vk::DeviceSize requiredSize = static_cast<vk::DeviceSize>(p_count) * sizeof(T);
-	if (requiredSize <= p_capacity)
-	{
-		return;
-	}
-
-	vk::DeviceSize newCapacity = std::max<vk::DeviceSize>(p_capacity, 4096);
-	while (newCapacity < requiredSize)
-	{
-		if (newCapacity > std::numeric_limits<vk::DeviceSize>::max() / 2)
-		{
-			newCapacity = requiredSize;
-			break;
-		}
-
-		newCapacity *= 2;
-	}
-
-	p_buffer = CreateHostBuffer(p_allocator, newCapacity, p_usage);
-	p_capacity = newCapacity;
-}
-
-template<typename T>
-void UploadBuffer(vma::raii::Buffer &p_buffer, const std::vector<T> &p_data)
-{
-	ZoneScoped;
-
-	if (!p_data.empty())
-	{
-		p_buffer.getAllocation().copyFromMemory(p_data.data(), 0, p_data.size() * sizeof(T));
-	}
-}
-
 void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_context, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
 	vk::Format p_depthFormat, const CommandPool &p_commandPool)
 {
@@ -602,6 +564,15 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 		return false;
 	}
 	
+	char version[SLUG_FILE_VERSION_LEN + 1];
+	inFile.read(version, SLUG_FILE_VERSION_LEN);
+	version[SLUG_FILE_VERSION_LEN] = '\0';
+	if (strcmp(version, SLUG_FILE_VERSION) != 0)
+	{
+		std::cerr << "Version mismatch! Expected version number " << SLUG_FILE_VERSION << " but got " << version << std::endl;
+		return false;
+	}
+	
 	inFile.read(reinterpret_cast<char *>(&m_fontHeader), sizeof(SlugFontHeader));
 	
 	uint16_t codePointCount = 0;
@@ -629,8 +600,7 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	const size_t curveTexTexels = static_cast<size_t>(m_curveTextureWidth * m_curveTextureHeight);
 	m_curvesTextureData.resize(curveTexTexels);
 	
-	// "0xCD: This pattern is used to initialize the memory that is allocated using malloc or a new keyword in debug mode"
-	memset(m_curvesTextureData.data(), 0xCD, m_curvesTextureData.size() * sizeof(m_curvesTextureData.front()));
+	memset(m_curvesTextureData.data(), 0, m_curvesTextureData.size() * sizeof(m_curvesTextureData.front()));
 	inFile.read(reinterpret_cast<char *>(m_curvesTextureData.data()), curveTextureBytes);
 	
 	uint32_t bandsTextureBytes;
@@ -648,7 +618,7 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPat
 	const size_t bandsTexTexels = static_cast<size_t>(m_bandsTextureWidth * m_bandsTextureHeight);
 	m_bandsTextureData.resize(bandsTexTexels);
 	
-	memset(m_bandsTextureData.data(), 0xAB, m_bandsTextureData.size() * sizeof(m_bandsTextureData.front()));
+	memset(m_bandsTextureData.data(), 0, m_bandsTextureData.size() * sizeof(m_bandsTextureData.front()));
 	inFile.read(reinterpret_cast<char *>(m_bandsTextureData.data()), bandsTextureBytes);
 	
 	return true;
