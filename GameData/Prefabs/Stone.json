@@ -3,13 +3,14 @@
     "children": [],
     "components": [
         {
+            "active": true,
             "data": {
                 "fs": 3658838734074951198,
                 "fsName": "BlueTint.FS",
                 "gs": 0,
                 "gsName": "",
-                "meshDisplayName": "Cube",
-                "meshGUID": 11929133566856826472,
+                "meshDisplayName": "Rock",
+                "meshGUID": 4011034188648480238,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
@@ -23,13 +24,14 @@
             "type": "MeshComponent"
         }
     ],
-    "id": 73,
+    "drawLayer": 1,
+    "id": 40,
     "name": "Stone",
     "transform": {
         "position": [
-            -2.34675669670105,
-            -0.8995774984359741,
-            -51.21684265136719
+            -1.9332466125488281,
+            -1.4000892639160156,
+            0.4428713321685791
         ],
         "rotation": [
             0.8310875296592712,

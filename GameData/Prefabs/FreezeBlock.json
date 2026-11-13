@@ -32,10 +32,10 @@
         {
             "active": true,
             "data": {
-                "damage": 1.0
+                "damage": 2.0
             },
             "id": 4,
-            "type": "DamageComponent"
+            "type": "HazardComponent"
         },
         {
             "active": true,
@@ -47,11 +47,11 @@
         }
     ],
     "drawLayer": 1,
-    "id": 32,
+    "id": 341,
     "name": "FreezeBlock",
     "transform": {
         "position": [
-            -15.096654891967773,
+            0.0,
             0.0,
             0.0
         ],
@@ -62,7 +62,7 @@
             0.0
         ],
         "scale": [
-            15.790557861328125,
+            1.0,
             1.0,
             1.0
         ]

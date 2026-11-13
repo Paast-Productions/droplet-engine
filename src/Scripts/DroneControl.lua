@@ -16,7 +16,25 @@ local braking = 14.0         -- input opposes current motion: turning around
 
 local moveSpeed = 0.0
 
+-- Pulse-jet settings
+local pulseCooldown = 3.0 -- In seconds
+local currentPulseCooldown = 0.0 -- In seconds
+local pulseFadeOutTime = 0.5 -- In seconds
+local currentPulseFadeOutTime = 0.0 -- In seconds
+local pulseSpeed = 1.5
+local pulseDirection = Vec3.new(0.0, 0.0, 0.0)
+local pulseKey = Key.SHIFT
 
+-- Pulse camera effect settings
+local cameraComponent = nil
+local camera = nil
+local defaultFov = 90.0
+local pulseFov = 110.0
+local fovTime = 0.0
+local fovTransitionTimeFrac = 0.2 -- % of pulseFadeOutTime
+local transitionTime = fovTransitionTimeFrac * pulseFadeOutTime
+
+-- Camera settings
 local mouseSensitivity = 0.0025   -- radians per pixel
 local maxPitch = math.rad(80.0)   -- pitch limit up/down
 local invertY = false
@@ -31,6 +49,15 @@ local MovementModifiers = require("MovementModifiers")
 --
 function Clamp(value, minValue, maxValue)
     return math.max(minValue, math.min(maxValue, value))
+end
+
+function Lerp(a, b, t)
+	return a + (b - a) * t
+end
+
+function SmoothStep(t)
+	t = Clamp(t, 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
 end
 
 -- Move a vector toward a target by at most maxDelta (vector version of MoveTowards)
@@ -117,6 +144,16 @@ function UpdateMovement(dt)
         )
     end
 
+	-- Pulse jet
+	if Input:KeyPressed(pulseKey) and currentPulseCooldown == 0.0  and GLM.V3Length(inputDirection) > 0.0 then
+		pulseDirection = inputDirection
+		currentPulseCooldown = pulseCooldown
+		currentPulseFadeOutTime = pulseFadeOutTime
+		if camera ~= nil then
+			camera:SetFOV(pulseFov)
+		end
+	end
+
     -- Dedicated vertical movement in world space
 
     if Input:KeyHeld(Key.Space) then
@@ -179,6 +216,47 @@ function UpdateMovement(dt)
     -- Apply movement in world space
 
     local movement = GLM.V3MulF(velocity, dt)
+    
+    if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
+		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
+		movement = GLM.V3Add(
+			movement,
+			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime)
+		)
+		
+		-- Pulse camera effect
+		fovTime = fovTime + dt
+		
+		print(fovTime)
+		if fovTime >= pulseFadeOutTime then
+			fovTime = 0.0
+			camera:SetFOV(defaultFov)
+		elseif fovTime <= transitionTime then
+			local alpha = fovTime / transitionTime
+			local fov = Lerp(defaultFov, pulseFov, alpha)
+			print(fov)
+			camera:SetFOV(fov)
+		elseif fovTime < pulseFadeOutTime - transitionTime then
+			camera:SetFOV(pulseFov)
+		elseif fovTime >= pulseFadeOutTime - transitionTime then
+			local alpha = (transitionTime - (pulseFadeOutTime - fovTime)) / transitionTime
+			local fov = Lerp(pulseFov, defaultFov, alpha)
+			print(fov)
+			camera:SetFOV(fov)
+		end
+	else
+		currentPulseFadeOutTime = 0.0
+		if camera ~= nil then
+			camera:SetFOV(defaultFov)
+		end
+	end
+
+	if currentPulseCooldown > 0.0 then
+		currentPulseCooldown = currentPulseCooldown - dt
+	else
+		currentPulseCooldown = 0.0
+	end
+    
     trans:Move(movement, TransformSpace.World)
 
     tracy.ZoneEnd()
@@ -195,6 +273,11 @@ function OnStart()
     moveSpeed = 2.5
     mouseSmoothTime = 0.050
     velocity = Vec3.new(0.0, 0.0, 0.0)
+    cameraComponent = self:GetCameraComponent()
+    if cameraComponent ~= nil then
+		camera = cameraComponent:GetCamera()
+		defaultFov = camera:GetFOV()
+	end
     tracy.ZoneEnd()
 end
 

@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 6,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 3,
+                    "id": 8,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -172,7 +172,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 7,
             "name": "Player",
             "transform": {
                 "position": [
@@ -195,49 +195,7 @@
         },
         {
             "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "filepath": "BoatEngine.lua"
-                            },
-                            "id": 2,
-                            "type": "ScriptComponent"
-                        },
-                        {
-                            "active": true,
-                            "data": null,
-                            "id": 3,
-                            "type": "InteractableComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 5,
-                    "name": "New Node",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.26679444313049316,
-                            -0.012348175048828125
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            4.516202926635742,
-                            11.121170043945313,
-                            4.117517471313477
-                        ]
-                    }
-                }
-            ],
+            "children": [],
             "components": [
                 {
                     "active": true,
@@ -259,100 +217,24 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 4,
-            "name": "engine",
-            "transform": {
-                "position": [
-                    -1.9402976036071777,
-                    0.30464714765548706,
-                    4.340495586395264
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    0.6943433284759521,
-                    0.35073938965797424,
-                    0.4650476276874542
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
+                },
                 {
                     "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "filepath": "RepairBench.lua"
-                            },
-                            "id": 2,
-                            "type": "ScriptComponent"
-                        },
-                        {
-                            "active": true,
-                            "data": null,
-                            "id": 3,
-                            "type": "InteractableComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 7,
-                    "name": "New Node",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            -0.07010328769683838,
-                            0.11334967613220215
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            4.516202926635742,
-                            11.121563911437988,
-                            4.117517471313477
-                        ]
-                    }
-                }
-            ],
-            "components": [
+                    "data": null,
+                    "id": 2,
+                    "type": "InteractableComponent"
+                },
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Cube",
-                        "meshGUID": 15104664662864096133,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
+                        "filepath": "RepairBench.lua"
                     },
-                    "id": 1,
-                    "type": "MeshComponent"
+                    "id": 3,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 6,
+            "id": 10,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -370,6 +252,68 @@
                     0.6943433284759521,
                     0.35073938965797424,
                     0.4851674437522888
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 2,
+                    "type": "InteractableComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "BoatEngine.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 9,
+            "name": "engine",
+            "transform": {
+                "position": [
+                    -1.9402976036071777,
+                    0.30464714765548706,
+                    4.340496063232422
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.6943433284759521,
+                    0.35073941946029663,
+                    0.4650476276874542
                 ]
             }
         }

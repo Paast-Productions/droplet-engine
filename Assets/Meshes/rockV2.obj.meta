@@ -1,8 +1,8 @@
 {
     "resources": [
         {
-            "displayName": "Cube",
-            "guid": 11929133566856826472,
+            "displayName": "Rock",
+            "guid": 4011034188648480238,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,

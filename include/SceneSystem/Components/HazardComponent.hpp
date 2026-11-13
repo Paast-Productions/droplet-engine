@@ -4,12 +4,12 @@
 
 namespace Droplet::Scene
 {
-    class DamageComponent : public Component
+    class HazardComponent : public Component
     {
     public:
-        DamageComponent() = default;
+        HazardComponent() = default;
         
-        std::string_view GetTypeName() const override { return "DamageComponent"; }
+        std::string_view GetTypeName() const override { return "HazardComponent"; }
         
         /// @brief Gets the amount of damage per second, only used in Lua scripts
         /// @return The amount of damage
