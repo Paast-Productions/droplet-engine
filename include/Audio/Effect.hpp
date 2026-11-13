@@ -35,7 +35,11 @@ namespace Droplet::Audio
 		bool IsActive() { return m_active; }
 		void SetActive(bool p_active);
 
-		
+		[[nodiscard]] uint32_t &GetSlot() { return m_effectSlot; }
+		void SetSlot(uint32_t p_slot);
+
+		nlohmann::json Serialize();
+		void Deserialize(nlohmann::json p_json);
 
 	protected:
 
@@ -57,7 +61,7 @@ namespace Droplet::Audio
 		void SetOwner(AudioBus *p_owner);
 
 		dalia::EffectHandle m_effectHandle;
-
+		uint32_t m_effectSlot = 4; 
 		bool m_active = false;
 		bool m_started = false;
 

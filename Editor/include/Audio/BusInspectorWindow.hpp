@@ -19,6 +19,7 @@ namespace Droplet::Editor
 		~BusInspectorWindow() = default;
 		
 		void SetCurrentBus(Audio::AudioBus *p_bus);
+		void RenderEffectSlotDropTarget(Audio::AudioBus &p_bus, uint32_t p_slot);
 
 	protected:
 

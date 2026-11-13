@@ -1,6 +1,8 @@
 #include "Audio/AudioSystem.hpp"
 #include "EffectRegistry.hpp"
 #include "Effects/ReverbEffect.hpp"
+#include "Effects/LowPassEffect.hpp"
+#include "Effects/HighPassEffect.hpp"
 #include "SceneSystem/Components/AudioListenerComponent.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include "SceneSystem/Components/AudioEmitterComponent.hpp"
@@ -304,8 +306,33 @@ bool Droplet::Audio::AudioSystem::DetachEffect(dalia::EffectHandle &p_effect)
     return true;
 }
 
+bool Droplet::Audio::AudioSystem::DestroyEffect(dalia::EffectHandle &p_effect)
+{
+    dalia::Result res;
+    res = m_daliaEngine->DestroyEffect(p_effect);
+    if (res != dalia::Result::Ok)
+    {
+        std::cout << "Could not destroy effect" << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool Droplet::Audio::AudioSystem::ChangeEffectSetting(dalia::EffectHandle &p_effect, dalia::BiquadParams &p_params)
+{
+    dalia::Result res;
+    res = m_daliaEngine->SetEffectParams(p_effect, p_params);
+    if (res != dalia::Result::Ok)
+    {
+        return false;
+    }
+    return true;
+}
+
 void Droplet::Audio::AudioSystem::RegisterEffects()
 {
     //TODO Every effect type that we create in droplet gets registered here to be used later
     EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
+    EffectRegistry::RegisterEffect("LowPassEffect", []() {return std::make_unique<LowPassEffect>();});
+    EffectRegistry::RegisterEffect("HighPassEffect", []() {return std::make_unique<HighPassEffect>();});
 }

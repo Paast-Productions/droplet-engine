@@ -16,7 +16,7 @@ namespace Droplet::Audio
 
 	protected:
 		void StartImpl();
-
+		void RenderUIImpl();
 	private:
 
 	};

@@ -14,3 +14,13 @@ void Droplet::Audio::ReverbEffect::StartImpl()
 
 	AudioSystem::GetInstance().CreateEffect(GetEffectHandle(), lowpassParams);
 }
+
+void Droplet::Audio::ReverbEffect::RenderUIImpl()
+{
+	const char *text = ICON_LC_CIRCLE_USER_ROUND " DUMMY " ICON_LC_CIRCLE_USER_ROUND;
+
+	ImGui::SeparatorText(text);
+	ImGui::SeparatorText(text);
+	ImGui::SeparatorText(text);
+
+}

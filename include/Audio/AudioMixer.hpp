@@ -57,6 +57,14 @@ namespace Droplet::Audio
 		/// @param p_id Bus ID
 		/// @return The Audiobus with p_id
 		AudioBus *FindAudioBus(std::uint64_t p_id) const;
+
+		/// @brief Changes the volume on the bus 
+		/// @param p_id The bus
+		/// @return the amount of db the volume will change
+		bool SetBusVolume(std::uint64_t p_id, float p_volume);
+
+		nlohmann::json SerializeHierarchy();
+
 	private:
 
 		/// @brief Audiobus ID, ID 0 is reserved for the master bus

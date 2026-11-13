@@ -39,6 +39,7 @@ bool Droplet::Audio::AudioBus::IsActive() const
 void Droplet::Audio::AudioBus::SetVolume(float p_volume)
 {
 	m_volume = p_volume;
+
 }
 
 void Droplet::Audio::AudioBus::SetName(std::string p_name)
@@ -148,11 +149,37 @@ void Droplet::Audio::AudioBus::RenderUI()
 
 nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()
 {
-	return nlohmann::json();
+	nlohmann::json busJson;
+
+	busJson["name"] = m_name;
+	busJson["id"] = m_id;
+	busJson["active"] = m_active;
+	busJson["volume"] = m_volume;
+
+	busJson["effects"] = nlohmann::json::array();
+
+	for (int i = 0; i < MAX_EFFECTS; ++i)
+	{
+		if (m_effects[i])
+		{
+			busJson["effects"].push_back(m_effects[i]->Serialize());
+			
+		}
+	}
+
+	busJson["children"] = nlohmann::json::array();
+
+	for (auto &child : m_children)
+	{
+		busJson["children"].push_back(child->SerializeAudioBus());
+	}
+
+	return busJson;
 }
 
-void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, std::weak_ptr<AudioBus> p_parentBus)
+void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, AudioBus *p_parent)
 {
+	
 }
 
 Effect *Droplet::Audio::AudioBus::AttachEffect(const std::string &p_effectType)
@@ -195,7 +222,7 @@ Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect,
 	{
 		return nullptr;
 	}
-
+	p_effect->SetSlot(slot);
 	m_effects[slot] = std::move(p_effect); // HACK This would replace the effect in the spot that is selected, do we want this or should we reject new effect?
 	
 	if (m_started)
@@ -239,6 +266,11 @@ void Droplet::Audio::AudioBus::RemoveEffect(Effect *p_effect)
 		return;
 	}
 
+	if (!Audio::AudioSystem::GetInstance().DestroyEffect(p_effect->GetEffectHandle()))
+	{
+		return;
+	}
+
 	m_effects[slot].reset();
 
 }
@@ -263,11 +295,71 @@ void Droplet::Audio::AudioBus::RemoveEffect(uint32_t p_slot)
 	m_effects[p_slot].reset();
 }
 
-void Droplet::Audio::AudioBus::MoveEffect(int p_fromSlot, int p_toSlot)
+void Droplet::Audio::AudioBus::MoveEffect(uint32_t p_fromSlot, uint32_t p_toSlot)
 {
+	if (!m_effects[p_fromSlot])
+	{
+		//can't move nullptr;
+		return;
+	}
+
+	if (p_toSlot >= MAX_EFFECTS)
+	{
+		return;
+	}
+
+	if (!m_effects[p_toSlot]) // The slot was empty
+	{
+		if (!AudioSystem::GetInstance().DetachEffect(m_effects[p_fromSlot]->GetEffectHandle()))
+		{
+			std::cout << "Could not detach effect" << std::endl;
+			return;
+		}
+		m_effects[p_toSlot] = std::move(m_effects[p_fromSlot]);
+		if (!AudioSystem::GetInstance().AttachEffect(m_effects[p_toSlot]->GetEffectHandle(),m_name,p_toSlot))
+		{
+			std::cout << "Could not attach effect after detaching" << std::endl;
+			return;
+		}
+		m_effects[p_toSlot]->SetSlot(p_toSlot);
+	}
+	else // Slot was not empty, switch places on the effects
+	{
+		Effect *fromEffect = m_effects[p_fromSlot].get();
+		Effect *toEffect = m_effects[p_toSlot].get();
+
+		if (!AudioSystem::GetInstance().DetachEffect(fromEffect->GetEffectHandle()))
+		{
+			std::cout << "Could not detach effect" << std::endl;
+			return;
+		}
+		if (!AudioSystem::GetInstance().DetachEffect(toEffect->GetEffectHandle()))
+		{
+			std::cout << "Could not detach effect" << std::endl;
+			return;
+		}
+
+		if (!AudioSystem::GetInstance().AttachEffect(fromEffect->GetEffectHandle(), m_name, p_toSlot))
+		{
+			std::cout << "Could not attach effect after detaching" << std::endl;
+			return;
+		}
+
+		if (!AudioSystem::GetInstance().AttachEffect(toEffect->GetEffectHandle(), m_name, p_fromSlot))
+		{
+			std::cout << "Could not attach effect after detaching" << std::endl;
+			return;
+		}
+
+		m_effects[p_fromSlot].swap(m_effects[p_toSlot]);
+
+		m_effects[p_fromSlot]->SetSlot(p_fromSlot);
+		m_effects[p_toSlot]->SetSlot(p_toSlot);
+	}
+	
 }
 
-Effect *Droplet::Audio::AudioBus::GetEffect(int p_slot)
+Effect *Droplet::Audio::AudioBus::GetEffect(uint32_t p_slot)
 {
-	return nullptr;
+	return m_effects[p_slot].get();
 }

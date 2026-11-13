@@ -3,11 +3,38 @@
 #include <EffectList.hpp>
 #include <Audio/Effect.hpp>
 #include <Audio/AudioBus.hpp>
-
+#include <Editor/DragDropFields.hpp>
+#include <Audio/AudioMixer.hpp>
 
 void Droplet::Editor::BusInspectorWindow::SetCurrentBus(Audio::AudioBus *p_bus)
 {
 	m_currentBus = p_bus;
+}
+
+void Droplet::Editor::BusInspectorWindow::RenderEffectSlotDropTarget(Audio::AudioBus&p_bus, uint32_t p_slot)
+{
+	ImGui::PushID(p_slot);
+
+	const std::string label = "Slot " + std::to_string(p_slot + 1);
+	ImGui::Button(label.c_str(), ImVec2(120.0f, 40.0f));
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_EFFECT.data()))
+		{
+			if (payload->DataSize == sizeof(EffectDragDropData))
+			{
+				EffectDragDropData dragged;
+				std::memcpy(&dragged, payload->Data, sizeof(dragged));
+
+				if (payload->IsDelivery())
+				{
+					p_bus.MoveEffect(dragged.slot, p_slot);
+				}
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+	ImGui::PopID();
 }
 
 void Droplet::Editor::BusInspectorWindow::InitImpl()
@@ -41,6 +68,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 	if (ImGui::InputText("Bus Name", &busName))
 	{
 		m_currentBus->SetName(busName);
+		
 	}
 
 	//Active
@@ -52,15 +80,19 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 
 	//Volume
 	float volume = m_currentBus->GetVolume();
-	if (ImGui::SliderFloat("Bus Volume", &volume, Audio::C_VOLUME_DECIBEL_MIN, 
+	float prev = volume;
+	if (ImGui::SliderFloat(ICON_LC_BUS ICON_LC_VOLUME_2 " Bus Volume", &volume, Audio::C_VOLUME_DECIBEL_MIN, 
 	    Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
 	{
 		m_currentBus->SetVolume(volume);
 	}
 
-	const float buttonWidth = ImGui::GetContentRegionAvail().x;
-	const float buttonHeight = ImGui::GetTextLineHeight() * 1.5f;
-	const float buttonMargin = buttonWidth * 0.2f;
+	const float slotPanelWidth = 130.0f;
+	const float spacing = ImGui::GetStyle().ItemSpacing.x;
+
+	ImVec2 available = ImGui::GetContentRegionAvail();
+
+	ImGui::BeginChild(ICON_LC_SETTINGS_2 " Effect Controls ", ImVec2(available.x - slotPanelWidth - spacing, 0.0f), ImGuiChildFlags_None);
 
 	const auto& effects = m_currentBus->GetAllEffects();
 
@@ -88,11 +120,20 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 
 		bool isOpen = ImGui::CollapsingHeader(headerLabel.c_str(), ImGuiTreeNodeFlags_DefaultOpen);
 
+		if (ImGui::BeginDragDropSource())
+		{
+			EffectDragDropData payload{ effect->GetSlot() };
+			ImGui::SetDragDropPayload(PAYLOAD_EFFECT.data(), &payload, sizeof(payload));
+			ImGui::TextUnformatted(headerLabel.c_str());
+			ImGui::EndDragDropSource();
+		}
+
 		if (ImGui::BeginPopupContextItem("popup"))
 		{
 			if (ImGui::MenuItem("Remove Effect"))
 			{
 				m_currentBus->RemoveEffect(effect.get());
+				isOpen = false;
 			}
 			ImGui::EndPopup();
 		}
@@ -105,10 +146,14 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		ImGui::PopID();
 	}
 
+	const float buttonWidth = ImGui::GetContentRegionAvail().x;
+	const float buttonHeight = ImGui::GetTextLineHeight() * 1.5f;
+	const float buttonMargin = buttonWidth * 0.2f;
+
 	ImGui::Dummy(ImVec2(0, 18));
 
 	ImGui::Indent(buttonMargin);
-
+	//TODO Make this button only show when we don't have a full array of effects
 	if (ImGui::Button(ICON_LC_SPARKLES " Add Effect " ICON_LC_SPARKLES, ImVec2(buttonWidth - 2.0f * buttonMargin, buttonHeight)))
 	{
 		OpenEffectList();
@@ -121,6 +166,23 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		m_currentBus->AttachEffect(selectedComponentName);
 	}
 
+	ImGui::EndChild();
+
+	//Right Side Effectslots
+	ImGui::SameLine();
+	{
+		ImGui::BeginChild("EffectSlots", ImVec2(slotPanelWidth, 0.0f), ImGuiChildFlags_None);
+
+		ImGui::TextUnformatted(ICON_LC_BETWEEN_HORIZONAL_START " Effect Slots " );
+		ImGui::Separator();
+
+		for (uint32_t slot = 0; slot < Audio::AudioBus::MAX_EFFECTS; ++slot)
+		{
+			RenderEffectSlotDropTarget(*m_currentBus, slot);
+			ImGui::Dummy(ImVec2(0.0, 5.0f));
+		}
+		ImGui::EndChild();
+	}
 
 	ImGui::PopID();
 }

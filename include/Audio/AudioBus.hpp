@@ -98,7 +98,7 @@ namespace Droplet::Audio
 		//---------------------------------------
 
 		nlohmann::json SerializeAudioBus();
-		void DeserializeAudioBus(nlohmann::json p_json, std::weak_ptr<AudioBus> p_parentBus);
+		void DeserializeAudioBus(nlohmann::json p_json, AudioBus* p_parent);
 		
 
 
@@ -114,9 +114,9 @@ namespace Droplet::Audio
 		void RemoveEffect(Effect *p_effect);
 		void RemoveEffect(uint32_t p_slot);
 
-		void MoveEffect(int p_fromSlot, int p_toSlot);
+		void MoveEffect(uint32_t p_fromSlot, uint32_t p_toSlot);
 
-		Effect *GetEffect(int p_slot);
+		Effect *GetEffect(uint32_t p_slot);
 
 		const std::array<std::unique_ptr<Effect>, MAX_EFFECTS> &GetAllEffects() const { return m_effects; }
 

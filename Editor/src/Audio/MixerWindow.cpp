@@ -5,7 +5,7 @@ using namespace Droplet;
 
 void Droplet::Editor::MixerWindow::InitImpl()
 {
-	SetName("Audio Mixer");
+	SetName(ICON_LC_DISC_3 " Audio Mixer " ICON_LC_DISC_3);
 }
 
 void Droplet::Editor::MixerWindow::CloseImpl()
@@ -16,6 +16,11 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 {
 	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+
+	if (ImGui::Button("Serialize"))
+	{
+		mixer.SerializeHierarchy();
+	}
 
 	Audio::AudioBus *selectedBus = nullptr;
 
@@ -32,7 +37,7 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 
 	ImGui::InputText("Bus Name", busName, sizeof(busName));
 
-	if (ImGui::Button("Add Bus"))
+	if (ImGui::Button(ICON_LC_BUS" Add Bus"))
 	{
 		if (!mixer.HasAudioBusWithName(busName))
 		{
@@ -44,7 +49,7 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 		}
 	}
 
-	ImGui::SeparatorText("Bus hierarchy");
+	ImGui::SeparatorText("Bus hierarchy " ICON_LC_BUS_FRONT);
 	{
 		ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
 		const ImVec2 available = ImGui::GetContentRegionAvail();

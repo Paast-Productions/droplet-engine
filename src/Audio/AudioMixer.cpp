@@ -188,3 +188,32 @@ AudioBus *Droplet::Audio::AudioMixer::FindAudioBus(std::uint64_t p_id) const
 	}
 	return it->second.get();
 }
+
+bool AudioMixer::SetBusVolume(std::uint64_t p_id, float p_volume)
+{
+	auto bus = FindAudioBus(p_id);
+
+	dalia::Result res;
+	res = m_daliaEngine->SetBusVolumeDb(bus->GetName().c_str(), p_volume);
+
+	if (res != dalia::Result::Ok)
+	{
+		//Om vi inte lyckas ändra volum på en buss har vi fanemig lyckats bra
+		return false;
+	}
+	
+	return true;
+}
+
+nlohmann::json Droplet::Audio::AudioMixer::SerializeHierarchy()
+{
+	// Serialize Master bus here, then recursivly serialize all the children
+
+	nlohmann::json json;
+
+	json = m_masterBus->SerializeAudioBus();
+
+	Droplet::Core::JsonIO::Write("bus.json",json);
+
+	return json;
+}
