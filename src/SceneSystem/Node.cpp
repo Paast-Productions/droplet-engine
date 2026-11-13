@@ -23,6 +23,12 @@ Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // 
 
 Node::~Node()
 {
+	for (const auto &component : m_components)
+	{
+		if (component)
+			component->Destroy();
+	}
+
 	// Notify the Scene that this Node is being destructed
 	if (auto scene = m_scene.lock())
 	{

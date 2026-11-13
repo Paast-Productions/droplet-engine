@@ -150,6 +150,19 @@ void Component::RenderUI()
 	ImGui::EndChild();
 }
 
+void Droplet::Scene::Component::Destroy()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	DestroyImpl();
+}
+
 std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer
 {
     return m_owner.lock();
