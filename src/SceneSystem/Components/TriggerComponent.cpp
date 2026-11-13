@@ -89,6 +89,7 @@ void TriggerComponent::FixedUpdateImpl()
 
 void TriggerComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     if (m_AABBs.empty() && m_OBBs.empty() && m_spheres.empty())
     {
         ImGui::TextWrapped("TriggerComponent currently has no trigger shape!");
@@ -196,6 +197,7 @@ void TriggerComponent::RenderUIImpl()
     {
         sphere.sphere.center = sphere.offset + nodePos;
     }
+#endif
 }
 
 nlohmann::json TriggerComponent::SerializeImpl()
@@ -307,6 +309,7 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
     }
 }
 
+#ifdef _EDITOR
 void TriggerComponent::AddShape(int& p_currentShape)
 {
     glm::vec3 nodePos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
@@ -471,3 +474,4 @@ int TriggerComponent::ListShapes(const int p_currentShape)
     
     return returnSelected;
 }
+#endif
