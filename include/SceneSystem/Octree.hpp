@@ -38,6 +38,7 @@ namespace Droplet::Scene
 		/// @brief Removes a Node element from the octree
 		/// @param p_node The Node element to be removed
 		void RemoveNode(const std::weak_ptr<Node> &p_node);
+		/// @copydoc RemoveNode()
 		void RemoveNode(const Node *p_node);
 
 		/// @brief Gets all Node instances intersecting with a frustum
@@ -63,7 +64,20 @@ namespace Droplet::Scene
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
 		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
 		
-		std::vector<std::weak_ptr<Node>> GetNodesFromOBB(const Math::OBB &p_obb);
+		/// @brief Finds all Node instances intersecting with an AABB
+		/// @param p_aabb The AABB to check for intersections
+    	/// @param[out] p_nodes The out vector containing nodes inside the shape
+		void GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes);
+		
+		/// @brief Finds all Node instances intersecting with an OBB
+		/// @param p_obb The OBB to check for intersections
+    	/// @param[out] p_nodes The out vector containing nodes inside the shape
+		void GetNodesFromOBB(const Math::OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes);
+		
+		/// @brief Finds all Node instances intersecting with a sphere
+		/// @param p_sphere The sphere to check for intersections
+    	/// @param[out] p_nodes The out vector containing nodes inside the shape
+		void GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes);
 		
 		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
@@ -82,9 +96,8 @@ namespace Droplet::Scene
 		struct TreeNode;
 
 		/// @brief Helper function for updating Nodes in the octree by collecting dirty Nodes
-		/// @param p_treeNode 
 		/// @param[out] p_dirtyNodes A vector of all dirty Nodes
-		void CollectDirtyNodes(const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
+		void CollectDirtyNodes(std::vector<std::weak_ptr<Node>> &p_dirtyNodes);
 		
 		/// @brief Helper function finding unique weak pointers in a vector.
 		/// @param[in] p_inNodes The in vector containing all weak pointers of Node
@@ -101,6 +114,7 @@ namespace Droplet::Scene
 		/// @param p_node The Node to be removed
 		/// @param p_treeNode The TreeNode where to check for the Node element
 		void RemoveFromTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @copydoc RemoveFromTreeNode()
 		void RemoveFromTreeNode(const Node *p_node, const std::unique_ptr<TreeNode> &p_treeNode);
 
 		/// @brief Subdivides octants into eights
@@ -115,11 +129,15 @@ namespace Droplet::Scene
 		void CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
 			const std::unique_ptr<TreeNode> &p_treeNode);
 
-		/// @brief Helper function for getting Node instances intersecting with OBB
-		/// @param[out] p_nodes The Vector that contains all Node instances intersecting the OBB
-		/// @param p_obb The OBB to check for intersections
-		/// @oaram p_treeNode The TreeNode instance to be chedked for intersection
-		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::OBB &p_obb, const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @brief Helper function for getting Node instances intersecting with a shape
+		/// @param[out] p_nodes The Vector that contains all Node instances intersecting the shape
+		/// @param p_shape The shape to check for intersections
+		/// @param p_treeNode The TreeNode instance to be checked for intersection
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::AABB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @copydoc CheckIntersecting()
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::OBB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @copydoc CheckIntersecting()
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Sphere &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
 		
 		/// @brief Helper function for collecting Node instances intersecting with a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
@@ -215,6 +233,7 @@ namespace Droplet::Scene
 		bool m_isInitialized = false;
 		std::unique_ptr<TreeNode> m_root;
 		
+		std::vector<std::weak_ptr<Node>> m_containedNodes;
 		std::unordered_map<Node *, FatBounds> m_placements; // Contains fat bounds
 	};
 }

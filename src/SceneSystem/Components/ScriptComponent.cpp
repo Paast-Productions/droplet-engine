@@ -10,7 +10,7 @@ using namespace Droplet::Script;
 
 void ScriptComponent::StartImpl()
 {
-
+	ScriptSystem::Get().StartComponent(this);
 }
 
 void ScriptComponent::UpdateImpl()
@@ -43,8 +43,6 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
     }
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
-
-    ScriptSystem::Get().StartComponent(this);
 }
 
 void ScriptComponent::DetachScript()
@@ -99,6 +97,11 @@ void ScriptComponent::RenderUIImpl()
 #endif
 }
 
+void Droplet::Scene::ScriptComponent::DestroyImpl()
+{
+    ScriptSystem::Get().DeleteComponentScript(this);
+}
+
 nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;
@@ -117,5 +120,4 @@ void ScriptComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json  p_c
         throw std::runtime_error("ScriptCompoent missing field 'filepath'");
     }
     AttachScript(p_compJson["filepath"]);
-    ScriptSystem::Get().StartComponent(this);
 }
