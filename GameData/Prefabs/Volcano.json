@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 127,
+            "id": 49,
             "name": "BottomGraybox",
             "transform": {
                 "position": [
@@ -76,7 +76,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 128,
+            "id": 50,
             "name": "TopGraybox",
             "transform": {
                 "position": [
@@ -96,42 +96,17 @@
                     0.5
                 ]
             }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 129,
-            "name": "Heat",
-            "prefab": "GameData\\Prefabs\\Heat.json",
-            "transform": {
-                "position": [
-                    0.0,
-                    3.5,
-                    0.0
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    2.0,
-                    1.0
-                ]
-            }
         }
     ],
     "components": [],
     "drawLayer": 1,
-    "id": 126,
+    "id": 48,
     "name": "Volcano",
     "transform": {
         "position": [
-            54.92945861816406,
-            17.260536193847656,
-            -29.56606674194336
+            38.527503967285156,
+            8.656227111816406,
+            -16.357351303100586
         ],
         "rotation": [
             1.0,
