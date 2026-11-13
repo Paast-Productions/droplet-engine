@@ -1,0 +1,342 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 10065599574837318982,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "Ronny",
+                                "textureGUID": 3067039457033091561,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 1,
+                    "name": "RonnyFront",
+                    "transform": {
+                        "position": [
+                            2.842168401941559e-14,
+                            0.9999999403953552,
+                            -1.4210852174103162e-14
+                        ],
+                        "rotation": [
+                            0.5,
+                            0.5000000596046448,
+                            -0.5000001192092896,
+                            0.4999999403953552
+                        ],
+                        "scale": [
+                            0.6670000553131104,
+                            0.9999999403953552,
+                            2.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 10065599574837318982,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "RonnyBackside",
+                                "textureGUID": 2454655921093875874,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 4,
+                    "name": "RonnyBehind",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            0.5000002384185791,
+                            0.5,
+                            0.5000000596046448,
+                            -0.49999988079071045
+                        ],
+                        "scale": [
+                            0.6670001149177551,
+                            1.0,
+                            2.000000238418579
+                        ]
+                    }
+                }
+            ],
+            "components": [],
+            "drawLayer": 1,
+            "id": 3,
+            "name": "Cardboard",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.9990482330322266,
+                    -5.199825459101248e-09,
+                    1.1909581587588036e-07,
+                    -0.04361938685178757
+                ],
+                "scale": [
+                    0.9999995827674866,
+                    0.9999995827674866,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 5,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.43611273169517517,
+                    0.45427948236465454,
+                    -1.0401038252894068e-07
+                ],
+                "rotation": [
+                    0.6667160391807556,
+                    -0.666752278804779,
+                    -0.2355279177427292,
+                    0.235494926571846
+                ],
+                "scale": [
+                    0.1378510594367981,
+                    1.0000094175338745,
+                    0.9458013772964478
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 6,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.43597328662872314,
+                    0.45474565029144287,
+                    -1.039767951738213e-07
+                ],
+                "rotation": [
+                    0.666719913482666,
+                    0.6667488217353821,
+                    0.2355242371559143,
+                    0.2354971170425415
+                ],
+                "scale": [
+                    0.1378500908613205,
+                    1.0000206232070923,
+                    0.9457793831825256
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 7,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.1869276612997055,
+                    1.081905484199524,
+                    5.5110632501964574e-08
+                ],
+                "rotation": [
+                    0.7064228653907776,
+                    0.7064977288246155,
+                    -0.030233604833483696,
+                    -0.030226662755012512
+                ],
+                "scale": [
+                    0.17489951848983765,
+                    1.0002870559692383,
+                    0.8466094136238098
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 8,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.1868734210729599,
+                    1.0814112424850464,
+                    -4.279903009773989e-07
+                ],
+                "rotation": [
+                    0.706412672996521,
+                    -0.7065073847770691,
+                    0.030239997431635857,
+                    -0.030232591554522514
+                ],
+                "scale": [
+                    0.17489086091518402,
+                    1.0001988410949707,
+                    0.8465177416801453
+                ]
+            }
+        }
+    ],
+    "components": [],
+    "drawLayer": 1,
+    "id": 2,
+    "name": "RonnyCutout",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            -7.105427357601002e-15,
+            -1.1920921849650767e-07,
+            -1.4210841162674848e-14
+        ],
+        "scale": [
+            0.9999999403953552,
+            0.9999999403953552,
+            1.0
+        ]
+    }
+}
