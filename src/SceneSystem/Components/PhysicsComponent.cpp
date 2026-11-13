@@ -249,6 +249,10 @@ void PhysicsComponent::UpdateImpl()
 			m_isDeserialized = true;
 			m_function = nullptr;
 		}
+		else
+		{
+			m_skipSyncFrame = true;
+		}
 	}
 	
 	if (GetOwner()->GetTransform().IsOutdated(m_transformVersion))
