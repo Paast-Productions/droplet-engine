@@ -41,7 +41,8 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	{
 		if (!ProcessCodePoint(codePoint))
 		{
-			missingChars += static_cast<char>(codePoint);
+			const std::string miss = std::to_string(codePoint) + "(" + static_cast<char>(codePoint) + ") "; 
+			missingChars += miss;
 			continue;
 		}
 		
