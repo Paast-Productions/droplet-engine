@@ -7,6 +7,8 @@
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -710,7 +712,7 @@ void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_
 {
     p_luaState.new_usertype<Scene::AudioEmitterComponent>(
         "AudioEmitterComponent",
-        "PlaySound", &Scene::AudioEmitterComponent::Play
+        "Play", &Scene::AudioEmitterComponent::Play
     );
 
     LuaClassDefinition classDef;
@@ -718,7 +720,7 @@ void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_
 
     classDef.functions =
     {
-        {"PlaySound", "void", {}}
+        {"Play", "void", {}}
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
