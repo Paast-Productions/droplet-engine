@@ -33,14 +33,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    Droplet::EngineFlagsOwner::SetUpdateFlagBits(Droplet::UpdateFlags::SkipAutoRender | Droplet::UpdateFlags::SkipNodeLogic | Droplet::UpdateFlags::SkipBehaviourLogic | Droplet::UpdateFlags::SkipScriptLogic, true);
-
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
 
     engine.GetSceneManager().ActivateScene("BoatScene");
-
-    //wait for scene to be loaded before starting node logic
-    Droplet::EngineFlagsOwner::SetUpdateFlagBits(Droplet::UpdateFlags::SkipAutoRender | Droplet::UpdateFlags::SkipNodeLogic | Droplet::UpdateFlags::SkipBehaviourLogic | Droplet::UpdateFlags::SkipScriptLogic, false);
 
     bool mouseLock = true;
 
