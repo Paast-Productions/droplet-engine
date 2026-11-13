@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "piston",
+            "guid": 3821540600329539574,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "piston",
+            "type": 3
+        }
+    ]
+}
