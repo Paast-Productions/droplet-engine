@@ -966,7 +966,7 @@ void SceneViewWindow::RenderEditorView()
 			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene().lock());
 
 			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
-		    m_editorContext->GetEditorCameraController().SetListenerActive(false);
+		    Audio::AudioSystem::GetInstance().SetMode(true);
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1140,6 +1140,7 @@ void SceneViewWindow::RenderGameView()
 				flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
 
 				EngineFlagsOwner::SetUpdateFlags(flags);
+			    Audio::AudioSystem::GetInstance().SetGamePaused(true);
 			}
 
 			ImGui::PopStyleColor(4);
@@ -1156,6 +1157,7 @@ void SceneViewWindow::RenderGameView()
 			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 			{
 				EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+			    Audio::AudioSystem::GetInstance().SetGamePaused(false);
 			}
 
 			ImGui::PopStyleColor(4);
@@ -1178,7 +1180,7 @@ void SceneViewWindow::RenderGameView()
 			m_editorContext->CreateNewScene(sceneName);
 			m_editorContext->SetActiveScene(sceneName);
 			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
-		    m_editorContext->GetEditorCameraController().SetListenerActive(true);
+		    Audio::AudioSystem::GetInstance().SetMode(false);
 		}
 
 		ImGui::PopStyleColor(4);

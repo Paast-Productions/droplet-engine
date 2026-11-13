@@ -155,7 +155,7 @@ void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
             m_listenerSlots[i] = true;
             listener->SetListenerId(i);
             m_registeredListeners.push_back(listener);
-            m_daliaEngine->SetListenerActive(i, true);
+            if (m_isGameMode) m_daliaEngine->SetListenerActive(i, true);
             return;
         }
     }
@@ -214,18 +214,33 @@ void AudioSystem::Stop(PlaybackID id)
     if (it != m_activePlaybacks.end()) m_daliaEngine->StopPlayback(it->second);
 }
 
-void AudioSystem::SetEditorListenerActive(bool p_active)
+void AudioSystem::SetMode(bool p_isGameMode)
 {
-    m_daliaEngine->SetListenerActive(0, p_active);
+    m_isGameMode = p_isGameMode;
     
-    // Activate/deactivate listeners based if editor camera listener is active/inactive
+    // Stop all active playbacks
+    for (auto& [id, data] : m_activePlaybacks) m_daliaEngine->StopPlayback(data.handle);
+    
+    // Activate/deactivate listeners based on mode
+    m_daliaEngine->SetListenerActive(0, !p_isGameMode);
     for (uint32_t i = 1; i < 4; i++)
     {
-        if (m_listenerSlots[i] != false)
-        {
-            m_daliaEngine->SetListenerActive(i, !p_active);
-        }
+        if (m_listenerSlots[i] != false) m_daliaEngine->SetListenerActive(i, p_isGameMode);
     }
+}
+
+void AudioSystem::SetGamePaused(bool p_paused)
+{
+    m_isGamePaused = p_paused;
+    
+    for (auto& [id, data] : m_activePlaybacks)
+    {
+        if (p_paused) m_daliaEngine->PausePlayback(data.handle);
+        else
+        {
+            if (data.state == PlaybackState::Playing) m_daliaEngine->PlayPlayback(data.handle);
+        }
+    }   
 }
 
 void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,

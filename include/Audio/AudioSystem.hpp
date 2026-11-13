@@ -79,7 +79,9 @@ namespace Droplet::Audio
 	    AudioMixer& GetMixer() { return m_mixer; }
 	    
 	    // --- Editor ---
-	    void SetEditorListenerActive(bool p_active);
+	    void SetMode(bool p_isGameMode);
+	    void SetGamePaused(bool p_isPaused);
+	    
 	    void UpdateEditorListener3DAttributes(const glm::vec3& p_pos, const glm::vec3& p_fwd, const glm::vec3& p_up, 
 	        const glm::vec3& p_vel);
 	    
