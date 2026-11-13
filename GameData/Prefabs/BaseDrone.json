@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 13,
+            "id": 80,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -76,7 +76,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 14,
+            "id": 81,
             "name": "Camera",
             "transform": {
                 "position": [
@@ -121,14 +121,14 @@
         {
             "active": true,
             "data": {
-                "filepath": "DroneControl2.lua"
+                "filepath": "DroneControl.lua"
             },
             "id": 3,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 12,
+    "id": 79,
     "name": "BaseDrone",
     "transform": {
         "position": [

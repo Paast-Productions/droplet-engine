@@ -102,6 +102,8 @@ void PodBehaviour::RenderUIImpl()
 {
 #ifndef _GAME
 
+	ImGui::DragFloat("Transition Time", &m_transitionTime, 0.05f, 1.0f);
+
 	// Show all registered PodComponents along with the containing scene in a table.
 
 	if (ImGui::BeginTable("PodComponentsTable", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
