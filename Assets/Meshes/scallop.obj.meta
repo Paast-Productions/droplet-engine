@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Scallop",
+            "guid": 16657662898013156579,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Scallop",
+            "type": 3
+        }
+    ]
+}
