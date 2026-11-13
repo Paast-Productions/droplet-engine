@@ -90,6 +90,11 @@ Frustum Camera::GetFrustum() const
 	);
 }
 
+Ray Camera::GetRay() const
+{
+	return Ray(m_position, m_forward);
+}
+
 glm::mat4 Camera::GetViewMatrix() const
 {
 	return glm::lookAt(

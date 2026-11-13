@@ -90,7 +90,7 @@ void SceneManager::ActivateScene(const std::string &p_name)
 
     if (scene->IsActive())
     {
-        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is already active.");
+		return; // Scene is already active
     }
 
     scene->SetActive(true);
@@ -117,7 +117,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
 
     if (!scene->IsActive())
     {
-        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is already inactive.");
+		return; // Scene is already inactive
     }
 
     scene->SetActive(false);
@@ -184,23 +184,22 @@ void SceneManager::Update()
         }
     }
 
+    // Copy the active scenes to avoid iterator invalidation
+    std::vector<std::weak_ptr<Scene>> activeScenesCopy = m_activeScenes; 
+
 	// Update all active Scenes
     {
         ZoneNamedNC(sceneUpdateZone, "Scene Update", tracy::Color::DarkSeaGreen1, true);
 
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->Update();
-
-            ++it;
         }
     }
 
@@ -210,20 +209,15 @@ void SceneManager::Update()
     {
         ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
 
-        // Update all active Scenes
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->FixedUpdate();
-
-            ++it;
         }
 
         time.ConsumeFixedTime();
@@ -233,19 +227,15 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(sceneLateUpdateZone, "Scene Late Update", tracy::Color::Blue, true);
 
-        for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
+        for (int i = 0; i < activeScenesCopy.size(); ++i)
         {
-            auto scene = it->lock();
-
+            auto scene = activeScenesCopy[i].lock();
             if (!scene)
             {
-                it = m_activeScenes.erase(it);
                 continue;
             }
 
             scene->LateUpdate();
-
-            ++it;
         }
     }
 

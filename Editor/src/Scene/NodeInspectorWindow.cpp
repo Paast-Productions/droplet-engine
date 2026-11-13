@@ -72,7 +72,7 @@ void NodeInspectorWindow::RenderImpl()
 	bool active = m_currentNode.lock()->IsActiveSelf();
 	if (ImGui::Checkbox("##Active", &active))
 	{
-		m_currentNode.lock()->SetActive(active);
+		m_currentNode.lock()->SetActiveSelf(active);
 	}
 
 	Graphics::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
