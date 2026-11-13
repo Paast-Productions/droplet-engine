@@ -311,8 +311,15 @@ void TriggerComponent::AddShape(int& p_currentShape)
     static TriggerOBB newObb = { { pos }, OBB(pos, ext, glm::quat(rot)) };
     static TriggerSphere newSphere = { { pos }, Sphere(pos, r) };
 
-    ImGui::DragFloat3("Position", &pos.x, 0.1f);
-
+    static bool fitNodeBounds = false;
+    if (p_currentShape == 1)
+    {
+        ImGui::Checkbox("Fit to node bounds", &fitNodeBounds);
+    }
+    if (!fitNodeBounds)
+    {
+        ImGui::DragFloat3("Position", &pos.x, 0.1f);
+    }
     switch (p_currentShape)
     {
     case 0: // AABB
@@ -323,12 +330,22 @@ void TriggerComponent::AddShape(int& p_currentShape)
         newAabb.Draw(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
         break;
     case 1: // OBB
-        ImGui::DragFloat3("Extents", &ext.x, 0.1f);
-        ImGui::DragFloat3("Rotation", &rot.x, 0.1f);
-        newObb.offset = pos;
-        newObb.obb.center = pos + nodePos;
-        newObb.obb.extents = ext;
-        newObb.obb.orientation = glm::mat3_cast(glm::quat(rot));
+        if (fitNodeBounds)
+        {
+            const std::shared_ptr<Node> node = GetOwner();
+            const glm::mat4 worldMat = node->GetTransform().GetMatrix(Transform::Space::World);
+            newObb.obb = node->GetBounds()->GetTransformedOBB(worldMat);
+            newObb.offset = glm::vec3(0.0f, 0.0f, 0.0f);
+        }
+        else
+        {
+            ImGui::DragFloat3("Extents", &ext.x, 0.1f);
+            ImGui::DragFloat3("Rotation", &rot.x, 0.1f);
+            newObb.offset = pos;
+            newObb.obb.center = pos + nodePos;
+            newObb.obb.extents = ext;
+            newObb.obb.orientation = glm::mat3_cast(glm::quat(rot));
+        }
         newObb.Draw(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
         break;
     case 2: // Sphere
