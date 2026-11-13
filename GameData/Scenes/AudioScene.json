@@ -1,0 +1,182 @@
+{
+    "name": "AudioScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "attenuationCurve": 0,
+                        "busName": "Master",
+                        "doppler": false,
+                        "looping": true,
+                        "maxDistance": 100.0,
+                        "minDistance": 1.0,
+                        "pitch": 1.0,
+                        "soundGuid": 9697576650600336670,
+                        "startTimeSeconds": 0.0,
+                        "volumeDb": 0.0
+                    },
+                    "id": 2,
+                    "type": "AudioEmitterComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "EmitterTest.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 9,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -0.39782625436782837,
+                    0.3332442045211792,
+                    -5.160386562347412
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 1,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 2,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 3,
+                    "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 4,
+                    "type": "AudioListenerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "BaseFish",
+                        "meshGUID": 6487672309164947188,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 5,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/DroneMovement.lua"
+                    },
+                    "id": 6,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/DroneControl2.lua"
+                    },
+                    "id": 7,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 10,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    2.082943916320801,
+                    0.3243919014930725,
+                    4.473489761352539
+                ],
+                "rotation": [
+                    -0.16738271713256836,
+                    0.0,
+                    0.9858919978141785,
+                    0.0
+                ],
+                "scale": [
+                    0.9999998211860657,
+                    1.0,
+                    0.9999998211860657
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
