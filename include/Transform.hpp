@@ -67,7 +67,6 @@ namespace Droplet::Scene
 
 		/// @brief Check if the transform was ever changed in the current frame.
 		/// @return True if the transform was ever changed, else false.
-		// TODO: Edvin
 		[[nodiscard]] bool HasBeenChanged() const;
 		
 		/// @brief Check if the transform was changed by physics.
@@ -127,6 +126,18 @@ namespace Droplet::Scene
 		
 		/// @brief Sets the physics dirty boolean to false. Only used by the octree.
 		void ResetPhysicsDirty();
+
+		/// @brief Get the current version of the transform, which increments each time the transform is modified.
+		/// @return The current version of the transform.
+		std::size_t GetVersion() const { return m_version; }
+
+		/// @brief Increment the version of the transform, indicating that it has been modified.
+		void IncrementVersion() { ++m_version; }
+
+		/// @brief Check if the transform's version is greater than the provided version, indicating that it has been modified since that version.
+		/// @param p_version The version to compare against.
+		/// @return True if the transform's version is greater than p_version, false otherwise.
+		bool IsOutdated(std::size_t p_version) const { return m_version > p_version; }
 
 		// ================================ Utility ================================
 
@@ -190,6 +201,7 @@ namespace Droplet::Scene
 		bool			m_isDirty{ true };	  // Tracks whether the transform has been changed since last calculating the world matrix.
 		bool			m_wasChanged{ true }; // Tracks whether the transform was ever changed during the frame.
 		bool			m_physicsDirty{ false }; // Tracks whether the transform was changed by physics.
+		std::size_t		m_version{ 0 }; // Tracks the number of times the transform has been changed
 
 		glm::vec3		m_position{ 0.f, 0.f, 0.f };
 		glm::quat		m_rotation{ 1.f, 0.f, 0.f, 0.f };
