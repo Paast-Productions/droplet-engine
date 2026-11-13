@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 118,
+            "id": 48,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -61,7 +61,7 @@
                             "fov": 75.0,
                             "planes": [
                                 0.10000000149011612,
-                                100.0
+                                500.0
                             ]
                         },
                         "drawLayerMask": 65471,
@@ -76,7 +76,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 119,
+            "id": 49,
             "name": "Camera",
             "transform": {
                 "position": [
@@ -151,11 +151,11 @@
         }
     ],
     "drawLayer": 1,
-    "id": 117,
+    "id": 47,
     "name": "Drone",
     "transform": {
         "position": [
-            0.0,
+            -3.0,
             0.0,
             0.0
         ],
