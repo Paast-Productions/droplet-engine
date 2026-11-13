@@ -312,22 +312,42 @@ std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray)
 	RaycastNodes(nodes, p_ray, m_root);
 	return nodes;
 }
-	
-std::vector<std::weak_ptr<Node>> Octree::GetNodesFromOBB(const OBB &p_obb)
+
+void Octree::GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes)
 {
 	ZoneScoped;
 		
-	std::vector<std::weak_ptr<Node>> found;
-		
-	CheckIntersecting(found, p_obb, m_root);
+	CheckIntersecting(p_nodes, p_aabb, m_root);
 		
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
-	FindUniqueNodes(found, uniqueNodes);
-		
-	return uniqueNodes;
+	FindUniqueNodes(p_nodes, uniqueNodes);
+	p_nodes = std::move(uniqueNodes);
 }
-	
-void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const OBB &p_obb, const std::unique_ptr<TreeNode> &p_treeNode)
+
+void Octree::GetNodesFromOBB(const OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes)
+{
+	ZoneScoped;
+		
+	CheckIntersecting(p_nodes, p_obb, m_root);
+		
+	std::vector<std::weak_ptr<Node>> uniqueNodes;
+	FindUniqueNodes(p_nodes, uniqueNodes);
+	p_nodes = std::move(uniqueNodes);
+}
+
+void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes)
+{
+	ZoneScoped;
+		
+	CheckIntersecting(p_nodes, p_sphere, m_root);
+		
+	std::vector<std::weak_ptr<Node>> uniqueNodes;
+	FindUniqueNodes(p_nodes, uniqueNodes);
+	p_nodes = std::move(uniqueNodes);
+}
+
+void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::AABB& p_shape,
+	const std::unique_ptr<TreeNode>& p_treeNode)
 {
 	ZoneScoped;
 		
@@ -336,7 +356,7 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 		return;
 	}
 		
-	const IntersectType octantIntersection = Intersects(p_obb, p_treeNode->octant);
+	const IntersectType octantIntersection = Intersects(p_shape, p_treeNode->octant);
 		
 	if (octantIntersection == IntersectType::None)
 	{
@@ -361,7 +381,7 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 			
 		glm::mat4 worldMatrix = nodePtr->GetTransform().GetMatrix(Transform::Space::World);
 			
-		const IntersectType result = bounds->Intersect(p_obb, worldMatrix);
+		const IntersectType result = bounds->Intersect(p_shape, worldMatrix);
 			
 		if (result != IntersectType::None)
 		{
@@ -373,7 +393,110 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CheckIntersecting(p_nodes, p_obb, child);
+			CheckIntersecting(p_nodes, p_shape, child);
+		}
+	}
+}
+
+void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const OBB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode)
+{
+	ZoneScoped;
+		
+	if (p_treeNode == nullptr)
+	{
+		return;
+	}
+		
+	const IntersectType octantIntersection = Intersects(p_shape, p_treeNode->octant);
+		
+	if (octantIntersection == IntersectType::None)
+	{
+		return;
+	}
+		
+	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+	{
+		auto nodePtr = node.lock();
+			
+		if (!nodePtr)
+		{
+			continue;
+		}
+			
+		const NodeBounds *bounds = nodePtr->GetBounds();
+			
+		if (!bounds)
+		{
+			continue;
+		}
+			
+		glm::mat4 worldMatrix = nodePtr->GetTransform().GetMatrix(Transform::Space::World);
+			
+		const IntersectType result = bounds->Intersect(p_shape, worldMatrix);
+			
+		if (result != IntersectType::None)
+		{
+			p_nodes.push_back(node);
+		}
+			
+	}
+	if (p_treeNode->isSubdivided)
+	{
+		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+		{
+			CheckIntersecting(p_nodes, p_shape, child);
+		}
+	}
+}
+
+void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::Sphere& p_shape,
+	const std::unique_ptr<TreeNode>& p_treeNode)
+{
+	ZoneScoped;
+		
+	if (p_treeNode == nullptr)
+	{
+		return;
+	}
+		
+	const IntersectType octantIntersection = Intersects(p_shape, p_treeNode->octant);
+		
+	if (octantIntersection == IntersectType::None)
+	{
+		return;
+	}
+		
+	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+	{
+		auto nodePtr = node.lock();
+			
+		if (!nodePtr)
+		{
+			continue;
+		}
+			
+		const NodeBounds *bounds = nodePtr->GetBounds();
+			
+		if (!bounds)
+		{
+			continue;
+		}
+			
+		glm::mat4 worldMatrix = nodePtr->GetTransform().GetMatrix(Transform::Space::World);
+			
+		const IntersectType result = bounds->Intersect(p_shape, worldMatrix);
+			
+		if (result != IntersectType::None)
+		{
+			p_nodes.push_back(node);
+		}
+			
+	}
+	if (p_treeNode->isSubdivided)
+	{
+		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
+		{
+			CheckIntersecting(p_nodes, p_shape, child);
 		}
 	}
 }
@@ -712,7 +835,7 @@ void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 }
 
 void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode, 
-	std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+                         std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 {
 	if (p_treeNode == nullptr)
 	{

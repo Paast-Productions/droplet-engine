@@ -24,7 +24,7 @@ newaction {
 
             os.execute("{RMDIR} ./Generated")
             os.execute("{RMDIR} ./Build")
-            os.execute("{RMDIR} ./docs/html")
+            os.execute("{RMDIR} ./doxygen/html")
         end
         
         while (arg ~= nil) do
@@ -33,7 +33,7 @@ newaction {
 
                 os.execute("{RMDIR} ./Generated")
                 os.execute("{RMDIR} ./Build")
-                os.execute("{RMDIR} ./docs/html")
+                os.execute("{RMDIR} ./doxygen/html")
 
             elseif (arg == "-b" or arg == "-build") then
                 print("Cleaning Build")
@@ -43,7 +43,7 @@ newaction {
             elseif (arg == "-d" or arg == "-doxygen") then
                 print("Cleaning Doxygen")
                 
-                os.execute("{RMDIR} ./docs/html")
+                os.execute("{RMDIR} ./doxygen/html")
 
             elseif (arg == "-E" or arg == "-engine") then
                 print("Cleaning Engine")
