@@ -17,18 +17,12 @@ namespace Droplet::Editor
 	{
 	public:
 		SavedDataWindow(EditorContext *p_editorContext);
-		~SavedDataWindow() = default;
-
 
 	protected:
-		/// @brief Initilize the editing window
 		void InitImpl() override;
-		/// @brief Renders the window
 		void RenderImpl() override;
-		/// @brief Use this for special closing conditions
-		void CloseImpl() override;
-		/// @brief Used to render the tool bar
 		void RenderToolbar() override;
+
 	private:
 
 		struct SceneTreeNode
@@ -38,6 +32,7 @@ namespace Droplet::Editor
 			std::filesystem::path relativePath;
 			std::vector<SceneTreeNode> children;
 		};
+
 		/// @brief Helps to render the file hierarchy
 		/// @param node Node in the hierarchy
 		/// @param type The type of file, right now either prefab or scene
@@ -70,5 +65,7 @@ namespace Droplet::Editor
 		std::filesystem::path m_prefabPath;
 
 		bool m_needsRefresh = false;
+
+		std::string m_searchFilter = "";
 	};
 }

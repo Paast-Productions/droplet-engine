@@ -23,10 +23,39 @@ Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // 
 
 Node::~Node()
 {
+	for (const auto &component : m_components)
+	{
+		if (component)
+			component->Destroy();
+	}
+
 	// Notify the Scene that this Node is being destructed
 	if (auto scene = m_scene.lock())
 	{
 		scene->OnDestructNode(this);
+	}
+}
+
+void Node::Construct()
+{
+	if (m_constructed)
+	{
+		return;
+	}
+
+	m_constructed = true;
+
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
+	for (auto &component : m_components)
+	{
+		component->Construct();
+	}
+
+	for (auto &child : m_children)
+	{
+		child->Construct();
 	}
 }
 
@@ -58,10 +87,13 @@ void Node::Start()
 	{
 		child->Start();
 	}
+
 }
 
 void Node::Update()
 {
+	assert(m_constructed && "Node must be constructed before calling Update().");
+
 	if (!m_active)
 	{
 		return;
@@ -126,6 +158,8 @@ void Node::FixedUpdate()
 
 void Node::EditorUpdate()
 {
+	assert(m_constructed && "Node must be constructed before calling EditorUpdate().");
+
 	ZoneScoped;
 	ZoneText(m_name.c_str(), m_name.size());
 
@@ -427,6 +461,8 @@ std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> p_comp
 	{
 		m_nextComponentID = p_componentID + 1;
 	}
+
+	p_component->Construct();
 
 	if (m_started)
 	{

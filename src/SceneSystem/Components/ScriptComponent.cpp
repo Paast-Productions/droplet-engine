@@ -97,6 +97,11 @@ void ScriptComponent::RenderUIImpl()
     ImGui::EndChild();
 }
 
+void Droplet::Scene::ScriptComponent::DestroyImpl()
+{
+    ScriptSystem::Get().DeleteComponentScript(this);
+}
+
 nlohmann::json ScriptComponent::SerializeImpl()
 {
     nlohmann::json json;

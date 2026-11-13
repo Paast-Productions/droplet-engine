@@ -64,6 +64,9 @@ namespace Droplet::Scene
         // Copy & Move is disabled to ensure pointers always remain valid
         // Copying/Moving a Node should be explicit and manual
 
+        /// @brief Called when the Node is constructed.
+        void Construct();
+
         /// @brief Starts the Node, its Components, and its children.
         ///
         /// Calls OnStart() on all Components attached to this Node and then
@@ -396,7 +399,7 @@ namespace Droplet::Scene
         /// Components will be rendered in.
         Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-        /// @brief Indicates whether the Node has been started.
+        bool m_constructed = false;
         bool m_started = false;
 
 		// Transform
@@ -412,7 +415,7 @@ namespace Droplet::Scene
         std::vector<std::shared_ptr<Node>> m_children;
 
         // Scene
-
+          
         friend class Scene;
 
         /// @brief Weak reference to the Scene containing this Node.
