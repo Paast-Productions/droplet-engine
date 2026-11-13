@@ -56,7 +56,7 @@ void ScriptInstance::OnStart()
 		if (!result.valid())
 		{
 			sol::error err = result;
-			std::print("onStart error: {}\n", err.what());
+			std::print("OnStart error: {}\n", err.what());
 		}
 	}
 }

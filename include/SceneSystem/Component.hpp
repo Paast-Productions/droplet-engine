@@ -40,6 +40,9 @@ namespace Droplet::Scene
         /// @return The type name of the component.
         virtual std::string_view GetTypeName() const = 0;
 
+		/// @brief Called when the Component is constructed.
+        void Construct();
+
         /// @brief Called when the owning Node starts.
         ///
         /// Called when the owning Node starts participating in an active Scene.
@@ -154,6 +157,8 @@ namespace Droplet::Scene
 
     protected:
 
+        virtual void ConstructImpl() {}
+
         virtual void StartImpl() {}
 
         virtual void UpdateImpl() {}
@@ -195,6 +200,7 @@ namespace Droplet::Scene
     private:
         friend class Node;
 
+		bool m_constructed = false;
 		bool m_started = false;
 		bool m_active = true;
         bool m_renderable = false;
