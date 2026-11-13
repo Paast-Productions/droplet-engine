@@ -560,9 +560,10 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::HazardComponent>(
 		"HazardComponent",
-		"GetDamage", &Scene::HazardComponent::GetDamageLua
+		"GetDamage", &HazardComponent::GetDamage,
 		"GetDirection", &HazardComponent::GetDirection,
 		
+		"SetDamage", &HazardComponent::SetDamage,
 		"SetDirection", &HazardComponent::SetDirection
 	);
 
@@ -574,6 +575,7 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
         { "GetDamage", "float", {} },
         { "GetDirection", "float", {} },
         
+        { "SetDamage", "void", {{"damage", "number"}} },
         { "SetDirection", "void", {{"direction", "Vec3"}} },
     };
 
