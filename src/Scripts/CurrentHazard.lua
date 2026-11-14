@@ -33,7 +33,6 @@ function OnTrigger(dt, node)
     end
 
     if hazardComp ~= nil and pb ~= nil then
-		print("Trigger")
         velocity = GLM.V3MulF(direction, currentStrength * dt)
         local t = node:GetTransform()
         t:Move(velocity)
@@ -44,10 +43,17 @@ end
 
 function RenderUI()
     if hazardComp ~= nil then
-		_, newStrength = ImGui.DragFloat("Strength", newStrength, 0.1, 0.0)
+		local hasChanged = false
+				hasChanged, newStrength = ImGui.DragFloat("Strength", newStrength, 0.1, 0.0)
 		hazardComp:SetDamage(newStrength)
+		if hasChanged then
+			currentStrength = newStrength
+		end
 		
-        _, newDirection = ImGui.DragFloat3("Direction", newDirection, 0.1)
+        hasChanged, newDirection = ImGui.DragFloat3("Direction", newDirection, 0.1)
         hazardComp:SetDirection(newDirection)
+		if hasChanged then
+			direction = newDirection
+		end
     end
 end
