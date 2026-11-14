@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "The Big Blue Intro",
+            "guid": 9356498125252159434,
+            "loadFlags": 1,
+            "loadSettings": {
+                "sound_type": 1
+            },
+            "sourceName": "The Big Blue Intro",
+            "type": 8
+        }
+    ]
+}
