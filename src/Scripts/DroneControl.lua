@@ -231,21 +231,18 @@ function UpdateMovement(dt)
 		-- Pulse camera effect
 		fovTime = fovTime + dt
 		
-		print(fovTime)
 		if fovTime >= pulseFadeOutTime then
 			fovTime = 0.0
 			camera:SetFOV(defaultFov)
 		elseif fovTime <= transitionTime then
 			local alpha = fovTime / transitionTime
 			local fov = Lerp(defaultFov, pulseFov, alpha)
-			print(fov)
 			camera:SetFOV(fov)
 		elseif fovTime < pulseFadeOutTime - transitionTime then
 			camera:SetFOV(pulseFov)
 		elseif fovTime >= pulseFadeOutTime - transitionTime then
 			local alpha = (transitionTime - (pulseFadeOutTime - fovTime)) / transitionTime
 			local fov = Lerp(pulseFov, defaultFov, alpha)
-			print(fov)
 			camera:SetFOV(fov)
 		end
 	else
