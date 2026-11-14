@@ -178,7 +178,7 @@ void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_pt
 			continue;
 		}
 
-		if (!DrawLayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
+		if (!Core::LayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
 		{
 			continue;
 		}
