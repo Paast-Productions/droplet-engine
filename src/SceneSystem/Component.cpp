@@ -128,6 +128,7 @@ Droplet::Graphics::RenderData Component::GetRenderData()
 
 void Component::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
@@ -148,6 +149,20 @@ void Component::RenderUI()
 	}
 
 	ImGui::EndChild();
+#endif
+}
+
+void Droplet::Scene::Component::Destroy()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	DestroyImpl();
 }
 
 std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer

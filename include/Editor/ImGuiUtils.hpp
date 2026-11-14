@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _EDITOR
 #include <ImGui/imgui.h>
 #include <string>
 
@@ -11,3 +12,4 @@ namespace ImGui
 
 	void SearchBar(std::string &p_outFilter, ImVec2 p_minMax = ImVec2(0.0f, 0.0f), bool p_focusOnAppearing = false);
 }
+#endif

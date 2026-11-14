@@ -76,6 +76,8 @@ namespace Droplet::Scene
 		/// function to implement their own UI rendering logic.
 		void RenderUIImpl() override;
 
+		void DestroyImpl() override;
+
         void AttachScript(const std::string p_scriptPath);
 
         nlohmann::json SerializeImpl() override;

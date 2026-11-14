@@ -188,22 +188,26 @@ mat4 Transform::GetMatrix(Space p_space)
 
 	switch (p_space)
 	{
-	default:
-	case Space::Local:
-		if (m_isDirty)
+		default:
+		case Space::Local:
 		{
-			UpdateLocalMatrix();
+			if (m_isDirty)
+			{
+				UpdateLocalMatrix();
+			}
+
+			return m_localMatrix;
 		}
 
-		return m_localMatrix;
-
-	case Space::World:
-		if (m_isDirty)
+		case Space::World:
 		{
-			RecalculateMatrices();
-		}
+			if (m_isDirty)
+			{
+				RecalculateMatrices();
+			}
 
-		return m_worldMatrix;
+			return m_worldMatrix;
+		}
 	}
 }
 
@@ -455,6 +459,7 @@ void Transform::MakeDirty()
 {
 	m_isDirty = true;
 	m_wasChanged = true;
+	m_version++;
 
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())
@@ -757,7 +762,7 @@ void Transform::UpdateLocalMatrix()
 bool Transform::HasParent() const
 {
 	assert(m_owner != nullptr && "Transform must have an owner Node.");
-
+	std::weak_ptr<Node> parent = m_owner->GetParent();
 	return m_owner->GetParent().lock() != nullptr;
 }
 

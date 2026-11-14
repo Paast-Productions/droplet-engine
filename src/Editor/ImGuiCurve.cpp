@@ -1,3 +1,4 @@
+#ifdef _EDITOR
 #include "ImGuiCurve.hpp"
 
 using namespace ImGui;
@@ -872,3 +873,5 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 	return changed;
 }
+
+#endif

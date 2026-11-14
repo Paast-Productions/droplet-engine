@@ -21,6 +21,11 @@ void ScriptBehaviour::DetachScript()
 	ScriptSystem::Get().DetachBehaviourScript(this);
 }
 
+void Droplet::Scene::ScriptBehaviour::StartImpl()
+{
+	ScriptSystem::Get().StartBehaviour(this);
+}
+
 void ScriptBehaviour::PostUpdateImpl()
 {
 	float deltaTime = Time::Get().GetDeltaTime();
@@ -29,6 +34,7 @@ void ScriptBehaviour::PostUpdateImpl()
 
 void ScriptBehaviour::RenderUIImpl()
 {
+#ifdef _EDITOR
 	const std::string preview = m_scriptPath.empty()
 		? "Drop Lua script here"
 		: m_scriptPath;
@@ -59,6 +65,7 @@ void ScriptBehaviour::RenderUIImpl()
 	}
 
 	ImGui::Separator();
+#endif
 }
 
 void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
@@ -81,6 +88,4 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
     }
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
-
-	ScriptSystem::Get().StartBehaviour(this);
 }

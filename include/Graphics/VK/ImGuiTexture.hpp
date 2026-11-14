@@ -20,8 +20,10 @@ namespace Droplet::Graphics
 		ImGuiTexture &operator=(ImGuiTexture &&p_other) noexcept = default;
 
 		~ImGuiTexture() = default;
-		
+
+#ifdef _EDITOR
 		ImTextureRef Get() const { return static_cast<VkDescriptorSet>(m_textureHandle->Get()); }
+#endif
 		
 		GUID GetGUID() const { return m_textureHandle.GetGUID(); }
 		

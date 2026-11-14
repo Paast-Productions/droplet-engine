@@ -1,6 +1,13 @@
-#include <Engine.hpp>
-#include <stdexcept>
+#include "Engine.hpp"
+
 #include <tracy/public/tracy/Tracy.hpp>
+#include <Jolt/Jolt.h>
+#include <Jolt/RegisterTypes.h>
+#include <Jolt/Core/Factory.h>
+#include <Jolt/Core/IssueReporting.h>
+#include <algorithm>
+#include <SceneSystem/Items/BaseItems.hpp>
+
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
@@ -13,6 +20,21 @@
 #include <RegisterGame.hpp>
 #include <RegisterEngine.hpp>
 #include <Time.hpp>
+#include <SceneSystem/Components/MeshComponent.hpp>
+#include <SceneSystem/Components/SkeletonComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <SceneSystem/Components/AudioListenerComponent.hpp>
+#include <SceneSystem/Components/PhysicsComponent.hpp>
+#include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/PlayerComponent.hpp>
+#include <SceneSystem/Components/TriggerComponent.hpp>
+#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HealthComponent.hpp>
+
+#include <SceneSystem/BehaviourRegistry.hpp>
+#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 
 using namespace Droplet;
 
@@ -50,6 +72,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	
 	ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
     ThreadPool::GetInstance().Initialize();
+
 	JPH::RegisterDefaultAllocator();
 	JPH::Trace = TraceImpl;
 #ifdef JPH_DEBUG
@@ -60,9 +83,11 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     
     // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
+
 	// HACK: DON'T DO THIS
     ResourceManager &resManInstance = ResourceManager::GetInstance();
 	resManInstance.Initialize(assetDir);
+
     // Register scanners
     // TODO: Don't hardcode accepted extensions in Engine constructor
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
@@ -77,7 +102,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<ShaderResource>();
 
 	// Register base items and set the item registry for the scene manager
-	Droplet::Game::RegisterBaseItems(m_itemRegistry);
+	Game::RegisterBaseItems(m_itemRegistry);
 	m_sceneManager.SetItemRegistry(&m_itemRegistry);
 
 	// Register engine behaviours
@@ -95,10 +120,9 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	// Script Init
 	Script::ScriptSystem::Get().Initialize(m_sceneManager);
 	GameInput::Get().SetMainWindow(m_window.Get());
-
 }
 
-Droplet::Engine::~Engine()
+Engine::~Engine()
 {
 	ZoneScoped;
 
@@ -111,17 +135,16 @@ Droplet::Engine::~Engine()
 		}
 	}
 
-
 	Shutdown();
 }
 
-void Droplet::Engine::Shutdown()
+void Engine::Shutdown()
 {
 	ThreadPool::GetInstance().Shutdown();
 	Script::ScriptSystem::Get().Shutdown();
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Update()
+DROPLET_RETURNTYPE Engine::Update()
 {
 	ZoneScopedC(tracy::Color::PaleTurquoise1);
 
@@ -129,7 +152,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	Time::Get().Update();
 
 	// Inputs
-	Droplet::GameInput::Get().Update();
+	GameInput::Get().Update();
 
 	// Window
 	while (SDL_PollEvent(&m_renderer.Event))
@@ -164,7 +187,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 			break;
 		}
 
-		Droplet::GameInput::Get().ProcessEvent(m_renderer.Event);
+		GameInput::Get().ProcessEvent(m_renderer.Event);
 	}
 
 	// Scenesystem
@@ -177,7 +200,7 @@ DROPLET_RETURNTYPE Droplet::Engine::Update()
 	return DROPLET_RETURNTYPE::OK;
 }
 
-DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderData> *camRenderDatas)
+DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData> *camRenderDatas)
 {
 	ZoneScopedC(tracy::Color::SkyBlue1);
 
@@ -199,17 +222,17 @@ DROPLET_RETURNTYPE Droplet::Engine::Render(std::vector<Graphics::CameraRenderDat
 	// Rendering
 	m_renderer.Draw(renderData);
 
+#ifdef _EDITOR
 	// ImGui
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
 		ImGui::UpdatePlatformWindows();
 		ImGui::RenderPlatformWindowsDefault();
 	}
+#endif
 
 	m_sceneManager.PostRender();
 
-
-	// Other system that need updating go here.
 	ResourceManager::GetInstance().Update();
 	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 

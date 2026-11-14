@@ -1,15 +1,18 @@
-#include "DrawLayer.hpp"
+#include "Core/Layer.hpp"
 #include "json/json.hpp"
 #include "Core/IoManager.hpp"
+
+#ifdef _EDITOR
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 #include <IconFontCppHeaders/IconsLucide.h>
+#endif
 
-using namespace Droplet::Graphics;
+using namespace Droplet::Core;
 using namespace Droplet::Core::JsonIO;
 using namespace nlohmann;
 
-void DrawLayerUtility::InternalSerializeLayerNames(const std::string &p_path) const
+void LayerUtility::InternalSerializeLayerNames(const std::string &p_path) const
 {
 	json doc = json::object();
 
@@ -21,7 +24,7 @@ void DrawLayerUtility::InternalSerializeLayerNames(const std::string &p_path) co
 	Write(p_path, doc);
 }
 
-void DrawLayerUtility::InternalDeserializeLayerNames(const std::string &p_path)
+void LayerUtility::InternalDeserializeLayerNames(const std::string &p_path)
 {
 	std::ifstream fileRead(p_path);
 	if (!fileRead.is_open())
@@ -39,27 +42,27 @@ void DrawLayerUtility::InternalDeserializeLayerNames(const std::string &p_path)
 	for (const auto &[key, value] : doc.items())
 	{
 		uint16_t layerValue = static_cast<uint16_t>(std::stoi(key));
-		DrawLayer layer = static_cast<DrawLayer>(layerValue);
+		Layer layer = static_cast<Layer>(layerValue);
 		std::string name = value.get<std::string>();
 		m_layerNames[layer] = name;
 	}
 }
 
-bool DrawLayerUtility::EditLayerNamesPopup(bool p_doOpen)
+#ifdef _EDITOR
+bool LayerUtility::EditLayerNamesPopup(bool p_doOpen)
 {
 	using namespace ImGui;
-	auto &instance = Get();
 
 	if (p_doOpen)
 	{
-		OpenPopup("Edit Draw Layers");
+		OpenPopup("Edit Layers");
 	}
 
 	bool changed = false;
 
-	if (BeginPopup("Edit Draw Layers", ImGuiWindowFlags_AlwaysAutoResize))
+	if (BeginPopup("Edit Layers", ImGuiWindowFlags_AlwaysAutoResize))
 	{
-		for (auto &[layer, name] : instance.m_layerNames)
+		for (auto &[layer, name] : m_layerNames)
 		{
 			std::string inputLabel = "##" + std::to_string(static_cast<uint16_t>(layer));
 
@@ -71,10 +74,9 @@ bool DrawLayerUtility::EditLayerNamesPopup(bool p_doOpen)
 
 		if (Button("Reset"))
 		{
-			for (auto &[layer, name] : instance.m_layerNames)
+			for (auto &[layer, name] : m_layerNames)
 			{
-				int layerIndex = std::log2(static_cast<uint16_t>(layer)) + 1; // Calculate the layer index based on the bit position
-				name = "Layer " + std::to_string(layerIndex);
+				name = "";
 			}
 			changed = true;
 		}
@@ -90,10 +92,9 @@ bool DrawLayerUtility::EditLayerNamesPopup(bool p_doOpen)
 	return changed;
 }
 
-bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
+bool LayerUtility::SetLayerMaskUI(const char *label, Layer &p_layerMask)
 {
 	using namespace ImGui;
-	auto &instance = Get();
 
 	PushID(label);
 	BeginGroup();
@@ -101,8 +102,8 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 	Text("%s", label);
 
 	std::string comboDisplay = "";
-	bool isAllSelected = (p_layerMask == DrawLayer::All);
-	bool isNoneSelected = (p_layerMask == DrawLayer::None);
+	bool isAllSelected = (p_layerMask == Layer::All);
+	bool isNoneSelected = (p_layerMask == Layer::None);
 
 	if (isAllSelected)
 	{
@@ -139,7 +140,7 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 		{
 			if (Selectable("None", isNoneSelected, ImGuiSelectableFlags_NoAutoClosePopups))
 			{
-				p_layerMask = DrawLayer::None;
+				p_layerMask = Layer::None;
 				changed = true;
 			}
 		}
@@ -148,14 +149,14 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 		{
 			if (Selectable("All", isAllSelected, ImGuiSelectableFlags_NoAutoClosePopups))
 			{
-				p_layerMask = DrawLayer::All;
+				p_layerMask = Layer::All;
 				changed = true;
 			}
 		}
 
 		Separator();
 
-		for (const auto &[layer, name] : instance.m_layerNames)
+		for (const auto &[layer, name] : m_layerNames)
 		{
 			if (name.empty())
 			{
@@ -181,10 +182,9 @@ bool DrawLayerUtility::SetLayerMaskUI(const char *label, DrawLayer &p_layerMask)
 	return changed;
 }
 
-bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
+bool LayerUtility::SetLayerUI(const char *label, Layer &p_layer)
 {
 	using namespace ImGui;
-	auto &instance = Get();
 
 	// Ensure that p_layer is a single layer flag
 	assert(
@@ -211,7 +211,7 @@ bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
 	// Dropdown for selecting layers
 	if (BeginCombo("##LayerCombo", GetLayerName(p_layer).c_str(), ImGuiComboFlags_HeightLarge))
 	{
-		for (const auto &[layer, name] : instance.m_layerNames)
+		for (const auto &[layer, name] : m_layerNames)
 		{
 			if (name.empty())
 			{
@@ -235,3 +235,4 @@ bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
 
 	return changed;
 }
+#endif
