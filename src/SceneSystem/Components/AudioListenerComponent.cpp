@@ -68,6 +68,11 @@ void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
     ImGui::Text("This is a listener");
 }
 
+void Droplet::Scene::AudioListenerComponent::ActiveChangedImpl(const bool p_active)
+{
+    Audio::AudioSystem::GetInstance().SetListenerActive(m_listenerId, p_active);
+}
+
 nlohmann::json Droplet::Scene::AudioListenerComponent::SerializeImpl()
 {
 	// Member variables that needs to be saved gets added here

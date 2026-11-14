@@ -28,9 +28,15 @@ namespace Droplet::Audio
     constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
     constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
     
+    constexpr float C_STEREO_PAN_LEFT = 0.0f;
+    constexpr float C_STEREO_PAN_MIDDLE = 0.0f;
+    constexpr float C_STEREO_PAN_RIGHT = 0.0f;
+    
     constexpr float C_PITCH_DEFAULT = 1.0f;
     constexpr float C_PITCH_MIN = 0.1f;
     constexpr float C_PITCH_MAX = 4.0f;
+    
+    constexpr uint32_t C_LISTENERS_MAX = 4;
     
     enum class PlaybackState : uint8_t
     {
@@ -74,6 +80,7 @@ namespace Droplet::Audio
 	    
 	    void RegisterListener(Scene::AudioListenerComponent* listener);
 	    void UnregisterListener(Scene::AudioListenerComponent* listener);
+	    void SetListenerActive(ListenerID p_id, bool p_active);
 	    
 	    PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
 	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
@@ -104,6 +111,12 @@ namespace Droplet::Audio
 	        PlaybackState state = PlaybackState::Inactive;
 	    };
 	    
+	    struct ListenerData
+	    {
+	        bool taken = false;
+	        bool active = false;
+	    };
+	    
 	    AudioSystem() = default;
 	    ~AudioSystem() = default;
 	    
@@ -117,14 +130,15 @@ namespace Droplet::Audio
 		AudioMixer m_mixer;
 	    
 	    // Playback Management
+	    std::vector<Scene::AudioPlayerComponent*> m_playerComponents;
+	    std::vector<Scene::AudioEmitterComponent*> m_emitterComponents;
+	    
 	    PlaybackID m_nextPlaybackId = 1;
-	    std::unordered_map<PlaybackID, PlaybackData> m_activePlaybacks;
+	    std::unordered_map<PlaybackID, PlaybackData> m_playbacks;
 	    std::vector<PlaybackID> m_finishedPlaybacks;
 	    
-	    std::vector<Scene::AudioPlayerComponent*> m_registeredPlayers;
-	    std::vector<Scene::AudioEmitterComponent*> m_registeredEmitters;
-	    
-	    std::vector<Scene::AudioListenerComponent*> m_registeredListeners;
-	    bool m_listenerSlots[4] = { false, false, false, false };
+	    // Listener Management
+	    std::vector<Scene::AudioListenerComponent*> m_listenerComponents;
+	    std::array<ListenerData, C_LISTENERS_MAX> m_listeners;
 	};
 }

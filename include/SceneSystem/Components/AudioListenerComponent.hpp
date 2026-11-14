@@ -25,6 +25,8 @@ namespace Droplet::Scene
 
 	protected:
 		void RenderUIImpl() override;
+	    
+	    void ActiveChangedImpl(const bool p_active) override;
 
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;

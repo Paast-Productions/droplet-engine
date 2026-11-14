@@ -26,6 +26,7 @@ AudioEmitterComponent::~AudioEmitterComponent()
 void AudioEmitterComponent::Play()
 {
     if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID) Stop();
+    if (!IsActiveSelf()) return;
     
     SoundResource* sound = m_resourceHandle.Get();
     if (!sound)
@@ -40,18 +41,18 @@ void AudioEmitterComponent::Play()
 
 void AudioEmitterComponent::Pause()
 {
-    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID)
-    {
-        Audio::AudioSystem::GetInstance().Pause(m_playbackId);
-    }
+    if (m_playbackId == Audio::C_INVALID_PLAYBACK_ID) return;
+    if (!IsActiveSelf()) return;
+    
+    Audio::AudioSystem::GetInstance().Pause(m_playbackId);
 }
 
 void AudioEmitterComponent::Resume()
 {
-    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID)
-    {
-        Audio::AudioSystem::GetInstance().Resume(m_playbackId);
-    }
+    if (m_playbackId == Audio::C_INVALID_PLAYBACK_ID) Stop();
+    if (!IsActiveSelf()) return;
+    
+    Audio::AudioSystem::GetInstance().Resume(m_playbackId);
 }
 
 void AudioEmitterComponent::Stop()
@@ -189,7 +190,7 @@ void AudioEmitterComponent::RenderUIImpl()
         ImGui::EndTable();
     }
 
-    ImGui::Text(ICON_LC_FILE_VOLUME "%.2f s", Audio::AudioSystem::GetInstance().GetSoundLenghtInSeconds(m_resourceHandle.Get()));
+    ImGui::Text(ICON_LC_FILE_VOLUME " %.2f s", Audio::AudioSystem::GetInstance().GetSoundLenghtInSeconds(m_resourceHandle.Get()));
     
     ImGui::Spacing();
     
@@ -287,6 +288,11 @@ void AudioEmitterComponent::RenderUIImpl()
 	}
     
     ImGui::PopID();
+}
+
+void AudioEmitterComponent::ActiveChangedImpl(const bool p_active)
+{
+    if (!p_active) Stop();
 }
 
 nlohmann::json AudioEmitterComponent::SerializeImpl()
