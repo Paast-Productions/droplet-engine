@@ -22,16 +22,16 @@ project "Dalia"
             " -DTRACY_ON_DEMAND=ON" ..
             " -DTRACY_FIBERS=ON"
 
-    filter "configurations:release"
+    filter "configurations:release or deploy"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded'" .. cmakeCommonFlags,
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Release --target install",
         }
     filter "configurations:debug"
         prebuildcommands{
             "{MKDIR} " .. objDirectory,
             "cmake -S " .. moduleDirectory .. " -B " .. objDirectory .. " -DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreadedDebug'" .. cmakeCommonFlags,
-            "cmake --build " .. objDirectory .. " --config %{cfg.buildcfg} --target install",
+            "cmake --build " .. objDirectory .. " --config Debug --target install",
         }
     filter {}

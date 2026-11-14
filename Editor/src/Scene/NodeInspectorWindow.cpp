@@ -12,14 +12,6 @@
 
 using namespace Droplet::Editor;
 
-namespace
-{
-	bool SameRotation(const glm::quat &p_left, const glm::quat &p_right)
-	{
-		return std::abs(glm::dot(glm::normalize(p_left), glm::normalize(p_right))) > 1.0f - 1.0e-7f;
-	}
-}
-
 void NodeInspectorWindow::SetCurrentNode(std::weak_ptr<Droplet::Scene::Node> p_nodeToInspect)
 {
 	m_currentNode = p_nodeToInspect;
@@ -139,58 +131,26 @@ void NodeInspectorWindow::RenderImpl()
 			ImGui::EndPopup();
 		}
 
-		// Keep edited axis values independent while applying quaternion deltas to the transform.
-		glm::vec3 &rot = m_displayedRotation;
-		const glm::quat currentRotation = transform.GetRotation(space);
-		const Droplet::Scene::Node *currentNode = m_currentNode.lock().get();
-
-		if (!m_hasDisplayedRotation ||
-			m_rotationNode != currentNode ||
-			m_rotationSpace != space ||
-			!SameRotation(currentRotation, m_lastDisplayedRotation))
-		{
-			rot = glm::degrees(transform.GetEuler(space));
-			m_rotationNode = currentNode;
-			m_rotationSpace = space;
-			m_lastDisplayedRotation = currentRotation;
-			m_hasDisplayedRotation = true;
-		}
-
-		glm::vec3 prevRot = rot;
+		glm::vec3 prevRot = glm::degrees(transform.GetEuler(space));
+		glm::vec3 rot = prevRot;
 		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
 		{
-			for (int axisIndex = 0; axisIndex < 3; ++axisIndex)
+			/*if (rot.x != prevRot.x)
 			{
-				const float deltaDegrees = rot[axisIndex] - prevRot[axisIndex];
-				if (deltaDegrees == 0.0f)
-				{
-					continue;
-				}
-
-				glm::vec3 axis(0.0f);
-				if (space == TSpace::Local)
-				{
-					switch (axisIndex)
-					{
-					case 0:
-						axis = transform.GetRight(TSpace::Local);
-						break;
-					case 1:
-						axis = transform.GetUp(TSpace::Local);
-						break;
-					default:
-						axis = transform.GetForward(TSpace::Local);
-						break;
-					}
-				}
-				else
-				{
-					axis[axisIndex] = 1.0f;
-				}
-
-				transform.RotateAxis(glm::radians(deltaDegrees), axis, space);
+				float deltaRot = glm::radians(rot.x - prevRot.x);
+				transform.RotateAxis(deltaRot, glm::vec3(1.0f, 0.0f, 0.0f), space);
 			}
-			m_lastDisplayedRotation = transform.GetRotation(space);
+			else if (rot.y != prevRot.y)
+			{
+				float deltaRot = glm::radians(rot.y - prevRot.y);
+				transform.RotateAxis(deltaRot, glm::vec3(0.0f, 1.0f, 0.0f), space);
+			}
+			else if (rot.z != prevRot.z)
+			{
+				float deltaRot = glm::radians(rot.z - prevRot.z);
+				transform.RotateAxis(deltaRot, glm::vec3(0.0f, 0.0f, 1.0f), space);
+			}*/
+			transform.SetEuler(glm::radians(rot), space);
 		}
 		ImGui::LockToItem();
 
@@ -202,8 +162,6 @@ void NodeInspectorWindow::RenderImpl()
 			if (ImGui::MenuItem("Reset"))
 			{
 				transform.SetRotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f), space);
-				m_lastDisplayedRotation = transform.GetRotation(space);
-				m_displayedRotation = glm::degrees(transform.GetEuler(space));
 			}
 			ImGui::EndPopup();
 		}

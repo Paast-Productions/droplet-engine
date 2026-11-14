@@ -239,7 +239,8 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] PresentTarget &GetPresentTargetAt(const std::uint32_t p_index) { return m_presentTargets.at(p_index); }
         
         void ClearPresentTargets() { m_presentTargets.clear(); }
-        
+
+#ifdef _EDITOR
         /// @brief Creates an ImGui texture based on a render target
         /// @param p_renderTarget The render target to base the texture off of
         /// @returns Index to ImGui Texture
@@ -248,11 +249,13 @@ namespace Droplet::Graphics::VK
         [[nodiscard]] ImGuiTexture CreateImGuiTexture(GUID p_guid);
         
         /// @brief Recreates render target and ImGui texture and updates them with new params
-        /// @param p_target Index of the render target
+        /// @param p_target The render target to be updated
         /// @param p_textureIndex Index of the texture
         /// @param p_width Width of the new render target in pixels
         /// @param p_height Height of the new render target in pixels
         void UpdateImGuiRenderTarget(RenderTarget p_target, ImGuiTexture p_texture, std::uint32_t p_width, std::uint32_t p_height);
+        
+#endif
         
     private:
         // Friend class Renderer to give it access to internals
@@ -332,6 +335,7 @@ namespace Droplet::Graphics::VK
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
         std::queue<DynamicLiveResource> m_destroyQueue {};
+
         
         // DESCRIPTORS
         
@@ -346,6 +350,7 @@ namespace Droplet::Graphics::VK
         // - Uniform Buffer Dynamic
         // - Storage Buffer Dynamic
         // - Input Attachment
+    
     };
 }
 

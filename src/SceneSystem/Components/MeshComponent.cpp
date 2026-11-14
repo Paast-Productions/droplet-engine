@@ -1,15 +1,13 @@
 #include "MeshComponent.hpp"
 
-#include <ImGui/imgui.h>
-
 #include <SceneSystem/Scene.hpp>
-#include <Editor/DragDropFields.hpp>
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
-#include <string>
+#include <Editor/DragDropFields.hpp>
 #include <Editor/ResourceSlot.hpp>
+#include <string>
 
 // imgui helper function
 
@@ -86,6 +84,7 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 
 void MeshComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	using namespace ImGui;
 
 	PushID(this);
@@ -210,6 +209,7 @@ void MeshComponent::RenderUIImpl()
     }
 	
 	PopID();
+#endif
 }
 
 nlohmann::json MeshComponent::SerializeImpl()

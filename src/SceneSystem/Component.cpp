@@ -128,6 +128,7 @@ Droplet::Graphics::RenderData Component::GetRenderData()
 
 void Component::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
@@ -148,6 +149,7 @@ void Component::RenderUI()
 	}
 
 	ImGui::EndChild();
+#endif
 }
 
 void Droplet::Scene::Component::Destroy()
