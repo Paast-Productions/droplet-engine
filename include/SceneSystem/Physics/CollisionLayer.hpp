@@ -11,25 +11,6 @@ namespace Droplet
 	/// @brief Utility class for managing draw layers.
 	class CollisionLayerUtility
 	{
-	private:
-		Core::LayerUtility m_layerUtility;
-		std::string m_path = ROOT_PATH "/GameData/CollisionLayers.json";
-
-		CollisionLayerUtility()
-		{
-			m_layerUtility.DeserializeLayerNames(m_path);
-		}
-		~CollisionLayerUtility()
-		{
-			m_layerUtility.SerializeLayerNames(m_path);
-		}
-
-		static CollisionLayerUtility &Get()
-		{
-			static CollisionLayerUtility instance;
-			return instance;
-		}
-
 	public:
 
 		// Layer Naming
@@ -89,6 +70,25 @@ namespace Droplet
 		static bool SetLayerUI(const char *label, CollisionLayer &p_layer)
 		{
 			return Get().m_layerUtility.SetLayerUI(label, p_layer);
+		}
+
+	private:
+		Core::LayerUtility m_layerUtility;
+		std::string m_path = ROOT_PATH "/GameData/CollisionLayers.json";
+
+		CollisionLayerUtility()
+		{
+			m_layerUtility.DeserializeLayerNames(m_path);
+		}
+		~CollisionLayerUtility()
+		{
+			m_layerUtility.SerializeLayerNames(m_path);
+		}
+
+		static CollisionLayerUtility &Get()
+		{
+			static CollisionLayerUtility instance;
+			return instance;
 		}
 	};
 }
