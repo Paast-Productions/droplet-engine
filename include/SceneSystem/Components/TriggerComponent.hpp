@@ -84,7 +84,7 @@ namespace Droplet::Scene
             }
         };
         
-#ifdef _GAME
+#ifdef _EDITOR
         /// @brief Add a type of shape
         /// @param p_currentShape Chosen shape type
         void AddShape(int &p_currentShape);
