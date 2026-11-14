@@ -9,9 +9,10 @@
 #include "PhysicsComponent.hpp"
 #include "Editor/DragDropFields.hpp"
 #include "Editor/ResourceSlot.hpp"
+
 using namespace Droplet::Scene;
 
-Droplet::Scene::AudioEmitterComponent::AudioEmitterComponent()
+AudioEmitterComponent::AudioEmitterComponent()
 {
     Audio::AudioSystem::GetInstance().RegisterEmitter(this);
 }
@@ -111,15 +112,29 @@ void AudioEmitterComponent::SetBusName(const std::string &p_busName)
 
 glm::vec3 AudioEmitterComponent::GetWorldPosition() const
 {
-    Transform& transformComp = GetOwner()->GetTransform();
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+
+    Transform &transformComp = GetOwner()->GetTransform();
     return transformComp.GetPosition(Transform::Space::World);
 }
 
 glm::vec3 AudioEmitterComponent::GetVelocity() const
 {
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
     std::shared_ptr<PhysicsComponent> physComp = GetOwner()->GetComponent<PhysicsComponent>();
-    if (physComp) return physComp->GetVelocity();
-    return glm::vec3(0.0f, 0.0f, 0.0f);
+    if (!physComp)
+    {
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+        
+    return physComp->GetVelocity();
 }
 
 void AudioEmitterComponent::SetSoundGUID(GUID p_guid)
@@ -136,7 +151,7 @@ void AudioEmitterComponent::OnPlaybackFinished()
     m_playbackId = Audio::C_INVALID_PLAYBACK_ID;
 }
 
-void Droplet::Scene::AudioEmitterComponent::StartImpl()
+void AudioEmitterComponent::StartImpl()
 {
 
 }
@@ -274,7 +289,7 @@ void AudioEmitterComponent::RenderUIImpl()
     ImGui::PopID();
 }
 
-nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
+nlohmann::json AudioEmitterComponent::SerializeImpl()
 {
 	nlohmann::json json;
 
@@ -294,7 +309,7 @@ nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
 	return json;
 }
 
-void Droplet::Scene::AudioEmitterComponent::DeserializeImpl(nlohmann::json p_compJson)
+void AudioEmitterComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
     if (p_compJson.contains("soundGuid")) m_soundGuid = p_compJson["soundGuid"];
     SetSoundGUID(m_soundGuid);
