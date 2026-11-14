@@ -72,12 +72,19 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
         throw std::runtime_error("Node is missing required field 'id'");
     }
 
-    if (!p_json.contains("active"))
-    {
-        throw std::runtime_error("Node is missing required field 'active'");
-    }
     auto node = p_scene.AddNode(p_json["name"]);
-    SerializationContext nullContext;
+
+    if (p_json.contains("drawLayer"))
+    {
+        uint16_t drawLayerValue = p_json["drawLayer"];
+        node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+    }
+
+    if (p_json.contains("collisionLayerMask"))
+    {
+        uint16_t collisionLayerMaskValue = p_json["collisionLayerMask"];
+        node->SetCollisionLayerMask(static_cast<CollisionLayer>(collisionLayerMaskValue));
+    }
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
     if (p_overridePosition.has_value())
@@ -85,7 +92,7 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
         node->GetTransform().SetPosition(*p_overridePosition);
     }
 
-
+    SerializationContext nullContext;
     std::shared_ptr<Droplet::Scene::Scene> scenePtr = p_scene.shared_from_this();
 
     for (const auto componentJson : p_json["components"])
