@@ -172,7 +172,7 @@ namespace Droplet::Graphics::VK::Slug
 		void Shutdown();
 	
 	private:
-		bool LoadFont(const char *p_inputPath);
+		bool LoadFont(const std::filesystem::path &p_inputPath);
 		const SlugCodePoint* GetGlyph(uint32_t p_codePoint) const;
 		
 		// TODO: Consider this. Are we okay with keeping this in the codebase?

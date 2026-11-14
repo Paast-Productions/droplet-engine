@@ -94,7 +94,8 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_allocator = &p_allocator;
 	
 	// Glyph rendering
-	if (!LoadFont(R"(C:\Users\linkl\Desktop\dev\droplet-engine\Assets\Fonts\JetBrainsMono-Regular.slug)"))
+	std::filesystem::path fontPath = std::filesystem::canonical("../../../../Assets/Fonts/JetBrainsMono-Regular.slug");
+	if (!LoadFont(fontPath))
 	{
 		return;
 	}
@@ -546,9 +547,9 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
 	m_bandTexture.reset();
 }
 
-bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const char *p_inputPath)
+bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const std::filesystem::path &p_inputPath)
 {
-	std::ifstream inFile(p_inputPath, std::ios::binary);
+	std::ifstream inFile(p_inputPath.string(), std::ios::binary);
 	if (!inFile.is_open())
 	{
 		std::cerr << "Failed to open font file." << std::endl;
