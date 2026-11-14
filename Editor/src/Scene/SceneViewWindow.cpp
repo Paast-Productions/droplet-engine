@@ -1411,10 +1411,11 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		static float drawPivotTimer = 0.0f;
 
 		ImVec2 viewGizmoPos(p_sceneViewMax.x - viewGizmoSize - viewGizmoMargin, p_sceneViewMin.y + viewGizmoMargin);
+		//m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 
 		glm::mat4 editedView = camViewMat;
 		ImGuizmo::ViewManipulate(
-			&editedView[0][0], 
+			&editedView[0][0],
 			m_cameraPivotRadius, 
 			viewGizmoPos, 
 			ImVec2(viewGizmoSize, viewGizmoSize), 
@@ -1433,6 +1434,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			camera.SetPosition(glm::vec3(world[3]));
 			camera.SetOrientation(forward, up);
+
+			ApplyCameraPivot();
 		}
 
 		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())
