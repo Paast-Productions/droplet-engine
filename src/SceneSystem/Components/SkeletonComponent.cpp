@@ -138,7 +138,7 @@ void SkeletonComponent::BuildSkeleton(const SkinnedMeshResource *p_mesh)
     m_boneNodes.reserve(bones.size());
     for (const auto &bone : bones)
     {
-        m_boneNodes.push_back(scene->AddNode(bone.name));
+        m_boneNodes.push_back(scene->AddNode(bone.name).lock());
     }
 
     // offsetMat maps mesh space to bone space, so a bone's bind-pose global transform (relative to the owner) is

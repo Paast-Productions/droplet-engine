@@ -127,7 +127,7 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node to create.
         ///
         /// @return A shared pointer to the created Node.
-        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: Make weak pointer
+        std::weak_ptr<Node> AddNode(const std::string &p_name, bool p_registerInOctree = true); // TODO: Make weak pointer
 
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
@@ -263,6 +263,15 @@ namespace Droplet::Scene
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
         const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
+
+    	
+    	// size_t CountNodeOccurrences(const Node* target) const;
+    	//
+    	// void CheckNodeOccurrences(const std::shared_ptr<Node>& node);
+    	
+    	void RebuildOctree();
+    	
+    	void RegisterNodeRecursive(const std::shared_ptr<Node> &p_node);
 
     private:
 		friend class SceneManager;

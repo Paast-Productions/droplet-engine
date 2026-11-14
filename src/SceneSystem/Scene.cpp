@@ -195,7 +195,7 @@ void Scene::PostRender()
     m_renderers.clear();
 }
 
-std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make weak pointer
+std::weak_ptr<Node> Scene::AddNode(const std::string &p_name, bool registerInOctree) // TODO: Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -203,7 +203,10 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make we
     auto node = std::make_shared<Node>(shared_from_this(), p_name);
 
     m_roots.push_back(node);
-    m_octree.AddNode(node);
+    if (registerInOctree)
+    {
+        m_octree.AddNode(node);
+    }
 
     node->Construct();
 
@@ -474,4 +477,29 @@ const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 		}
 	}
 	return cameraStack;
+}
+
+void Scene::RebuildOctree()
+{
+    m_octree.Clear();
+    
+    for (const auto &root : m_roots)
+    {
+        RegisterNodeRecursive(root);
+    }
+}
+
+void Scene::RegisterNodeRecursive(const std::shared_ptr<Node> &p_node)
+{
+    if (!p_node)
+    {
+        return;
+    }
+    
+    m_octree.AddNode(p_node);
+    
+    for (const auto &child : p_node->GetChildren())
+    {
+        RegisterNodeRecursive(child);
+    }
 }

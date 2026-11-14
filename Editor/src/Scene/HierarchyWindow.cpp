@@ -396,7 +396,7 @@ void HierarchyWindow::RenderImpl()
 
     if (!m_nodeToAddChildTo.expired())
     {
-        auto newNode = scene->AddNode("New Node");
+        auto newNode = scene->AddNode("New Node").lock();
 
         m_nodeToAddChildTo.lock()->AddChild(newNode);
         m_nodeToAddChildTo.reset();
