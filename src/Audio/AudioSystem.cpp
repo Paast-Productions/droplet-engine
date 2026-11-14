@@ -151,7 +151,16 @@ void AudioSystem::RegisterEmitter(Scene::AudioEmitterComponent *emitter)
 void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
 {
     auto it = std::find(m_registeredEmitters.begin(), m_registeredEmitters.end(), emitter);
-    if (it != m_registeredEmitters.end()) m_registeredEmitters.erase(it);
+    if (it != m_registeredEmitters.end())
+    {
+        auto playbackIt = m_activePlaybacks.find(emitter->GetPlaybackID());
+        if (playbackIt != m_activePlaybacks.end())
+        {
+            m_daliaEngine->StopPlayback(playbackIt->second.handle);
+        }
+        
+        m_registeredEmitters.erase(it);
+    }
 }
 
 void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
