@@ -84,6 +84,7 @@ namespace Droplet::Scene
             }
         };
         
+#ifdef _EDITOR
         /// @brief Add a type of shape
         /// @param p_currentShape Chosen shape type
         void AddShape(int &p_currentShape);
@@ -92,6 +93,7 @@ namespace Droplet::Scene
         /// @param p_currentShape Chosen shape type
         /// @return Index of selected shape
         int ListShapes(const int p_currentShape);
+#endif
         
         bool m_isColliding = false;
         std::vector<std::weak_ptr<Node>> m_collidingNodes;

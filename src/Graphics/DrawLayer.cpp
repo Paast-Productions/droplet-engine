@@ -1,9 +1,12 @@
 #include "DrawLayer.hpp"
 #include "json/json.hpp"
 #include "Core/IoManager.hpp"
+
+#ifdef _EDITOR
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_stdlib.h"
 #include <IconFontCppHeaders/IconsLucide.h>
+#endif
 
 using namespace Droplet::Graphics;
 using namespace Droplet::Core::JsonIO;
@@ -45,6 +48,7 @@ void DrawLayerUtility::InternalDeserializeLayerNames(const std::string &p_path)
 	}
 }
 
+#ifdef _EDITOR
 bool DrawLayerUtility::EditLayerNamesPopup(bool p_doOpen)
 {
 	using namespace ImGui;
@@ -235,3 +239,4 @@ bool DrawLayerUtility::SetLayerUI(const char *label, DrawLayer &p_layer)
 
 	return changed;
 }
+#endif
