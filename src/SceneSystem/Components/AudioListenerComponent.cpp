@@ -16,27 +16,51 @@ Droplet::Scene::AudioListenerComponent::~AudioListenerComponent()
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetWorldPosition() const
 {
-    Transform& transformComp = GetOwner()->GetTransform();
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+	}
+
+    Transform &transformComp = GetOwner()->GetTransform();
     return transformComp.GetPosition(Transform::Space::World);
 }
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetForward() const
 {
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+
     Transform& transformComp = GetOwner()->GetTransform();
     return transformComp.GetForward(Transform::Space::World);
 }
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetUp() const
 {
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 1.0f, 0.0f);
+    }
+
     Transform& transformComp = GetOwner()->GetTransform();
     return transformComp.GetUp(Transform::Space::World);
 }
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetVelocity() const
 {
+    if (!GetOwner())
+    {
+        return glm::vec3(0.0f, 0.0f, 1.0f);
+    }
+
     std::shared_ptr<PhysicsComponent> physComp = GetOwner()->GetComponent<PhysicsComponent>();
-    if (physComp) return physComp->GetVelocity();
-    return glm::vec3(0.0f, 0.0f, 0.0f);
+    if (!physComp) 
+    {
+        return glm::vec3(0.0f, 0.0f, 0.0f);
+    }
+
+    return physComp->GetVelocity();
 }
 
 void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
