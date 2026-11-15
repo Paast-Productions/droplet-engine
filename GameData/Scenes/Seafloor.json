@@ -18,8 +18,8 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 43,
+            "id": 109,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -74,7 +74,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 45,
+                    "id": 111,
                     "name": "Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -99,6 +99,32 @@
                 {
                     "active": true,
                     "children": [],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 113,
+                    "name": "Interaction Button",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.2702655792236328,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            2.5330190658569336,
+                            2.704094171524048,
+                            2.589350461959839
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
                     "components": [
                         {
                             "active": true,
@@ -113,8 +139,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodDoor",
+                                "textureGUID": 4743341834037859640,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -142,13 +168,13 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 46,
+                    "id": 127,
                     "name": "Door",
                     "transform": {
                         "position": [
-                            0.0,
-                            0.0,
-                            0.0
+                            -0.537750244140625,
+                            1.0,
+                            -1.25
                         ],
                         "rotation": [
                             1.0,
@@ -162,40 +188,14 @@
                             1.0
                         ]
                     }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [],
-                    "drawLayer": 1,
-                    "id": 50,
-                    "name": "Interaction Button",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            1.2702655792236328,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            2.5330190658569336,
-                            2.704094171524048,
-                            2.589350461959839
-                        ]
-                    }
                 }
             ],
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "button": 50,
-                        "drone": 47,
+                        "button": 113,
+                        "drone": 114,
                         "reach": 2.0,
                         "targetSceneName": "BoatScene"
                     },
@@ -204,7 +204,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 44,
+            "id": 110,
             "name": "Seafloor Pod",
             "transform": {
                 "position": [
@@ -228,7 +228,7 @@
         {
             "active": true,
             "drawLayer": 1,
-            "id": 47,
+            "id": 114,
             "name": "BaseDrone",
             "prefab": "GameData\\Prefabs\\BaseDrone.json",
             "transform": {
