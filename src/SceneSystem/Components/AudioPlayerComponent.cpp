@@ -25,7 +25,7 @@ void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 
 	if (ImGui::TreeNode("Audio Settings " ICON_LC_SETTINGS))
 	{
-		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volume, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("Volume " ICON_LC_VOLUME_2, &m_volumeDb, 0.0f, 1.0f, "%.2f");
 
 		ImGui::DragFloat("Pitch", &m_pitch, 0.1f, 0.0f, 2.0f, "%.2f");
 
@@ -34,8 +34,8 @@ void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 		ImGui::TreePop();
 	}
 
-	const std::string preview = m_audioBusName.empty() ? "Drop Audio Bus Here" : m_audioBusName;
-	ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
+	// const std::string preview = m_audioBusName.empty() ? "Drop Audio Bus Here" : m_audioBusName;
+	// ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
 
 	// if (ImGui::BeginDragDropTarget())
 	// {
