@@ -40,6 +40,14 @@ namespace Droplet::Core
 		{
 			return (static_cast<uint16_t>(p_layer) & static_cast<uint16_t>(p_layerMask)) != 0;
 		}
+		static inline bool IsAnyLayerEnabled(Layer p_layerMaskA, Layer p_layerMaskB)
+		{
+			return (static_cast<uint16_t>(p_layerMaskA) & static_cast<uint16_t>(p_layerMaskB)) != 0;
+		}
+		static inline bool AreAllLayersEnabled(Layer p_layerMaskA, Layer p_layerMaskB)
+		{
+			return (static_cast<uint16_t>(p_layerMaskA) & static_cast<uint16_t>(p_layerMaskB)) == static_cast<uint16_t>(p_layerMaskB);
+		}
 		static inline void EnableLayer(Layer p_layer, Layer &p_layerMask)
 		{
 			p_layerMask = static_cast<Layer>(static_cast<uint16_t>(p_layerMask) | static_cast<uint16_t>(p_layer));

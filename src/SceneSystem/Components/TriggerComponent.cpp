@@ -6,41 +6,40 @@
 #include <Graphics/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 
-
 using namespace Droplet::Scene;
 using namespace Droplet::Math;
 
-void TriggerComponent::StartImpl()
-{
-    
-}
-
-void TriggerComponent::UpdateImpl()
-{
-    
-}
-
+// TODO: Ideally this check would be performed irrespective of FixedUpdates in Update, with a timer to trigger at certain intervals.
+// That way, each trigger could be offset by a different amount of time, to avoid having to update all triggers in the same frame. 
+// Overuse of FixedUpdate is a common cause of stuttering.
 void TriggerComponent::FixedUpdateImpl()
 {
+    if (m_updatedThisFrame)
+    {
+		return; // Prevents multiple updates in the same frame if FixedUpdate is called multiple times
+	}
+    m_updatedThisFrame = true;
+
     m_isColliding = false;
     m_collidingNodes.clear();
     
     std::shared_ptr<Node> node = GetOwner();
     std::shared_ptr<Scene> scene = node->GetScene();
     std::vector<std::weak_ptr<Node>> insideNodes;
+
     for (const TriggerAABB &aabb : m_AABBs)
     {
-        scene->GetNodesInShape(aabb.aabb, insideNodes);
+        scene->GetNodesInShape(aabb.aabb, insideNodes, m_collisionLayerMask);
     }
     
     for (const TriggerOBB &obb : m_OBBs)
     {
-        scene->GetNodesInShape(obb.obb, insideNodes);
+        scene->GetNodesInShape(obb.obb, insideNodes, m_collisionLayerMask);
     }
     
     for (const TriggerSphere &sphere : m_spheres)
     {
-        scene->GetNodesInShape(sphere.sphere, insideNodes);
+        scene->GetNodesInShape(sphere.sphere, insideNodes, m_collisionLayerMask);
     }
     
     // Remove duplicated nodes
@@ -87,9 +86,16 @@ void TriggerComponent::FixedUpdateImpl()
     }
 }
 
+void TriggerComponent::LateUpdateImpl()
+{
+	m_updatedThisFrame = false;
+}
+
 void TriggerComponent::RenderUIImpl()
 {
 #ifdef _EDITOR
+	CollisionLayerUtility::SetLayerMaskUI("Collision Layer Mask", m_collisionLayerMask);
+
     if (m_AABBs.empty() && m_OBBs.empty() && m_spheres.empty())
     {
         ImGui::TextWrapped("TriggerComponent currently has no trigger shape!");
@@ -204,6 +210,7 @@ nlohmann::json TriggerComponent::SerializeImpl()
 {
     nlohmann::json json;
     
+	json["collisionLayerMask"] = m_collisionLayerMask;
     json["numAabb"] = m_AABBs.size();
     json["numObb"] = m_OBBs.size();
     json["numSphere"] = m_spheres.size();
@@ -257,6 +264,11 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
         m_OBBs.push_back(newObb);
         return;
     }
+
+    if (p_compJson.contains("collisionLayerMask"))
+    {
+        m_collisionLayerMask = p_compJson["collisionLayerMask"];
+	}
     
     m_AABBs.resize(p_compJson["numAabb"]);
     m_OBBs.resize(p_compJson["numObb"]);
