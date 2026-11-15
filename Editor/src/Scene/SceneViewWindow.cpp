@@ -1305,6 +1305,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			glm::mat4 nodeMat = node.lock()->GetTransform().GetMatrix(DTransform::Space::World);
 			Math::OBB nodeOBB = node.lock()->GetBounds()->GetTransformedOBB(nodeMat);
 
+
+			DebugDraw::DrawBox(
+				nodeOBB,
+				glm::vec4(1.0f, 1.0f, 1.0f, 0.25f),
+				false, true
+			);
+
 			DebugDraw::DrawBox(
 				nodeOBB,
 				glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
@@ -1452,10 +1459,21 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				glm::vec3 pivot = glm::vec3(m_groupGizmoMatrix[3]);
 				if (!ImGuizmo::IsUsing())
 				{
+					Math::AABB fulSelectBox{ 
+						pivot + (m_groupGizmoBounds[0] + m_groupGizmoBounds[1]) * 0.5f, 
+						(m_groupGizmoBounds[1] - m_groupGizmoBounds[0]) * 0.5f
+					};
+
 					DebugDraw::DrawBox(
-						Math::OBB(pivot + (m_groupGizmoBounds[0] + m_groupGizmoBounds[1]) * 0.5f, (m_groupGizmoBounds[1] - m_groupGizmoBounds[0]) * 0.5f, glm::mat3(1.0f)),
-						glm::vec4(1.0f, 0.8f, 0.2f, 1.0f),
+						fulSelectBox,
+						glm::vec4(1.0f, 0.8f, 0.2f, 0.5f),
 						true, true
+					);
+
+					DebugDraw::DrawBox(
+						fulSelectBox,
+						glm::vec4(1.0f, 0.8f, 0.2f, 0.15f),
+						false, true
 					);
 				}
 
@@ -1523,7 +1541,6 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		static float drawPivotTimer = 0.0f;
 
 		ImVec2 viewGizmoPos(p_sceneViewMax.x - viewGizmoSize - viewGizmoMargin, p_sceneViewMin.y + viewGizmoMargin);
-		//m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 
 		glm::mat4 editedView = camViewMat;
 		ImGuizmo::ViewManipulate(
