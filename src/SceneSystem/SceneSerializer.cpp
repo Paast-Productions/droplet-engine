@@ -74,7 +74,7 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
         throw std::runtime_error("Node is missing required field 'id'");
     }
 
-    auto node = p_scene.AddNode(p_json["name"]);
+    auto node = p_scene.AddNode(p_json["name"], false).lock();
 
     if (p_json.contains("drawLayer"))
     {
