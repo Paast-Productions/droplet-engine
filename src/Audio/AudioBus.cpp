@@ -57,41 +57,7 @@ AudioBus* Droplet::Audio::AudioBus::GetParent() const
 	return m_parent;
 }
 
-AudioBus* Droplet::Audio::AudioBus::AddChildBus(AudioBus* p_audioBus)
-{
-	if (!p_audioBus)
-	{
-		throw std::invalid_argument("Cannot add nullptr as a child audiobus");
-	}
 
-	if (p_audioBus == this)
-	{
-		throw std::invalid_argument("cannot ass AudioBus '" + m_name + "' as a child of itself");
-	}
-	AudioBus *parent = m_parent;
-	if (parent != nullptr)
-	{
-		while (parent)
-		{
-			if (parent == p_audioBus)
-			{
-				throw std::runtime_error("Cannot add Node '" + p_audioBus->GetName() + "' as a child of '" + m_name + "': Adding a audiobus as a child of its own descendent would create a cycle");
-			}
-			parent = parent->GetParent();
-		}
-	}
-
-	if (AudioBus* prevParent = p_audioBus->GetParent())
-	{
-		prevParent->RemoveChildBus(p_audioBus);
-	}
-
-	p_audioBus->m_parent = this;
-
-	m_children.push_back(p_audioBus);
-
-	return p_audioBus;
-}
 
 void Droplet::Audio::AudioBus::RemoveChildBus(const AudioBus* p_audioBus)
 {
@@ -173,7 +139,7 @@ nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()
 	return busJson;
 }
 
-void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, AudioBus *p_parent)
+void Droplet::Audio::AudioBus::DeserializeAudioBus(const nlohmann::json &p_json)
 {
 	if (p_json.contains("name"))
 	{
@@ -187,23 +153,34 @@ void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, AudioB
 	{
 		m_volume = p_json["volume"];
 	}
-
-	if (m_name != "Master")
-	{
-		//If bus is master then we don't have a parent
-	}
-
-	if (p_json.contains("children"))
-	{
-
-	}
+	
 
 	if (p_json.contains("effects"))
 	{
-
+		for (const auto& effectJson : p_json["effects"])
+		{
+			
+		}
 	}
-	
+}
 
+void Droplet::Audio::AudioBus::DeserializeEffect(const nlohmann::json& p_json)
+{
+	if (!p_json.contains("type"))
+	{
+		return;
+	}
+	std::string type = p_json["type"];
+
+	if (!p_json.contains("slot"))
+	{
+		return;
+	}
+	uint32_t slot = p_json["slot"];
+
+	auto effect = EffectFactory::CreateEffect(type);
+	effect->DeserializeImpl(p_json["data"]);
+	AttachEffect(std::move(effect), slot);
 }
 
 Effect *Droplet::Audio::AudioBus::AttachEffect(const std::string &p_effectType)

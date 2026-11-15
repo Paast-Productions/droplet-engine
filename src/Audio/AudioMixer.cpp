@@ -24,6 +24,8 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 	{
 		throw std::runtime_error("FAILED TO CREATE MASTER BUS");
 	}
+	nlohmann::json json;
+	DeserializeHierarchy(json);
 }
 
 AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, AudioBus* p_parent)
@@ -210,17 +212,61 @@ nlohmann::json Droplet::Audio::AudioMixer::SerializeHierarchy()
 	// Serialize Master bus here, then recursivly serialize all the children
 
 	nlohmann::json json;
-
+	
 	json = m_masterBus->SerializeAudioBus();
-
-	Droplet::Core::JsonIO::Write("bus.json",json);
+	json["SERIALIZATION_TYPE"] = std::string("AUDIO_BUS_HIERARCHY");
+	const std::filesystem::path busDirectory = ROOT_PATH "/GameData/AudioHierarchy/";
+	std::string fileName = "AudioBusHierarchy.json";
+	Droplet::Core::JsonIO::Write((busDirectory).string() + std::string(fileName),json);
 
 	return json;
 }
 
-void Droplet::Audio::AudioMixer::DeserializeHierarchy(nlohmann::json p_json)
+void Droplet::Audio::AudioMixer::DeserializeHierarchy(const nlohmann::json& p_json)
+{
+	const std::string filePath = ROOT_PATH "/GameData/AudioHierarchy/AudioBusHierarchy.json";
+
+	nlohmann::json json = Droplet::Core::JsonIO::Read(filePath);
+
+	if (!json.contains("SERIALIZATION_TYPE"))
+	{
+		return;
+	}
+	
+	std::string serializationType = "AUDIO_BUS_HIERARCHY";
+	if (json["SERIALIZATION_TYPE"] != serializationType)
+	{
+		return;
+	}
+
+	m_masterBus->DeserializeAudioBus(json);
+
+	if (json.contains("children"))
+	{
+		for (const auto& childJson : json["children"])
+		{
+			DeserializeBus(childJson, m_masterBus);
+		}
+	}
+}
+
+void Droplet::Audio::AudioMixer::DeserializeBus(const nlohmann::json& p_json, AudioBus* p_parent)
 {
 
+	if (!p_json.contains("name"))
+	{
+		return;
+	}
 
+	auto bus = AddAudioBus(p_json["name"], p_parent);
 
+	bus->DeserializeAudioBus(p_json);
+
+	if (p_json.contains("children"))
+	{
+		for (const auto& childJson : p_json["children"])
+		{
+			DeserializeBus(childJson, bus);
+		}
+	}
 }

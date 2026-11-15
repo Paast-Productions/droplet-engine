@@ -8,6 +8,7 @@
 #include "SceneSystem/Components/AudioEmitterComponent.hpp"
 #include <dalia/dalia.h>
 
+
 using namespace Droplet::Audio;
 
 void LogDaliaError(const std::string& message, dalia::Result error)
@@ -61,6 +62,7 @@ void AudioSystem::Update()
     // Sync emitters
     for (auto* emitter : m_registeredEmitters)
     {
+
         PlaybackID id = emitter->GetPlaybackID();
         auto it = m_activePlaybacks.find(id);
         if (it != m_activePlaybacks.end())
@@ -83,6 +85,7 @@ void AudioSystem::Update()
                 if (!emitter->GetBusName().empty())
                 {
                     m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
+
                 }
                 emitter->ClearDirtyFlag();
             }
@@ -99,7 +102,7 @@ void AudioSystem::Update()
             dalia::Listener3DAttributes attributes {
                 .position = { pos.x, pos.y, pos.z },
                 .forward = { fwd.x, fwd.y, fwd.z },
-                .up = { up.x, up.y, up.z },
+                .up = { up.x, up.y, up.z }, 
                 .velocity = { vel.x, vel.y, vel.z }
             };
             m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), attributes);
@@ -191,6 +194,14 @@ PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResou
         LogDaliaError("Failed to play 3D sound.", res);
         return C_INVALID_PLAYBACK_ID;
     }
+
+    res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
+    if (res != dalia::Result::Ok)
+    {
+        LogDaliaError("Failed to route playback.", res);
+        
+    }
+
     m_daliaEngine->SetPlaybackSpatial(daliaHandle, true);
     
     m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, emitter->GetVolumeDb());

@@ -154,24 +154,25 @@ void AudioEmitterComponent::RenderUIImpl()
     }
     
     // --- Bus Drag & Drop ---
-    // const std::string preview = m_busName.empty() ? "Drop Audio Bus Here" : m_busName;
-    // ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
-    //
-    // if (ImGui::BeginDragDropTarget())
-    // {
-    //     const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
-    //     
-    //     if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
-    //     {
-    //         std::uint64_t draggedBusID = 0;
-    //         std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
-    //
-    //         Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().FindAudioBus(draggedBusID);
-    //         if (draggedBus) m_busName = draggedBus->GetName();
-    //     }
-    //     ImGui::EndDragDropTarget();
-    // }
-    // if (!Audio::AudioSystem::GetInstance().HasAudioBusWithName(m_busName)) m_busName = "Drop Audio Bus Here";
+     const std::string preview = m_busName.empty() ? "Drop Audio Bus Here" : m_busName;
+     ImGui::Button(preview.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 32.0f));
+    
+     if (ImGui::BeginDragDropTarget())
+     {
+         const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+         
+         if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
+         {
+             std::uint64_t draggedBusID = 0;
+             std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
+    
+             Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().GetMixer().FindAudioBus(draggedBusID);
+             if (draggedBus) m_busName = draggedBus->GetName();
+             m_isDirty = true;
+         }
+         ImGui::EndDragDropTarget();
+     }
+
     
     // --- Play/Pause ---
 	ImVec2 buttonSize = ImVec2(30, 30);

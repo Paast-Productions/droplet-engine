@@ -1,0 +1,50 @@
+{
+    "SERIALIZATION_TYPE": "AUDIO_BUS_HIERARCHY",
+    "active": false,
+    "children": [
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "id": 1,
+            "name": "SFX",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "id": 2,
+            "name": "WaterBus",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "id": 3,
+            "name": "BoatBus",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "id": 4,
+            "name": "Dialog",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "id": 5,
+            "name": "Music",
+            "volume": 0.0
+        }
+    ],
+    "effects": [],
+    "id": 0,
+    "name": "Master",
+    "volume": 0.0
+}

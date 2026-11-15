@@ -67,12 +67,6 @@ namespace Droplet::Audio
 		/// @return Parent bus
 		AudioBus* GetParent() const;
 
-		/// @brief Adds a bus to the children vector,
-		/// The functions also makes sure that the bus to be childs current parrent relinquish current reference
-		/// @param p_audioBus 
-		/// @return 
-		AudioBus* AddChildBus(AudioBus* p_audioBus);
-
 		/// @brief Removes a bus from the child vector
 		/// @param p_audioBus The child that is to unchild
 		void RemoveChildBus(const AudioBus* p_audioBus);
@@ -98,7 +92,8 @@ namespace Droplet::Audio
 		//---------------------------------------
 
 		nlohmann::json SerializeAudioBus();
-		void DeserializeAudioBus(nlohmann::json p_json, AudioBus* p_parent);
+		void DeserializeAudioBus(const nlohmann::json &p_json);
+		void DeserializeEffect(const nlohmann::json &p_json);
 		
 
 

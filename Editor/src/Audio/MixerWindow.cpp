@@ -16,8 +16,8 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 {
 	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
-
-	if (ImGui::Button("Serialize"))
+	
+	if (ImGui::Button("Save as default mixing hierarchy"))
 	{
 		mixer.SerializeHierarchy();
 	}
@@ -105,6 +105,8 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 
 		m_pendingRemoveBusID.reset();
 	}
+
+
 }
 
 void Droplet::Editor::MixerWindow::RenderToolbar()
