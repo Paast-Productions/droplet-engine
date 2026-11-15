@@ -649,15 +649,6 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 	// Otherwise, store the node in this leaf
 	p_treeNode->nodes.push_back(p_node);
 	
-	if (nodePtr->GetID() == 18)
-	{
-		std::cout << "INSERTED NODE: "
-				  << nodePtr->GetName()
-				  << " | ID: " << nodePtr->GetID()
-				  << " | Level: " << static_cast<int>(p_treeNode->level)
-				  << '\n';
-	}
-
 	// Subdivide if capacity is exceeded and max depth is not reached
 	if (p_treeNode->nodes.size() > C_MAX_NODES && p_treeNode->level < C_MAX_DEPTH)
 	{
