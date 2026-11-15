@@ -10,7 +10,7 @@ namespace Droplet::Editor
 {
 	/// @brief Snap increments applied to node transforms.
 	/// @details Values are persisted in the editor config and edited from the Scene View's "Edit > Snapping" menu.
-	/// Snapping is toggled by `enabled`, and holding Ctrl inverts that state for the duration of the drag.
+	/// Snapping is toggled by `enabled`, and holding Alt inverts that state for the duration of the drag.
 	struct TransformSnapSettings
 	{
 		static constexpr const char *EnabledKey = "Snap.Enabled";
@@ -20,7 +20,7 @@ namespace Droplet::Editor
 		static constexpr const char *ScaleKey = "Snap.Scale";
 		static constexpr const char *BoundsKey = "Snap.Bounds";
 
-		/// @brief Whether snapping is on when Ctrl is not held. Holding Ctrl inverts this.
+		/// @brief Whether snapping is on when Alt is not held. Holding Alt inverts this.
 		bool enabled = false;
 		/// @brief If true, snap to multiples measured from the world origin. If false, snap relative to the transform at the start of the drag.
 		bool absolute = false;
@@ -33,10 +33,10 @@ namespace Droplet::Editor
 		/// @brief Increment for bounds resizing.
 		float bounds = 0.1f;
 
-		/// @brief Returns whether snapping applies given the current Ctrl state.
-		bool IsActive(bool p_ctrlHeld) const
+		/// @brief Returns whether snapping applies given the current Alt state.
+		bool IsActive(bool p_altHeld) const
 		{
-			return enabled != p_ctrlHeld;
+			return enabled != p_altHeld;
 		}
 
 		static TransformSnapSettings Load()

@@ -113,7 +113,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
 		const TransformSnapSettings snapSettings = TransformSnapSettings::Load();
-		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyCtrl);
+		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyAlt);
 		const float translateSnap = snapActive ? snapSettings.translate : 0.0f;
 		const float rotateSnap = snapActive ? snapSettings.rotate : 0.0f;
 		const float scaleSnap = snapActive ? snapSettings.scale : 0.0f;

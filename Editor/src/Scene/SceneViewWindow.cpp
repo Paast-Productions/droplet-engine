@@ -226,10 +226,6 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	// TODO: 
-	//     Move this to the renderer and camera class. 
-	//     The camera should request the renderer to create a render target.
-	
 	using namespace Graphics::VK;
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
@@ -328,20 +324,26 @@ void SceneViewWindow::RenderToolbar()
 		if (ImGui::BeginMenu("Snapping"))
 		{
 			TransformSnapSettings snap = TransformSnapSettings::Load();
+
+			ImGui::TextDisabled(snap.enabled ? "Hold Alt to disable snapping" : "Hold Alt to enable snapping");
+
 			bool changed = false;
 			changed |= ImGui::Checkbox("Snap Enabled", &snap.enabled);
-			ImGui::TextDisabled(snap.enabled ? "Hold Ctrl to disable snapping" : "Hold Ctrl to enable snapping");
-			ImGui::Separator();
+
+
 			int modeIndex = snap.absolute ? 1 : 0;
-			if (ImGui::Combo("Snap Mode", &modeIndex, "Relative to Start\0Absolute (World Origin)\0"))
+			if (ImGui::Combo("Snap Mode", &modeIndex, "Increment\0Grid\0"))
 			{
 				snap.absolute = modeIndex == 1;
 				changed = true;
 			}
-			changed |= ImGui::DragFloat("Translate Grid", &snap.translate, 0.01f, 0.001f, FLT_MAX, "%.3f");
-			changed |= ImGui::DragFloat("Rotate Increment (deg)", &snap.rotate, 0.1f, 0.001f, 360.0f, "%.2f");
-			changed |= ImGui::DragFloat("Scale Increment", &snap.scale, 0.01f, 0.001f, FLT_MAX, "%.3f");
-			changed |= ImGui::DragFloat("Bounds Increment", &snap.bounds, 0.01f, 0.001f, FLT_MAX, "%.3f");
+
+			ImGui::SeparatorText("Increments");
+
+			changed |= ImGui::DragFloat("Position", &snap.translate, 0.01f, 0.001f, FLT_MAX, "%.3f");
+			changed |= ImGui::DragFloat("Angle", &snap.rotate, 0.1f, 0.001f, 360.0f, "%.2f");
+			changed |= ImGui::DragFloat("Scale", &snap.scale, 0.01f, 0.001f, FLT_MAX, "%.3f");
+			changed |= ImGui::DragFloat("Bounds", &snap.bounds, 0.01f, 0.001f, FLT_MAX, "%.3f");
 
 			if (changed)
 			{
@@ -1313,15 +1315,14 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		const auto &allSelected = interactionState.GetSelectedNodes();
 		std::vector<std::weak_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
 
-		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
 		ImGuizmo::MODE manipulateSpace = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
 		bool useBounds = EditorConfig::LoadBool("manipulateBounds", false);
 
-		// Snapping follows the "Snap Enabled" setting, inverted while Ctrl is held. ImGuizmo takes a single snap array
+		// Snapping follows the "Snap Enabled" setting, inverted while Alt is held. ImGuizmo takes a single snap array
 		// per call, so the increment is chosen by the handle being dragged (or hovered, before the drag starts) to support Universal mode.
 		const TransformSnapSettings snapSettings = TransformSnapSettings::Load();
-		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyCtrl);
+		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyAlt);
 
 		SnapCategory snapCategory = SnapCategory::None;
 		float snapValues[3] = { 0.0f, 0.0f, 0.0f };
@@ -1342,6 +1343,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				snapCategory = SnapCategory::Translate;
 				increment = snapSettings.translate;
 				break;
+
 			case ImGuizmo::MT_ROTATE_X:
 			case ImGuizmo::MT_ROTATE_Y:
 			case ImGuizmo::MT_ROTATE_Z:
@@ -1349,6 +1351,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				snapCategory = SnapCategory::Rotate;
 				increment = snapSettings.rotate;
 				break;
+
 			case ImGuizmo::MT_SCALE_X:
 			case ImGuizmo::MT_SCALE_Y:
 			case ImGuizmo::MT_SCALE_Z:
@@ -1356,6 +1359,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				snapCategory = SnapCategory::Scale;
 				increment = snapSettings.scale;
 				break;
+
 			default:
 				break;
 			}
