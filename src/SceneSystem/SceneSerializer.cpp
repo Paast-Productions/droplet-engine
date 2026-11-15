@@ -87,8 +87,6 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
         uint16_t collisionLayerMaskValue = p_json["collisionLayerMask"];
         node->SetCollisionLayerMask(static_cast<CollisionLayer>(collisionLayerMaskValue));
     }
-    auto node = p_scene.AddNode(p_json["name"]).lock();
-    SerializationContext nullContext;
     
     DeserializeTransform(p_json["transform"], node->GetTransform());
     if (p_overridePosition.has_value())
