@@ -217,3 +217,10 @@ nlohmann::json Droplet::Audio::AudioMixer::SerializeHierarchy()
 
 	return json;
 }
+
+void Droplet::Audio::AudioMixer::DeserializeHierarchy(nlohmann::json p_json)
+{
+
+
+
+}

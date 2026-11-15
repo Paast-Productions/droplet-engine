@@ -64,7 +64,8 @@ namespace Droplet::Audio
 		bool SetBusVolume(std::uint64_t p_id, float p_volume);
 
 		nlohmann::json SerializeHierarchy();
-
+		//Forbidden row
+		void DeserializeHierarchy(nlohmann::json p_json);
 	private:
 
 		/// @brief Audiobus ID, ID 0 is reserved for the master bus

@@ -85,10 +85,6 @@ AudioBus* Droplet::Audio::AudioBus::AddChildBus(AudioBus* p_audioBus)
 	{
 		prevParent->RemoveChildBus(p_audioBus);
 	}
-	else
-	{
-		//TODO Handle master bus here
-	}
 
 	p_audioBus->m_parent = this;
 
@@ -179,7 +175,35 @@ nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()
 
 void Droplet::Audio::AudioBus::DeserializeAudioBus(nlohmann::json p_json, AudioBus *p_parent)
 {
+	if (p_json.contains("name"))
+	{
+		m_name = p_json["name"];
+	}
+	if (p_json.contains("id"))
+	{
+		m_id = p_json["id"];
+	}
+	if (p_json.contains("volume"))
+	{
+		m_volume = p_json["volume"];
+	}
+
+	if (m_name != "Master")
+	{
+		//If bus is master then we don't have a parent
+	}
+
+	if (p_json.contains("children"))
+	{
+
+	}
+
+	if (p_json.contains("effects"))
+	{
+
+	}
 	
+
 }
 
 Effect *Droplet::Audio::AudioBus::AttachEffect(const std::string &p_effectType)
