@@ -5,6 +5,7 @@
 #include <ComponentList.hpp>
 #include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
+#include <TransformSnapping.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <Editor/DragDropFields.hpp>
@@ -111,12 +112,18 @@ void NodeInspectorWindow::RenderImpl()
 		using TSpace = Transform::Space;
 
 		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
+		const TransformSnapSettings snapSettings = TransformSnapSettings::Load();
+		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyCtrl);
+		const float translateSnap = snapActive ? snapSettings.translate : 0.0f;
+		const float rotateSnap = snapActive ? snapSettings.rotate : 0.0f;
+		const float scaleSnap = snapActive ? snapSettings.scale : 0.0f;
 
 		Transform &transform = m_currentNode.lock()->GetTransform();
 		float drag_speed = 0.005f;
 
 		glm::vec3 pos = transform.GetPosition(space);
-		if (ImGui::DragFloat3("Position", &pos.x, drag_speed))
+		const bool snapRelative = !snapSettings.absolute;
+		if (DragFloat3Snapped("Position", pos, drag_speed, translateSnap, snapRelative))
 		{
 			transform.SetPosition(pos, space);
 		}
@@ -133,7 +140,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		glm::vec3 prevRot = glm::degrees(transform.GetEuler(space));
 		glm::vec3 rot = prevRot;
-		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
+		if (DragFloat3Snapped("Rotation", rot, drag_speed * 40.0f, rotateSnap, snapRelative))
 		{
 			/*if (rot.x != prevRot.x)
 			{
@@ -168,7 +175,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		glm::vec3 scl = transform.GetScale();
 		const glm::vec3 oldScl = scl;
-		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed * 0.5f))
+		if (DragFloat3Snapped("Scale", scl, drag_speed * 0.5f, scaleSnap, snapRelative))
 		{
 			if (m_lockScale)
 			{
@@ -330,4 +337,39 @@ void NodeInspectorWindow::RenderImpl()
 void NodeInspectorWindow::RenderToolbar()
 {
 	// Toolbar will render here
+}
+
+bool NodeInspectorWindow::DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative)
+{
+	const ImGuiID id = ImGui::GetID(p_label);
+	const bool dragging = m_snapDrag.id == id;
+	glm::vec3 raw = dragging ? m_snapDrag.value : p_value;
+	const glm::vec3 start = dragging ? m_snapDrag.start : p_value;
+
+	const bool changed = ImGui::DragFloat3(p_label, &raw.x, p_speed);
+
+	if (ImGui::IsAnyItemActive())
+	{
+		if (changed || dragging)
+		{
+			m_snapDrag = { id, raw, start };
+		}
+	}
+	else
+	{
+		m_snapDrag.id = 0;
+	}
+
+	if (!changed)
+	{
+		return false;
+	}
+
+	const bool snap = p_snapIncrement > 0.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		const float origin = p_relative ? start[i] : 0.0f;
+		p_value[i] = snap ? SnapToIncrement(raw[i], p_snapIncrement, origin) : raw[i];
+	}
+	return true;
 }
