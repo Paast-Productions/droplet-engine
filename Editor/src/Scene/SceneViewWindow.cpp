@@ -358,6 +358,12 @@ void SceneViewWindow::RenderToolbar()
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
 
+		bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
+		if (ImGui::Checkbox("Keep Transform On Copy-Paste", &keepTransformOnCopy))
+		{
+			EditorConfig::StoreBool("KeepTransformOnCopy", keepTransformOnCopy);
+		}
+
 		ImGui::SeparatorText("Camera");
 
 		if (ImGui::BeginMenu("Camera Snap"))
