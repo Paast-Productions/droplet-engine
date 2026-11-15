@@ -321,48 +321,16 @@ void SceneViewWindow::RenderToolbar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Snapping"))
+		bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
+		if (ImGui::Checkbox("Keep Transform On Copy-Paste", &keepTransformOnCopy))
 		{
-			TransformSnapSettings snap = TransformSnapSettings::Load();
-
-			ImGui::TextDisabled(snap.enabled ? "Hold Alt to disable snapping" : "Hold Alt to enable snapping");
-
-			bool changed = false;
-			changed |= ImGui::Checkbox("Snap Enabled", &snap.enabled);
-
-
-			int modeIndex = snap.absolute ? 1 : 0;
-			if (ImGui::Combo("Snap Mode", &modeIndex, "Increment\0Grid\0"))
-			{
-				snap.absolute = modeIndex == 1;
-				changed = true;
-			}
-
-			ImGui::SeparatorText("Increments");
-
-			changed |= ImGui::DragFloat("Position", &snap.translate, 0.01f, 0.001f, FLT_MAX, "%.3f");
-			changed |= ImGui::DragFloat("Angle", &snap.rotate, 0.1f, 0.001f, 360.0f, "%.2f");
-			changed |= ImGui::DragFloat("Scale", &snap.scale, 0.01f, 0.001f, FLT_MAX, "%.3f");
-			changed |= ImGui::DragFloat("Bounds", &snap.bounds, 0.01f, 0.001f, FLT_MAX, "%.3f");
-
-			if (changed)
-			{
-				snap.Store();
-			}
-
-			ImGui::EndMenu();
+			EditorConfig::StoreBool("KeepTransformOnCopy", keepTransformOnCopy);
 		}
 
 		float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
 		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
 		ImGuizmo::SetGizmoSizeClipSpace(gizmoSize);
-
-		bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
-		if (ImGui::Checkbox("Keep Transform On Copy-Paste", &keepTransformOnCopy))
-		{
-			EditorConfig::StoreBool("KeepTransformOnCopy", keepTransformOnCopy);
-		}
 
 		ImGui::SeparatorText("Camera");
 
@@ -412,6 +380,38 @@ void SceneViewWindow::RenderToolbar()
 			" - Scroll:        Move along view normal at constant rate\n"
 			" - Alt + Scroll:  Zoom towards pivot\n"
 		);
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Snap"))
+	{
+		TransformSnapSettings snap = TransformSnapSettings::Load();
+
+		ImGui::TextDisabled(snap.enabled ? "Hold Alt to disable snapping" : "Hold Alt to enable snapping");
+
+		bool changed = false;
+		changed |= ImGui::Checkbox("Snap Enabled", &snap.enabled);
+
+
+		int modeIndex = snap.absolute ? 1 : 0;
+		if (ImGui::Combo("Snap Mode", &modeIndex, "Increment\0Grid\0"))
+		{
+			snap.absolute = modeIndex == 1;
+			changed = true;
+		}
+
+		ImGui::SeparatorText("Increments");
+
+		changed |= ImGui::DragFloat("Position", &snap.translate, 0.01f, 0.001f, FLT_MAX, "%.3f");
+		changed |= ImGui::DragFloat("Angle", &snap.rotate, 0.1f, 0.001f, 360.0f, "%.2f");
+		changed |= ImGui::DragFloat("Scale", &snap.scale, 0.01f, 0.001f, FLT_MAX, "%.3f");
+		changed |= ImGui::DragFloat("Bounds", &snap.bounds, 0.01f, 0.001f, FLT_MAX, "%.3f");
+
+		if (changed)
+		{
+			snap.Store();
+		}
 
 		ImGui::EndMenu();
 	}
