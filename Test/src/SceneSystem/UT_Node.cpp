@@ -41,7 +41,7 @@ protected:
     void SetUp() override
     {
 		scene = std::make_shared<Scene>("Game");
-		root = scene->AddNode("Root");
+		root = scene->AddNode("Root").lock();
     }
 };
 
@@ -56,7 +56,7 @@ TEST_F(NodeTest, AddChild)
 {
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     ASSERT_NE(player, nullptr);
 
@@ -76,13 +76,13 @@ TEST_F(NodeTest, AddNullChildThrows)
 TEST_F(NodeTest, AddChildWithParent)
 {
     auto parent1 =
-        scene->AddNode("Parent1");
+        scene->AddNode("Parent1").lock();
 
     auto parent2 =
-        scene->AddNode("Parent2");
+        scene->AddNode("Parent2").lock();
 
     auto child =
-        scene->AddNode("Child");
+        scene->AddNode("Child").lock();
 
     parent1->AddChild(child);
 
@@ -109,7 +109,7 @@ TEST_F(NodeTest, CannotSetGrandchildToParent)
 {
 	auto child =
 		root->AddChild(
-            scene->AddNode("Child"));
+            scene->AddNode("Child").lock());
 
     EXPECT_THROW(
         child->AddChild(root),
@@ -121,7 +121,7 @@ TEST_F(NodeTest, ChildHasCorrectParent)
 {
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     ASSERT_NE(player, nullptr);
 
@@ -133,7 +133,7 @@ TEST_F(NodeTest, RemoveChild)
 {
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     ASSERT_NE(player, nullptr);
 
@@ -148,7 +148,7 @@ TEST_F(NodeTest, RemoveChild)
 TEST_F(NodeTest, RemoveNonExistentChildThrows)
 {
     auto player =
-        scene->AddNode("Player");
+        scene->AddNode("Player").lock();
 
     EXPECT_THROW(
         root->RemoveChild(player),
@@ -178,7 +178,7 @@ TEST_F(NodeTest, ChildInheritsSceneReference)
 
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     ASSERT_NE(player, nullptr);
 
@@ -192,11 +192,11 @@ TEST_F(NodeTest, GrandchildInheritsSceneReference)
 
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     auto weapon =
         player->AddChild(
-            scene->AddNode("Weapon"));
+            scene->AddNode("Weapon").lock());
 
     ASSERT_NE(weapon, nullptr);
 
@@ -253,7 +253,7 @@ TEST_F(NodeTest, MoveComponentToAnotherNode)
     auto component = ComponentFactory::CreateComponent("TComponent");
     auto componentPtr = root->AttachComponent(component).lock();
 
-    auto destination = scene->AddNode("Destination");
+    auto destination = scene->AddNode("Destination").lock();
     auto existingComponent = ComponentFactory::CreateComponent("TComponent");
     auto existingComponentPtr = destination->AttachComponent(existingComponent).lock();
 
@@ -357,7 +357,7 @@ TEST_F(NodeTest, ChildInheritsActiveState)
 {
 	auto child =
 		root->AddChild(
-			scene->AddNode("Child"));
+			scene->AddNode("Child").lock());
 
 	ASSERT_NE(child, nullptr);
 	EXPECT_TRUE(child->IsActive());
@@ -436,8 +436,8 @@ TEST_F(NodeTest, HasNonZeroID)
 
 TEST_F(NodeTest, DifferentNodesHaveDifferentIDs)
 {
-    auto player = scene->AddNode("Player");
-    auto enemy = scene->AddNode("Enemy");
+    auto player = scene->AddNode("Player").lock();
+    auto enemy = scene->AddNode("Enemy").lock();
 
     EXPECT_NE(root->GetID(), player->GetID());
     EXPECT_NE(root->GetID(), enemy->GetID());
@@ -446,8 +446,8 @@ TEST_F(NodeTest, DifferentNodesHaveDifferentIDs)
 
 TEST_F(NodeTest, NodesWithSameNameHaveDifferentIDs)
 {
-    auto player1 = scene->AddNode("Player");
-    auto player2 = scene->AddNode("Player");
+    auto player1 = scene->AddNode("Player").lock();
+    auto player2 = scene->AddNode("Player").lock();
 
     EXPECT_EQ(player1->GetName(), player2->GetName());
     EXPECT_NE(player1->GetID(), player2->GetID());
@@ -465,9 +465,9 @@ TEST_F(NodeTest, IDDoesNotChangeWhenRenamed)
 
 TEST_F(NodeTest, IDDoesNotChangeWhenReparented)
 {
-    auto parent1 = scene->AddNode("Parent1");
-    auto parent2 = scene->AddNode("Parent2");
-    auto child = scene->AddNode("Child");
+    auto parent1 = scene->AddNode("Parent1").lock();
+    auto parent2 = scene->AddNode("Parent2").lock();
+    auto child = scene->AddNode("Child").lock();
 
     const auto originalID = child->GetID();
 
@@ -485,15 +485,15 @@ TEST_F(NodeTest, IDsAreUniqueAcrossScenes)
 {
     auto anotherScene = std::make_shared<Scene>("AnotherScene");
 
-    auto node1 = scene->AddNode("Node");
-    auto node2 = anotherScene->AddNode("Node");
+    auto node1 = scene->AddNode("Node").lock();
+    auto node2 = anotherScene->AddNode("Node").lock();
 
     EXPECT_NE(node1->GetID(), node2->GetID());
 }
 
 TEST_F(NodeTest, IDDoesNotChangeWhenRemovedFromParent)
 {
-    auto child = root->AddChild(scene->AddNode("Child"));
+    auto child = root->AddChild(scene->AddNode("Child").lock());
 
     const auto originalID = child->GetID();
 

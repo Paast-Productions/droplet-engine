@@ -41,7 +41,7 @@ protected:
     {
         scene = std::make_shared<Scene>("Game");
         scene->Load();
-        node = scene->AddNode("Owner");
+        node = scene->AddNode("Owner").lock();
 
         std::unique_ptr<Component> component = std::make_unique<SkeletonComponent>();
         skeleton = static_cast<SkeletonComponent *>(component.get());
@@ -109,7 +109,7 @@ TEST_F(SkeletonComponentTest, RebuildDoesNotDuplicateNodes)
     const int child = mesh.AddBone("Child", root, glm::mat4(1.0f));
     (void)child;
 
-    auto unrelated = scene->AddNode("Unrelated");
+    auto unrelated = scene->AddNode("Unrelated").lock();
     node->AddChild(unrelated);
 
     skeleton->BuildSkeleton(&mesh);

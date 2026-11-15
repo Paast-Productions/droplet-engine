@@ -33,7 +33,7 @@ TEST_F(SceneTest, InitiallyHasNoRoots)
 TEST_F(SceneTest, AddNode)
 {
     auto root =
-        scene->AddNode("Root");
+        scene->AddNode("Root").lock();
 
     ASSERT_NE(root, nullptr);
 
@@ -45,7 +45,7 @@ TEST_F(SceneTest, AddNode)
 TEST_F(SceneTest, RootHasCorrectName)
 {
     auto root =
-        scene->AddNode("Root");
+        scene->AddNode("Root").lock();
 
     ASSERT_EQ(scene->GetRoots().size(), 1);
 
@@ -58,13 +58,13 @@ TEST_F(SceneTest, RootHasCorrectName)
 TEST_F(SceneTest, SupportsMultipleRoots)
 {
     auto player =
-        scene->AddNode("Player");
+        scene->AddNode("Player").lock();
 
     auto enemy =
-        scene->AddNode("Enemy");
+        scene->AddNode("Enemy").lock();
 
     auto environment =
-        scene->AddNode("Environment");
+        scene->AddNode("Environment").lock();
 
     ASSERT_EQ(scene->GetRoots().size(), 3);
 
@@ -107,7 +107,7 @@ TEST_F(SceneTest, LoadingAlreadyLoadedSceneThrows)
 TEST_F(SceneTest, RootReceivesSceneReference)
 {
     auto root =
-        scene->AddNode("Root");
+        scene->AddNode("Root").lock();
 
     scene->Load();
 
@@ -118,10 +118,10 @@ TEST_F(SceneTest, RootReceivesSceneReference)
 TEST_F(SceneTest, AllRootsReceiveSceneReference)
 {
     auto root1 =
-        scene->AddNode("Root1");
+        scene->AddNode("Root1").lock();
 
     auto root2 =
-        scene->AddNode("Root2");
+        scene->AddNode("Root2").lock();
 
     scene->Load();
 
@@ -141,7 +141,7 @@ TEST_F(SceneTest, UnloadingUnloadedSceneThrows)
 TEST_F(SceneTest, RemoveRoot)
 {
     auto root =
-        scene->AddNode("Root");
+        scene->AddNode("Root").lock();
 
     scene->RemoveRoot(root);
 
@@ -152,10 +152,10 @@ TEST_F(SceneTest, RemoveRoot)
 TEST_F(SceneTest, RemovingSpecificRootKeepsOtherRoots)
 {
     auto root1 =
-        scene->AddNode("Root1");
+        scene->AddNode("Root1").lock();
 
     auto root2 =
-        scene->AddNode("Root2");
+        scene->AddNode("Root2").lock();
 
     scene->RemoveRoot(root1);
 
@@ -169,7 +169,7 @@ TEST_F(SceneTest, CanAddRootAfterSceneIsLoaded)
     scene->Load();
 
     auto root =
-        scene->AddNode("Root");
+        scene->AddNode("Root").lock();
 
     EXPECT_EQ(root->GetScene(), scene);
 }

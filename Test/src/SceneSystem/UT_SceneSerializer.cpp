@@ -25,7 +25,7 @@ TEST_F(SceneSerializerTest, SerializeScene)
     sceneManager.LoadScene("testScene");
     auto testScene = sceneManager.GetScene("testScene");
 
-    auto root = testScene->AddNode("Root");
+    auto root = testScene->AddNode("Root").lock();
 
     const nlohmann::json result = serializer.SerializeScene(testScene);
 
@@ -39,7 +39,7 @@ TEST_F(SceneSerializerTest, DeserializeScene)
     sceneManager.LoadScene("testScene");
     auto testScene = sceneManager.GetScene("testScene");
 
-    auto root = testScene->AddNode("Root");
+    auto root = testScene->AddNode("Root").lock();
 
     const nlohmann::json result = serializer.SerializeScene(testScene);
 
@@ -60,10 +60,10 @@ TEST_F(SceneSerializerTest, SerializeNode)
 {
     sceneManager.LoadScene("testScene");
     auto testScene = sceneManager.GetScene("testScene");
-    auto root = testScene->AddNode("Root");
+    auto root = testScene->AddNode("Root").lock();
 
-    auto testNode = root->AddChild(testScene->AddNode("testNode"));
-    auto testChild = testNode->AddChild(testScene->AddNode("testChild"));
+    auto testNode = root->AddChild(testScene->AddNode("testNode").lock());
+    auto testChild = testNode->AddChild(testScene->AddNode("testChild").lock());
 
     glm::vec3 position = glm::vec3(1.0f, 2.0f, 3.0f);
     testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
@@ -95,10 +95,10 @@ TEST_F(SceneSerializerTest, DeserializeNode)
 {
     sceneManager.LoadScene("testScene");
     auto testScene = sceneManager.GetScene("testScene");
-    auto root = testScene->AddNode("Root");
+    auto root = testScene->AddNode("Root").lock();
 
-    auto testNode = root->AddChild(testScene->AddNode("testNode"));
-    auto testChild = testNode->AddChild(testScene->AddNode("testChild"));
+    auto testNode = root->AddChild(testScene->AddNode("testNode").lock());
+    auto testChild = testNode->AddChild(testScene->AddNode("testChild").lock());
 
     glm::vec3 position = glm::vec3(1.0f, 2.0f, 3.0f);
     testNode->GetTransform().SetPosition(glm::vec3(1.0f, 2.0f, 3.0f));
@@ -149,12 +149,12 @@ TEST_F(SceneSerializerTest, Serializechanges)
 {
     sceneManager.LoadScene("testScene");
     auto testScene = sceneManager.GetScene("testScene");
-    auto root = testScene->AddNode("Root");
+    auto root = testScene->AddNode("Root").lock();
 
     nlohmann::json jsonOne = serializer.SerializeScene(testScene);
     Droplet::Core::JsonIO::Write("testChangesBefore", jsonOne);
 
-    root->AddChild(testScene->AddNode("testNode"));
+    root->AddChild(testScene->AddNode("testNode").lock());
     nlohmann::json jsonTwo = serializer.SerializeScene(testScene);
     Droplet::Core::JsonIO::Write("testChangesAfter", jsonTwo);
 
