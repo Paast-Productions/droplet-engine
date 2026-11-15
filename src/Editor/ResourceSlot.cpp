@@ -1,4 +1,5 @@
-﻿#include <Editor/ResourceSlot.hpp>
+﻿#ifdef _EDITOR
+#include <Editor/ResourceSlot.hpp>
 
 #include <ImGui/imgui.h>
 #include <string>
@@ -114,3 +115,5 @@ namespace Droplet
         return changed;
     }
 }
+
+#endif

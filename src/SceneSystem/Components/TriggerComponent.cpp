@@ -6,6 +6,7 @@
 #include <Graphics/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 
+
 using namespace Droplet::Scene;
 using namespace Droplet::Math;
 
@@ -88,6 +89,7 @@ void TriggerComponent::FixedUpdateImpl()
 
 void TriggerComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     if (m_AABBs.empty() && m_OBBs.empty() && m_spheres.empty())
     {
         ImGui::TextWrapped("TriggerComponent currently has no trigger shape!");
@@ -195,6 +197,7 @@ void TriggerComponent::RenderUIImpl()
     {
         sphere.sphere.center = sphere.offset + nodePos;
     }
+#endif
 }
 
 nlohmann::json TriggerComponent::SerializeImpl()
@@ -306,6 +309,7 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
     }
 }
 
+#ifdef _EDITOR
 void TriggerComponent::AddShape(int& p_currentShape)
 {
     glm::vec3 nodePos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
@@ -367,6 +371,7 @@ void TriggerComponent::AddShape(int& p_currentShape)
         newSphere.Draw(glm::vec4(0.0f, 1.0f, 1.0f, 1.0f));
         break;
     default:
+        break;
     }
 
     if (ImGui::Button("Add shape"))
@@ -383,6 +388,7 @@ void TriggerComponent::AddShape(int& p_currentShape)
             m_spheres.push_back(newSphere);
             break;
         default:
+            break;
         }
     }
 }
@@ -466,7 +472,9 @@ int TriggerComponent::ListShapes(const int p_currentShape)
         break;
     }
     default:
+        break;
     }
     
     return returnSelected;
 }
+#endif

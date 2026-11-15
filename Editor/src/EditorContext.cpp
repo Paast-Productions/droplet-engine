@@ -7,11 +7,29 @@ Droplet::Editor::EditorContext::EditorContext(Droplet::Engine &p_engine)
 	  m_editorCameraController(m_editorCamera)
 {
 	m_editorCamera.SetFOV(75.0f);
-	
-	m_engine.GetSceneManager().LoadScene("TestScene");
-	SetActiveScene("TestScene");
 
-	m_selectedScene = p_engine.GetSceneManager().GetScene("TestScene");
+	std::string prevScene = EditorConfig::LoadString("Editor.MainScene", "");
+	std::string activeScene = "";
+		
+	if (prevScene.empty())
+	{
+		m_engine.GetSceneManager().LoadScene("TestScene");
+		activeScene = "TestScene";
+	}
+	else
+	{
+		try
+		{
+			LoadFromFile(ROOT_PATH "/GameData/Scenes/" + prevScene + ".json");
+			activeScene = prevScene;
+		}
+		catch (...)
+		{
+			m_engine.GetSceneManager().LoadScene("TestScene");
+			activeScene = "TestScene";
+		}
+	}
+	SetActiveScene(activeScene);
 }
 
 void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
@@ -23,8 +41,9 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	{
 		throw std::runtime_error("Could not load scene: " + p_sceneName);
 	}
-	
-	m_selectedScene = std::move(newScene);
+
+	EditorConfig::StoreString("Editor.MainScene", p_sceneName);
+	m_selectedScene = newScene;
 }
 
 void Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)

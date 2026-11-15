@@ -1,3 +1,4 @@
+#ifdef _EDITOR
 #include "Editor/ImGuiUtils.hpp"
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
@@ -107,3 +108,5 @@ void ImGui::SearchBar(std::string &p_outFilter, ImVec2 p_minMax, bool p_focusOnA
 	if (!p_outFilter.empty())
 		std::transform(p_outFilter.begin(), p_outFilter.end(), p_outFilter.begin(), ::tolower);
 }
+
+#endif

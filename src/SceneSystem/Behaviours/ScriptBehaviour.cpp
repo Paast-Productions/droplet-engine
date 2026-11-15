@@ -34,6 +34,7 @@ void ScriptBehaviour::PostUpdateImpl()
 
 void ScriptBehaviour::RenderUIImpl()
 {
+#ifdef _EDITOR
 	const std::string preview = m_scriptPath.empty()
 		? "Drop Lua script here"
 		: m_scriptPath;
@@ -64,6 +65,7 @@ void ScriptBehaviour::RenderUIImpl()
 	}
 
 	ImGui::Separator();
+#endif
 }
 
 void ScriptBehaviour::AttachScript(const std::string p_scriptPath)

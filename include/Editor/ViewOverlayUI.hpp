@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _EDITOR
 #include <ImGui/imgui.h>
 #include <vector>
 #include <functional>
@@ -40,3 +41,4 @@ namespace Droplet::Editor
 		std::vector<std::function<void()>> m_overlayQueue;
 	};
 }
+#endif

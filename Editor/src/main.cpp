@@ -402,6 +402,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							"    - Del:           Remove node\n"
 							"    - CTRL + C:      Copy node(s)\n"
 							"    - CTRL + V:      Paste node(s)\n"
+							"    - MB5:           Snap node(s) to surface\n"
+							"    - MB5 + shift:   Snap and rotate node(s) to surface\n"
 						);
 
 						ImGui::EndMenu();

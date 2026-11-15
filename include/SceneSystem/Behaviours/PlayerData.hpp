@@ -1,7 +1,5 @@
-#pragma once
-
+#pragma once // TODO: Move out of Behaviours directory
 #include <vector>
-
 #include <SceneSystem/Items/Item.hpp>
 
 namespace Droplet::Game
