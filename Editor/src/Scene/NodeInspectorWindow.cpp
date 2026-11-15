@@ -175,28 +175,19 @@ void NodeInspectorWindow::RenderImpl()
 
 		glm::vec3 scl = transform.GetScale();
 		const glm::vec3 oldScl = scl;
-		if (DragFloat3Snapped("Scale", scl, drag_speed * 0.5f, scaleSnap, snapRelative))
+		int scaleAxis = -1;
+		if (DragFloat3Snapped("Scale", scl, drag_speed * 0.5f, scaleSnap, snapRelative, &scaleAxis))
 		{
-			if (m_lockScale)
+			if (m_lockScale && scaleAxis >= 0 && oldScl[scaleAxis] != 0.0f)
 			{
-
-				if (scl.x != oldScl.x)
+				// Other axes keep their ratio to the edited axis, which is already snapped.
+				const float factor = scl[scaleAxis] / oldScl[scaleAxis];
+				for (int i = 0; i < 3; ++i)
 				{
-					float deltaScale = scl.x - oldScl.x;
-					scl.y += deltaScale * (oldScl.y / oldScl.x);
-					scl.z += deltaScale * (oldScl.z / oldScl.x);
-				}
-				else if (scl.y != oldScl.y)
-				{
-					float deltaScale = scl.y - oldScl.y;
-					scl.x += deltaScale * (oldScl.x / oldScl.y);
-					scl.z += deltaScale * (oldScl.z / oldScl.y);
-				}
-				else if (scl.z != oldScl.z)
-				{
-					float deltaScale = scl.z - oldScl.z;
-					scl.x += deltaScale * (oldScl.x / oldScl.z);
-					scl.y += deltaScale * (oldScl.y / oldScl.z);
+					if (i != scaleAxis)
+					{
+						scl[i] = oldScl[i] * factor;
+					}
 				}
 			}
 
@@ -339,13 +330,19 @@ void NodeInspectorWindow::RenderToolbar()
 	// Toolbar will render here
 }
 
-bool NodeInspectorWindow::DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative)
+bool NodeInspectorWindow::DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative, int *p_changedAxis)
 {
+	if (p_changedAxis)
+	{
+		*p_changedAxis = -1;
+	}
+
 	const ImGuiID id = ImGui::GetID(p_label);
 	const bool dragging = m_snapDrag.id == id;
 	glm::vec3 raw = dragging ? m_snapDrag.value : p_value;
 	const glm::vec3 start = dragging ? m_snapDrag.start : p_value;
 
+	const glm::vec3 previousRaw = raw;
 	const bool changed = ImGui::DragFloat3(p_label, &raw.x, p_speed);
 
 	if (ImGui::IsAnyItemActive())
@@ -365,9 +362,18 @@ bool NodeInspectorWindow::DragFloat3Snapped(const char *p_label, glm::vec3 &p_va
 		return false;
 	}
 
+	// Only the axis being edited is written, so untouched axes keep their values.
 	const bool snap = p_snapIncrement > 0.0f;
 	for (int i = 0; i < 3; ++i)
 	{
+		if (raw[i] == previousRaw[i])
+		{
+			continue;
+		}
+		if (p_changedAxis && *p_changedAxis < 0)
+		{
+			*p_changedAxis = i;
+		}
 		const float origin = p_relative ? start[i] : 0.0f;
 		p_value[i] = snap ? SnapToIncrement(raw[i], p_snapIncrement, origin) : raw[i];
 	}

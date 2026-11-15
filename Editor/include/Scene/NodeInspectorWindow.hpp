@@ -34,7 +34,7 @@ namespace Droplet::Editor
 		/// @param p_snapIncrement The increment to snap to. Pass 0 to disable snapping.
 		/// @param p_relative If true, snap relative to the value at the start of the drag. If false, snap to multiples of zero.
 		/// @return True if the value changed.
-		bool DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative);
+		bool DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative, int *p_changedAxis = nullptr);
 
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
