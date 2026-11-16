@@ -1,9 +1,13 @@
 #pragma once
 
+#include "Audio/Constants.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <dalia/dalia.h>
 
 
 namespace Droplet::Audio
@@ -19,11 +23,10 @@ namespace Droplet::Audio
 	class AudioBus
 	{
 	public:
-		static constexpr std::size_t MAX_EFFECTS = 4; //Dalia limits the amount of effects on each bus to 4
 		/// @brief Bus initilization, setting the name and id for that audiobus
 		/// @param p_name Name
 		/// @param p_id ID
-		explicit AudioBus(const std::string& p_name, std::uint64_t p_id);
+		explicit AudioBus(const std::string& p_name, std::uint64_t p_id, dalia::Engine* p_daliaEngine);
 		~AudioBus();
 		AudioBus() = delete;
 		AudioBus(AudioBus &&) = delete;
@@ -39,7 +42,7 @@ namespace Droplet::Audio
 
 		/// @brief Gets the volume for the audio bus
 		/// @return 
-		float GetVolume() const { return m_volume; }
+		float GetVolume() const { return m_volumeDb; }
 
 		/// @brief HACK discuss with arvid how multiple buses volume should interact with each other in the hierarchy
 		/// @param p_volume The volume to set
@@ -116,7 +119,8 @@ namespace Droplet::Audio
 		const std::array<std::unique_ptr<Effect>, MAX_EFFECTS> &GetAllEffects() const { return m_effects; }
 
 	private:
-
+		dalia::Engine* m_daliaEngine = nullptr;
+		
 		friend class AudioMixer;
 		uint64_t m_id = 0;
 
@@ -130,7 +134,7 @@ namespace Droplet::Audio
 		AudioBus* m_parent = nullptr;
 		std::vector<AudioBus*> m_children;
 
-		float m_volume = 0.0f;
+		float m_volumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
 
 		//Effects
 

@@ -8,7 +8,8 @@
 using namespace Droplet::Audio;
 
 
-Droplet::Audio::AudioBus::AudioBus(const std::string& p_name, uint64_t p_id) : m_name(p_name), m_id(p_id)
+Droplet::Audio::AudioBus::AudioBus(const std::string& p_name, uint64_t p_id, dalia::Engine* p_daliaEngine) 
+	: m_name(p_name), m_id(p_id), m_daliaEngine(p_daliaEngine)
 {
 }
 
@@ -38,8 +39,8 @@ bool Droplet::Audio::AudioBus::IsActive() const
 
 void Droplet::Audio::AudioBus::SetVolume(float p_volume)
 {
-	m_volume = p_volume;
-
+	m_volumeDb = std::clamp(p_volume, C_VOLUME_DECIBEL_MIN, C_VOLUME_DECIBEL_MAX);
+	m_daliaEngine->SetBusVolumeDb(m_name.c_str(), m_volumeDb);
 }
 
 void Droplet::Audio::AudioBus::SetName(std::string p_name)
@@ -114,9 +115,8 @@ nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()
 	nlohmann::json busJson;
 
 	busJson["name"] = m_name;
-	busJson["id"] = m_id;
 	busJson["active"] = m_active;
-	busJson["volume"] = m_volume;
+	busJson["volume"] = m_volumeDb;
 
 	busJson["effects"] = nlohmann::json::array();
 
@@ -145,13 +145,9 @@ void Droplet::Audio::AudioBus::DeserializeAudioBus(const nlohmann::json &p_json)
 	{
 		m_name = p_json["name"];
 	}
-	if (p_json.contains("id"))
+	if (p_json.contains("volumeDb"))
 	{
-		m_id = p_json["id"];
-	}
-	if (p_json.contains("volume"))
-	{
-		m_volume = p_json["volume"];
+		m_volumeDb = p_json["volumeDb"];
 	}
 	
 

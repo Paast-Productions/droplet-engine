@@ -10,7 +10,7 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 {
 	m_daliaEngine = &p_dalia;
 	const uint64_t masterID = m_nextBusID++;
-	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID);
+	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID, m_daliaEngine);
 	master->m_started = true;
 	m_masterBus = master.get();
 	m_buses.emplace(masterID, std::move(master));
@@ -48,7 +48,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 
 	const uint64_t busID = m_nextBusID;
 
-	std::unique_ptr<AudioBus> newBus = std::make_unique<AudioBus>(p_name, busID);
+	std::unique_ptr<AudioBus> newBus = std::make_unique<AudioBus>(p_name, busID, m_daliaEngine);
 
 	AudioBus *busPointer = newBus.get();
 

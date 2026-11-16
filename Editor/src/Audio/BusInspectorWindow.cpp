@@ -123,7 +123,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		if (ImGui::BeginDragDropSource())
 		{
 			EffectDragDropData payload{ effect->GetSlot() };
-			ImGui::SetDragDropPayload(PAYLOAD_AUDIO_EFFECT.data(), &payload, sizeof(payload));
+			ImGui::SetDragDropPayload(std::string(PAYLOAD_AUDIO_EFFECT).c_str(), &payload, sizeof(payload));
 			ImGui::TextUnformatted(headerLabel.c_str());
 			ImGui::EndDragDropSource();
 		}
@@ -176,7 +176,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		ImGui::TextUnformatted(ICON_LC_BETWEEN_HORIZONAL_START " Effect Slots " );
 		ImGui::Separator();
 
-		for (uint32_t slot = 0; slot < Audio::AudioBus::MAX_EFFECTS; ++slot)
+		for (uint32_t slot = 0; slot < Audio::MAX_EFFECTS; ++slot)
 		{
 			RenderEffectSlotDropTarget(*m_currentBus, slot);
 			ImGui::Dummy(ImVec2(0.0, 5.0f));
