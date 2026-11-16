@@ -1,7 +1,7 @@
-#include "resource/io/SlangFormat.hpp"
+#include "SlangFormat.hpp"
 
-#include "graphics/vk/ShaderCompiler.hpp"
-#include "resource/meta/MetaUtils.hpp"
+#include <Graphics/Vulkan/ShaderCompiler.hpp>
+#include <Resource/Meta/MetaUtils.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
