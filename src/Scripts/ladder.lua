@@ -26,6 +26,15 @@ function OnTrigger(dt, node)
         return
     end
 
+    local ladder = self:GetLadderComponent()
+
+    if ladder == nil then
+        print("ajsing")
+        tracy.ZoneEnd()
+        return
+    end
+
+    ladder:BeginTransition()
     print("Going upp the ladder!! YIPPIIII!!!!")
 
     tracy.ZoneEnd()

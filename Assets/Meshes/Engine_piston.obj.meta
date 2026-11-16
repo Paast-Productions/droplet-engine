@@ -2,7 +2,7 @@
     "resources": [
         {
             "displayName": "piston",
-            "guid": 3821540600329539574,
+            "guid": 1403122509824485770,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
