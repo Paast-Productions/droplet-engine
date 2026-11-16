@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
 #include <glm/glm.hpp>
-#include <vector>
 
 namespace Droplet::Graphics
 {
@@ -48,7 +46,7 @@ namespace Droplet::Graphics
         glm::mat4 transform{};
     };
 
-    namespace VK
+    namespace Vulkan
     {
         struct ViewProjectionBuffer
         {

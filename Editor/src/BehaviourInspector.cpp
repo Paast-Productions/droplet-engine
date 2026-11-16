@@ -12,10 +12,6 @@ void BehaviourInspector::InitImpl()
 	SetName("Behaviours");
 }
 
-void BehaviourInspector::CloseImpl()
-{
-}
-
 void BehaviourInspector::RenderImpl()
 {
     auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();

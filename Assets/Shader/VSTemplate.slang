@@ -52,7 +52,7 @@ VSOutput main(VSInput input)
     output.pos = mul(vp.proj, mul(vp.view, output.wPos));
 
     //Store transformed normal for fragment shader
-    output.fragNormal = mul(pc.world, float4(input.inNormal, 0.0));
+    output.fragNormal = normalize(mul(pc.world, float4(input.inNormal, 0.0)));
 
     //Store UV coordinates for fragment shader
     output.fragTexCoord = input.inTexCoord;

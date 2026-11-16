@@ -9,8 +9,7 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/TestData.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
@@ -402,6 +401,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							"    - Del:           Remove node\n"
 							"    - CTRL + C:      Copy node(s)\n"
 							"    - CTRL + V:      Paste node(s)\n"
+							"    - MB5:           Snap node(s) to surface\n"
+							"    - MB5 + shift:   Snap and rotate node(s) to surface\n"
 						);
 
 						ImGui::EndMenu();
@@ -548,7 +549,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
-				using namespace Droplet::Graphics::VK;
+				using namespace Droplet::Graphics::Vulkan;
 
 				Droplet::Graphics::CameraRenderData camRenderData{ };
 				camRenderData.debug = true;
@@ -560,7 +561,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				if (activeScene)
 				{
 					camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-					camRenderData.renderTarget = editorCamera.GetTargetIndex();
+					camRenderData.renderTarget = editorCamera.GetTarget();
 
 					auto &renderables = activeScene->GetRenderables();
 

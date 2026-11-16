@@ -93,7 +93,8 @@ namespace Droplet::Scene
         /// @brief Gets the player's current heat level.
         /// @return Current heat level value.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
-        
+
+                
         /// FREEZE
         
         /// @brief Sets the player's resistance to environmental heat.

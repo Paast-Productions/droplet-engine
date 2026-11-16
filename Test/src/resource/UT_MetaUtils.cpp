@@ -62,20 +62,20 @@ TEST_F(MetaUtilsTest, EvaluateShaderTypeFromPath)
 TEST_F(MetaUtilsTest, GenerateDefaultMetaEntry)
 {
     // Texture defaults
-    MetaEntry texEntry = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Texture2D, "MyTex", "path.png");
+    MetaEntry texEntry = MetaUtils::GenerateDefaultMetaEntry(StaticResourceType::Texture2D, "MyTex", "path.png");
     EXPECT_NE(texEntry.guid, C_INVALID_GUID);
     EXPECT_EQ(texEntry.loadFlags, ResourceLoadFlag::LoadBoth);
     EXPECT_TRUE(texEntry.loadSettings.contains(MetaLoadSettings::C_GENERATE_MIPMAPS.key));
 
     // Mesh defaults
-    MetaEntry meshEntry = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Mesh, "MyMesh", "path.fbx");
+    MetaEntry meshEntry = MetaUtils::GenerateDefaultMetaEntry(StaticResourceType::Mesh, "MyMesh", "path.fbx");
     EXPECT_EQ(meshEntry.loadFlags, ResourceLoadFlag::LoadBoth);
     EXPECT_TRUE(meshEntry.loadSettings.contains(MetaLoadSettings::C_GENERATE_NORMALS.key));
 
     // Explicit Overrides
     nlohmann::json explicitSettings = { {MetaLoadSettings::C_GENERATE_MIPMAPS.key, false}, {"custom_field", 42} };
     MetaEntry overrideEntry = MetaUtils::GenerateDefaultMetaEntry(
-        ResourceType::Texture2D, "MyTex", "path.png", explicitSettings);
+        StaticResourceType::Texture2D, "MyTex", "path.png", explicitSettings);
     
     EXPECT_EQ(overrideEntry.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key], false); // Overwritten
     EXPECT_EQ(overrideEntry.loadSettings["custom_field"], 42);        // Appended
@@ -86,9 +86,9 @@ TEST_F(MetaUtilsTest, WriteAndReadRoundTrip)
     // Create dummy entries
     std::vector<MetaEntry> entriesToWrite;
     
-    MetaEntry entry1 = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Texture2D, "Tex", "Assets/tex.png");
+    MetaEntry entry1 = MetaUtils::GenerateDefaultMetaEntry(StaticResourceType::Texture2D, "Tex", "Assets/tex.png");
 
-    MetaEntry entry2 = MetaUtils::GenerateDefaultMetaEntry(ResourceType::Shader, "Shd", "Assets/vs_shd.slang");
+    MetaEntry entry2 = MetaUtils::GenerateDefaultMetaEntry(StaticResourceType::Shader, "Shd", "Assets/vs_shd.slang");
 
     entriesToWrite.push_back(entry1);
     entriesToWrite.push_back(entry2);
