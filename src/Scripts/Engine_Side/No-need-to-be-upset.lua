@@ -1,6 +1,6 @@
 local audioEmitter = nil
 local transform = nil
-local playing = true
+local playing = false
 
 local turnSpeed = 1.0
 
@@ -18,12 +18,15 @@ function OnStart()
         print("Unable to find transform")
         return
     end
+
+    playing = false;
 end
 
 -- Called every frame
 function OnUpdate(dt)
-    if not playing then
+    if playing == false then
         audioEmitter:Play()
+        playing = true;
     end
 
 	local toRotate = GLM.AngleAxis(Vec3.new(0.0, 1.0, 0.0), turnSpeed * dt)

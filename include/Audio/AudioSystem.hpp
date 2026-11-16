@@ -28,13 +28,19 @@ namespace Droplet::Audio
     constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
     constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
     
-    constexpr float C_STEREO_PAN_LEFT = 0.0f;
+    constexpr float C_STEREO_PAN_LEFT = -1.0f;
     constexpr float C_STEREO_PAN_MIDDLE = 0.0f;
-    constexpr float C_STEREO_PAN_RIGHT = 0.0f;
+    constexpr float C_STEREO_PAN_RIGHT = 1.0f;
     
     constexpr float C_PITCH_DEFAULT = 1.0f;
     constexpr float C_PITCH_MIN = 0.1f;
     constexpr float C_PITCH_MAX = 4.0f;
+	
+	constexpr float C_MIN_DISTANCE_DEFAULT = 1.0f;
+	constexpr float C_MIN_DISTANCE_MIN = 0.1f;
+	
+	constexpr float C_MAX_DISTANCE_DEFAULT = 100.0f;
+	constexpr float C_MAX_DISTANCE_MAX = 10000.0f;
     
     constexpr uint32_t C_LISTENERS_MAX = 4;
     
@@ -72,18 +78,18 @@ namespace Droplet::Audio
 	    double GetSoundLenghtInSeconds(SoundResource* sound) const;
 	    
 	    // Component registration
-	    void RegisterPlayer(Scene::AudioPlayerComponent* player);
-	    void UnregisterPlayer(Scene::AudioPlayerComponent* player);
+	    void RegisterPlayerComponent(Scene::AudioPlayerComponent* player);
+	    void UnregisterPlayerComponent(Scene::AudioPlayerComponent* player);
 	    
-	    void RegisterEmitter(Scene::AudioEmitterComponent* emitter);
-	    void UnregisterEmitter(Scene::AudioEmitterComponent* emitter);
+	    void RegisterEmitterComponent(Scene::AudioEmitterComponent* emitter);
+	    void UnregisterEmitterComponent(Scene::AudioEmitterComponent* emitter);
 	    
-	    void RegisterListener(Scene::AudioListenerComponent* listener);
-	    void UnregisterListener(Scene::AudioListenerComponent* listener);
+	    void RegisterListenerComponent(Scene::AudioListenerComponent* listener);
+	    void UnregisterListenerComponent(Scene::AudioListenerComponent* listener);
 	    void SetListenerActive(ListenerID p_id, bool p_active);
 	    
 	    PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
-	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
+	    PlaybackID PlaySpatial(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
 	    void Pause(PlaybackID id);
 	    void Resume(PlaybackID id);
 	    void Stop(PlaybackID id);
@@ -125,7 +131,8 @@ namespace Droplet::Audio
 	    void ProcessFinishedPlaybacks();
 	    void RegisterEffects();
 	    
-	    bool m_isGameMode = false;
+	    bool m_isGameMode = false;  // TODO: This has to default to true in an exported game somehow. Maybe we could
+									// check for a definition?
 	    bool m_isGamePaused = false;
 
 		std::unique_ptr<dalia::Engine> m_daliaEngine;

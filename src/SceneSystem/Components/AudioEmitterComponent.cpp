@@ -14,19 +14,21 @@ using namespace Droplet::Scene;
 
 AudioEmitterComponent::AudioEmitterComponent()
 {
-    Audio::AudioSystem::GetInstance().RegisterEmitter(this);
+    Audio::AudioSystem::GetInstance().RegisterEmitterComponent(this);
 }
 
 AudioEmitterComponent::~AudioEmitterComponent()
 {
     Stop();
-    Audio::AudioSystem::GetInstance().UnregisterEmitter(this);
+    Audio::AudioSystem::GetInstance().UnregisterEmitterComponent(this);
 }
 
 void AudioEmitterComponent::Play()
 {
-    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID) Stop();
     if (!IsActiveSelf()) return;
+    // Stop playback if calling play on an active playback instance
+    if (m_playbackId != Audio::C_INVALID_PLAYBACK_ID || 
+        Audio::AudioSystem::GetInstance().GetPlaybackState(m_playbackId) != Audio::PlaybackState::Inactive) Stop();
     
     SoundResource* sound = m_resourceHandle.Get();
     if (!sound)
@@ -35,7 +37,7 @@ void AudioEmitterComponent::Play()
         return;
     }
     
-    m_playbackId = Audio::AudioSystem::GetInstance().Play3D(this, sound);
+    m_playbackId = Audio::AudioSystem::GetInstance().PlaySpatial(this, sound);
     m_isDirty = false;
 }
 
@@ -76,13 +78,13 @@ void AudioEmitterComponent::SetStartTimeSeconds(double p_startTimeSeconds)
 
 void AudioEmitterComponent::SetVolumeDb(float p_volume)
 {
-    m_volumeDb = p_volume;
+    m_volumeDb = std::clamp(p_volume, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
     m_isDirty = true;
 }
 
 void AudioEmitterComponent::SetPitch(float p_pitch)
 {
-    m_pitch = p_pitch;
+    m_pitch = std::clamp(p_pitch, Audio::C_PITCH_MIN, Audio::C_PITCH_MAX);
     m_isDirty = true;
 }
 
@@ -94,20 +96,14 @@ void AudioEmitterComponent::SetLooping(bool p_looping)
 
 void AudioEmitterComponent::SetMinMaxDistance(float p_min, float p_max)
 {
-    m_minDistance = p_min;
-    m_maxDistance = p_max;
+    m_minDistance = std::clamp(p_min, Audio::C_MIN_DISTANCE_MIN, p_max);
+    m_maxDistance = std::clamp(p_max, m_minDistance, Audio::C_MAX_DISTANCE_MAX);
     m_isDirty = true;
 }
 
 void AudioEmitterComponent::SetAttenuationCurve(dalia::AttenuationCurve p_curve)
 {
     m_attenuationCurve = p_curve;
-    m_isDirty = true;
-}
-
-void AudioEmitterComponent::SetBusName(const std::string &p_busName)
-{
-    m_busName = p_busName;
     m_isDirty = true;
 }
 
@@ -138,7 +134,13 @@ glm::vec3 AudioEmitterComponent::GetVelocity() const
     return physComp->GetVelocity();
 }
 
-void AudioEmitterComponent::SetSoundGUID(GUID p_guid)
+bool AudioEmitterComponent::Route(const std::string &p_busName)
+{
+    // TODO: Call AudioSystem::RoutePlayback
+    return true;
+}
+
+void AudioEmitterComponent::SetSound(GUID p_guid)
 {
     m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
     if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
@@ -150,6 +152,11 @@ void AudioEmitterComponent::SetSoundGUID(GUID p_guid)
 void AudioEmitterComponent::OnPlaybackFinished()
 {
     m_playbackId = Audio::C_INVALID_PLAYBACK_ID;
+}
+
+void AudioEmitterComponent::OnBusInvalidation()
+{
+    m_busName = "None";
 }
 
 void AudioEmitterComponent::StartImpl()
@@ -200,13 +207,15 @@ void AudioEmitterComponent::RenderUIImpl()
     
      if (ImGui::BeginDragDropTarget())
      {
-         const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+         const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(Editor::PAYLOAD_AUDIO_BUS.data());
          
          if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
          {
              std::uint64_t draggedBusID = 0;
              std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
     
+             // TODO: This should call Route()
+             // AudioSystem should provide a wrapper for this:
              Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().GetMixer().FindAudioBus(draggedBusID);
              if (draggedBus) m_busName = draggedBus->GetName();
              m_isDirty = true;
@@ -319,8 +328,9 @@ nlohmann::json AudioEmitterComponent::SerializeImpl()
 void AudioEmitterComponent::DeserializeImpl(nlohmann::json p_compJson)
 {
     if (p_compJson.contains("soundGuid")) m_soundGuid = p_compJson["soundGuid"];
-    SetSoundGUID(m_soundGuid);
+    SetSound(m_soundGuid);
     if (p_compJson.contains("busName")) m_busName = p_compJson["busName"];
+    if (!Route(m_busName)) m_busName = "None";
     
     if (p_compJson.contains("startTimeSeconds")) m_startTimeSeconds = p_compJson["startTimeSeconds"];
 	if (p_compJson.contains("volumeDb")) m_volumeDb = p_compJson["volumeDb"];

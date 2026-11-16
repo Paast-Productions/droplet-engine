@@ -26,6 +26,9 @@ bool Droplet::Audio::AudioSystem::Initialize()
 	dalia::EngineConfig config;
     config.coordinateSystem = dalia::CoordinateSystem::RightHanded;
     config.listenerCapacity = 4;
+    config.streamCapacity = 64;
+    config.voiceCapacity = 128;
+    config.busCapacity = 128;
 	dalia::Result res = m_daliaEngine->Initialize(config);
 	if (res != dalia::Result::Ok) return false;
     
@@ -46,20 +49,27 @@ void AudioSystem::Update()
 {
     ProcessFinishedPlaybacks(); // Clean up finished handles
     
-    // Sync players
-    // for (auto* player : m_activePlayers)
-    // {
-    //     PlaybackID id = player->GetPlaybackID();
-    //     auto it = m_activePlaybacks.find(id);
-    //     if (it != m_activePlaybacks.end())
-    //     {
-    //         if (player->IsDirty())
-    //         {
-    //             m_daliaEngine->SetPlaybackVolumeDb(it->second, player->GetVolumeDb);
-    //             player->ClearDirtyFlag();
-    //         }
-    //     }
-    // }
+    // Sync emitters
+    for (auto* player : m_playerComponents)
+    {
+        if (!player->IsActiveSelf()) continue;
+        
+        PlaybackID id = player->GetPlaybackID();
+        auto it = m_playbacks.find(id);
+        if (it != m_playbacks.end())
+        {
+            dalia::PlaybackHandle daliaHandle = it->second.handle;
+            
+            if (player->IsDirty())
+            {
+                m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, player->GetVolumeDb());
+                m_daliaEngine->SetPlaybackStereoPan(daliaHandle, player->GetStereoPan());
+                m_daliaEngine->SetPlaybackRate(daliaHandle, player->GetPitch());
+                m_daliaEngine->SetPlaybackLooping(daliaHandle, player->IsLooping());
+                player->ClearDirtyFlag();
+            }
+        }
+    }
     
     // Sync emitters
     for (auto* emitter : m_emitterComponents)
@@ -85,10 +95,6 @@ void AudioSystem::Update()
                 m_daliaEngine->SetPlaybackLooping(daliaHandle, emitter->IsLooping());
                 m_daliaEngine->SetPlaybackMinMaxDistance(daliaHandle, emitter->GetMinDistance(), emitter->GetMaxDistance());
                 m_daliaEngine->SetPlaybackAttenuationCurve(daliaHandle, emitter->GetAttenuationCurve());
-                if (!emitter->GetBusName().empty())
-                {
-                    m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
-                }
                 emitter->ClearDirtyFlag();
             }
         }
@@ -152,12 +158,12 @@ double AudioSystem::GetSoundLenghtInSeconds(SoundResource *sound) const
     return lenghtInSeconds;
 }
 
-void AudioSystem::RegisterPlayer(Scene::AudioPlayerComponent *player)
+void AudioSystem::RegisterPlayerComponent(Scene::AudioPlayerComponent *player)
 {
     m_playerComponents.push_back(player);
 }
 
-void AudioSystem::UnregisterPlayer(Scene::AudioPlayerComponent *player)
+void AudioSystem::UnregisterPlayerComponent(Scene::AudioPlayerComponent *player)
 {
     auto it = std::find(m_playerComponents.begin(), m_playerComponents.end(), player);
     if (it != m_playerComponents.end())
@@ -172,12 +178,12 @@ void AudioSystem::UnregisterPlayer(Scene::AudioPlayerComponent *player)
     }
 }
 
-void AudioSystem::RegisterEmitter(Scene::AudioEmitterComponent *emitter)
+void AudioSystem::RegisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
 {
     m_emitterComponents.push_back(emitter);
 }
 
-void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
+void AudioSystem::UnregisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
 {
     auto it = std::find(m_emitterComponents.begin(), m_emitterComponents.end(), emitter);
     if (it != m_emitterComponents.end())
@@ -192,7 +198,7 @@ void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
     }
 }
 
-void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
+void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
     for (uint32_t i = 1; i < 4; i++)
     {
@@ -208,7 +214,7 @@ void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
     Debug::Log(Debug::LogType::Error, "AudioSystem: Maximum number of listeners (3) are already in use.");
 }
 
-void AudioSystem::UnregisterListener(Scene::AudioListenerComponent *listener)
+void AudioSystem::UnregisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
     auto it = std::find(m_listenerComponents.begin(), m_listenerComponents.end(), listener);
     if (it != m_listenerComponents.end())
@@ -230,7 +236,44 @@ void AudioSystem::SetListenerActive(ListenerID p_id, bool p_active)
     }
 }
 
-PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
+PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource *sound)
+{
+    PlaybackID newId = m_nextPlaybackId++;
+    dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
+    
+    // Callback that fires once the playback has finished
+    auto exitCallback = [this, newId] (dalia::PlaybackHandle handle, dalia::PlaybackExitCondition condition)
+    {
+        m_finishedPlaybacks.push_back(newId);
+    };
+    
+    dalia::Result res = m_daliaEngine->CreatePlayback(daliaHandle, sound->GetHandle(), exitCallback);
+    if (res != dalia::Result::Ok)
+    {
+        LogDaliaError("Failed to play sound.", res);
+        return C_INVALID_PLAYBACK_ID;
+    }
+
+    res = m_daliaEngine->RoutePlayback(daliaHandle, player->GetRouting().c_str());
+    if (res != dalia::Result::Ok)
+    {
+        LogDaliaError("Failed to route playback.", res);
+    }
+
+    m_daliaEngine->SetPlaybackSpatial(daliaHandle, false);
+    
+    double seekTime = player->GetStartTimeSeconds();
+    if (seekTime > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, seekTime);
+    m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, player->GetVolumeDb());
+    m_daliaEngine->SetPlaybackRate(daliaHandle, player->GetPitch());
+    m_daliaEngine->SetPlaybackLooping(daliaHandle, player->IsLooping());
+    
+    m_daliaEngine->PlayPlayback(daliaHandle);
+    m_playbacks[newId] = { .handle = daliaHandle, .state = PlaybackState::Playing };
+    return newId;
+}
+
+PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
 {
     PlaybackID newId = m_nextPlaybackId++;
     dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
@@ -248,7 +291,7 @@ PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResou
         return C_INVALID_PLAYBACK_ID;
     }
 
-    res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
+    res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetRouting().c_str());
     if (res != dalia::Result::Ok)
     {
         LogDaliaError("Failed to route playback.", res);

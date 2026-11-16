@@ -6,12 +6,12 @@
 
 Droplet::Scene::AudioListenerComponent::AudioListenerComponent()
 {
-    Audio::AudioSystem::GetInstance().RegisterListener(this);
+    Audio::AudioSystem::GetInstance().RegisterListenerComponent(this);
 }
 
 Droplet::Scene::AudioListenerComponent::~AudioListenerComponent()
 {
-    Audio::AudioSystem::GetInstance().UnregisterListener(this);
+    Audio::AudioSystem::GetInstance().UnregisterListenerComponent(this);
 }
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetWorldPosition() const
