@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Seagrass_1_3",
+            "guid": 17326619688955409027,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Seagrass_1_3",
+            "type": 3
+        }
+    ]
+}

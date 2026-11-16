@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Boat",
+            "guid": 11146953972935829281,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Boat",
+            "type": 1
+        }
+    ]
+}

@@ -2,7 +2,7 @@
     "resources": [
         {
             "displayName": "Cube",
-            "guid": 17470227938033865898,
+            "guid": 6661168837409127630,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,

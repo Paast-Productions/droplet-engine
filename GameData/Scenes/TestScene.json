@@ -5,7 +5,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 78,
+            "id": 17,
             "name": "RonnyCutout",
             "prefab": "GameData\\Prefabs\\RonnyCutout.json",
             "transform": {

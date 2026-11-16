@@ -2,7 +2,7 @@
     "resources": [
         {
             "displayName": "Grid",
-            "guid": 12396219685112958871,
+            "guid": 17087732256830688443,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,

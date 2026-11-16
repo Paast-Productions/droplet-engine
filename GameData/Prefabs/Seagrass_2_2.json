@@ -1,0 +1,48 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Seagrass_2_2",
+                "meshGUID": 12451767557024591540,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Seagrass_2",
+                "textureGUID": 3979492177554091074,
+                "vs": 6846475175127286139,
+                "vsName": "wavy.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 7,
+    "name": "Seagrass_2_2",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            20.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

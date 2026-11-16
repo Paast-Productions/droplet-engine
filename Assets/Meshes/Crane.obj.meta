@@ -1,0 +1,21 @@
+{
+    "resources": [
+        {
+<<<<<<<< HEAD:Assets/Meshes/BaseShapes/cube.obj.meta
+            "displayName": "Cube",
+            "guid": 17470227938033865898,
+========
+            "displayName": "Crane",
+            "guid": 3588044747264884392,
+>>>>>>>> origin/game/dev:Assets/Meshes/Crane.obj.meta
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Crane",
+            "type": 3
+        }
+    ]
+}

@@ -3,7 +3,7 @@
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/HealthComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <LuaBindings.hpp>
@@ -22,7 +22,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
-	RegisterDamageComponent(p_luaState);
+	RegisterHazardComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
 }
 
@@ -546,19 +546,27 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 
 }
 
-void Bindings::RegisterDamageComponent(sol::state_view p_luaState)
+void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::DamageComponent>(
-		"DamageComponent",
-		"GetDamage", &Scene::DamageComponent::GetDamageLua
+	p_luaState.new_usertype<Scene::HazardComponent>(
+		"HazardComponent",
+		"GetDamage", &HazardComponent::GetDamage,
+		"GetDirection", &HazardComponent::GetDirection,
+		
+		"SetDamage", &HazardComponent::SetDamage,
+		"SetDirection", &HazardComponent::SetDirection
 	);
 
     LuaClassDefinition classDef;
-    classDef.name = "DamageComponent";
+    classDef.name = "HazardComponent";
 
     classDef.functions =
     {
         { "GetDamage", "float", {} },
+        { "GetDirection", "float", {} },
+        
+        { "SetDamage", "void", {{"damage", "number"}} },
+        { "SetDirection", "void", {{"direction", "Vec3"}} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);

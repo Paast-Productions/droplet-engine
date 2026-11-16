@@ -21,7 +21,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 
 namespace Droplet::Scene
 {
@@ -146,7 +146,7 @@ namespace Droplet::Scene
         /// OnStart is called automatically.
         ///
         /// @param p_active true to activate the Node, false to deactivate it.
-        void SetActive(bool p_active);
+        void SetActiveSelf(bool p_active);
 
         /// @brief Checks whether the Node is active.
         ///
@@ -359,29 +359,60 @@ namespace Droplet::Scene
             return components.empty() ? nullptr : components.front();
         }
 
-        /// @brief Gets the HealthComponent attached to this Node.
-        /// @return The HealthComponent, or nullptr if none is attached.
-        [[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
-        {
-            const auto components = GetComponents<HealthComponent>();
-            return components.empty() ? nullptr : components.front();
-        }
+		template<typename T>
+		[[nodiscard]] std::shared_ptr<T> GetComponentInChildren(bool p_recursive, bool p_skipThis = false)
+		{
+			if (!p_skipThis)
+			{
+				if (auto component = GetComponent<T>())
+				{
+					return component;
+				}
+			}
 
-        /// @brief Gets the PlayerComponent attached to this Node.
-        /// @return The PlayerComponent, or nullptr if none is attached.
-        [[nodiscard]] std::shared_ptr<PlayerComponent> GetPlayerComponent()
-        {
-            const auto components = GetComponents<PlayerComponent>();
-            return components.empty() ? nullptr : components.front();
-        }
-    	
-    	/// @brief Gets the DamageComponent attached to this Node.
-    	/// @return The DamageComponent, or nullptr if none is attached.
-    	[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
-        {
-        	const auto components = GetComponents<DamageComponent>();
-        	return components.empty() ? nullptr : components.front();
-        }
+			for (const auto &child : m_children)
+			{
+				if (auto component = child->GetComponent<T>())
+				{
+					return component;
+				}
+			}
+
+			if (p_recursive)
+			{
+				for (const auto &child : m_children)
+				{
+					if (auto component = child->GetComponentInChildren<T>(true, false))
+					{
+						return component;
+					}
+				}
+			}
+		}
+
+		/// @brief Gets the HealthComponent attached to this Node.
+		/// @return The HealthComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HealthComponent> GetHealthComponent()
+		{
+			const auto components = GetComponents<HealthComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
+
+		/// @brief Gets the PlayerComponent attached to this Node.
+		/// @return The PlayerComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<PlayerComponent> GetPlayerComponent()
+		{
+			const auto components = GetComponents<PlayerComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
+		
+		/// @brief Gets the HazardComponent attached to this Node.
+		/// @return The HazardComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
+		{
+			const auto components = GetComponents<HazardComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
 
 		[[nodiscard]] bool IsPrefab() const
 		{
