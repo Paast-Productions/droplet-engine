@@ -12,7 +12,7 @@
 #include <ItemRegistry.hpp>
 #include <Component.hpp>
 #include "ItemRegistry.hpp"
-
+#include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Node.hpp>
 
 using namespace Droplet::Scene;
@@ -28,6 +28,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
     RegisterPhysicsComponent(p_luaState);
 	RegisterMeshComponent(p_luaState);
     RegisterInteractableComponent(p_luaState);
+	RegisterLadderComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -750,6 +751,24 @@ void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
                 {"interactingNode", "Node"}
             }
         }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterLadderComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::LadderComponent>(
+        "LadderComponent",
+        "BeginTransition", &Scene::LadderComponent::BeginTransition
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "LadderComponent";
+
+    classDef.functions =
+    {
+        { "BeginTransition", "void", {} }
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
