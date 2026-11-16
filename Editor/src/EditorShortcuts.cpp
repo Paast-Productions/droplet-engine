@@ -115,8 +115,21 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 
 			if (scene)
 			{
-				std::string path = ROOT_PATH "/GameData/Scenes/" + scene->GetName() + ".json";
+				std::string relativePath = scene->GetName() + ".json";
+				std::string path = ROOT_PATH "/GameData/Scenes/" + relativePath;
 				p_editorContext.SaveScene(path);
+
+				ViewOverlayUI::QueueOverlay([=]() {
+					ImGui::SetNextWindowBgAlpha(0.5f);
+					ImGui::BeginChild("SceneSavedWindow", ImVec2(0, 0),
+						ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
+						ImGuiWindowFlags_NoResize
+					);
+					ImGui::SetWindowFontScale(1.75f);
+					ImGui::Text("Saved to '%s'", relativePath.c_str());
+					ImGui::EndChild();
+
+				}, 3.0f);
 			}
 		}
 	}
@@ -158,19 +171,40 @@ void Droplet::Editor::EditorShortcuts::PasteNodes(EditorContext &p_editorContext
 	}
 
 	auto scene = p_editorContext.GetActiveScene().lock();
-	glm::vec3 objectPos = p_editorContext.GetEditorCamera().GetPosition() + p_editorContext.GetEditorCamera().GetForward() * 5.0f;
+
+	bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
+
+	glm::vec3 objectPos{};
+	if (!keepTransformOnCopy)
+	{
+		objectPos = p_editorContext.GetEditorCamera().GetPosition() + 
+			p_editorContext.GetEditorCamera().GetForward() * 
+			EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+	}
+
+	p_editorContext.GetInteractionState().ClearNodeSelection();
 
 	for (const nlohmann::json &nodeJson : *clipboardNodes)
 	{
+		std::shared_ptr<Droplet::Scene::Node> node;
+
+		if (keepTransformOnCopy)
+		{
+			node = serializer.DeserializeLonsesomeNode(nodeJson, *scene);
+		}
+		else
+		{
+			node = serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
+		}
+
 		std::string prefabPath = "";
 		if (nodeJson.contains("prefab"))
 		{
 			prefabPath = nodeJson["prefab"];
 		}
-
-		auto node = serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
-
 		node->SetPrefabPath(prefabPath);
+
+		p_editorContext.GetInteractionState().SelectNode(node, false);
 	}
 
 }

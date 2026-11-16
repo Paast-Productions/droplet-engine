@@ -15,24 +15,11 @@ namespace Droplet::Editor
 	{
 	public:
 		ScriptsWindow(EditorContext *p_editorContext);
-		~ScriptsWindow() = default;
 
 	protected:
-		/// @brief Initializes the scripts window.
-		/// Called by the base EditorWindow when the window is initialized.
 		void InitImpl() override;
-
-		/// @brief Closes the scripts window.
-		/// Called by the base EditorWindow when the window is closed.
-		void CloseImpl() override;
-
-		/// @brief Renders the scripts window's main content.
-		/// Displays the script directory tree and handles script selection.
-		void RenderImpl() override;
-
-		/// @brief Renders the scripts window's toolbar.
-		/// Displays toolbar controls associated with the scripts window.
 		void RenderToolbar() override;
+		void RenderImpl() override;
 
 	private:
 		/// @brief Represents a file or directory in the script tree.
@@ -103,5 +90,7 @@ namespace Droplet::Editor
 
 		/// @brief Check if we should open delete from right-click.
 		bool m_openDelete = false;
+
+		std::string m_searchFilter = "";
 	};
 }

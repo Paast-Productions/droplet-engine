@@ -6,8 +6,7 @@
 #include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <SceneSystem/Components/InteractableComponent.hpp>
-#include <LuaBindings.hpp>  
+#include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
 #include <Component.hpp>

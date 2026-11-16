@@ -5,12 +5,10 @@
 #include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
-#include <algorithm>
-#include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
@@ -163,6 +161,8 @@ void SceneManager::Update()
 {
     ZoneScoped;
 
+    Droplet::Time &time = Droplet::Time::Get();
+
 	// Pre-Update all active Behaviours
     if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
@@ -204,7 +204,6 @@ void SceneManager::Update()
     }
 
 	// Fixed-Update all active Scenes
-    Droplet::Time &time = Droplet::Time::Get();
     while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
     {
         ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
@@ -307,7 +306,7 @@ std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
             it = m_activeScenes.erase(it);
             continue;
         }
-
+        
         auto &renderers = scene->m_renderers;
 
 		for (std::shared_ptr<CameraComponent> &renderer : renderers)

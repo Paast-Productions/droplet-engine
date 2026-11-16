@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Grid",
+            "guid": 12396219685112958871,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Grid",
+            "type": 3
+        }
+    ]
+}

@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/bounds/MeshNodeBounds.hpp>
-#include <resource/ResourceHandle.hpp>
+#include <resource/StaticResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <resource/types/Texture2DResource.hpp>
@@ -28,7 +28,7 @@ namespace Droplet::Scene
 
         /// @brief Getter-function for Mesh Resource
         /// @returns Resource Handle to a Mesh Resource
-        [[nodiscard]] const ResourceHandle<MeshResource> &GetMeshResource() { return m_mesh; } 
+        [[nodiscard]] const StaticResourceHandle<MeshResource> &GetMeshResource() { return m_mesh; } 
         
         /// @brief Sets the mesh resource using its GUID.
         /// @param p_guid GUID identifying the mesh resource to load.
@@ -83,17 +83,17 @@ namespace Droplet::Scene
 
     private:
         // Resource handles
-        ResourceHandle<MeshResource> m_mesh {};
-        ResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
+        StaticResourceHandle<MeshResource> m_mesh {};
+        StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
 
         // TODO: REWRITE AS MATERIAL
         struct ShaderResources
         {
-            ResourceHandle<ShaderResource> vs {};
-            ResourceHandle<ShaderResource> tcs {};
-            ResourceHandle<ShaderResource> tes {};
-            ResourceHandle<ShaderResource> gs {};
-            ResourceHandle<ShaderResource> fs {};
+            StaticResourceHandle<ShaderResource> vs {};
+            StaticResourceHandle<ShaderResource> tcs {};
+            StaticResourceHandle<ShaderResource> tes {};
+            StaticResourceHandle<ShaderResource> gs {};
+            StaticResourceHandle<ShaderResource> fs {};
         } m_shaderData;
 
         // Display Names

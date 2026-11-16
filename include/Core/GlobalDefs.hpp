@@ -1,3 +1,12 @@
 #pragma once
 
-// This file is a forced include for all source files in the project, providing global definitions and configurations that are used throughout the codebase.
+#include <cstdint>
+#include <limits>
+
+namespace Droplet
+{
+	using GUID = std::uint64_t;
+	
+	inline constexpr GUID G_INVALID_GUID { std::numeric_limits<std::uint64_t>::max() };
+	inline constexpr std::uint32_t G_INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
+}
