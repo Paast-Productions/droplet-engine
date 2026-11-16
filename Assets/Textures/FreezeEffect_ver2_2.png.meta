@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "FreezeEffect_ver2_2",
+            "guid": 11540706483194113954,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "FreezeEffect_ver2_2",
+            "type": 1
+        }
+    ]
+}
