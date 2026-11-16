@@ -1,5 +1,6 @@
 ﻿/**
- * 
+ * @file Guid.hpp
+ * @brief Core Guid implementation
  */
 #pragma once
 
@@ -10,6 +11,7 @@
 
 namespace Droplet
 {
+    /// Guid type, created from string with Guid::FromName or randomly generated with Guid::Generate()
     struct Guid
     {
         std::uint64_t value = INVALID;
