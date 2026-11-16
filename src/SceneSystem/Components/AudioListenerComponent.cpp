@@ -6,12 +6,11 @@
 
 Droplet::Scene::AudioListenerComponent::AudioListenerComponent()
 {
-    Audio::AudioSystem::GetInstance().RegisterListenerComponent(this);
 }
 
 Droplet::Scene::AudioListenerComponent::~AudioListenerComponent()
 {
-    Audio::AudioSystem::GetInstance().UnregisterListenerComponent(this);
+    Audio::AudioSystem::GetInstance().UnregisterListenerComponent(this); // Just to be safe
 }
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetWorldPosition() const
@@ -70,7 +69,8 @@ void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
 
 void Droplet::Scene::AudioListenerComponent::ActiveChangedImpl(const bool p_active)
 {
-    Audio::AudioSystem::GetInstance().SetListenerActive(m_listenerId, p_active);
+    if (p_active) Audio::AudioSystem::GetInstance().RegisterListenerComponent(this);
+    else Audio::AudioSystem::GetInstance().UnregisterListenerComponent(this);
 }
 
 nlohmann::json Droplet::Scene::AudioListenerComponent::SerializeImpl()

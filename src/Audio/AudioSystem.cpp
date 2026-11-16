@@ -11,6 +11,8 @@
 
 #include <dalia/dalia.h>
 
+#include "Node.hpp"
+
 using namespace Droplet::Audio;
 
 void LogDaliaError(const std::string& message, dalia::Result error)
@@ -180,7 +182,8 @@ double AudioSystem::GetSoundLenghtInSeconds(SoundResource *sound) const
 
 void AudioSystem::RegisterPlayerComponent(Scene::AudioPlayerComponent *player)
 {
-    m_playerComponents.push_back(player);
+    auto it = std::find(m_playerComponents.begin(), m_playerComponents.end(), player);
+    if (it == m_playerComponents.end()) m_playerComponents.push_back(player);
 }
 
 void AudioSystem::UnregisterPlayerComponent(Scene::AudioPlayerComponent *player)
@@ -195,12 +198,14 @@ void AudioSystem::UnregisterPlayerComponent(Scene::AudioPlayerComponent *player)
         }
         
         m_playerComponents.erase(it);
+        player->OnPlaybackFinished();
     }
 }
 
 void AudioSystem::RegisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
 {
-    m_emitterComponents.push_back(emitter);
+    auto it = std::find(m_emitterComponents.begin(), m_emitterComponents.end(), emitter);
+    if (it == m_emitterComponents.end()) m_emitterComponents.push_back(emitter);
 }
 
 void AudioSystem::UnregisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
@@ -215,11 +220,14 @@ void AudioSystem::UnregisterEmitterComponent(Scene::AudioEmitterComponent *emitt
         }
         
         m_emitterComponents.erase(it);
+        emitter->OnPlaybackFinished();
     }
 }
 
 void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
+    if (listener->GetListenerId() != C_INVALID_LISTENER_ID) return;
+    
     for (uint32_t i = 1; i < 4; i++)
     {
         if (!m_listeners[i].taken)
@@ -228,6 +236,11 @@ void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *liste
             m_listeners[i].active = listener->IsActiveSelf();
             listener->SetListenerId(i);
             m_listenerComponents.push_back(listener);
+            
+            // Scene masking
+            Scene::Scene* scene = listener->GetOwner()->GetScene().get();
+            m_sceneListenerMasks[scene] |= dalia::MakeListenerMask(i);
+            
             if (m_isGameMode && listener->IsActiveSelf()) m_daliaEngine->SetListenerActive(i, true);
             return;
         }
@@ -237,14 +250,28 @@ void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *liste
 
 void AudioSystem::UnregisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
+    ListenerID id = listener->GetListenerId();
+    if (id == C_INVALID_LISTENER_ID) return;
+    
     auto it = std::find(m_listenerComponents.begin(), m_listenerComponents.end(), listener);
     if (it != m_listenerComponents.end())
     {
-        m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), dalia::Listener3DAttributes{});
-        m_daliaEngine->SetListenerActive(listener->GetListenerId(), false);
+        // Scene masking
+        Scene::Scene* scene = listener->GetOwner()->GetScene().get();
+        auto maskIt = m_sceneListenerMasks.find(scene);
+        if (maskIt != m_sceneListenerMasks.end())
+        {
+            maskIt->second &= ~dalia::MakeListenerMask(id);
+            if (maskIt->second == dalia::MASK_NONE) m_sceneListenerMasks.erase(maskIt); // Clean up if none remain
+        }
         
-        m_listeners[listener->GetListenerId()] = ListenerData{};
+        m_daliaEngine->SetListener3DAttributes(id, dalia::Listener3DAttributes{});
+        m_daliaEngine->SetListenerActive(id, false);
+        
+        m_listeners[id] = ListenerData{};
         m_listenerComponents.erase(it);
+        
+        listener->SetListenerId(C_INVALID_LISTENER_ID);
     }
 }
 
@@ -276,14 +303,15 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
         LogDaliaError("Failed to play sound.", res);
         return C_INVALID_PLAYBACK_ID;
     }
+    m_daliaEngine->SetPlaybackSpatial(daliaHandle, false);
 
     res = m_daliaEngine->RoutePlayback(daliaHandle, player->GetBusName().c_str());
     if (res != dalia::Result::Ok)
     {
+        // Routing failed -> Fallback to master
         LogDaliaError("Failed to route playback.", res);
+        player->OnBusInvalidation();
     }
-
-    m_daliaEngine->SetPlaybackSpatial(daliaHandle, false);
     
     double seekTime = player->GetStartTimeSeconds();
     if (seekTime > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, seekTime);
@@ -316,15 +344,22 @@ PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, Sound
         LogDaliaError("Failed to play 3D sound.", res);
         return C_INVALID_PLAYBACK_ID;
     }
+    m_daliaEngine->SetPlaybackSpatial(daliaHandle, true);
 
     res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
     if (res != dalia::Result::Ok)
     {
+        // Routing failed -> Fallback to master
         LogDaliaError("Failed to route playback.", res);
-        
+        emitter->OnBusInvalidation();
     }
-
-    m_daliaEngine->SetPlaybackSpatial(daliaHandle, true);
+    
+    // Make listener target only listeners in the same scene
+    Scene::Scene* playerScene = emitter->GetOwner()->GetScene().get();
+    dalia::ListenerMask mask = dalia::MASK_ALL_LISTENERS;
+    auto it = m_sceneListenerMasks.find(playerScene);
+    if (it != m_sceneListenerMasks.end()) mask = it->second;
+    m_daliaEngine->SetPlaybackListenerMask(daliaHandle, mask);
     
     double seekTime = emitter->GetStartTimeSeconds();
     if (seekTime > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, seekTime);
@@ -383,8 +418,15 @@ void AudioSystem::SetMode(bool p_isGameMode)
 {
     m_isGameMode = p_isGameMode;
     
-    // Stop all active playbacks
-    for (auto& [id, data] : m_playbacks) m_daliaEngine->StopPlayback(data.handle);
+    // Stop all active playbacks in dalia
+    for (auto& [id, data] : m_playbacks)
+    {
+        m_daliaEngine->StopPlayback(data.handle);
+    }
+    m_playbacks.clear();
+    
+    for (auto* player : m_playerComponents) player->OnPlaybackFinished();
+    for (auto* emitter : m_emitterComponents) emitter->OnPlaybackFinished();
     
     // Activate/deactivate listeners based on mode
     m_daliaEngine->SetListenerActive(0, !p_isGameMode);

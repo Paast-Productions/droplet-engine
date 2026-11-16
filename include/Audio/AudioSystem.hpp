@@ -14,6 +14,8 @@ namespace Droplet::Scene
     class AudioPlayerComponent;
     class AudioEmitterComponent;
     class AudioListenerComponent;
+    
+    class Scene;
 }
 
 namespace Droplet::Audio
@@ -123,5 +125,8 @@ namespace Droplet::Audio
 	    // Listener Management
 	    std::vector<Scene::AudioListenerComponent*> m_listenerComponents;
 	    std::array<ListenerData, C_LISTENERS_MAX> m_listeners;
+	    
+	    // Scene Specific
+	    std::unordered_map<Scene::Scene*, dalia::ListenerMask> m_sceneListenerMasks;
 	};
 }

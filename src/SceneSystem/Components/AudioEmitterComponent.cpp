@@ -14,7 +14,7 @@ using namespace Droplet::Scene;
 
 AudioEmitterComponent::AudioEmitterComponent()
 {
-    Audio::AudioSystem::GetInstance().RegisterEmitterComponent(this);
+
 }
 
 AudioEmitterComponent::~AudioEmitterComponent()
@@ -293,7 +293,12 @@ void AudioEmitterComponent::RenderUIImpl()
 
 void AudioEmitterComponent::ActiveChangedImpl(const bool p_active)
 {
-    if (!p_active) Stop();
+    if (p_active) Audio::AudioSystem::GetInstance().RegisterEmitterComponent(this);
+    else
+    {
+        Stop();
+        Audio::AudioSystem::GetInstance().UnregisterEmitterComponent(this);
+    }
 }
 
 nlohmann::json AudioEmitterComponent::SerializeImpl()

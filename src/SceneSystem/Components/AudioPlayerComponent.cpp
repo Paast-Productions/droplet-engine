@@ -12,7 +12,7 @@
 
 Droplet::Scene::AudioPlayerComponent::AudioPlayerComponent()
 {
-	Audio::AudioSystem::GetInstance().RegisterPlayerComponent(this);
+
 }
 
 Droplet::Scene::AudioPlayerComponent::~AudioPlayerComponent()
@@ -232,7 +232,12 @@ ImGui::PushID(this);
 
 void Droplet::Scene::AudioPlayerComponent::ActiveChangedImpl(const bool p_active)
 {
-	if (!p_active) Stop();
+    if (p_active) Audio::AudioSystem::GetInstance().RegisterPlayerComponent(this);
+    else
+    {
+        Stop();
+        Audio::AudioSystem::GetInstance().UnregisterPlayerComponent(this);
+    }
 }
 
 nlohmann::json Droplet::Scene::AudioPlayerComponent::SerializeImpl()
