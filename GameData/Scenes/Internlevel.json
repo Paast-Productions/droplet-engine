@@ -28,7 +28,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 315,
+            "id": 1,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -52,7 +52,7 @@
         {
             "active": true,
             "drawLayer": 1,
-            "id": 316,
+            "id": 2,
             "name": "Prefab",
             "prefab": "GameData\\Prefabs\\Prefab.json",
             "transform": {
@@ -77,7 +77,7 @@
         {
             "active": true,
             "drawLayer": 1,
-            "id": 318,
+            "id": 4,
             "name": "Prefab",
             "prefab": "GameData\\Prefabs\\Prefab.json",
             "transform": {
@@ -151,7 +151,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 494,
+                            "id": 8,
                             "name": "Pod Exterior",
                             "transform": {
                                 "position": [
@@ -221,7 +221,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 505,
+                                    "id": 10,
                                     "name": "Door",
                                     "transform": {
                                         "position": [
@@ -245,7 +245,7 @@
                             ],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 504,
+                            "id": 9,
                             "name": "Pod Door",
                             "transform": {
                                 "position": [
@@ -271,7 +271,7 @@
                             "children": [],
                             "components": [],
                             "drawLayer": 1,
-                            "id": 519,
+                            "id": 11,
                             "name": "InteractionButton",
                             "transform": {
                                 "position": [
@@ -297,8 +297,8 @@
                         {
                             "active": true,
                             "data": {
-                                "button": 519,
-                                "drone": 322,
+                                "button": 11,
+                                "drone": 25,
                                 "reach": 1.0,
                                 "targetSceneName": "BoatScene"
                             },
@@ -307,7 +307,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 493,
+                    "id": 7,
                     "name": "Pod",
                     "transform": {
                         "position": [
@@ -331,7 +331,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 322,
+                    "id": 25,
                     "name": "Drone",
                     "prefab": "GameData\\Prefabs\\Drone.json",
                     "transform": {
@@ -359,7 +359,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 355,
+                            "id": 29,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -384,7 +384,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 356,
+                            "id": 30,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -409,7 +409,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 357,
+                            "id": 31,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -434,7 +434,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 358,
+                            "id": 32,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -459,7 +459,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 359,
+                            "id": 33,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -484,7 +484,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 360,
+                            "id": 34,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -509,7 +509,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 361,
+                            "id": 35,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -534,7 +534,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 365,
+                            "id": 39,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -559,7 +559,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 369,
+                            "id": 43,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -584,7 +584,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 373,
+                            "id": 47,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -609,7 +609,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 377,
+                            "id": 51,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -634,7 +634,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 381,
+                            "id": 55,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -659,7 +659,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 385,
+                            "id": 59,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -684,7 +684,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 389,
+                            "id": 63,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -709,7 +709,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 393,
+                            "id": 67,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -734,7 +734,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 394,
+                            "id": 68,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -759,7 +759,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 395,
+                            "id": 69,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -784,7 +784,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 354,
+                    "id": 28,
                     "name": "Valleyfoliage",
                     "transform": {
                         "position": [
@@ -811,7 +811,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 397,
+                            "id": 71,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -836,7 +836,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 398,
+                            "id": 72,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -861,7 +861,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 399,
+                            "id": 73,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -886,7 +886,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 400,
+                            "id": 74,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -911,7 +911,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 401,
+                            "id": 75,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -936,7 +936,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 476,
+                            "id": 76,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -961,7 +961,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 478,
+                            "id": 77,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -986,7 +986,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 396,
+                    "id": 70,
                     "name": "Environment",
                     "transform": {
                         "position": [
@@ -1010,7 +1010,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 320,
+            "id": 6,
             "name": "Spawn",
             "transform": {
                 "position": [
@@ -1037,7 +1037,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 326,
+                    "id": 79,
                     "name": "MVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1062,7 +1062,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 329,
+                    "id": 82,
                     "name": "MVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1087,7 +1087,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 332,
+                    "id": 85,
                     "name": "MVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1112,7 +1112,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 335,
+                    "id": 88,
                     "name": "SVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1137,7 +1137,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 338,
+                    "id": 91,
                     "name": "SVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1162,7 +1162,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 341,
+                    "id": 94,
                     "name": "SVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1187,7 +1187,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 344,
+                    "id": 97,
                     "name": "SVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1212,7 +1212,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 347,
+                    "id": 100,
                     "name": "LVolcano",
                     "prefab": "GameData\\Prefabs\\Volcano.json",
                     "transform": {
@@ -1237,7 +1237,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 325,
+            "id": 78,
             "name": "Volcanoes",
             "transform": {
                 "position": [
@@ -1267,7 +1267,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 404,
+                            "id": 105,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -1292,7 +1292,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 405,
+                            "id": 106,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -1317,7 +1317,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 406,
+                            "id": 107,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -1342,7 +1342,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 407,
+                            "id": 108,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -1367,7 +1367,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 408,
+                            "id": 109,
                             "name": "Seagrass_3_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_1.json",
                             "transform": {
@@ -1392,7 +1392,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 409,
+                            "id": 110,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -1417,7 +1417,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 410,
+                            "id": 111,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -1442,7 +1442,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 411,
+                            "id": 112,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -1467,7 +1467,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 412,
+                            "id": 113,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -1492,7 +1492,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 413,
+                            "id": 114,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -1517,7 +1517,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 414,
+                            "id": 115,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -1542,7 +1542,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 415,
+                            "id": 116,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -1567,7 +1567,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 416,
+                            "id": 117,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -1592,7 +1592,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 417,
+                            "id": 118,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -1617,7 +1617,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 418,
+                            "id": 119,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -1642,7 +1642,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 419,
+                            "id": 120,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1667,7 +1667,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 423,
+                            "id": 124,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1692,7 +1692,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 427,
+                            "id": 128,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1717,7 +1717,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 431,
+                            "id": 132,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1742,7 +1742,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 435,
+                            "id": 136,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1767,7 +1767,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 439,
+                            "id": 140,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1792,7 +1792,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 443,
+                            "id": 144,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1817,7 +1817,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 447,
+                            "id": 148,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1842,7 +1842,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 451,
+                            "id": 152,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1852,9 +1852,9 @@
                                     2.754119873046875
                                 ],
                                 "rotation": [
-                                    0.883765697479248,
+                                    0.8837655782699585,
                                     0.0,
-                                    -0.4679298996925354,
+                                    -0.4679298400878906,
                                     0.0
                                 ],
                                 "scale": [
@@ -1867,7 +1867,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 455,
+                            "id": 156,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1892,7 +1892,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 459,
+                            "id": 160,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1917,7 +1917,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 463,
+                            "id": 164,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1942,7 +1942,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 467,
+                            "id": 168,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1967,7 +1967,7 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 471,
+                            "id": 172,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -1992,7 +1992,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 403,
+                    "id": 104,
                     "name": "Foliage",
                     "transform": {
                         "position": [
@@ -2019,14 +2019,14 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 521,
+                            "id": 177,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
                                 "position": [
-                                    -7.6173248291015625,
-                                    0.464780330657959,
-                                    5.675239562988281
+                                    -14.898834228515625,
+                                    4.236097812652588,
+                                    0.13860321044921875
                                 ],
                                 "rotation": [
                                     0.8310875296592712,
@@ -2044,14 +2044,14 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 522,
+                            "id": 178,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
                                 "position": [
-                                    19.016307830810547,
-                                    3.472562789916992,
-                                    5.886287689208984
+                                    11.734798431396484,
+                                    7.243880271911621,
+                                    0.3496513366699219
                                 ],
                                 "rotation": [
                                     0.8310875296592712,
@@ -2069,14 +2069,243 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 523,
+                            "id": 179,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
                                 "position": [
-                                    6.165945053100586,
-                                    14.907349586486816,
-                                    9.423690795898438
+                                    -1.1155643463134766,
+                                    18.678667068481445,
+                                    3.887054443359375
+                                ],
+                                "rotation": [
+                                    0.8310875296592712,
+                                    0.0,
+                                    -0.5561416149139404,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.6056565046310425,
+                                    1.729470133781433,
+                                    1.8014211654663086
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 225,
+                    "name": "Opening",
+                    "transform": {
+                        "position": [
+                            -4.477725982666016,
+                            0.1799020767211914,
+                            20.6539306640625
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 180,
+                            "name": "Stone",
+                            "prefab": "GameData\\Prefabs\\Stone.json",
+                            "transform": {
+                                "position": [
+                                    -0.56378173828125,
+                                    0.042679786682128906,
+                                    -0.0225982666015625
+                                ],
+                                "rotation": [
+                                    0.8310875296592712,
+                                    0.0,
+                                    -0.5561416149139404,
+                                    0.0
+                                ],
+                                "scale": [
+                                    3.8459999561309814,
+                                    4.142569065093994,
+                                    4.314914703369141
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 184,
+                            "name": "Seagrass_2_2",
+                            "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
+                            "transform": {
+                                "position": [
+                                    7.142522811889648,
+                                    -0.8610315322875977,
+                                    -0.8404884338378906
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 185,
+                            "name": "Seagrass_3_2",
+                            "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
+                            "transform": {
+                                "position": [
+                                    3.5409183502197266,
+                                    -1.003493309020996,
+                                    -3.9940834045410156
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 186,
+                            "name": "Seagrass_3_1",
+                            "prefab": "GameData\\Prefabs\\Seagrass_3_1.json",
+                            "transform": {
+                                "position": [
+                                    5.720859527587891,
+                                    -0.9731872081756592,
+                                    -3.4420318603515625
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 187,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    7.464822769165039,
+                                    -0.831779956817627,
+                                    0.43238067626953125
+                                ],
+                                "rotation": [
+                                    0.9238795638084412,
+                                    0.0,
+                                    -0.3826834261417389,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5,
+                                    1.5,
+                                    1.5
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 191,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    4.729036331176758,
+                                    -0.9588456153869629,
+                                    -3.806781768798828
+                                ],
+                                "rotation": [
+                                    0.8703557848930359,
+                                    0.0,
+                                    -0.492423415184021,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.4999998807907104,
+                                    1.5,
+                                    1.4999998807907104
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 226,
+                    "name": "BigCliffRock",
+                    "transform": {
+                        "position": [
+                            -36.86125946044922,
+                            3.106060028076172,
+                            10.517738342285156
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 195,
+                            "name": "Stone",
+                            "prefab": "GameData\\Prefabs\\Stone.json",
+                            "transform": {
+                                "position": [
+                                    0.4988269805908203,
+                                    0.12255436182022095,
+                                    0.3809013366699219
                                 ],
                                 "rotation": [
                                     0.8310875296592712,
@@ -2094,14 +2323,164 @@
                         {
                             "active": true,
                             "drawLayer": 1,
-                            "id": 525,
+                            "id": 196,
+                            "name": "Seagrass_2_2",
+                            "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
+                            "transform": {
+                                "position": [
+                                    -1.622706413269043,
+                                    -0.7486400008201599,
+                                    -2.204784393310547
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 197,
+                            "name": "Seagrass_3_5",
+                            "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
+                            "transform": {
+                                "position": [
+                                    1.005936622619629,
+                                    -0.4271950125694275,
+                                    -2.1059226989746094
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 198,
+                            "name": "Seagrass_1_1",
+                            "prefab": "GameData\\Prefabs\\Seagrass_1_1.json",
+                            "transform": {
+                                "position": [
+                                    2.9906797409057617,
+                                    0.010003149509429932,
+                                    -1.3410568237304688
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 199,
+                            "name": "Seagrass_1_3",
+                            "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
+                            "transform": {
+                                "position": [
+                                    -3.4852046966552734,
+                                    0.11806493997573853,
+                                    0.5386238098144531
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 200,
+                            "name": "Seagrass_3_2",
+                            "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
+                            "transform": {
+                                "position": [
+                                    -1.936676025390625,
+                                    0.6684284806251526,
+                                    3.197845458984375
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 202,
+                            "name": "Seagrass_1_3",
+                            "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
+                            "transform": {
+                                "position": [
+                                    2.580519676208496,
+                                    0.9122832417488098,
+                                    2.6320838928222656
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0000001192092896,
+                                    0.9999999403953552
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 203,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
                                 "position": [
-                                    -25.66580581665039,
-                                    -0.8024797439575195,
-                                    -4.622154235839844
+                                    0.18910694122314453,
+                                    2.6404953002929688,
+                                    0.2634239196777344
                                 ],
                                 "rotation": [
                                     0.8310875296592712,
@@ -2110,22 +2489,199 @@
                                     0.0
                                 ],
                                 "scale": [
-                                    3.8459999561309814,
-                                    4.142569065093994,
-                                    4.314914703369141
+                                    0.6579999923706055,
+                                    0.7087389826774597,
+                                    0.7382246255874634
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 204,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    1.179488182067871,
+                                    0.9508677124977112,
+                                    3.2283935546875
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    9.934107225717526e-08,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5,
+                                    1.500000238418579,
+                                    1.4999998807907104
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 208,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    -3.0327157974243164,
+                                    0.5728498101234436,
+                                    2.623859405517578
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    9.934107225717526e-08,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5,
+                                    1.500000238418579,
+                                    1.4999998807907104
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 212,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    -0.8106365203857422,
+                                    0.86885005235672,
+                                    3.656024932861328
+                                ],
+                                "rotation": [
+                                    0.9645573496818542,
+                                    0.0,
+                                    0.26387321949005127,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5,
+                                    1.500000238418579,
+                                    1.5
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 216,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    1.886826515197754,
+                                    -0.2949332594871521,
+                                    -1.9285926818847656
+                                ],
+                                "rotation": [
+                                    0.9232102036476135,
+                                    0.0,
+                                    0.38429534435272217,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5,
+                                    1.500000238418579,
+                                    1.5000001192092896
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 220,
+                            "name": "Kelp",
+                            "prefab": "GameData\\Prefabs\\Kelp.json",
+                            "transform": {
+                                "position": [
+                                    -2.788625717163086,
+                                    -0.26889508962631226,
+                                    -0.7340316772460938
+                                ],
+                                "rotation": [
+                                    -0.020942237228155136,
+                                    0.0,
+                                    0.9997807145118713,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.5000003576278687,
+                                    1.500000238418579,
+                                    1.5000003576278687
                                 ]
                             }
                         }
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 524,
-                    "name": "Environment",
+                    "id": 227,
+                    "name": "StoneOnStone",
                     "transform": {
                         "position": [
-                            -11.759235382080078,
-                            3.9512195587158203,
-                            15.117294311523438
+                            -17.99871063232422,
+                            -0.7191811203956604,
+                            2.4566307067871094
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "drawLayer": 1,
+                            "id": 224,
+                            "name": "Stone",
+                            "prefab": "GameData\\Prefabs\\Stone.json",
+                            "transform": {
+                                "position": [
+                                    1.8074951171875,
+                                    0.1641242504119873,
+                                    1.3436737060546875
+                                ],
+                                "rotation": [
+                                    0.8310875296592712,
+                                    0.0,
+                                    -0.5561416149139404,
+                                    0.0
+                                ],
+                                "scale": [
+                                    4.228000164031982,
+                                    4.554011344909668,
+                                    4.7434868812561035
+                                ]
+                            }
+                        }
+                    ],
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 228,
+                    "name": "BigRock",
+                    "transform": {
+                        "position": [
+                            11.966606140136719,
+                            3.1054182052612305,
+                            -0.2999458312988281
                         ],
                         "rotation": [
                             1.0,
@@ -2143,7 +2699,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 520,
+            "id": 103,
             "name": "UpperCave",
             "transform": {
                 "position": [
@@ -2191,7 +2747,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 350,
+            "id": 181,
             "name": "RepairPart",
             "transform": {
                 "position": [
@@ -2215,7 +2771,7 @@
         {
             "active": true,
             "drawLayer": 1,
-            "id": 351,
+            "id": 182,
             "name": "Seagrass_1_4",
             "prefab": "GameData\\Prefabs\\Seagrass_1_4.json",
             "transform": {
@@ -2264,7 +2820,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 353,
+            "id": 183,
             "name": "SecretLab",
             "transform": {
                 "position": [
@@ -2287,126 +2843,49 @@
         },
         {
             "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Toe.001",
+                        "meshGUID": 2719175114284423147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "EvilToeTexture",
+                        "textureGUID": 7393664924385117438,
+                        "vs": 8588005183473398233,
+                        "vsName": "bouncy.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
             "drawLayer": 1,
-            "id": 526,
-            "name": "Seagrass_2_2",
-            "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
+            "id": 229,
+            "name": "CaveDiveToe",
             "transform": {
                 "position": [
-                    0.005663752555847168,
-                    2.245433807373047,
-                    49.6043586730957
+                    4.497030258178711,
+                    -37.04821014404297,
+                    -29.255626678466797
                 ],
                 "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
+                    0.9384929537773132,
+                    1.9327760725218468e-08,
+                    -2.2988986714267412e-08,
+                    -0.34529829025268555
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 527,
-            "name": "Seagrass_3_2",
-            "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
-            "transform": {
-                "position": [
-                    -3.5959410667419434,
-                    2.1029720306396484,
-                    46.45076370239258
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 528,
-            "name": "Seagrass_3_1",
-            "prefab": "GameData\\Prefabs\\Seagrass_3_1.json",
-            "transform": {
-                "position": [
-                    -1.4160003662109375,
-                    2.1332781314849854,
-                    47.00281524658203
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 529,
-            "name": "Kelp",
-            "prefab": "GameData\\Prefabs\\Kelp.json",
-            "transform": {
-                "position": [
-                    0.3279629945755005,
-                    2.2746853828430176,
-                    50.877227783203125
-                ],
-                "rotation": [
-                    0.9238795638084412,
-                    0.0,
-                    -0.3826834261417389,
-                    0.0
-                ],
-                "scale": [
-                    1.5,
-                    1.5,
-                    1.5
-                ]
-            }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 534,
-            "name": "Kelp",
-            "prefab": "GameData\\Prefabs\\Kelp.json",
-            "transform": {
-                "position": [
-                    -2.407823324203491,
-                    2.1476197242736816,
-                    46.638065338134766
-                ],
-                "rotation": [
-                    0.8703558444976807,
-                    0.0,
-                    -0.49242350459098816,
-                    0.0
-                ],
-                "scale": [
-                    1.5,
-                    1.5,
-                    1.5
+                    10.876998901367188,
+                    10.876998901367188,
+                    10.876999855041504
                 ]
             }
         }
