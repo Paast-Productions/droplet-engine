@@ -70,6 +70,13 @@ void AudioSystem::Update()
                 m_daliaEngine->SetPlaybackLooping(daliaHandle, player->IsLooping());
                 player->ClearDirtyFlag();
             }
+            
+            if (player->RoutingChanged())
+            {
+                if (!m_mixer.HasAudioBusWithName(player->GetBusName())) player->OnBusInvalidation();
+                m_daliaEngine->RoutePlayback(daliaHandle, player->GetBusName().c_str());
+                player->ClearDirtyFlag();
+            }
         }
     }
     
@@ -97,6 +104,13 @@ void AudioSystem::Update()
                 m_daliaEngine->SetPlaybackLooping(daliaHandle, emitter->IsLooping());
                 m_daliaEngine->SetPlaybackMinMaxDistance(daliaHandle, emitter->GetMinDistance(), emitter->GetMaxDistance());
                 m_daliaEngine->SetPlaybackAttenuationCurve(daliaHandle, emitter->GetAttenuationCurve());
+                emitter->ClearDirtyFlag();
+            }
+            
+            if (emitter->RoutingChanged())
+            {
+                if (!m_mixer.HasAudioBusWithName(emitter->GetBusName())) emitter->OnBusInvalidation();
+                m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
                 emitter->ClearDirtyFlag();
             }
         }
@@ -259,7 +273,7 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
         return C_INVALID_PLAYBACK_ID;
     }
 
-    res = m_daliaEngine->RoutePlayback(daliaHandle, player->GetRouting().c_str());
+    res = m_daliaEngine->RoutePlayback(daliaHandle, player->GetBusName().c_str());
     if (res != dalia::Result::Ok)
     {
         LogDaliaError("Failed to route playback.", res);
@@ -299,7 +313,7 @@ PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, Sound
         return C_INVALID_PLAYBACK_ID;
     }
 
-    res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetRouting().c_str());
+    res = m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
     if (res != dalia::Result::Ok)
     {
         LogDaliaError("Failed to route playback.", res);

@@ -134,12 +134,6 @@ glm::vec3 AudioEmitterComponent::GetVelocity() const
     return physComp->GetVelocity();
 }
 
-bool AudioEmitterComponent::Route(const std::string &p_busName)
-{
-    // TODO: Call AudioSystem::RoutePlayback
-    return true;
-}
-
 void AudioEmitterComponent::SetSound(GUID p_guid)
 {
     m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
@@ -156,12 +150,11 @@ void AudioEmitterComponent::OnPlaybackFinished()
 
 void AudioEmitterComponent::OnBusInvalidation()
 {
-    m_busName = "None";
+    m_busName = "Master";
 }
 
 void AudioEmitterComponent::StartImpl()
 {
-
 }
 
 void AudioEmitterComponent::RenderUIImpl()
@@ -207,18 +200,16 @@ void AudioEmitterComponent::RenderUIImpl()
     
      if (ImGui::BeginDragDropTarget())
      {
-         const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(Editor::PAYLOAD_AUDIO_BUS.data());
+         const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(std::string(Editor::PAYLOAD_AUDIO_BUS).c_str());
          
          if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
          {
              std::uint64_t draggedBusID = 0;
              std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
-    
-             // TODO: This should call Route()
-             // AudioSystem should provide a wrapper for this:
+         	
              Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().GetMixer().FindAudioBus(draggedBusID);
              if (draggedBus) m_busName = draggedBus->GetName();
-             m_isDirty = true;
+             m_routingChanged = true;
          }
          ImGui::EndDragDropTarget();
      }
@@ -330,7 +321,7 @@ void AudioEmitterComponent::DeserializeImpl(nlohmann::json p_compJson)
     if (p_compJson.contains("soundGuid")) m_soundGuid = p_compJson["soundGuid"];
     SetSound(m_soundGuid);
     if (p_compJson.contains("busName")) m_busName = p_compJson["busName"];
-    if (!Route(m_busName)) m_busName = "None";
+    if (!Audio::AudioSystem::GetInstance().GetMixer().HasAudioBusWithName(m_busName)) m_busName = "Master";
     
     if (p_compJson.contains("startTimeSeconds")) m_startTimeSeconds = p_compJson["startTimeSeconds"];
 	if (p_compJson.contains("volumeDb")) m_volumeDb = p_compJson["volumeDb"];

@@ -50,8 +50,9 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec3 GetVelocity() const;
 		
 		// --- Routing ---
-		bool Route(const std::string& p_busName);
-		[[nodiscard]] const std::string& GetRouting() const { return m_busName; }
+		[[nodiscard]] bool RoutingChanged() const { return m_routingChanged; }
+		void ClearRoutingChangedFlag() { m_routingChanged = false; }
+		[[nodiscard]] const std::string& GetBusName() const { return m_busName; }
 	    
 		// --- Dirty Flag ---
 	    [[nodiscard]] bool IsDirty() const { return m_isDirty;}
@@ -93,5 +94,6 @@ namespace Droplet::Scene
 	    bool m_doppler = false;
 	    
 	    std::string m_busName = "Master";
+		bool m_routingChanged = false;
 	};
 }

@@ -69,7 +69,6 @@ namespace Droplet::Audio
 		void DeserializeHierarchy(const nlohmann::json &p_json);
 		void DeserializeBus(const nlohmann::json& p_json, AudioBus* p_parent);
 	private:
-
 		/// @brief Audiobus ID, ID 0 is reserved for the master bus
 		std::uint64_t m_nextBusID = 0;
 		/// @brief Masterbus, The root of the bus Hierarchy and is the only one not needing a parent

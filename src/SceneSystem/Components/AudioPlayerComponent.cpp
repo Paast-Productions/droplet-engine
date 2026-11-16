@@ -97,12 +97,6 @@ void Droplet::Scene::AudioPlayerComponent::SetLooping(bool p_looping)
 	m_isDirty = true;
 }
 
-bool Droplet::Scene::AudioPlayerComponent::Route(const std::string &p_busName)
-{
-	// TODO: Call AudioSystem::RoutePlayback
-	return true;
-}
-
 void Droplet::Scene::AudioPlayerComponent::SetSound(GUID p_guid)
 {
 	m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
@@ -119,7 +113,7 @@ void Droplet::Scene::AudioPlayerComponent::OnPlaybackFinished()
 
 void Droplet::Scene::AudioPlayerComponent::OnBusInvalidation()
 {
-	m_busName = "None";
+	m_busName = "Master";
 }
 
 void Droplet::Scene::AudioPlayerComponent::StartImpl()
@@ -175,12 +169,10 @@ ImGui::PushID(this);
          {
              std::uint64_t draggedBusID = 0;
              std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
-    
-         	// TODO: This should call Route()
-         	// AudioSystem should provide a wrapper for this:
+         	
              Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().GetMixer().FindAudioBus(draggedBusID);
              if (draggedBus) m_busName = draggedBus->GetName();
-             m_isDirty = true;
+             m_routingChanged = true;
          }
          ImGui::EndDragDropTarget();
      }
@@ -264,7 +256,7 @@ void Droplet::Scene::AudioPlayerComponent::DeserializeImpl(nlohmann::json p_comp
 	if (p_compJson.contains("soundGuid")) m_soundGuid = p_compJson["soundGuid"];
 	SetSound(m_soundGuid);
 	if (p_compJson.contains("busName")) m_busName = p_compJson["busName"];
-	if (!Route(m_busName)) m_busName = "None";
+	if (!Audio::AudioSystem::GetInstance().GetMixer().HasAudioBusWithName(m_busName)) m_busName = "Master";
     
 	if (p_compJson.contains("startTimeSeconds")) m_startTimeSeconds = p_compJson["startTimeSeconds"];
 	if (p_compJson.contains("volumeDb")) m_volumeDb = p_compJson["volumeDb"];

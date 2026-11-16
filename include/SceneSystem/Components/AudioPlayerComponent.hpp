@@ -44,8 +44,9 @@ namespace Droplet::Scene
 	    [[nodiscard]] float GetStereoPan() const { return m_stereoPan; }
 		
 		// --- Routing ---
-		bool Route(const std::string& p_busName);
-		[[nodiscard]] const std::string& GetRouting() const { return m_busName; }
+		[[nodiscard]] bool RoutingChanged() const { return m_routingChanged; }
+		void ClearRoutingChangedFlag() { m_routingChanged = false; }
+		[[nodiscard]] const std::string& GetBusName() const { return m_busName; }
 	    
 		// --- Dirty Flag ---
 		[[nodiscard]] bool IsDirty() const { return m_isDirty;}
@@ -83,5 +84,6 @@ namespace Droplet::Scene
 	    bool m_looping = false;
 	    
 	    std::string m_busName = "Master";
+		bool m_routingChanged = false;
 	};
 }
