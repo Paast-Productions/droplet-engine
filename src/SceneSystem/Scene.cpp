@@ -371,43 +371,43 @@ void Scene::PrintOctreeTree()
     std::cout << m_octree.ToGraphvizTree();
 }
 
-std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask)
 {
-	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes);
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes, p_layerMask);
 }
 
-std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
+std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask)
 {
-    return m_octree.GetNodesFromRaycast(p_ray);
+    return m_octree.GetNodesFromRaycast(p_ray, p_layerMask);
 }
 
-std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum)
+std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask)
 {
     std::vector<std::weak_ptr<Node>> nodes;
-    m_octree.GetNodesFromCulling(p_frustum, nodes);
+    m_octree.GetNodesFromCulling(p_frustum, nodes, p_layerMask);
     return nodes;
 }
 
-std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
+std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask)
 {
     std::vector<std::weak_ptr<Node>> nodes;
-    m_octree.GetNodesFullyInFrustum(p_frustum, nodes);
+    m_octree.GetNodesFullyInFrustum(p_frustum, nodes, p_layerMask);
     return nodes;
 }
 
-void Scene::GetNodesInShape(const Math::AABB& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
+void Scene::GetNodesInShape(const Math::AABB& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromAABB(p_shape, p_nodes);
+    m_octree.GetNodesFromAABB(p_shape, p_nodes, p_layerMask);
 }
 
-void Scene::GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes)
+void Scene::GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromOBB(p_shape, p_nodes);
+    m_octree.GetNodesFromOBB(p_shape, p_nodes, p_layerMask);
 }
 
-void Scene::GetNodesInShape(const Math::Sphere& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
+void Scene::GetNodesInShape(const Math::Sphere& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromSphere(p_shape, p_nodes);
+    m_octree.GetNodesFromSphere(p_shape, p_nodes, p_layerMask);
 }
 
 void Scene::InitializePhysics(const Physics::Initializer p_initializer)
@@ -419,7 +419,6 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 
     m_physics = std::make_unique<Physics>(p_initializer);
 }
-
 
 std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {

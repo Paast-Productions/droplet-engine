@@ -163,6 +163,8 @@ void SceneManager::Update()
 {
     ZoneScoped;
 
+    Droplet::Time &time = Droplet::Time::Get();
+
 	// Pre-Update all active Behaviours
     if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
@@ -204,7 +206,6 @@ void SceneManager::Update()
     }
 
 	// Fixed-Update all active Scenes
-    Droplet::Time &time = Droplet::Time::Get();
     while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
     {
         ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);
