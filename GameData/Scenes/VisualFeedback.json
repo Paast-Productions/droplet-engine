@@ -1,0 +1,479 @@
+{
+    "name": "VisualFeedback",
+    "roots": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": false,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Drone",
+                                "meshGUID": 11502053657790986835,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 11,
+                    "name": "Drone",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            -2.2201356887817383
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 45.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65535,
+                                "priority": 0,
+                                "resolution": [
+                                    256,
+                                    256
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 12,
+                    "name": "Camera Node",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 16685407550233266996,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "FreezeEffect5",
+                                "textureGUID": 12782165237624695713,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 13,
+                    "name": "ui",
+                    "transform": {
+                        "position": [
+                            -0.018689654767513275,
+                            0.00011020898818969727,
+                            1.1160473823547363
+                        ],
+                        "rotation": [
+                            0.7071064710617065,
+                            0.0,
+                            0.7071070671081543,
+                            0.0
+                        ],
+                        "scale": [
+                            0.6920953989028931,
+                            0.460637629032135,
+                            0.47916075587272644
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 16685407550233266996,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "ShowHealth.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 14,
+                    "name": "CurrentHealthbar",
+                    "transform": {
+                        "position": [
+                            -0.02757716178894043,
+                            -0.30029216408729553,
+                            1.4524798393249512
+                        ],
+                        "rotation": [
+                            0.7071067094802856,
+                            0.0,
+                            0.7071068286895752,
+                            0.0
+                        ],
+                        "scale": [
+                            0.999983549118042,
+                            0.04276934638619423,
+                            0.13981786370277405
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 16685407550233266996,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "Black",
+                                "textureGUID": 12198342428369187073,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 15,
+                    "name": "Healthbar",
+                    "transform": {
+                        "position": [
+                            -0.02800000086426735,
+                            -0.30000001192092896,
+                            1.4533162117004395
+                        ],
+                        "rotation": [
+                            0.7071067094802856,
+                            0.0,
+                            0.7071068286895752,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999834895133972,
+                            0.04276934638619423,
+                            0.13981784880161285
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "health": 100.0,
+                        "maxHealth": 100.0
+                    },
+                    "id": 1,
+                    "type": "HealthComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 2,
+                    "type": "PlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "DroneControl.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "ShowVisualFeedback.lua"
+                    },
+                    "id": 4,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 10,
+            "name": "Player",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -8.167316436767578
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 1448650563753099256,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 16,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    -0.31612253189086914,
+                    -0.3289235830307007,
+                    -5.500121116638184
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor",
+                        "meshGUID": 783955779018406974,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 17,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    -3.2520148754119873,
+                    -8.920930862426758,
+                    -8.454724311828613
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "FreezeColor",
+                        "textureGUID": 14503967403712679070,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "damage": 5.0
+                    },
+                    "id": 2,
+                    "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/Freeze.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 4,
+                    "type": "TriggerComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 18,
+            "name": "Freeze",
+            "transform": {
+                "position": [
+                    -0.13156308233737946,
+                    0.1538798213005066,
+                    -0.895824670791626
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    5.0,
+                    3.957156181335449,
+                    2.1426947116851807
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

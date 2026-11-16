@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Plane",
+            "guid": 16685407550233266996,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Plane",
+            "type": 3
+        }
+    ]
+}

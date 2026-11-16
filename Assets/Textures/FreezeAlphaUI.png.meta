@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "FreezeAlphaUI",
+            "guid": 10154272900935731036,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "FreezeAlphaUI",
+            "type": 1
+        }
+    ]
+}
