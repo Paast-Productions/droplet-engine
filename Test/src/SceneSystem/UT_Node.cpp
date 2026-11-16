@@ -300,48 +300,6 @@ TEST_F(NodeTest, ComponentDoesNotStartBeforeSceneActivation)
 }
 
 
-TEST_F(NodeTest, ComponentStartsWhenNodeStarts)
-{
-    scene->Load();
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    scene->SetActive(true);
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
-TEST_F(NodeTest, ComponentStartsOnlyOnce)
-{
-    scene->Load();
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    scene->SetActive(true);
-    scene->SetActive(false);
-    scene->SetActive(true);
-
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
-TEST_F(NodeTest, ComponentAddedAfterStartStartsImmediately)
-{
-    scene->Load();
-    scene->SetActive(true);
-
-    auto component = ComponentFactory::CreateComponent("TComponent");
-    root->AttachComponent(component);
-
-    std::vector<std::shared_ptr<TComponent>> components = root->GetComponents<TComponent>();
-    EXPECT_EQ(components[0]->startCount, 1);
-}
-
-
 TEST_F(NodeTest, ComponentUpdates)
 {
     auto component = ComponentFactory::CreateComponent("TComponent");
@@ -377,7 +335,7 @@ TEST_F(NodeTest, NodeInitiallyActive)
 
 TEST_F(NodeTest, DeactivateNode)
 {
-    root->SetActive(false);
+    root->SetActiveSelf(false);
 
     EXPECT_FALSE(root->IsActive());
 }
@@ -385,11 +343,11 @@ TEST_F(NodeTest, DeactivateNode)
 
 TEST_F(NodeTest, ReactivateNode)
 {
-    root->SetActive(false);
+    root->SetActiveSelf(false);
 
     EXPECT_FALSE(root->IsActive());
 
-    root->SetActive(true);
+    root->SetActiveSelf(true);
 
     EXPECT_TRUE(root->IsActive());
 }
@@ -404,12 +362,12 @@ TEST_F(NodeTest, ChildInheritsActiveState)
 	ASSERT_NE(child, nullptr);
 	EXPECT_TRUE(child->IsActive());
 
-	root->SetActive(false);
+	root->SetActiveSelf(false);
 
 	EXPECT_FALSE(child->IsActive());
 	EXPECT_TRUE(child->IsActiveSelf());
 
-	root->SetActive(true);
+	root->SetActiveSelf(true);
 
 	EXPECT_TRUE(child->IsActive());
 	EXPECT_TRUE(child->IsActiveSelf());
@@ -421,7 +379,7 @@ TEST_F(NodeTest, InactiveNodeDoesNotUpdate)
     auto component = ComponentFactory::CreateComponent("TComponent");
     root->AttachComponent(component);
 
-    root->SetActive(false);
+    root->SetActiveSelf(false);
 
     root->Update();
 

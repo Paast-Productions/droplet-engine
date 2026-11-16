@@ -15,8 +15,8 @@
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
-                "textureDisplayName": "White",
-                "textureGUID": 13855953862202670664,
+                "textureDisplayName": "PodExterior",
+                "textureGUID": 7599848563937726273,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -44,7 +44,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 3,
+    "id": 5,
     "name": "Pod Exterior",
     "transform": {
         "position": [

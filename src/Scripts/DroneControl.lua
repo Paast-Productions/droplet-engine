@@ -43,9 +43,6 @@ local mouseSmoothTime = 0.04   -- seconds, 0 = raw input
 local smoothDX = 0.0
 local smoothDY = 0.0
 
-local mouseLock = false
-
-
 local MovementModifiers = require("MovementModifiers")
 --
 -- Member Functions
@@ -77,11 +74,10 @@ end
 
 function ApplyMouseLook(dt)
     local dx, dy = 0.0, 0.0
-    if (mouseLock) then
-        dx = Input:GetDeltaMouseX()
-        dy = Input:GetDeltaMouseY()
-    end
-    -- Frame-rate independent one-pole filter. Total rotation is preserved,
+	dx = Input:GetDeltaMouseX()
+	dy = Input:GetDeltaMouseY()
+	
+	-- Frame-rate independent one-pole filter. Total rotation is preserved,
     -- it's just spread over a few frames.
     local a = 1.0
     if mouseSmoothTime > 0.0001 then
@@ -231,21 +227,18 @@ function UpdateMovement(dt)
 		-- Pulse camera effect
 		fovTime = fovTime + dt
 		
-		print(fovTime)
 		if fovTime >= pulseFadeOutTime then
 			fovTime = 0.0
 			camera:SetFOV(defaultFov)
 		elseif fovTime <= transitionTime then
 			local alpha = fovTime / transitionTime
 			local fov = Lerp(defaultFov, pulseFov, alpha)
-			print(fov)
 			camera:SetFOV(fov)
 		elseif fovTime < pulseFadeOutTime - transitionTime then
 			camera:SetFOV(pulseFov)
 		elseif fovTime >= pulseFadeOutTime - transitionTime then
 			local alpha = (transitionTime - (pulseFadeOutTime - fovTime)) / transitionTime
 			local fov = Lerp(pulseFov, defaultFov, alpha)
-			print(fov)
 			camera:SetFOV(fov)
 		end
 	else
@@ -287,14 +280,6 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
-
-    if Input:KeyPressed(Key.Tab) then
-        if (mouseLock == false) then
-            mouseLock = true
-        else
-            mouseLock = false
-        end
-    end
 	
     ApplyMouseLook(dt)
     UpdateMovement(dt)
