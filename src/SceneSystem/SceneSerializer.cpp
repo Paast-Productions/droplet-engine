@@ -107,7 +107,7 @@ nlohmann::json SceneSerializer::SerializeNode(const Node &p_node, bool p_undoPre
 
     json["name"] = p_node.GetName();
     json["id"] = p_node.GetID();
-    json["active"] = p_node.IsActive();
+    json["active"] = p_node.IsActiveSelf();
     json["drawLayer"] = static_cast<uint16_t>(p_node.GetDrawLayer());
     json["transform"] = SerializeTransform(p_node.GetTransform());
 
@@ -170,7 +170,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         if (p_json.contains("active"))
         {
-            node->SetActive(p_json["active"]);
+            node->SetActiveSelf(p_json["active"]);
         }
 	}
     else
@@ -185,7 +185,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         if (p_json.contains("active"))
         {
-            node->SetActive(p_json["active"]);
+            node->SetActiveSelf(p_json["active"]);
         }
 
         if (p_json.contains("drawLayer"))

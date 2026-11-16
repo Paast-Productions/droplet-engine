@@ -557,52 +557,55 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				auto &editorCamera = editorContext.GetEditorCamera();
 				auto activeScene = editorContext.GetActiveScene().lock();
 
-				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-				camRenderData.renderTarget = editorCamera.GetTargetIndex();
-
-				auto &renderables = activeScene->GetRenderables();
-
-				Droplet::Math::Frustum frustum = editorCamera.GetFrustum();
-
-				auto visibleComponents = activeScene->GetNodesIntersectingFrustum(frustum);
-
-				std::vector<std::weak_ptr<Droplet::Scene::Component>> componentsToRender;
-
-				// Filter the renderables to only include those that are visible in the editor camera's frustum
-				for (const auto &[node, component] : renderables)
+				if (activeScene)
 				{
-					if (!node || !component)
+					camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
+					camRenderData.renderTarget = editorCamera.GetTargetIndex();
+
+					auto &renderables = activeScene->GetRenderables();
+
+					Droplet::Math::Frustum frustum = editorCamera.GetFrustum();
+
+					auto visibleComponents = activeScene->GetNodesIntersectingFrustum(frustum);
+
+					std::vector<std::weak_ptr<Droplet::Scene::Component>> componentsToRender;
+
+					// Filter the renderables to only include those that are visible in the editor camera's frustum
+					for (const auto &[node, component] : renderables)
 					{
-						continue;
+						if (!node || !component)
+						{
+							continue;
+						}
+
+						// Check if the node is in the list of visible components
+						auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+							[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+								auto sharedNode = weakNode.lock();
+								return sharedNode && sharedNode == node;
+							});
+
+						if (it != visibleComponents.end())
+						{
+							componentsToRender.emplace_back(component);
+						}
 					}
 
-					// Check if the node is in the list of visible components
-					auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
-						[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
-							auto sharedNode = weakNode.lock();
-							return sharedNode && sharedNode == node;
-						});
-
-					if (it != visibleComponents.end())
+					camRenderData.renderData.reserve(componentsToRender.size());
+					for (const auto &componentWeak : componentsToRender)
 					{
-						componentsToRender.emplace_back(component);
+						auto component = componentWeak.lock();
+						if (!component)
+						{
+							continue;
+						}
+
+						camRenderData.renderData.emplace_back(component->GetRenderData());
 					}
+
+					if (renderEditorView)
+						queuedEditorCameras.push_back(camRenderData);
 				}
-
-				camRenderData.renderData.reserve(componentsToRender.size());
-				for (const auto &componentWeak : componentsToRender)
-				{
-					auto component = componentWeak.lock();
-					if (!component)
-					{
-						continue;
-					}
-
-					camRenderData.renderData.emplace_back(component->GetRenderData());
-				}
-
-				if (renderEditorView)
-					queuedEditorCameras.push_back(camRenderData);
 			}
 
 			// Render the engine

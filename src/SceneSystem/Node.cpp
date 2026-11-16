@@ -30,6 +30,29 @@ Node::~Node()
 	}
 }
 
+void Node::Construct()
+{
+	if (m_constructed)
+	{
+		return;
+	}
+
+	m_constructed = true;
+
+	ZoneScoped;
+	ZoneText(m_name.c_str(), m_name.size());
+
+	for (auto &component : m_components)
+	{
+		component->Construct();
+	}
+
+	for (auto &child : m_children)
+	{
+		child->Construct();
+	}
+}
+
 void Node::Start()
 {
 	if (!m_active || m_started)
@@ -58,10 +81,13 @@ void Node::Start()
 	{
 		child->Start();
 	}
+
 }
 
 void Node::Update()
 {
+	assert(m_constructed && "Node must be constructed before calling Update().");
+
 	if (!m_active)
 	{
 		return;
@@ -126,6 +152,8 @@ void Node::FixedUpdate()
 
 void Node::EditorUpdate()
 {
+	assert(m_constructed && "Node must be constructed before calling EditorUpdate().");
+
 	ZoneScoped;
 	ZoneText(m_name.c_str(), m_name.size());
 
@@ -170,7 +198,7 @@ void Node::RenderUI()
 	}
 }
 
-void Node::SetActive(bool p_active)
+void Node::SetActiveSelf(bool p_active)
 {
 	if (m_active == p_active)
 	{
@@ -427,6 +455,8 @@ std::weak_ptr<Component> Node::AttachComponent(std::shared_ptr<Component> p_comp
 	{
 		m_nextComponentID = p_componentID + 1;
 	}
+
+	p_component->Construct();
 
 	if (m_started)
 	{
