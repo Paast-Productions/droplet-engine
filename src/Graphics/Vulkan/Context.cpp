@@ -105,6 +105,7 @@ void Context::CreateLogicalDevice()
 			{	// vk::PhysicalDeviceFeatures2
 				.features 
 				{
+					.logicOp = true,
 					.fillModeNonSolid = true,
 					.wideLines = true,
 				}
