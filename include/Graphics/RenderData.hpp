@@ -42,10 +42,12 @@ namespace Droplet::Graphics
         ShaderData fsData {};
 
         MeshData meshData{};
-
         TextureData texData{};
 
         glm::mat4 transform{};
+
+        // Settings
+		bool transparent = false;
     };
 
     namespace VK
