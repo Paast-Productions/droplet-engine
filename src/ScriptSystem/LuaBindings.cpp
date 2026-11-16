@@ -123,7 +123,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetComponent<Scene::PhysicsComponent>();
 		},
-
 		"GetHealthComponent",
 		[](Scene::Node &node)
 		{
@@ -154,7 +153,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetComponent<Scene::InteractableComponent>();
 		}
-				
 	);
 
 	LuaClassDefinition classDef;

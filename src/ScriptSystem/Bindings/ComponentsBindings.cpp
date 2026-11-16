@@ -536,7 +536,9 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		"TakeDamage", &Scene::HealthComponent::TakeDamage,
 		"Heal", &Scene::HealthComponent::Heal,
 		"SetHealth", &Scene::HealthComponent::SetHealth,
-		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth
+		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth,
+
+		"TakeDamageHullIntergrity", & Scene::HealthComponent::TakeDamageHullIntergrity
 	);
 
 	LuaClassDefinition classDef;
@@ -549,7 +551,9 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		{ "TakeDamage", "void", { { "amount", "number" } } },
 		{ "Heal", "void", { { "amount", "number" } } },
 		{ "SetHealth", "void", { { "amount", "number" } } },
-		{ "SetMaxHealth", "void", { { "amount", "number" } } }
+		{ "SetMaxHealth", "void", { { "amount", "number" } } },
+	
+		{ "TakeDamageHullIntergrity", "void", { { "amount", "number" } } }
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
@@ -662,7 +666,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
         "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
         "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
-
 	);
 
     // PlayerBehaviour API metadata.

@@ -29,6 +29,6 @@ namespace Droplet::Game
         float freezeLevel = 0;          ///< Current freeze level of the player.
         float timeSinceFreeze = 0;
 		float pressureResistance = 50;  ///< Resistance to environmental pressure.
-		float pressureLevel = 0;        ///< Current pressure level of the player.
+		float pressureLevel = 1;        ///< Current pressure level of the player.
     };
 }

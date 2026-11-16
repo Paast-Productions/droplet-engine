@@ -25,6 +25,6 @@ namespace Droplet::Scene
         
     private:
         float m_damage{ 1.0f }; // Amount of damage per second
-        int m_zone{};
+        int m_zone{1};
     };
 }
