@@ -103,16 +103,17 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
-		"GetChildren", [](Scene::Node &node) -> std::vector<std::weak_ptr<Scene::Node>>
+		"GetChildren", [](Scene::Node &node)
 		{
-			auto children = node.GetChildren();
-			std::vector<std::weak_ptr<Scene::Node>> childrenWeak;
-			childrenWeak.reserve(children.size());
-			for (auto &child : children)
+			auto childrenShared = node.GetChildren();
+			std::vector<Scene::Node*> children;
+			children.reserve(childrenShared.size());
+
+			for (auto &child : childrenShared)
 			{
-				childrenWeak.push_back(child);
+				children.push_back(child.get());
 			}
-			return childrenWeak;
+			return sol::as_table(std::move(children));
 		},
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
