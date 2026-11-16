@@ -1,10 +1,10 @@
 #pragma once 
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 
 namespace Droplet
 {
     /// @brief Class for material resources.
-    class MaterialResource : public IResource
+    class MaterialResource : public IStaticResource
     {
         // TODO
 

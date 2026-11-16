@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 169,
+            "id": 425,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 171,
+                    "id": 427,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -155,10 +155,24 @@
                     },
                     "id": 6,
                     "type": "PhysicsComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "PlayerInteraction.lua"
+                    },
+                    "id": 7,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 8,
+                    "type": "PlayerComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 170,
+            "id": 426,
             "name": "Player",
             "transform": {
                 "position": [
@@ -185,7 +199,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 173,
+                    "id": 429,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -210,7 +224,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 174,
+                    "id": 430,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -237,7 +251,7 @@
                     "children": [],
                     "components": [],
                     "drawLayer": 8,
-                    "id": 183,
+                    "id": 439,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -304,7 +318,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 184,
+                    "id": 440,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -330,8 +344,8 @@
                 {
                     "active": true,
                     "data": {
-                        "button": 183,
-                        "player": 170,
+                        "button": 439,
+                        "player": 426,
                         "reach": 1.0,
                         "targetSceneName": "Seafloor"
                     },
@@ -340,7 +354,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 172,
+            "id": 428,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -388,7 +402,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 185,
+            "id": 441,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -439,7 +453,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 187,
+                    "id": 443,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -463,7 +477,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 186,
+            "id": 442,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -511,7 +525,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 188,
+            "id": 444,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -559,13 +573,62 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 189,
+            "id": 445,
             "name": "Crane",
             "transform": {
                 "position": [
                     0.0,
                     0.0,
                     5.215000152587891
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 1,
+                    "type": "InteractableComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "ladder.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "targetSceneName": "InsideBoatScene"
+                    },
+                    "id": 3,
+                    "type": "LadderComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 446,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -0.5962095260620117,
+                    0.42889362573623657,
+                    -1.2549374103546143
                 ],
                 "rotation": [
                     1.0,

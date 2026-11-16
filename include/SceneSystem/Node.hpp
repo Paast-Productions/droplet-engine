@@ -17,6 +17,7 @@
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Graphics/DrawLayer.hpp>
+#include <SceneSystem/Physics/CollisionLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
@@ -114,22 +115,38 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
 		{
 			assert(
-				Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
-				"p_drawLayer must be a single layer"
-			);
+                Core::LayerUtility::IsSingleLayer(p_drawLayer) &&
+                "p_drawLayer must be a single layer"
+            );
 
 			m_drawLayer = p_drawLayer;
 		}
 
-		/// @brief Sets whether the Node is active.
+		/// @brief Gets the Node's collision layer mask.
 		///
-		/// An inactive Node does not update its Components or child Nodes.
+		/// The collision layer mask determines which collisions the Node and its Components will participate in.
 		///
-		/// If the Node is activated after its Scene has already started,
-		/// OnStart is called automatically.
-		///
-		/// @param p_active true to activate the Node, false to deactivate it.
-		void SetActiveSelf(bool p_active);
+		/// @return The collision layer mask  of the collision layers the Node belongs to.
+		[[nodiscard]] CollisionLayer GetCollisionLayerMask() const
+		{
+			return m_collisionLayerMask;
+		}
+
+		/// @brief Sets the Node's collision layer mask.
+		void SetCollisionLayerMask(CollisionLayer p_collisionLayerMask)
+        {
+            m_collisionLayerMask = p_collisionLayerMask;
+		}
+
+        /// @brief Sets whether the Node is active.
+        ///
+        /// An inactive Node does not update its Components or child Nodes.
+        ///
+        /// If the Node is activated after its Scene has already started,
+        /// OnStart is called automatically.
+        ///
+        /// @param p_active true to activate the Node, false to deactivate it.
+        void SetActiveSelf(bool p_active);
 
 		/// @brief Checks whether the Node is active.
 		///
@@ -430,8 +447,14 @@ namespace Droplet::Scene
 		/// Components will be rendered in.
 		Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-		bool m_constructed = false;
-		bool m_started = false;
+		/// @brief Collision layer mask for the Node.
+        ///
+        /// The collision layer mask determines which collisions the Node and its
+		/// Components will participate in.
+		CollisionLayer m_collisionLayerMask = CollisionLayer::Layer1;
+
+        bool m_constructed = false;
+        bool m_started = false;
 
 		// Transform
 

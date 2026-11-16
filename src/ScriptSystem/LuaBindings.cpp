@@ -28,6 +28,7 @@
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
+#include <SceneSystem/Components/LadderComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -165,6 +166,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::InteractableComponent>();
+		},
+		"GetLadderComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::LadderComponent>();
 		}
 				
 	);
@@ -185,7 +191,9 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
-		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
+		{"GetInteractableComponent", "InteractableComponent", {} },
+		{"GetLadderComponent", "LadderComponent", {} }
 	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
@@ -2178,6 +2186,7 @@ void LuaBindings::RegisterInput(sol::state_view p_luaState)
 
 void LuaBindings::RegisterImGui(sol::state_view p_luaState)
 {
+#ifdef _EDITOR
 	ZoneScoped;
 
 	// Enums
@@ -2740,6 +2749,7 @@ void LuaBindings::RegisterImGui(sol::state_view p_luaState)
 			}
 		);
 	}
+#endif
 }
 
 void LuaBindings::RegisterTracy(sol::state_view p_luaState)

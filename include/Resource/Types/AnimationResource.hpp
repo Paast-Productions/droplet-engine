@@ -1,5 +1,5 @@
 #pragma once
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
@@ -12,7 +12,7 @@
 namespace Droplet
 {
     /// @brief Class for animation resources.
-	class AnimationResource : public IResource
+	class AnimationResource : public IStaticResource
 	{
 	public:
 		/// @brief Struct for animation step data for a single bone.

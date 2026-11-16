@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "room.001",
+            "guid": 12984381543868828614,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "room.001",
+            "type": 1
+        }
+    ]
+}

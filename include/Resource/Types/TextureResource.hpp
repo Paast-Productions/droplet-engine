@@ -2,12 +2,12 @@
 
 #include <vector>
 
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 
 namespace Droplet
 {
     /// @brief Abstract class for all texture resources.
-	class TextureResource : public IResource
+	class TextureResource : public IStaticResource
 	{
 	public:
 		enum class TextureFormat

@@ -28,7 +28,7 @@ void Droplet::Scene::AudioEmitterComponent::StartImpl()
 
 void AudioEmitterComponent::RenderUIImpl()
 {
-
+#ifdef _EDITOR
 	if (ImGui::Button("Play"))
 	{
 		// TODO: Get the audio emitter from the audio system and play it
@@ -96,6 +96,7 @@ void AudioEmitterComponent::RenderUIImpl()
 	{
 		m_attCurve = curves[current];
 	}
+#endif
 }
 
 nlohmann::json Droplet::Scene::AudioEmitterComponent::SerializeImpl()
