@@ -1592,12 +1592,15 @@ void SceneViewWindow::RenderOverlayQueue()
 	auto &overlay = ViewOverlayUI::Get();
 	auto &queue = overlay.GetQueue();
 
-	for (const auto &item : queue)
+	int index = 0;
+	for (const auto &[duration, item] : queue)
 	{
+		ImGui::PushID(index++);
 		item();
+		ImGui::PopID();
 	}
 
-	overlay.ClearQueue();
+	overlay.UpdateQueue();
 
 	ImGui::EndGroup();
 	ImGui::PopID();

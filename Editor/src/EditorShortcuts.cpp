@@ -115,8 +115,21 @@ void Editor::EditorShortcuts::ProcessSceneViewKeyShortcuts(EditorContext &p_edit
 
 			if (scene)
 			{
-				std::string path = ROOT_PATH "/GameData/Scenes/" + scene->GetName() + ".json";
+				std::string relativePath = scene->GetName() + ".json";
+				std::string path = ROOT_PATH "/GameData/Scenes/" + relativePath;
 				p_editorContext.SaveScene(path);
+
+				ViewOverlayUI::QueueOverlay([=]() {
+					ImGui::SetNextWindowBgAlpha(0.5f);
+					ImGui::BeginChild("SceneSavedWindow", ImVec2(0, 0),
+						ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
+						ImGuiWindowFlags_NoResize
+					);
+					ImGui::SetWindowFontScale(1.75f);
+					ImGui::Text("Saved to '%s'", relativePath.c_str());
+					ImGui::EndChild();
+
+				}, 3.0f);
 			}
 		}
 	}
