@@ -10,35 +10,44 @@
 
 namespace Droplet::Scene
 {
-	class AudioPlayerComponent;
-	class AudioEmitterComponent;
-	class AudioListenerComponent;
+    class AudioPlayerComponent;
+    class AudioEmitterComponent;
+    class AudioListenerComponent;
 }
 
 namespace Droplet::Audio
 {
-	using PlaybackID = uint32_t;
-	constexpr PlaybackID C_INVALID_PLAYBACK_ID = 0;
-	
-	using ListenerID = uint32_t;
-	constexpr ListenerID C_INVALID_LISTENER_ID = UINT32_MAX;
-	
-	constexpr uint32_t C_EDITOR_LISTENER_INDEX = 0;
-	
-	constexpr float C_VOLUME_DECIBEL_DEFAULT = 0.0f;
-	constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
-	constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
-	
-	enum class PlaybackState : uint8_t
-	{
-		Playing     = 0,
-		Paused      = 1, 
-		Inactive    = 2,
-	};
-	
-	class dalia::Engine;
-	struct dalia::PlaybackHandle;
-	
+    using PlaybackID = uint32_t;
+    constexpr PlaybackID C_INVALID_PLAYBACK_ID = 0;
+    
+    using ListenerID = uint32_t;
+    constexpr ListenerID C_INVALID_LISTENER_ID = UINT32_MAX;
+    constexpr ListenerID C_EDITOR_LISTENER_ID = 0;
+    
+    constexpr float C_VOLUME_DECIBEL_DEFAULT = 0.0f;
+    constexpr float C_VOLUME_DECIBEL_MIN = -60.0f;
+    constexpr float C_VOLUME_DECIBEL_MAX = 12.0f;
+    
+    constexpr float C_STEREO_PAN_LEFT = 0.0f;
+    constexpr float C_STEREO_PAN_MIDDLE = 0.0f;
+    constexpr float C_STEREO_PAN_RIGHT = 0.0f;
+    
+    constexpr float C_PITCH_DEFAULT = 1.0f;
+    constexpr float C_PITCH_MIN = 0.1f;
+    constexpr float C_PITCH_MAX = 4.0f;
+    
+    constexpr uint32_t C_LISTENERS_MAX = 4;
+    
+    enum class PlaybackState : uint8_t
+    {
+        Playing     = 0,
+        Paused      = 1, 
+        Inactive    = 2,
+    };
+    
+    class dalia::Engine;
+    struct dalia::PlaybackHandle;
+    
 	class AudioSystem
 	{
 	public:
@@ -55,60 +64,83 @@ namespace Droplet::Audio
 		
 		bool Initialize();
 		void Shutdown();
-		void Update();
-		
-		std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
-			 std::function<void(bool)> p_onLoad);
-		void UnloadSound(SoundResource* sound);
-		
-		// Component registration
-		void RegisterPlayer(Scene::AudioPlayerComponent* player);
-		void UnregisterPlayer(Scene::AudioPlayerComponent* player);
-		
-		void RegisterEmitter(Scene::AudioEmitterComponent* emitter);
-		void UnregisterEmitter(Scene::AudioEmitterComponent* emitter);
-		
-		void RegisterListener(Scene::AudioListenerComponent* listener);
-		void UnregisterListener(Scene::AudioListenerComponent* listener);
-		
-		PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
-		PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
-		void Pause(PlaybackID id);
-		void Stop(PlaybackID id);
-		
-		AudioMixer& GetMixer() { return m_mixer; }
-		
-		// --- Editor ---
-		void SetEditorListenerActive(bool p_active);
-		void UpdateEditorListener3DAttributes(const glm::vec3& p_pos, const glm::vec3& p_fwd, 
-			const glm::vec3& p_up, const glm::vec3& p_vel);
-		
-		// --- Effects ---
-		bool CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params);
-		bool AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot);
-		bool DetachEffect(dalia::EffectHandle &p_effect);
+	    void Update();
+	    
+	    std::unique_ptr<SoundResource> LoadSound(const std::filesystem::path &p_path, SoundType p_type, 
+	         std::function<void(bool)> p_onLoad);
+	    void UnloadSound(SoundResource* sound);
+	    double GetSoundLenghtInSeconds(SoundResource* sound) const;
+	    
+	    // Component registration
+	    void RegisterPlayer(Scene::AudioPlayerComponent* player);
+	    void UnregisterPlayer(Scene::AudioPlayerComponent* player);
+	    
+	    void RegisterEmitter(Scene::AudioEmitterComponent* emitter);
+	    void UnregisterEmitter(Scene::AudioEmitterComponent* emitter);
+	    
+	    void RegisterListener(Scene::AudioListenerComponent* listener);
+	    void UnregisterListener(Scene::AudioListenerComponent* listener);
+	    void SetListenerActive(ListenerID p_id, bool p_active);
+	    
+	    PlaybackID Play(Scene::AudioPlayerComponent* player, SoundResource* sound);
+	    PlaybackID Play3D(Scene::AudioEmitterComponent* emitter, SoundResource* sound);
+	    void Pause(PlaybackID id);
+	    void Resume(PlaybackID id);
+	    void Stop(PlaybackID id);
+	    
+	    [[nodiscard]] PlaybackState GetPlaybackState(PlaybackID id) const;
+	    
+	    AudioMixer& GetMixer() { return m_mixer; }
+	    
+	    // --- Editor ---
+	    void SetMode(bool p_isGameMode);
+	    void SetGamePaused(bool p_isPaused);
+	    
+	    void UpdateEditorListener3DAttributes(const glm::vec3& p_pos, const glm::vec3& p_fwd, const glm::vec3& p_up, 
+	        const glm::vec3& p_vel);
+	    
+	    // --- Effects ---
+	    bool CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params);
+	    bool AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot);
+	    bool DetachEffect(dalia::EffectHandle &p_effect);
 		bool DestroyEffect(dalia::EffectHandle &p_effect);
 		bool ChangeEffectSetting(dalia::EffectHandle &p_effect, dalia::BiquadParams &p_params);
 
 	private:
-		AudioSystem() = default;
-		~AudioSystem() = default;
-		
-		void ProcessFinishedPlaybacks();
-		void RegisterEffects();
+	    struct PlaybackData
+	    {
+	        dalia::PlaybackHandle handle = dalia::INVALID_PLAYBACK_HANDLE;
+	        PlaybackState state = PlaybackState::Inactive;
+	    };
+	    
+	    struct ListenerData
+	    {
+	        bool taken = false;
+	        bool active = false;
+	    };
+	    
+	    AudioSystem() = default;
+	    ~AudioSystem() = default;
+	    
+	    void ProcessFinishedPlaybacks();
+	    void RegisterEffects();
+	    
+	    bool m_isGameMode = false;
+	    bool m_isGamePaused = false;
 
 		std::unique_ptr<dalia::Engine> m_daliaEngine;
 		AudioMixer m_mixer;
-		
-		// Playback Management
-		PlaybackID m_nextPlaybackId = 1;
-		std::unordered_map<PlaybackID, dalia::PlaybackHandle> m_activePlaybacks;
-		std::vector<PlaybackID> m_finishedPlaybacks;
-		
-		std::vector<Scene::AudioPlayerComponent*> m_registeredPlayers;
-		std::vector<Scene::AudioEmitterComponent*> m_registeredEmitters;
-		
-		std::vector<Scene::AudioListenerComponent*> m_registeredListeners;
-		bool m_listenerSlots[4] = { false, false, false, false };
+	    
+	    // Playback Management
+	    std::vector<Scene::AudioPlayerComponent*> m_playerComponents;
+	    std::vector<Scene::AudioEmitterComponent*> m_emitterComponents;
+	    
+	    PlaybackID m_nextPlaybackId = 1;
+	    std::unordered_map<PlaybackID, PlaybackData> m_playbacks;
+	    std::vector<PlaybackID> m_finishedPlaybacks;
+	    
+	    // Listener Management
+	    std::vector<Scene::AudioListenerComponent*> m_listenerComponents;
+	    std::array<ListenerData, C_LISTENERS_MAX> m_listeners;
 	};
 }

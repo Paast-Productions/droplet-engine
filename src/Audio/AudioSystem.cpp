@@ -5,9 +5,11 @@
 #include "Effects/HighPassEffect.hpp"
 #include "SceneSystem/Components/AudioListenerComponent.hpp"
 #include "Resource/Types/SoundResource.hpp"
+#include "SceneSystem/Components/AudioPlayerComponent.hpp"
 #include "SceneSystem/Components/AudioEmitterComponent.hpp"
-#include <dalia/dalia.h>
+#include "SceneSystem/Components/AudioListenerComponent.hpp"
 
+#include <dalia/dalia.h>
 
 using namespace Droplet::Audio;
 
@@ -60,20 +62,21 @@ void AudioSystem::Update()
     // }
     
     // Sync emitters
-    for (auto* emitter : m_registeredEmitters)
+    for (auto* emitter : m_emitterComponents)
     {
-
+        if (!emitter->IsActiveSelf()) continue;
+        
         PlaybackID id = emitter->GetPlaybackID();
-        auto it = m_activePlaybacks.find(id);
-        if (it != m_activePlaybacks.end())
+        auto it = m_playbacks.find(id);
+        if (it != m_playbacks.end())
         {
-            dalia::PlaybackHandle daliaHandle = it->second;
+            dalia::PlaybackHandle daliaHandle = it->second.handle;
             // Update spatial properties
             auto pos = emitter->GetWorldPosition();
-            m_daliaEngine->SetPlaybackPosition(it->second, { pos.x, pos.y, pos.z });
+            m_daliaEngine->SetPlaybackPosition(daliaHandle, { pos.x, pos.y, pos.z });
             
             auto vel = emitter->GetVelocity();
-            m_daliaEngine->SetPlaybackVelocity(it->second, { vel.x, vel.y, vel.z });
+            m_daliaEngine->SetPlaybackVelocity(daliaHandle, { vel.x, vel.y, vel.z });
             
             if (emitter->IsDirty())
             {
@@ -85,28 +88,29 @@ void AudioSystem::Update()
                 if (!emitter->GetBusName().empty())
                 {
                     m_daliaEngine->RoutePlayback(daliaHandle, emitter->GetBusName().c_str());
-
                 }
                 emitter->ClearDirtyFlag();
             }
         }
+    }
+    
+    // Sync listeners
+    for (auto* listener : m_listenerComponents)
+    {
+        if (!listener->IsActiveSelf()) continue;
         
-        // Sync listeners
-        for (auto* listener : m_registeredListeners)
-        {
-            auto pos = listener->GetWorldPosition();
-            auto fwd = listener->GetForward();
-            auto up = listener->GetUp();
-            auto vel = listener->GetVelocity();
+        auto pos = listener->GetWorldPosition();
+        auto fwd = listener->GetForward();
+        auto up = listener->GetUp();
+        auto vel = listener->GetVelocity();
         
-            dalia::Listener3DAttributes attributes {
-                .position = { pos.x, pos.y, pos.z },
-                .forward = { fwd.x, fwd.y, fwd.z },
-                .up = { up.x, up.y, up.z }, 
-                .velocity = { vel.x, vel.y, vel.z }
-            };
-            m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), attributes);
-        }
+        dalia::Listener3DAttributes attributes {
+            .position = { pos.x, pos.y, pos.z },
+            .forward = { fwd.x, fwd.y, fwd.z },
+            .up = { up.x, up.y, up.z },
+            .velocity = { vel.x, vel.y, vel.z }
+        };
+        m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), attributes);
     }
     
     m_daliaEngine->Update();
@@ -140,27 +144,64 @@ void AudioSystem::UnloadSound(SoundResource *sound)
     m_daliaEngine->UnloadSound(sound->GetHandle());
 }
 
+double AudioSystem::GetSoundLenghtInSeconds(SoundResource *sound) const
+{
+    if (!sound) return 0.0;
+    double lenghtInSeconds = 0.0;
+    m_daliaEngine->GetSoundLength(sound->GetHandle(), lenghtInSeconds);
+    return lenghtInSeconds;
+}
+
+void AudioSystem::RegisterPlayer(Scene::AudioPlayerComponent *player)
+{
+    m_playerComponents.push_back(player);
+}
+
+void AudioSystem::UnregisterPlayer(Scene::AudioPlayerComponent *player)
+{
+    auto it = std::find(m_playerComponents.begin(), m_playerComponents.end(), player);
+    if (it != m_playerComponents.end())
+    {
+        auto playbackIt = m_playbacks.find(player->GetPlaybackID());
+        if (playbackIt != m_playbacks.end())
+        {
+            m_daliaEngine->StopPlayback(playbackIt->second.handle);
+        }
+        
+        m_playerComponents.erase(it);
+    }
+}
+
 void AudioSystem::RegisterEmitter(Scene::AudioEmitterComponent *emitter)
 {
-    m_registeredEmitters.push_back(emitter);
+    m_emitterComponents.push_back(emitter);
 }
 
 void AudioSystem::UnregisterEmitter(Scene::AudioEmitterComponent *emitter)
 {
-    auto it = std::find(m_registeredEmitters.begin(), m_registeredEmitters.end(), emitter);
-    if (it != m_registeredEmitters.end()) m_registeredEmitters.erase(it);
+    auto it = std::find(m_emitterComponents.begin(), m_emitterComponents.end(), emitter);
+    if (it != m_emitterComponents.end())
+    {
+        auto playbackIt = m_playbacks.find(emitter->GetPlaybackID());
+        if (playbackIt != m_playbacks.end())
+        {
+            m_daliaEngine->StopPlayback(playbackIt->second.handle);
+        }
+        
+        m_emitterComponents.erase(it);
+    }
 }
 
 void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
 {
     for (uint32_t i = 1; i < 4; i++)
     {
-        if (!m_listenerSlots[i])
+        if (!m_listeners[i].taken)
         {
-            m_listenerSlots[i] = true;
+            m_listeners[i].taken = true;
             listener->SetListenerId(i);
-            m_registeredListeners.push_back(listener);
-            m_daliaEngine->SetListenerActive(i, true);
+            m_listenerComponents.push_back(listener);
+            if (m_isGameMode && listener->IsActiveSelf()) m_daliaEngine->SetListenerActive(i, true);
             return;
         }
     }
@@ -169,11 +210,23 @@ void AudioSystem::RegisterListener(Scene::AudioListenerComponent *listener)
 
 void AudioSystem::UnregisterListener(Scene::AudioListenerComponent *listener)
 {
-    auto it = std::find(m_registeredListeners.begin(), m_registeredListeners.end(), listener);
-    if (it != m_registeredListeners.end())
+    auto it = std::find(m_listenerComponents.begin(), m_listenerComponents.end(), listener);
+    if (it != m_listenerComponents.end())
     {
-        m_listenerSlots[listener->GetListenerId()] = false;
-        m_registeredListeners.erase(it);
+        m_daliaEngine->SetListener3DAttributes(listener->GetListenerId(), dalia::Listener3DAttributes{});
+        m_daliaEngine->SetListenerActive(listener->GetListenerId(), false);
+        
+        m_listeners[listener->GetListenerId()] = ListenerData{};
+        m_listenerComponents.erase(it);
+    }
+}
+
+void AudioSystem::SetListenerActive(ListenerID p_id, bool p_active)
+{
+    if (p_id < C_LISTENERS_MAX && m_listeners[p_id].taken)
+    {
+        m_listeners[p_id].active = p_active;
+        if (m_isGameMode) m_daliaEngine->SetListenerActive(p_id, p_active);
     }
 }
 
@@ -204,6 +257,8 @@ PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResou
 
     m_daliaEngine->SetPlaybackSpatial(daliaHandle, true);
     
+    double seekTime = emitter->GetStartTimeSeconds();
+    if (seekTime > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, seekTime);
     m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, emitter->GetVolumeDb());
     m_daliaEngine->SetPlaybackRate(daliaHandle, emitter->GetPitch());
     m_daliaEngine->SetPlaybackLooping(daliaHandle, emitter->IsLooping());
@@ -211,40 +266,86 @@ PlaybackID AudioSystem::Play3D(Scene::AudioEmitterComponent *emitter, SoundResou
     m_daliaEngine->SetPlaybackAttenuationCurve(daliaHandle, emitter->GetAttenuationCurve());
     
     m_daliaEngine->PlayPlayback(daliaHandle);
-    m_activePlaybacks[newId] = daliaHandle;
+    m_playbacks[newId] = { .handle = daliaHandle, .state = PlaybackState::Playing };
     return newId;
 }
 
 void AudioSystem::Pause(PlaybackID id)
 {
-    auto it = m_activePlaybacks.find(id);
-    if (it != m_activePlaybacks.end()) m_daliaEngine->PausePlayback(it->second);
-}
-
-void AudioSystem::Stop(PlaybackID id)
-{
-    auto it = m_activePlaybacks.find(id);
-    if (it != m_activePlaybacks.end()) m_daliaEngine->StopPlayback(it->second);
-}
-
-void AudioSystem::SetEditorListenerActive(bool p_active)
-{
-    m_daliaEngine->SetListenerActive(0, p_active);
-    
-    // Activate/deactivate listeners based if editor camera listener is active/inactive
-    for (uint32_t i = 1; i < 4; i++)
+    auto it = m_playbacks.find(id);
+    if (it != m_playbacks.end()) 
     {
-        if (m_listenerSlots[i] != false)
+        it->second.state = PlaybackState::Paused;
+        m_daliaEngine->PausePlayback(it->second.handle);
+    }
+}
+
+void AudioSystem::Resume(PlaybackID id)
+{
+    auto it = m_playbacks.find(id);
+    if (it != m_playbacks.end()) 
+    {
+        it->second.state = PlaybackState::Playing;
+        if (!m_isGamePaused)
         {
-            m_daliaEngine->SetListenerActive(i, !p_active);
+            m_daliaEngine->PlayPlayback(it->second.handle);
         }
     }
 }
 
-void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
-    const glm::vec3 &p_up, const glm::vec3 &p_vel)
+void AudioSystem::Stop(PlaybackID id)
 {
-    m_daliaEngine->SetListener3DAttributes(C_EDITOR_LISTENER_INDEX, { 
+    auto it = m_playbacks.find(id);
+    if (it != m_playbacks.end()) 
+    {
+        it->second.state = PlaybackState::Inactive;
+        if (!m_isGamePaused) m_daliaEngine->StopPlayback(it->second.handle);
+    }
+}
+
+PlaybackState AudioSystem::GetPlaybackState(PlaybackID id) const
+{
+    auto it = m_playbacks.find(id); 
+    if (it != m_playbacks.end()) return it->second.state;
+    return PlaybackState::Inactive;
+}
+
+void AudioSystem::SetMode(bool p_isGameMode)
+{
+    m_isGameMode = p_isGameMode;
+    
+    // Stop all active playbacks
+    for (auto& [id, data] : m_playbacks) m_daliaEngine->StopPlayback(data.handle);
+    
+    // Activate/deactivate listeners based on mode
+    m_daliaEngine->SetListenerActive(0, !p_isGameMode);
+    for (uint32_t i = 1; i < 4; i++)
+    {
+        if (m_listeners[i].taken && m_listeners[i].active != false)
+        {
+            m_daliaEngine->SetListenerActive(i, p_isGameMode);
+        }
+    }
+}
+
+void AudioSystem::SetGamePaused(bool p_paused)
+{
+    m_isGamePaused = p_paused;
+    
+    for (auto& [id, data] : m_playbacks)
+    {
+        if (p_paused) m_daliaEngine->PausePlayback(data.handle);
+        else
+        {
+            if (data.state == PlaybackState::Playing) m_daliaEngine->PlayPlayback(data.handle);
+        }
+    }   
+}
+
+void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
+                                                   const glm::vec3 &p_up, const glm::vec3 &p_vel)
+{
+    m_daliaEngine->SetListener3DAttributes(C_EDITOR_LISTENER_ID, { 
         .position = { p_pos.x, p_pos.y, p_pos.z },
         .forward = { p_fwd.x, p_fwd.y, p_fwd.z },
         .up = { p_up.x, p_up.y, p_up.z },
@@ -292,18 +393,19 @@ void AudioSystem::ProcessFinishedPlaybacks()
 {
     for (PlaybackID id : m_finishedPlaybacks)
     {
-        m_activePlaybacks.erase(id);
+        m_playbacks.erase(id);
         
         // Notify players
         // if (auto* player : m_activePlayers) if (player->GetPlaybackID() == id) player->NotifyStopped();
         
         // Notify emitters
-        for (auto* emitter : m_registeredEmitters)
+        for (auto* emitter : m_emitterComponents)
         {
             if (emitter->GetPlaybackID() == id) emitter->OnPlaybackFinished();
         }
     }
     
+    m_finishedPlaybacks.clear();
 }
 
 bool Droplet::Audio::AudioSystem::DetachEffect(dalia::EffectHandle &p_effect)

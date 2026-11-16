@@ -124,8 +124,3 @@ void EditorCameraController::SetMovementSpeed(float p_speed)
 	m_movementSpeed = p_speed; 
 	EditorConfig::StoreFloat("EditorCamera.MovementSpeed", m_movementSpeed);
 }
-
-void EditorCameraController::SetListenerActive(bool p_active)
-{
-    Audio::AudioSystem::GetInstance().SetEditorListenerActive(p_active);
-}

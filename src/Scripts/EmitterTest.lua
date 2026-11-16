@@ -1,23 +1,22 @@
+local audioEmitter
 
 -- Called when script starts
 function OnStart()
-    tracy.ZoneBeginN("PlayerController OnStart")
-
-    print("New AudioEmitter")
-	trans = self:GetTransform()
-	
-    tracy.ZoneEnd()
+    
 end
 
 -- Called every frame
 function OnUpdate(dt)
-    local emitter = self:GetAudioEmitter("Gupta")
-    if emitter == nil then
-        print("not")
+    local audioEmitter = self:GetAudioEmitter("No need to be upset")
+    if audioEmitter == nil then  
+        print("Unable to find emitter")
         return
     end
-    emitter:PlaySound()
-    print("Gupta emitter found")
+
+    if Input:KeyPressed(Key.P) then
+        audioEmitter:Play()
+        print("P was pressed - Playing emitter")
+    end
 end
 
 -- Called to render variables in the script
