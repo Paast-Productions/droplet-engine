@@ -29,7 +29,7 @@
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Components/TriggerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/HealthComponent.hpp>
 
 #include <SceneSystem/BehaviourRegistry.hpp>

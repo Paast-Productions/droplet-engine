@@ -146,7 +146,7 @@ namespace Droplet::Scene
         /// OnStart is called automatically.
         ///
         /// @param p_active true to activate the Node, false to deactivate it.
-        void SetActive(bool p_active);
+        void SetActiveSelf(bool p_active);
 
 		/// @brief Checks whether the Node is active.
 		///
