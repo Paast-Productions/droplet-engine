@@ -11,7 +11,7 @@
 #include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/Vulkan/RenderTarget.hpp>
 #include <Engine.hpp>
 #include <SceneSerializer.hpp>
 

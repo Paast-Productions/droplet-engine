@@ -9,7 +9,7 @@
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Editor::Resource;
 

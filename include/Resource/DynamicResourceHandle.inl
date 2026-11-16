@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 namespace Droplet
 {

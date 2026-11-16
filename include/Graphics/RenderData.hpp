@@ -1,8 +1,6 @@
 #pragma once
 
-#include <cstdint>
 #include <glm/glm.hpp>
-#include <vector>
 
 namespace Droplet::Graphics
 {

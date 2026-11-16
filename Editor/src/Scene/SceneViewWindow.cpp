@@ -14,7 +14,7 @@
 #include <chrono>
 #include <iostream>
 #include <Graphics/DebugDraw.hpp>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 

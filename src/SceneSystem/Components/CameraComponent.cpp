@@ -4,7 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
