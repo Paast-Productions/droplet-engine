@@ -1,11 +1,15 @@
 #pragma once
 
+<<<<<<<< HEAD:include/Graphics/Vulkan/ImGuiTexture.hpp
 #include <Graphics/Vulkan/ImGuiTextureResource.hpp>
 #include <Graphics/Vulkan/Image.hpp>
 #include <Graphics/Vulkan/ImageView.hpp>
+========
+#include <Graphics/Vulkan/Imgui/ImGuiTextureResource.hpp>
+>>>>>>>> 68f5a1fc (Cleaning up and organising the Engine project for migration.):include/Graphics/Vulkan/ImGui/ImGuiTexture.hpp
 #include <Resource/DynamicResourceHandle.hpp>
 
-namespace Droplet::Graphics
+namespace Droplet::Graphics::ImGui
 {
 	class ImGuiTexture
 	{

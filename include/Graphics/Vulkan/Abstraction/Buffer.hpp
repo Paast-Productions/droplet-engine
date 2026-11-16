@@ -11,7 +11,7 @@
 #include <vk_mem_alloc_raii.hpp>
 #include <vulkan/vulkan_raii.hpp>
 
-namespace Droplet::Vulkan
+namespace Droplet::Graphics::Vulkan
 {
     enum class MemoryAccess
     {

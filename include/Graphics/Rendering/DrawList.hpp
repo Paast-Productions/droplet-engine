@@ -5,7 +5,18 @@
  */
 #pragma once
 
-namespace Vulkan::Render
+#include <cstdint>
+#include <string>
+#include <variant>
+#include <vector>
+
+#include <glm/glm.hpp>
+
+#include "Common/RenderDesc.hpp"
+#include "Common/Handles.hpp"
+
+
+namespace Droplet::Graphics
 {
     /// @brief Per-draw data scene shaders receive.
     struct ScenePushConstants
