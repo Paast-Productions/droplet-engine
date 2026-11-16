@@ -241,6 +241,8 @@ void AudioSystem::SetListenerActive(ListenerID p_id, bool p_active)
 
 PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource *sound)
 {
+    if (m_isGamePaused) return C_INVALID_PLAYBACK_ID; // Game is paused -> do not allow new play calls
+    
     PlaybackID newId = m_nextPlaybackId++;
     dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
     
@@ -279,6 +281,8 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
 
 PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
 {
+    if (m_isGamePaused) return C_INVALID_PLAYBACK_ID; // Game is paused -> do not allow new play calls
+    
     PlaybackID newId = m_nextPlaybackId++;
     dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
     
