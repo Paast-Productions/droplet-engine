@@ -163,13 +163,11 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 
 	if (ImGui::BeginDragDropSource())
 	{
-		Audio::AudioBus *bus = p_bus;
-		ImGui::SetDragDropPayload("AUDIO_BUS", &busID, sizeof(busID));
-
+		ImGui::SetDragDropPayload(std::string(PAYLOAD_AUDIO_BUS).c_str(), &busID, sizeof(busID));
 		ImGui::Text("%s", p_bus->GetName().c_str());
 
 		ImGui::EndDragDropSource();
-	}
+	}		
 
 	HandleBusDropTarget(p_bus);
 
@@ -192,7 +190,7 @@ void Droplet::Editor::MixerWindow::HandleBusDropTarget(Audio::AudioBus *p_parent
 	}
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(std::string(PAYLOAD_AUDIO_BUS).c_str());
 
 		if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
 		{

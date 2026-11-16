@@ -25,7 +25,8 @@ namespace Droplet::Editor
 	constexpr std::string_view PAYLOAD_COMPONENT	= "DROPLET_COMPONENT";
 	constexpr std::string_view PAYLOAD_RESOURCE		= "DROPLET_RESOURCE";
     constexpr std::string_view PAYLOAD_ASSET		= "DROPLET_ASSET";
-	constexpr std::string_view PAYLOAD_EFFECT		= "DROPLET_EFFECT";
+	constexpr std::string_view PAYLOAD_AUDIO_EFFECT	= "DROPLET_AUDIO_EFFECT";
+	constexpr std::string_view PAYLOAD_AUDIO_BUS	= "DROPLET_AUDIO_BUS";
     // Add more...
 
 	struct ComponentDragDropData

@@ -8,6 +8,8 @@
 
 namespace Droplet::Scene
 {
+	
+	/// @brief Non-spatial audio player.
 	class AudioPlayerComponent : public Component
 	{
 	public:
@@ -17,18 +19,21 @@ namespace Droplet::Scene
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioPlayerComponent"; }
 		const std::string GetName() { return m_soundName; }
 	    
-	    // --- Playback Controls ---
+		// --- State Control ---
 	    void Play();
 	    void Pause();
 	    void Resume();
 	    void Stop();
+		
+		// --- State Getters ---
 	    [[nodiscard]] bool IsPlaying() const;
 	    
+		// --- Parameter Control ---
 	    void SetStartTimeSeconds(double p_startTimeSeconds);
 	    void SetVolumeDb(float p_volume);
+		void SetStereoPan(float p_stereoPan);
 	    void SetPitch(float p_pitch);
 	    void SetLooping(bool p_looping);
-	    void SetBusName(const std::string& p_busName);
 	    
 	    // --- Parameter Getters ---
 	    [[nodiscard]] Audio::PlaybackID GetPlaybackID() const { return m_playbackId; }
@@ -36,21 +41,30 @@ namespace Droplet::Scene
 	    [[nodiscard]] float GetVolumeDb() const { return m_volumeDb; }
 	    [[nodiscard]] float GetPitch() const { return m_pitch; }
 	    [[nodiscard]] bool IsLooping() const { return m_looping; }
-	    [[nodiscard]] bool GetStereoPan() const { return m_stereoPan; }
-	    [[nodiscard]] const std::string& GetBusName() const { return m_busName; }
+	    [[nodiscard]] float GetStereoPan() const { return m_stereoPan; }
+		
+		// --- Routing ---
+		[[nodiscard]] bool RoutingChanged() const { return m_routingChanged; }
+		void ClearRoutingChangedFlag() { m_routingChanged = false; }
+		[[nodiscard]] const std::string& GetBusName() const { return m_busName; }
 	    
-	    [[nodiscard]] bool IsDirty() const { return m_isDirty;}
-	    void ClearDirtyFlag() { m_isDirty = false; }
+		// --- Dirty Flag ---
+		[[nodiscard]] bool IsDirty() const { return m_isDirty;}
+		void ClearDirtyFlag() { m_isDirty = false; }
 	    
 	    // --- Resource ---
-	    void SetSoundGUID(GUID p_guid);
+	    void SetSound(GUID p_guid);
 	    [[nodiscard]] GUID GetSoundGUID() const { return m_soundGuid; }
 
+		// --- System Control ---
 	    void OnPlaybackFinished();
+		void OnBusInvalidation();
 	    
 	protected:
 		void StartImpl() override;
 		void RenderUIImpl() override;
+		
+		void ActiveChangedImpl(const bool p_active) override;
 
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
@@ -70,5 +84,6 @@ namespace Droplet::Scene
 	    bool m_looping = false;
 	    
 	    std::string m_busName = "Master";
+		bool m_routingChanged = false;
 	};
 }

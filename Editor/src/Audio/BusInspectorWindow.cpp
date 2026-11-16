@@ -19,7 +19,7 @@ void Droplet::Editor::BusInspectorWindow::RenderEffectSlotDropTarget(Audio::Audi
 	ImGui::Button(label.c_str(), ImVec2(120.0f, 40.0f));
 	if (ImGui::BeginDragDropTarget())
 	{
-		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_EFFECT.data()))
+		if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_AUDIO_EFFECT.data()))
 		{
 			if (payload->DataSize == sizeof(EffectDragDropData))
 			{
@@ -123,7 +123,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		if (ImGui::BeginDragDropSource())
 		{
 			EffectDragDropData payload{ effect->GetSlot() };
-			ImGui::SetDragDropPayload(PAYLOAD_EFFECT.data(), &payload, sizeof(payload));
+			ImGui::SetDragDropPayload(PAYLOAD_AUDIO_EFFECT.data(), &payload, sizeof(payload));
 			ImGui::TextUnformatted(headerLabel.c_str());
 			ImGui::EndDragDropSource();
 		}

@@ -708,11 +708,14 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     LuaBindings::PushLuaClassDefinition(registryDef);
 }
 
-void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
+void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
 {
-    p_luaState.new_usertype<Scene::AudioEmitterComponent>(
+    p_luaState.new_usertype<AudioEmitterComponent>(
         "AudioEmitterComponent",
-        "Play", &Scene::AudioEmitterComponent::Play
+        "Play", &AudioEmitterComponent::Play,
+        "Pause", &AudioEmitterComponent::Pause,
+        "Resume", &AudioEmitterComponent::Resume,
+        "Stop", &AudioEmitterComponent::Stop
     );
 
     LuaClassDefinition classDef;
@@ -720,7 +723,35 @@ void Droplet::Script::Bindings::RegisterAudioEmitterComponent(sol::state_view p_
 
     classDef.functions =
     {
-        {"Play", "void", {}}
+        {"Play", "void", {}},
+        {"Pause", "void", {}},
+        {"Resume", "void", {}},
+        {"Stop", "void", {}},
+        
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<AudioPlayerComponent>(
+        "AudioPlayerComponent",
+        "Play", &AudioPlayerComponent::Play,
+        "Pause", &AudioPlayerComponent::Pause,
+        "Resume", &AudioPlayerComponent::Resume,
+        "Stop", &AudioPlayerComponent::Stop
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioPlayerComponent";
+
+    classDef.functions =
+    {
+        {"Play", "void", {}},
+        {"Pause", "void", {}},
+        {"Resume", "void", {}},
+        {"Stop", "void", {}},
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
