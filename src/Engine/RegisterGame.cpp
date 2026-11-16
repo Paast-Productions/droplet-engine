@@ -9,6 +9,7 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+
 namespace Droplet::Game
 {
 	void RegisterGameComponents()
@@ -18,6 +19,7 @@ namespace Droplet::Game
 		Droplet::Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Droplet::Scene::TriggerComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("DamageComponent", []() { return std::make_unique<Droplet::Scene::DamageComponent>(); });
 	}
+
 	void RegisterGameBehaviours()
 	{
 		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Droplet::Scene::PlayerBehaviour>(); });

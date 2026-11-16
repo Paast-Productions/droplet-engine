@@ -220,7 +220,6 @@ nlohmann::json CameraComponent::SerializeImpl()
 	{
 		cameraJson["fov"] = m_camera.GetFOV();
 		cameraJson["planes"] = { m_camera.GetPlanes().x, m_camera.GetPlanes().y };
-
 	}
 	compJson["camera"] = cameraJson;
 
@@ -228,6 +227,7 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["priority"] = m_priority;
 	compJson["autoRender"] = m_autoRender;
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
+	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
 
 	return compJson;
 }
@@ -279,6 +279,18 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 			int width = res[0].get<int>();
 			int height = res[1].get<int>();
 			SetResolution(glm::ivec2(width, height));
+		}
+	}
+
+	if (p_compJson.contains("clearColor"))
+	{
+		auto &color = p_compJson["clearColor"];
+		if (color.is_array() && color.size() == 4)
+		{
+			m_clearColor.r = color[0].get<float>();
+			m_clearColor.g = color[1].get<float>();
+			m_clearColor.b = color[2].get<float>();
+			m_clearColor.a = color[3].get<float>();
 		}
 	}
 

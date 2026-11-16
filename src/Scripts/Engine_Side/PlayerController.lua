@@ -14,6 +14,10 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
+
+    if trans == nil then
+	    trans = self:GetTransform()
+    end
     
     local physComp = self:GetPhysicsComponent()
     if physComp == nil then

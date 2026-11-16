@@ -55,6 +55,8 @@ namespace Droplet::Editor::Scene
 		/// @brief Aggregate selection bounds (min, max) relative to the group gizmo matrix
 		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
 		bool m_groupGizmoActive = false;
+		/// @brief Unsnapped gizmo matrix kept between frames while absolute snapping is in use
+		glm::mat4 m_gizmoRawMatrix = glm::mat4(1.0f);
 		
 		/// @brief Bool indicating whether the SDL Window has been resized
 		bool m_hasBeenResized = false;

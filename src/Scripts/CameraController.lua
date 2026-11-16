@@ -27,6 +27,10 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("CameraController OnUpdate")
+
+    if trans == nil then
+	    trans = self:GetTransform()
+    end
     
 --     local dx = Input:GetDeltaMouseX()
     local dy = Input:GetDeltaMouseY()
