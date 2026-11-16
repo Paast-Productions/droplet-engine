@@ -58,7 +58,11 @@ namespace Droplet::Graphics
 
 		/// @brief Get the frustum of the camera
 		/// @returns A frustum of the camera
-		[[nodiscard]] Math::Frustum GetFrustum() const; 
+		[[nodiscard]] Math::Frustum GetFrustum() const;
+
+		/// @brief Get the ray of the camera
+		/// @return A ray of the camera
+		[[nodiscard]] Math::Ray GetRay() const;
 
 		/// @brief Return the view matrix
 		/// @returns A view matrix
