@@ -882,13 +882,26 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 				continue;
 			}
 
-			RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
-			if (!octantHit.didHit)
+			if (Contains(child->octant, p_ray.pos))
 			{
-				continue;
+				RayHit defaultHit = {
+					.point = p_ray.pos,
+					.normal = -p_ray.dir,
+					.distance = 0.0f,
+					.didHit = true
+				};
+				octantHits.emplace_back(defaultHit, &child);
 			}
+			else
+			{
+				RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+				if (!octantHit.didHit)
+				{
+					continue;
+				}
 
-			octantHits.emplace_back(octantHit, &child);
+				octantHits.emplace_back(octantHit, &child);
+			}
 		}
 
 		// Sort the octant hits by distance to ensure we check the closest octants first

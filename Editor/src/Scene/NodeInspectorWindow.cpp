@@ -5,6 +5,7 @@
 #include <ComponentList.hpp>
 #include <Editor/ImGuiUtils.hpp>
 #include <EditorConfig.hpp>
+#include <TransformSnapping.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <Editor/DragDropFields.hpp>
@@ -111,12 +112,18 @@ void NodeInspectorWindow::RenderImpl()
 		using TSpace = Transform::Space;
 
 		TSpace space = (TSpace)EditorConfig::LoadInt("manipulateSpace", static_cast<int>(TSpace::World));
+		const TransformSnapSettings snapSettings = TransformSnapSettings::Load();
+		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyAlt);
+		const float translateSnap = snapActive ? snapSettings.translate : 0.0f;
+		const float rotateSnap = snapActive ? snapSettings.rotate : 0.0f;
+		const float scaleSnap = snapActive ? snapSettings.scale : 0.0f;
 
 		Transform &transform = m_currentNode.lock()->GetTransform();
 		float drag_speed = 0.005f;
 
 		glm::vec3 pos = transform.GetPosition(space);
-		if (ImGui::DragFloat3("Position", &pos.x, drag_speed))
+		const bool snapRelative = !snapSettings.absolute;
+		if (DragFloat3Snapped("Position", pos, drag_speed, translateSnap, snapRelative))
 		{
 			transform.SetPosition(pos, space);
 		}
@@ -133,7 +140,7 @@ void NodeInspectorWindow::RenderImpl()
 
 		glm::vec3 prevRot = glm::degrees(transform.GetEuler(space));
 		glm::vec3 rot = prevRot;
-		if (ImGui::DragFloat3("Rotation", &rot.x, drag_speed * 40.0f))
+		if (DragFloat3Snapped("Rotation", rot, drag_speed * 40.0f, rotateSnap, snapRelative))
 		{
 			/*if (rot.x != prevRot.x)
 			{
@@ -168,28 +175,19 @@ void NodeInspectorWindow::RenderImpl()
 
 		glm::vec3 scl = transform.GetScale();
 		const glm::vec3 oldScl = scl;
-		if (ImGui::DragFloat3("Scale", &scl.x, drag_speed * 0.5f))
+		int scaleAxis = -1;
+		if (DragFloat3Snapped("Scale", scl, drag_speed * 0.5f, scaleSnap, snapRelative, &scaleAxis))
 		{
-			if (m_lockScale)
+			if (m_lockScale && scaleAxis >= 0 && oldScl[scaleAxis] != 0.0f)
 			{
-
-				if (scl.x != oldScl.x)
+				// Other axes keep their ratio to the edited axis, which is already snapped.
+				const float factor = scl[scaleAxis] / oldScl[scaleAxis];
+				for (int i = 0; i < 3; ++i)
 				{
-					float deltaScale = scl.x - oldScl.x;
-					scl.y += deltaScale * (oldScl.y / oldScl.x);
-					scl.z += deltaScale * (oldScl.z / oldScl.x);
-				}
-				else if (scl.y != oldScl.y)
-				{
-					float deltaScale = scl.y - oldScl.y;
-					scl.x += deltaScale * (oldScl.x / oldScl.y);
-					scl.z += deltaScale * (oldScl.z / oldScl.y);
-				}
-				else if (scl.z != oldScl.z)
-				{
-					float deltaScale = scl.z - oldScl.z;
-					scl.x += deltaScale * (oldScl.x / oldScl.z);
-					scl.y += deltaScale * (oldScl.y / oldScl.z);
+					if (i != scaleAxis)
+					{
+						scl[i] = oldScl[i] * factor;
+					}
 				}
 			}
 
@@ -330,4 +328,54 @@ void NodeInspectorWindow::RenderImpl()
 void NodeInspectorWindow::RenderToolbar()
 {
 	// Toolbar will render here
+}
+
+bool NodeInspectorWindow::DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative, int *p_changedAxis)
+{
+	if (p_changedAxis)
+	{
+		*p_changedAxis = -1;
+	}
+
+	const ImGuiID id = ImGui::GetID(p_label);
+	const bool dragging = m_snapDrag.id == id;
+	glm::vec3 raw = dragging ? m_snapDrag.value : p_value;
+	const glm::vec3 start = dragging ? m_snapDrag.start : p_value;
+
+	const glm::vec3 previousRaw = raw;
+	const bool changed = ImGui::DragFloat3(p_label, &raw.x, p_speed);
+
+	if (ImGui::IsAnyItemActive())
+	{
+		if (changed || dragging)
+		{
+			m_snapDrag = { id, raw, start };
+		}
+	}
+	else
+	{
+		m_snapDrag.id = 0;
+	}
+
+	if (!changed)
+	{
+		return false;
+	}
+
+	// Only the axis being edited is written, so untouched axes keep their values.
+	const bool snap = p_snapIncrement > 0.0f;
+	for (int i = 0; i < 3; ++i)
+	{
+		if (raw[i] == previousRaw[i])
+		{
+			continue;
+		}
+		if (p_changedAxis && *p_changedAxis < 0)
+		{
+			*p_changedAxis = i;
+		}
+		const float origin = p_relative ? start[i] : 0.0f;
+		p_value[i] = snap ? SnapToIncrement(raw[i], p_snapIncrement, origin) : raw[i];
+	}
+	return true;
 }

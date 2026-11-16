@@ -158,19 +158,40 @@ void Droplet::Editor::EditorShortcuts::PasteNodes(EditorContext &p_editorContext
 	}
 
 	auto scene = p_editorContext.GetActiveScene().lock();
-	glm::vec3 objectPos = p_editorContext.GetEditorCamera().GetPosition() + p_editorContext.GetEditorCamera().GetForward() * 5.0f;
+
+	bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
+
+	glm::vec3 objectPos{};
+	if (!keepTransformOnCopy)
+	{
+		objectPos = p_editorContext.GetEditorCamera().GetPosition() + 
+			p_editorContext.GetEditorCamera().GetForward() * 
+			EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+	}
+
+	p_editorContext.GetInteractionState().ClearNodeSelection();
 
 	for (const nlohmann::json &nodeJson : *clipboardNodes)
 	{
+		std::shared_ptr<Droplet::Scene::Node> node;
+
+		if (keepTransformOnCopy)
+		{
+			node = serializer.DeserializeLonsesomeNode(nodeJson, *scene);
+		}
+		else
+		{
+			node = serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
+		}
+
 		std::string prefabPath = "";
 		if (nodeJson.contains("prefab"))
 		{
 			prefabPath = nodeJson["prefab"];
 		}
-
-		auto node = serializer.DeserializeLonsesomeNode(nodeJson, *scene, objectPos);
-
 		node->SetPrefabPath(prefabPath);
+
+		p_editorContext.GetInteractionState().SelectNode(node, false);
 	}
 
 }
