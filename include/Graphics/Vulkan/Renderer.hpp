@@ -53,9 +53,10 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer,
+		void RecordRenderTargetCommandBuffer(
+			vk::raii::CommandBuffer &p_commandBuffer, 
 			const RenderTarget &p_renderTarget, 
-			const Camera &p_camera,
+			const Camera &p_camera, 
 			std::vector<RenderData> &p_renderData, 
 			bool p_debug, 
 			glm::vec4 p_clearColor);

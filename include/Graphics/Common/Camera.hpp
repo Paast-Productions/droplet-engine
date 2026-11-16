@@ -1,3 +1,4 @@
+<<<<<<<< HEAD:include/Graphics/Common/Camera.hpp
 #pragma once
 
 #include <glm/glm.hpp>
@@ -145,3 +146,5 @@ namespace Droplet::Graphics
 		void UpdateCameraVectors();
 	};
 }
+========
+>>>>>>>> 9678edf7 (Cleaning up and organising the Engine project for migration.):include/Graphics/Vulkan/Camera.hpp
