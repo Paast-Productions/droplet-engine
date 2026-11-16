@@ -11,6 +11,7 @@
 #include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+
 namespace Droplet::Game
 {
 	void RegisterGameComponents()

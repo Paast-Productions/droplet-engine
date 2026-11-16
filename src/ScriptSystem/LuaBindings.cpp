@@ -15,7 +15,6 @@
 #include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
-#include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
 #include <HazardComponent.hpp>
@@ -23,6 +22,7 @@
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
 #include <PhysicsComponent.hpp>
+#include <CollectibleTypeComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
@@ -153,6 +153,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::InteractableComponent>();
+		},
+		"GetCollectibleTypeComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CollectibleTypeComponent>();
 		}
 				
 	);

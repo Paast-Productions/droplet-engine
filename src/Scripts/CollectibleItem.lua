@@ -3,8 +3,7 @@ local suctionSystem = require("SuctionSystem")
 
 -- Called when script starts
 function OnStart()
-    print("UpdgradeItem", self)
-    suctionSystem.RegisterCollectible(self, "speed")
+    suctionSystem.RegisterCollectible(self)
 end
 
 -- Called every frame

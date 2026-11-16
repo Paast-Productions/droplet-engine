@@ -4713,9 +4713,19 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": "Fih.lua"
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
                     },
-                    "id": 2,
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/Fih.lua"
+                    },
+                    "id": 4,
                     "type": "ScriptComponent"
                 }
             ],
@@ -4794,6 +4804,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -4881,6 +4901,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -4962,6 +4992,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5049,6 +5089,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5130,6 +5180,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5217,6 +5277,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5298,6 +5368,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5385,6 +5465,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5466,6 +5556,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5553,6 +5653,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5634,6 +5744,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5721,6 +5841,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5802,6 +5932,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -5889,6 +6029,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -5973,6 +6123,16 @@
                 {
                     "active": true,
                     "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "filepath": "Fih.lua"
                     },
                     "id": 2,
@@ -6054,6 +6214,16 @@
                 }
             ],
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 0,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -6208,6 +6378,16 @@
                     },
                     "id": 2,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "amount": 0,
+                        "collectibleType": 1,
+                        "itemId": 0
+                    },
+                    "id": 3,
+                    "type": "CollectibleTypeComponent"
                 }
             ],
             "drawLayer": 1,

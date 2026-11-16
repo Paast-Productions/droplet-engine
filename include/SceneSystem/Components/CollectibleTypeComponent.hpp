@@ -17,6 +17,7 @@ namespace Droplet::Scene
     {
     public:
 		CollectibleTypeComponent() = default;
+        ~CollectibleTypeComponent() = default;
 
         std::string_view GetTypeName() const override { return "CollectibleTypeComponent"; }
 
@@ -30,9 +31,22 @@ namespace Droplet::Scene
 		[[nodiscard]] int GetAmount() const;
 
     protected:
+        /// @brief Initializes the component and associates it with the player behaviour.
         void StartImpl() override;
+
+        /// @brief Updates the component.
         void UpdateImpl() override;
+
+        /// @brief Renders the component's properties in the editor.
         void RenderUIImpl() override;
+
+        /// @brief Serializes the component's data.
+        /// @return A JSON object containing the serialized data.
+        nlohmann::json SerializeImpl() override;
+
+        /// @brief Restores the component's data from JSON.
+        /// @param p_compJson The JSON object containing the serialized data.
+        void DeserializeImpl(const nlohmann::json p_compJson) override;
 
     private:
 		CollectibleType m_collectibleType = CollectibleType::Fish;

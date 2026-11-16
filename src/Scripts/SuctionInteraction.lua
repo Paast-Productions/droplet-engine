@@ -14,7 +14,6 @@ local suctionElapsed = 0.0
 
 local playerBehaviour
 local woodId
-local upgrade1
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -61,6 +60,7 @@ function InteractWith(target)
 end
 
 function SuctionStart(target)
+    print("suctionStart")
     currentTarget = target
     suctionElapsed = 0.0
 end
@@ -112,23 +112,24 @@ function SuctionUpdate(dt)
         fishPosition.z + direction.z * movement
     )
 
+    print("Succc Succc")
     fishTransform:SetPosition(newPosition)
 
 end
 
 function SuctionEnd()
-    local fish = currentTarget
+    local suckedTarget = currentTarget
 
     currentTarget = nil
     suctionElapsed = 0.0
 
-    suctionSystem.UnregisterCollectible(fish.node, fish.type)
-    scene:RemoveNode(fish.node)
+    suctionSystem.UnregisterCollectible(suckedTarget.node)
+    scene:RemoveNode(suckedTarget.node)
     
-    if fish.type == "fish" then
+    if suckedTarget.type == CollectibleType.Fish then
         playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
         print("Fish is yum: ")
-    elseif fish.type == "speed" then
+    elseif suckedTarget.type == CollectibleType.Upgrade then
         playerBehaviour:AddItem(InventoryType.Player, woodId, 1)
         print("Upgrade1 optained")
     end
@@ -161,7 +162,6 @@ function OnStart()
     end
 
     woodId = registry:Find("resource:wood")
-    --upgrade1 = registry:Find("")
 
     if not woodId or not woodId:IsValid() then
         print("Wood item is not registered!")
@@ -188,6 +188,14 @@ function OnUpdate(dt)
         if Input:KeyPressed(Key.E) then
             if InteractWith(upgrade) then
                 SuctionStart(upgrade)
+                return
+           end
+        end
+    end
+    for _, brokenPart in ipairs(suctionSystem.GetBrokenParts()) do        
+        if Input:KeyPressed(Key.E) then
+            if InteractWith(brokenPart) then
+                SuctionStart(brokenPart)
                 return
            end
         end

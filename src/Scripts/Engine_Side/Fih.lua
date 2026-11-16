@@ -219,7 +219,7 @@ function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
 	print("New Fih")
 
-    suctionSystem.RegisterCollectible(self, "fish")
+    suctionSystem.RegisterCollectible(self)
 
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)

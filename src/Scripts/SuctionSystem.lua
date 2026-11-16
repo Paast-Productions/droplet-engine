@@ -1,6 +1,7 @@
 SuctionSystem = SuctionSystem or {}
 SuctionSystem.fishes = SuctionSystem.fishes or {}
 SuctionSystem.upgrades = SuctionSystem.upgrades or {}
+SuctionSystem.brokenParts = SuctionSystem.brokenParts or {}
 
 function OnStart()
 end
@@ -11,18 +12,22 @@ end
 function RenderUI()
 end
 
-function SuctionSystem.RegisterCollectible(node, type)
-    if not node or not type then
+function SuctionSystem.RegisterCollectible(node)
+    local comp = node:GetCollectibleTypeComponent()
+    if not node or not comp then
         return
     end
 
     local registry
-
-
-    if type == "fish" then
+    local type = comp:GetCollectibleType()
+    if type == CollectibleType.Fish then
         registry = SuctionSystem.fishes
-    else
+    elseif type == CollectibleType.Upgrade then
         registry = SuctionSystem.upgrades
+    elseif type == CollectibleType.BrokenPart then
+        registry = SuctionSystem.brokenParts
+    else
+        print("Type of component is not recogised")
     end
 
     for _, entry in ipairs(registry) do
@@ -31,10 +36,20 @@ function SuctionSystem.RegisterCollectible(node, type)
         end
     end
 
+    local item = comp:GetItemId()
+    local amount = comp:GetAmount()
+
+    if not item or not amount then
+        print("No defined item or amount for collectible")
+        return
+    end
+
     table.insert(registry, 
     {
         node = node,
-        type = type
+        type = type,
+        item = item,
+        amount = amount
     })
 end
 
@@ -67,6 +82,10 @@ end
 
 function SuctionSystem.GetUpgrads()
     return SuctionSystem.upgrades
+end
+
+function SuctionSystem.GetBrokenParts()
+    return SuctionSystem.brokenParts
 end
 
 return SuctionSystem
