@@ -1,0 +1,62 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 15104664662864096133,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "active": true,
+            "data": null,
+            "id": 2,
+            "type": "InteractableComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "filepath": "BoatEngine.lua"
+            },
+            "id": 3,
+            "type": "ScriptComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 19,
+    "name": "engine",
+    "transform": {
+        "position": [
+            -1.9402976036071777,
+            0.30464714765548706,
+            4.340496063232422
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            0.6943433284759521,
+            0.35073941946029663,
+            0.4650476276874542
+        ]
+    }
+}

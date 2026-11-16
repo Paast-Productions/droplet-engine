@@ -10,9 +10,9 @@
 #include <LuaBindings.hpp>  
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
-
+#include <Component.hpp>
 #include "ItemRegistry.hpp"
-
+#include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Node.hpp>
 
 using namespace Droplet::Scene;
@@ -28,6 +28,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
     RegisterPhysicsComponent(p_luaState);
 	RegisterMeshComponent(p_luaState);
     RegisterInteractableComponent(p_luaState);
+	RegisterLadderComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -307,23 +308,27 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 
 void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::MeshComponent>(
-		"MeshComponent",
-		"SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
-		"GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
-		"SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
-		"GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
-		"SetVSGUID", &Scene::MeshComponent::SetVSGUID,
-		"GetVSGUID", &Scene::MeshComponent::GetVSGUID,
-		"SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
-		"GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
-		"SetTESGUID", &Scene::MeshComponent::SetTESGUID,
+    p_luaState.new_usertype<Scene::MeshComponent>(
+        "MeshComponent",
+        "SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
+        "GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
+        "SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
+        "GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
+        "SetVSGUID", &Scene::MeshComponent::SetVSGUID,
+        "GetVSGUID", &Scene::MeshComponent::GetVSGUID,
+        "SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
+        "GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
+        "SetTESGUID", &Scene::MeshComponent::SetTESGUID,
         "GetTESGUID", &Scene::MeshComponent::GetTESGUID,
-		"SetGSGUID", &Scene::MeshComponent::SetGSGUID,
-		"GetGSGUID", &Scene::MeshComponent::GetGSGUID,
-		"HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
-		"GetsBounds", &Scene::MeshComponent::GetBounds
-	);
+        "SetGSGUID", &Scene::MeshComponent::SetGSGUID,
+        "GetGSGUID", &Scene::MeshComponent::GetGSGUID,
+        "HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
+        "GetBounds", &Scene::MeshComponent::GetBounds,
+
+        // Inherited Component functionality.
+        "SetActiveSelf", &Scene::Component::SetActiveSelf,
+        "IsActive", &Scene::Component::IsActive
+    );
 
     LuaClassDefinition classDef;
     classDef.name = "MeshComponent";
@@ -349,11 +354,11 @@ void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
         {"SetGSGUID", "void", {{"guid", "GUID"}}},
         {"GetGSGUID", "GUID", {}},
 
-        {"SetFSGUID", "void", {{"guid", "GUID"}}},
-        {"GetFSGUID", "GUID", {}},
-
         {"HasBoundsOverride", "boolean", {}},
-        {"GetBounds", "NodeBounds", {}}
+        {"GetBounds", "NodeBounds", {}},
+
+        {"SetActiveSelf", "void", {{"active", "boolean"}}},
+        {"IsActive", "boolean", {}}
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -565,6 +570,11 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 		"HazardComponent",
 		"GetDamage", &Scene::HazardComponent::GetDamageLua,
         "GetZone", &Scene::HazardComponent::GetZoneLua
+		"GetDamage", &HazardComponent::GetDamage,
+		"GetDirection", &HazardComponent::GetDirection,
+		
+		"SetDamage", &HazardComponent::SetDamage,
+		"SetDirection", &HazardComponent::SetDirection
 	);
 
     LuaClassDefinition classDef;
@@ -573,6 +583,10 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetDamage", "float", {} },
+        { "GetDirection", "float", {} },
+        
+        { "SetDamage", "void", {{"damage", "number"}} },
+        { "SetDirection", "void", {{"direction", "Vec3"}} },
         { "GetZone", "int",{} },
     };
 
@@ -750,6 +764,24 @@ void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
                 {"interactingNode", "Node"}
             }
         }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterLadderComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::LadderComponent>(
+        "LadderComponent",
+        "BeginTransition", &Scene::LadderComponent::BeginTransition
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "LadderComponent";
+
+    classDef.functions =
+    {
+        { "BeginTransition", "void", {} }
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
