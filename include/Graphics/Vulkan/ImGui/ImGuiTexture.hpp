@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Graphics/VK/ImGuiTextureResource.hpp>
+#include <Graphics/Vulkan/Imgui/ImGuiTextureResource.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
 
-namespace Droplet::Graphics
+namespace Droplet::Graphics::ImGui
 {
 	class ImGuiTexture
 	{

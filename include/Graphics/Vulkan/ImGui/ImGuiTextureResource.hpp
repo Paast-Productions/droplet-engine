@@ -6,7 +6,7 @@
 
 #include <IDynamicResource.hpp>
 
-namespace Droplet::Graphics
+namespace Droplet::Graphics::ImGui
 {
 	class ImGuiTextureResource : public IDynamicResource 
 	{

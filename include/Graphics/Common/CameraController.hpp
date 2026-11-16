@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Graphics/VK/Camera.hpp>
+#include "Graphics/Common/Camera.hpp"
 
 namespace Droplet::Graphics
 {

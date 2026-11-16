@@ -24,7 +24,7 @@
 #include <Graphics/VK/CommandPool.hpp>
 #include <Graphics/VK/Swapchain.hpp>
 #include <Graphics/VK/Context.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <Graphics/RenderData.hpp>
 
 #ifdef _EDITOR
@@ -69,9 +69,13 @@ namespace Droplet::Graphics
 		/// @brief Records a command buffer for rendering an image
 		/// @param p_renderData Vector of RenderData
 		/// @param p_imageIndex Which image to render to
-		void RecordRenderTargetCommandBuffer(vk::raii::CommandBuffer &p_commandBuffer, const RenderTarget &p_renderTarget, 
-			const Camera &p_camera, std::vector<RenderData> &p_renderData, 
-			bool p_debug, glm::vec4 p_clearColor);
+		void RecordRenderTargetCommandBuffer(
+			vk::raii::CommandBuffer &p_commandBuffer, 
+			const RenderTarget &p_renderTarget, 
+			const Camera &p_camera, 
+			std::vector<RenderData> &p_renderData, 
+			bool p_debug, 
+			glm::vec4 p_clearColor);
 				
 		/// @brief Creates sync objects for preventing race conditions etc
 		void CreateSyncObjects();
