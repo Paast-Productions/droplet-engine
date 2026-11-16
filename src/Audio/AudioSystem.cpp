@@ -36,6 +36,8 @@ bool Droplet::Audio::AudioSystem::Initialize()
     
     RegisterEffects();
     
+    m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !m_isGameMode);
+    
     return true;
 }
 
