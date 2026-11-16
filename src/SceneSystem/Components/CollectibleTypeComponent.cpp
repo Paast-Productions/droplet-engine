@@ -118,6 +118,9 @@ void CollectibleTypeComponent::RenderUIImpl()
             m_itemId = itemIds[currentItem];
         }
     }
+
+    ImGui::InputInt("Amount", &m_amount);
+
 }
 
 nlohmann::json Droplet::Scene::CollectibleTypeComponent::SerializeImpl()

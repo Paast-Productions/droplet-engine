@@ -13,8 +13,6 @@ local currentTarget = nil
 local suctionElapsed = 0.0
 
 local playerBehaviour
-local woodId
-local metalId
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -58,7 +56,7 @@ function InteractWith(target)
 
     return dot >= threshold
 
-end
+end 
 
 function SuctionStart(target)
     print("suctionStart")
@@ -113,7 +111,7 @@ function SuctionUpdate(dt)
         fishPosition.z + direction.z * movement
     )
 
-    print("Succc Succc")
+    print("Succc Succc", newPosition.x, newPosition.y, newPosition.z)
     fishTransform:SetPosition(newPosition)
 
 end
@@ -168,13 +166,6 @@ function OnStart()
         return
     end
 
-    woodId = registry:Find("resource:wood")
-    metalId = registry:Find("resource:metal")
-
-    if not woodId or not woodId:IsValid() then
-        print("Wood item is not registered!")
-        woodId = nil
-    end
 end
 
 function OnUpdate(dt)
