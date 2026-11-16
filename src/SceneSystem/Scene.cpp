@@ -205,6 +205,8 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make we
     m_roots.push_back(node);
     m_octree.AddNode(node);
 
+    node->Construct();
+
     if (m_active)
     {
         node->Start();

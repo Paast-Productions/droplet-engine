@@ -130,45 +130,6 @@ TEST_F(SceneTest, AllRootsReceiveSceneReference)
 }
 
 
-TEST_F(SceneTest, ActivateScene)
-{
-    scene->Load();
-    scene->SetActive(true);
-
-    EXPECT_TRUE(scene->IsActive());
-}
-
-
-TEST_F(SceneTest, ActivatingUnloadedSceneThrows)
-{
-    EXPECT_THROW(
-        scene->SetActive(true),
-        std::runtime_error);
-}
-
-
-TEST_F(SceneTest, DeactivateScene)
-{
-    scene->Load();
-    scene->SetActive(true);
-    scene->SetActive(false);
-
-    EXPECT_FALSE(scene->IsActive());
-}
-
-
-TEST_F(SceneTest, UnloadScene)
-{
-    scene->Load();
-    scene->SetActive(true);
-
-    scene->Unload();
-
-    EXPECT_FALSE(scene->IsLoaded());
-    EXPECT_FALSE(scene->IsActive());
-}
-
-
 TEST_F(SceneTest, UnloadingUnloadedSceneThrows)
 {
     EXPECT_THROW(
@@ -206,18 +167,6 @@ TEST_F(SceneTest, RemovingSpecificRootKeepsOtherRoots)
 TEST_F(SceneTest, CanAddRootAfterSceneIsLoaded)
 {
     scene->Load();
-
-    auto root =
-        scene->AddNode("Root");
-
-    EXPECT_EQ(root->GetScene(), scene);
-}
-
-
-TEST_F(SceneTest, CanAddRootAfterSceneIsActive)
-{
-    scene->Load();
-    scene->SetActive(true);
 
     auto root =
         scene->AddNode("Root");

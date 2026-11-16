@@ -967,10 +967,7 @@ void SceneViewWindow::RenderEditorView()
 		ImGui::SetCursorScreenPos(buttonPos);
 		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 		{
-			// Save scene before playing
-			m_json = serializer.SerializeScene(m_editorContext->GetActiveScene().lock());
-
-			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+			m_editorContext->EnterPlayMode();
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1129,27 +1126,8 @@ void SceneViewWindow::RenderGameView()
 
 		ImGui::BeginGroup();
 
-		if (EngineFlagsOwner::GetUpdateFlags() == UpdateFlags::PlayModeFlags)
-		{
-			// Make orange
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			ImGui::SetCursorScreenPos(buttonPos);
-			if (ImGui::Button(ICON_LC_PAUSE "##PauseButton", buttonSize))
-			{
-				auto flags = UpdateFlags::EditorFlags;
-				flags |= UpdateFlags::InPlayMode;		// Enable InPlayMode flag so that the game state is preserved when paused
-				flags &= ~UpdateFlags::SkipAutoRender;	// Disable SkipAutoRender flag so that the game state is still rendered while paused
-
-				EngineFlagsOwner::SetUpdateFlags(flags);
-			}
-
-			ImGui::PopStyleColor(4);
-		}
-		else
+		std::string icon = "";
+		if (m_editorContext->IsPaused())
 		{
 			// Make green
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
@@ -1157,14 +1135,26 @@ void SceneViewWindow::RenderGameView()
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-			ImGui::SetCursorScreenPos(buttonPos);
-			if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-			{
-				EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
-			}
-
-			ImGui::PopStyleColor(4);
+			icon = ICON_LC_PLAY;
 		}
+		else
+		{
+			// Make orange
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+			icon = ICON_LC_PAUSE;
+		}
+
+		ImGui::SetCursorScreenPos(buttonPos);
+		if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
+		{
+			m_editorContext->PausePlayMode();
+		}
+
+		ImGui::PopStyleColor(4);
 
 		// Make red
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
@@ -1175,14 +1165,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorScreenPos(stopButtonPos);
 		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 		{
-			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
-
-			// Reset the scene
-			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
-			m_editorContext->GetActiveScene().lock()->SetActive(false);
-			m_editorContext->CreateNewScene(sceneName);
-			m_editorContext->SetActiveScene(sceneName);
-			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
+			m_editorContext->ExitPlayMode();
 		}
 
 		ImGui::PopStyleColor(4);

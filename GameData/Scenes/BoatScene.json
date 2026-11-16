@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 21,
+            "id": 1,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 23,
+                    "id": 3,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -158,7 +158,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 22,
+            "id": 2,
             "name": "Player",
             "transform": {
                 "position": [
@@ -231,7 +231,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 26,
+                            "id": 6,
                             "name": "Door",
                             "transform": {
                                 "position": [
@@ -255,7 +255,7 @@
                     ],
                     "components": [],
                     "drawLayer": 1,
-                    "id": 25,
+                    "id": 5,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -279,7 +279,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 27,
+                    "id": 7,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -304,7 +304,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 28,
+                    "id": 8,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -325,11 +325,49 @@
                             1.0
                         ]
                     }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [],
+                    "drawLayer": 8,
+                    "id": 17,
+                    "name": "Interaction Button",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.176006555557251,
+                            0.6402692794799805
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.25742021203041077,
+                            0.327842652797699,
+                            0.20648247003555298
+                        ]
+                    }
                 }
             ],
-            "components": [],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "button": 17,
+                        "player": 2,
+                        "reach": 1.0,
+                        "targetSceneName": "Seafloor"
+                    },
+                    "id": 2,
+                    "type": "PodComponent"
+                }
+            ],
             "drawLayer": 1,
-            "id": 24,
+            "id": 4,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -377,7 +415,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 37,
+            "id": 31,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -428,7 +466,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 39,
+                    "id": 33,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -452,7 +490,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 38,
+            "id": 32,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -500,7 +538,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 40,
+            "id": 34,
             "name": "Mesh Node",
             "transform": {
                 "position": [

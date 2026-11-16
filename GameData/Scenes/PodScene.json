@@ -1,0 +1,246 @@
+{
+    "name": "PodScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "drawLayer": 1,
+                    "id": 35,
+                    "name": "Interior",
+                    "prefab": "GameData\\Prefabs\\Pod Interior.json",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Door",
+                                "meshGUID": 10773550875263732350,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "meshGUID": 10773550875263732350,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 44,
+                    "name": "Door",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "player": 45,
+                        "targetSceneName": ""
+                    },
+                    "id": 1,
+                    "type": "PodComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 34,
+            "name": "Pod",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    6.671000003814697
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "autoRender": true,
+                                "camera": {
+                                    "fov": 90.0,
+                                    "planes": [
+                                        0.10000000149011612,
+                                        100.0
+                                    ]
+                                },
+                                "drawLayerMask": 65535,
+                                "priority": 0,
+                                "resolution": [
+                                    1280,
+                                    720
+                                ]
+                            },
+                            "id": 1,
+                            "type": "CameraComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "filepath": "CameraController.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 46,
+                    "name": "Camera",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.800000011920929,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Engine_Side/PlayerController.lua"
+                    },
+                    "id": 5,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.5,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.30000001192092896,
+                        "shapeType": 7
+                    },
+                    "id": 6,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 45,
+            "name": "Player",
+            "transform": {
+                "position": [
+                    0.0,
+                    1.0,
+                    6.671000003814697
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
