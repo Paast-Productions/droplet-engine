@@ -19,7 +19,12 @@ void PodBehaviour::PreUpdateImpl()
 
 	if (!m_pendingUnloadScene.expired())
 	{
-		GetSceneManager()->UnloadScene(m_pendingUnloadScene.lock()->GetName());
+		std::string naame = m_pendingUnloadScene.lock()->GetName();
+		GetSceneManager()->UnloadScene(naame);
+		if (naame == "BoatScene")
+		{
+			GetSceneManager()->UnloadScene("InsideBoatScene");
+		}
 		m_pendingUnloadScene = {};
 	}
 
@@ -247,7 +252,11 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sce
 		}
 	}
 
-	GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/" + p_sceneName + ".json");
+	GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/" + p_sceneName + ".json");   
+	if(p_sceneName == "BoatScene")
+	{
+		GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+	}
 	auto scene = GetSceneManager()->GetScene(p_sceneName);
 
 	return GetPodInScene(scene);
