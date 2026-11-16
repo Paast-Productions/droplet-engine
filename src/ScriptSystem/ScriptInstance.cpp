@@ -38,7 +38,6 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_onUpdate = m_environment["OnUpdate"];
 	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
-	m_onDestory = m_environment["OnDestory"];
 }
 
 ScriptInstance::~ScriptInstance()
@@ -135,6 +134,7 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
+	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
 
 	return true;

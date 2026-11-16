@@ -107,8 +107,6 @@ namespace Droplet::Script
 		sol::protected_function m_onTrigger;
 
 		sol::protected_function m_onDestory;
-
-		bool m_isShutdown = false;
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.
