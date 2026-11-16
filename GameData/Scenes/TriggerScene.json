@@ -99,7 +99,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 31,
+            "id": 9,
             "name": "Player",
             "transform": {
                 "position": [
@@ -169,7 +169,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 32,
+            "id": 10,
             "name": "FreezeBlock",
             "transform": {
                 "position": [
