@@ -47,7 +47,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 425,
+            "id": 399,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -106,7 +106,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 427,
+                    "id": 171,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -124,6 +124,54 @@
                             1.0,
                             1.0,
                             1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cylinder.001",
+                                "meshGUID": 6171229899205840017,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "lantern",
+                                "textureGUID": 4394588527649625137,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 402,
+                    "name": "Lantern",
+                    "transform": {
+                        "position": [
+                            -0.2698234021663666,
+                            0.5810024738311768,
+                            0.2426835298538208
+                        ],
+                        "rotation": [
+                            0.7071067094802856,
+                            0.0,
+                            0.7071068286895752,
+                            0.0
+                        ],
+                        "scale": [
+                            0.39999744296073914,
+                            0.4000000059604645,
+                            0.39999744296073914
                         ]
                     }
                 }
@@ -172,7 +220,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 426,
+            "id": 170,
             "name": "Player",
             "transform": {
                 "position": [
@@ -199,7 +247,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 429,
+                    "id": 173,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -224,7 +272,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 430,
+                    "id": 174,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -251,7 +299,7 @@
                     "children": [],
                     "components": [],
                     "drawLayer": 8,
-                    "id": 439,
+                    "id": 183,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -318,7 +366,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 440,
+                    "id": 184,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -344,8 +392,8 @@
                 {
                     "active": true,
                     "data": {
-                        "button": 439,
-                        "player": 426,
+                        "button": 183,
+                        "player": 170,
                         "reach": 1.0,
                         "targetSceneName": "Seafloor"
                     },
@@ -354,7 +402,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 428,
+            "id": 172,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -402,7 +450,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 441,
+            "id": 185,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -453,7 +501,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 443,
+                    "id": 187,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -477,7 +525,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 442,
+            "id": 186,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -525,7 +573,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 444,
+            "id": 188,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -573,7 +621,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 445,
+            "id": 189,
             "name": "Crane",
             "transform": {
                 "position": [
