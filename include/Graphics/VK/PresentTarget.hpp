@@ -9,7 +9,7 @@
 #include <Graphics/VK/ImageView.hpp>
 #include <Graphics/VK/DepthBuffer.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
     class PresentTarget
     {

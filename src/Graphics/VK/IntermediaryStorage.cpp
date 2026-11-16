@@ -11,7 +11,7 @@
 #include <Graphics/VK/ImGuiTexture.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool &p_commandPool)
 {

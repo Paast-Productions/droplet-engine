@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	template <typename T>
 	T* IntermediaryStorage::GetLiveObject(GUID p_guid) const
@@ -18,7 +18,7 @@ namespace Droplet::Graphics::VK
 				std::uint32_t dstIndex { static_cast<std::uint32_t>(m_uniformBuffers.size()) };
 				m_uniformBuffers.emplace_back(m_allocator.Get(), p_data);
         
-				VK::DescriptorSet &descriptorSet = m_descriptorSets.at(m_descriptorSetIndexMap.at(p_type));
+				Vulkan::DescriptorSet &descriptorSet = m_descriptorSets.at(m_descriptorSetIndexMap.at(p_type));
 				descriptorSet.WriteDescriptor(m_context->GetDevice(), m_uniformBuffers.at(dstIndex).Get(), dstIndex);    
         
 				return dstIndex;

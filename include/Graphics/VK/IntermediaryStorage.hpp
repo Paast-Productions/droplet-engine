@@ -35,7 +35,7 @@ namespace Droplet::Graphics
     class ImGuiTexture; 
 }
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
     // TODO: <REFACTOR>
     // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something

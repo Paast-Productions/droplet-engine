@@ -8,7 +8,7 @@ namespace Droplet
     DynamicResourceHandle<T>::DynamicResourceHandle(GUID p_guid) : 
         ResourceHandle<T>(p_guid)
     {
-        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
+        Graphics::Vulkan::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -20,7 +20,7 @@ namespace Droplet
             return;    
         }
 
-        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
+        Graphics::Vulkan::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -67,7 +67,7 @@ namespace Droplet
             return;
         }
         
-        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+        Graphics::Vulkan::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -79,7 +79,7 @@ namespace Droplet
     template <typename T>
     T *DynamicResourceHandle<T>::operator->() const
     {
-        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
+        return Graphics::Vulkan::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -93,7 +93,7 @@ namespace Droplet
     template <typename T>
     T *DynamicResourceHandle<T>::Get() const
     {
-        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
+        return Graphics::Vulkan::IntermediaryStorage::GetInstance().GetLiveObject<T>(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -104,7 +104,7 @@ namespace Droplet
             return 0;
         }
         
-        return Graphics::VK::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid);
+        return Graphics::Vulkan::IntermediaryStorage::GetInstance().GetLiveObjectRefCount(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -115,7 +115,7 @@ namespace Droplet
             return;
         }
         
-        Graphics::VK::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
+        Graphics::Vulkan::IntermediaryStorage::GetInstance().IncrementRef(ResourceHandle<T>::m_guid);
     }
 
     template <typename T>
@@ -126,6 +126,6 @@ namespace Droplet
             return;
         }
         
-        Graphics::VK::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
+        Graphics::Vulkan::IntermediaryStorage::GetInstance().DecrementRef(ResourceHandle<T>::m_guid);
     }
 }

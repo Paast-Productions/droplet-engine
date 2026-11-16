@@ -16,7 +16,7 @@
 
 #include <glm/glm.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @struct PipelineConfig 
 	/// @brief Pipeline Creation Configuration

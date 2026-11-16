@@ -6,7 +6,7 @@
 #include <vulkan/vulkan_raii.hpp>
 
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 DepthBuffer::DepthBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::PhysicalDevice &p_physicalDevice, const vk::Extent2D &p_swapchainExtent)
 {

@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Index Buffer Class
 	class IndexBuffer

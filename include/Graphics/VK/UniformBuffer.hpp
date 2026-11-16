@@ -4,7 +4,7 @@
 #include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Uniform Buffer Class
 	class UniformBuffer

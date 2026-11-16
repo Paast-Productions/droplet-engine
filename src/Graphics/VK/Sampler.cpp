@@ -1,6 +1,6 @@
 #include <Graphics/VK/Sampler.hpp>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 Sampler::Sampler(const vk::raii::PhysicalDevice &p_physicalDevice, const vk::raii::Device &p_device)
 {

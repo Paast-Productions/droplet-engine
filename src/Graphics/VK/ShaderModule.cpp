@@ -1,6 +1,6 @@
 #include "ShaderModule.hpp"
 
-Droplet::Graphics::VK::ShaderModule::ShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
+Droplet::Graphics::Vulkan::ShaderModule::ShaderModule(const vk::raii::Device &p_device, const Slang::ComPtr<slang::IBlob> &p_shaderBlob)
 {
     vk::ShaderModuleCreateInfo createInfo
     {

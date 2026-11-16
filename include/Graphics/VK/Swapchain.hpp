@@ -15,7 +15,7 @@
 #include <Graphics/VK/PresentTarget.hpp>
 
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Swapchain abstraction class
 	class Swapchain

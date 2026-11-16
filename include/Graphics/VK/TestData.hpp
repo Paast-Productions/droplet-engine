@@ -4,7 +4,7 @@
 #include <vector>
 #include <Graphics/VK/VertexBuffer.hpp>
 
-const std::vector<Droplet::Graphics::VK::Vertex> G_VERTICES = {
+const std::vector<Droplet::Graphics::Vulkan::Vertex> G_VERTICES = {
     {{-0.5f , -0.5f , 0.0f} , {0.0f , -1.0f , 0.0f }, {1.0f , 0.0f}},
     {{0.5f , -0.5f , 0.0f} , {0.0f , -1.0f , 0.0f} , {0.0f , 0.0f}},
     {{0.5f , 0.5f , 0.0f }, {0.0f , -1.0f , 0.0f }, {0.0f , 1.0f }},

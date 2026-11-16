@@ -4,11 +4,11 @@
 #include <iostream>
 #include <Graphics/VK/BufferHelper.hpp>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 Image::Image(const vma::raii::Allocator &p_allocator,
-			 const Droplet::Graphics::VK::CommandPool &p_commandPool,
-			 const Droplet::Graphics::VK::Context &p_context,
+			 const Droplet::Graphics::Vulkan::CommandPool &p_commandPool,
+			 const Droplet::Graphics::Vulkan::Context &p_context,
 			 const std::byte *p_pixels,
 			 const std::size_t p_size,
 			 std::uint32_t p_width, 
@@ -168,7 +168,7 @@ Image::Image(const vma::raii::Allocator &p_allocator,
 	};
 
 	p_commandPool.ImmediateSubmit(p_context.GetDevice(), p_context.GetQueue(),
-		[&](Droplet::Graphics::VK::CommandBuffer &p_commandBuffer)
+		[&](Droplet::Graphics::Vulkan::CommandBuffer &p_commandBuffer)
 		{
 			TransitionImageLayout(p_commandBuffer.Get(), m_image, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 

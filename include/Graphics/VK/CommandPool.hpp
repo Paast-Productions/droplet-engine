@@ -7,7 +7,7 @@
 
 #include <vector>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief CommandPool class to abstract creation and usage of Vulkan CommandPools.
 	class CommandPool

@@ -9,7 +9,7 @@
 #include <Graphics/VK/Context.hpp>
 #include <Graphics/VK/ImageView.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Image class for storing textures/image buffers to be bound to shader stages
 	class Image : public Droplet::IDynamicResource

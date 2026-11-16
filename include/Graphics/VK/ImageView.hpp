@@ -7,7 +7,7 @@
 
 #include <Resource/IDynamicResource.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
     /// @brief Vulkan Image View wrapper class
     class ImageView : public Droplet::IDynamicResource

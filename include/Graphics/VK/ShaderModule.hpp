@@ -7,7 +7,7 @@
 #include <slang/slang.h>
 #include <slang/slang-com-ptr.h>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
     class ShaderModule
     {

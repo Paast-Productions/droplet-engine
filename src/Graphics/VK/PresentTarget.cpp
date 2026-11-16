@@ -1,6 +1,6 @@
 #include "PresentTarget.hpp"
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 PresentTarget::PresentTarget(
     const vma::raii::Allocator &p_allocator, 

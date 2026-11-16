@@ -5,7 +5,7 @@
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include <Graphics/VK/Context.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	//TODO: Make sampler modular
 	class Sampler

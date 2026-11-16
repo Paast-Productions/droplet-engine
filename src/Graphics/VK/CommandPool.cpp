@@ -3,7 +3,7 @@
 #include <print>
 #include <iostream>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 CommandPool::CommandPool(
 	const vk::raii::Device &p_device, 
@@ -45,7 +45,7 @@ CommandPool::CommandPool(
 	}
 }
 
-std::size_t Droplet::Graphics::VK::CommandPool::Allocate(const vk::raii::Device &p_device, const vk::CommandBufferLevel p_level)
+std::size_t Droplet::Graphics::Vulkan::CommandPool::Allocate(const vk::raii::Device &p_device, const vk::CommandBufferLevel p_level)
 {
 	vk::CommandBufferAllocateInfo allocInfo
 	{

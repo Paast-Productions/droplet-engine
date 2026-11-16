@@ -1,6 +1,6 @@
 #include "IndexBuffer.hpp"
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator, const vk::raii::Device &p_device, const vk::raii::CommandBuffer &p_commandBuffer, const std::vector<std::uint32_t> &p_indices)
 {

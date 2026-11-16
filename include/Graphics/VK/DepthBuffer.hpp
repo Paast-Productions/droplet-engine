@@ -7,7 +7,7 @@
 #include <Graphics/VK/Image.hpp>
 #include <Graphics/VK/ImageView.hpp>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	class DepthBuffer
 	{

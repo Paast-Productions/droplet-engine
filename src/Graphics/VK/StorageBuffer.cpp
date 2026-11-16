@@ -1,6 +1,6 @@
 #include "StorageBuffer.hpp"
 
-Droplet::Graphics::VK::StorageBuffer::StorageBuffer(const vma::raii::Allocator &p_allocator, const void *p_data,
+Droplet::Graphics::Vulkan::StorageBuffer::StorageBuffer(const vma::raii::Allocator &p_allocator, const void *p_data,
 	const size_t p_size)
 {
 	if (!p_data)
@@ -33,7 +33,7 @@ Droplet::Graphics::VK::StorageBuffer::StorageBuffer(const vma::raii::Allocator &
 	UpdateBytes(p_data, p_size);
 }
 
-void Droplet::Graphics::VK::StorageBuffer::UpdateBytes(const void *p_data, std::size_t p_size)
+void Droplet::Graphics::Vulkan::StorageBuffer::UpdateBytes(const void *p_data, std::size_t p_size)
 {
 	if (!p_data)
 		return;

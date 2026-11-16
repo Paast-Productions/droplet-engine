@@ -7,7 +7,7 @@
 
 #include <SDL3/SDL_vulkan.h>
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Vulkan context abstraction class
 	class Context

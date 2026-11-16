@@ -3,7 +3,7 @@
 	#include <vulkan/vulkan_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
 	/// @brief CommandBuffer class to abstract creation and usage of Vulkan CommandBuffers.
 	class CommandBuffer

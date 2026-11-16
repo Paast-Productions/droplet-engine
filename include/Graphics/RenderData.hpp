@@ -48,7 +48,7 @@ namespace Droplet::Graphics
         glm::mat4 transform{};
     };
 
-    namespace VK
+    namespace Vulkan
     {
         struct ViewProjectionBuffer
         {

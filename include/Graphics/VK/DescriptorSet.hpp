@@ -5,7 +5,7 @@
 #include <vk_mem_alloc_raii.hpp>
 #undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS 
 
-namespace Droplet::Graphics::VK
+namespace Droplet::Graphics::Vulkan
 {
     /// @enum DescriptorSetIndex
     /// @brief Enum that describes the binding index for each type of descriptor

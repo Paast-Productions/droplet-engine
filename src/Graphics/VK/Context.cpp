@@ -9,7 +9,7 @@ constexpr bool enableValidationLayers = false;
 constexpr bool enableValidationLayers = true;
 #endif
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 Context::Context(SDL_Window *p_window, const vk::raii::Context& p_context)
 {

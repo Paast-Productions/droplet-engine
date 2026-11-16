@@ -103,15 +103,15 @@ namespace Droplet::Graphics
 
 		SDL_Window* m_window { nullptr };
 		vk::raii::Context m_vkContext;
-		VK::Context m_context { nullptr };
-		VK::CommandPool m_commandPool { nullptr };
-		VK::Swapchain m_swapchain { nullptr };
+		Vulkan::Context m_context { nullptr };
+		Vulkan::CommandPool m_commandPool { nullptr };
+		Vulkan::Swapchain m_swapchain { nullptr };
 
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
 		
-		std::uint32_t m_vpBufferIndex { Droplet::Graphics::VK::C_INVALID_INDEX };
+		std::uint32_t m_vpBufferIndex { Droplet::Graphics::Vulkan::C_INVALID_INDEX };
 		
 		bool m_framebufferResized { false };
 		std::uint8_t m_frameIndex { 0 }; // TODO: <REFACTOR /> Should probably be refactored together with sync objects 

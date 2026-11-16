@@ -3,7 +3,7 @@
 #include <Graphics/VK/VertexBuffer.hpp>
 #include <Graphics/RenderData.hpp>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 vk::Format FindSupportedFormat(const vk::raii::PhysicalDevice &p_physicalDevice, const std::vector<vk::Format> &p_candidates, vk::ImageTiling p_tiling, vk::FormatFeatureFlags p_features)
 {

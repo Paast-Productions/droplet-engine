@@ -1,6 +1,6 @@
 #include "ImageView.hpp"
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 ImageView::ImageView(const vk::raii::Device &p_device, const vk::Image p_image)
 {

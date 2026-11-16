@@ -3,7 +3,7 @@
 #include <print>
 #include <iostream>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 Allocator::Allocator(const nullptr_t p_nullptr)
 {

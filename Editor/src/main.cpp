@@ -550,7 +550,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
-				using namespace Droplet::Graphics::VK;
+				using namespace Droplet::Graphics::Vulkan;
 
 				Droplet::Graphics::CameraRenderData camRenderData{ };
 				camRenderData.debug = true;

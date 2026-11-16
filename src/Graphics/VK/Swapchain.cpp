@@ -4,7 +4,7 @@
 #include <iostream>
 #include <print>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 vk::ResultValue<std::uint32_t> Swapchain::AcquireNextImageIndex(const vk::raii::Device &p_device, const vk::raii::Semaphore &p_semaphore, const vk::raii::Fence &p_fence, std::uint64_t p_timeout)
 {

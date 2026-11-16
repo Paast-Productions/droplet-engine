@@ -47,7 +47,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 {
 	ZoneScoped;
 	
-	VK::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
+	Vulkan::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
 	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	
 	// TODO: <REFACTOR>
@@ -76,7 +76,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_context.GetInstance(),
 		m_context.GetPhysicalDevice(),
 		m_context.GetDevice(),
-		VK::IntermediaryStorage::GetInstance().GetAllocator(),
+		Vulkan::IntermediaryStorage::GetInstance().GetAllocator(),
 		m_context.GetQueue(),
 		m_commandPool.Get(),
 		m_debugDescriptorPool,
@@ -84,13 +84,13 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 
-	constexpr VK::ViewProjectionBuffer vpb
+	constexpr Vulkan::ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),
 		.proj = glm::mat4(1)
 	};
 	
-	m_vpBufferIndex = VK::IntermediaryStorage::GetInstance().CreateBufferResource<VK::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
+	m_vpBufferIndex = Vulkan::IntermediaryStorage::GetInstance().CreateBufferResource<Vulkan::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
 
 	CreateSyncObjects();
 
@@ -153,7 +153,7 @@ Renderer::~Renderer()
 	
 	m_context.GetDevice().waitIdle();
 	Debug::DebugDraw::Get().Shutdown();
-	VK::IntermediaryStorage::GetInstance().Shutdown();
+	Vulkan::IntermediaryStorage::GetInstance().Shutdown();
 
 #ifdef _EDITOR
 	ImGui_ImplVulkan_Shutdown();
@@ -311,20 +311,20 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		.pDepthAttachment = &depthAttachmentInfo
 	};
 	
-	std::vector<VK::Mesh> meshes {};
-	std::vector<VK::Pipeline*> pipelines {};
+	std::vector<Vulkan::Mesh> meshes {};
+	std::vector<Vulkan::Pipeline*> pipelines {};
 	std::vector<std::uint32_t> textureIDs {};
 	std::vector<glm::mat4> transforms {};
 	for (const RenderData& data : p_renderData)
 	{
-		VK::Mesh mesh = VK::IntermediaryStorage::GetInstance().GetMesh(commandBuffer, data);
+		Vulkan::Mesh mesh = Vulkan::IntermediaryStorage::GetInstance().GetMesh(commandBuffer, data);
 		if (!mesh.valid) { continue; }
 		
-		VK::Pipeline *pipeline = VK::IntermediaryStorage::GetInstance().GetPipeline(data, m_swapchain.GetSurfaceFormat());
+		Vulkan::Pipeline *pipeline = Vulkan::IntermediaryStorage::GetInstance().GetPipeline(data, m_swapchain.GetSurfaceFormat());
 		if (pipeline == nullptr) { continue; }
 		
 		bool result = false;
-		std::uint32_t texID = VK::IntermediaryStorage::GetInstance().GetTextureID(data, m_commandPool, result);
+		std::uint32_t texID = Vulkan::IntermediaryStorage::GetInstance().GetTextureID(data, m_commandPool, result);
 		if (!result) { continue; }
 		
 		meshes.emplace_back(mesh);
@@ -339,13 +339,13 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	
 	for (std::size_t i {0}; i < meshes.size(); ++i)
 	{
-		VK::Mesh mesh { meshes[i] };
-		VK::Pipeline *pipeline { pipelines[i] };
+		Vulkan::Mesh mesh { meshes[i] };
+		Vulkan::Pipeline *pipeline { pipelines[i] };
 		std::uint32_t texID { textureIDs[i] };
 		glm::mat4 transform { transforms[i] };
 		
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline->Get());
-		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->GetLayout(), 0,  VK::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
+		commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipeline->GetLayout(), 0,  Vulkan::IntermediaryStorage::GetInstance().GetDescriptorSets(), nullptr);
 
 		PushConstantData pcData {
 			.world = transform,
@@ -561,7 +561,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 		m_context.GetDevice().waitIdle();
 
 		m_swapchain = nullptr;
-		VK::IntermediaryStorage::GetInstance().ClearPresentTargets();
+		Vulkan::IntermediaryStorage::GetInstance().ClearPresentTargets();
 		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 		return;
 	}
@@ -578,13 +578,13 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
 
-		VK::ViewProjectionBuffer vp
+		Vulkan::ViewProjectionBuffer vp
 		{
 			.view = cam.GetViewMatrix(),
 			.proj = cam.GetProjectionMatrix()
 		};
 
-		VK::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
+		Vulkan::IntermediaryStorage::GetInstance().UpdateBufferResourceAt(m_vpBufferIndex, vp, vk::DescriptorType::eUniformBuffer);
 
 		if (camRenderData.debug)
 			Debug::DebugDraw::Get().PrepareRender(m_frameIndex);
@@ -655,7 +655,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 		m_context.GetDevice().waitIdle();
 		m_swapchain = nullptr;
-		VK::IntermediaryStorage::GetInstance().ClearPresentTargets();
+		Vulkan::IntermediaryStorage::GetInstance().ClearPresentTargets();
 		m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	}
 	else

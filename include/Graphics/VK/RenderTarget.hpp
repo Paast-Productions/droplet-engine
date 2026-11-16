@@ -69,7 +69,7 @@ namespace Droplet::Graphics
 		
 	private:
 		// Friend to access data
-		friend class VK::IntermediaryStorage;
+		friend class Vulkan::IntermediaryStorage;
 		
 		/// @brief Constructor that create every vulkan resource
 		/// @param p_allocator VMA raii Allocator
@@ -78,22 +78,22 @@ namespace Droplet::Graphics
 		/// @param p_width Width of the render target texture
 		/// @param p_height Height of the render target texture
 		RenderTarget(
-			DynamicResourceHandle<VK::Image> p_colourImage,
-			DynamicResourceHandle<VK::ImageView> p_colourImageView,
-			DynamicResourceHandle<VK::Image> p_depthImage,
-			DynamicResourceHandle<VK::ImageView> p_depthImageView);
+			DynamicResourceHandle<Vulkan::Image> p_colourImage,
+			DynamicResourceHandle<Vulkan::ImageView> p_colourImageView,
+			DynamicResourceHandle<Vulkan::Image> p_depthImage,
+			DynamicResourceHandle<Vulkan::ImageView> p_depthImageView);
 		
 		
 		/// @brief Variables that represent a renderTarget
 		/// NOTE: The order in which these are created matters
 		
 		// Colour Attachment
-		DynamicResourceHandle<VK::Image> m_colourImageHandle {};
-		DynamicResourceHandle<VK::ImageView> m_colourImageViewHandle {};
+		DynamicResourceHandle<Vulkan::Image> m_colourImageHandle {};
+		DynamicResourceHandle<Vulkan::ImageView> m_colourImageViewHandle {};
 		
 		// Depth Attachment
-		DynamicResourceHandle<VK::Image> m_depthImageHandle {};
-		DynamicResourceHandle<VK::ImageView> m_depthImageViewHandle {};
+		DynamicResourceHandle<Vulkan::Image> m_depthImageHandle {};
+		DynamicResourceHandle<Vulkan::ImageView> m_depthImageViewHandle {};
 		
 	};
 }

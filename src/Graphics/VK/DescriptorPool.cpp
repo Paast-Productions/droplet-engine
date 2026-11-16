@@ -1,6 +1,6 @@
 #include "DescriptorPool.hpp"
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 DescriptorPool::DescriptorPool(const vk::raii::Device &p_device)
 {

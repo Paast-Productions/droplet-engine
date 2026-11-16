@@ -4,7 +4,7 @@
 #include <iostream>
 #include <algorithm>
 
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 
 DescriptorSet::DescriptorSet(const vk::raii::Device &p_device, const vk::raii::DescriptorPool &p_descriptorPool, vk::DescriptorType p_descriptorType) : 
     m_descriptorType (p_descriptorType)
