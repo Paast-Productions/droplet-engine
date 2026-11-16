@@ -268,6 +268,7 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
     double seekTime = player->GetStartTimeSeconds();
     if (seekTime > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, seekTime);
     m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, player->GetVolumeDb());
+    m_daliaEngine->SetPlaybackStereoPan(daliaHandle, player->GetStereoPan());
     m_daliaEngine->SetPlaybackRate(daliaHandle, player->GetPitch());
     m_daliaEngine->SetPlaybackLooping(daliaHandle, player->IsLooping());
     
