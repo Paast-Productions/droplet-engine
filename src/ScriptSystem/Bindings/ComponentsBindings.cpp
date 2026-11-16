@@ -569,8 +569,7 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::HazardComponent>(
 		"HazardComponent",
 		"GetDamage", &Scene::HazardComponent::GetDamageLua,
-        "GetZone", &Scene::HazardComponent::GetZoneLua
-		"GetDamage", &HazardComponent::GetDamage,
+        "GetZone", &Scene::HazardComponent::GetZoneLua,
 		"GetDirection", &HazardComponent::GetDirection,
 		
 		"SetDamage", &HazardComponent::SetDamage,

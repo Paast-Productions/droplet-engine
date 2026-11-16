@@ -36,7 +36,6 @@ void HazardComponent::RenderUIImpl()
         glm::vec3 start = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
         Graphics::Debug::DebugDraw::DrawLine(start, start + m_direction, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true);
     }
-    ImGui::DragFloat("Damage", &m_damage, 0.1f, 0.0f, FLT_MAX);
 
     ImGui::RadioButton("Zone 1", &m_zone, 1);
     ImGui::SameLine();
