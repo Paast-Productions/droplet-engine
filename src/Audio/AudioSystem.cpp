@@ -34,7 +34,11 @@ bool Droplet::Audio::AudioSystem::Initialize()
     RegisterEffects();
     m_mixer.Initialize(*m_daliaEngine);
     
- 
+#if defined(_GAME) 
+    m_isGameMode = true;
+#else
+    m_isGameMode = false;
+#endif
     
     m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !m_isGameMode);
     
