@@ -446,10 +446,12 @@ void AudioSystem::ProcessFinishedPlaybacks()
     {
         m_playbacks.erase(id);
         
-        // Notify players
-        // if (auto* player : m_activePlayers) if (player->GetPlaybackID() == id) player->NotifyStopped();
-        
-        // Notify emitters
+        // Notify player components
+        for (auto* player : m_playerComponents)
+        {
+            if (player->GetPlaybackID() == id) player->OnPlaybackFinished();
+        }
+        // Notify emitter components
         for (auto* emitter : m_emitterComponents)
         {
             if (emitter->GetPlaybackID() == id) emitter->OnPlaybackFinished();
