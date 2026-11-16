@@ -345,7 +345,7 @@ void AudioSystem::Stop(PlaybackID id)
     if (it != m_playbacks.end()) 
     {
         it->second.state = PlaybackState::Inactive;
-        if (!m_isGamePaused) m_daliaEngine->StopPlayback(it->second.handle);
+        m_daliaEngine->StopPlayback(it->second.handle);
     }
 }
 
