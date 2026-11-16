@@ -205,6 +205,7 @@ void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *liste
         if (!m_listeners[i].taken)
         {
             m_listeners[i].taken = true;
+            m_listeners[i].active = listener->IsActiveSelf();
             listener->SetListenerId(i);
             m_listenerComponents.push_back(listener);
             if (m_isGameMode && listener->IsActiveSelf()) m_daliaEngine->SetListenerActive(i, true);
