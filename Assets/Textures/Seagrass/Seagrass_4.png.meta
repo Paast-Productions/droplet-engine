@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Seagrass_4",
+            "guid": 5133803036729111620,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Seagrass_4",
+            "type": 1
+        }
+    ]
+}
