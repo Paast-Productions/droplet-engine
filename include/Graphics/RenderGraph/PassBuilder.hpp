@@ -12,7 +12,7 @@ namespace Droplet::Graphics::RenderGraph
         
         /// Add read without history to the pass
         void Read(ResourceId resourceId, Usage usage = Usage::SampledRead) const
-        {
+        {   
             Add(resourceId, usage, false, false);
         }
         
@@ -53,7 +53,7 @@ namespace Droplet::Graphics::RenderGraph
                     .history = history
                 });
         }
-        //TODO: maybe make this a set of free functions rather than a class
+
         PassInfo& m_pass;
     };
 }

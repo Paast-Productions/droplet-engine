@@ -1,0 +1,89 @@
+/// @file DrawPass.hpp
+/// @brief Vulkan::DrawPass: the scene pass. Draws one view's draw list with pipelines from the PipelineLibrary.
+#pragma once
+#include <vulkan/vulkan_raii.hpp>
+
+#include <cstdint>
+#include <unordered_map>
+
+#include "Core/Guid.hpp"
+#include "Vulkan/Resources/DeletionQueue.hpp"
+#include "Vulkan/Resources/GpuResourceManager.hpp"
+#include "Vulkan/Resources/GraphicsPipeline.hpp"
+#include "Vulkan/Resources/PipelineLibrary.hpp"
+#include "Render/PreparedFrame.hpp"
+
+namespace Vulkan
+{
+    class Context;
+    class RenderDevice;
+
+    /// Per-draw shader data, sent as push constants (vertex stage). 128 bytes is the push-constant size every Vulkan
+    /// device guarantees, so no limit query is needed.
+    struct ScenePushConstants
+    {
+        glm::mat4 viewProj; ///< projection * view of the camera being rendered
+        glm::mat4 model;    ///< object to world
+    };
+    static_assert(sizeof(ScenePushConstants) == 128, "must fit the guaranteed 128 bytes of push constants");
+
+    enum class DrawFilter
+    {
+        All,
+        /// Leaves out draws that sample a render target (another camera's output or a history). Use until that
+        /// camera has been rendered: sampling a target that has never been written is invalid
+        SkipRenderTargetTextures,
+    };
+
+    struct DrawPassCreateInfo
+    {
+        std::uint32_t maxMaterials = 64; ///< descriptor pool size: distinct textures and targets drawn with at once
+    };
+
+    /// @brief The scene material interface (vertex layout P3N3UV2, set 0 binding 0 base colour, ScenePushConstants)
+    ///        and the draw loop. Material sets are cached per texture and target; an unresolved or stale binding draws
+    ///        the placeholder texture.
+    class DrawPass
+    {
+    public:
+        /// @brief Creates the layouts and the descriptor pool, and retires the sets of released textures and targets
+        ///        whenever the device releases resources.
+        /// @param context must outlive the pass
+        /// @param device  must outlive the pass
+        DrawPass(const Context& context, RenderDevice& device, const DrawPassCreateInfo& info);
+
+        /// @brief The pipeline description for drawing with `shader` into the given attachment formats.
+        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
+            const Guid& shader, vk::Format colorFormat, vk::Format depthFormat) const;
+
+        /// @brief Records `view`'s draws inside an open dynamic-rendering scope; sets viewport (Y flipped) and scissor.
+        void Record(
+            vk::CommandBuffer cmd,
+            vk::Extent2D extent,
+            const Render::DrawList& list,
+            const PipelineLibrary& pipelines,
+            DrawFilter filter = DrawFilter::All);
+
+        /// @brief Moves the cached sets of evicted textures and targets into the deletion queue.
+        /// @param frameRetireValues timeline values after which this frame is done (its draws may use them)
+        void RetireDeadMaterials(DeletionQueue& deletionQueue, const QueueTimelineValues& frameRetireValues);
+
+        /// @brief Forgets every cached set. @pre the GPU is idle
+        void ClearMaterialCache();
+
+    private:
+        vk::DescriptorSet MaterialSet(const Render::ImageBinding& binding);
+        vk::raii::DescriptorSet CreateSet(vk::ImageView view, vk::Sampler sampler) const;
+
+        const Context* m_context; ///< Not owned, outlives this.
+        GpuResourceManager* m_gpu; ///< the device's; not owned
+
+        vk::raii::DescriptorSetLayout m_setLayout{nullptr};
+        vk::raii::PipelineLayout m_pipelineLayout{nullptr};
+
+        // The pool is declared before the sets so the sets are destroyed first.
+        vk::raii::DescriptorPool m_pool{nullptr};
+        std::unordered_map<std::uint64_t, vk::raii::DescriptorSet> m_textureSets;
+        std::unordered_map<std::uint64_t, vk::raii::DescriptorSet> m_targetSets;
+    };
+}

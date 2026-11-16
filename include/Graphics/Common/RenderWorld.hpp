@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -55,7 +56,16 @@ namespace Droplet::Graphics
         std::vector<Common::PostEffectDesc> effects; ///< enabled effects of the node's PostProcessComponent
     };
 
-    /// @brief A UI rectangle in draw order: a fill, an image, or one glyph (an image cut out of the font atlas).
+    /// @brief A run of text. The renderer lays it out with the font, so the world needs no font data.
+    struct UiText
+    {
+        std::string text;            ///< '\n' starts a new line
+        Guid font;                   ///< FontAsset id; one the renderer does not have draws nothing
+        float pixelHeight{ 32.0f };  ///< sharp up to the size the font was baked at
+        glm::vec2 alignment{ 0.0f }; ///< the point of the parent rectangle the text box is pinned to, 0..1 (0,0 top-left)
+    };
+
+    /// @brief A UI rectangle in draw order: a fill, an image, or a text run (which has no fill of its own).
     ///        The renderer turns anchors and offsets into pixels, so the world does not depend on the window size.
     struct UiRect
     {
@@ -63,12 +73,15 @@ namespace Droplet::Graphics
         glm::vec2 anchorMax{ 0.0f }; ///< in the parent's rectangle, 0..1
         glm::vec2 offsetMin{ 0.0f }; ///< pixels added to anchorMin
         glm::vec2 offsetMax{ 0.0f }; ///< pixels added to anchorMax
-        glm::vec4 color{ 1.0f };     ///< sRGB with alpha: the fill color, or the tint of the image
+        glm::vec4 color{ 1.0f };     ///< sRGB with alpha: the fill colour, the tint of the image, or the text colour
         std::int32_t parent{ -1 };   ///< index of the parent in RenderWorld::uiRects (always earlier); -1: the screen
         Common::ImageRef image;      ///< texture asset or render target, by id; Kind::None: a plain fill
         std::uint64_t textureRevision{ 0 }; ///< the storage's revision of a texture image
         glm::vec2 uvMin{ 0.0f };     ///< the part of the image shown: its top-left corner, 0..1
         glm::vec2 uvMax{ 1.0f };     ///< the part of the image shown: its bottom-right corner, 0..1
+        /// @brief Set: a text run instead of a fill or image. Only `color` and `parent` are used (the glyphs are laid
+        ///        out around `text->alignment` of the parent); no entry in the draw list but the glyphs.
+        std::optional<UiText> text;
     };
 
     /// Snapshot of the scene at a given frame

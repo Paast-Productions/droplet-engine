@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 
+#include "Utils.hpp"
+
 namespace Droplet
 {
 	/// @brief Customized keycodes using SDL_Scancode
@@ -114,7 +116,7 @@ namespace Droplet
 		void Update();
 
 		/// @brief Process SDL events from the main loop
-		/// @param The event that was created in main
+		/// @param p_event The event that was created in main
 		void ProcessEvent(const SDL_Event &p_event);
 
 		/// @brief Check whether a key is pressed.
@@ -212,8 +214,8 @@ namespace Droplet
 		float m_deltaMouseX = 0.0f;
 		float m_deltaMouseY = 0.0f;
 		float m_mouseScroll = 0.0f;
-		std::array<bool, (size_t)Mouse::Count> m_currentMouse = { false };
-		std::array<bool, (size_t)Mouse::Count> m_previousMouse = { false };
+		std::array<bool, Utils::EnumCast(Mouse::Count)> m_currentMouse = { false };
+		std::array<bool, Utils::EnumCast(Mouse::Count)> m_previousMouse = { false };
 
 		SDL_Window *m_cursorLockWindow = nullptr;
 		bool m_firstLockFrame = false;
