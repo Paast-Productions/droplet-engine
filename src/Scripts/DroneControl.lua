@@ -5,6 +5,7 @@
 
 local trans = nil
 local velocity = nil
+local physicsComponent = nil
 
 -- Movement settings
 local acceleration = 5.0
@@ -73,6 +74,17 @@ function MoveTowardsV3(current, target, maxDelta)
 end
 
 function ApplyMouseLook(dt)
+	
+	if cameraComponent == nil then
+		cameraComponent = self:GetCameraComponent()
+		if cameraComponent == nil then
+			print("No CameraComponent found in DroneControl.lua")
+			return
+		end
+		camera = cameraComponent:GetCamera()
+		defaultFov = camera:GetFOV()
+	end
+
     local dx, dy = 0.0, 0.0
 	dx = Input:GetDeltaMouseX()
 	dy = Input:GetDeltaMouseY()
@@ -110,7 +122,17 @@ end
 
 
 function UpdateMovement(dt)
-    tracy.ZoneBeginN("Drone_movement UpdateMovement")
+    tracy.ZoneBeginN("DroneControl UpdateMovement")
+    
+	if physicsComponent == nil then
+		physicsComponent = self:GetPhysicsComponent()
+		if physicsComponent == nil then
+			print("No PhysicsComponent found in DroneControl.lua")
+			tracy.ZoneEnd()
+			return
+		end
+	end
+    
     -- Build the movement input directions
     local inputDirection = Vec3.new(0.0, 0.0, 0.0)
 
@@ -214,14 +236,14 @@ function UpdateMovement(dt)
     end
 
     -- Apply movement in world space
-
-    local movement = GLM.V3MulF(velocity, dt)
+    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 200.0)
     
+    -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
 		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
 		movement = GLM.V3Add(
 			movement,
-			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime)
+			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime * 100.0)
 		)
 		
 		-- Pulse camera effect
@@ -254,7 +276,7 @@ function UpdateMovement(dt)
 		currentPulseCooldown = 0.0
 	end
     
-    trans:Move(movement, TransformSpace.World)
+	physicsComponent:SetVelocity(movement)
 
     tracy.ZoneEnd()
 end
@@ -274,13 +296,51 @@ function OnStart()
     if cameraComponent ~= nil then
 		camera = cameraComponent:GetCamera()
 		defaultFov = camera:GetFOV()
+	else
+		print("No CameraComponent found in DroneControl.lua")
 	end
+
+	physicsComponent = self:GetPhysicsComponent()
+	if physicsComponent == nil then
+		print("No PhysicsComponent found in DroneControl.lua")
+	end
+
     tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("Drone_movement OnUpdate")
-	
+    
+	if trans == nil then
+		trans = self:GetTransform()
+		if trans == nil then
+			print("No trans found in DroneControl.lua")
+			tracy.ZoneEnd()
+			return
+		end
+	end
+
+	if physicsComponent == nil then
+		physicsComponent = self:GetPhysicsComponent()
+		if physicsComponent == nil then
+			print("No PhysicsComponent found in DroneControl.lua")
+			tracy.ZoneEnd()
+			return
+		end
+	end
+
+	if cameraComponent == nil then
+		cameraComponent = self:GetCameraComponent()
+		if cameraComponent ~= nil then
+			camera = cameraComponent:GetCamera()
+			defaultFov = camera:GetFOV()
+		else
+			print("No CameraComponent found in DroneControl.lua")
+			tracy.ZoneEnd()
+			return
+		end
+	end
+
     ApplyMouseLook(dt)
     UpdateMovement(dt)
 
