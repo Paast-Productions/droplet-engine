@@ -2,11 +2,11 @@ local pTransforms = nil
 local pStates = nil
 
 -- Particle Settings
-local gravity = { x = 0, y = 0.6, z = 0 }
+local gravity = { x = 0, y = 0.4, z = 0 }
 local initialVelocityRangeHorizontal = { min = -0.5, max = 0.5 }
-local initialVelocityRangeVertical = { min = -0.2, max = 0.6 }
-local initialSizeRange = { min = 0.025, max = 0.125 }
-local lifetimeRange = { min = 1.0, max = 2.5 }
+local initialVelocityRangeVertical = { min = 0.2, max = 0.8 }
+local initialSizeRange = { min = 0.025, max = 0.1 }
+local lifetimeRange = { min = 1.0, max = 3.0 }
 
 function Lerp(a, b, t)
 	return a + (b - a) * t
