@@ -37,7 +37,26 @@
         {
             "active": false,
             "children": [],
-            "effects": [],
+            "effects": [
+                {
+                    "active": false,
+                    "data": {
+                        "frequency": 816.0,
+                        "resonance": 0.7379999756813049
+                    },
+                    "slot": 0,
+                    "type": "HighPassEffect"
+                },
+                {
+                    "active": false,
+                    "data": {
+                        "frequency": 703.0,
+                        "resonance": 0.699999988079071
+                    },
+                    "slot": 1,
+                    "type": "LowPassEffect"
+                }
+            ],
             "id": 5,
             "name": "Music",
             "volume": 0.0

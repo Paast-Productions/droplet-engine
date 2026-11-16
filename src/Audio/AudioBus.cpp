@@ -159,7 +159,7 @@ void Droplet::Audio::AudioBus::DeserializeAudioBus(const nlohmann::json &p_json)
 	{
 		for (const auto& effectJson : p_json["effects"])
 		{
-			
+			DeserializeEffect(effectJson);
 		}
 	}
 }
