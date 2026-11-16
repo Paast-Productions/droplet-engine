@@ -1,4 +1,5 @@
 #include "CollectibleTypeComponent.hpp"
+#include <print>
 
 using namespace Droplet::Scene;
 
@@ -34,6 +35,7 @@ int CollectibleTypeComponent::GetAmount() const
 
 void Droplet::Scene::CollectibleTypeComponent::StartImpl()
 {
+    std::print("ItemID: {}\n", m_itemId.value);
 }
 
 void Droplet::Scene::CollectibleTypeComponent::UpdateImpl()

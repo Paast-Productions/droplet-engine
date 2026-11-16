@@ -14,6 +14,7 @@ end
 
 function SuctionSystem.RegisterCollectible(node)
     local comp = node:GetCollectibleTypeComponent()
+
     if not node or not comp then
         return
     end
@@ -21,7 +22,7 @@ function SuctionSystem.RegisterCollectible(node)
     local registry
     local type = comp:GetCollectibleType()
     if type == CollectibleType.Fish then
-        registry = SuctionSystem.fishes
+        registry = SuctionSystem.fishes 
     elseif type == CollectibleType.Upgrade then
         registry = SuctionSystem.upgrades
     elseif type == CollectibleType.BrokenPart then
@@ -29,6 +30,8 @@ function SuctionSystem.RegisterCollectible(node)
     else
         print("Type of component is not recogised")
     end
+
+    print("[SuctionSystem] Registry size before:", #registry)
 
     for _, entry in ipairs(registry) do
         if entry.node == node then
@@ -50,20 +53,28 @@ function SuctionSystem.RegisterCollectible(node)
         type = type,
         item = item,
         amount = amount
-    })
+    }) --34
 end
 
-function SuctionSystem.UnregisterCollectible(node, type)
+function SuctionSystem.UnregisterCollectible(node)
+    local comp = node:GetCollectibleTypeComponent()
+
     if not node then
         return
     end
     
     local registry
+    local type = comp:GetCollectibleType()
 
-    if type == "fish" then
+    if type == CollectibleType.Fish then
         registry = SuctionSystem.fishes
-    else
+    elseif type == CollectibleType.Upgrade then
         registry = SuctionSystem.upgrades
+    elseif type == CollectibleType.BrokenPart then
+        registry = SuctionSystem.brokenParts
+    else
+        print("Register doesnt exits")
+        return
     end
     
     for i = #registry, 1, -1 do
@@ -73,7 +84,7 @@ function SuctionSystem.UnregisterCollectible(node, type)
         end
     end
 
-    print("Collectible was not registered")
+    print("Collectible was not registered", node:GetName())
 end
 
 function SuctionSystem.GetFishes()

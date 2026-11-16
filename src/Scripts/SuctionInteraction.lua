@@ -14,6 +14,7 @@ local suctionElapsed = 0.0
 
 local playerBehaviour
 local woodId
+local metalId
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -118,21 +119,27 @@ function SuctionUpdate(dt)
 end
 
 function SuctionEnd()
-    local suckedTarget = currentTarget
+
+    local collectible = currentTarget
+    
+    if collectible.item and collectible.item:IsValid() then
+        playerBehaviour:AddItem(
+            InventoryType.Player,
+            collectible.item,
+            collectible.amount
+        )
+        print("Collected item:", collectible.amount)
+        print("Value:", collectible.item.value)
+    else
+        print("Collectible has invalid ItemId", collectible.item)
+        print("Value:", collectible.item.value)
+    end
 
     currentTarget = nil
     suctionElapsed = 0.0
 
-    suctionSystem.UnregisterCollectible(suckedTarget.node)
-    scene:RemoveNode(suckedTarget.node)
-    
-    if suckedTarget.type == CollectibleType.Fish then
-        playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
-        print("Fish is yum: ")
-    elseif suckedTarget.type == CollectibleType.Upgrade then
-        playerBehaviour:AddItem(InventoryType.Player, woodId, 1)
-        print("Upgrade1 optained")
-    end
+    suctionSystem.UnregisterCollectible(collectible.node)
+    scene:RemoveNode(collectible.node)
 end
 
 function SuctionCancel()
@@ -162,6 +169,7 @@ function OnStart()
     end
 
     woodId = registry:Find("resource:wood")
+    metalId = registry:Find("resource:metal")
 
     if not woodId or not woodId:IsValid() then
         print("Wood item is not registered!")

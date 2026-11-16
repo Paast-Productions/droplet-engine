@@ -251,6 +251,8 @@ end
 
 function RenderUI()
     tracy.ZoneBeginN("Fih RenderUI")
+    trans = self:GetTransform()
+	orbitPoint = trans:GetPosition(TransformSpace.World)
 
 	ImGui.Spacing()
 
