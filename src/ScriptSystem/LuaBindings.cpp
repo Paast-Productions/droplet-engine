@@ -103,6 +103,17 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
+		"GetChildren", [](Scene::Node &node) -> std::vector<std::weak_ptr<Scene::Node>>
+		{
+			auto children = node.GetChildren();
+			std::vector<std::weak_ptr<Scene::Node>> childrenWeak;
+			childrenWeak.reserve(children.size());
+			for (auto &child : children)
+			{
+				childrenWeak.push_back(child);
+			}
+			return childrenWeak;
+		},
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
 		{
@@ -167,6 +178,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
 		{"GetParent", "Node", {}},
+		{"GetChildren", "table", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
