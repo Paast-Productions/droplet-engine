@@ -1,10 +1,7 @@
 #pragma once
 
-<<<<<<<< HEAD:include/Graphics/Vulkan/CameraController.hpp
-========
 #include "Graphics/Common/Camera.hpp"
 
->>>>>>>> 68f5a1fc (Cleaning up and organising the Engine project for migration.):include/Graphics/Common/CameraController.hpp
 namespace Droplet::Graphics
 {
 	/// @brief Class that controls the camera 

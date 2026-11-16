@@ -5,6 +5,9 @@
 #include "Camera.hpp"
 #include "RenderTarget.hpp"
 
+#include "Camera.hpp"
+#include "RenderTarget.hpp"
+
 namespace Droplet::Graphics
 {
     struct PushConstantData
