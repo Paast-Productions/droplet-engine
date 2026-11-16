@@ -175,6 +175,8 @@ namespace Droplet::Scene
 		
 		/// @brief Updates the component.
 		void UpdateImpl() override;
+		
+		void FixedUpdateImpl() override;
 
 		/// @brief Late updates the physics component.
 		void LateUpdateImpl() override;
@@ -221,6 +223,10 @@ namespace Droplet::Scene
 		JPH::ShapeRefC m_shape{};
 		JPH::Ref<JPH::Character> m_character;
 		JPH::Vec3 m_offset{};
+		
+		// Linear interpolation positions
+		glm::vec3 m_currentPos = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 m_previousPos = glm::vec3(0.0f, 0.0f, 0.0f);
 		
 		Droplet::GUID m_meshGuid = C_INVALID_GUID;
 

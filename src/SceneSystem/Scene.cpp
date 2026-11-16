@@ -133,15 +133,15 @@ void Scene::FixedUpdate()
 
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
+    
+    if (m_physics != nullptr)
+    {
+        m_physics->FixedUpdate();
+    }
 
     for (const auto &root : m_roots)
     {
         root->FixedUpdate();
-    }
-        
-    if (m_physics != nullptr)
-    {
-        m_physics->FixedUpdate();
     }
 }
 

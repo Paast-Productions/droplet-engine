@@ -1,5 +1,6 @@
 #include "PhysicsComponent.hpp"
 
+#include <Time.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -151,6 +152,9 @@ void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, con
 	m_serializeData.r = p_radius;
 	SetMotionType(JPH::EMotionType::Dynamic);
 	SetObjectLayer(Layers::MOVING);
+	
+	m_currentPos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
+	m_previousPos = m_currentPos;
 }
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
@@ -252,7 +256,7 @@ void PhysicsComponent::UpdateImpl()
 	}
 }
 
-void PhysicsComponent::LateUpdateImpl()
+void PhysicsComponent::FixedUpdateImpl()
 {
 	if (m_character != nullptr)
 	{
@@ -265,8 +269,20 @@ void PhysicsComponent::LateUpdateImpl()
 	}
 	else if (!GetOwner()->GetTransform().IsOutdated(m_transformVersion))
 	{
+		m_previousPos = m_currentPos;
 		PullTransformFromPhysics();
 	}
+}
+
+void PhysicsComponent::LateUpdateImpl()
+{
+	const static Time &time = Time::Get();
+	const float alpha = time.GetFixedTimeAccumulator() / time.GetFixedDeltaTime();
+	
+	const glm::vec3 lerpPos = glm::mix(m_previousPos, m_currentPos, alpha);
+	GetOwner()->GetTransform().SetPosition(lerpPos, Transform::Space::World);
+	
+	m_transformVersion = GetOwner()->GetTransform().GetVersion();
 }
 
 void PhysicsComponent::ActiveChangedImpl(const bool p_active)
@@ -1054,6 +1070,9 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	
 	SetMotionType(m_motion);
 	SetObjectLayer(m_layer);
+	
+	m_currentPos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
+	m_previousPos = m_currentPos;
 }
 
 void PhysicsComponent::PushTransformToPhysics()
@@ -1097,10 +1116,9 @@ void PhysicsComponent::PullTransformFromPhysics()
 	}
 	
 
-	const glm::vec3 pos = JPHtoGLM(joltTransform.GetTranslation());
+	m_currentPos = JPHtoGLM(joltTransform.GetTranslation());
 	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
 
-	GetOwner()->GetTransform().SetPosition(pos, Transform::Space::World);
 	GetOwner()->GetTransform().SetRotation(rot, Transform::Space::World);
 	GetOwner()->GetTransform().MakePhysicsDirty();
 
