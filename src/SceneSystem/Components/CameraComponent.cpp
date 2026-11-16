@@ -4,7 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
@@ -12,7 +12,7 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	using namespace Graphics::VK;
+	using namespace Graphics::Vulkan;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
 
@@ -43,7 +43,7 @@ void CameraComponent::QueueRenderImpl()
 		// TODO
 
 #ifdef _EDITOR
-		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+		Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 			m_target, m_texture,
 			m_resolution.x, m_resolution.y
 		);

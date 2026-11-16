@@ -15,14 +15,14 @@
 #include <chrono>
 #include <iostream>
 #include <Graphics/DebugDraw.hpp>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -226,7 +226,11 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	using namespace Graphics::VK;
+	// TODO: 
+	//     Move this to the renderer and camera class. 
+	//     The camera should request the renderer to create a render target.
+	using namespace Graphics::Vulkan;
+
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
 	m_editorContext->GetEditorCamera().SetTarget(instance.CreateRenderTarget(720, 720));
@@ -1788,7 +1792,7 @@ void SceneViewWindow::FocusCameraOnSelection()
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+	Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 		m_editorContext->GetEditorCamera().GetTarget(), 
 		m_editorContext->GetEditorCamera().GetTexture(), 
 		width, height

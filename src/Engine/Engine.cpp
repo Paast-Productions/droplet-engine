@@ -234,7 +234,7 @@ DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData> *camRe
 	m_sceneManager.PostRender();
 
 	ResourceManager::GetInstance().Update();
-	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
+	Graphics::Vulkan::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
 	FrameMark;
 

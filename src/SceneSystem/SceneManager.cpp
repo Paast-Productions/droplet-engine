@@ -5,12 +5,10 @@
 #include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
-#include <algorithm>
-#include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
