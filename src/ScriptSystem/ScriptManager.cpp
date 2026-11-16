@@ -32,7 +32,7 @@ void Droplet::Script::ScriptManager::Shutdown()
 
 	for (auto &instance : m_scriptInstances)
 	{
-		instance->OnDestory();
+		instance->OnDestroy();
 	}
 
 	m_scriptInstances.clear();
