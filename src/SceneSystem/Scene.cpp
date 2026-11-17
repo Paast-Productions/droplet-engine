@@ -80,6 +80,12 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+			{
+				std::print("Root node is nullptr in scene '{}'. Skipping update for this root.\n", m_name);
+				continue;
+			} //TODO: Temp fix for sucking fish without it crashing the engine
+
             root->Update();
         }
     }
