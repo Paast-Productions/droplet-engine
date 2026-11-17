@@ -49,6 +49,9 @@ namespace Droplet::Scene
 
         void PostUpdateImpl() override;
 
+        [[nodiscard]] nlohmann::json SerializeImpl() override;
+        void DeserializeImpl(const nlohmann::json p_behJson) override;
+
 		/// @brief Internal rendering function for the component's UI.
 		/// Overloaded by derived components to implement their own UI rendering logic.
 		void RenderUIImpl() override;
