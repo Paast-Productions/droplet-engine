@@ -358,7 +358,7 @@ PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, Sound
     Scene::Scene* playerScene = emitter->GetOwner()->GetScene().get();
     dalia::ListenerMask mask = dalia::MASK_ALL_LISTENERS;
     auto it = m_sceneListenerMasks.find(playerScene);
-    if (it != m_sceneListenerMasks.end()) mask = it->second;
+    if (it != m_sceneListenerMasks.end()) mask = it->second | dalia::MASK_LISTENER_0;
     m_daliaEngine->SetPlaybackListenerMask(daliaHandle, mask);
     
     double seekTime = emitter->GetStartTimeSeconds();
@@ -429,7 +429,7 @@ void AudioSystem::SetMode(bool p_isGameMode)
     for (auto* emitter : m_emitterComponents) emitter->OnPlaybackFinished();
     
     // Activate/deactivate listeners based on mode
-    m_daliaEngine->SetListenerActive(0, !p_isGameMode);
+        m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !p_isGameMode);
     for (uint32_t i = 1; i < 4; i++)
     {
         if (m_listeners[i].taken && m_listeners[i].active != false)
