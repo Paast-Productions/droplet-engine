@@ -291,7 +291,8 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         .tcsGuid = p_renderData.tcsData.GUID,
         .tesGuid = p_renderData.tesData.GUID,
         .gsGuid = p_renderData.gsData.GUID,
-        .fsGuid = p_renderData.fsData.GUID
+        .fsGuid = p_renderData.fsData.GUID,
+        .transparency = static_cast<std::uint8_t>(p_renderData.transparent)
     };
     
     auto it = m_pipelineMap.find(key);
@@ -396,7 +397,8 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         m_context->GetPhysicalDevice(),
         descriptorSetLayouts,
         shaderVec,
-        p_surfaceFormat
+        p_surfaceFormat,
+        p_renderData.transparent
     };
     
     return &m_pipelineMap.at(key);
