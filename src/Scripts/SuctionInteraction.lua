@@ -127,10 +127,8 @@ function SuctionEnd()
             collectible.amount
         )
         print("Collected item:", collectible.amount)
-        print("Value:", collectible.item.value)
     else
         print("Collectible has invalid ItemId", collectible.item)
-        print("Value:", collectible.item.value)
     end
 
     currentTarget = nil

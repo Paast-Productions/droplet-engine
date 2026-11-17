@@ -51,7 +51,7 @@ function SuctionSystem.RegisterCollectible(node)
         type = type,
         item = item,
         amount = amount
-    }) --34
+    })
 end
 
 function SuctionSystem.UnregisterCollectible(node)
@@ -76,6 +76,7 @@ function SuctionSystem.UnregisterCollectible(node)
     
     for i = #registry, 1, -1 do
         if registry[i].node == node then
+            print("Remove", node.GetName)
             table.remove(registry, i)
             return
         end

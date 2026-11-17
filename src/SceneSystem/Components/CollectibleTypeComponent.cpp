@@ -35,7 +35,7 @@ int CollectibleTypeComponent::GetAmount() const
 
 void Droplet::Scene::CollectibleTypeComponent::StartImpl()
 {
-    std::print("ItemID: {}\n", m_itemId.value);
+
 }
 
 void Droplet::Scene::CollectibleTypeComponent::UpdateImpl()
