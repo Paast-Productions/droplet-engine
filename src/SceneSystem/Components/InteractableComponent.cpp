@@ -16,7 +16,9 @@ void InteractableComponent::UpdateImpl()
 
 void InteractableComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     ImGui::Text("InteractableComponent");
+#endif
 }
 
 void InteractableComponent::Interact(const std::shared_ptr<Node> &p_interactingNode)

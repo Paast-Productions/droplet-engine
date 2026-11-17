@@ -24,6 +24,7 @@ void HazardComponent::SetDirection(glm::vec3 p_direction)
 
 void HazardComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     //std::string text = "Damage: " + std::to_string(m_damage) + "/s";
     //ImGui::Text(text.c_str());
     ImGui::DragFloat("damage", &m_damage, 1.0f, 0.0f, 100.0f);
@@ -39,6 +40,7 @@ void HazardComponent::RenderUIImpl()
         glm::vec3 start = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
         Graphics::Debug::DebugDraw::DrawLine(start, start + m_direction, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true);
     }
+#endif
 }
 
 nlohmann::json HazardComponent::SerializeImpl()

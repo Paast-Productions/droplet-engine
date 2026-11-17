@@ -64,7 +64,9 @@ glm::vec3 Droplet::Scene::AudioListenerComponent::GetVelocity() const
 
 void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     ImGui::Text("This is a listener");
+#endif
 }
 
 void Droplet::Scene::AudioListenerComponent::ActiveChangedImpl(const bool p_active)
