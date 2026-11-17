@@ -1,22 +1,24 @@
 {
     "active": true,
     "children": [],
+    "collisionLayerMask": 1,
     "components": [
         {
-            "active": true,
+            "active": false,
             "data": {
                 "fs": 13680123319807966343,
                 "fsName": "Base.FS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "Cube",
-                "meshGUID": 15104664662864096133,
+                "meshGUID": 17470227938033865898,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
                 "textureDisplayName": "FreezeColor",
-                "textureGUID": 14503967403712679070,
+                "textureGUID": 4599309985099221335,
+                "transparent": false,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -25,30 +27,50 @@
         },
         {
             "active": true,
-            "data": null,
-            "id": 2,
-            "type": "TriggerComponent"
-        },
-        {
-            "active": true,
             "data": {
-                "damage": 2.0
+                "damage": 1.0,
+                "direction": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
             },
-            "id": 4,
+            "id": 2,
             "type": "HazardComponent"
         },
         {
             "active": true,
             "data": {
-                "filepath": "Freeze.lua"
+                "collisionLayerMask": 32,
+                "numAabb": 0,
+                "numObb": 1,
+                "numSphere": 0,
+                "obbExtX0": 1.0,
+                "obbExtY0": 1.0,
+                "obbExtZ0": 1.0,
+                "obbOffX0": 0.0,
+                "obbOffY0": 0.0,
+                "obbOffZ0": 0.0,
+                "obbRotX0": 0.0,
+                "obbRotY0": -0.0,
+                "obbRotZ0": 0.0
+            },
+            "id": 4,
+            "type": "TriggerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Engine_Side/Freeze.lua"
             },
             "id": 5,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 341,
-    "name": "FreezeBlock",
+    "id": 1076,
+    "name": "Freeze",
     "transform": {
         "position": [
             0.0,

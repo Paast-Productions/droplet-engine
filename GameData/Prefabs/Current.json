@@ -1,0 +1,92 @@
+{
+    "active": true,
+    "children": [],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 17470227938033865898,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "damage": 1.0,
+                "direction": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "id": 2,
+            "type": "HazardComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "collisionLayerMask": 32,
+                "numAabb": 0,
+                "numObb": 1,
+                "numSphere": 0,
+                "obbExtX0": 1.0,
+                "obbExtY0": 1.0,
+                "obbExtZ0": 1.0,
+                "obbOffX0": 0.0,
+                "obbOffY0": 0.0,
+                "obbOffZ0": 0.0,
+                "obbRotX0": 0.0,
+                "obbRotY0": -0.0,
+                "obbRotZ0": 0.0
+            },
+            "id": 3,
+            "type": "TriggerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "CurrentHazard.lua"
+            },
+            "id": 4,
+            "type": "ScriptComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 49,
+    "name": "Current",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

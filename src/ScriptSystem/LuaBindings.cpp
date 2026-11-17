@@ -106,11 +106,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		//"GetParent", &Scene::Node::GetParent,
-		"GetParent", [](Scene::Node &node) -> std::shared_ptr<Scene::Node>
+		"GetParent", [](Scene::Node& node) -> std::shared_ptr<Scene::Node>
 		{
 			return node.GetParent().lock();
 		},
-		"GetParent", &Scene::Node::GetParent,
 		"GetChildren", [](Scene::Node &node)
 		{
 			auto childrenShared = node.GetChildren();
@@ -202,18 +201,19 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{"GetPlayerData","PlayerData",{}},
-		{"GetName", "string", {}},
-		{"GetID", "integer", {}},
-		{"GetTransform", "Transform", {}},
-		{"GetParent", "Node", {}},
-		{"GetChildren", "table", {}},
-		{"GetCameraComponent", "CameraComponent", {}},
-		{"GetMeshComponent", "MeshComponent", {}},
-		{"GetPhysicsComponent", "PhysicsComponent", {}},
-		{"GetHealthComponent", "HealthComponent", {}},
-		{"GetPlayerComponent", "PlayerComponent", {}},
-		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
+		{"GetPlayerData","PlayerData", {} },
+		{"GetName", "string", {} },
+		{"GetID", "integer", {} },
+		{"GetTransform", "Transform", {} },
+		{"SetActiveSelf", "void", {{ "state", "bool" }} },
+		{"GetParent", "Node", {} },
+		{"GetChildren", "table", {} },
+		{"GetCameraComponent", "CameraComponent", {} },
+		{"GetMeshComponent", "MeshComponent", {} },
+		{"GetPhysicsComponent", "PhysicsComponent", {} },
+		{"GetHealthComponent", "HealthComponent", {} },
+		{"GetPlayerComponent", "PlayerComponent", {} },
+		{"GetPlayerBehaviour", "PlayerBehaviour", {} },
 		{"GetInteractableComponent", "InteractableComponent", {} },
 		{"GetLadderComponent", "LadderComponent", {} }
 	};  
