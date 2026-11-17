@@ -100,6 +100,7 @@ project "Game"
         "dalia_engine",
         "ole32",
         "avrt",
+        AddQuotation("glm"),
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
