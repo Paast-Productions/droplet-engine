@@ -70,7 +70,7 @@ static void OctreeTest()
         float y = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
         float z = -100.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 200.0f));
 
-        auto node = s->AddNode("Rock" + std::to_string(i));
+        auto node = s->AddNode("Rock" + std::to_string(i)).lock();
         node->GetTransform().SetPosition(glm::vec3(x, y, z));
     }
     std::printf("Done spawning rocks\n");
@@ -224,8 +224,8 @@ static void PhysicsTest()
 
     sm.ActivateScene("Game");
 
-    auto seafloor = s->AddNode("Seafloor");
-    auto player = s->AddNode("Player");
+    auto seafloor = s->AddNode("Seafloor").lock();
+    auto player = s->AddNode("Player").lock();
     player->GetTransform().SetPosition(glm::vec3(0.0f, 60.0f, 0.0f));
 
     std::unique_ptr<Component> seafloorComp = ComponentFactory::CreateComponent("PhysicsComponent");
@@ -405,7 +405,7 @@ int main()
     // Create the root node
     // ==================================================
 
-    auto root = scene->AddNode("Root");
+    auto root = scene->AddNode("Root").lock();
 
     // ==================================================
     // Build the scene hierarchy
@@ -413,19 +413,19 @@ int main()
 
     auto player =
         root->AddChild(
-            scene->AddNode("Player"));
+            scene->AddNode("Player").lock());
 
     auto camera =
         player->AddChild(
-            scene->AddNode("Camera"));
+            scene->AddNode("Camera").lock());
 
     auto weapon =
         player->AddChild(
-            scene->AddNode("Weapon"));
+            scene->AddNode("Weapon").lock());
 
     auto enemy =
         root->AddChild(
-            scene->AddNode("Enemy"));
+            scene->AddNode("Enemy").lock());
 
     // ==================================================
     // Configure transforms

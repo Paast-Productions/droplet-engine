@@ -23,7 +23,7 @@ protected:
 		scene->Load();
 
         node =
-            scene->AddNode("TestNode");
+            scene->AddNode("TestNode").lock();
     }
 };
 
