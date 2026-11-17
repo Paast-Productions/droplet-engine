@@ -6,8 +6,6 @@ local originalScale = nil
 function OnStart()
     parent = self:GetParent()
     trans = self:GetTransform()
-    --originalScale = trans:GetScale()
-    --print("OriginalScale:", originalScale.x, " ", originalScale.y, " ", originalScale.z)
 end
 
 -- Called every frame
@@ -29,8 +27,6 @@ function OnUpdate(dt)
 
     if originalScale == nil then
         originalScale = trans:GetScale()
-        print("Found originalScale")
-        print("OriginalScale:", originalScale.x, " ", originalScale.y, " ", originalScale.z)
 
     end
 
@@ -42,7 +38,6 @@ function OnUpdate(dt)
     end
 
     local healthPercentage = currentHealth / maxHealth
-    --print("Health precentage: ", healthPercentage)
 
     trans:SetScale(Vec3.new(originalScale.x, originalScale.y, originalScale.z * healthPercentage))
 

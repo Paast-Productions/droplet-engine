@@ -10,6 +10,7 @@
 #include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
@@ -37,6 +38,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
     RegisterInteractableComponent(p_luaState);
 	RegisterLadderComponent(p_luaState);
 	RegisterCollectibleTypeComponent(p_luaState);
+    RegisterScriptComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -872,7 +874,25 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
             {"Pause", "void", {}},
             {"Resume", "void", {}},
             {"Stop", "void", {}},
-        };
+        }; 
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterScriptComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<ScriptComponent>(
+        "ScriptComponent",
+        "GetScriptPath", &Scene::ScriptComponent::GetScriptPath,
+        "SetActiveSelf", &Scene::ScriptComponent::SetActiveSelf
+        );
+    LuaClassDefinition classDef;
+    classDef.name = "ScriptComponent";
+
+    classDef.functions =
+    {
+        {"SetActiveSelf", "void", {{"active", "boolean"}}}
+    };
 
     LuaBindings::PushLuaClassDefinition(classDef);
 }
