@@ -1,5 +1,5 @@
 #pragma once
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 
 #include <slang/slang-com-ptr.h>
 #include <slang/slang.h>
@@ -8,7 +8,7 @@
 namespace Droplet
 {
     /// @brief Class for shader resources.
-    class ShaderResource : public IResource
+    class ShaderResource : public IStaticResource
     {
     public:
         enum class ShaderType

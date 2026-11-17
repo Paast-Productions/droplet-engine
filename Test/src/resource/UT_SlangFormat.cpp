@@ -43,7 +43,7 @@ TEST_F(SlangFormatTest, ScanAssetResources)
     
     ASSERT_EQ(resources.size(), 1);
     
-    EXPECT_EQ(resources[0].first, ResourceType::Shader); 
+    EXPECT_EQ(resources[0].first, StaticResourceType::Shader); 
     EXPECT_EQ(resources[0].second, "Test_Valid");
 }
 

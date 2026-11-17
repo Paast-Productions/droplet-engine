@@ -56,7 +56,7 @@ project "Engine-HelloEngine"
         "avrt",
         AddQuotation("SDL3"),
         AddQuotation("Shaderc"),
-        AddQuotation("lua_static"),
+        AddQuotation("lua51"),
         AddQuotation("vulkan-1"),
         AddQuotation("Jolt")
     }

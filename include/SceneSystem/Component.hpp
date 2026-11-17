@@ -81,6 +81,8 @@ namespace Droplet::Scene
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
 
+        void Destroy();
+
         /// @brief Gets the Node that owns this component.
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
@@ -170,6 +172,8 @@ namespace Droplet::Scene
     	virtual void ActiveChangedImpl(const bool p_active) {}
 
         virtual void QueueRenderImpl() {}
+
+		virtual void DestroyImpl() {}
 
         [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
 

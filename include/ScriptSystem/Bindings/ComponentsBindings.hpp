@@ -13,5 +13,6 @@ namespace Droplet::Script::Bindings
 	void RegisterPlayerComponent(sol::state_view p_luaState);
 	void RegisterPlayerBehaviour(sol::state_view p_luaState);
 	void RegisterInteractableComponent(sol::state_view p_luaState);
+	void RegisterLadderComponent(sol::state_view p_luaState);
 	void RegisterCollectibleTypeComponent(sol::state_view p_luaState);
 }

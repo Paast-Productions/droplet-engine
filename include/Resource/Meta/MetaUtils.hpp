@@ -34,11 +34,11 @@ namespace Droplet::MetaUtils
     /// @param p_assetPath The path to the asset file the resource is stored within.
     /// @param p_explicitLoadSettings Explicit load settings JSON blob. Fields that do not yet exist will be created with default values.
     /// @return A generated meta entry.
-    [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_assetPath, 
+    [[nodiscard]] MetaEntry GenerateDefaultMetaEntry(StaticResourceType p_type, const std::string &p_name, const std::string &p_assetPath, 
         const nlohmann::json &p_explicitLoadSettings = nlohmann::json::object());
 
     /// @brief Constructs the schema describing which load settings are valid for a given resource type.
     /// @param p_type The resource type.
     /// @return The schema.
-    [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type);
+    [[nodiscard]] std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(StaticResourceType p_type);
 }

@@ -1,0 +1,32 @@
+{
+    "name": "TestScene",
+    "roots": [
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 78,
+            "name": "RonnyCutout",
+            "prefab": "GameData\\Prefabs\\RonnyCutout.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999999403953552,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

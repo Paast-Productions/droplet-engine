@@ -27,7 +27,7 @@
             "{COPYFILE} " .. AddQuotation(rootPath .. "/External/json/single_include/nlohmann/json.hpp") .. " " .. AddQuotation(jsonPath)
         }
 
-    filter { "system:linux", "configurations:release" }
+    filter { "system:linux", "configurations:release or deploy" }
         buildcommands
         {
             "{MKDIR} " .. AddQuotation(jsonPath),
