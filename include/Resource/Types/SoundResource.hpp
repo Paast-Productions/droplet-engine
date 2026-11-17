@@ -1,5 +1,5 @@
 #pragma once
-#include "resource/IResource.hpp"
+#include "resource/IStaticResource.hpp"
 
 #include <dalia/Sound.h>
 

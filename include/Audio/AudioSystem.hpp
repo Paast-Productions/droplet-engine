@@ -3,6 +3,7 @@
 #include "Resource/Types/SoundResource.hpp"
 #include "Audio/Constants.hpp"
 #include <dalia/dalia.h> // Ideally we don't include this here
+#include <glm/glm.hpp>
 
 #include <unordered_map>
 #include <functional>

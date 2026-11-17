@@ -8,7 +8,7 @@
 #include <functional>
 #include <typeindex>
 
-#include "MetaUtils.hpp"
+#include "Resource/Meta/MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
 #include "resource/StaticResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"

@@ -3,7 +3,7 @@
 #include <Audio/AudioSystem.hpp>
 #include <Resource/Types/SoundResource.hpp>
 
-#include "StaticResourceHandle.hpp"
+#include "Resource/StaticResourceHandle.hpp"
 
 namespace Droplet::Scene 
 {
