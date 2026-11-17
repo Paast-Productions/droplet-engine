@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 2544,
+            "id": 4554,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -143,25 +143,6 @@
         {
             "active": true,
             "data": {
-                "h": 0.10000001639127731,
-                "halfExtentsX": 0.0,
-                "halfExtentsY": 0.0,
-                "halfExtentsZ": 0.0,
-                "layer": 1,
-                "meshGUID": 0,
-                "motionType": 2,
-                "offsetX": 0.0,
-                "offsetY": 0.0,
-                "offsetZ": 0.0,
-                "r": 1.0,
-                "shapeType": 7
-            },
-            "id": 2,
-            "type": "PhysicsComponent"
-        },
-        {
-            "active": true,
-            "data": {
                 "health": 100.0,
                 "maxHealth": 100.0
             },
@@ -182,16 +163,81 @@
             },
             "id": 8,
             "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Death.lua"
+            },
+            "id": 10,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.8600000143051147,
+                "soundGuid": 5649831997769777985,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -9.729999542236328
+            },
+            "id": 12,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneAudioController.lua"
+            },
+            "id": 13,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.800000011920929,
+                "soundGuid": 8694620601437719986,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -3.4100000858306885
+            },
+            "id": 14,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "h": 0.10000000149011612,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 0,
+                "meshGUID": 0,
+                "motionType": 1,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 1.0,
+                "shapeType": 7
+            },
+            "id": 15,
+            "type": "PhysicsComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 2543,
+    "id": 4553,
     "name": "Drone",
     "transform": {
         "position": [
-            -3.0,
-            0.0,
-            0.0
+            43.0,
+            12.0,
+            -20.0
         ],
         "rotation": [
             1.0,

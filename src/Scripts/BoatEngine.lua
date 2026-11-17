@@ -4,8 +4,23 @@ local MeshToggleSystem = require("MeshToggleSystem")
 local brokenEngine
 local repairedEngine
 
+local engineRepairSound = nil;
+local engineRepairFailedSound = nil;
+
 function OnStart()
     InteractableSystem.RegisterInteractable(self)
+
+    engineRepairSound = self:GetAudioEmitter("Repair Engine")
+    if engineRepairSound == nil then  
+        print("Unable to find repair sound emitter")
+        return
+    end
+
+    engineRepairFailedSound = self:GetAudioEmitter("Repair Engine Failed")
+    if engineRepairSound == nil then  
+        print("Unable to find repair failed sound emitter")
+        return
+    end
 
 end
 
@@ -61,10 +76,12 @@ function OnTrigger(dt, node)
         and pb:CountItem(InventoryType.Player, repairedPartId) == 0 then
 
         print("Cannot repair the engine with a broken part")
+        engineRepairFailedSound:Play()
 
     elseif pb:CountItem(InventoryType.Player, repairedPartId) == 1 then
 
         print("Repaired")
+        engineRepairSound:Play()
 
         pb:RemoveItem(InventoryType.Player, repairedPartId, 1)
 
@@ -74,6 +91,7 @@ function OnTrigger(dt, node)
 
     else
         print("Can't do anything with the engine")
+        engineRepairFailedSound:Play()
     end
 
     tracy.ZoneEnd()
