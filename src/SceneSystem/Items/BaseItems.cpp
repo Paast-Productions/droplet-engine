@@ -17,8 +17,6 @@ namespace Droplet::Game
         Items::BrokenEnginePart = p_registry.Register({ "upgrade:broken_engine_part", "Broken Engine Part", 1 });
 		Items::RepairedEnginePart = p_registry.Register({ "upgrade:repaired_engine_part", "Repaired Engine Part", 1 });
 
-
-
         assert(Items::Wood);
         assert(Items::Stone);
         assert(Items::Iron);

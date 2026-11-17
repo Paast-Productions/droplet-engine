@@ -345,3 +345,7 @@ function RenderUI()
 
     tracy.ZoneEnd()
 end
+
+function OnDestroy()
+    suctionSystem.UnregisterCollectible(self)
+end

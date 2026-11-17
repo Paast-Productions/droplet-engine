@@ -31,8 +31,6 @@ function SuctionSystem.RegisterCollectible(node)
         print("Type of component is not recogised")
     end
 
-    print("[SuctionSystem] Registry size before:", #registry)
-
     for _, entry in ipairs(registry) do
         if entry.node == node then
             return
@@ -58,8 +56,7 @@ end
 
 function SuctionSystem.UnregisterCollectible(node)
     local comp = node:GetCollectibleTypeComponent()
-
-    if not node then
+    if not comp then
         return
     end
     

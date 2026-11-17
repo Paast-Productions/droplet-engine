@@ -15,3 +15,7 @@ end
 function RenderUI()
 
 end
+
+function OnDestroy()
+    suctionSystem.UnRegisterCollectible(self)
+end
