@@ -17,10 +17,11 @@ void Droplet::Audio::ReverbEffect::StartImpl()
 
 void Droplet::Audio::ReverbEffect::RenderUIImpl()
 {
+#ifdef _EDITOR
 	const char *text = ICON_LC_CIRCLE_USER_ROUND " DUMMY " ICON_LC_CIRCLE_USER_ROUND;
 
 	ImGui::SeparatorText(text);
 	ImGui::SeparatorText(text);
 	ImGui::SeparatorText(text);
-
+#endif
 }

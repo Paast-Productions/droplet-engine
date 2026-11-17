@@ -1,7 +1,6 @@
 #include <Engine/Engine.hpp>
 #include <cstdio>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/VK/TestData.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <chrono>
@@ -38,6 +37,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 

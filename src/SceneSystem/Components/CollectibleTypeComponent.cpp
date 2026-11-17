@@ -44,6 +44,7 @@ void Droplet::Scene::CollectibleTypeComponent::UpdateImpl()
 
 void CollectibleTypeComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     const char *collectibleTypes[] =
     {
         "Fish",
@@ -120,7 +121,7 @@ void CollectibleTypeComponent::RenderUIImpl()
     }
 
     ImGui::InputInt("Amount", &m_amount);
-
+#endif
 }
 
 nlohmann::json Droplet::Scene::CollectibleTypeComponent::SerializeImpl()
