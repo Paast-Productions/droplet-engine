@@ -29,6 +29,8 @@
 #include <SceneSystem/Items/ItemRegistry.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <AudioPlayerComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -103,6 +105,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
+		//"GetParent", &Scene::Node::GetParent,
+		"GetParent", [](Scene::Node& node) -> std::shared_ptr<Scene::Node>
+		{
+			return node.GetParent().lock();
+		},
 		"GetParent", &Scene::Node::GetParent,
 		"GetChildren", [](Scene::Node &node)
 		{
@@ -176,8 +183,17 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::CollectibleTypeComponent>();
-		}
-				
+		},
+		"GetAudioEmitter",
+        [](Scene::Node &node, const std::string& p_name)
+        {
+            return node.GetAudioEmitter(p_name).lock();
+        },
+        "GetAudioPlayer",
+        [](Scene::Node &node, const std::string &p_name)
+        {
+            return node.GetAudioPlayer(p_name).lock();
+        }
 	);
 
 	LuaClassDefinition classDef;
@@ -861,6 +877,11 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		glm.set_function("V3Refract",
 			[](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
 				return glm::refract(p_vec1, p_vec2, p_float);
+			});
+
+		glm.set_function("V3Rotate",
+			[](glm::vec3 p_vec, glm::quat p_quat) {
+				return p_quat * p_vec;
 			});
 	}
 
@@ -1595,6 +1616,15 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" },
 				{ "float", "number" }
+			}
+		},
+		{
+			"V3Rotate",
+			"Vec3",
+			true,
+			{
+				{ "vec", "Vec3" },
+				{ "quat", "Quat" }
 			}
 		},
 
