@@ -58,6 +58,16 @@ function OnTrigger(dt, node)
             pb:RemoveItem(InventoryType.Player, repairedPartId, 1)
             pb:RemoveItem(InventoryType.Player, woodId, 10)
             pb:RemoveItem(InventoryType.Player, metalId, 10)
+            local Children = self:GetChildren()
+            for index, value in ipairs(Children) do
+                print(value:GetName())
+                if(value:GetName() == "BlackParticleSystem") then
+                    value:SetActiveSelf(false)
+                end
+                if(value:GetName() == "WhiteParticleSystem") then
+                    value:SetActiveSelf(true)
+                end
+            end
             MeshToggleSystem.SetActive(repairedEngine, true)
         end
     else

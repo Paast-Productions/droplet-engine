@@ -6,9 +6,8 @@ local damageResistant = 10.0
 
 function OnStart()
     hazardComp = self:GetHazardComponent()
-    
     heatDamage = hazardComp:GetDamage()
-     newDamage = heatDamage
+    newDamage = heatDamage
 end
 
 function OnTrigger(dt, node)
@@ -45,7 +44,7 @@ function OnTrigger(dt, node)
     end
 
     -- Apply frame-rate independent damage.
-    health:TakeDamage(damagePerSecond * dt)
+    health:TakeDamage(damagePerSecond * heatDamage * dt)
 
     tracy.ZoneEnd()
 end

@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 922,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -105,7 +105,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 4,
+                            "id": 925,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -130,7 +130,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 3,
+                    "id": 924,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -183,7 +183,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 6,
+                            "id": 927,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -247,7 +247,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 7,
+                            "id": 928,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -272,7 +272,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 5,
+                    "id": 926,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -341,7 +341,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 923,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -363,10 +363,10 @@
             }
         },
         {
-            "active": true,
+            "active": false,
             "children": [
                 {
-                    "active": true,
+                    "active": false,
                     "children": [],
                     "collisionLayerMask": 1,
                     "components": [
@@ -394,7 +394,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 9,
+                    "id": 930,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -416,7 +416,7 @@
                     }
                 },
                 {
-                    "active": true,
+                    "active": false,
                     "children": [],
                     "collisionLayerMask": 1,
                     "components": [
@@ -427,7 +427,7 @@
                             "type": "InteractableComponent"
                         },
                         {
-                            "active": true,
+                            "active": false,
                             "data": {
                                 "data": "",
                                 "filepath": "RepairBench.lua"
@@ -437,7 +437,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 10,
+                    "id": 931,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -482,29 +482,10 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "h": 0.0,
-                        "halfExtentsX": 0.5,
-                        "halfExtentsY": 0.5,
-                        "halfExtentsZ": 0.5,
-                        "layer": 0,
-                        "meshGUID": 0,
-                        "motionType": 0,
-                        "offsetX": 0.0,
-                        "offsetY": 0.0,
-                        "offsetZ": 0.0,
-                        "r": 0.0,
-                        "shapeType": 1
-                    },
-                    "id": 4,
-                    "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 8,
+            "id": 929,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -566,7 +547,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 12,
+                    "id": 933,
                     "name": "wheel",
                     "transform": {
                         "position": [
@@ -616,63 +597,13 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 13,
+                    "id": 934,
                     "name": "enginePart1",
                     "transform": {
                         "position": [
                             0.00011491776240291074,
                             -0.00010123849642695859,
                             -6.234646571101621e-05
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            1.4901162614933128e-07,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0001174211502075,
-                            1.0,
-                            1.0001174211502075
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "collisionLayerMask": 1,
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "pipe",
-                                "meshGUID": 14947082584196746576,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "Engine_pipe_base",
-                                "textureGUID": 6009733634999816850,
-                                "transparent": false,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 14,
-                    "name": "EnginePart2",
-                    "transform": {
-                        "position": [
-                            0.00013855303404852748,
-                            -0.00010123848915100098,
-                            9.47713851928711e-05
                         ],
                         "rotation": [
                             1.0,
@@ -716,7 +647,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 15,
+                    "id": 935,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -734,6 +665,108 @@
                             0.09503073990345001,
                             0.09500565379858017,
                             0.0950244590640068
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 936,
+                    "name": "BlackParticleSystem",
+                    "prefab": "GameData\\Prefabs\\BlackParticleSystem.json",
+                    "transform": {
+                        "position": [
+                            -0.1888667345046997,
+                            0.5500657558441162,
+                            0.49285846948623657
+                        ],
+                        "rotation": [
+                            0.7071064710617065,
+                            0.0,
+                            0.7071070671081543,
+                            0.0
+                        ],
+                        "scale": [
+                            0.5001222491264343,
+                            0.5,
+                            0.5001222491264343
+                        ]
+                    }
+                },
+                {
+                    "active": false,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 944,
+                    "name": "WhiteParticleSystem",
+                    "prefab": "GameData\\Prefabs\\WhiteParticleSystem.json",
+                    "transform": {
+                        "position": [
+                            -0.16809773445129395,
+                            0.5687633752822876,
+                            0.47403305768966675
+                        ],
+                        "rotation": [
+                            -8.344650268554688e-07,
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "pipe",
+                                "meshGUID": 14947082584196746576,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "Engine_pipe_base",
+                                "textureGUID": 6009733634999816850,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 952,
+                    "name": "EnginePart2",
+                    "transform": {
+                        "position": [
+                            0.0001385211944580078,
+                            -0.00010129064321517944,
+                            9.47415828704834e-05
+                        ],
+                        "rotation": [
+                            1.0,
+                            -1.489848600044752e-08,
+                            1.7881393432617188e-07,
+                            5.588417284485558e-09
+                        ],
+                        "scale": [
+                            1.0001174211502075,
+                            1.0000001192092896,
+                            1.0001174211502075
                         ]
                     }
                 }
@@ -798,7 +831,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 11,
+            "id": 932,
             "name": "engine",
             "transform": {
                 "position": [
@@ -848,7 +881,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 16,
+            "id": 953,
             "name": "Ladderhatch",
             "transform": {
                 "position": [
@@ -924,7 +957,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 18,
+                    "id": 955,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -933,10 +966,10 @@
                             -0.03041219711303711
                         ],
                         "rotation": [
-                            0.9999702572822571,
-                            0.007710371632128954,
-                            -3.7109417760916585e-09,
-                            1.891620637906044e-09
+                            0.9999703764915466,
+                            0.0077103725634515285,
+                            -3.7109422201808684e-09,
+                            1.891620859950649e-09
                         ],
                         "scale": [
                             1.0000537633895874,
@@ -974,7 +1007,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 19,
+                    "id": 956,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -983,10 +1016,10 @@
                             0.030334830284118652
                         ],
                         "rotation": [
-                            0.9999702572822571,
-                            0.007710392586886883,
-                            -3.739914156142277e-09,
-                            1.89253568372294e-09
+                            0.9999703764915466,
+                            0.007710393518209457,
+                            -3.7399146002314865e-09,
+                            1.892535905767545e-09
                         ],
                         "scale": [
                             0.9999998807907104,
@@ -1043,7 +1076,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 20,
+                    "id": 957,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1052,10 +1085,10 @@
                             -0.00011396408081054688
                         ],
                         "rotation": [
-                            0.9999702572822571,
-                            0.00771037582308054,
-                            -3.711065232891997e-09,
-                            1.8918744348894734e-09
+                            0.9999703764915466,
+                            0.007710376754403114,
+                            -3.7110656769812067e-09,
+                            1.8918746569340783e-09
                         ],
                         "scale": [
                             1.0,
@@ -1094,7 +1127,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 21,
+                    "id": 958,
                     "name": "InteractionNode",
                     "transform": {
                         "position": [
@@ -1119,7 +1152,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 17,
+            "id": 954,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -1169,7 +1202,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 22,
+            "id": 959,
             "name": "Postit",
             "transform": {
                 "position": [
