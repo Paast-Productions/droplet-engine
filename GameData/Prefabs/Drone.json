@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 736,
+            "id": 1100,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -132,10 +132,33 @@
             },
             "id": 8,
             "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.8600000143051147,
+                "soundGuid": 5649831997769777985,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -9.729999542236328
+            },
+            "id": 12,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneAudioController.lua"
+            },
+            "id": 13,
+            "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 735,
+    "id": 1099,
     "name": "Drone",
     "transform": {
         "position": [
