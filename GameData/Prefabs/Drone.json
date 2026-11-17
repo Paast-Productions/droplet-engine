@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 384,
+            "id": 130,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -183,10 +183,16 @@
             },
             "id": 14,
             "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": null,
+            "id": 15,
+            "type": "AudioListenerComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 383,
+    "id": 129,
     "name": "Drone",
     "transform": {
         "position": [

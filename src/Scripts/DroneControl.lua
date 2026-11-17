@@ -9,7 +9,7 @@ local physicsComponent = nil
 
 -- Movement settings
 local acceleration = 5.0
-local maxSpeed = 5.0
+local maxSpeed = 8.0
 
 local acceleration = 5.0     -- speeding up along the input direction
 local deceleration = 12.0    -- no input: slowing to a stop
@@ -236,7 +236,7 @@ function UpdateMovement(dt)
     end
 
     -- Apply movement in world space
-    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 50.0)
+    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 160.0)
     
     -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
