@@ -19,7 +19,7 @@ struct FSInput
 
 layout(set = 2, binding = 0) Sampler2D textureArr[];
 
-float3 lanternOffset = normalize(pc.cameraDir).xyz * 0.5;
+
 
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET
@@ -30,16 +30,19 @@ float4 main(FSInput vertIn) : SV_TARGET
 
     float3 lightPos = pc.cameraPos.xyz;
 
-    float3 lightToFrag = normalize(lightPos - vertIn.wPos.xyz);
+    float3 fragToLight = normalize(lightPos - vertIn.wPos.xyz);
 
-    float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
+    float3 fragToCam = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
 
-    float3 lightColor = float3(1.0, 1.0, 0.8);
+    float3 H = normalize(fragToLight + fragToCam);
 
-    float viewDotNormal = (dot(vertIn.fragNormal.xyz, camToFrag));
-    color.xyz *= saturate((viewDotNormal + 1.0.rrr)) * lightColor;
+    float3 lightColor = float3(1.0, 1.0, 0.90);
 
-    float attenuation = saturate(1.0 - length(lightToFrag) / 5.0);
+    float hDotNormal = dot(vertIn.fragNormal.xyz, H);
 
-    return float4(color) * attenuation * attenuation;
+    float attenuation = 5.0 / (length(lightPos - vertIn.wPos.xyz) * length(lightPos - vertIn.wPos.xyz));
+
+    color.xyz *= saturate((hDotNormal.rrr)) * saturate(attenuation) * lightColor;
+
+    return float4(color);
 }
