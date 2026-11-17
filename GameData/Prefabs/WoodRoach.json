@@ -4,6 +4,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -20,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "WoodTexture",
                         "textureGUID": 1466059150086384494,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -28,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 108,
+            "id": 8265,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -50,10 +52,22 @@
             }
         }
     ],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
             "data": {
+                "amount": 1,
+                "collectibleType": 0,
+                "itemId": 1
+            },
+            "id": 2,
+            "type": "CollectibleTypeComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
                 "filepath": "Engine_Side/Fih.lua"
             },
             "id": 1,
@@ -61,13 +75,13 @@
         }
     ],
     "drawLayer": 1,
-    "id": 107,
+    "id": 8264,
     "name": "WoodRoach",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            39.408355712890625,
+            10.728100776672363,
+            -11.674089431762695
         ],
         "rotation": [
             -4.371138828673793e-08,

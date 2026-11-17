@@ -98,11 +98,6 @@ end
 
 
 function OnStart()
-    GenParticles()
-
-	if pStates == nil then
-		return
-	end
 end
 
 function OnUpdate(dt)

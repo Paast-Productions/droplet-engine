@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "postit_engine_piece",
+            "guid": 2402485206437281696,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "postit_engine_piece",
+            "type": 1
+        }
+    ]
+}

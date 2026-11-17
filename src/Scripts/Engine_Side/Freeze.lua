@@ -2,6 +2,7 @@ local MovementModifiers = require("MovementModifiers")
 
 local hazardComp = nil
 local freezeDamage = 0
+local newFreezeDamage = freezeDamage
 
 -- Freeze configuration
 local freezeRate = 30.0
@@ -24,6 +25,7 @@ function OnStart()
             return
         end
     freezeDamage = (hazardComp:GetDamage()) * 0.25
+    newFreezeDamage = freezeDamage
 end
 
 -- This trigger function slows down and damages the player
@@ -73,7 +75,14 @@ end
 
 -- Called to render variables in the script
 function RenderUI()
-    
+	if hazardComp ~= nil then
+		local hasChanged = false
+		hasChanged, newFreezeDamage = ImGui.DragFloat("Damage", newFreezeDamage, 0.1, 0.0)
+		hazardComp:SetDamage(newFreezeDamage)
+		if hasChanged then
+			freezeDamage = newFreezeDamage
+		end
+	end
 end
 
 return freezeConfig
