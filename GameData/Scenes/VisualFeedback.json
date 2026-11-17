@@ -31,7 +31,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 15,
+                    "id": 28,
                     "name": "Drone",
                     "transform": {
                         "position": [
@@ -79,7 +79,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 16,
+                    "id": 29,
                     "name": "Camera Node",
                     "transform": {
                         "position": [
@@ -117,8 +117,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "FreezeEffectVer2_1",
-                                "textureGUID": 10465063335906327654,
+                                "textureDisplayName": "FreezeEffect_ver3_1",
+                                "textureGUID": 13378112930153838476,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -148,7 +148,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 17,
+                    "id": 30,
                     "name": "Freeze UI Level 1",
                     "transform": {
                         "position": [
@@ -186,8 +186,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "FreezeEffect_ver2_2",
-                                "textureGUID": 11540706483194113954,
+                                "textureDisplayName": "FreezeEffect_ver3_2",
+                                "textureGUID": 16967291178797757359,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -217,7 +217,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 18,
+                    "id": 31,
                     "name": "Freeze UI Level 2",
                     "transform": {
                         "position": [
@@ -255,8 +255,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "FreezeEffect_ver2_3",
-                                "textureGUID": 5138521324805101156,
+                                "textureDisplayName": "FreezeEffect_ver3_3",
+                                "textureGUID": 7860564897902025064,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -274,7 +274,7 @@
                         {
                             "active": true,
                             "data": {
-                                "damage": 2.0,
+                                "damage": 3.0,
                                 "direction": [
                                     0.0,
                                     0.0,
@@ -286,7 +286,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 19,
+                    "id": 32,
                     "name": "Freeze UI Level 3",
                     "transform": {
                         "position": [
@@ -324,8 +324,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "FreezeEffect_ver2_4",
-                                "textureGUID": 8650658446611634005,
+                                "textureDisplayName": "FreezeEffect_ver3_4",
+                                "textureGUID": 7653706612453229096,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -343,7 +343,7 @@
                         {
                             "active": true,
                             "data": {
-                                "damage": 2.0,
+                                "damage": 4.0,
                                 "direction": [
                                     0.0,
                                     0.0,
@@ -355,7 +355,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 20,
+                    "id": 33,
                     "name": "Freeze UI Level 4",
                     "transform": {
                         "position": [
@@ -393,8 +393,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "FreezeEffect5",
-                                "textureGUID": 12782165237624695713,
+                                "textureDisplayName": "FreezeEffect_ver3_5",
+                                "textureGUID": 4120819183314893811,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -412,7 +412,7 @@
                         {
                             "active": true,
                             "data": {
-                                "damage": 2.0,
+                                "damage": 5.0,
                                 "direction": [
                                     0.0,
                                     0.0,
@@ -424,7 +424,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 21,
+                    "id": 34,
                     "name": "Freeze UI Level 5",
                     "transform": {
                         "position": [
@@ -480,7 +480,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 22,
+                    "id": 35,
                     "name": "CurrentHealthbar",
                     "transform": {
                         "position": [
@@ -528,7 +528,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 23,
+                    "id": 36,
                     "name": "Healthbar",
                     "transform": {
                         "position": [
@@ -576,7 +576,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 14,
+            "id": 27,
             "name": "Player",
             "transform": {
                 "position": [
@@ -624,7 +624,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 24,
+            "id": 37,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -672,7 +672,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 25,
+            "id": 38,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -747,7 +747,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 26,
+            "id": 39,
             "name": "Freeze",
             "transform": {
                 "position": [

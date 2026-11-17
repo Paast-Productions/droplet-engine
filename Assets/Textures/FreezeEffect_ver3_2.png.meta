@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "FreezeEffect4_base",
-            "guid": 6890060007354454634,
+            "displayName": "FreezeEffect_ver3_2",
+            "guid": 16967291178797757359,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "FreezeEffect4_base",
+            "sourceName": "FreezeEffect_ver3_2",
             "type": 1
         }
     ]

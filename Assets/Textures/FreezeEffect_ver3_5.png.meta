@@ -1,13 +1,13 @@
 {
     "resources": [
         {
-            "displayName": "FreezeAlphaUI",
-            "guid": 10154272900935731036,
+            "displayName": "FreezeEffect_ver3_5",
+            "guid": 4120819183314893811,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_mipmaps": false
             },
-            "sourceName": "FreezeAlphaUI",
+            "sourceName": "FreezeEffect_ver3_5",
             "type": 1
         }
     ]
