@@ -4,8 +4,6 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <string>
 
-using namespace Droplet::Script;
-
 namespace Droplet::Scene
 {
     /// @brief Behaviour that attaches a Lua script to game.
@@ -43,6 +41,11 @@ namespace Droplet::Scene
         void DetachScript();
 
 	protected:
+
+        /// @brief Starts the associated Lua script.
+        /// Called when the component is started and forwards the start
+        /// operation to the scripting system.
+        void StartImpl() override;
 
         void PostUpdateImpl() override;
 

@@ -13,7 +13,7 @@ JPH::MeshShapeSettings MeshColliderManager::GetMeshSettings(const GUID p_guid)
         return m_shapeSettings[p_guid].meshShapeSettings;
     }
     
-    ResourceHandle<MeshResource> meshHandle = ResourceManager::Get().LoadResource<MeshResource>(p_guid, [this](ResourceHandle<MeshResource> p_handle)
+    StaticResourceHandle<MeshResource> meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(p_guid, [this](StaticResourceHandle<MeshResource> p_handle)
     {
         m_shapeSettings[p_handle.GetGUID()].meshShapeSettings = CreateMeshShapeSettings(p_handle.Get());
         m_shapeSettings[p_handle.GetGUID()].AddRef();

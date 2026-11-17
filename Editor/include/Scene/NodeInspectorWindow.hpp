@@ -26,6 +26,16 @@ namespace Droplet::Editor
 		void RenderToolbar() override;
 
 	private:
+		/// @brief Drag field that snaps its value to an increment when snapping is active.
+		/// @details Keeps the unsnapped value between frames so small mouse deltas accumulate instead of being rounded away.
+		/// @param p_label The label of the drag field, also used as its ID.
+		/// @param p_value The value to edit, only written when the field changes.
+		/// @param p_speed The drag speed passed to ImGui.
+		/// @param p_snapIncrement The increment to snap to. Pass 0 to disable snapping.
+		/// @param p_relative If true, snap relative to the value at the start of the drag. If false, snap to multiples of zero.
+		/// @return True if the value changed.
+		bool DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative, int *p_changedAxis = nullptr);
+
 		/// @brief Shared editor interaction state used to track node selection.
 		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
 
@@ -35,12 +45,12 @@ namespace Droplet::Editor
 		/// @brief A variable to remember if the scale should be locked
 		bool m_lockScale = false;
 
-		/// @brief Independent axis angles (degrees) shown in the rotation control.
-		glm::vec3 m_displayedRotation = glm::vec3(0.0f);
-
-		const Droplet::Scene::Node *m_rotationNode = nullptr;
-		Droplet::Scene::Transform::Space m_rotationSpace = Droplet::Scene::Transform::Space::World;
-		glm::quat m_lastDisplayedRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
-		bool m_hasDisplayedRotation = false;
+		/// @brief Unsnapped value and drag-start value of the drag field currently being dragged.
+		struct SnapDragState
+		{
+			ImGuiID id = 0;
+			glm::vec3 value{};
+			glm::vec3 start{};
+		} m_snapDrag;
 	};
 }

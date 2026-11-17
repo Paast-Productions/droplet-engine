@@ -7,7 +7,7 @@
                 {
                     "active": true,
                     "drawLayer": 1,
-                    "id": 35,
+                    "id": 142,
                     "name": "Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -46,8 +46,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodDoor",
+                                "textureGUID": 4743341834037859640,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -75,13 +75,13 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 44,
+                    "id": 151,
                     "name": "Door",
                     "transform": {
                         "position": [
-                            0.0,
-                            0.0,
-                            0.0
+                            -0.5377500057220459,
+                            1.0,
+                            -1.25
                         ],
                         "rotation": [
                             1.0,
@@ -101,7 +101,8 @@
                 {
                     "active": true,
                     "data": {
-                        "player": 45,
+                        "player": 152,
+                        "reach": 1.0,
                         "targetSceneName": ""
                     },
                     "id": 1,
@@ -109,7 +110,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 34,
+            "id": 141,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -168,7 +169,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 46,
+                    "id": 153,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -220,7 +221,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 45,
+            "id": 152,
             "name": "Player",
             "transform": {
                 "position": [

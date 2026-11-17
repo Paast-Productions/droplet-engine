@@ -1,21 +1,14 @@
-#include "Graphics/DebugDraw.hpp"
-#include <Graphics/VK/Camera.hpp>
+#include "DebugDraw.hpp"
+
+#include <Graphics/Vulkan/Camera.hpp>
 #include <math/Bezier.hpp>
 #include <math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-#include <print>
-#include <iostream>
-#include <array>
-#include <map>
-#include <algorithm>
-#include <filesystem>
-#include <fstream>
-#include <stdexcept>
-#include <limits>
+
 #define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #undef _USE_MATH_DEFINES
 
 using namespace Droplet::Math;
@@ -265,7 +258,7 @@ namespace
 		outVertices.resize(segments);
 		for (int i = 0; i < segments; ++i)
 		{
-			float angle = 2.0f * M_PI * float(i) * invSegments;
+			float angle = 2.0f * std::numbers::pi * float(i) * invSegments;
 			outVertices[i] = glm::vec3(std::cos(angle), std::sin(angle), 0.0f);
 		}
 	}
@@ -1186,7 +1179,7 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 	glm::mat4 rotation = glm::mat4(1.0f);
 	if (dot <= -1.0f + 1e-6f)
 	{
-		rotation = glm::rotate(glm::mat4(1.0f), float(M_PI), glm::vec3(1.0f, 0.0f, 0.0f));
+		rotation = glm::rotate(glm::mat4(1.0f), float(std::numbers::pi), glm::vec3(1.0f, 0.0f, 0.0f));
 	}
 	else if (dot < 1.0f - 1e-6f)
 	{

@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "PodControls",
+            "guid": 1704392341138977716,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "PodControls",
+            "type": 1
+        }
+    ]
+}

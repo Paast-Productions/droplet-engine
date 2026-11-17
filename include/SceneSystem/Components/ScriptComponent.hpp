@@ -7,8 +7,6 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <json/json.hpp>
 
-using namespace Droplet::Script;
-
 namespace Droplet::Scene
 {
     /// @brief Component that attaches a Lua script to a Node.
@@ -78,6 +76,8 @@ namespace Droplet::Scene
 		/// function to implement their own UI rendering logic.
 		void RenderUIImpl() override;
 
+		void DestroyImpl() override;
+
         void AttachScript(const std::string p_scriptPath);
 
         nlohmann::json SerializeImpl() override;
@@ -106,7 +106,7 @@ namespace Droplet::Scene
     template<typename ...Args>
     inline sol::protected_function_result ScriptComponent::Call(const std::string &p_functionName, Args&& ...p_args)
     {
-        return ScriptSystem::Get().Call(
+        return Droplet::Script::ScriptSystem::Get().Call(
             this,
             p_functionName,
             std::forward<Args>(p_args)...
