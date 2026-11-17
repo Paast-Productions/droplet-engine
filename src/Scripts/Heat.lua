@@ -1,13 +1,57 @@
 ﻿local hazardComp = nil
 local heatDamage = nil
 
+local particleSystem = nil
+local isActive = false
+local activeTime = 5.0
+local inactiveTime = 15.0
+local timer = 0
+
 function OnStart()
     hazardComp = self:GetHazardComponent()
-    
     heatDamage = hazardComp:GetDamage()
+
+    isActive = true
+    timer = math.random() * inactiveTime
+end
+
+function OnUpdate(dt)
+    if particleSystem == nil then
+        local parent = self:GetParent()
+
+        if parent ~= nil then
+            local children = parent:GetChildren()
+
+            for i, child in ipairs(children) do
+                if child:GetName() == "Heat ParticleSystem" then
+                    particleSystem = child
+                    break
+                end
+            end
+        end
+    end
+    
+    timer = timer - dt
+    if timer <= 0 then
+        if isActive then
+            isActive = false
+            timer = timer + inactiveTime
+        else
+            isActive = true
+            timer = timer + activeTime
+        end
+
+        if particleSystem ~= nil then
+            particleSystem:SetActiveSelf(isActive)
+        end
+    end
 end
 
 function OnTrigger(dt, node)
+    if not isActive then
+        return
+    end
+
     tracy.ZoneBeginN("HeatHazard OnTrigger")
     
     local health = node:GetHealthComponent()
@@ -33,5 +77,6 @@ function OnTrigger(dt, node)
 end
 
 function RenderUI()
-    
+    ImGui.Text("Heat Hazard Active: " .. tostring(isActive))
+    ImGui.Text("Timer: " .. tostring(timer))
 end
