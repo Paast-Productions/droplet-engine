@@ -205,6 +205,10 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	bool p_debug, glm::vec4 p_clearColor)
 {
 	ZoneScoped;
+	
+	// Sort RenderData based on transparency
+	// Note: The condition it sorts by is the operator<() defined in RenderData
+	std::sort(p_renderData.begin(), p_renderData.end());
 
 	auto &commandBuffer = /*p_commandBuffer;*/m_commandPool.GetBufferAt(m_frameIndex);
 

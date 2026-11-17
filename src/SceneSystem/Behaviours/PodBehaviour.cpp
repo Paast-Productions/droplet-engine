@@ -256,6 +256,7 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sce
 	if(p_sceneName == "BoatScene")
 	{
 		GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+		GetSceneManager()->GetScene("PodScene")->GetBehaviour<PlayerBehaviour>()->TransferDroneInventoryToPlayer();
 	}
 	auto scene = GetSceneManager()->GetScene(p_sceneName);
 
