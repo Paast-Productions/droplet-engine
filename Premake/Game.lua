@@ -100,10 +100,12 @@ project "Game"
         "dalia_engine",
         "ole32",
         "avrt",
+        "setupapi",
+        "version",
+        "winmm",
         AddQuotation("glm"),
-        AddQuotation("SDL3"),
+        AddQuotation("SDL3-static"),
         AddQuotation("vulkan-1"),
-        AddQuotation("Shaderc"),
 		AddQuotation("lua51"),
 		AddQuotation("Jolt")
     }

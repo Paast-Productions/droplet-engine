@@ -10,6 +10,7 @@ void Droplet::Audio::HighPassEffect::StartImpl()
 
 void Droplet::Audio::HighPassEffect::RenderUIImpl()
 {
+#ifdef _EDITOR
 	if (ImGui::SliderFloat(ICON_LC_AUDIO_LINES " Resonance ", &m_resonance, 0.1f, 10.0f))
 	{
 		m_params.resonance = m_resonance;
@@ -28,6 +29,7 @@ void Droplet::Audio::HighPassEffect::RenderUIImpl()
 
 		}
 	}
+#endif
 }
 
 nlohmann::json Droplet::Audio::HighPassEffect::SerializeImpl()

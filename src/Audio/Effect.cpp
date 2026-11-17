@@ -35,6 +35,7 @@ void Effect::Start()
 
 void Effect::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(GetEffectTypeName().data(), GetEffectTypeName().size());
 
@@ -56,6 +57,7 @@ void Effect::RenderUI()
 		RenderUIImpl();
 	}
 	ImGui::EndChild();
+#endif
 }
 
 void Droplet::Audio::Effect::SetActive(bool p_active)

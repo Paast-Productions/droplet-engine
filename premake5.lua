@@ -107,6 +107,7 @@ if _TARGET_OS == 'windows' then
     include "Premake/External/Windows/Dalia"
     include "Premake/External/Windows/Jolt"
     include "Premake/External/Windows/GLM"
+    include "Premake/External/Windows/SDL"
 end
 
 if _TARGET_OS == 'linux' then
