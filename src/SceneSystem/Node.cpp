@@ -92,7 +92,7 @@ void Node::Start()
 
 void Node::Update()
 {
-	assert(m_constructed && "Node must be constructed before calling Update().");
+ 	assert(m_constructed && "Node must be constructed before calling Update().");
 
 	if (!m_active)
 	{
