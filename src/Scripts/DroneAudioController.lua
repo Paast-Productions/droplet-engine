@@ -39,7 +39,6 @@ function OnUpdate(dt)
 
     -- Freeze Sound
     currentFreeze = pb:GetFreezeLevel()
-    print("Current freeze level", currentFreeze)
 
     -- Over 200 -> Play freeze
     if currentFreeze >= 200 and playingFreeze == false then

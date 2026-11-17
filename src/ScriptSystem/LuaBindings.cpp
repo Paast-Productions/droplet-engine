@@ -31,6 +31,7 @@
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -105,7 +106,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-		//"GetParent", &Scene::Node::GetParent,
 		"GetParent", [](Scene::Node& node) -> std::shared_ptr<Scene::Node>
 		{
 			return node.GetParent().lock();
@@ -193,7 +193,20 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
         [](Scene::Node &node, const std::string &p_name)
         {
             return node.GetAudioPlayer(p_name).lock();
-        }
+        },
+        "GetScriptComponent",
+        [](Scene::Node &node, const std::string &p_name)
+        {
+            auto scripts = node.GetComponents<Scene::ScriptComponent>();
+        
+			for (const auto &script : scripts)
+			{
+				if (script->GetScriptPath() == p_name)
+				{
+					return script;
+				}
+			}
+        }	
 	);
 
 	LuaClassDefinition classDef;
@@ -215,7 +228,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPlayerComponent", "PlayerComponent", {} },
 		{"GetPlayerBehaviour", "PlayerBehaviour", {} },
 		{"GetInteractableComponent", "InteractableComponent", {} },
-		{"GetLadderComponent", "LadderComponent", {} }
+		{"GetLadderComponent", "LadderComponent", {} },
+		{"GetScriptComponent", "ScriptComponent", {{"path", "string"} }}
 	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
