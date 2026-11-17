@@ -69,6 +69,28 @@ namespace Droplet::Script
 		/// @param p_deltaTime Time elapsed since the previous update, in seconds.
 		void UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime);
 
+
+		/// @brief Serializes a script component to a string representation.
+		/// @param p_scriptComponent Component to serialize
+		/// @return String representation of the serialized component
+		[[nodiscard]] std::string SerializeComponent(Droplet::Scene::Component *p_scriptComponent);
+
+		/// @brief Deserializes a script component from a string representation.
+		/// @param p_scriptComponent Component to deserialize
+		/// @param p_data String representation of the serialized component
+		void DeserializeComponent(Droplet::Scene::Component *p_scriptComponent, const std::string &p_data);
+
+		/// @brief Serializes a script behaviour to a string representation.
+		/// @param p_scriptBehaviour Behaviour to serialize
+		/// @return String representation of the serialized behaviour
+		[[nodiscard]] std::string SerializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour);
+
+		/// @brief Deserializes a script behaviour from a string representation.
+		/// @param p_scriptBehaviour Behaviour to deserialize
+		/// @param p_data String representation of the serialized behaviour
+		void DeserializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_data);
+
+
 		/// @brief Calls a Lua function on a script attached to a component.
 		/// The function is looked up through the relationship between the
 		/// ScriptComponent and its ScriptInstance. The supplied arguments are forwarded
