@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 43,
+            "id": 711,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -122,7 +122,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 44,
+            "id": 712,
             "name": "Heat",
             "transform": {
                 "position": [
@@ -175,7 +175,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 46,
+                    "id": 714,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -225,7 +225,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 47,
+                    "id": 715,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -275,7 +275,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 48,
+                    "id": 716,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -325,7 +325,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 49,
+                    "id": 717,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -375,7 +375,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 50,
+                    "id": 718,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -425,7 +425,7 @@
                         }
                     ],
                     "drawLayer": 4,
-                    "id": 51,
+                    "id": 719,
                     "name": "Heat Particle",
                     "transform": {
                         "position": [
@@ -443,106 +443,6 @@
                             1.0,
                             1.0,
                             1.0
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "collisionLayerMask": 64,
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Particle",
-                                "meshGUID": 1127962353778719569,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
-                                "transparent": false,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 4,
-                    "id": 52,
-                    "name": "Heat Particle",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0000009536743164,
-                            1.0000003576278687,
-                            1.0000016689300537
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "collisionLayerMask": 64,
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Particle",
-                                "meshGUID": 1127962353778719569,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
-                                "transparent": false,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 4,
-                    "id": 53,
-                    "name": "Heat Particle",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0000009536743164,
-                            1.0000003576278687,
-                            1.0000016689300537
                         ]
                     }
                 }
@@ -552,7 +452,7 @@
                 {
                     "active": true,
                     "data": {
-                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"space\":0,\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}}}",
+                        "data": "{\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"spawnBox\":{\"min\":{\"x\":0,\"y\":0,\"z\":0},\"max\":{\"x\":0,\"y\":0,\"z\":0}},\"space\":0,\"grav\":{\"x\":0,\"y\":0.075000002980232,\"z\":0},\"velRange\":{\"min\":{\"x\":-0.20000000298023,\"y\":0.5,\"z\":-0.20000000298023},\"max\":{\"x\":0.20000000298023,\"y\":1.5,\"z\":0.20000000298023}}}",
                         "filepath": "HazardEffect.lua"
                     },
                     "id": 1,
@@ -560,7 +460,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 45,
+            "id": 713,
             "name": "Heat ParticleSystem",
             "transform": {
                 "position": [
@@ -585,19 +485,19 @@
     "collisionLayerMask": 1,
     "components": [],
     "drawLayer": 1,
-    "id": 42,
+    "id": 710,
     "name": "VolcanoSmall",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            -30.444034576416016,
+            -0.5909655094146729,
+            7.336367607116699
         ],
         "rotation": [
-            1.0,
-            0.0,
-            0.0,
-            0.0
+            0.8775825500488281,
+            -8.074989636952523e-06,
+            0.4794255495071411,
+            6.667497842727244e-08
         ],
         "scale": [
             1.0,
