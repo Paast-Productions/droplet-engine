@@ -110,6 +110,42 @@ void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::S
 	}
 }
 
+std::string ScriptInstance::OnSerialize()
+{
+	ZoneScoped;
+	sol::protected_function serializeFunction = m_environment["Serialize"];
+	if (!serializeFunction.valid())
+	{
+		return std::string();
+	}
+
+	sol::protected_function_result result = serializeFunction();
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::print("ScriptInstance: Error in Serialize for script {}\n", m_scriptPath, error.what());
+		return std::string();
+	}
+	return result.get<std::string>();
+}
+
+void ScriptInstance::OnDeserialize(const std::string &p_data)
+{
+	ZoneScoped;
+	sol::protected_function deserializeFunction = m_environment["Deserialize"];
+	if (!deserializeFunction.valid())
+	{
+		return;
+	}
+
+	sol::protected_function_result result = deserializeFunction(p_data);
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::print("ScriptInstance: Error in Deserialize for script {}\n", m_scriptPath, error.what());
+	}
+}
+
 bool ScriptInstance::Reload(sol::load_result &p_script)
 {
 	ZoneScoped;
