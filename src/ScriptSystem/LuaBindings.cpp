@@ -862,6 +862,11 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 			[](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
 				return glm::refract(p_vec1, p_vec2, p_float);
 			});
+
+		glm.set_function("V3Rotate",
+			[](glm::vec3 p_vec, glm::quat p_quat) {
+				return p_quat * p_vec;
+			});
 	}
 
 	// Vec4
@@ -1595,6 +1600,15 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" },
 				{ "float", "number" }
+			}
+		},
+		{
+			"V3Rotate",
+			"Vec3",
+			true,
+			{
+				{ "vec", "Vec3" },
+				{ "quat", "Quat" }
 			}
 		},
 
