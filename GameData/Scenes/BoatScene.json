@@ -4,6 +4,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -18,8 +19,8 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
+                        "textureDisplayName": "Boat",
+                        "textureGUID": 11383334654866500563,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -74,6 +75,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -86,6 +88,12 @@
                                         100.0
                                     ]
                                 },
+                                "clearColor": [
+                                    0.0,
+                                    0.0,
+                                    0.30000001192092896,
+                                    1.0
+                                ],
                                 "drawLayerMask": 65535,
                                 "priority": 0,
                                 "resolution": [
@@ -128,6 +136,7 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -155,6 +164,20 @@
                     },
                     "id": 6,
                     "type": "PhysicsComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "PlayerInteraction.lua"
+                    },
+                    "id": 7,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {},
+                    "id": 8,
+                    "type": "PlayerComponent"
                 }
             ],
             "drawLayer": 1,
@@ -184,102 +207,9 @@
             "children": [
                 {
                     "active": true,
-                    "children": [
-                        {
-                            "active": true,
-                            "children": [],
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Pod_Door",
-                                        "meshGUID": 10773550875263732350,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 0,
-                                        "meshGUID": 10773550875263732350,
-                                        "motionType": 0,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 4
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
-                            "drawLayer": 1,
-                            "id": 6,
-                            "name": "Door",
-                            "transform": {
-                                "position": [
-                                    0.5377653241157532,
-                                    0.0,
-                                    1.242548942565918
-                                ],
-                                "rotation": [
-                                    1.0,
-                                    0.0,
-                                    0.0,
-                                    0.0
-                                ],
-                                "scale": [
-                                    1.0,
-                                    1.0,
-                                    1.0
-                                ]
-                            }
-                        }
-                    ],
-                    "components": [],
+                    "collisionLayerMask": 1,
                     "drawLayer": 1,
                     "id": 5,
-                    "name": "Pod Door",
-                    "transform": {
-                        "position": [
-                            -0.5377653241157532,
-                            0.0,
-                            -1.242548942565918
-                        ],
-                        "rotation": [
-                            0.3361026346683502,
-                            0.0,
-                            0.9418253898620605,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0000019073486328,
-                            1.0,
-                            1.0000019073486328
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "drawLayer": 1,
-                    "id": 7,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -303,8 +233,9 @@
                 },
                 {
                     "active": true,
+                    "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 8,
+                    "id": 6,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -325,9 +256,117 @@
                             1.0
                         ]
                     }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [],
+                    "drawLayer": 8,
+                    "id": 15,
+                    "name": "Interaction Button",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.176006555557251,
+                            0.6402692794799805
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.25742021203041077,
+                            0.327842652797699,
+                            0.20648247003555298
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Door",
+                                "meshGUID": 10773550875263732350,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "PodDoor",
+                                "textureGUID": 4743341834037859640,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "meshGUID": 10773550875263732350,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 16,
+                    "name": "Pod Door",
+                    "transform": {
+                        "position": [
+                            -0.5377653241157532,
+                            1.0,
+                            -1.25
+                        ],
+                        "rotation": [
+                            0.33610260486602783,
+                            0.0,
+                            0.9418253898620605,
+                            0.0
+                        ],
+                        "scale": [
+                            1.000001072883606,
+                            1.0,
+                            1.000001072883606
+                        ]
+                    }
                 }
             ],
-            "components": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "button": 15,
+                        "player": 2,
+                        "reach": 1.0,
+                        "targetSceneName": "Seafloor"
+                    },
+                    "id": 2,
+                    "type": "PodComponent"
+                }
+            ],
             "drawLayer": 1,
             "id": 4,
             "name": "Pod",
@@ -356,490 +395,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "BaseFish",
-                                "meshGUID": 6487672309164947188,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "BaseFish",
-                                "textureGUID": 7280437410301382172,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 18,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            -1.0728440713592136e-07,
-                            0.0,
-                            0.0,
-                            -1.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                }
-            ],
-            "components": [],
-            "drawLayer": 1,
-            "id": 17,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    1.6376087665557861,
-                    -0.7800813913345337,
-                    6.112499237060547
-                ],
-                "rotation": [
-                    -0.33959150314331055,
-                    0.8891011476516724,
-                    -0.10633542388677597,
-                    -0.2878706753253937
-                ],
-                "scale": [
-                    2.0,
-                    2.0000007152557373,
-                    2.0000014305114746
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Portrait",
-                        "meshGUID": 5941031221448030531,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "Portrait",
-                        "textureGUID": 10240792835275847271,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
-                    },
-                    "id": 1,
-                    "type": "MeshComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 19,
-            "name": "Mesh Node",
-            "transform": {
-                "position": [
-                    0.9875221848487854,
-                    0.8413428068161011,
-                    -3.7070560455322266
-                ],
-                "rotation": [
-                    -0.24673239886760712,
-                    9.224583408240505e-08,
-                    0.9690836668014526,
-                    5.269587197154202e-11
-                ],
-                "scale": [
-                    1.5000005960464478,
-                    1.5,
-                    1.5000005960464478
-                ]
-            }
-        },
-        {
-            "active": true,
-            "drawLayer": 1,
-            "id": 20,
-            "name": "RonnyCutout",
-            "prefab": "GameData\\Prefabs\\RonnyCutout.json",
-            "transform": {
-                "position": [
-                    -0.007607358507812023,
-                    -0.1299895942211151,
-                    -3.6468284130096436
-                ],
-                "rotation": [
-                    0.7071067094802856,
-                    -1.5072898780347545e-14,
-                    -0.70710688829422,
-                    -5.024474929269263e-15
-                ],
-                "scale": [
-                    1.0000007152557373,
-                    0.9999999403953552,
-                    1.0000007152557373
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 29,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 30,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            1.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 31,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            -1.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            6.61868814521085e-24,
-                            -1.4210856409267898e-14,
-                            -3.8514261956438656e-34
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 32,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.9999999403953552
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -1.8367099231598242e-40
-                        ],
-                        "scale": [
-                            0.9999998211860657,
-                            1.0,
-                            0.9999998211860657
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 33,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            0.9999998211860657,
-                            0.0,
-                            0.9999999403953552
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -1.8367099231598242e-40
-                        ],
-                        "scale": [
-                            0.9999998211860657,
-                            1.0,
-                            0.9999998211860657
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 34,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            -0.9999998211860657,
-                            0.0,
-                            0.9999999403953552
-                        ],
-                        "rotation": [
-                            1.0,
-                            6.618874316384482e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514268844100868e-34
-                        ],
-                        "scale": [
-                            0.9999998211860657,
-                            1.0,
-                            0.9999998211860657
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 35,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            -0.9999999403953552
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -9.183549615799121e-41
-                        ],
-                        "scale": [
-                            0.9999998807907104,
-                            1.0,
-                            0.9999998807907104
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -865,29 +421,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 36,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            0.9999998807907104,
                             0.0,
-                            -0.9999999403953552
+                            0.0,
+                            0.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -9.183549615799121e-41
+                            0.0
                         ],
                         "scale": [
-                            0.9999998807907104,
                             1.0,
-                            0.9999998807907104
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -913,29 +470,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 37,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -0.9999998807907104,
                             0.0,
-                            -0.9999999403953552
+                            0.0,
+                            -1.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618874316384482e-24,
-                            -1.4210856409267898e-14,
-                            -3.8514268844100868e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999998807907104,
                             1.0,
-                            0.9999998807907104
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -961,173 +519,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 38,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            1.999999761581421,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
                             0.0,
                             0.0
                         ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -9.183549615799121e-41
-                        ],
                         "scale": [
-                            0.9999998807907104,
                             1.0,
-                            0.9999998807907104
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 39,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            1.9999996423721313,
-                            0.0,
-                            0.9999998211860657
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -2.7550648847397363e-40
-                        ],
-                        "scale": [
-                            0.9999997019767761,
-                            1.0,
-                            0.9999997019767761
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 40,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            1.999999761581421,
-                            0.0,
-                            -0.9999998211860657
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            -1.8367099231598242e-40
-                        ],
-                        "scale": [
-                            0.9999997615814209,
-                            1.0,
-                            0.9999997615814209
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 41,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            -1.999999761581421,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            6.618874316384482e-24,
-                            -1.4210856409267898e-14,
-                            -3.8514268844100868e-34
-                        ],
-                        "scale": [
-                            0.9999998807907104,
-                            1.0,
-                            0.9999998807907104
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1153,29 +568,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 42,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -1.9999996423721313,
                             0.0,
-                            0.9999998211860657
+                            0.0,
+                            2.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618968190832203e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1200,30 +616,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 43,
-                    "name": "Sea Tile",
+                    "id": 41,
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -1.999999761581421,
                             0.0,
-                            -0.9999998211860657
+                            0.0,
+                            -2.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618967401971298e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999997615814209,
                             1.0,
-                            0.9999997615814209
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1249,29 +666,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 44,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
+                            -1.0,
                             0.0,
-                            0.0,
-                            1.999999761581421
+                            0.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -2.7550648847397363e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1297,29 +715,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 45,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            0.9999997019767761,
+                            -1.0,
                             0.0,
-                            1.999999761581421
+                            -1.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -2.7550648847397363e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1345,29 +764,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 46,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -0.9999997019767761,
+                            -1.0,
                             0.0,
-                            1.999999761581421
+                            1.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618968190832203e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1393,29 +813,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 47,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
+                            -1.0,
                             0.0,
-                            0.0,
-                            -1.999999761581421
+                            2.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -1.8367099231598242e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997615814209,
                             1.0,
-                            0.9999997615814209
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1441,77 +862,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 48,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            0.9999997615814209,
+                            -1.0,
                             0.0,
-                            -1.999999761581421
+                            -2.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -1.8367099231598242e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997615814209,
                             1.0,
-                            0.9999997615814209
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Grid",
-                                "meshGUID": 12396219685112958871,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WaterColor",
-                                "textureGUID": 15353692435168822611,
-                                "vs": 14984259795497788457,
-                                "vsName": "ocean.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 49,
-                    "name": "Sea Tile",
-                    "transform": {
-                        "position": [
-                            -0.9999997615814209,
-                            0.0,
-                            -1.999999761581421
-                        ],
-                        "rotation": [
-                            1.0,
-                            6.618967401971298e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
-                        ],
-                        "scale": [
-                            0.9999997615814209,
-                            1.0,
-                            0.9999997615814209
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1537,29 +911,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 50,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            1.9999996423721313,
+                            1.0,
                             0.0,
-                            1.999999761581421
+                            0.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -2.7550648847397363e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1585,29 +960,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 51,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -1.9999996423721313,
+                            1.0,
                             0.0,
-                            1.999999761581421
+                            -1.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618968190832203e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999997019767761,
                             1.0,
-                            0.9999997019767761
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1633,29 +1009,30 @@
                     ],
                     "drawLayer": 1,
                     "id": 52,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            -1.999999761581421,
+                            1.0,
                             0.0,
-                            -1.999999761581421
+                            1.0
                         ],
                         "rotation": [
                             1.0,
-                            6.618967401971298e-24,
-                            -1.4210858103333793e-14,
-                            -3.8514278027650484e-34
+                            0.0,
+                            0.0,
+                            0.0
                         ],
                         "scale": [
-                            0.9999997615814209,
                             1.0,
-                            0.9999997615814209
+                            1.0,
+                            1.0
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -1681,47 +1058,812 @@
                     ],
                     "drawLayer": 1,
                     "id": 53,
-                    "name": "Sea Tile",
+                    "name": "Mesh Node",
                     "transform": {
                         "position": [
-                            1.999999761581421,
+                            1.0,
                             0.0,
-                            -1.999999761581421
+                            2.0
                         ],
                         "rotation": [
                             1.0,
                             0.0,
                             0.0,
-                            -1.8367099231598242e-40
+                            0.0
                         ],
                         "scale": [
-                            0.9999997615814209,
                             1.0,
-                            0.9999997615814209
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 54,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            1.0,
+                            0.0,
+                            -2.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 56,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            -2.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 57,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            -2.0,
+                            0.0,
+                            -1.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 58,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            -2.0,
+                            0.0,
+                            1.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 59,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            -2.0,
+                            0.0,
+                            2.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 60,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            -2.0,
+                            0.0,
+                            -2.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 62,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 63,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            -1.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 64,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            1.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 65,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            2.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Grid",
+                                "meshGUID": 12396219685112958871,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "WaterColor",
+                                "textureGUID": 15353692435168822611,
+                                "vs": 14984259795497788457,
+                                "vsName": "ocean.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 66,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            2.0,
+                            0.0,
+                            -2.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
                         ]
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 28,
+            "id": 30,
             "name": "Sea",
             "transform": {
                 "position": [
-                    9.313225746154785e-10,
+                    0.0,
                     -1.0,
-                    2.384185791015625e-07
+                    0.0
                 ],
                 "rotation": [
                     1.0,
-                    -4.235722113832695e-22,
-                    1.4210856409267898e-14,
+                    0.0,
+                    0.0,
                     0.0
                 ],
                 "scale": [
-                    32.0,
+                    50.0,
                     1.0,
-                    32.0
+                    50.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 32,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            -1.0728440713592136e-07,
+                            0.0,
+                            0.0,
+                            -1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 31,
+            "name": "Fish",
+            "transform": {
+                "position": [
+                    1.7032599449157715,
+                    -0.7697247862815857,
+                    6.279770851135254
+                ],
+                "rotation": [
+                    -0.33959150314331055,
+                    0.8891011476516724,
+                    -0.10633542388677597,
+                    -0.2878706753253937
+                ],
+                "scale": [
+                    2.0,
+                    2.0000007152557373,
+                    2.0000014305114746
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Portrait",
+                        "meshGUID": 5941031221448030531,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Portrait",
+                        "textureGUID": 10240792835275847271,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 33,
+            "name": "Portrait",
+            "transform": {
+                "position": [
+                    0.9875221848487854,
+                    0.8413428068161011,
+                    -3.7070560455322266
+                ],
+                "rotation": [
+                    -0.24673239886760712,
+                    9.224583408240505e-08,
+                    0.9690836668014526,
+                    5.269587197154202e-11
+                ],
+                "scale": [
+                    1.5000005960464478,
+                    1.5,
+                    1.5000005960464478
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Crane",
+                        "meshGUID": 3588044747264884392,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Crane",
+                        "textureGUID": 12409680937219033218,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 34,
+            "name": "Crane",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    5.215000152587891
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 1,
+                    "type": "InteractableComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "ladder.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "targetSceneName": "InsideBoatScene"
+                    },
+                    "id": 3,
+                    "type": "LadderComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 35,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -0.5962095260620117,
+                    0.42889362573623657,
+                    -1.2549374103546143
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }

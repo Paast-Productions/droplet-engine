@@ -159,8 +159,17 @@ void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, con
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
 {
-	m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
 	m_motion = p_motionType;
+	
+	if (p_motionType == JPH::EMotionType::Kinematic)
+	{
+		m_physics->GetBodyInterface()->SetGravityFactor(m_bodyID, 0.0f);
+		m_physics->GetBodyInterface()->SetMotionType(m_bodyID, JPH::EMotionType::Dynamic, JPH::EActivation::Activate);
+	}
+	else
+	{
+		m_physics->GetBodyInterface()->SetMotionType(m_bodyID, p_motionType, JPH::EActivation::Activate);
+	}
 }
 
 void PhysicsComponent::SetObjectLayer(const Layers p_objectLayer)

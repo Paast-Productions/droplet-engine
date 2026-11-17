@@ -1,0 +1,48 @@
+{
+    "active": true,
+    "children": [],
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Rock",
+                "meshGUID": 4011034188648480238,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "RockV2_base",
+                "textureGUID": 2617992142281023542,
+                "vs": 7809030845991192100,
+                "vsName": "BaseVS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 195,
+    "name": "Stone",
+    "transform": {
+        "position": [
+            13.536429405212402,
+            -0.22227001190185547,
+            43.947364807128906
+        ],
+        "rotation": [
+            0.8310875296592712,
+            0.0,
+            -0.5561416149139404,
+            0.0
+        ],
+        "scale": [
+            1.6056565046310425,
+            1.729470133781433,
+            1.8014211654663086
+        ]
+    }
+}

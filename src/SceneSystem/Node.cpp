@@ -92,7 +92,7 @@ void Node::Start()
 
 void Node::Update()
 {
-	assert(m_constructed && "Node must be constructed before calling Update().");
+ 	assert(m_constructed && "Node must be constructed before calling Update().");
 
 	if (!m_active)
 	{
@@ -204,7 +204,7 @@ void Node::RenderUI()
 	}
 }
 
-void Node::SetActive(bool p_active)
+void Node::SetActiveSelf(bool p_active)
 {
 	if (m_active == p_active)
 	{
