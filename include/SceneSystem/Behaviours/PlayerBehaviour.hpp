@@ -251,7 +251,16 @@ namespace Droplet::Scene
 
         [[nodiscard]] std::vector<Droplet::Game::ItemId> GetUniqueID() const;
 
-        
+        /// Removes all items from the drone inventory.
+        void ClearDroneInventory();
+
+        /// Transfers as many items as possible from the drone inventory
+        /// into the player inventory.
+        ///
+        /// Items that cannot fit remain in the drone inventory.
+        ///
+        /// @return Total number of items transferred.
+        std::uint32_t TransferDroneInventoryToPlayer();
 
     protected:
         /// @brief Renders the behaviour's properties in the editor.

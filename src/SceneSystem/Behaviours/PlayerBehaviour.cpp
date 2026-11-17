@@ -273,11 +273,24 @@ namespace Droplet::Scene
 
         const ItemRegistry *reg = GetItemRegistry();
 
-        // Drone inventory.
+        /// Drone inventory.
         if (ImGui::CollapsingHeader("Drone Inventory"))
         {
             RenderInventoryTable("DroneInventory", reg, m_data.droneInventory);
+
             RenderAddItemRow(*this, InventoryType::Drone, "DroneAdd");
+
+            if (ImGui::Button("Transfer to Player"))
+            {
+                TransferDroneInventoryToPlayer();
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("Clear Drone Inventory"))
+            {
+                ClearDroneInventory();
+            }
         }
 
         // Player inventory.
@@ -287,5 +300,43 @@ namespace Droplet::Scene
             RenderAddItemRow(*this, InventoryType::Player, "PlayerAdd");
         }
 #endif
+    }
+
+    void PlayerBehaviour::ClearDroneInventory()
+    {
+        m_data.droneInventory.clear();
+    }
+
+    std::uint32_t PlayerBehaviour::TransferDroneInventoryToPlayer()
+    {
+        std::uint32_t totalTransferred = 0;
+
+        // Iterate over a copy since the original inventory will be modified.
+        const auto droneInventory = m_data.droneInventory;
+
+        for (const ItemStack &stack : droneInventory)
+        {
+            // Add as many items as possible to the player inventory.
+            // AddItem returns the number of items that could not be added.
+            const std::uint32_t remaining = AddItem(
+                InventoryType::Player,
+                stack.item,
+                stack.count);
+
+            const std::uint32_t transferred = stack.count - remaining;
+
+            if (transferred == 0)
+                continue;
+
+            // Remove only the items successfully transferred.
+            RemoveItem(
+                InventoryType::Drone,
+                stack.item,
+                transferred);
+
+            totalTransferred += transferred;
+        }
+
+        return totalTransferred;
     }
 }

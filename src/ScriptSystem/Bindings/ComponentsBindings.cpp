@@ -674,6 +674,8 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
         "SetDroneInventorySize", &Scene::PlayerBehaviour::SetDroneInventorySize,
         "GetDroneInventorySize", &Scene::PlayerBehaviour::GetDroneInventorySize,
+        "ClearDroneInventory", &Scene::PlayerBehaviour::ClearDroneInventory,
+        "TransferDroneInventoryToPlayer", &Scene::PlayerBehaviour::TransferDroneInventoryToPlayer,
 
 		"SetDroneMaxSpeed", &Scene::PlayerBehaviour::SetDroneMaxSpeed,
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
@@ -716,6 +718,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetDroneMaxSpeed", "float", {} },
 		{ "SetDroneMaxRange", "void", { { "amount", "number" } } },
         { "GetDroneMaxRange", "float", {} },
+        { "ClearDroneInventory", "void", {} },
+        { "TransferDroneInventoryToPlayer", "number", {} },
+	
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
