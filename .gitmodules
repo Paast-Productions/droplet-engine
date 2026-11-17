@@ -46,6 +46,9 @@
 [submodule "External/LuaJIT"]
 	path = External/LuaJIT
 	url = git@github.com:LuaJIT/LuaJIT.git
+[submodule "External/GLM"]
+	path = External/GLM
+	url = git@github.com:g-truc/glm.git
 [submodule "External/SDL"]
 	path = External/SDL
 	url = git@github.com:libsdl-org/SDL.git

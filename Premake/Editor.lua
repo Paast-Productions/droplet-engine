@@ -110,6 +110,7 @@ project "Editor"
         "setupapi",
         "version",
         "winmm",
+        AddQuotation("glm"),
         AddQuotation("SDL3-static"),
         AddQuotation("vulkan-1"),
 		AddQuotation("Jolt"),
