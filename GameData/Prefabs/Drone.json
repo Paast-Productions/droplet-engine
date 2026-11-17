@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 1100,
+            "id": 384,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -155,10 +155,24 @@
             },
             "id": 13,
             "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.800000011920929,
+                "soundGuid": 8694620601437719986,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -3.4100000858306885
+            },
+            "id": 14,
+            "type": "AudioPlayerComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 1099,
+    "id": 383,
     "name": "Drone",
     "transform": {
         "position": [
