@@ -6,64 +6,62 @@
             "active": false,
             "children": [],
             "effects": [],
-            "id": 1,
-            "name": "SFX",
+            "name": "Music",
             "volume": 0.0
         },
         {
             "active": false,
-            "children": [],
-            "effects": [],
-            "id": 2,
-            "name": "WaterBus",
-            "volume": 0.0
-        },
-        {
-            "active": false,
-            "children": [],
-            "effects": [],
-            "id": 3,
-            "name": "BoatBus",
-            "volume": 0.0
-        },
-        {
-            "active": false,
-            "children": [],
-            "effects": [],
-            "id": 4,
-            "name": "Dialog",
-            "volume": 0.0
-        },
-        {
-            "active": false,
-            "children": [],
-            "effects": [
+            "children": [
                 {
                     "active": false,
-                    "data": {
-                        "frequency": 816.0,
-                        "resonance": 0.7379999756813049
-                    },
-                    "slot": 0,
-                    "type": "HighPassEffect"
+                    "children": [],
+                    "effects": [],
+                    "name": "WaterSFX",
+                    "volume": 0.0
                 },
                 {
                     "active": false,
-                    "data": {
-                        "frequency": 703.0,
-                        "resonance": 0.699999988079071
-                    },
-                    "slot": 1,
-                    "type": "LowPassEffect"
+                    "children": [],
+                    "effects": [],
+                    "name": "Fish",
+                    "volume": 0.0
                 }
             ],
-            "id": 5,
-            "name": "Music",
+            "effects": [],
+            "name": "Water",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "name": "Pod",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "LowerDeck",
+                    "volume": 0.0
+                },
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "UpperDeck",
+                    "volume": 0.0
+                }
+            ],
+            "effects": [],
+            "name": "Boat",
             "volume": 0.0
         }
     ],
     "effects": [],
-    "id": 0,
     "name": "Master",
     "volume": 0.0
 }

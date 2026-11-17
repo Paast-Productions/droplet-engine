@@ -10,7 +10,7 @@ void Droplet::Audio::HighPassEffect::StartImpl()
 
 void Droplet::Audio::HighPassEffect::RenderUIImpl()
 {
-	if (ImGui::DragFloat(ICON_LC_AUDIO_LINES " Resonance ", &m_resonance, 0.001f, 0.0f, 1.0f, "%.3f"))
+	if (ImGui::SliderFloat(ICON_LC_AUDIO_LINES " Resonance ", &m_resonance, 0.1f, 10.0f))
 	{
 		m_params.resonance = m_resonance;
 		if (!AudioSystem::GetInstance().ChangeEffectSetting(GetEffectHandle(), m_params))
@@ -19,7 +19,7 @@ void Droplet::Audio::HighPassEffect::RenderUIImpl()
 		}
 	}
 
-	if (ImGui::DragFloat(ICON_LC_AUDIO_WAVEFORM " Frequency ", &m_frequency, 1.0f, 0.0f, 5000.0f, "%.0f"))
+	if (ImGui::SliderFloat(ICON_LC_AUDIO_WAVEFORM " Frequency ", &m_frequency, 20.0f, 20000.0f))
 	{
 		m_params.frequency = m_frequency;
 		if (!AudioSystem::GetInstance().ChangeEffectSetting(GetEffectHandle(), m_params))
