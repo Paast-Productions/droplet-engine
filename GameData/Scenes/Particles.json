@@ -1,0 +1,113 @@
+{
+    "name": "Particles",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 73.84300231933594,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "drawLayerMask": 4,
+                        "priority": 0,
+                        "resolution": [
+                            1000,
+                            1000
+                        ]
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 113,
+            "name": "Camera Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.38536471128463745,
+                    0.01831969805061817,
+                    0.9215417504310608,
+                    -0.04380915313959122
+                ],
+                "scale": [
+                    1.0000052452087402,
+                    0.9999977946281433,
+                    0.9999760985374451
+                ]
+            }
+        },
+        {
+            "active": false,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 114,
+            "name": "Current ParticleSystem",
+            "prefab": "GameData\\Prefabs\\Current ParticleSystem.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999991059303284,
+                    0.9999997019767761,
+                    0.9999983906745911
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 121,
+            "name": "Heat ParticleSystem",
+            "prefab": "GameData\\Prefabs\\Heat ParticleSystem.json",
+            "transform": {
+                "position": [
+                    4.5384721755981445,
+                    -3.497964382171631,
+                    -5.377119064331055
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999991059303284,
+                    0.9999997019767761,
+                    0.9999983906745911
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

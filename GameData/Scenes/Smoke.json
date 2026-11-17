@@ -35,7 +35,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 297,
+            "id": 28,
             "name": "Camera Node",
             "transform": {
                 "position": [
@@ -60,7 +60,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 299,
+            "id": 29,
             "name": "ParticleSystem",
             "prefab": "GameData\\Prefabs\\ParticleSystem.json",
             "transform": {
