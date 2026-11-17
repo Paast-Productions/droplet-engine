@@ -1,14 +1,17 @@
 #pragma once
+#include "Audio/AudioBus.hpp"
 #include <json/json.hpp>
 #include <dalia/dalia.h>
-#include <AudioSystem/AudioBus.hpp>
 
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <unordered_map>
+
 namespace Droplet::Audio
 {
+    class AudioBus;
+    
 	/// @brief The audiomixer controls the mixing hierarchy
 	/// The audio mixer can add remove and route audiobuses for the required mix
 	class AudioMixer
@@ -54,8 +57,18 @@ namespace Droplet::Audio
 		/// @param p_id Bus ID
 		/// @return The Audiobus with p_id
 		AudioBus *FindAudioBus(std::uint64_t p_id) const;
-	private:
 
+		/// @brief Changes the volume on the bus 
+		/// @param p_id The bus
+		/// @return the amount of db the volume will change
+		bool SetBusVolume(std::uint64_t p_id, float p_volume);
+
+		nlohmann::json SerializeHierarchy();
+
+		//Forbidden row
+		void DeserializeHierarchy(const nlohmann::json &p_json);
+		void DeserializeBus(const nlohmann::json& p_json, AudioBus* p_parent);
+	private:
 		/// @brief Audiobus ID, ID 0 is reserved for the master bus
 		std::uint64_t m_nextBusID = 0;
 		/// @brief Masterbus, The root of the bus Hierarchy and is the only one not needing a parent

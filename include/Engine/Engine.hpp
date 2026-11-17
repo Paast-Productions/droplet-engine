@@ -6,6 +6,7 @@
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
+#include <Audio/AudioSystem.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet

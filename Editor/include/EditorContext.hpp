@@ -59,7 +59,7 @@ namespace Droplet::Editor
 
 		/// @brief Creates a fresh new scene
 		/// @param p_sceneName scene name
-		void CreateNewScene(std::string p_sceneName);
+		std::weak_ptr<Droplet::Scene::Scene> CreateNewScene(std::string p_sceneName);
 		
 		/// @brief Serializes the scene
 		/// @param filepath filepath
