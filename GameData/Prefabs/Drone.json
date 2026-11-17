@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 736,
+            "id": 2544,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -48,6 +48,56 @@
                     0.5,
                     0.5,
                     0.5
+                ]
+            }
+        },
+        {
+            "active": false,
+            "children": [],
+            "collisionLayerMask": 0,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 16685407550233266996,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "heat_overlay",
+                        "textureGUID": 14044838112203778529,
+                        "transparent": true,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 16,
+            "id": 2545,
+            "name": "HeatOverlay",
+            "transform": {
+                "position": [
+                    0.003147125244140625,
+                    -9.5367431640625e-07,
+                    0.4999961853027344
+                ],
+                "rotation": [
+                    0.5,
+                    -0.5,
+                    0.5,
+                    0.5
+                ],
+                "scale": [
+                    1.0,
+                    0.4000000059604645,
+                    0.4000000059604645
                 ]
             }
         }
@@ -135,7 +185,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 735,
+    "id": 2543,
     "name": "Drone",
     "transform": {
         "position": [

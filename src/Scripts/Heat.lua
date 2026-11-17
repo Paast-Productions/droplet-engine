@@ -1,6 +1,10 @@
-﻿local hazardComp = nil
+﻿local MeshToggleSystem = require("MeshToggleSystem")
+
+local hazardComp = nil
 local heatDamage = nil
 local newDamage = nil
+
+local heatOverlay = nil
 
 function OnStart()
     hazardComp = self:GetHazardComponent()
@@ -20,8 +24,13 @@ function OnTrigger(dt, node)
     end
     
     if hazardComp ~= nil and pb ~= nil and health ~= nil then
-
         pb:IncreaseHeatLevel(1)
+		
+		if (heatOverlay == nil) then
+			heatOverlay = MeshToggleSystem.GetByName("HeatOverlay")
+		end
+		
+		MeshToggleSystem.SetActive(heatOverlay, true)
 
         if pb:GetHeatLevel() > pb:GetHeatResistance() then
             health:TakeDamage(heatDamage * dt)
