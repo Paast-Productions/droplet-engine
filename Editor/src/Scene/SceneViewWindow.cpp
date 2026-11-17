@@ -1041,7 +1041,6 @@ void SceneViewWindow::RenderEditorView()
 		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 		{
 			m_editorContext->EnterPlayMode();
-		    Audio::AudioSystem::GetInstance().SetMode(true); // TODO: Move into EnterPlayMode
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1224,7 +1223,6 @@ void SceneViewWindow::RenderGameView()
 		if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
 		{
 			m_editorContext->PausePlayMode();
-		    Audio::AudioSystem::GetInstance().SetGamePaused(m_editorContext->IsPaused()); // TODO: Move into PausePlayMode
 		}
 
 		ImGui::PopStyleColor(4);
@@ -1239,12 +1237,6 @@ void SceneViewWindow::RenderGameView()
 		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
 		{
 			m_editorContext->ExitPlayMode();
-		    
-		    // Create new scene from save data TODO: Move this into ExitPlayMode
-		    auto scene = m_editorContext->CreateNewScene(sceneName);
-		    serializer.DeserializeScene(m_json, scene.lock());
-		    m_editorContext->SetActiveScene(sceneName);
-		    Audio::AudioSystem::GetInstance().SetMode(false);
 		}
 
 		ImGui::PopStyleColor(4);

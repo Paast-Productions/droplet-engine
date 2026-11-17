@@ -29,6 +29,8 @@
 #include <SceneSystem/Items/ItemRegistry.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <AudioPlayerComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -207,9 +209,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPlayerComponent", "PlayerComponent", {}},
 		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
 		{"GetInteractableComponent", "InteractableComponent", {} },
-		{"GetLadderComponent", "LadderComponent", {} },
-		{"GetAudioEmitter", "AudioEmitterComponent", { "name", "string" } },
-		{"GetAudioPlayer", "AudioPlayerComponent", { "name", "string" } },
+		{"GetLadderComponent", "LadderComponent", {} }
 	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
