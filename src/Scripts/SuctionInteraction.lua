@@ -13,6 +13,8 @@ local currentTarget = nil
 local suctionElapsed = 0.0
 
 local playerBehaviour
+local audioplayer
+
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -118,6 +120,7 @@ end
 
 function SuctionEnd()
 
+    local registry = playerBehaviour:GetItemRegistry()
     local collectible = currentTarget
     
     if collectible.item and collectible.item:IsValid() then
@@ -129,6 +132,14 @@ function SuctionEnd()
         print("Collected item:", collectible.amount)
     else
         print("Collectible has invalid ItemId", collectible.item)
+    end
+    local repairedPartId = registry:Find("upgrade:repaired_engine_part")
+
+    if collectible.item and collectible.item:IsValid() then
+        if collectible.item == repairedPartId then
+            audioplayer:Play()
+        end
+        --HACK -- This is for the game test, picking up the engine starts music
     end
 
     currentTarget = nil
@@ -145,12 +156,17 @@ end
 
 function OnStart()
     scene = self:GetScene()
-
+    audioplayer = self:GetAudioPlayer("The Big Blue(Vorbis 96kHz Mono)") --HACK
+    if not audioplayer then
+        print("Could not find audio player")
+    end
     local playerComponent = self:GetPlayerComponent()
     if not playerComponent then
         print("GetPlayerComponent returned nil")
         return
     end
+    
+
 
     playerBehaviour = playerComponent:GetPlayerBehaviour()
     if not playerBehaviour then
