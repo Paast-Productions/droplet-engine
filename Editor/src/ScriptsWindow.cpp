@@ -32,10 +32,26 @@ void ScriptsWindow::InitImpl()
 	ToggleToolbar(true);
 }
 
-void ScriptsWindow::CloseImpl()
+void ScriptsWindow::RenderToolbar()
 {
-	// Cleanup for the node inspector window
+	if (ImGui::MenuItem("Refresh"))
+	{
+		RefreshScripts();
+	}
+	ImGui::Separator();
+
+	if (ImGui::MenuItem("Add+"))
+	{
+		ImGui::OpenPopup("Create Lua Script");
+	}
+
+	RenderAddScript();
+
+	ImGui::Separator();
+
+	ImGui::SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
 }
+
 
 void ScriptsWindow::RenderImpl()
 {
@@ -63,23 +79,6 @@ void ScriptsWindow::RenderImpl()
 
 }
 
-void ScriptsWindow::RenderToolbar()
-{
-	if (ImGui::MenuItem("Refresh"))
-	{
-		RefreshScripts();
-	}
-	ImGui::Separator();
-
-	if (ImGui::MenuItem("Add+"))
-	{
-		ImGui::OpenPopup("Create Lua Script");
-	}
-
-	RenderAddScript();
-	ImGui::Separator();
-}
-
 void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 {
 	const std::string id = p_node.relativePath.generic_string();
@@ -98,108 +97,123 @@ void ScriptsWindow::RenderTreeHelper(const ScriptTreeNode &p_node)
 	}
 	else
 	{
-		const std::string path = p_node.relativePath.generic_string();
-		const bool isSelected = m_selectedScript == path;
-
-		if (ImGui::Selectable(p_node.name.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
+		bool skip = false;
+		if (!m_searchFilter.empty())
 		{
-			m_selectedScript = path;
-			if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+			std::string lowerName = p_node.name;
+			std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+			if (lowerName.find(m_searchFilter) == std::string::npos)
 			{
-				OpenScript(p_node.relativePath);
+				skip = true;
 			}
 		}
 
-		if (ImGui::BeginPopupContextItem("ScriptContextMenu"))
+		if (!skip)
 		{
-			if (ImGui::MenuItem("Rename"))
+			const std::string path = p_node.relativePath.generic_string();
+			const bool isSelected = m_selectedScript == path;
+
+			if (ImGui::Selectable(p_node.name.c_str(), isSelected, ImGuiSelectableFlags_AllowDoubleClick))
 			{
 				m_selectedScript = path;
-				m_openRename = true;
+				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+				{
+					OpenScript(p_node.relativePath);
+				}
 			}
 
-			if (ImGui::MenuItem("Delete"))
+			if (ImGui::BeginPopupContextItem("ScriptContextMenu"))
 			{
-				m_selectedScript = path;
-				m_openDelete = true;
+				if (ImGui::MenuItem("Rename"))
+				{
+					m_selectedScript = path;
+					m_openRename = true;
+				}
+
+				if (ImGui::MenuItem("Delete"))
+				{
+					m_selectedScript = path;
+					m_openDelete = true;
+				}
+				ImGui::EndPopup();
 			}
-			ImGui::EndPopup();
-		}
 
-		if (m_openRename)
-		{
-			ImGui::OpenPopup("RenameScript");
-			m_openRename = false;
-		}
-
-		if (m_openDelete)
-		{
-			ImGui::OpenPopup("DeleteScriptConfirm");
-			m_openDelete = false;
-		} 
-
-		if (ImGui::BeginPopupModal("DeleteScriptConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::Text("Are you sure you want to delete the script %s?\n", m_selectedScript.c_str());
-
-			const float buttonWidth = 80.0f;
-			const float spacing = ImGui::GetStyle().ItemSpacing.x;
-			const float totalWidth = buttonWidth * 2.0f + spacing;
-
-			ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
-
-			if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+			if (m_openRename)
 			{
-				DeleteSelectedScript();
-				ImGui::CloseCurrentPopup();
+				ImGui::OpenPopup("RenameScript");
+				m_openRename = false;
 			}
 
-			ImGui::SameLine();
-
-			if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+			if (m_openDelete)
 			{
-				ImGui::CloseCurrentPopup();
+				ImGui::OpenPopup("DeleteScriptConfirm");
+				m_openDelete = false;
 			}
-			ImGui::EndPopup();
-		}
 
-		if (ImGui::BeginPopupModal("RenameScript", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::Text("Rename Script:");
-			ImGui::SetNextItemWidth(250.0f);
-
-			if (ImGui::IsWindowAppearing())
+			if (ImGui::BeginPopupModal("DeleteScriptConfirm", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				ImGui::SetKeyboardFocusHere();
-			}
-			const bool enterPressed = ImGui::InputText("##RenameFilename", &m_renameFilename, ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::Text("Are you sure you want to delete the script %s?\n", m_selectedScript.c_str());
 
-			if (!m_renameError.empty())
+				const float buttonWidth = 80.0f;
+				const float spacing = ImGui::GetStyle().ItemSpacing.x;
+				const float totalWidth = buttonWidth * 2.0f + spacing;
+
+				ImGui::SetCursorPosX((ImGui::GetWindowSize().x - totalWidth) * 0.5f);
+
+				if (ImGui::Button("Delete", ImVec2(buttonWidth, 0.0f)))
+				{
+					DeleteSelectedScript();
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0.0f)))
+				{
+					ImGui::CloseCurrentPopup();
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginPopupModal("RenameScript", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 			{
-				ImGui::TextWrapped("%s", m_renameError.c_str());
+				ImGui::Text("Rename Script:");
+				ImGui::SetNextItemWidth(250.0f);
+
+				if (ImGui::IsWindowAppearing())
+				{
+					ImGui::SetKeyboardFocusHere();
+				}
+				const bool enterPressed = ImGui::InputText("##RenameFilename", &m_renameFilename, ImGuiInputTextFlags_EnterReturnsTrue);
+
+				if (!m_renameError.empty())
+				{
+					ImGui::TextWrapped("%s", m_renameError.c_str());
+				}
+
+				if (ImGui::Button("Rename") || enterPressed)
+				{
+					RenameScript();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Cancel"))
+				{
+					m_renameError.clear();
+					ImGui::CloseCurrentPopup();
+				}
+
+				ImGui::EndPopup();
 			}
 
-			if (ImGui::Button("Rename") || enterPressed)
+			if (ImGui::BeginDragDropSource())
 			{
-				RenameScript();
+				ImGui::SetDragDropPayload("SCRIPT_PATH", path.c_str(), path.size() + 1);
+				ImGui::TextUnformatted(p_node.name.c_str());
+				ImGui::EndDragDropSource();
 			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Cancel"))
-			{
-				m_renameError.clear();
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
-
-		if (ImGui::BeginDragDropSource())
-		{
-			ImGui::SetDragDropPayload("SCRIPT_PATH", path.c_str(), path.size() + 1);
-			ImGui::TextUnformatted(p_node.name.c_str());
-			ImGui::EndDragDropSource();
 		}
 	}
 	ImGui::PopID();

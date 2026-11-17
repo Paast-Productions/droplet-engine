@@ -14,6 +14,10 @@ end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
+
+    if trans == nil then
+	    trans = self:GetTransform()
+    end
     
     local physComp = self:GetPhysicsComponent()
     if physComp == nil then
@@ -24,8 +28,6 @@ function OnUpdate(dt)
     local dx = Input:GetDeltaMouseX()
     local yawDelta = -dx * mouseSensitivity
     trans:RotateAxis(yawDelta, Vec3.new(0.0, 1.0, 0.0), TransformSpace.World)
-
-    --local MovementModifiers = require("MovementModifiers")
 
     local walkDir = Vec3.new(0.0, 0.0, 0.0)
 	if Input:KeyHeld(Key.W) then

@@ -34,7 +34,7 @@ namespace Droplet::MetaUtils
                 {
                     MetaEntry resourceData;
                     resourceData.guid = entry.value("guid", C_INVALID_GUID);
-                    resourceData.type = static_cast<ResourceType>(entry.value("type", static_cast<uint8_t>(ResourceType::None)));
+                    resourceData.type = static_cast<StaticResourceType>(entry.value("type", static_cast<uint8_t>(StaticResourceType::None)));
                     resourceData.sourceName = entry.value("sourceName", "");
                     resourceData.displayName = entry.value("displayName", "");
                     resourceData.loadFlags = static_cast<ResourceLoadFlag>(entry.value("loadFlags", static_cast<uint8_t>(ResourceLoadFlag::LoadCPU)));
@@ -128,7 +128,7 @@ namespace Droplet::MetaUtils
         return MetaLoadSettings::C_SHADER_TYPE.defaultValue;
     }
 
-    MetaEntry GenerateDefaultMetaEntry(ResourceType p_type, const std::string &p_name, const std::string &p_relAssetPath, const json &p_explicitLoadSettings)
+    MetaEntry GenerateDefaultMetaEntry(StaticResourceType p_type, const std::string &p_name, const std::string &p_relAssetPath, const json &p_explicitLoadSettings)
     {
         MetaEntry entry;
         entry.guid = GuidUtils::Generate();
@@ -140,26 +140,26 @@ namespace Droplet::MetaUtils
         // Set type-specific flags
         switch (p_type)
         {
-        case ResourceType::Texture2D:
-        case ResourceType::Texture3D:
+        case StaticResourceType::Texture2D:
+        case StaticResourceType::Texture3D:
             entry.loadFlags = ResourceLoadFlag::LoadBoth;
             entry.loadSettings[MetaLoadSettings::C_GENERATE_MIPMAPS.key] = MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue;
             break;
-        case ResourceType::Mesh:
-        case ResourceType::SkinnedMesh:
+        case StaticResourceType::Mesh:
+        case StaticResourceType::SkinnedMesh:
             entry.loadFlags = ResourceLoadFlag::LoadBoth;
             entry.loadSettings[MetaLoadSettings::C_GENERATE_NORMALS.key] = MetaLoadSettings::C_GENERATE_NORMALS.defaultValue;
             entry.loadSettings[MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.key] = MetaLoadSettings::C_JOIN_IDENTICAL_VERTICES.defaultValue;
             entry.loadSettings[MetaLoadSettings::C_TRIANGULATE.key] = MetaLoadSettings::C_TRIANGULATE.defaultValue;
             break;
-        case ResourceType::Animation:
+        case StaticResourceType::Animation:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
             break;
-        case ResourceType::Shader:
+        case StaticResourceType::Shader:
             entry.loadFlags = ResourceLoadFlag::LoadBoth;
             entry.loadSettings[MetaLoadSettings::C_SHADER_TYPE.key] = EvaluateShaderTypeFromPath(p_relAssetPath);
             break;
-        case ResourceType::Material:
+        case StaticResourceType::Material:
             entry.loadFlags = ResourceLoadFlag::LoadCPU;
             break;
         default: 
@@ -170,12 +170,12 @@ namespace Droplet::MetaUtils
         return entry;
     }
 
-    std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(ResourceType p_type)
+    std::vector<MetaLoadSettings::Descriptor> GetSettingsSchema(StaticResourceType p_type)
     {
         switch (p_type)
         {
-        case ResourceType::Texture2D:
-        case ResourceType::Texture3D:
+        case StaticResourceType::Texture2D:
+        case StaticResourceType::Texture3D:
             return {
                 {
                     MetaLoadSettings::C_GENERATE_MIPMAPS.key, 
@@ -183,8 +183,8 @@ namespace Droplet::MetaUtils
                     MetaLoadSettings::Type::Bool
                 }
             };
-        case ResourceType::Mesh:
-        case ResourceType::SkinnedMesh:
+        case StaticResourceType::Mesh:
+        case StaticResourceType::SkinnedMesh:
             return {
                 {
                     MetaLoadSettings::C_GENERATE_NORMALS.key, 
@@ -202,9 +202,9 @@ namespace Droplet::MetaUtils
                     MetaLoadSettings::Type::Bool
                 }
             };
-        case ResourceType::Animation:
+        case StaticResourceType::Animation:
             return {};
-        case ResourceType::Shader:
+        case StaticResourceType::Shader:
             return {
                 {
                     MetaLoadSettings::C_SHADER_TYPE.key,
@@ -215,7 +215,7 @@ namespace Droplet::MetaUtils
                     {"Vertex", "Fragment", "Geometry", "Compute", "TesselationControl", "TesselationEvaluation", "Mesh", "Task"}
                 }
             };
-        case ResourceType::Material:
+        case StaticResourceType::Material:
             return {};
 
         default: 
