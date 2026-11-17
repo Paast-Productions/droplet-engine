@@ -27,6 +27,10 @@ src/Scripts/LuaHelper.d.lua
 !/Editor
 !/Editor/**
 
+# Game
+!/Game
+!/Game/**
+
 # Assets
 !/Assets
 !/Assets/**

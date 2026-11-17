@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Sphere",
+            "guid": 4479448817565862415,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Sphere",
+            "type": 3
+        }
+    ]
+}

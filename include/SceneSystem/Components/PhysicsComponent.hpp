@@ -175,6 +175,8 @@ namespace Droplet::Scene
 		
 		/// @brief Updates the component.
 		void UpdateImpl() override;
+		
+		void FixedUpdateImpl() override;
 
 		/// @brief Late updates the physics component.
 		void LateUpdateImpl() override;
@@ -208,17 +210,23 @@ namespace Droplet::Scene
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
+		bool m_skipSyncFrame = false;
+
 		ShapeType m_shapeType = ShapeType::None;
 		JPH::EMotionType m_motion = JPH::EMotionType::Static;
 		Layers m_layer = NON_MOVING;
 
 		std::shared_ptr<Physics> m_physics;
-		Transform *m_transform;
+		std::size_t m_transformVersion = 0;
 
 		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};
 		JPH::ShapeRefC m_shape{};
 		JPH::Ref<JPH::Character> m_character;
 		JPH::Vec3 m_offset{};
+		
+		// Linear interpolation positions
+		glm::vec3 m_currentPos = glm::vec3(0.0f, 0.0f, 0.0f);
+		glm::vec3 m_previousPos = glm::vec3(0.0f, 0.0f, 0.0f);
 		
 		Droplet::GUID m_meshGuid = C_INVALID_GUID;
 

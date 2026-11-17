@@ -4,6 +4,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -47,7 +48,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 399,
+            "id": 1,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -74,6 +75,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -86,6 +88,12 @@
                                         100.0
                                     ]
                                 },
+                                "clearColor": [
+                                    0.0,
+                                    0.0,
+                                    0.30000001192092896,
+                                    1.0
+                                ],
                                 "drawLayerMask": 65535,
                                 "priority": 0,
                                 "resolution": [
@@ -106,7 +114,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 171,
+                    "id": 427,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -176,6 +184,7 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -220,7 +229,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 170,
+            "id": 426,
             "name": "Player",
             "transform": {
                 "position": [
@@ -246,8 +255,9 @@
             "children": [
                 {
                     "active": true,
+                    "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 173,
+                    "id": 429,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -271,8 +281,9 @@
                 },
                 {
                     "active": true,
+                    "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 174,
+                    "id": 430,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -297,9 +308,10 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 8,
-                    "id": 183,
+                    "id": 439,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -323,6 +335,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -366,7 +379,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 184,
+                    "id": 440,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -388,12 +401,13 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "button": 183,
-                        "player": 170,
+                        "button": 439,
+                        "player": 426,
                         "reach": 1.0,
                         "targetSceneName": "Seafloor"
                     },
@@ -402,7 +416,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 172,
+            "id": 428,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -450,7 +464,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 185,
+            "id": 441,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -477,6 +491,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -501,7 +516,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 187,
+                    "id": 443,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -523,15 +538,16 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 186,
+            "id": 442,
             "name": "Fish",
             "transform": {
                 "position": [
-                    1.6546109914779663,
-                    -0.8641805052757263,
-                    6.21113395690918
+                    1.7032599449157715,
+                    -0.7697247862815857,
+                    6.279770851135254
                 ],
                 "rotation": [
                     -0.33959150314331055,
@@ -549,6 +565,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -573,7 +590,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 188,
+            "id": 444,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -597,6 +614,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -621,7 +639,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 189,
+            "id": 445,
             "name": "Crane",
             "transform": {
                 "position": [
@@ -645,6 +663,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -670,7 +689,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 446,
+            "id": 35,
             "name": "Empty Node",
             "transform": {
                 "position": [
