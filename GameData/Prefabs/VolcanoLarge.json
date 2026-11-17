@@ -21,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "Geyser",
                         "textureGUID": 1546286907408242686,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -29,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 627,
+            "id": 1103,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -70,24 +71,12 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
                     "id": 1,
                     "type": "MeshComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "damage": 1.0,
-                        "direction": [
-                            0.0,
-                            0.0,
-                            1.0
-                        ]
-                    },
-                    "id": 4,
-                    "type": "HazardComponent"
                 },
                 {
                     "active": true,
@@ -112,6 +101,20 @@
                 {
                     "active": true,
                     "data": {
+                        "damage": 1.0,
+                        "direction": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "id": 4,
+                    "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
                         "filepath": "Heat.lua"
                     },
                     "id": 6,
@@ -119,7 +122,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 628,
+            "id": 1104,
             "name": "Heat",
             "transform": {
                 "position": [
@@ -144,11 +147,11 @@
     "collisionLayerMask": 1,
     "components": [],
     "drawLayer": 1,
-    "id": 626,
+    "id": 1102,
     "name": "VolcanoLarge",
     "transform": {
         "position": [
-            30.0,
+            20.0,
             0.0,
             0.0
         ],
