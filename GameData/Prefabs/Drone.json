@@ -4,6 +4,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -28,7 +29,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 48,
+            "id": 677,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -52,6 +53,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -64,6 +66,12 @@
                                 500.0
                             ]
                         },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
                         "drawLayerMask": 65471,
                         "priority": 0,
                         "resolution": [
@@ -76,7 +84,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 49,
+            "id": 678,
             "name": "Camera",
             "transform": {
                 "position": [
@@ -98,6 +106,7 @@
             }
         }
     ],
+    "collisionLayerMask": 33,
     "components": [
         {
             "active": false,
@@ -151,7 +160,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 47,
+    "id": 676,
     "name": "Drone",
     "transform": {
         "position": [
