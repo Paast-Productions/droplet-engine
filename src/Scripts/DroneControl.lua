@@ -9,7 +9,7 @@ local physicsComponent = nil
 
 -- Movement settings
 local acceleration = 5.0
-local maxSpeed = 8.0
+local maxSpeed = 5.0
 
 local acceleration = 5.0     -- speeding up along the input direction
 local deceleration = 12.0    -- no input: slowing to a stop
@@ -22,7 +22,7 @@ local pulseCooldown = 3.0 -- In seconds
 local currentPulseCooldown = 0.0 -- In seconds
 local pulseFadeOutTime = 0.5 -- In seconds
 local currentPulseFadeOutTime = 0.0 -- In seconds
-local pulseSpeed = 1.5
+local pulseSpeed = 1.1
 local pulseDirection = Vec3.new(0.0, 0.0, 0.0)
 local pulseKey = Key.SHIFT
 
@@ -30,7 +30,7 @@ local pulseKey = Key.SHIFT
 local cameraComponent = nil
 local camera = nil
 local defaultFov = 90.0
-local pulseFov = 110.0
+local pulseFov = defaultFov + 0
 local fovTime = 0.0
 local fovTransitionTimeFrac = 0.2 -- % of pulseFadeOutTime
 local transitionTime = fovTransitionTimeFrac * pulseFadeOutTime
@@ -236,20 +236,20 @@ function UpdateMovement(dt)
     end
 
     -- Apply movement in world space
-    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 200.0)
+    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 50.0)
     
     -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
 		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
 		movement = GLM.V3Add(
 			movement,
-			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime * 100.0)
+			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime * 10.0)
 		)
 		
 		-- Pulse camera effect
 		fovTime = fovTime + dt
 		
-		if fovTime >= pulseFadeOutTime then
+			if fovTime >= pulseFadeOutTime then
 			fovTime = 0.0
 			camera:SetFOV(defaultFov)
 		elseif fovTime <= transitionTime then
@@ -296,6 +296,7 @@ function OnStart()
     if cameraComponent ~= nil then
 		camera = cameraComponent:GetCamera()
 		defaultFov = camera:GetFOV()
+		pusleFov = pulseFov + 5
 	else
 		print("No CameraComponent found in DroneControl.lua")
 	end
