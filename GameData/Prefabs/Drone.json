@@ -120,6 +120,20 @@
         },
         {
             "active": true,
+            "data": {
+                "busName": "Master",
+                "looping": false,
+                "pitch": 1.0,
+                "soundGuid": 10719051070911821420,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": 0.0
+            },
+            "id": 10,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
             "data": {},
             "id": 5,
             "type": "PlayerComponent"
@@ -162,9 +176,9 @@
     "name": "Drone",
     "transform": {
         "position": [
-            -3.0,
-            0.0,
-            0.0
+            43.0,
+            12.0,
+            -20.0
         ],
         "rotation": [
             1.0,
