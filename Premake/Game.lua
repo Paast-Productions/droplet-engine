@@ -18,7 +18,7 @@ project "Game"
 		"TRACY_FIBERS",
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
-        "ROOT_PATH=" .. AddQuotation("../../../..")
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then
@@ -96,7 +96,6 @@ project "Game"
         "Engine",
         "VulkanMemoryAllocator",
         "tracy",
-        "PortableFileDialogs",
         "dalia_engine",
         "ole32",
         "avrt",
