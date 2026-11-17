@@ -29,6 +29,7 @@ end
 -- This trigger function slows down and damages the player
 -- progressevly worse
 function OnTrigger(dt, node)
+    print("hej")
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
 

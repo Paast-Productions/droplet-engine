@@ -19,7 +19,9 @@ function OnUpdate(dt)
         return
     end
     
-    pb = parent:GetPlayerBehaviour()
+    local playerComponent = parent:GetPlayerComponent()
+
+    pb = playerComponent:GetPlayerBehaviour()
 
     if pb == nil then
         print("pb is niL!=!==!")

@@ -36,7 +36,8 @@ void TriggerComponent::FixedUpdateImpl()
     {
         scene->GetNodesInShape(obb.obb, insideNodes, m_collisionLayerMask);
     }
-    
+    //1.460
+    //0.848
     for (const TriggerSphere &sphere : m_spheres)
     {
         scene->GetNodesInShape(sphere.sphere, insideNodes, m_collisionLayerMask);
