@@ -1,24 +1,55 @@
-local underwaterAmbianceSound = nil
+local pb = nil
 
-local playing = false
+local underwaterAmbianceSound = nil
+local playingAmbiance = false
+
+local freezeSFX = nil
+local playingFreeze = false
 
 -- Called when script starts
 function OnStart()
+    local player = self:GetPlayerComponent()
+    if player ~= nil then
+        pb = player:GetPlayerBehaviour()
+    end
+
     underwaterAmbianceSound = self:GetAudioPlayer("Underwater Ambiance")
     if underwaterAmbianceSound == nil then  
         print("Unable to find underwater ambiance sound")
         return
     end
 
-    playing = false;
+    freezeSFX = self:GetAudioPlayer("Freeze")
+    if freezeSFX == nil then  
+        print("Unable to find freeze sound")
+        return
+    end
+
+    playingAmbiance = false
+    playingFreeze = false
 end
 
--- Called every frame
 function OnUpdate(dt)
-    if playing == false then
+    -- Ambiance Sound
+    if playingAmbiance == false then
         print("Playing sound")
         underwaterAmbianceSound:Play()
-        playing = true;
+        playingAmbiance = true
+    end
+
+    -- Freeze Sound
+    currentFreeze = pb:GetFreezeLevel()
+    print("Current freeze level", currentFreeze)
+
+    -- Over 200 -> Play freeze
+    if currentFreeze >= 200 and playingFreeze == false then
+        freezeSFX:Play()
+        playingFreeze = true
+
+    -- Under 200 -> Don't play freeze
+    elseif currentFreeze < 200 and playingFreeze == true then
+        freezeSFX:Stop()
+        playingFreeze = false
     end
 end
 
