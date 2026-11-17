@@ -178,7 +178,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         if (p_json.contains("active"))
         {
-            node->SetActive(p_json["active"]);
+            node->SetActiveSelf(p_json["active"]);
         }
 	    
 	    DeserializeTransform(p_json["transform"], node->GetTransform());
@@ -227,7 +227,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
         
         if (p_json.contains("active"))
         {
-            node->SetActive(p_json["active"]);
+            node->SetActiveSelf(p_json["active"]);
         }
     }
 }

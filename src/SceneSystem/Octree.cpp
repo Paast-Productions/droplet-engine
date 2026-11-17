@@ -892,7 +892,7 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 			}
 			else
 			{
-				RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+				RayHit octantHit = Raycast(p_ray, child->octant);
 				if (!octantHit.didHit)
 				{
 					continue;
