@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Seal",
+            "guid": 14447431378323535218,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube",
+            "type": 3
+        }
+    ]
+}

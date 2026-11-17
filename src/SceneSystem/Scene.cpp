@@ -24,6 +24,8 @@ Scene::Scene(const std::string &p_name)
 
 Scene::~Scene()
 {
+    SetActive(false);
+    
     for (std::shared_ptr<Node> &node : m_roots)
     {
         if (node == nullptr)

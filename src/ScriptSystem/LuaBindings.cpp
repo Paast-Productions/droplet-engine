@@ -29,6 +29,8 @@
 #include <SceneSystem/Items/ItemRegistry.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <AudioPlayerComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -181,8 +183,17 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::CollectibleTypeComponent>();
-		}
-				
+		},
+		"GetAudioEmitter",
+        [](Scene::Node &node, const std::string& p_name)
+        {
+            return node.GetAudioEmitter(p_name).lock();
+        },
+        "GetAudioPlayer",
+        [](Scene::Node &node, const std::string &p_name)
+        {
+            return node.GetAudioPlayer(p_name).lock();
+        }
 	);
 
 	LuaClassDefinition classDef;

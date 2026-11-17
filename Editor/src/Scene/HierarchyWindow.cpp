@@ -125,6 +125,11 @@ void HierarchyWindow::RenderToolbar()
 			newNode.lock()->AttachComponent("PhysicsComponent");
         }
 
+        if (ImGui::Button(ICON_LC_VOLUME_2 " Add Audio Emitter Node"))
+        {
+            newNode = scene->AddNode("Audio Emitter Node");
+            newNode.lock()->AttachComponent("AudioEmitterComponent");
+        }
 
 		if (!newNode.expired())
 		{

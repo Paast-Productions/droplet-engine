@@ -8,12 +8,15 @@
 #include <functional>
 #include <typeindex>
 
+#include "Resource/Meta/MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
 #include "resource/StaticResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
 #include "core/ThreadSafeQueue.hpp"
 #include "core/ThreadPool.hpp"
+
+#include "Audio/AudioSystem.hpp"
 
 namespace Droplet
 {
@@ -33,6 +36,7 @@ namespace Droplet
     {
         std::unique_ptr<IStaticResource> resource = nullptr;
         ResourceState state = ResourceState::Unloaded;
+        StaticResourceType type = StaticResourceType::None;
         uint32_t refCount = 0;
         
         std::vector<std::function<void()>> loadCallbacks; // Called when resource hits state: Ready
@@ -122,6 +126,8 @@ namespace Droplet
             {
                 // Resource was just created in-place -> Update its state
                 it->second.state = ResourceState::LoadingAsync;
+                if constexpr (std::is_same_v<T, SoundResource>) it->second.type = StaticResourceType::Sound;
+                else it->second.type = ResourceTraits<T>::GetType();
                 it->second.refCount = 0; // Incremented when handle is constructed
                 loadAsync = true;
             }
@@ -140,15 +146,39 @@ namespace Droplet
 					// Resource is not loaded and has not failed -> Store callback until loaded
 					// Capture handle by value inside lambda to guarantee that ref count is >= 1
 					it->second.loadCallbacks.push_back([p_onLoadCallback, handle]()
-						{
-							p_onLoadCallback(handle);
-						});
+					{
+						p_onLoadCallback(handle);
+					});
 				}
 			}
 			
 			if (loadAsync)
 			{
-				PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    if constexpr (std::is_same_v<T, SoundResource>) 
+			    {
+			        SoundType type = metaEntry.loadSettings.value(MetaLoadSettings::C_SOUND_TYPE.key, MetaLoadSettings::C_SOUND_TYPE.defaultValue);
+			        auto capturedGuid = metaEntry.guid;
+			        auto capturedFlags = metaEntry.loadFlags;
+			        
+			        // Sound resources are handled by AudioSystem
+			        std::filesystem::path absAssetPath = std::filesystem::absolute(m_rootDirectory) / metaEntry.relAssetPath;
+			        std::unique_ptr<T> loadedResource = Audio::AudioSystem::GetInstance().LoadSound(absAssetPath, type, [this, capturedGuid, capturedFlags](bool success)
+			        {
+			            AsyncLoadResult res;
+                        res.succeeded = success;
+                        res.guid = capturedGuid;
+                        res.resource = nullptr;
+                        res.loadFlags = capturedFlags;
+								                        
+                        m_asyncLoadResults.Push(res);
+			        });
+			        
+			        if (loadedResource) m_pendingSoundLoads[capturedGuid] = loadedResource.release();
+			    }
+			    else
+			    {
+			        PushWorkerLoadTask<T>(p_guid, metaEntry);
+			    }
 			}
 			
 			return handle;
@@ -242,6 +272,13 @@ namespace Droplet
 			assert(m_isInitialized && "AssetManager is not initialized.");
 			
 			auto it = m_liveResources.find(p_guid);
+		    
+		    if constexpr (std::is_same_v<T, SoundResource>)
+		    {
+		        if (it == m_liveResources.end()) return nullptr;
+		        return static_cast<T*>(it->second.resource.get());
+		    }
+		    
 			if (it != m_liveResources.end() && it->second.state == ResourceState::Ready)
 			{
 				// Asset is ready to be used
@@ -316,6 +353,8 @@ namespace Droplet
         
         ThreadSafeQueue<AsyncRegisterResult> m_asyncRegisterResults;
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
+	    
+	    std::unordered_map<GUID, SoundResource*> m_pendingSoundLoads;
     };
 }
 

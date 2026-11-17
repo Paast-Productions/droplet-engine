@@ -1,10 +1,12 @@
 ﻿local hazardComp = nil
 local heatDamage = nil
+local newDamage = nil
 
 function OnStart()
     hazardComp = self:GetHazardComponent()
     
     heatDamage = hazardComp:GetDamage()
+    newDamage = heatDamage
 end
 
 function OnTrigger(dt, node)
@@ -33,5 +35,12 @@ function OnTrigger(dt, node)
 end
 
 function RenderUI()
-    
+	if hazardComp ~= nil then
+		local hasChanged = false
+		hasChanged, newDamage = ImGui.DragFloat("Damage", newDamage, 0.1, 0.0)
+		hazardComp:SetDamage(newDamage)
+		if hasChanged then
+			heatDamage = newDamage
+		end
+	end
 end
