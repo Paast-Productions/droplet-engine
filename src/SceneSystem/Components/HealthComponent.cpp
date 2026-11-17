@@ -78,6 +78,7 @@ namespace Droplet::Scene
             : 0.0f;
 
         ImGui::ProgressBar(fractionHullIntegrity, ImVec2(-1.0f, 0.0f));
+#endif
     }
 
     nlohmann::json HealthComponent::SerializeImpl()
