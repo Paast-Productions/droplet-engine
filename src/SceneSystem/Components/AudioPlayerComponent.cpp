@@ -122,7 +122,8 @@ void Droplet::Scene::AudioPlayerComponent::StartImpl()
 
 void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 {
-ImGui::PushID(this);
+#ifdef _EDITOR
+	ImGui::PushID(this);
     
     // --- Resource Drag & Drop ---
     GUID newGuid = C_INVALID_GUID;
@@ -228,6 +229,7 @@ ImGui::PushID(this);
     ImGui::SameLine(), ImGui::Text(ICON_LC_AUDIO_WAVEFORM);
     
     ImGui::PopID();
+#endif
 }
 
 void Droplet::Scene::AudioPlayerComponent::ActiveChangedImpl(const bool p_active)
