@@ -69,7 +69,7 @@ void HazardComponent::DeserializeImpl(const nlohmann::json p_compJson)
     }
     if (!p_compJson.contains("direction"))
     {
-        throw std::runtime_error("HazardComponent missing required field 'damage'");
+        throw std::runtime_error("HazardComponent missing required field 'direction'");
     }
     m_damage = p_compJson["damage"];
     

@@ -13,7 +13,7 @@ namespace Droplet::Scene
         m_health = std::clamp(m_health, 0.0f, m_maxHealth);
 
         m_maxHullIntegrity = std::max(0.0f, m_maxHullIntegrity);
-        m_hullIntegrity = std::clamp(m_hullIntegrity, 0.0f, m_hullIntegrity);
+        m_hullIntegrity = std::clamp(m_hullIntegrity, 0.0f, m_maxHullIntegrity);
     }
 
     void HealthComponent::UpdateImpl()
