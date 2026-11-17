@@ -10,14 +10,15 @@
                 "fsName": "Base.FS",
                 "gs": 0,
                 "gsName": "",
-                "meshDisplayName": "Sphere",
-                "meshGUID": 4479448817565862415,
+                "meshDisplayName": "Particle",
+                "meshGUID": 1127962353778719569,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
                 "textureDisplayName": "White",
                 "textureGUID": 13855953862202670664,
+                "transparent": false,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -26,7 +27,7 @@
         }
     ],
     "drawLayer": 4,
-    "id": 145,
+    "id": 63,
     "name": "Smoke Particle",
     "transform": {
         "position": [

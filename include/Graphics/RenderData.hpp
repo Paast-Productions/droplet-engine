@@ -40,10 +40,18 @@ namespace Droplet::Graphics
         ShaderData fsData {};
 
         MeshData meshData{};
-
         TextureData texData{};
 
         glm::mat4 transform{};
+
+        // Settings
+		bool transparent { false };
+       
+        // HACK: Sort based on transparency
+        bool operator<(const RenderData &p_other) const
+        {
+            return transparent < p_other.transparent;
+        }
     };
 
     namespace Vulkan

@@ -27,7 +27,8 @@ Pipeline::Pipeline(const vk::raii::Device &p_device,
 	const vk::raii::PhysicalDevice &p_physicalDevice,
 	const std::vector<vk::DescriptorSetLayout> &p_descriptorSetLayouts,
 	std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules,
-	vk::SurfaceFormatKHR p_surfaceFormat)
+	vk::SurfaceFormatKHR p_surfaceFormat, 
+	bool p_transparent)
 {
 	vk::PushConstantRange pushConstantRange
 	{
@@ -62,7 +63,6 @@ Pipeline::Pipeline(const vk::raii::Device &p_device,
 		
 		std::uint32_t ViewportCount = 1;
 		bool UseMultisampling = false;
-		bool UseBlending = false;
 		
 	} pipelineConfig;
 	
@@ -128,7 +128,7 @@ Pipeline::Pipeline(const vk::raii::Device &p_device,
 	vk::PipelineDepthStencilStateCreateInfo depthStencil
 	{
 		.depthTestEnable = vk::True,
-		.depthWriteEnable = vk::True,
+		.depthWriteEnable = p_transparent ? vk::False : vk::True,
 		.depthCompareOp = vk::CompareOp::eLess,
 		.depthBoundsTestEnable = vk::False,
 		.stencilTestEnable = vk::False 
@@ -138,7 +138,13 @@ Pipeline::Pipeline(const vk::raii::Device &p_device,
 	// Blending is enabled or disabled via the pipeline config
 	vk::PipelineColorBlendAttachmentState colorBlendAttachment
 	{
-		.blendEnable = pipelineConfig.UseBlending ? vk::True : vk:: False,
+		.blendEnable = p_transparent ? vk::True : vk:: False,
+		.srcColorBlendFactor = p_transparent ? vk::BlendFactor::eSrcAlpha : vk::BlendFactor::eZero,
+		.dstColorBlendFactor = p_transparent ? vk::BlendFactor::eOneMinusSrcAlpha : vk::BlendFactor::eZero,
+		.colorBlendOp = vk::BlendOp::eAdd,
+		.srcAlphaBlendFactor = p_transparent ? vk::BlendFactor::eOne : vk::BlendFactor::eZero,
+		.dstAlphaBlendFactor = p_transparent ? vk::BlendFactor::eOne : vk::BlendFactor::eZero,
+		.alphaBlendOp = vk::BlendOp::eAdd,
 		.colorWriteMask = vk::ColorComponentFlagBits::eR | vk::ColorComponentFlagBits::eG | vk::ColorComponentFlagBits::eB | vk::ColorComponentFlagBits::eA 
 	};
 	

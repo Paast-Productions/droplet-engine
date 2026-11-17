@@ -5,7 +5,7 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 896,
+            "id": 21,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -31,7 +31,7 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 897,
+            "id": 22,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -57,33 +57,7 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 898,
-            "name": "Smoke Particle",
-            "prefab": "GameData\\Prefabs\\Smoke Particle.json",
-            "transform": {
-                "position": [
-                    0.00010943412780761719,
-                    9.09566879272461e-05,
-                    0.00016689300537109375
-                ],
-                "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "scale": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "collisionLayerMask": 64,
-            "drawLayer": 4,
-            "id": 899,
+            "id": 23,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -109,7 +83,7 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 900,
+            "id": 24,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -135,7 +109,7 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 901,
+            "id": 25,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -161,7 +135,33 @@
             "active": true,
             "collisionLayerMask": 64,
             "drawLayer": 4,
-            "id": 902,
+            "id": 26,
+            "name": "Smoke Particle",
+            "prefab": "GameData\\Prefabs\\Smoke Particle.json",
+            "transform": {
+                "position": [
+                    0.00010943412780761719,
+                    9.09566879272461e-05,
+                    0.00016689300537109375
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 64,
+            "drawLayer": 4,
+            "id": 27,
             "name": "Smoke Particle",
             "prefab": "GameData\\Prefabs\\Smoke Particle.json",
             "transform": {
@@ -189,6 +189,7 @@
         {
             "active": true,
             "data": {
+                "data": "{\"grav\":{\"x\":0,\"y\":0.40000000596046,\"z\":0},\"velRangeHor\":{\"max\":0.5,\"min\":-0.5},\"velRangeVer\":{\"max\":0.80000001192093,\"min\":0.20000000298023},\"sizeRange\":{\"max\":0.5,\"min\":0.025000000372529},\"lifetimeRange\":{\"max\":3,\"min\":1}}",
                 "filepath": "SmokeEffect.lua"
             },
             "id": 1,
@@ -196,7 +197,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 895,
+    "id": 20,
     "name": "ParticleSystem",
     "transform": {
         "position": [

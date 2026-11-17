@@ -92,7 +92,7 @@ void Node::Start()
 
 void Node::Update()
 {
-	assert(m_constructed && "Node must be constructed before calling Update().");
+ 	assert(m_constructed && "Node must be constructed before calling Update().");
 
 	if (!m_active)
 	{
@@ -515,6 +515,32 @@ const std::string &Node::GetName() const
 void Node::SetName(const std::string &p_name)
 {
 	m_name = p_name;
+}
+
+std::weak_ptr<AudioEmitterComponent> Droplet::Scene::Node::GetAudioEmitter(const std::string &p_name)
+{
+	const auto Emitters = GetComponents<AudioEmitterComponent>();
+	for (auto emitter : Emitters)
+	{
+		if (emitter->GetName() == p_name)
+		{
+			return emitter;
+		}
+	}
+	return {};
+}
+
+std::weak_ptr<AudioPlayerComponent> Droplet::Scene::Node::GetAudioPlayer(const std::string &p_name)
+{
+	const auto audioPlay = GetComponents<AudioPlayerComponent>();
+	for (auto player : audioPlay)
+	{
+		if (player->GetName() == p_name)
+		{
+			return player;
+		}
+	}
+	return {};
 }
 
 std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
