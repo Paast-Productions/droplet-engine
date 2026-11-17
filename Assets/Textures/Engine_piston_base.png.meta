@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Engine_piston_base",
+            "guid": 6638664435348355905,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Engine_piston_base",
+            "type": 1
+        }
+    ]
+}

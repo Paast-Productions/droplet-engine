@@ -93,6 +93,25 @@
         {
             "active": true,
             "data": {
+                "h": 0.10000001639127731,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 0,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 1.0,
+                "shapeType": 7
+            },
+            "id": 2,
+            "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
                 "health": 100.0,
                 "maxHealth": 100.0
             },
@@ -141,6 +160,43 @@
             },
             "id": 11,
             "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.8600000143051147,
+                "soundGuid": 5649831997769777985,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -9.729999542236328
+            },
+            "id": 12,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneAudioController.lua"
+            },
+            "id": 13,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.800000011920929,
+                "soundGuid": 8694620601437719986,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -3.4100000858306885
+            },
+            "id": 14,
+            "type": "AudioPlayerComponent"
         }
     ],
     "drawLayer": 1,
