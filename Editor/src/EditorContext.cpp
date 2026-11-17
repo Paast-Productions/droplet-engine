@@ -46,9 +46,9 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	m_selectedScene = newScene;
 }
 
-void Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
+std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
 {
-	m_engine.GetSceneManager().LoadScene(p_sceneName);
+	return m_engine.GetSceneManager().LoadScene(p_sceneName);
 }
 
 void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)
@@ -117,7 +117,7 @@ std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::GetActiveSc
 
 Droplet::Audio::AudioSystem& Droplet::Editor::EditorContext::GetAudioSystem()
 {
-	return  m_engine.GetSceneManager().GetAudioSystem();
+	return  Audio::AudioSystem::GetInstance();
 }
 
 Droplet::Editor::InteractionState &Droplet::Editor::EditorContext::GetInteractionState()

@@ -1,13 +1,18 @@
 #pragma once
 
+#include "Audio/Constants.hpp"
+
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 
+#include <dalia/dalia.h>
+
 
 namespace Droplet::Audio
 {
+	class Effect;
 	class AudioMixer;
 
 
@@ -18,12 +23,11 @@ namespace Droplet::Audio
 	class AudioBus
 	{
 	public:
-
 		/// @brief Bus initilization, setting the name and id for that audiobus
 		/// @param p_name Name
 		/// @param p_id ID
-		explicit AudioBus(const std::string& p_name, std::uint64_t p_id);
-		~AudioBus() = default;
+		explicit AudioBus(const std::string& p_name, std::uint64_t p_id, dalia::Engine* p_daliaEngine);
+		~AudioBus();
 		AudioBus() = delete;
 		AudioBus(AudioBus &&) = delete;
 		AudioBus &operator=(const AudioBus &) = delete;
@@ -38,7 +42,7 @@ namespace Droplet::Audio
 
 		/// @brief Gets the volume for the audio bus
 		/// @return 
-		float GetVolume() const { return m_volume; }
+		float GetVolume() const { return m_volumeDb; }
 
 		/// @brief HACK discuss with arvid how multiple buses volume should interact with each other in the hierarchy
 		/// @param p_volume The volume to set
@@ -66,12 +70,6 @@ namespace Droplet::Audio
 		/// @return Parent bus
 		AudioBus* GetParent() const;
 
-		/// @brief Adds a bus to the children vector,
-		/// The functions also makes sure that the bus to be childs current parrent relinquish current reference
-		/// @param p_audioBus 
-		/// @return 
-		AudioBus* AddChildBus(AudioBus* p_audioBus);
-
 		/// @brief Removes a bus from the child vector
 		/// @param p_audioBus The child that is to unchild
 		void RemoveChildBus(const AudioBus* p_audioBus);
@@ -97,11 +95,32 @@ namespace Droplet::Audio
 		//---------------------------------------
 
 		nlohmann::json SerializeAudioBus();
-		void DeserializeAudioBus(nlohmann::json p_json, std::weak_ptr<AudioBus> p_parentBus);
+		void DeserializeAudioBus(const nlohmann::json &p_json);
+		void DeserializeEffect(const nlohmann::json &p_json);
 		
 
-	private:
 
+		//----------------------------------------
+		// Effects
+		//----------------------------------------
+		
+		/// @brief Adds a effect of the specified type to the audiobus.
+		Effect *AttachEffect(const std::string &p_effectType);
+
+		Effect *AttachEffect(std::unique_ptr<Effect> p_effect, std::optional<uint32_t> p_effecSlot = std::nullopt);
+
+		void RemoveEffect(Effect *p_effect);
+		void RemoveEffect(uint32_t p_slot);
+
+		void MoveEffect(uint32_t p_fromSlot, uint32_t p_toSlot);
+
+		Effect *GetEffect(uint32_t p_slot);
+
+		const std::array<std::unique_ptr<Effect>, MAX_EFFECTS> &GetAllEffects() const { return m_effects; }
+
+	private:
+		dalia::Engine* m_daliaEngine = nullptr;
+		
 		friend class AudioMixer;
 		uint64_t m_id = 0;
 
@@ -109,10 +128,16 @@ namespace Droplet::Audio
 
 		bool m_active = false;
 
+		bool m_started = false;
+
 		//Family
 		AudioBus* m_parent = nullptr;
 		std::vector<AudioBus*> m_children;
 
-		float m_volume = 1.0f;
+		float m_volumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
+
+		//Effects
+
+		std::array<std::unique_ptr<Effect>, MAX_EFFECTS> m_effects;
 	};
 }

@@ -1,5 +1,5 @@
-#include "AudioMixer.hpp"
-#include "AudioBus.hpp"
+#include "Audio/AudioMixer.hpp"
+
 using namespace Droplet::Audio;
 
 Droplet::Audio::AudioMixer::AudioMixer()
@@ -10,14 +10,13 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 {
 	m_daliaEngine = &p_dalia;
 	const uint64_t masterID = m_nextBusID++;
-	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID);
+	std::unique_ptr<AudioBus> master = std::make_unique<AudioBus>("Master", masterID, m_daliaEngine);
+	master->m_started = true;
 	m_masterBus = master.get();
 	m_buses.emplace(masterID, std::move(master));
 
 	// Using 'Master' as our bus identifier for dalia gives this waring :
 	// [DALIA WARNING] [API] CreateBus() - CreateBus called for existing bus (Master) with conflicting parent. Ignoring new parent.
-
-
 
 	dalia::Result res;
 	res = m_daliaEngine->CreateBus(m_masterBus->GetName().c_str()); // "Droplets master bus has the ID 0
@@ -25,6 +24,8 @@ void Droplet::Audio::AudioMixer::Initialize(dalia::Engine &p_dalia)
 	{
 		throw std::runtime_error("FAILED TO CREATE MASTER BUS");
 	}
+	nlohmann::json json;
+	DeserializeHierarchy(json);
 }
 
 AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, AudioBus* p_parent)
@@ -47,7 +48,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 
 	const uint64_t busID = m_nextBusID;
 
-	std::unique_ptr<AudioBus> newBus = std::make_unique<AudioBus>(p_name, busID);
+	std::unique_ptr<AudioBus> newBus = std::make_unique<AudioBus>(p_name, busID, m_daliaEngine);
 
 	AudioBus *busPointer = newBus.get();
 
@@ -67,7 +68,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 	}
 
 	SetBusParent(busPointer, p_parent);
-
+	busPointer->m_started = true; //HACK Maybe change this when doing deserialization of different mixes
 	m_nextBusID++;
 
 	return busPointer;
@@ -188,4 +189,84 @@ AudioBus *Droplet::Audio::AudioMixer::FindAudioBus(std::uint64_t p_id) const
 		return nullptr;
 	}
 	return it->second.get();
+}
+
+bool AudioMixer::SetBusVolume(std::uint64_t p_id, float p_volume)
+{
+	auto bus = FindAudioBus(p_id);
+
+	dalia::Result res;
+	res = m_daliaEngine->SetBusVolumeDb(bus->GetName().c_str(), p_volume);
+
+	if (res != dalia::Result::Ok)
+	{
+		//Om vi inte lyckas ändra volum på en buss har vi fanemig lyckats bra
+		return false;
+	}
+	
+	return true;
+}
+
+nlohmann::json Droplet::Audio::AudioMixer::SerializeHierarchy()
+{
+	// Serialize Master bus here, then recursivly serialize all the children
+
+	nlohmann::json json;
+	
+	json = m_masterBus->SerializeAudioBus();
+	json["SERIALIZATION_TYPE"] = std::string("AUDIO_BUS_HIERARCHY");
+	const std::filesystem::path busDirectory = ROOT_PATH "/GameData/AudioHierarchy/";
+	std::string fileName = "AudioBusHierarchy.json";
+	Droplet::Core::JsonIO::Write((busDirectory).string() + std::string(fileName),json);
+
+	return json;
+}
+
+void Droplet::Audio::AudioMixer::DeserializeHierarchy(const nlohmann::json& p_json)
+{
+	const std::string filePath = ROOT_PATH "/GameData/AudioHierarchy/AudioBusHierarchy.json";
+
+	nlohmann::json json = Droplet::Core::JsonIO::Read(filePath);
+
+	if (!json.contains("SERIALIZATION_TYPE"))
+	{
+		return;
+	}
+	
+	std::string serializationType = "AUDIO_BUS_HIERARCHY";
+	if (json["SERIALIZATION_TYPE"] != serializationType)
+	{
+		return;
+	}
+
+	m_masterBus->DeserializeAudioBus(json);
+
+	if (json.contains("children"))
+	{
+		for (const auto& childJson : json["children"])
+		{
+			DeserializeBus(childJson, m_masterBus);
+		}
+	}
+}
+
+void Droplet::Audio::AudioMixer::DeserializeBus(const nlohmann::json& p_json, AudioBus* p_parent)
+{
+
+	if (!p_json.contains("name"))
+	{
+		return;
+	}
+
+	auto bus = AddAudioBus(p_json["name"], p_parent);
+
+	bus->DeserializeAudioBus(p_json);
+
+	if (p_json.contains("children"))
+	{
+		for (const auto& childJson : p_json["children"])
+		{
+			DeserializeBus(childJson, bus);
+		}
+	}
 }
