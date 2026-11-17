@@ -48,9 +48,9 @@ void EditorContext::SetActiveScene(std::string p_sceneName)
 	m_selectedScene = newScene;
 }
 
-void EditorContext::CreateNewScene(std::string p_sceneName)
+std::weak_ptr<Droplet::Scene::Scene> EditorContext::CreateNewScene(std::string p_sceneName)
 {
-	m_engine.GetSceneManager().LoadScene(p_sceneName);
+	return m_engine.GetSceneManager().LoadScene(p_sceneName);
 }
 
 void EditorContext::SaveScene(const std::string &p_filepath)
@@ -119,7 +119,7 @@ std::weak_ptr<Droplet::Scene::Scene> EditorContext::GetActiveScene()
 
 Droplet::Audio::AudioSystem& EditorContext::GetAudioSystem()
 {
-	return  m_engine.GetSceneManager().GetAudioSystem();
+	return  Audio::AudioSystem::GetInstance();
 }
 
 InteractionState &EditorContext::GetInteractionState()
@@ -159,6 +159,8 @@ void EditorContext::EnterPlayMode()
 	}
 
 	EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
+    
+    Audio::AudioSystem::GetInstance().SetMode(true); // Notify AudioSystem
 }
 
 void EditorContext::PausePlayMode()
@@ -182,6 +184,8 @@ void EditorContext::PausePlayMode()
 		EngineFlagsOwner::SetUpdateFlags(flags);
 		m_isPaused = true;
 	}
+    
+    Audio::AudioSystem::GetInstance().SetGamePaused(m_isPaused);
 }
 
 void EditorContext::ExitPlayMode()
@@ -210,11 +214,10 @@ void EditorContext::ExitPlayMode()
 	// Restore to the state of each scene before entering play mode
 	for (auto &[name, state] : m_sceneStatesOnPlay)
 	{
-		CreateNewScene(name);
+	    auto scene = CreateNewScene(name);
+	    state.serializer.DeserializeScene(state.json, scene.lock());
 
-		auto scene = sceneManager.GetScene(name);
-
-		if (state.isActive != scene->IsActive())
+		if (state.isActive != scene.lock()->IsActive())
 		{
 			if (state.isActive)
 			{
@@ -230,9 +233,9 @@ void EditorContext::ExitPlayMode()
 		{
 			SetActiveScene(name);
 		}
-
-		state.serializer.DeserializeScene(state.json, scene);
 	}
 
 	m_sceneStatesOnPlay.clear();
+    
+    Audio::AudioSystem::GetInstance().SetMode(false); // Notify AudioSystem
 }

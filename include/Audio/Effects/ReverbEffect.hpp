@@ -1,5 +1,5 @@
 #pragma once
-#include <AudioSystem/Effect.hpp>
+#include <Audio/Effect.hpp>
 
 
 namespace Droplet::Audio
@@ -13,6 +13,10 @@ namespace Droplet::Audio
 
 		[[nodiscard]] std::string GetEffectTypeName() const override { return "ReverbEffect"; }
 		void Initilize();
+
+	protected:
+		void StartImpl();
+		void RenderUIImpl();
 	private:
 
 	};

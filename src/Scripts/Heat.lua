@@ -1,5 +1,6 @@
 ﻿local hazardComp = nil
 local heatDamage = nil
+local newDamage = nil
 
 local particleSystem = nil
 local isActive = false
@@ -10,6 +11,7 @@ local timer = 0
 function OnStart()
     hazardComp = self:GetHazardComponent()
     heatDamage = hazardComp:GetDamage()
+    newDamage = heatDamage
 
     isActive = true
     timer = math.random() * inactiveTime
@@ -79,4 +81,13 @@ end
 function RenderUI()
     ImGui.Text("Heat Hazard Active: " .. tostring(isActive))
     ImGui.Text("Timer: " .. tostring(timer))
+    
+	if hazardComp ~= nil then
+		local hasChanged = false
+		hasChanged, newDamage = ImGui.DragFloat("Damage", newDamage, 0.1, 0.0)
+		hazardComp:SetDamage(newDamage)
+		if hasChanged then
+			heatDamage = newDamage
+		end
+	end
 end
