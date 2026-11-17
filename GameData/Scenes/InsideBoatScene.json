@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 922,
+            "id": 2319,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -105,7 +105,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 925,
+                            "id": 2322,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -130,7 +130,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 924,
+                    "id": 2321,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -183,7 +183,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 927,
+                            "id": 2324,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -244,10 +244,16 @@
                                     },
                                     "id": 2,
                                     "type": "ScriptComponent"
+                                },
+                                {
+                                    "active": true,
+                                    "data": null,
+                                    "id": 3,
+                                    "type": "AudioListenerComponent"
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 928,
+                            "id": 2325,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -272,7 +278,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 926,
+                    "id": 2323,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -341,7 +347,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 923,
+            "id": 2320,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -394,7 +400,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 930,
+                    "id": 2327,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -437,7 +443,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 931,
+                    "id": 2328,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -485,7 +491,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 929,
+            "id": 2326,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -547,7 +553,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 933,
+                    "id": 2330,
                     "name": "wheel",
                     "transform": {
                         "position": [
@@ -597,7 +603,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 934,
+                    "id": 2331,
                     "name": "enginePart1",
                     "transform": {
                         "position": [
@@ -647,7 +653,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 935,
+                    "id": 2332,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -672,7 +678,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 936,
+                    "id": 2333,
                     "name": "BlackParticleSystem",
                     "prefab": "GameData\\Prefabs\\BlackParticleSystem.json",
                     "transform": {
@@ -698,7 +704,7 @@
                     "active": false,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 944,
+                    "id": 2341,
                     "name": "WhiteParticleSystem",
                     "prefab": "GameData\\Prefabs\\WhiteParticleSystem.json",
                     "transform": {
@@ -749,7 +755,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 952,
+                    "id": 2349,
                     "name": "EnginePart2",
                     "transform": {
                         "position": [
@@ -828,10 +834,44 @@
                     },
                     "id": 6,
                     "type": "PhysicsComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "attenuationCurve": 0,
+                        "busName": "LowerDeck",
+                        "doppler": false,
+                        "looping": false,
+                        "maxDistance": 100.0,
+                        "minDistance": 1.0,
+                        "pitch": 1.0,
+                        "soundGuid": 532502781020876188,
+                        "startTimeSeconds": 0.0,
+                        "volumeDb": -5.630000114440918
+                    },
+                    "id": 7,
+                    "type": "AudioEmitterComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "attenuationCurve": 0,
+                        "busName": "LowerDeck",
+                        "doppler": false,
+                        "looping": false,
+                        "maxDistance": 100.0,
+                        "minDistance": 1.0,
+                        "pitch": 1.0,
+                        "soundGuid": 938505333271004469,
+                        "startTimeSeconds": 0.1,
+                        "volumeDb": 0.3400000035762787
+                    },
+                    "id": 8,
+                    "type": "AudioEmitterComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 932,
+            "id": 2329,
             "name": "engine",
             "transform": {
                 "position": [
@@ -881,7 +921,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 953,
+            "id": 2350,
             "name": "Ladderhatch",
             "transform": {
                 "position": [
@@ -957,7 +997,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 955,
+                    "id": 2352,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1007,7 +1047,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 956,
+                    "id": 2353,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1076,7 +1116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 957,
+                    "id": 2354,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1127,7 +1167,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 958,
+                    "id": 2355,
                     "name": "InteractionNode",
                     "transform": {
                         "position": [
@@ -1152,7 +1192,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 954,
+            "id": 2351,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -1202,7 +1242,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 959,
+            "id": 2356,
             "name": "Postit",
             "transform": {
                 "position": [
