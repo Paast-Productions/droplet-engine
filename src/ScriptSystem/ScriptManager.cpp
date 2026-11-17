@@ -32,7 +32,7 @@ void Droplet::Script::ScriptManager::Shutdown()
 
 	for (auto &instance : m_scriptInstances)
 	{
-		instance->OnDestory();
+		instance->OnDestroy();
 	}
 
 	m_scriptInstances.clear();
@@ -449,6 +449,17 @@ void ScriptManager::CheckForFileChanges()
 		{
 			ReloadScript(scriptFile);
 		}
+	}
+}
+
+void Droplet::Script::ScriptManager::DestoryComponentScript(Droplet::Scene::Component *p_scriptComponent)
+{
+	auto *instance = GetComponentsScript(p_scriptComponent);
+
+	if (instance)
+	{
+		instance->OnDestroy();
+		DestroyInstance(instance);
 	}
 }
 

@@ -230,8 +230,7 @@ function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
     jit.on()
     jit.flush()
-    local scene = SceneManagerInstance:GetScene("MainScene")
-
+    
 	print("New Fih")
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
@@ -263,7 +262,8 @@ end
 
 function RenderUI()
     tracy.ZoneBeginN("Fih RenderUI")
-
+	trans = self:GetTransform()
+	orbitPoint = trans:GetPosition(TransformSpace.World)
 	ImGui.Spacing()
 
 	_, orbitPoint = ImGui.DragFloat3("Orbit Point", orbitPoint, 0.2)

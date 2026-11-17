@@ -159,6 +159,7 @@ void AudioEmitterComponent::StartImpl()
 
 void AudioEmitterComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     ImGui::PushID(this);
     
     // --- Resource Drag & Drop ---
@@ -289,6 +290,7 @@ void AudioEmitterComponent::RenderUIImpl()
 	}
     
     ImGui::PopID();
+#endif
 }
 
 void AudioEmitterComponent::ActiveChangedImpl(const bool p_active)

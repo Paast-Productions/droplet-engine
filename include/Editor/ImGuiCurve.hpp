@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _EDITOR
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_internal.h"
 
@@ -62,3 +63,4 @@ namespace ImGui
 		ImGuiWindowFlags windowFlags = 0
 	);
 };
+#endif

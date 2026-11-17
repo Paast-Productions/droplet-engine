@@ -3,25 +3,16 @@
     "roots": [
         {
             "active": true,
-            "children": [],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "EmitterTest.lua"
-                    },
-                    "id": 1,
-                    "type": "ScriptComponent"
-                }
-            ],
+            "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 1,
-            "name": "Script Node",
+            "id": 78,
+            "name": "RonnyCutout",
+            "prefab": "GameData\\Prefabs\\RonnyCutout.json",
             "transform": {
                 "position": [
-                    13.57772445678711,
-                    9.405526161193848,
-                    -26.972749710083008
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -30,8 +21,8 @@
                     0.0
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
+                    0.9999999403953552,
+                    0.9999999403953552,
                     1.0
                 ]
             }

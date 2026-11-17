@@ -41,6 +41,8 @@ namespace Droplet::Editor::Resource
 		/// @brief Initializes the resource browser window and sets its name.	
 		void InitImpl() override;
 
+		void RenderToolbar() override;
+
 		/// @brief Renders the resource browser window and handles user interactions within the window.
 		void RenderImpl() override;
 
@@ -87,5 +89,6 @@ namespace Droplet::Editor::Resource
 		
 		std::unordered_map<std::uint64_t, std::uint32_t> m_imGuiTexMap {};
 
+		std::string m_searchFilter = "";
 	};
 }

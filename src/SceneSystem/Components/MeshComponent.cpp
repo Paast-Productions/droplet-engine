@@ -1,15 +1,13 @@
 #include "MeshComponent.hpp"
 
-#include <ImGui/imgui.h>
-
 #include <SceneSystem/Scene.hpp>
-#include <Editor/DragDropFields.hpp>
 #include <Resource/ResourceManager.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
-#include <string>
+#include <Editor/DragDropFields.hpp>
 #include <Editor/ResourceSlot.hpp>
+#include <string>
 
 // imgui helper function
 
@@ -71,22 +69,25 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 {
 	Droplet::Graphics::RenderData renderData{};
 	renderData.fsData.GUID = m_shaderData.fs.GetGUID();
-
 	renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
 	renderData.tesData.GUID = m_shaderData.tes.GetGUID();
 	renderData.gsData.GUID = m_shaderData.gs.GetGUID();
 	renderData.vsData.GUID = m_shaderData.vs.GetGUID();
 
 	renderData.meshData.GUID = m_mesh.GetGUID();
-
 	renderData.texData.GUID = m_2dTexture.GetGUID();
+
+	renderData.transparent = m_transparent;
 
 	return renderData;
 }
 
 void MeshComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	using namespace ImGui;
+
+	Checkbox("Transparent", &m_transparent);
 
 	PushID(this);
 
@@ -210,6 +211,7 @@ void MeshComponent::RenderUIImpl()
     }
 	
 	PopID();
+#endif
 }
 
 nlohmann::json MeshComponent::SerializeImpl()
@@ -241,13 +243,14 @@ nlohmann::json MeshComponent::SerializeImpl()
 	json["gsName"] = m_gsDisplayName;
 	json["fsName"] = m_fsDisplayName;
 
+	// Settings
+	json["transparent"] = m_transparent;
 
 	return json;
 }
 
 void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_compJson)
 {
-
 	// GUIDS
 
 	if (p_compJson.contains("meshGUID"))
@@ -326,6 +329,12 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 	m_tesDisplayName = p_compJson["tesName"].get<std::string>();
 	m_gsDisplayName = p_compJson["gsName"].get<std::string>();
 	m_fsDisplayName = p_compJson["fsName"].get<std::string>();
+
+	// Settings
+	if (p_compJson.contains("transparent"))
+	{
+		m_transparent = p_compJson["transparent"].get<bool>();
+	}
 }
 
 void MeshComponent::SetMeshGUID(GUID p_guid)

@@ -4,7 +4,7 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
@@ -12,16 +12,18 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	using namespace Graphics::VK;
+	using namespace Graphics::Vulkan;
 	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
 
+#ifdef _EDITOR
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
 	{
 		m_texture = instance.CreateImGuiTexture(
 			m_target
 		);
 	}
+#endif
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -40,20 +42,15 @@ void CameraComponent::QueueRenderImpl()
 	{
 		// TODO
 
-		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+#ifdef _EDITOR
+		Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 			m_target, m_texture,
 			m_resolution.x, m_resolution.y
 		);
+#endif
 
 		m_dirty = false;
 	}
-	/*else if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
-	{
-		Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-			m_targetIndex, m_textureIndex,
-			m_resolution.x, m_resolution.y
-		);
-	}*/
 
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipAutoRender) || !m_autoRender)
 	{
@@ -98,6 +95,7 @@ void CameraComponent::EditorUpdateImpl()
 
 void CameraComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
 	using namespace ImGui;
 
 	m_uiSelected = true;
@@ -153,6 +151,7 @@ void CameraComponent::RenderUIImpl()
 
 		TreePop();
 	}
+#endif
 }
 
 void CameraComponent::SetResolution(glm::ivec2 p_resolution)
@@ -179,7 +178,7 @@ void CameraComponent::CullRenderables(const std::vector<std::pair<std::shared_pt
 			continue;
 		}
 
-		if (!DrawLayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
+		if (!Core::LayerUtility::IsLayerEnabled(node->GetDrawLayer(), m_drawLayerMask))
 		{
 			continue;
 		}
@@ -221,7 +220,6 @@ nlohmann::json CameraComponent::SerializeImpl()
 	{
 		cameraJson["fov"] = m_camera.GetFOV();
 		cameraJson["planes"] = { m_camera.GetPlanes().x, m_camera.GetPlanes().y };
-
 	}
 	compJson["camera"] = cameraJson;
 
@@ -229,6 +227,7 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["priority"] = m_priority;
 	compJson["autoRender"] = m_autoRender;
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
+	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
 
 	return compJson;
 }
@@ -280,6 +279,18 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 			int width = res[0].get<int>();
 			int height = res[1].get<int>();
 			SetResolution(glm::ivec2(width, height));
+		}
+	}
+
+	if (p_compJson.contains("clearColor"))
+	{
+		auto &color = p_compJson["clearColor"];
+		if (color.is_array() && color.size() == 4)
+		{
+			m_clearColor.r = color[0].get<float>();
+			m_clearColor.g = color[1].get<float>();
+			m_clearColor.b = color[2].get<float>();
+			m_clearColor.a = color[3].get<float>();
 		}
 	}
 

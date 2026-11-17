@@ -1,18 +1,8 @@
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <string>
-#include <string_view>
-#include <vector>
-
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_impl_vulkan.h>
-#include <ImGui/imgui_impl_sdl3.h>
-
 #include <Engine/EngineFlags.hpp>
 #include <Graphics/SDL/Window.hpp>
-#include <Graphics/VK/Renderer.hpp>
+#include <Graphics/Vulkan/Renderer.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
@@ -59,7 +49,7 @@ namespace Droplet
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
-		void AddEventListener(const EventListener& p_listener) { m_eventListeners.push_back(p_listener); }
+		void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
 		
 		/// @brief Is meant to enable other classes to use functionality from scenemanager
 		/// @return A reference to engines scenemanager
@@ -98,9 +88,9 @@ namespace Droplet
 
 		/// @brief The renderer instance, should only be one.
 		Graphics::Renderer m_renderer;
-
+				
 		/// @brief Registry containing the game's registered item definitions.
-		Droplet::Game::ItemRegistry m_itemRegistry;
+		Droplet::Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;

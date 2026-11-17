@@ -4,7 +4,11 @@ using namespace Droplet::Scene;
 
 void DamageComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
+
     ImGui::DragFloat("Damage", &m_damage, 0.1f, 0.0f, FLT_MAX);
+
+#endif
 }
 
 nlohmann::json DamageComponent::SerializeImpl()

@@ -7,6 +7,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EditorConfig.hpp>
 #include <EditorShortcuts.hpp>
+#include <TransformSnapping.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
 #include <cmath>
@@ -14,14 +15,14 @@
 #include <chrono>
 #include <iostream>
 #include <Graphics/DebugDraw.hpp>
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
-using namespace Droplet::Graphics::VK;
+using namespace Droplet::Graphics::Vulkan;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -228,8 +229,8 @@ void SceneViewWindow::InitImpl()
 	// TODO: 
 	//     Move this to the renderer and camera class. 
 	//     The camera should request the renderer to create a render target.
-	
-	using namespace Graphics::VK;
+	using namespace Graphics::Vulkan;
+
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
 	
 	m_editorContext->GetEditorCamera().SetTarget(instance.CreateRenderTarget(720, 720));
@@ -324,6 +325,12 @@ void SceneViewWindow::RenderToolbar()
 			ImGui::EndMenu();
 		}
 
+		bool keepTransformOnCopy = EditorConfig::LoadBool("KeepTransformOnCopy", true);
+		if (ImGui::Checkbox("Keep Transform On Copy-Paste", &keepTransformOnCopy))
+		{
+			EditorConfig::StoreBool("KeepTransformOnCopy", keepTransformOnCopy);
+		}
+
 		float gizmoSize = EditorConfig::LoadFloat("GizmoSize", 0.1f);
 		ImGui::SliderFloat("Gizmo size", &gizmoSize, 0.001f, .3f);
 		EditorConfig::StoreFloat("GizmoSize", gizmoSize);
@@ -377,6 +384,38 @@ void SceneViewWindow::RenderToolbar()
 			" - Scroll:        Move along view normal at constant rate\n"
 			" - Alt + Scroll:  Zoom towards pivot\n"
 		);
+
+		ImGui::EndMenu();
+	}
+
+	if (ImGui::BeginMenu("Snap"))
+	{
+		TransformSnapSettings snap = TransformSnapSettings::Load();
+
+		ImGui::TextDisabled(snap.enabled ? "Hold Alt to disable snapping" : "Hold Alt to enable snapping");
+
+		bool changed = false;
+		changed |= ImGui::Checkbox("Snap Enabled", &snap.enabled);
+
+
+		int modeIndex = snap.absolute ? 1 : 0;
+		if (ImGui::Combo("Snap Mode", &modeIndex, "Increment\0Grid\0"))
+		{
+			snap.absolute = modeIndex == 1;
+			changed = true;
+		}
+
+		ImGui::SeparatorText("Increments");
+
+		changed |= ImGui::DragFloat("Position", &snap.translate, 0.01f, 0.001f, FLT_MAX, "%.3f");
+		changed |= ImGui::DragFloat("Angle", &snap.rotate, 0.1f, 0.001f, 360.0f, "%.2f");
+		changed |= ImGui::DragFloat("Scale", &snap.scale, 0.01f, 0.001f, FLT_MAX, "%.3f");
+		changed |= ImGui::DragFloat("Bounds", &snap.bounds, 0.01f, 0.001f, FLT_MAX, "%.3f");
+
+		if (changed)
+		{
+			snap.Store();
+		}
 
 		ImGui::EndMenu();
 	}
@@ -738,6 +777,45 @@ void SceneViewWindow::RenderEditorView()
 				}
 
 				n->GetTransform().SetPosition(putPos, DTransform::Space::World);
+
+				// Rotate after snap
+				if (input.KeyHeld(Key::KeyShift) && hit.didHit)
+				{
+					glm::vec3 newUp = glm::normalize(hit.normal);
+					glm::vec3 oldForward = glm::vec3(0.0f, 0.0f, 1.0f);
+
+					// Project old forward onto the new surface plane
+					glm::vec3 newForward = oldForward - glm::dot(oldForward, newUp) * newUp;
+					if (glm::length(newForward) < 0.001f)
+					{
+						// Edge case where forward was parallel to normal
+						glm::vec3 oldRight = glm::vec3(1.0f, 0.0f, 0.0f);
+						newForward = glm::cross(newUp, oldRight);
+					}
+					newForward = glm::normalize(newForward);
+
+					// Calcualte the new right vector and recalculate new forwad
+					glm::vec3 newRight = glm::normalize(glm::cross(newForward, newUp));
+					newForward = glm::normalize(glm::cross(newUp, newRight));
+
+					glm::mat3 rotationMatrix(newRight, newUp, -newForward);
+					glm::quat newRotation = glm::quat_cast(rotationMatrix);
+
+					// Apply rotation
+					n->GetTransform().SetRotation(newRotation);
+
+					DebugDraw::DrawRay(
+						n->GetTransform().GetPosition(),
+						n->GetTransform().GetUp(),
+						glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+						false
+					);
+				}
+				else if (input.KeyHeld(Key::KeyShift) && !hit.didHit)
+				{
+					// Apply rotation
+					n->GetTransform().SetRotation(n->GetTransform().GetUp());
+				}
 			}
 		}
 	}
@@ -1035,7 +1113,6 @@ void SceneViewWindow::RenderGameView()
 	else
 	{
 		m_renderingGameView = true;
-	    
 
 		ImVec2 camRawSize = ImVec2((float)camera->GetResolution().x, (float)camera->GetResolution().y);
 		ImVec2 camAspect = ImVec2(camRawSize.x / camRawSize.y, 1.0f);
@@ -1174,12 +1251,16 @@ void SceneViewWindow::RenderGameView()
 		{
 			EngineFlagsOwner::SetUpdateFlags(UpdateFlags::EditorFlags);
 
-			// Reset the scene
+			// Deactivate active scene
 			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
-			m_editorContext->GetActiveScene().lock()->SetActive(false);
-			auto scene = m_editorContext->CreateNewScene(sceneName);
-			serializer.DeserializeScene(m_json, scene.lock());
+		    auto &sceneManager = m_editorContext->GetEngine().GetSceneManager();
+		    sceneManager.DeactivateScene(sceneName);
+		    
+		    // Create new scene from save data
+		    auto scene = m_editorContext->CreateNewScene(sceneName);
+		    serializer.DeserializeScene(m_json, scene.lock());
 			m_editorContext->SetActiveScene(sceneName);
+		    
 		    Audio::AudioSystem::GetInstance().SetMode(false);
 		}
 
@@ -1217,8 +1298,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 	glm::mat4 camViewMat = camera.GetViewMatrix();
 	glm::mat4 camProjMat = camera.GetProjectionMatrix();
 
-	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene(); // TODO: Make weak pointer // why is this even here?
-	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots(); // TODO: Make weak pointer // why is this even here?
+	std::weak_ptr<Droplet::Scene::Scene> selectedScene = m_editorContext->GetActiveScene();
+	std::vector<std::shared_ptr<Droplet::Scene::Node>> nodes = selectedScene.lock()->GetRoots();
 
 	// DebugDraw wireframe around selected nodes by their bounds
 	{
@@ -1233,6 +1314,13 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			glm::mat4 nodeMat = node.lock()->GetTransform().GetMatrix(DTransform::Space::World);
 			Math::OBB nodeOBB = node.lock()->GetBounds()->GetTransformedOBB(nodeMat);
+
+
+			DebugDraw::DrawBox(
+				nodeOBB,
+				glm::vec4(1.0f, 1.0f, 1.0f, 0.25f),
+				false, true
+			);
 
 			DebugDraw::DrawBox(
 				nodeOBB,
@@ -1250,10 +1338,67 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 		const auto &allSelected = interactionState.GetSelectedNodes();
 		std::vector<std::weak_ptr<DNode>> manipulated = GetManipulatableSelection(allSelected);
 
-		// TODO: Make this configurable by the user
 		ImGuizmo::OPERATION currentOperation = static_cast<ImGuizmo::OPERATION>(EditorConfig::LoadInt("manipulateOperation", 0));
 		ImGuizmo::MODE manipulateSpace = (ImGuizmo::MODE)EditorConfig::LoadInt("manipulateSpace", 0);
 		bool useBounds = EditorConfig::LoadBool("manipulateBounds", false);
+
+		// Snapping follows the "Snap Enabled" setting, inverted while Alt is held. ImGuizmo takes a single snap array
+		// per call, so the increment is chosen by the handle being dragged (or hovered, before the drag starts) to support Universal mode.
+		const TransformSnapSettings snapSettings = TransformSnapSettings::Load();
+		const bool snapActive = snapSettings.IsActive(ImGui::GetIO().KeyAlt);
+
+		SnapCategory snapCategory = SnapCategory::None;
+		float snapValues[3] = { 0.0f, 0.0f, 0.0f };
+		if (snapActive)
+		{
+			const ImGuizmo::MOVETYPE moveType = ImGuizmo::IsUsing() ? ImGuizmo::GetActiveMoveType() : ImGuizmo::GetHoveredMoveType();
+
+			float increment = 0.0f;
+			switch (moveType)
+			{
+			case ImGuizmo::MT_MOVE_X:
+			case ImGuizmo::MT_MOVE_Y:
+			case ImGuizmo::MT_MOVE_Z:
+			case ImGuizmo::MT_MOVE_YZ:
+			case ImGuizmo::MT_MOVE_ZX:
+			case ImGuizmo::MT_MOVE_XY:
+			case ImGuizmo::MT_MOVE_SCREEN:
+				snapCategory = SnapCategory::Translate;
+				increment = snapSettings.translate;
+				break;
+
+			case ImGuizmo::MT_ROTATE_X:
+			case ImGuizmo::MT_ROTATE_Y:
+			case ImGuizmo::MT_ROTATE_Z:
+			case ImGuizmo::MT_ROTATE_SCREEN:
+				snapCategory = SnapCategory::Rotate;
+				increment = snapSettings.rotate;
+				break;
+
+			case ImGuizmo::MT_SCALE_X:
+			case ImGuizmo::MT_SCALE_Y:
+			case ImGuizmo::MT_SCALE_Z:
+			case ImGuizmo::MT_SCALE_XYZ:
+				snapCategory = SnapCategory::Scale;
+				increment = snapSettings.scale;
+				break;
+
+			default:
+				break;
+			}
+
+			snapValues[0] = snapValues[1] = snapValues[2] = increment;
+		}
+
+		// Relative snapping is applied by ImGuizmo itself, measured from the transform at the start of the drag.
+		// Absolute snapping snaps the result after each frame. The gizmo then works on an unsnapped copy of the
+		// matrix, so small drags accumulate instead of stalling on the grid.
+		const bool absoluteMode = snapSettings.absolute;
+		const bool absoluteSnap = snapActive && absoluteMode && snapCategory != SnapCategory::None;
+		const float *snap = (snapActive && !absoluteMode && snapCategory != SnapCategory::None) ? snapValues : nullptr;
+
+		float boundsSnapValues[3] = { snapSettings.bounds, snapSettings.bounds, snapSettings.bounds };
+		const float *boundsSnap = (snapActive && snapSettings.bounds > 0.0f) ? boundsSnapValues : nullptr;
 
 		if (manipulated.size() == 1)
 		{
@@ -1265,8 +1410,10 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 			// If bounds should be active
 			float *bounds = useBounds ? &(aabb[0].x) : nullptr;
 
-			glm::mat4 nodeMatrix = selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
+			glm::mat4 nodeMatrix = (absoluteMode && ImGuizmo::IsUsing()) ? m_gizmoRawMatrix : selectedNode->GetTransform().GetMatrix(DTransform::Space::World);
 			glm::mat4 deltaMatrix = glm::mat4(1.0f);
+
+			ImGuizmo::AllowAxisFlip(false);
 
 			bool result = ImGuizmo::Manipulate(
 				&(camViewMat[0][0]),	// View matrix
@@ -1275,10 +1422,19 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				manipulateSpace,		// Space
 				&(nodeMatrix[0][0]),	// Matrix to manipulate
 				&(deltaMatrix[0][0]),	// Output delta matrix
-				nullptr,				// Optional snap values
+				snap,					// Optional snap values
 				bounds,					// Optional bounds
-				nullptr					// Optional bounds snap values
+				boundsSnap				// Optional bounds snap values
 			);
+
+			if (absoluteMode)
+			{
+				m_gizmoRawMatrix = nodeMatrix;
+				if (result && absoluteSnap)
+				{
+					SnapMatrixAbsolute(nodeMatrix, snapCategory, snapSettings);
+				}
+			}
 
 			if (result)
 			{
@@ -1313,16 +1469,28 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 				glm::vec3 pivot = glm::vec3(m_groupGizmoMatrix[3]);
 				if (!ImGuizmo::IsUsing())
 				{
+					Math::AABB fulSelectBox{ 
+						pivot + (m_groupGizmoBounds[0] + m_groupGizmoBounds[1]) * 0.5f, 
+						(m_groupGizmoBounds[1] - m_groupGizmoBounds[0]) * 0.5f
+					};
+
 					DebugDraw::DrawBox(
-						Math::OBB(pivot + (m_groupGizmoBounds[0] + m_groupGizmoBounds[1]) * 0.5f, (m_groupGizmoBounds[1] - m_groupGizmoBounds[0]) * 0.5f, glm::mat3(1.0f)),
-						glm::vec4(1.0f, 0.8f, 0.2f, 1.0f),
+						fulSelectBox,
+						glm::vec4(1.0f, 0.8f, 0.2f, 0.5f),
 						true, true
+					);
+
+					DebugDraw::DrawBox(
+						fulSelectBox,
+						glm::vec4(1.0f, 0.8f, 0.2f, 0.15f),
+						false, true
 					);
 				}
 
 				float *bounds = useBounds ? &(m_groupGizmoBounds[0].x) : nullptr;
 
 				glm::mat4 oldMatrix = m_groupGizmoMatrix;
+				glm::mat4 gizmoMatrix = (absoluteMode && ImGuizmo::IsUsing()) ? m_gizmoRawMatrix : m_groupGizmoMatrix;
 				glm::mat4 deltaMatrix = glm::mat4(1.0f);
 
 				bool result = ImGuizmo::Manipulate(
@@ -1330,12 +1498,22 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 					&(camProjMat[0][0]),
 					currentOperation,
 					manipulateSpace,
-					&(m_groupGizmoMatrix[0][0]),
+					&(gizmoMatrix[0][0]),
 					&(deltaMatrix[0][0]),
-					nullptr,
+					snap,
 					bounds,
-					nullptr
+					boundsSnap
 				);
+
+				if (absoluteMode)
+				{
+					m_gizmoRawMatrix = gizmoMatrix;
+					if (result && absoluteSnap)
+					{
+						SnapMatrixAbsolute(gizmoMatrix, snapCategory, snapSettings);
+					}
+				}
+				m_groupGizmoMatrix = gizmoMatrix;
 
 				if (result)
 				{
@@ -1376,7 +1554,7 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 		glm::mat4 editedView = camViewMat;
 		ImGuizmo::ViewManipulate(
-			&editedView[0][0], 
+			&editedView[0][0],
 			m_cameraPivotRadius, 
 			viewGizmoPos, 
 			ImVec2(viewGizmoSize, viewGizmoSize), 
@@ -1395,6 +1573,8 @@ void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMa
 
 			camera.SetPosition(glm::vec3(world[3]));
 			camera.SetOrientation(forward, up);
+
+			ApplyCameraPivot();
 		}
 
 		if (ImGuizmo::IsViewManipulateHovered() || ImGuizmo::IsUsingViewManipulate())
@@ -1422,12 +1602,15 @@ void SceneViewWindow::RenderOverlayQueue()
 	auto &overlay = ViewOverlayUI::Get();
 	auto &queue = overlay.GetQueue();
 
-	for (const auto &item : queue)
+	int index = 0;
+	for (const auto &[duration, item] : queue)
 	{
+		ImGui::PushID(index++);
 		item();
+		ImGui::PopID();
 	}
 
-	overlay.ClearQueue();
+	overlay.UpdateQueue();
 
 	ImGui::EndGroup();
 	ImGui::PopID();
@@ -1615,7 +1798,7 @@ void SceneViewWindow::FocusCameraOnSelection()
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::VK::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+	Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 		m_editorContext->GetEditorCamera().GetTarget(), 
 		m_editorContext->GetEditorCamera().GetTexture(), 
 		width, height

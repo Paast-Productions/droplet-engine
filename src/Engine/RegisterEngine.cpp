@@ -26,8 +26,9 @@ namespace Droplet
 		Droplet::Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Droplet::Scene::CameraComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Droplet::Scene::SkeletonComponent>(); });
 	}
+
 	void RegisterEngineBehaviours()
 	{
-		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour", []() { return std::make_unique<Droplet::Scene::ScriptBehaviour>(); });
+		Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour", []() { return std::make_unique<Scene::ScriptBehaviour>(); });
 	}
 }

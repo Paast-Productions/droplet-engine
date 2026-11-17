@@ -28,6 +28,8 @@ project "LuaJIT"
         targetBuildPath .. "/External/lib/buildvm.lib"
     }
 
+    local libPath = targetBuildPath .. "/External/lib"
+
     postbuildcommands {
         "{MKDIR} " .. AddQuotation(includePath),
         "{COPYFILE} " .. AddQuotation(moduleDirectory .. "/src/lua.h") .. " " .. AddQuotation(includePath),
@@ -35,14 +37,15 @@ project "LuaJIT"
         "{COPYFILE} " .. AddQuotation(moduleDirectory .. "/src/lauxlib.h") .. " " .. AddQuotation(includePath),
         "{COPYFILE} " .. AddQuotation(moduleDirectory .. "/src/lualib.h") .. " " .. AddQuotation(includePath),
         "{COPYFILE} " .. AddQuotation(moduleDirectory .. "/src/luajit.h") .. " " .. AddQuotation(includePath),
-        "{MOVE} " .. moduleDirectory .. "/src/minilua.lib " .. targetBuildPath .. "/External/lib",
-        "{MOVE} " .. moduleDirectory .. "/src/buildvm.lib " .. targetBuildPath .. "/External/lib",
-        "{MOVE} " .. moduleDirectory .. "/src/lua51.lib " .. targetBuildPath .. "/External/lib",
-        "{MOVE} " .. moduleDirectory .. "/src/luajit.lib " .. targetBuildPath .. "/External/lib",
         
-        "{DELETE} " .. moduleDirectory .. "/src/*.pdb",
-        "{DELETE} " .. moduleDirectory .. "/src/*.exe",
-        "{DELETE} " .. moduleDirectory .. "/src/*.exp",
-        "{DELETE} " .. moduleDirectory .. "/src/luajit.h",
-        "{DELETE} " .. moduleDirectory .. "/src/luajit_relver.txt",
+        "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/minilua.lib") .. " " .. AddQuotation(libPath),
+        "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/buildvm.lib") .. " " .. AddQuotation(libPath),
+        "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/lua51.lib") .. " " .. AddQuotation(libPath),
+        "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/luajit.lib") .. " " .. AddQuotation(libPath),
+        
+        "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/*.pdb"),
+        "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/*.exe"),
+        "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/*.exp"),
+        "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/luajit.h"),
+        "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/luajit_relver.txt"),
     }

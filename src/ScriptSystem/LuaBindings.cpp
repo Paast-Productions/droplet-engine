@@ -2171,6 +2171,7 @@ void LuaBindings::RegisterInput(sol::state_view p_luaState)
 
 void LuaBindings::RegisterImGui(sol::state_view p_luaState)
 {
+#ifdef _EDITOR
 	ZoneScoped;
 
 	// Enums
@@ -2733,6 +2734,7 @@ void LuaBindings::RegisterImGui(sol::state_view p_luaState)
 			}
 		);
 	}
+#endif
 }
 
 void LuaBindings::RegisterTracy(sol::state_view p_luaState)

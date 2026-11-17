@@ -49,7 +49,6 @@ namespace Droplet::Script
 		/// @param ScriptComponent to call its script instance
 		void StartComponent(Droplet::Scene::Component *p_scriptComponent);
 
-
 		/// @brief Starts the behaviour.
 		/// This should be called once the scene starts with the script system.
 		/// @param ScriptBehaviour to call its script instance
@@ -78,6 +77,11 @@ namespace Droplet::Script
 		/// @param p_scirptBehaviour Behaviour that will connect to the script instance.
 		/// @param p_scriptFile Path to the Lua script file associated with the instance.
 		void CreateBehaviourScript(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile);
+
+		/// @brief Delete a script instance form its component 
+		/// @param p_scriptComponent 
+		/// @param p_scriptComponent Component that will connect to the script instance
+		void DeleteComponentScript(Droplet::Scene::Component *p_scriptComponent);
 		
 		/// @brief Runs the script components onTrigger function 
 		/// This should be called once per fixed frame to allow active scripts to perform

@@ -1,4 +1,5 @@
 #pragma once
+#ifdef _EDITOR
 #include <ImGui/imgui.h>
 #include <string>
 #include <string_view>
@@ -48,3 +49,4 @@ namespace Droplet::Editor
         char name[256];
     };
 }
+#endif

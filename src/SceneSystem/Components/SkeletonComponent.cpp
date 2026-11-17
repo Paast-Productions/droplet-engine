@@ -1,7 +1,5 @@
 #include <SceneSystem/Components/SkeletonComponent.hpp>
 
-#include <ImGui/imgui.h>
-
 #include <Editor/ResourceSlot.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -247,6 +245,7 @@ void SkeletonComponent::EditorUpdateImpl()
 
 void SkeletonComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     using namespace ImGui;
 
     PushID(this);
@@ -279,6 +278,7 @@ void SkeletonComponent::RenderUIImpl()
     Text("Bones: %zu", m_boneNodes.size());
 
     PopID();
+#endif
 }
 
 nlohmann::json SkeletonComponent::SerializeImpl()

@@ -9,6 +9,20 @@
 
 using namespace Droplet::Scene;
 
+void Component::Construct()
+{
+	if (m_constructed)
+	{
+		return;
+	}
+	m_constructed = true;
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	ConstructImpl();
+}
+
 void Component::Start()
 {
 	[[unlikely]]
@@ -32,6 +46,8 @@ void Component::Start()
 
 void Component::Update()
 {
+	assert(m_constructed && "Component must be constructed before calling Update().");
+
 	if (!IsActiveSelf() || !m_started)
 	{
 		return;
@@ -71,6 +87,8 @@ void Component::FixedUpdate()
 
 void Component::EditorUpdate()
 {
+	assert(m_constructed && "Component must be constructed before calling EditorUpdate().");
+
 	if (!m_started)
 	{
 		return;
@@ -110,6 +128,7 @@ Droplet::Graphics::RenderData Component::GetRenderData()
 
 void Component::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
@@ -130,6 +149,20 @@ void Component::RenderUI()
 	}
 
 	ImGui::EndChild();
+#endif
+}
+
+void Droplet::Scene::Component::Destroy()
+{
+	if (!IsActiveSelf() || !m_started)
+	{
+		return;
+	}
+
+	ZoneScoped;
+	ZoneText(GetTypeName().data(), GetTypeName().size());
+
+	DestroyImpl();
 }
 
 std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer

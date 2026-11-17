@@ -17,6 +17,7 @@
 #include <SceneSystem/bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Graphics/DrawLayer.hpp>
+#include <SceneSystem/Physics/CollisionLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
@@ -65,6 +66,9 @@ namespace Droplet::Scene
         // Copy & Move is disabled to ensure pointers always remain valid
         // Copying/Moving a Node should be explicit and manual
 
+        /// @brief Called when the Node is constructed.
+        void Construct();
+
         /// @brief Starts the Node, its Components, and its children.
         ///
         /// Calls OnStart() on all Components attached to this Node and then
@@ -112,11 +116,27 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
         {
 			assert(
-                Graphics::DrawLayerUtility::IsSingleLayer(p_drawLayer) &&
+                Core::LayerUtility::IsSingleLayer(p_drawLayer) &&
                 "p_drawLayer must be a single layer"
             );
 
 			m_drawLayer = p_drawLayer;
+		}
+
+		/// @brief Gets the Node's collision layer mask.
+		///
+		/// The collision layer mask determines which collisions the Node and its Components will participate in.
+		///
+		/// @return The collision layer mask  of the collision layers the Node belongs to.
+		[[nodiscard]] CollisionLayer GetCollisionLayerMask() const
+		{
+			return m_collisionLayerMask;
+		}
+
+		/// @brief Sets the Node's collision layer mask.
+		void SetCollisionLayerMask(CollisionLayer p_collisionLayerMask)
+        {
+            m_collisionLayerMask = p_collisionLayerMask;
 		}
 
         /// @brief Sets whether the Node is active.
@@ -404,7 +424,13 @@ namespace Droplet::Scene
         /// Components will be rendered in.
         Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
-        /// @brief Indicates whether the Node has been started.
+		/// @brief Collision layer mask for the Node.
+        ///
+        /// The collision layer mask determines which collisions the Node and its
+		/// Components will participate in.
+		CollisionLayer m_collisionLayerMask = CollisionLayer::Layer1;
+
+        bool m_constructed = false;
         bool m_started = false;
 
 		// Transform
@@ -420,7 +446,7 @@ namespace Droplet::Scene
         std::vector<std::shared_ptr<Node>> m_children;
 
         // Scene
-
+          
         friend class Scene;
 
         /// @brief Weak reference to the Scene containing this Node.
