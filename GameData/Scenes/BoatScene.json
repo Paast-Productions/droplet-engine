@@ -21,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "Boat",
                         "textureGUID": 11383334654866500563,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -48,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 107,
+            "id": 1007,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -107,6 +108,7 @@
                         {
                             "active": true,
                             "data": {
+                                "data": "",
                                 "filepath": "CameraController.lua"
                             },
                             "id": 2,
@@ -114,7 +116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 109,
+                    "id": 1009,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -141,6 +143,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "Engine_Side/PlayerController.lua"
                     },
                     "id": 5,
@@ -168,6 +171,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "PlayerInteraction.lua"
                     },
                     "id": 7,
@@ -181,7 +185,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 108,
+            "id": 1008,
             "name": "Player",
             "transform": {
                 "position": [
@@ -209,7 +213,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 111,
+                    "id": 1011,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -235,7 +239,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 112,
+                    "id": 1012,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -263,7 +267,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 8,
-                    "id": 121,
+                    "id": 1021,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -304,6 +308,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "PodDoor",
                                 "textureGUID": 4743341834037859640,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -331,7 +336,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 122,
+                    "id": 1022,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -358,8 +363,8 @@
                 {
                     "active": true,
                     "data": {
-                        "button": 121,
-                        "player": 108,
+                        "button": 1021,
+                        "player": 1008,
                         "reach": 1.0,
                         "targetSceneName": "Seafloor"
                     },
@@ -368,7 +373,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 110,
+            "id": 1010,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -412,6 +417,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -420,7 +426,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 124,
+                    "id": 1024,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -461,6 +467,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -469,7 +476,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 125,
+                    "id": 1025,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -510,6 +517,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -518,7 +526,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 126,
+                    "id": 1026,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -559,6 +567,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -567,7 +576,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 127,
+                    "id": 1027,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -608,6 +617,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -616,7 +626,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 128,
+                    "id": 1028,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -657,6 +667,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -665,7 +676,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 129,
+                    "id": 1029,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -706,6 +717,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -714,7 +726,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 130,
+                    "id": 1030,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -755,6 +767,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -763,7 +776,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 131,
+                    "id": 1031,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -804,6 +817,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -812,7 +826,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 132,
+                    "id": 1032,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -853,6 +867,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -861,7 +876,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 133,
+                    "id": 1033,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -902,6 +917,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -910,7 +926,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 134,
+                    "id": 1034,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -951,6 +967,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -959,7 +976,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 135,
+                    "id": 1035,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1000,6 +1017,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1008,7 +1026,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 136,
+                    "id": 1036,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1049,6 +1067,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1057,7 +1076,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 137,
+                    "id": 1037,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1098,6 +1117,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1106,7 +1126,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 138,
+                    "id": 1038,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1147,6 +1167,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1155,7 +1176,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 139,
+                    "id": 1039,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1196,6 +1217,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1204,7 +1226,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 140,
+                    "id": 1040,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1245,6 +1267,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1253,7 +1276,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 141,
+                    "id": 1041,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1294,6 +1317,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1302,7 +1326,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 142,
+                    "id": 1042,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1343,6 +1367,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1351,7 +1376,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 143,
+                    "id": 1043,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1392,6 +1417,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1400,7 +1426,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 144,
+                    "id": 1044,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1441,6 +1467,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1449,7 +1476,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 145,
+                    "id": 1045,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1490,6 +1517,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1498,7 +1526,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 146,
+                    "id": 1046,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1539,6 +1567,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1547,7 +1576,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 147,
+                    "id": 1047,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1588,6 +1617,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
                             },
@@ -1596,7 +1626,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 148,
+                    "id": 1048,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1621,7 +1651,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 123,
+            "id": 1023,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1665,6 +1695,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "BaseFish",
                                 "textureGUID": 7280437410301382172,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -1673,7 +1704,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 150,
+                    "id": 1050,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -1698,7 +1729,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 149,
+            "id": 1049,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -1739,6 +1770,7 @@
                         "tesName": "",
                         "textureDisplayName": "Portrait",
                         "textureGUID": 10240792835275847271,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1747,7 +1779,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 151,
+            "id": 1051,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -1788,6 +1820,7 @@
                         "tesName": "",
                         "textureDisplayName": "Crane",
                         "textureGUID": 12409680937219033218,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1796,7 +1829,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 152,
+            "id": 1052,
             "name": "Crane",
             "transform": {
                 "position": [
@@ -1831,6 +1864,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "ladder.lua"
                     },
                     "id": 2,
@@ -1846,7 +1880,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 153,
+            "id": 1053,
             "name": "Empty Node",
             "transform": {
                 "position": [
@@ -1888,8 +1922,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "postit_inventory",
-                                "textureGUID": 18076552713249502673,
+                                "textureDisplayName": "postit_heatshield",
+                                "textureGUID": 16495453954712892499,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -1898,7 +1933,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 155,
+                    "id": 1055,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -1933,14 +1968,15 @@
                         {
                             "active": true,
                             "data": {
-                                "filepath": "RepairBench.lua"
+                                "data": "",
+                                "filepath": "UpgradeBench.lua"
                             },
                             "id": 2,
                             "type": "ScriptComponent"
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 156,
+                    "id": 1056,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -1979,6 +2015,7 @@
                         "tesName": "",
                         "textureDisplayName": "WoodTexture",
                         "textureGUID": 1466059150086384494,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2006,7 +2043,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 154,
+            "id": 1054,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -2036,7 +2073,7 @@
                     "collisionLayerMask": 1,
                     "components": [
                         {
-                            "active": true,
+                            "active": false,
                             "data": {
                                 "fs": 13680123319807966343,
                                 "fsName": "Base.FS",
@@ -2050,6 +2087,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "postit_inventory",
                                 "textureGUID": 18076552713249502673,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -2058,7 +2096,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 158,
+                    "id": 1058,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -2085,7 +2123,7 @@
                     "collisionLayerMask": 1,
                     "components": [
                         {
-                            "active": true,
+                            "active": false,
                             "data": null,
                             "id": 1,
                             "type": "InteractableComponent"
@@ -2093,14 +2131,15 @@
                         {
                             "active": true,
                             "data": {
-                                "filepath": "RepairBench.lua"
+                                "data": "",
+                                "filepath": ""
                             },
                             "id": 2,
                             "type": "ScriptComponent"
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 159,
+                    "id": 1059,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -2125,7 +2164,7 @@
             "collisionLayerMask": 1,
             "components": [
                 {
-                    "active": true,
+                    "active": false,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -2139,6 +2178,7 @@
                         "tesName": "",
                         "textureDisplayName": "WoodTexture",
                         "textureGUID": 1466059150086384494,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2166,7 +2206,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 157,
+            "id": 1057,
             "name": "repair bench",
             "transform": {
                 "position": [

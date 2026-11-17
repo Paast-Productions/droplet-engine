@@ -21,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "room.001",
                         "textureGUID": 12984381543868828614,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -48,11 +49,11 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1369,
+            "id": 1,
             "name": "Mesh Node",
             "transform": {
                 "position": [
-                    -0.6327710151672363,
+                    -0.6299999952316284,
                     1.5800002813339233,
                     1.3541151285171509
                 ],
@@ -95,6 +96,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
                                     },
@@ -103,7 +105,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 1372,
+                            "id": 4,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -128,7 +130,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1371,
+                    "id": 3,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -172,6 +174,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
                                     },
@@ -180,7 +183,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1374,
+                            "id": 6,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -236,6 +239,7 @@
                                 {
                                     "active": true,
                                     "data": {
+                                        "data": "",
                                         "filepath": "CameraController.lua"
                                     },
                                     "id": 2,
@@ -243,7 +247,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1375,
+                            "id": 7,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -268,7 +272,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1373,
+                    "id": 5,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -295,6 +299,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "Engine_Side/PlayerController.lua"
                     },
                     "id": 5,
@@ -328,6 +333,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "PlayerInteraction.lua"
                     },
                     "id": 8,
@@ -335,7 +341,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1370,
+            "id": 2,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -365,7 +371,7 @@
                     "collisionLayerMask": 1,
                     "components": [
                         {
-                            "active": true,
+                            "active": false,
                             "data": {
                                 "fs": 13680123319807966343,
                                 "fsName": "Base.FS",
@@ -379,6 +385,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "postit_inventory",
                                 "textureGUID": 18076552713249502673,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -387,7 +394,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1377,
+                    "id": 9,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -414,7 +421,7 @@
                     "collisionLayerMask": 1,
                     "components": [
                         {
-                            "active": true,
+                            "active": false,
                             "data": null,
                             "id": 1,
                             "type": "InteractableComponent"
@@ -422,14 +429,15 @@
                         {
                             "active": true,
                             "data": {
-                                "filepath": "BoatEngine.lua"
+                                "data": "",
+                                "filepath": "RepairBench.lua"
                             },
                             "id": 2,
                             "type": "ScriptComponent"
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1378,
+                    "id": 10,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -454,7 +462,7 @@
             "collisionLayerMask": 1,
             "components": [
                 {
-                    "active": true,
+                    "active": false,
                     "data": {
                         "fs": 13680123319807966343,
                         "fsName": "Base.FS",
@@ -468,6 +476,7 @@
                         "tesName": "",
                         "textureDisplayName": "WoodTexture",
                         "textureGUID": 1466059150086384494,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -495,7 +504,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1376,
+            "id": 8,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -537,8 +546,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "Engine_wheel_base",
+                                "textureGUID": 17241713306127645820,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -548,6 +558,7 @@
                         {
                             "active": true,
                             "data": {
+                                "data": "",
                                 "filepath": "MeshToggle.lua"
                             },
                             "id": 2,
@@ -555,7 +566,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1380,
+                    "id": 12,
                     "name": "wheel",
                     "transform": {
                         "position": [
@@ -594,8 +605,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "Engine_piston_base",
+                                "textureGUID": 6638664435348355905,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -604,7 +616,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1381,
+                    "id": 13,
                     "name": "enginePart1",
                     "transform": {
                         "position": [
@@ -643,8 +655,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "Engine_pipe_base",
+                                "textureGUID": 6009733634999816850,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -653,13 +666,13 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1382,
+                    "id": 14,
                     "name": "EnginePart2",
                     "transform": {
                         "position": [
-                            0.00011467934382380918,
-                            -0.00010123849642695859,
-                            -6.234646571101621e-05
+                            0.00013855303404852748,
+                            -0.00010123848915100098,
+                            9.47713851928711e-05
                         ],
                         "rotation": [
                             1.0,
@@ -671,6 +684,56 @@
                             1.0001174211502075,
                             1.0,
                             1.0001174211502075
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Postit-CurveBottomAndOneTop",
+                                "meshGUID": 9885575008883634193,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "postit_engine",
+                                "textureGUID": 1514657272271437138,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 15,
+                    "name": "Postit",
+                    "transform": {
+                        "position": [
+                            0.47384750843048096,
+                            0.2729288637638092,
+                            0.3074526786804199
+                        ],
+                        "rotation": [
+                            0.8896328806877136,
+                            0.4526667594909668,
+                            0.04515072703361511,
+                            -0.04009436443448067
+                        ],
+                        "scale": [
+                            0.09503073990345001,
+                            0.09500565379858017,
+                            0.0950244590640068
                         ]
                     }
                 }
@@ -690,8 +753,9 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
+                        "textureDisplayName": "Engine_core_base",
+                        "textureGUID": 5790963320270409106,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -707,7 +771,8 @@
                 {
                     "active": true,
                     "data": {
-                        "filepath": "BoatEngine.lua"
+                        "data": "",
+                        "filepath": "BoatEngine2.lua"
                     },
                     "id": 3,
                     "type": "ScriptComponent"
@@ -716,30 +781,30 @@
                     "active": true,
                     "data": {
                         "h": 0.0,
-                        "halfExtentsX": 0.0,
-                        "halfExtentsY": 0.0,
-                        "halfExtentsZ": 0.0,
+                        "halfExtentsX": 0.6027148962020874,
+                        "halfExtentsY": 0.5066168904304504,
+                        "halfExtentsZ": 0.7830383777618408,
                         "layer": 0,
-                        "meshGUID": 5634276424321119754,
+                        "meshGUID": 0,
                         "motionType": 0,
-                        "offsetX": 0.0,
-                        "offsetY": 0.0,
-                        "offsetZ": 0.0,
+                        "offsetX": 0.16899999976158142,
+                        "offsetY": 0.061000000685453415,
+                        "offsetZ": -0.04600000008940697,
                         "r": 0.0,
-                        "shapeType": 4
+                        "shapeType": 1
                     },
-                    "id": 4,
+                    "id": 6,
                     "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 1379,
+            "id": 11,
             "name": "engine",
             "transform": {
                 "position": [
-                    1.352189540863037,
+                    -0.5756015777587891,
                     -0.1507975161075592,
-                    -2.9316468238830566
+                    -2.0815792083740234
                 ],
                 "rotation": [
                     0.7071064710617065,
@@ -748,9 +813,9 @@
                     0.0
                 ],
                 "scale": [
-                    1.9996123313903809,
+                    1.9995113611221313,
                     2.0,
-                    1.9996123313903809
+                    1.9995113611221313
                 ]
             }
         },
@@ -774,6 +839,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -782,7 +848,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1383,
+            "id": 16,
             "name": "Ladderhatch",
             "transform": {
                 "position": [
@@ -824,8 +890,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "LadderTexture",
+                                "textureGUID": 18253026009604601898,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -849,6 +916,7 @@
                         {
                             "active": true,
                             "data": {
+                                "data": "",
                                 "filepath": "ladder.lua"
                             },
                             "id": 4,
@@ -856,7 +924,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1385,
+                    "id": 18,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -865,10 +933,10 @@
                             -0.03041219711303711
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.0077103725634515285,
-                            -3.7109422201808684e-09,
-                            1.891620859950649e-09
+                            0.9999702572822571,
+                            0.007710371632128954,
+                            -3.7109417760916585e-09,
+                            1.891620637906044e-09
                         ],
                         "scale": [
                             1.0000537633895874,
@@ -895,8 +963,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "LadderTexture",
+                                "textureGUID": 18253026009604601898,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -905,7 +974,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1386,
+                    "id": 19,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -914,10 +983,10 @@
                             0.030334830284118652
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.007710393518209457,
-                            -3.7399146002314865e-09,
-                            1.892535905767545e-09
+                            0.9999702572822571,
+                            0.007710392586886883,
+                            -3.739914156142277e-09,
+                            1.89253568372294e-09
                         ],
                         "scale": [
                             0.9999998807907104,
@@ -944,8 +1013,9 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "LadderTexture",
+                                "textureGUID": 18253026009604601898,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -973,7 +1043,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1387,
+                    "id": 20,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -982,10 +1052,10 @@
                             -0.00011396408081054688
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.007710376754403114,
-                            -3.7110656769812067e-09,
-                            1.8918746569340783e-09
+                            0.9999702572822571,
+                            0.00771037582308054,
+                            -3.711065232891997e-09,
+                            1.8918744348894734e-09
                         ],
                         "scale": [
                             1.0,
@@ -1016,6 +1086,7 @@
                         {
                             "active": true,
                             "data": {
+                                "data": "",
                                 "filepath": "ladder.lua"
                             },
                             "id": 3,
@@ -1023,7 +1094,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1388,
+                    "id": 21,
                     "name": "InteractionNode",
                     "transform": {
                         "position": [
@@ -1048,7 +1119,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 1384,
+            "id": 17,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -1066,6 +1137,56 @@
                     1.119971752166748,
                     1.1200000047683716,
                     1.119971752166748
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Postit-CurveBottomAndOneTop",
+                        "meshGUID": 9885575008883634193,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "postit_engine_piece",
+                        "textureGUID": 2402485206437281696,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 22,
+            "name": "Postit",
+            "transform": {
+                "position": [
+                    2.5209217071533203,
+                    0.9090582132339478,
+                    2.9855568408966064
+                ],
+                "rotation": [
+                    0.503379225730896,
+                    0.49678316712379456,
+                    -0.4965762794017792,
+                    0.5032174587249756
+                ],
+                "scale": [
+                    0.17998836934566498,
+                    0.178740456700325,
+                    0.17876096069812775
                 ]
             }
         }
