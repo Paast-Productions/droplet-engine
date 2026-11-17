@@ -89,3 +89,27 @@ void ScriptBehaviour::AttachScript(const std::string p_scriptPath)
 
 	ScriptSystem::Get().CreateBehaviourScript(this, m_scriptPath);
 }
+
+nlohmann::json ScriptBehaviour::SerializeImpl()
+{
+	nlohmann::json json;
+
+	json["scriptPath"] = m_scriptPath;
+
+	json["data"] = ScriptSystem::Get().SerializeBehaviour(this);
+
+	return json;
+}
+
+void ScriptBehaviour::DeserializeImpl(const nlohmann::json p_behJson)
+{
+	if (p_behJson.contains("filepath"))
+	{
+		AttachScript(p_behJson["filepath"]);
+
+		if (p_behJson.contains("data"))
+		{
+			ScriptSystem::Get().DeserializeBehaviour(this, p_behJson["data"]);
+		}
+	}
+}

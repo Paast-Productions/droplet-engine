@@ -15,7 +15,6 @@
 #include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
-#include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
 #include <HazardComponent.hpp>
@@ -23,6 +22,7 @@
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
 #include <PhysicsComponent.hpp>
+#include <CollectibleTypeComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
@@ -104,6 +104,18 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
+		"GetChildren", [](Scene::Node &node)
+		{
+			auto childrenShared = node.GetChildren();
+			std::vector<Scene::Node*> children;
+			children.reserve(childrenShared.size());
+
+			for (auto &child : childrenShared)
+			{
+				children.push_back(child.get());
+			}
+			return sol::as_table(std::move(children));
+		},
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
 		{
@@ -159,6 +171,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::LadderComponent>();
+		},
+		"GetCollectibleTypeComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CollectibleTypeComponent>();
 		}
 				
 	);
@@ -173,6 +190,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
 		{"GetParent", "Node", {}},
+		{"GetChildren", "table", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
 		{"GetPhysicsComponent", "PhysicsComponent", {}},

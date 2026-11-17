@@ -1,5 +1,5 @@
 
-local fishSystem = require("FishSystem")
+local suctionSystem = require("SuctionSystem")
 local scene
 
 local interactionRange = 30.0
@@ -13,11 +13,10 @@ local currentTarget = nil
 local suctionElapsed = 0.0
 
 local playerBehaviour
-local woodId
 
-function InteractWithFish(target)
+function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
-    local targetPosition = target:GetTransform():GetPosition()
+    local targetPosition = target.node:GetTransform():GetPosition()
 
     local forward = self:GetTransform():GetForward()
 
@@ -57,9 +56,10 @@ function InteractWithFish(target)
 
     return dot >= threshold
 
-end
+end 
 
 function SuctionStart(target)
+    print("suctionStart")
     currentTarget = target
     suctionElapsed = 0.0
 end
@@ -77,7 +77,7 @@ function SuctionUpdate(dt)
     suctionElapsed = suctionElapsed + dt
 
     local playerPosition = self:GetTransform():GetPosition()
-    local fishTransform = currentTarget:GetTransform()
+    local fishTransform = currentTarget.node:GetTransform()
     local fishPosition = fishTransform:GetPosition()
 
     local direction = Vec3.new( 
@@ -111,21 +111,31 @@ function SuctionUpdate(dt)
         fishPosition.z + direction.z * movement
     )
 
+    print("Succc Succc", newPosition.x, newPosition.y, newPosition.z)
     fishTransform:SetPosition(newPosition)
 
 end
 
 function SuctionEnd()
-    local fish = currentTarget
+
+    local collectible = currentTarget
+    
+    if collectible.item and collectible.item:IsValid() then
+        playerBehaviour:AddItem(
+            InventoryType.Player,
+            collectible.item,
+            collectible.amount
+        )
+        print("Collected item:", collectible.amount)
+    else
+        print("Collectible has invalid ItemId", collectible.item)
+    end
 
     currentTarget = nil
     suctionElapsed = 0.0
 
-    fishSystem.UnregisterFish(fish)
-    scene:RemoveNode(fish)
-    
-    playerBehaviour:AddItem(InventoryType.Player, woodId, 10)
-    print("Fish is yum: ")
+    suctionSystem.UnregisterCollectible(collectible.node)
+    scene:RemoveNode(collectible.node)
 end
 
 function SuctionCancel()
@@ -133,16 +143,27 @@ function SuctionCancel()
     suctionElapsed = 0.0
 end
 
-
 function OnStart()
     scene = self:GetScene()
-    playerBehaviour = self:GetPlayerComponent():GetPlayerBehaviour()
-    local registry = playerBehaviour:GetItemRegistry()
-    woodId = registry:Find("resource:wood")
-    if woodId == nil or not woodId:IsValid() then
-        print("Wood item is not registered!")
-        woodId = nil
+
+    local playerComponent = self:GetPlayerComponent()
+    if not playerComponent then
+        print("GetPlayerComponent returned nil")
+        return
     end
+
+    playerBehaviour = playerComponent:GetPlayerBehaviour()
+    if not playerBehaviour then
+        print("GetPlayerBehaviour returned nil")
+        return
+    end
+
+    local registry = playerBehaviour:GetItemRegistry()
+    if not registry then
+        print("GetItemRegistry returned nil")
+        return
+    end
+
 end
 
 function OnUpdate(dt)
@@ -152,10 +173,26 @@ function OnUpdate(dt)
         return
     end
 
-    for _, fish in ipairs(fishSystem.GetFishes()) do
-        if InteractWithFish(fish) then
-           if Input:KeyPressed(Key.E) then
+    for _, fish in ipairs(suctionSystem.GetFishes()) do
+        if Input:KeyPressed(Key.E) then
+            if InteractWith(fish) then
                 SuctionStart(fish)
+                return
+           end
+        end
+    end
+    for _, upgrade in ipairs(suctionSystem.GetUpgrads()) do        
+        if Input:KeyPressed(Key.E) then
+            if InteractWith(upgrade) then
+                SuctionStart(upgrade)
+                return
+           end
+        end
+    end
+    for _, brokenPart in ipairs(suctionSystem.GetBrokenParts()) do        
+        if Input:KeyPressed(Key.E) then
+            if InteractWith(brokenPart) then
+                SuctionStart(brokenPart)
                 return
            end
         end
