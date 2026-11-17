@@ -28,8 +28,8 @@ namespace Droplet::Graphics
     // Forward declarations
     class Renderer;
     class RenderTarget;
-    class RenderData;
     class ImGuiTexture; 
+    struct RenderData;
 }
 
 namespace Droplet::Graphics::Vulkan
