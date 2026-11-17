@@ -6,14 +6,14 @@
 #include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <SceneSystem/Components/InteractableComponent.hpp>
-#include <LuaBindings.hpp>  
+#include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
 #include <Component.hpp>
 #include "ItemRegistry.hpp"
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -76,11 +76,11 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 		"SetAutoRender", &Scene::CameraComponent::SetAutoRender,
 		"TriggerRender", &Scene::CameraComponent::TriggerRender,
 
-		"GetTargetIndex", &Scene::CameraComponent::GetTargetIndex,
-		"SetTargetIndex", &Scene::CameraComponent::SetTargetIndex,
+		"GetTarget", &Scene::CameraComponent::GetTarget,
+		"SetTarget", &Scene::CameraComponent::SetTarget,
 
-		"GetTextureIndex", &Scene::CameraComponent::GetTextureIndex,
-		"SetTextureIndex", &Scene::CameraComponent::SetTextureIndex
+		"GetTexture", &Scene::CameraComponent::GetTexture,
+		"SetTexture", &Scene::CameraComponent::SetTexture
 	);
 
     LuaClassDefinition classDef;

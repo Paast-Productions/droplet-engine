@@ -52,6 +52,7 @@ namespace Droplet::Scene
 
     void HealthComponent::RenderUIImpl()
     {
+#ifdef _EDITOR
         ImGui::DragFloat("Health", &m_health, 1.0f, 0.0f, m_maxHealth);
         ImGui::DragFloat("Max Health", &m_maxHealth, 1.0f, 0.0f);
 

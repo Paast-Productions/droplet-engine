@@ -2,13 +2,14 @@
 
 #include <IconFontCppHeaders/IconsLucide.h>
 
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_stdlib.h>
+
 #include <core/FileExplorer.hpp>
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 
-#include <ImGui/imgui.h>
-#include <ImGui/imgui_stdlib.h>
-#include <resource/types/TextureResource.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Editor::Resource;
 
@@ -17,22 +18,11 @@ namespace
 	static bool s_isPreviewingResource = false;
 }
 
-
 ResourceBrowser::~ResourceBrowser()
 {
 	if (m_previewResourceHandle.IsValid())
 	{
-		IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
 		m_previewResourceHandle = {};
-	}
-
-	if (m_previewCamera.textureIndex != Graphics::VK::INVALID_INDEX)
-	{
-		try // HACK: Until destruction order has been corrected
-		{
-			IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewCamera.textureIndex);
-		}
-		catch (...) { }
 	}
 
 	m_previewCamera = {};
@@ -41,6 +31,8 @@ ResourceBrowser::~ResourceBrowser()
 void ResourceBrowser::InitImpl()
 {
 	SetName("Resource Browser");
+	ToggleToolbar(true);
+
 	BuildBrowserTree(ResourceManager::GetInstance().GetRegisteredResources());
 
 	m_previewCamera.camera = Graphics::Camera(
@@ -52,11 +44,25 @@ void ResourceBrowser::InitImpl()
 		glm::vec2(0.1f, 100.0f) // Near and far planes
 	);
 
-	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
-	m_previewCamera.targetIndex = instance.CreateRenderTarget(m_previewCamera.resolution.x, m_previewCamera.resolution.y);
-	m_previewCamera.textureIndex = instance.CreateImGuiTexture(
-		instance.GetRenderTargetAt(m_previewCamera.targetIndex)
+	Graphics::Vulkan::IntermediaryStorage &instance = Graphics::Vulkan::IntermediaryStorage::GetInstance();
+	m_previewCamera.renderTarget = instance.CreateRenderTarget(m_previewCamera.resolution.x, m_previewCamera.resolution.y);
+	m_previewCamera.texture = instance.CreateImGuiTexture(
+		m_previewCamera.renderTarget
 	);
+}
+
+void ResourceBrowser::RenderToolbar()
+{
+	using namespace ImGui;
+	
+	if (Button("Register Resource"))
+	{
+		RegisterAsset();
+	}
+
+	Separator();
+
+	SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
 }
 
 void ResourceBrowser::RenderImpl()
@@ -69,12 +75,6 @@ void ResourceBrowser::RenderImpl()
 	ResourceManager &resManInstance = ResourceManager::GetInstance();
 	
 	// --- Registering Resources ---
-	
-	if (Button("Register Resource"))
-	{
-		RegisterAsset();
-	}
-	SameLine();
 	TextDisabled(std::filesystem::absolute(resManInstance.GetRootDirectory()).string().c_str());
 	Separator();
 	
@@ -217,7 +217,7 @@ void ResourceBrowser::RenderImpl()
 	{
 		if (m_previewResourceHandle.IsValid())
 		{
-			IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+			m_previewCamera.renderTarget = {};
 			m_previewResourceHandle = {};
 		}
 
@@ -303,6 +303,17 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 	{
 		if (!childNode.isDirectory)
 		{
+			if (!m_searchFilter.empty())
+			{
+				std::string lowerName = childName;
+				std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+				if (lowerName.find(m_searchFilter) == std::string::npos)
+				{
+					continue;
+				}
+			}
+
 			// --- Asset ---
 			std::string fileLabel = ICON_LC_FILE " " + childName;
 			bool isNodeOpen = TreeNodeEx(fileLabel.c_str(), ImGuiTreeNodeFlags_SpanAvailWidth);
@@ -567,29 +578,29 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 	switch (p_entry.type)
 	{
-	case ResourceType::Texture2D:
+	case StaticResourceType::Texture2D:
 		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
 		{
 			if (m_previewResourceHandle.IsValid())
 			{
-				IntermediaryStorage::GetInstance().RemoveImGuiTexture(m_previewResourceHandle.GetGUID());
+				m_previewCamera.texture = {};
 			}
 
 			m_isPreviewResourceLoaded = false;
 
-			ResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
+			StaticResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
 				p_entry.guid,
-				[this]([[maybe_unused]] ResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
+				[this]([[maybe_unused]] StaticResourceHandle<Texture2DResource> handle) { m_isPreviewResourceLoaded = true; }
 			);
 
-			m_previewResourceHandle = ResourceHandle<IResource>(textureHandle.GetGUID(), &resManInstance);
+			m_previewResourceHandle = StaticResourceHandle<IStaticResource>(textureHandle.GetGUID(), &resManInstance);
 		}
 
 		if (m_isPreviewResourceLoaded)
 		{
 			GUID guid = m_previewResourceHandle.GetGUID();
 
-			ResourceHandle<Texture2DResource> texHandle = ResourceHandle<Texture2DResource>(guid, &resManInstance);
+			StaticResourceHandle<Texture2DResource> texHandle = StaticResourceHandle<Texture2DResource>(guid, &resManInstance);
 			Texture2DResource *texture = texHandle.Get();
 
 			// Calculate the size to maintain aspect ratio
@@ -612,7 +623,8 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
 			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			ImTextureRef textureRef = IntermediaryStorage::GetInstance().GetOrCreateImGuiTexture(guid);
+			m_previewCamera.texture = Graphics::Vulkan::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
+			ImTextureRef textureRef = m_previewCamera.texture.Get();
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -622,21 +634,21 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 		break;
 
-	case ResourceType::Mesh:
+	case StaticResourceType::Mesh:
 		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
 		{
 			m_isPreviewResourceLoaded = false;
 
-			ResourceHandle<MeshResource> meshHandle = resManInstance.LoadResource<MeshResource>(
+			StaticResourceHandle<MeshResource> meshHandle = resManInstance.LoadResource<MeshResource>(
 				p_entry.guid,
-				[this]([[maybe_unused]] ResourceHandle<MeshResource> handle) { 
+				[this]([[maybe_unused]] StaticResourceHandle<MeshResource> handle) { 
 					m_isPreviewResourceLoaded = true; 
 
 					// TODO: Calculate the bounding box of the mesh and adjust the preview camera accordingly
 				}
 			);
 
-			m_previewResourceHandle = ResourceHandle<IResource>(meshHandle.GetGUID(), &resManInstance);
+			m_previewResourceHandle = StaticResourceHandle<IStaticResource>(meshHandle.GetGUID(), &resManInstance);
 
 			// Texture
 			if (!m_previewCamera.texHandle.IsValid())
@@ -670,7 +682,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		{
 			GUID guid = m_previewResourceHandle.GetGUID();
 
-			ResourceHandle<MeshResource> meshHandle = ResourceHandle<MeshResource>(guid, &resManInstance);
+			StaticResourceHandle<MeshResource> meshHandle = StaticResourceHandle<MeshResource>(guid, &resManInstance);
 
 			// Calculate the size to maintain aspect ratio
 			float previewSizeX = static_cast<float>(m_previewCamera.resolution.x);
@@ -692,9 +704,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = ImVec2(previewSizeX, previewSizeY) * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef previewTexture = static_cast<VkDescriptorSet>(
-				Graphics::VK::IntermediaryStorage::GetInstance().GetImGuiTextureAt(m_previewCamera.textureIndex)
-			);
+			ImTextureRef previewTexture = m_previewCamera.texture.Get();
 
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -708,7 +718,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 				Graphics::CameraRenderData camRenderData{};
 				camRenderData.camera = m_previewCamera.camera;
 				camRenderData.priority = 100;
-				camRenderData.renderTarget = m_previewCamera.targetIndex;
+				camRenderData.renderTarget = m_previewCamera.renderTarget;
 				camRenderData.debug = false;
 
 				Graphics::RenderData renderData{
@@ -726,12 +736,13 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		break;
 
 	default:
-	case ResourceType::SkinnedMesh:
-	case ResourceType::None:
-	case ResourceType::Texture3D:
-	case ResourceType::Animation:
-	case ResourceType::Shader:
-	case ResourceType::Material:
+	case StaticResourceType::None:
+	case StaticResourceType::Texture3D:
+	case StaticResourceType::SkinnedMesh:
+	case StaticResourceType::Animation:
+	case StaticResourceType::Shader:
+	case StaticResourceType::Material:
+
 		// Draw text in center of the preview area
 		ImVec2 textSize = CalcTextSize("No Preview Available");
 		SetCursorPosX(regionCenter.x - textSize.x * 0.5f);
@@ -813,23 +824,23 @@ void ResourceBrowser::RegisterAsset()
 	}
 }
 
-std::string ResourceBrowser::ResourceTypeToString(ResourceType p_type)
+std::string ResourceBrowser::ResourceTypeToString(StaticResourceType p_type)
 {
 	switch (p_type)
 	{
-		case ResourceType::Animation:
+		case StaticResourceType::Animation:
 			return "Animation";
-		case ResourceType::Material:
+		case StaticResourceType::Material:
 			return "Material";
-		case ResourceType::Mesh:
+		case StaticResourceType::Mesh:
 			return "Mesh";
-		case ResourceType::Shader:
+		case StaticResourceType::Shader:
 			return "Shader";
-		case ResourceType::SkinnedMesh:
+		case StaticResourceType::SkinnedMesh:
 			return "Skinned Mesh";
-		case ResourceType::Texture2D:
+		case StaticResourceType::Texture2D:
 				return "2D Texture";
-		case ResourceType::Texture3D:
+		case StaticResourceType::Texture3D:
 			return "3D Texture";
 		default:
 			return "None";

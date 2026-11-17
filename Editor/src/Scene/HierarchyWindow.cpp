@@ -96,30 +96,30 @@ void HierarchyWindow::RenderToolbar()
     {
         std::weak_ptr<Node> newNode{};
 
-        if (ImGui::Button("Add Empty Node"))
+        if (ImGui::Button(ICON_LC_CIRCLE_PLUS" Add Empty Node " ))
         {
             newNode = scene->AddNode("Empty Node");
         }
 
-        if (ImGui::Button("Add Mesh Node"))
+        if (ImGui::Button(ICON_LC_FILE_BOX " Add Mesh Node " ))
         {
             newNode = scene->AddNode("Mesh Node");
 			newNode.lock()->AttachComponent("MeshComponent");
         }
 
-        if (ImGui::Button("Add Camera Node"))
+        if (ImGui::Button(ICON_LC_CAMERA" Add Camera Node " ))
         {
             newNode = scene->AddNode("Camera Node");
 			newNode.lock()->AttachComponent("CameraComponent");
         }
 
-        if (ImGui::Button("Add Script Node"))
+        if (ImGui::Button(ICON_LC_FILE_CODE_CORNER " Add Script Node " ))
         {
             newNode = scene->AddNode("Script Node");
 			newNode.lock()->AttachComponent("ScriptComponent");
         }
 
-        if (ImGui::Button("Add Physics Node"))
+        if (ImGui::Button(ICON_LC_ATOM " Add Physics Node " ))
         {
             newNode = scene->AddNode("Physics Node");
 			newNode.lock()->AttachComponent("PhysicsComponent");
@@ -139,6 +139,24 @@ void HierarchyWindow::RenderToolbar()
 
 		ImGui::EndMenu();
     }
+
+    if (ImGui::MenuItem(ICON_LC_CIRCLE_PLUS" Add Empty Node " , nullptr,false,isEnabled))
+    {
+        std::weak_ptr<Node> newNode{};
+        newNode = scene->AddNode("Empty Node");
+
+        m_editorContext->GetInteractionState().SelectNode(newNode, true);
+        m_editorContext->SetNodeScrollFocus(newNode);
+
+        // Move the new node to the center of the view
+        auto &editorCamera = m_editorContext->GetEditorCamera();
+        glm::vec3 position = editorCamera.GetPosition() + editorCamera.GetForward() * EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
+        newNode.lock()->GetTransform().SetPosition(position, Transform::Space::World);
+    }
+
+    ImGui::Separator();
+
+    ImGui::SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
 }
 
 void HierarchyWindow::RenderImpl()
@@ -230,6 +248,17 @@ void HierarchyWindow::RenderImpl()
 
     for (const auto &root : scene->GetRoots())
     {
+        if (!m_searchFilter.empty())
+        {
+            std::string lowerName = root->GetName();
+            std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+
+            if (lowerName.find(m_searchFilter) == std::string::npos)
+            {
+                continue;
+            }
+        }
+
         DrawNode(root);
     }
 
