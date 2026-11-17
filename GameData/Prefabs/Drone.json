@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 130,
+            "id": 10,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -134,7 +134,7 @@
                 "data": "",
                 "filepath": "Death.lua"
             },
-            "id": 10,
+            "id": 17,
             "type": "ScriptComponent"
         },
         {
@@ -177,7 +177,7 @@
         {
             "active": true,
             "data": null,
-            "id": 15,
+            "id": 16,
             "type": "AudioListenerComponent"
         },
         {
@@ -187,9 +187,9 @@
                 "halfExtentsX": 0.0,
                 "halfExtentsY": 0.0,
                 "halfExtentsZ": 0.0,
-                "layer": 0,
+                "layer": 1,
                 "meshGUID": 0,
-                "motionType": 1,
+                "motionType": 2,
                 "offsetX": 0.0,
                 "offsetY": 0.0,
                 "offsetZ": 0.0,
@@ -201,16 +201,13 @@
         }
     ],
     "drawLayer": 1,
-    "id": 129,
+    "id": 9,
     "name": "Drone",
     "transform": {
         "position": [
-            43.0,
-            12.0,
-            -20.0
-            43.0,
-            12.0,
-            -20.0
+            -22.22037124633789,
+            7.2384796142578125,
+            60.887298583984375
         ],
         "rotation": [
             1.0,
