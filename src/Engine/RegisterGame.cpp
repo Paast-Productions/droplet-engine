@@ -10,6 +10,7 @@
 #include <SceneSystem/Components/InteractableComponent.hpp>
 #include <SceneSystem/Components/PodComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Behaviours/PodBehaviour.hpp>
@@ -19,14 +20,15 @@ namespace Droplet::Game
 {
 	void RegisterGameComponents()
 	{
-		Droplet::Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Droplet::Scene::HealthComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Droplet::Scene::PlayerComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Droplet::Scene::TriggerComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("HazardComponent", []() { return std::make_unique<Droplet::Scene::HazardComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("InteractableComponent", []() { return std::make_unique<Droplet::Scene::InteractableComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("PodComponent", []() { return std::make_unique<Droplet::Scene::PodComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("LadderComponent", []() { return std::make_unique<Droplet::Scene::LadderComponent>(); });
 
+		Scene::ComponentRegistry::RegisterComponent("HealthComponent", []() { return std::make_unique<Scene::HealthComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("PlayerComponent", []() { return std::make_unique<Scene::PlayerComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("TriggerComponent", []() { return std::make_unique<Scene::TriggerComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("HazardComponent", []() { return std::make_unique<Scene::HazardComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("InteractableComponent", []() { return std::make_unique<Scene::InteractableComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("PodComponent", []() { return std::make_unique<Scene::PodComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("LadderComponent", []() { return std::make_unique<Droplet::Scene::LadderComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("CollectibleTypeComponent", []() { return std::make_unique<Scene::CollectibleTypeComponent>(); });
 	}
 
 	void RegisterGameBehaviours()
@@ -36,3 +38,4 @@ namespace Droplet::Game
 		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("LadderBehaviour", []() { return std::make_unique<Droplet::Scene::LadderBehaviour>(); });
 	}
 }
+ 

@@ -82,6 +82,9 @@ namespace Droplet::Scene
         void DeserializeImpl(nlohmann::json p_compJson) override;
 
     private:
+        // Settings
+		bool m_transparent = false;
+
         // Resource handles
         StaticResourceHandle<MeshResource> m_mesh {};
         StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented

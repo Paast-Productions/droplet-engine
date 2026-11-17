@@ -1,0 +1,167 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Geyser",
+                        "meshGUID": 15770750368057616550,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Geyser",
+                        "textureGUID": 1546286907408242686,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 624,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": false,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 17470227938033865898,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "damage": 1.0,
+                        "direction": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "id": 4,
+                    "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "collisionLayerMask": 32,
+                        "numAabb": 0,
+                        "numObb": 1,
+                        "numSphere": 0,
+                        "obbExtX0": 2.0,
+                        "obbExtY0": 8.0,
+                        "obbExtZ0": 2.0,
+                        "obbOffX0": 0.0,
+                        "obbOffY0": 0.0,
+                        "obbOffZ0": 0.0,
+                        "obbRotX0": 0.0,
+                        "obbRotY0": -0.0,
+                        "obbRotZ0": 0.0
+                    },
+                    "id": 5,
+                    "type": "TriggerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "filepath": "Heat.lua"
+                    },
+                    "id": 6,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 625,
+            "name": "Heat",
+            "transform": {
+                "position": [
+                    0.0,
+                    8.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.0,
+                    8.0,
+                    2.0
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 1,
+    "components": [],
+    "drawLayer": 1,
+    "id": 623,
+    "name": "VolcanoMedium",
+    "transform": {
+        "position": [
+            12.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

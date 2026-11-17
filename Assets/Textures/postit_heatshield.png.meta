@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "postit_heatshield",
+            "guid": 16495453954712892499,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "postit_heatshield",
+            "type": 1
+        }
+    ]
+}

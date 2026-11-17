@@ -1,16 +1,17 @@
 {
     "active": true,
     "children": [],
+    "collisionLayerMask": 1,
     "components": [
         {
-            "active": true,
+            "active": false,
             "data": {
                 "fs": 13680123319807966343,
                 "fsName": "Base.FS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "Cube",
-                "meshGUID": 15104664662864096133,
+                "meshGUID": 17470227938033865898,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
@@ -26,15 +27,31 @@
         {
             "active": true,
             "data": {
-                "damage": 2.0
+                "damage": 1.0,
+                "direction": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
             },
-            "id": 3,
+            "id": 4,
             "type": "HazardComponent"
         },
         {
             "active": true,
-            "data": null,
-            "id": 4,
+            "data": {
+                "aabbExtX0": 1.0,
+                "aabbExtY0": 1.0,
+                "aabbExtZ0": 1.0,
+                "aabbOffX0": 0.0,
+                "aabbOffY0": 0.0,
+                "aabbOffZ0": 0.0,
+                "collisionLayerMask": 65056,
+                "numAabb": 1,
+                "numObb": 0,
+                "numSphere": 0
+            },
+            "id": 5,
             "type": "TriggerComponent"
         },
         {
@@ -42,17 +59,17 @@
             "data": {
                 "filepath": "Heat.lua"
             },
-            "id": 5,
+            "id": 6,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 291,
+    "id": 306,
     "name": "Heat",
     "transform": {
         "position": [
             0.0,
-            0.0,
+            3.5,
             0.0
         ],
         "rotation": [
@@ -63,7 +80,7 @@
         ],
         "scale": [
             1.0,
-            1.0,
+            4.0,
             1.0
         ]
     }
