@@ -104,6 +104,18 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
 		"GetParent", &Scene::Node::GetParent,
+		"GetChildren", [](Scene::Node &node)
+		{
+			auto childrenShared = node.GetChildren();
+			std::vector<Scene::Node*> children;
+			children.reserve(childrenShared.size());
+
+			for (auto &child : childrenShared)
+			{
+				children.push_back(child.get());
+			}
+			return sol::as_table(std::move(children));
+		},
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
 		{
@@ -178,6 +190,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetID", "integer", {}},
 		{"GetTransform", "Transform", {}},
 		{"GetParent", "Node", {}},
+		{"GetChildren", "table", {}},
 		{"GetCameraComponent", "CameraComponent", {}},
 		{"GetMeshComponent", "MeshComponent", {}},
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
