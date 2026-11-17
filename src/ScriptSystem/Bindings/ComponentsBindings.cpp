@@ -6,6 +6,11 @@
 #include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
+#include <SceneSystem/Components/CollectibleTypeComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -26,9 +31,12 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterHazardComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+    RegisterAudioPlayerComponent(p_luaState);
+    RegisterAudioEmitterComponent(p_luaState);
 	RegisterMeshComponent(p_luaState);
     RegisterInteractableComponent(p_luaState);
 	RegisterLadderComponent(p_luaState);
+	RegisterCollectibleTypeComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -665,6 +673,8 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
         "SetDroneInventorySize", &Scene::PlayerBehaviour::SetDroneInventorySize,
         "GetDroneInventorySize", &Scene::PlayerBehaviour::GetDroneInventorySize,
+        "ClearDroneInventory", &Scene::PlayerBehaviour::ClearDroneInventory,
+        "TransferDroneInventoryToPlayer", &Scene::PlayerBehaviour::TransferDroneInventoryToPlayer,
 
 		"SetDroneMaxSpeed", &Scene::PlayerBehaviour::SetDroneMaxSpeed,
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
@@ -710,7 +720,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetDroneMaxSpeed", "float", {} },
 		{ "SetDroneMaxRange", "void", { { "amount", "number" } } },
         { "GetDroneMaxRange", "float", {} },
-		
+        { "ClearDroneInventory", "void", {} },
+        { "TransferDroneInventoryToPlayer", "number", {} },
+	
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
@@ -778,6 +790,89 @@ void Bindings::RegisterLadderComponent(sol::state_view p_luaState)
     {
         { "BeginTransition", "void", {} }
     };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+void Droplet::Script::Bindings::RegisterCollectibleTypeComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_enum<Scene::CollectibleType>(
+		"CollectibleType",
+		{
+			{"Fish", Scene::CollectibleType::Fish},
+		    {"Upgrade", Scene::CollectibleType::Upgrade},
+		    {"BrokenPart", Scene::CollectibleType::BrokenPart}
+		}
+	);
+
+	p_luaState.new_usertype<Scene::CollectibleTypeComponent>(
+		"CollectibleTypeComponent",
+		"GetCollectibleType", &Scene::CollectibleTypeComponent::GetCollectibleType,
+		"SetCollectibleType", &Scene::CollectibleTypeComponent::SetCollectibleType,
+		"GetItemId", &Scene::CollectibleTypeComponent::GetItemId,
+		"SetItemId", &Scene::CollectibleTypeComponent::SetItemId,
+		"GetAmount", &Scene::CollectibleTypeComponent::GetAmount,
+		"SetAmount", &Scene::CollectibleTypeComponent::SetAmount
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "CollectibleTypeComponent";
+	classDef.functions =
+	{
+		{ "GetCollectibleType", "string", {} },
+		{ "SetCollectibleType", "void", { { "collectibleType", "string" } } },
+		{ "GetItemId", "ItemId", {} },
+		{ "SetItemId", "void", { { "itemId", "ItemId" } } },
+		{ "GetAmount", "integer", {} },
+		{ "SetAmount", "void", { { "amount", "integer" } } }
+	};
+	LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<AudioEmitterComponent>(
+        "AudioEmitterComponent",
+        "Play", &AudioEmitterComponent::Play,
+        "Pause", &AudioEmitterComponent::Pause,
+        "Resume", &AudioEmitterComponent::Resume,
+        "Stop", &AudioEmitterComponent::Stop
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioEmitterComponent";
+
+    classDef.functions =
+    {
+            {"Play", "void", {}},
+            {"Pause", "void", {}},
+            {"Resume", "void", {}},
+            {"Stop", "void", {}},
+        
+        };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<AudioPlayerComponent>(
+        "AudioPlayerComponent",
+        "Play", &AudioPlayerComponent::Play,
+        "Pause", &AudioPlayerComponent::Pause,
+        "Resume", &AudioPlayerComponent::Resume,
+        "Stop", &AudioPlayerComponent::Stop
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioPlayerComponent";
+
+    classDef.functions =
+    {
+            {"Play", "void", {}},
+            {"Pause", "void", {}},
+            {"Resume", "void", {}},
+            {"Stop", "void", {}},
+        };
 
     LuaBindings::PushLuaClassDefinition(classDef);
 }

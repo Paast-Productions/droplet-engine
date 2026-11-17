@@ -24,8 +24,14 @@ Scene::Scene(const std::string &p_name)
 
 Scene::~Scene()
 {
+    SetActive(false);
+    
     for (std::shared_ptr<Node> &node : m_roots)
     {
+        if (node == nullptr)
+        {
+            continue;
+        }
         std::vector<std::shared_ptr<PhysicsComponent>> comps = node->GetComponents<PhysicsComponent>();
         for (std::shared_ptr<PhysicsComponent> comp : comps)
         {
@@ -80,6 +86,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->Update();
         }
     }
@@ -88,6 +98,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->EditorUpdate();
         }
     }
@@ -109,6 +123,10 @@ void Scene::LateUpdate()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->LateUpdate();
         }
     }
@@ -141,6 +159,10 @@ void Scene::FixedUpdate()
 
     for (const auto &root : m_roots)
     {
+        if (root == nullptr)
+        {
+            continue;
+        }
         root->FixedUpdate();
     }
 }
@@ -331,6 +353,10 @@ void Scene::SetActive(bool p_active)
 
     for (const auto &root : m_roots)
     {
+        if (root == nullptr)
+        {
+            continue;
+        }
 		root->ActiveChanged(m_active);
     }
 }
