@@ -206,7 +206,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 					return script;
 				}
 			}
-        }
+        }	
 	);
 
 	LuaClassDefinition classDef;
