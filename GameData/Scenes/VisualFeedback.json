@@ -7,6 +7,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -31,7 +32,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 54,
+                    "id": 14,
                     "name": "Drone",
                     "transform": {
                         "position": [
@@ -55,54 +56,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "autoRender": true,
-                                "camera": {
-                                    "fov": 45.0,
-                                    "planes": [
-                                        0.10000000149011612,
-                                        100.0
-                                    ]
-                                },
-                                "drawLayerMask": 65535,
-                                "priority": 0,
-                                "resolution": [
-                                    1280,
-                                    720
-                                ]
-                            },
-                            "id": 1,
-                            "type": "CameraComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 55,
-                    "name": "Camera Node",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    }
-                },
-                {
-                    "active": true,
-                    "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -112,7 +66,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -148,30 +102,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 56,
+                    "id": 15,
                     "name": "Freeze UI Level 1",
                     "transform": {
                         "position": [
-                            -0.018689654767513275,
+                            -0.018689556047320366,
                             0.00011020898818969727,
-                            1.1160473823547363
+                            0.9673166275024414
                         ],
                         "rotation": [
-                            0.7071064710617065,
-                            0.0,
-                            0.7071070671081543,
-                            0.0
+                            0.49995553493499756,
+                            -0.4999557137489319,
+                            0.5000444650650024,
+                            -0.5000442862510681
                         ],
                         "scale": [
-                            1.0,
-                            0.460637629032135,
-                            1.0
+                            0.8479999899864197,
+                            0.460638165473938,
+                            1.4600000381469727
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -181,7 +136,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -217,30 +172,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 57,
+                    "id": 16,
                     "name": "Freeze UI Level 2",
                     "transform": {
                         "position": [
                             -0.01899999938905239,
                             0.0,
-                            1.116316318511963
+                            0.9673166275024414
                         ],
                         "rotation": [
-                            0.7071064710617065,
-                            0.0,
-                            0.7071070671081543,
-                            0.0
+                            0.5,
+                            -0.5,
+                            0.5,
+                            -0.5
                         ],
                         "scale": [
-                            0.6920953392982483,
+                            0.8479999899864197,
                             0.460637629032135,
-                            1.0
+                            1.4600000381469727
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -250,7 +206,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -286,30 +242,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 58,
+                    "id": 17,
                     "name": "Freeze UI Level 3",
                     "transform": {
                         "position": [
                             -0.01899999938905239,
                             0.0,
-                            1.116316318511963
+                            0.9673166275024414
                         ],
                         "rotation": [
-                            0.7071064710617065,
-                            0.0,
-                            0.7071070671081543,
-                            0.0
+                            0.5,
+                            -0.5,
+                            0.5,
+                            -0.5
                         ],
                         "scale": [
-                            0.6920953392982483,
+                            0.8479999899864197,
                             0.460637629032135,
-                            1.0
+                            1.4600000381469727
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -319,7 +276,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -355,30 +312,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 59,
+                    "id": 18,
                     "name": "Freeze UI Level 4",
                     "transform": {
                         "position": [
                             -0.01899999938905239,
                             0.0,
-                            1.116316318511963
+                            0.9673166275024414
                         ],
                         "rotation": [
-                            0.7071064710617065,
-                            0.0,
-                            0.7071070671081543,
-                            0.0
+                            0.5,
+                            -0.5,
+                            0.5,
+                            -0.5
                         ],
                         "scale": [
-                            0.6920953392982483,
+                            0.8479999899864197,
                             0.460637629032135,
-                            1.0
+                            1.4600000381469727
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": false,
@@ -388,7 +346,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -424,30 +382,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 60,
+                    "id": 19,
                     "name": "Freeze UI Level 5",
                     "transform": {
                         "position": [
                             -0.01899999938905239,
                             0.0,
-                            1.116316318511963
+                            0.9673166275024414
                         ],
                         "rotation": [
-                            0.7071064710617065,
-                            0.0,
-                            0.7071070671081543,
-                            0.0
+                            0.5,
+                            -0.5,
+                            0.5,
+                            -0.5
                         ],
                         "scale": [
-                            0.6920953392982483,
+                            0.8479999899864197,
                             0.460637629032135,
-                            1.0
+                            1.4600000381469727
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -457,7 +416,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -480,30 +439,31 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 61,
+                    "id": 20,
                     "name": "CurrentHealthbar",
                     "transform": {
                         "position": [
                             -0.02757716178894043,
                             -0.30029216408729553,
-                            1.4524798393249512
+                            0.7802095413208008
                         ],
                         "rotation": [
-                            0.7071067094802856,
-                            0.0,
-                            0.7071068286895752,
-                            0.0
+                            -0.5,
+                            0.5,
+                            0.5,
+                            -0.5
                         ],
                         "scale": [
-                            0.9999834299087524,
-                            0.04276934638619423,
-                            0.13981783390045166
+                            0.08399999886751175,
+                            0.0430000014603138,
+                            0.5929999947547913
                         ]
                     }
                 },
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -513,7 +473,7 @@
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Plane",
-                                "meshGUID": 16685407550233266996,
+                                "meshGUID": 10065599574837318982,
                                 "tcs": 0,
                                 "tcsName": "",
                                 "tes": 0,
@@ -528,28 +488,29 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 62,
+                    "id": 21,
                     "name": "Healthbar",
                     "transform": {
                         "position": [
                             -0.02800000086426735,
-                            -0.30000001192092896,
-                            1.4533162117004395
+                            -0.2998875379562378,
+                            0.7813162803649902
                         ],
                         "rotation": [
-                            0.7071067094802856,
+                            0.7071677446365356,
+                            -0.7070457935333252,
                             0.0,
-                            0.7071068286895752,
                             0.0
                         ],
                         "scale": [
-                            0.9999833703041077,
-                            0.04276934638619423,
-                            0.13981781899929047
+                            0.590433657169342,
+                            0.04276798292994499,
+                            0.08382735401391983
                         ]
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -573,16 +534,62 @@
                     },
                     "id": 3,
                     "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            1280,
+                            720
+                        ]
+                    },
+                    "id": 4,
+                    "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.10000001639127731,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 1.0,
+                        "shapeType": 7
+                    },
+                    "id": 5,
+                    "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 53,
+            "id": 13,
             "name": "Player",
             "transform": {
                 "position": [
                     0.0,
                     0.0,
-                    -8.167316436767578
+                    -8.200396537780762
                 ],
                 "rotation": [
                     1.0,
@@ -600,6 +607,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -608,8 +616,8 @@
                         "fsName": "Base.FS",
                         "gs": 0,
                         "gsName": "",
-                        "meshDisplayName": "Cube",
-                        "meshGUID": 1448650563753099256,
+                        "meshDisplayName": "BaseFish",
+                        "meshGUID": 6487672309164947188,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
@@ -624,7 +632,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 63,
+            "id": 22,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -648,6 +656,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -672,7 +681,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 64,
+            "id": 23,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -696,6 +705,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -710,8 +720,8 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "FreezeColor",
-                        "textureGUID": 14503967403712679070,
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -720,7 +730,27 @@
                 },
                 {
                     "active": true,
-                    "data": null,
+                    "data": {
+                        "aabbExtX0": 4.800000190734863,
+                        "aabbExtY0": 3.9000000953674316,
+                        "aabbExtZ0": 9.300000190734863,
+                        "aabbOffX0": 0.0,
+                        "aabbOffY0": 0.0,
+                        "aabbOffZ0": 0.0,
+                        "collisionLayerMask": 65535,
+                        "numAabb": 1,
+                        "numObb": 1,
+                        "numSphere": 0,
+                        "obbExtX0": 0.0,
+                        "obbExtY0": 0.0,
+                        "obbExtZ0": 0.0,
+                        "obbOffX0": 0.0,
+                        "obbOffY0": 0.0,
+                        "obbOffZ0": 0.0,
+                        "obbRotX0": 0.0,
+                        "obbRotY0": -0.0,
+                        "obbRotZ0": 0.0
+                    },
                     "id": 4,
                     "type": "TriggerComponent"
                 },
@@ -747,13 +777,13 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 65,
+            "id": 24,
             "name": "Freeze",
             "transform": {
                 "position": [
                     -0.13156308233737946,
                     0.1538798213005066,
-                    -0.895824670791626
+                    -6.52054500579834
                 ],
                 "rotation": [
                     1.0,
@@ -764,7 +794,7 @@
                 "scale": [
                     5.0,
                     3.957156181335449,
-                    2.1426947116851807
+                    9.790750503540039
                 ]
             }
         }

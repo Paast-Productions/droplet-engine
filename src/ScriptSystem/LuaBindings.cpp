@@ -108,7 +108,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetParent().lock();
 		},
-		"GetParent", &Scene::Node::GetParent,
 		"GetChildren", [](Scene::Node &node)
 		{
 			auto childrenShared = node.GetChildren();
