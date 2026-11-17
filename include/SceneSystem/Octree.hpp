@@ -91,6 +91,9 @@ namespace Droplet::Scene
 		
 		/// @brief Render the octree octants and nodes 
 		void Render();
+		
+		/// @brief Clear outs the octree so that the scene can rebuild it from scratch
+		void Clear();
 
 	private:
 		struct TreeNode;
@@ -230,7 +233,6 @@ namespace Droplet::Scene
 			GUID meshGuid = C_INVALID_GUID;
 		};
 
-		bool m_isInitialized = false;
 		std::unique_ptr<TreeNode> m_root;
 		
 		std::vector<std::weak_ptr<Node>> m_containedNodes;
