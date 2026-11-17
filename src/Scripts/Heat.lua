@@ -1,6 +1,8 @@
-﻿local hazardComp = nil
+
+local hazardComp = nil
 local heatDamage = nil
-local newDamage = nil
+local damageNormal = 20.0
+local damageResistant = 10.0
 
 local particleSystem = nil
 local isActive = false
@@ -55,25 +57,39 @@ function OnTrigger(dt, node)
     end
 
     tracy.ZoneBeginN("HeatHazard OnTrigger")
-    
+
+    if node == nil then
+        tracy.ZoneEnd()
+        return
+    end
+
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
-    local pb = nil
-    if player ~= nil then
-        pb = player:GetPlayerBehaviour()
+
+    if health == nil or player == nil then
+        tracy.ZoneEnd()
+        return
     end
-    
-    if hazardComp ~= nil and pb ~= nil and health ~= nil then
 
-        pb:IncreaseHeatLevel(1)
+    local pb = player:GetPlayerBehaviour()
 
-        if pb:GetHeatLevel() > pb:GetHeatResistance() then
-            health:TakeDamage(heatDamage * dt)
-
-            if health:GetHealth() <= 0 then
-            end
-        end
+    if pb == nil then
+        tracy.ZoneEnd()
+        return
     end
+
+    -- Increase heat while inside the hazard.
+    pb:SetHeatLevel(100)
+
+    -- Determine damage based on heat resistance.
+    local damagePerSecond = damageNormal
+
+    if pb:GetHeatResistance() >= 100 then
+        damagePerSecond = damageResistant
+    end
+
+    -- Apply frame-rate independent damage.
+    health:TakeDamage(damagePerSecond * heatDamage * dt)
 
     tracy.ZoneEnd()
 end
