@@ -12,19 +12,22 @@ project "Editor"
     UseEditorPCH()
 
     defines{ 
+        "_EDITOR",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
-        "ROOT_PATH=" .. AddQuotation("../../../..")
+        "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
 
     if _TARGET_OS == "windows" then
 
         buildoptions {"/Zi"}
         
+        entrypoint "mainCRTStartup"
+
         includedirs
         {
             "../include",
@@ -43,8 +46,6 @@ project "Editor"
             vkPath .. "/Lib"
         }
 
-        filter { "system:windows" }
-
         files 
         { 
             "../Editor/resources.rc", 
@@ -52,9 +53,8 @@ project "Editor"
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Editor " .. "%{cfg.buildcfg}"
         }
-
     else
 
         includedirs
@@ -84,7 +84,7 @@ project "Editor"
         "tracy",
         "IconFontCppHeaders",
         "PortableFileDialogs",
-        "Lua",
+        "LuaJIT",
         "Jolt",
         "Dalia"
     }
@@ -110,12 +110,12 @@ project "Editor"
         AddQuotation("SDL3"),
         AddQuotation("vulkan-1"),
         AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
-		AddQuotation("Jolt")
+		AddQuotation("Jolt"),
+		AddQuotation("lua51"),
     }
 
     filter "configurations:debug"
-		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd") }
-    filter "configurations:release"
-		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt") }
+		links { AddQuotation("Slangd"), AddQuotation("zlibstaticd"), AddQuotation("assimp-mtd"), AddQuotation("msvcrtd") }
+    filter "configurations:release or deploy"
+		links { AddQuotation("Slang"), AddQuotation("zlibstatic"), AddQuotation("assimp-mt"), AddQuotation("msvcrt") }
     filter {}

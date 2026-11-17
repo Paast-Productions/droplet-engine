@@ -37,7 +37,7 @@ void InteractableComponent::Interact(const std::shared_ptr<Node> &p_interactingN
             continue;
         }
 
-        ScriptSystem::Get().TriggerComponentScript(
+        Script::ScriptSystem::Get().TriggerComponentScript(
             script.get(),
             Droplet::Time::Get().GetDeltaTime(),
             p_interactingNode

@@ -1,7 +1,7 @@
-#include "resource/io/SlangFormat.hpp"
+#include "SlangFormat.hpp"
 
-#include "graphics/vk/ShaderCompiler.hpp"
-#include "resource/meta/MetaUtils.hpp"
+#include <Graphics/Vulkan/ShaderCompiler.hpp>
+#include <Resource/Meta/MetaUtils.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;
@@ -25,15 +25,15 @@ namespace Droplet::IO::SlangFormat
         }
     }
 
-    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(
+    std::vector<std::pair<StaticResourceType, std::string>> ScanAssetResources(
         const std::filesystem::path &p_shaderPath)
     {
         ZoneScoped;
 
-        std::vector<std::pair<ResourceType, std::string>> resources{};
+        std::vector<std::pair<StaticResourceType, std::string>> resources{};
         
         std::string resourceName = p_shaderPath.stem().string();
-        resources.emplace_back(ResourceType::Shader, resourceName);
+        resources.emplace_back(StaticResourceType::Shader, resourceName);
         return resources;
     }
 }

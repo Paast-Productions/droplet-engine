@@ -147,15 +147,15 @@ namespace Droplet::IO::GliFormat
 		return resource;
 	}
     
-    std::vector<std::pair<ResourceType, std::string>> ScanAssetResources(
+    std::vector<std::pair<StaticResourceType, std::string>> ScanAssetResources(
         const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;
 
-        std::vector<std::pair<ResourceType, std::string>> resources{};
+        std::vector<std::pair<StaticResourceType, std::string>> resources{};
         
         std::string resourceName = p_assetPath.stem().string();
-        resources.emplace_back(ResourceType::Texture2D, resourceName);
+        resources.emplace_back(StaticResourceType::Texture2D, resourceName);
         return resources;
     }
 }

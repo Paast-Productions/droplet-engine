@@ -31,9 +31,9 @@ namespace Droplet
     template<>
     struct ResourceTraits<Texture2DResource>
     {
-        static ResourceType GetType()
+        static StaticResourceType GetType()
         {
-            return ResourceType::Texture2D;
+            return StaticResourceType::Texture2D;
         }
         
         static std::unique_ptr<Texture2DResource> LoadCPU(
@@ -89,9 +89,9 @@ namespace Droplet
     template<>
     struct ResourceTraits<MeshResource>
     {
-        static ResourceType GetType()
+        static StaticResourceType GetType()
         {
-            return ResourceType::Mesh;
+            return StaticResourceType::Mesh;
         }
         
         static std::unique_ptr<MeshResource> LoadCPU(
@@ -120,9 +120,9 @@ namespace Droplet
     template<>
     struct ResourceTraits<SkinnedMeshResource>
     {
-        static ResourceType GetType()
+        static StaticResourceType GetType()
         {
-            return ResourceType::SkinnedMesh;
+            return StaticResourceType::SkinnedMesh;
         }
         
         static std::unique_ptr<SkinnedMeshResource> LoadCPU(
@@ -151,9 +151,9 @@ namespace Droplet
     template<>
     struct ResourceTraits<AnimationResource>
     {
-        static ResourceType GetType()
+        static StaticResourceType GetType()
         {
-            return ResourceType::Animation;
+            return StaticResourceType::Animation;
         }
         
         static std::unique_ptr<AnimationResource> LoadCPU(
@@ -184,9 +184,9 @@ namespace Droplet
     template<>
     struct ResourceTraits<ShaderResource>
     {
-        static ResourceType GetType()
+        static StaticResourceType GetType()
         {
-            return ResourceType::Shader;
+            return StaticResourceType::Shader;
         }
         
         static std::unique_ptr<ShaderResource> LoadCPU(
