@@ -1,7 +1,6 @@
 #include <Engine/Engine.hpp>
 #include <cstdio>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/VK/TestData.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <chrono>
