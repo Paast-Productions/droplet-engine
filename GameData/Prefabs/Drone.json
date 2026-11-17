@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 4554,
+            "id": 17295,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -54,7 +54,7 @@
         {
             "active": false,
             "children": [],
-            "collisionLayerMask": 0,
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -64,14 +64,14 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Plane",
-                        "meshGUID": 16685407550233266996,
+                        "meshGUID": 10065599574837318982,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
                         "textureDisplayName": "heat_overlay",
                         "textureGUID": 14044838112203778529,
-                        "transparent": true,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -80,24 +80,24 @@
                 }
             ],
             "drawLayer": 16,
-            "id": 2545,
+            "id": 17296,
             "name": "HeatOverlay",
             "transform": {
                 "position": [
-                    0.003147125244140625,
+                    0.00025177001953125,
                     -9.5367431640625e-07,
                     0.4999961853027344
                 ],
                 "rotation": [
-                    0.5,
-                    -0.5,
-                    0.5,
-                    0.5
+                    0.7071068286895752,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
                 ],
                 "scale": [
+                    0.800000011920929,
                     1.0,
-                    0.4000000059604645,
-                    0.4000000059604645
+                    0.800000011920929
                 ]
             }
         }

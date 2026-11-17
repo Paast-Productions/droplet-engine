@@ -1,6 +1,4 @@
 
-local MeshToggleSystem = require("MeshToggleSystem")
-
 local hazardComp = nil
 local heatDamage = nil
 local damageNormal = 20.0
@@ -13,6 +11,8 @@ local inactiveTime = 15.0
 local timer = 0
 
 local heatOverlay = nil
+local timeSinceTrigger = math.huge
+local overlayGracePeriod = 0.1
 
 function OnStart()
     hazardComp = self:GetHazardComponent()
@@ -53,9 +53,29 @@ function OnUpdate(dt)
             particleSystem:SetActiveSelf(isActive)
         end
     end
+
+    if heatOverlay ~= nil then
+        timeSinceTrigger = timeSinceTrigger + dt
+        if timeSinceTrigger >= overlayGracePeriod then
+            heatOverlay:SetActiveSelf(false)
+            heatOverlay = nil
+        end
+    end
 end
 
 function OnTrigger(dt, node)
+    if node == nil or node:GetPlayerComponent() == nil then
+        return
+    end
+
+    for _, child in ipairs(node:GetChildren()) do
+        if child:GetName() == "HeatOverlay" then
+            heatOverlay = child
+            heatOverlay:SetActiveSelf(true)
+            timeSinceTrigger = 0
+        end
+    end
+
     if not isActive then
         return
     end
@@ -81,13 +101,7 @@ function OnTrigger(dt, node)
         tracy.ZoneEnd()
         return
     end
-
-	if (heatOverlay == nil) then
-		heatOverlay = MeshToggleSystem.GetByName("HeatOverlay")
-	end
-
-	MeshToggleSystem.SetActive(heatOverlay, true)
-
+    
     -- Increase heat while inside the hazard.
     pb:SetHeatLevel(100)
 
