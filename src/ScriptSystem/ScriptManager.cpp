@@ -82,6 +82,42 @@ void Droplet::Script::ScriptManager::UpdateBehaviour(Droplet::Scene::Behaviour *
 	}
 }
 
+std::string Droplet::Script::ScriptManager::SerializeComponent(Droplet::Scene::Component *p_scriptComponent)
+{
+	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
+	{
+		return instance->OnSerialize();
+	}
+
+	return std::string();
+}
+
+void Droplet::Script::ScriptManager::DeserializeComponent(Droplet::Scene::Component *p_scriptComponent, const std::string &p_data)
+{
+	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
+	{
+		instance->OnDeserialize(p_data);
+	}
+}
+
+std::string Droplet::Script::ScriptManager::SerializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
+{
+	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
+	{
+		return instance->OnSerialize();
+	}
+
+	return std::string();
+}
+
+void Droplet::Script::ScriptManager::DeserializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_data)
+{
+	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
+	{
+		instance->OnDeserialize(p_data);
+	}
+}
+
 void Droplet::Script::ScriptManager::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)
 {
 	ZoneScoped;
