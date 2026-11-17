@@ -31,7 +31,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 28,
+                    "id": 54,
                     "name": "Drone",
                     "transform": {
                         "position": [
@@ -70,8 +70,8 @@
                                 "drawLayerMask": 65535,
                                 "priority": 0,
                                 "resolution": [
-                                    256,
-                                    256
+                                    1280,
+                                    720
                                 ]
                             },
                             "id": 1,
@@ -79,7 +79,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 29,
+                    "id": 55,
                     "name": "Camera Node",
                     "transform": {
                         "position": [
@@ -148,7 +148,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 30,
+                    "id": 56,
                     "name": "Freeze UI Level 1",
                     "transform": {
                         "position": [
@@ -163,9 +163,9 @@
                             0.0
                         ],
                         "scale": [
-                            0.6920953989028931,
+                            1.0,
                             0.460637629032135,
-                            0.47916075587272644
+                            1.0
                         ]
                     }
                 },
@@ -217,7 +217,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 31,
+                    "id": 57,
                     "name": "Freeze UI Level 2",
                     "transform": {
                         "position": [
@@ -234,7 +234,7 @@
                         "scale": [
                             0.6920953392982483,
                             0.460637629032135,
-                            0.47916072607040405
+                            1.0
                         ]
                     }
                 },
@@ -286,7 +286,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 32,
+                    "id": 58,
                     "name": "Freeze UI Level 3",
                     "transform": {
                         "position": [
@@ -303,7 +303,7 @@
                         "scale": [
                             0.6920953392982483,
                             0.460637629032135,
-                            0.47916072607040405
+                            1.0
                         ]
                     }
                 },
@@ -355,7 +355,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 33,
+                    "id": 59,
                     "name": "Freeze UI Level 4",
                     "transform": {
                         "position": [
@@ -372,7 +372,7 @@
                         "scale": [
                             0.6920953392982483,
                             0.460637629032135,
-                            0.47916072607040405
+                            1.0
                         ]
                     }
                 },
@@ -424,7 +424,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 34,
+                    "id": 60,
                     "name": "Freeze UI Level 5",
                     "transform": {
                         "position": [
@@ -441,7 +441,7 @@
                         "scale": [
                             0.6920953392982483,
                             0.460637629032135,
-                            0.47916072607040405
+                            1.0
                         ]
                     }
                 },
@@ -480,7 +480,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 35,
+                    "id": 61,
                     "name": "CurrentHealthbar",
                     "transform": {
                         "position": [
@@ -528,7 +528,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 36,
+                    "id": 62,
                     "name": "Healthbar",
                     "transform": {
                         "position": [
@@ -576,7 +576,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 27,
+            "id": 53,
             "name": "Player",
             "transform": {
                 "position": [
@@ -624,7 +624,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 37,
+            "id": 63,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -672,7 +672,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 38,
+            "id": 64,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -747,7 +747,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 39,
+            "id": 65,
             "name": "Freeze",
             "transform": {
                 "position": [
