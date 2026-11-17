@@ -48,7 +48,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::runtime_error if a Scene with the specified name
         /// already exists or if the SceneFactory fails to create the Scene.
-        void LoadScene(const std::string &p_name);
+        std::weak_ptr<Scene> LoadScene(const std::string &p_name);
 
         /// @brief Unloads a Scene with the specified name.
         ///

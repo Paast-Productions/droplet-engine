@@ -27,9 +27,9 @@ void Droplet::Editor::EditorContext::SetActiveScene(std::string p_sceneName)
 	m_selectedScene = std::move(newScene);
 }
 
-void Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
+std::weak_ptr<Droplet::Scene::Scene> Droplet::Editor::EditorContext::CreateNewScene(std::string p_sceneName)
 {
-	m_engine.GetSceneManager().LoadScene(p_sceneName);
+	return m_engine.GetSceneManager().LoadScene(p_sceneName);
 }
 
 void Droplet::Editor::EditorContext::SaveScene(const std::string &p_filepath)

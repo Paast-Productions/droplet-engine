@@ -1177,9 +1177,9 @@ void SceneViewWindow::RenderGameView()
 			// Reset the scene
 			std::string sceneName = m_editorContext->GetActiveScene().lock()->GetName();
 			m_editorContext->GetActiveScene().lock()->SetActive(false);
-			m_editorContext->CreateNewScene(sceneName);
+			auto scene = m_editorContext->CreateNewScene(sceneName);
+			serializer.DeserializeScene(m_json, scene.lock());
 			m_editorContext->SetActiveScene(sceneName);
-			serializer.DeserializeScene(m_json, m_editorContext->GetActiveScene().lock());
 		    Audio::AudioSystem::GetInstance().SetMode(false);
 		}
 

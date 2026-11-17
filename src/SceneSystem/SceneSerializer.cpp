@@ -185,10 +185,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         p_context.RegisterNode(p_json["id"], node);
 
-        if (p_json.contains("active"))
-        {
-            node->SetActive(p_json["active"]);
-        }
+
 
         if (p_json.contains("drawLayer"))
         {
@@ -212,6 +209,11 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
             {
                 DeserializeComponent(componentJson, node, p_json["id"], p_context);
             }
+        }
+        
+        if (p_json.contains("active"))
+        {
+            node->SetActive(p_json["active"]);
         }
     }
 }
@@ -238,7 +240,6 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
 
     std::uint64_t ID = p_json["id"];
     p_context.RegisterCopmonent(p_serializedNodeID, ID, sharedComponent);
-
 }
 
 nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)

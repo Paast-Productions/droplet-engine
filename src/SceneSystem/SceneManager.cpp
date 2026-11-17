@@ -25,7 +25,7 @@ Droplet::Scene::SceneManager::~SceneManager()
     
 }
 
-void SceneManager::LoadScene(const std::string &p_name)
+std::weak_ptr<Scene> SceneManager::LoadScene(const std::string &p_name)
 {
     ZoneScoped;
     ZoneText(p_name.c_str(), p_name.size());
@@ -45,8 +45,9 @@ void SceneManager::LoadScene(const std::string &p_name)
     }
 
     scene->Load();
-
+    
     m_scenes[p_name] = scene;
+    return scene;
 }
 
 void SceneManager::UnloadScene(const std::string &p_name)
