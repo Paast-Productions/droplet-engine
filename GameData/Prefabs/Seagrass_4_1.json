@@ -1,6 +1,7 @@
 {
     "active": true,
     "children": [],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
@@ -17,21 +18,22 @@
                 "tesName": "",
                 "textureDisplayName": "Seagrass_4",
                 "textureGUID": 8379647721032740223,
-                "vs": 7809030845991192100,
-                "vsName": "Base.VS"
+                "transparent": false,
+                "vs": 6846475175127286139,
+                "vsName": "wavy.VS"
             },
             "id": 1,
             "type": "MeshComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 478,
+    "id": 563,
     "name": "Seagrass_4_1",
     "transform": {
         "position": [
-            28.516162872314453,
-            0.08135175704956055,
-            -2.591754198074341
+            0.0,
+            0.0,
+            45.0
         ],
         "rotation": [
             1.0,
