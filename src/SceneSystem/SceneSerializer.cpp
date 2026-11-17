@@ -206,6 +206,8 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
             uint16_t collisionLayerMaskValue = p_json["collisionLayerMask"];
             node->SetCollisionLayerMask(static_cast<CollisionLayer>(collisionLayerMaskValue));
         }
+        
+        DeserializeTransform(p_json["transform"], node->GetTransform());
 
         if (p_json.contains("children"))
         {
@@ -214,8 +216,6 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
                 DeserializeNode(childJson, node, p_scene, p_context);
             }
         }
-        
-        DeserializeTransform(p_json["transform"], node->GetTransform());
 
         if (p_json.contains("components"))
         {
