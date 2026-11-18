@@ -9,10 +9,10 @@ local physicsComponent = nil
 
 -- Movement settings
 local acceleration = 5.0
-local maxSpeed = 5.0
+local maxSpeed = 20.0
 
-local acceleration = 5.0     -- speeding up along the input direction
-local deceleration = 12.0    -- no input: slowing to a stop
+local acceleration = 10.0     -- speeding up along the input direction
+local deceleration = 8.0    -- no input: slowing to a stop
 local braking = 14.0         -- input opposes current motion: turning around
 
 local moveSpeed = 0.0
@@ -20,9 +20,9 @@ local moveSpeed = 0.0
 -- Pulse-jet settings
 local pulseCooldown = 3.0 -- In seconds
 local currentPulseCooldown = 0.0 -- In seconds
-local pulseFadeOutTime = 0.5 -- In seconds
+local pulseFadeOutTime = 1.2 -- In seconds
 local currentPulseFadeOutTime = 0.0 -- In seconds
-local pulseSpeed = 1.1
+local pulseSpeed = 1.4
 local pulseDirection = Vec3.new(0.0, 0.0, 0.0)
 local pulseKey = Key.SHIFT
 
@@ -235,14 +235,11 @@ function UpdateMovement(dt)
         )
     end
 
-    -- Apply movement in world space
-    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 50.0)
-    
     -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
 		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
-		movement = GLM.V3Add(
-			movement,
+		velocity = GLM.V3Add(
+			velocity,
 			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime * 10.0)
 		)
 		
@@ -276,7 +273,7 @@ function UpdateMovement(dt)
 		currentPulseCooldown = 0.0
 	end
     
-	physicsComponent:SetVelocity(movement)
+	physicsComponent:SetVelocity(velocity)
 
     tracy.ZoneEnd()
 end
