@@ -4,20 +4,39 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
-                  "active": true,
-                  "data": {
-                    "damage": 0.20000000298023224,
-                    "zone": 1,
-                    "direction": [ 0.0, -1.0, 0.0 ]
-                  },
-                  "id": 1,
-                  "type": "HazardComponent"
+                    "active": true,
+                    "data": {
+                        "damage": 0.5,
+                        "direction": [
+                            0.0,
+                            -1.0,
+                            0.0
+                        ],
+                        "zone": 1
+                    },
+                    "id": 1,
+                    "type": "HazardComponent"
                 },
                 {
                     "active": true,
-                    "data": null,
+                    "data": {
+                        "collisionLayerMask": 65535,
+                        "numAabb": 0,
+                        "numObb": 1,
+                        "numSphere": 0,
+                        "obbExtX0": 10.0,
+                        "obbExtY0": 10.0,
+                        "obbExtZ0": 10.0,
+                        "obbOffX0": 0.0,
+                        "obbOffY0": 0.0,
+                        "obbOffZ0": 0.0,
+                        "obbRotX0": 0.0,
+                        "obbRotY0": -0.0,
+                        "obbRotZ0": 0.0
+                    },
                     "id": 2,
                     "type": "TriggerComponent"
                 },
@@ -29,13 +48,14 @@
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Cube",
-                        "meshGUID": 1448650563753099256,
+                        "meshGUID": 0,
                         "tcs": 0,
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -45,6 +65,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "pressure.lua"
                     },
                     "id": 4,
@@ -52,7 +73,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 63,
+            "id": 1,
             "name": "pressure hazzard",
             "transform": {
                 "position": [
@@ -76,12 +97,15 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
                     "data": {
                         "health": 100.0,
-                        "maxHealth": 100.0
+                        "hullIntegrity": 100.0,
+                        "maxHealth": 100.0,
+                        "maxHullIntegrity": 100.0
                     },
                     "id": 1,
                     "type": "HealthComponent"
@@ -97,6 +121,12 @@
                                 100.0
                             ]
                         },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
                         "drawLayerMask": 65535,
                         "priority": 0,
                         "resolution": [
@@ -116,6 +146,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "Engine_Side/DroneMovement.lua"
                     },
                     "id": 4,
@@ -136,6 +167,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -144,12 +176,12 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 64,
+            "id": 2,
             "name": "drone",
             "transform": {
                 "position": [
                     0.0,
-                    10.0,
+                    0.0,
                     0.0
                 ],
                 "rotation": [
