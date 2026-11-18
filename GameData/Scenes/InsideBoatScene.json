@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 708,
+            "id": 1079,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -105,7 +105,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 711,
+                            "id": 1082,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -130,7 +130,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 710,
+                    "id": 1081,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -183,7 +183,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 713,
+                            "id": 1084,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -253,7 +253,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 714,
+                            "id": 1085,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -278,7 +278,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 712,
+                    "id": 1083,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -347,7 +347,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 709,
+            "id": 1080,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -400,7 +400,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 716,
+                    "id": 1087,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -443,7 +443,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 717,
+                    "id": 1088,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -491,7 +491,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 715,
+            "id": 1086,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -553,7 +553,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 719,
+                    "id": 1090,
                     "name": "wheel",
                     "transform": {
                         "position": [
@@ -603,7 +603,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 720,
+                    "id": 1091,
                     "name": "enginePart1",
                     "transform": {
                         "position": [
@@ -653,7 +653,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 721,
+                    "id": 1092,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -678,7 +678,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 722,
+                    "id": 1093,
                     "name": "BlackParticleSystem",
                     "prefab": "GameData\\Prefabs\\BlackParticleSystem.json",
                     "transform": {
@@ -704,7 +704,7 @@
                     "active": false,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 730,
+                    "id": 1101,
                     "name": "WhiteParticleSystem",
                     "prefab": "GameData\\Prefabs\\WhiteParticleSystem.json",
                     "transform": {
@@ -755,7 +755,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 738,
+                    "id": 1109,
                     "name": "EnginePart2",
                     "transform": {
                         "position": [
@@ -871,7 +871,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 718,
+            "id": 1089,
             "name": "engine",
             "transform": {
                 "position": [
@@ -921,7 +921,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 739,
+            "id": 1110,
             "name": "Ladderhatch",
             "transform": {
                 "position": [
@@ -997,7 +997,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 741,
+                    "id": 1112,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1047,7 +1047,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 742,
+                    "id": 1113,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1116,7 +1116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 743,
+                    "id": 1114,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1167,7 +1167,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 744,
+                    "id": 1115,
                     "name": "InteractionNode",
                     "transform": {
                         "position": [
@@ -1192,7 +1192,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 740,
+            "id": 1111,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -1242,7 +1242,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 745,
+            "id": 1116,
             "name": "Postit",
             "transform": {
                 "position": [
@@ -1314,7 +1314,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 747,
+                    "id": 1118,
                     "name": "Crate Mesh",
                     "transform": {
                         "position": [
@@ -1340,2485 +1340,1197 @@
                     "children": [
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 749,
+                            "id": 1120,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.0,
-                                    0.9098800420761108,
-                                    0.0
+                                    -0.03775334358215332,
+                                    1.4339503049850464,
+                                    -0.08749771118164063
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223006682470441,
+                                    -0.20077165961265564,
+                                    0.20139911770820618
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000213384628296,
-                                    -1.0000418424606323
+                                    0.9999876618385315,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 750,
+                            "id": 1121,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.0,
-                                    0.9098800420761108,
-                                    0.0
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000213384628296,
-                                    -1.0000418424606323
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 751,
+                            "id": 1122,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.0,
-                                    0.9098800420761108,
-                                    0.0
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000213384628296,
-                                    -1.0000418424606323
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 752,
+                            "id": 1123,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.0,
-                                    0.9098800420761108,
-                                    0.0
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000213384628296,
-                                    -1.0000418424606323
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 753,
+                            "id": 1124,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.14112496376037598,
-                                    1.2125186920166016,
-                                    0.06821727752685547
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206703528761864,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999988079071045,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 754,
+                            "id": 1125,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.14112496376037598,
-                                    1.2125186920166016,
-                                    0.06821727752685547
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206703528761864,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999988079071045,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 755,
+                            "id": 1126,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.14112496376037598,
-                                    1.2125186920166016,
-                                    0.06821727752685547
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206703528761864,
-                                    -0.0
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
                                 ],
                                 "scale": [
-                                    -0.9999988079071045,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 756,
+                            "id": 1127,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.14112496376037598,
-                                    1.2125186920166016,
-                                    0.06821727752685547
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206703528761864,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999988079071045,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 757,
+                            "id": 1128,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.04587364196777344,
-                                    1.2288553714752197,
-                                    -0.08958959579467773
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 758,
+                            "id": 1129,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.18368816375732422,
-                                    0.9560335874557495,
-                                    0.009170055389404297
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 759,
+                            "id": 1130,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.18350648880004883,
-                                    0.8800210356712341,
-                                    0.08673477172851563
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 760,
+                            "id": 1131,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.14616155624389648,
-                                    0.7719252705574036,
-                                    -0.05798530578613281
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000721216201782,
-                                    -1.0001434087753296
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 761,
+                            "id": 1132,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.2775228023529053,
-                                    1.3201594352722168,
-                                    0.2692842483520508
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000919103622437,
-                                    -1.0001829862594604
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 762,
+                            "id": 1133,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.04051661491394043,
-                                    1.0585767030715942,
-                                    -0.05798530578613281
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0000534057617188,
-                                    -1.0001059770584106
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 763,
+                            "id": 1134,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.12168216705322266,
-                                    0.9413384199142456,
-                                    0.010231494903564453
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206705391407013,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999748468399048,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 764,
+                            "id": 1135,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.023987531661987305,
-                                    0.8739920854568481,
-                                    0.10899114608764648
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206705391407013,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
                                 ],
                                 "scale": [
-                                    -0.9999791383743286,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 765,
+                            "id": 1136,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.10060763359069824,
-                                    0.8739920854568481,
-                                    0.010231494903564453
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206705391407013,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999818205833435,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 766,
+                            "id": 1137,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.2084512710571289,
-                                    1.2633534669876099,
-                                    0.18793678283691406
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206705391407013,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999746084213257,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 767,
+                            "id": 1138,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.12128353118896484,
-                                    0.8550089597702026,
-                                    -0.14757537841796875
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 768,
+                            "id": 1139,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.0996098518371582,
-                                    0.9300686120986938,
-                                    -0.14757537841796875
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 769,
+                            "id": 1140,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.0996098518371582,
-                                    0.9684702754020691,
-                                    -0.14757537841796875
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 770,
+                            "id": 1141,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.0996098518371582,
-                                    0.7990220785140991,
-                                    -0.14757537841796875
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 771,
+                            "id": 1142,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.08962726593017578,
-                                    0.8366327285766602,
-                                    0.023891925811767578
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 772,
+                            "id": 1143,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.08962726593017578,
-                                    0.8366327285766602,
-                                    0.023891925811767578
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 773,
+                            "id": 1144,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.07105064392089844,
-                                    0.5339936017990112,
-                                    0.0554957389831543
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0001003742218018,
-                                    -1.0001999139785767
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 774,
+                            "id": 1145,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.07105064392089844,
-                                    0.5339936017990112,
-                                    0.0554957389831543
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0001003742218018,
-                                    -1.0001999139785767
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 775,
+                            "id": 1146,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.07105064392089844,
-                                    0.5339936017990112,
-                                    0.0554957389831543
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0001003742218018,
-                                    -1.0001999139785767
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 776,
+                            "id": 1147,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.07105064392089844,
-                                    0.5339936017990112,
-                                    0.0554957389831543
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9305567741394043,
-                                    -0.3661477267742157,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999999403953552,
-                                    -1.0001003742218018,
-                                    -1.0001999139785767
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 777,
+                            "id": 1148,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.22778606414794922,
-                                    1.287023901939392,
-                                    0.27142906188964844
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 778,
+                            "id": 1149,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.07007336616516113,
-                                    0.836632251739502,
-                                    0.12371444702148438
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 779,
+                            "id": 1150,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.07007336616516113,
-                                    0.836632251739502,
-                                    0.12371444702148438
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 780,
+                            "id": 1151,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    0.07007336616516113,
-                                    0.836632251739502,
-                                    0.12371444702148438
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 781,
+                            "id": 1152,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.15181779861450195,
-                                    1.1852397918701172,
-                                    -0.03409433364868164
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 782,
+                            "id": 1153,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.13014459609985352,
-                                    1.6325218677520752,
-                                    -0.03409433364868164
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 783,
+                            "id": 1154,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.13014459609985352,
-                                    1.6325218677520752,
-                                    -0.03409433364868164
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
                                 ]
                             }
                         },
                         {
                             "active": true,
-                            "children": [],
                             "collisionLayerMask": 1,
-                            "components": [
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "fs": 13680123319807966343,
-                                        "fsName": "Base.FS",
-                                        "gs": 0,
-                                        "gsName": "",
-                                        "meshDisplayName": "Cog",
-                                        "meshGUID": 13355020082004525987,
-                                        "tcs": 0,
-                                        "tcsName": "",
-                                        "tes": 0,
-                                        "tesName": "",
-                                        "textureDisplayName": "White",
-                                        "textureGUID": 13855953862202670664,
-                                        "transparent": false,
-                                        "vs": 7809030845991192100,
-                                        "vsName": "Base.VS"
-                                    },
-                                    "id": 1,
-                                    "type": "MeshComponent"
-                                },
-                                {
-                                    "active": true,
-                                    "data": {
-                                        "h": 0.0,
-                                        "halfExtentsX": 0.0,
-                                        "halfExtentsY": 0.0,
-                                        "halfExtentsZ": 0.0,
-                                        "layer": 1,
-                                        "meshGUID": 13355020082004525987,
-                                        "motionType": 2,
-                                        "offsetX": 0.0,
-                                        "offsetY": 0.0,
-                                        "offsetZ": 0.0,
-                                        "r": 0.0,
-                                        "shapeType": 5
-                                    },
-                                    "id": 2,
-                                    "type": "PhysicsComponent"
-                                }
-                            ],
                             "drawLayer": 1,
-                            "id": 784,
+                            "id": 1155,
                             "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
                             "transform": {
                                 "position": [
-                                    -0.13014459609985352,
-                                    1.6325218677520752,
-                                    -0.03409433364868164
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
                                 ],
                                 "rotation": [
-                                    0.0,
-                                    0.9997069835662842,
-                                    -0.024206707254052162,
-                                    -0.0
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
                                 ],
                                 "scale": [
-                                    -0.9999745488166809,
-                                    -1.000058650970459,
-                                    -1.0001167058944702
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1156,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1157,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
+                                ],
+                                "scale": [
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1158,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1159,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1160,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1161,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1162,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1163,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1164,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1165,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
+                                ],
+                                "scale": [
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
                                 ]
                             }
                         }
@@ -3826,7 +2538,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 748,
+                    "id": 1119,
                     "name": "Contents",
                     "transform": {
                         "position": [
@@ -3851,7 +2563,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 746,
+            "id": 1117,
             "name": "Crate",
             "transform": {
                 "position": [
