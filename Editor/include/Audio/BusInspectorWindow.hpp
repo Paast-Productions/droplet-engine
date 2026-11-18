@@ -2,9 +2,11 @@
 
 #include "EditorWindow.hpp"
 #include "EditorContext.hpp"
+#include <Audio/AudioBus.hpp>
 
 namespace Droplet::Editor
 {
+
 	/// @brief The Bus inspector window, interacting with bus specific operations
 	/// operations such as lowering or increasing volume
 	/// 
@@ -17,6 +19,7 @@ namespace Droplet::Editor
 		~BusInspectorWindow() = default;
 		
 		void SetCurrentBus(Audio::AudioBus *p_bus);
+		void RenderEffectSlotDropTarget(Audio::AudioBus &p_bus, uint32_t p_slot);
 
 	protected:
 

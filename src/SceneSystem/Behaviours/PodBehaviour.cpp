@@ -19,10 +19,10 @@ void PodBehaviour::PreUpdateImpl()
 
 	if (!m_pendingUnloadScene.expired())
 	{
-		std::string naame = m_pendingUnloadScene.lock()->GetName();
-		GetSceneManager()->UnloadScene(naame);
-		if (naame == "BoatScene")
-		{
+		std::string name = m_pendingUnloadScene.lock()->GetName();
+		GetSceneManager()->UnloadScene(name);
+		if ((name == "BoatScene") && (GetSceneManager()->GetScene("InsideBoatScene")))
+		{	
 			GetSceneManager()->UnloadScene("InsideBoatScene");
 		}
 		m_pendingUnloadScene = {};

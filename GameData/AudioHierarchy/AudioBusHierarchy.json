@@ -1,0 +1,67 @@
+{
+    "SERIALIZATION_TYPE": "AUDIO_BUS_HIERARCHY",
+    "active": false,
+    "children": [
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "name": "Music",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "WaterSFX",
+                    "volume": 0.0
+                },
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "Fish",
+                    "volume": 0.0
+                }
+            ],
+            "effects": [],
+            "name": "Water",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [],
+            "effects": [],
+            "name": "Pod",
+            "volume": 0.0
+        },
+        {
+            "active": false,
+            "children": [
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "LowerDeck",
+                    "volume": 0.0
+                },
+                {
+                    "active": false,
+                    "children": [],
+                    "effects": [],
+                    "name": "UpperDeck",
+                    "volume": 0.0
+                }
+            ],
+            "effects": [],
+            "name": "Boat",
+            "volume": 0.0
+        }
+    ],
+    "effects": [],
+    "name": "Master",
+    "volume": 0.0
+}

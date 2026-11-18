@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Transparent.FS",
+            "guid": 13112886787923826438,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 1
+            },
+            "sourceName": "Transparent.FS",
+            "type": 6
+        }
+    ]
+}

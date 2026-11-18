@@ -24,8 +24,12 @@ void HazardComponent::SetDirection(glm::vec3 p_direction)
 
 void HazardComponent::RenderUIImpl()
 {
-    std::string text = "Damage: " + std::to_string(m_damage) + "/s";
-    ImGui::Text(text.c_str());
+#ifdef _EDITOR
+    //std::string text = "Damage: " + std::to_string(m_damage) + "/s";
+    //ImGui::Text(text.c_str());
+    ImGui::DragFloat("damage", &m_damage, 1.0f, 0.0f, 100.0f);
+    
+    m_damage = std::max(0.5f, m_damage);
     
     std::string directionStr = "Direction (" + std::to_string(m_direction.x) + ", " + std::to_string(m_direction.y) + ", " + std::to_string(m_direction.z) + ")";
     ImGui::Text(directionStr.c_str());

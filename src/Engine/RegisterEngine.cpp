@@ -4,6 +4,7 @@
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
@@ -16,13 +17,14 @@ namespace Droplet
 {
 	void RegisterEngineComponents()
 	{
-		Scene::ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_unique<Scene::MeshComponent>(); });
-		Scene::ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<Scene::ScriptComponent>(); });
-		Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Scene::AudioListenerComponent>();});
-		Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Scene::AudioEmitterComponent>();});
-		Scene::ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<Scene::PhysicsComponent>(); });
-		Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Scene::CameraComponent>(); });
-		Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Scene::SkeletonComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_unique<Droplet::Scene::MeshComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<Droplet::Scene::ScriptComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioPlayerComponent", []() { return std::make_unique<Droplet::Scene::AudioPlayerComponent>();});
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Droplet::Scene::AudioEmitterComponent>();});
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Droplet::Scene::AudioListenerComponent>();});
+		Droplet::Scene::ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<Droplet::Scene::PhysicsComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Droplet::Scene::CameraComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Droplet::Scene::SkeletonComponent>(); });
 	}
 
 	void RegisterEngineBehaviours()

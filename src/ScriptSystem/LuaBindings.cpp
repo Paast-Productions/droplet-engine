@@ -15,7 +15,6 @@
 #include <OctreeBindings.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyLua.hpp>
-#include <Scene.hpp>
 #include <Component.hpp>
 #include <HealthComponent.hpp>
 #include <HazardComponent.hpp>
@@ -23,12 +22,16 @@
 #include <CameraComponent.hpp>
 #include <MeshComponent.hpp>
 #include <PhysicsComponent.hpp>
+#include <CollectibleTypeComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -103,11 +106,14 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-		"GetParent", &Scene::Node::GetParent,
+		"GetParent", [](Scene::Node& node) -> std::shared_ptr<Scene::Node>
+		{
+			return node.GetParent().lock();
+		},
 		"GetChildren", [](Scene::Node &node)
 		{
 			auto childrenShared = node.GetChildren();
-			std::vector<Scene::Node*> children;
+			std::vector<Scene::Node *> children;
 			children.reserve(childrenShared.size());
 
 			for (auto &child : childrenShared)
@@ -116,6 +122,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			}
 			return sol::as_table(std::move(children));
 		},
+		"SetActiveSelf", &Scene::Node::SetActiveSelf,
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
 		{
@@ -170,7 +177,35 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		[](Scene::Node &node)
 		{
 			return node.GetComponent<Scene::LadderComponent>();
-		}
+		},
+		"GetCollectibleTypeComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::CollectibleTypeComponent>();
+		},
+		"GetAudioEmitter",
+        [](Scene::Node &node, const std::string& p_name)
+        {
+            return node.GetAudioEmitter(p_name).lock();
+        },
+        "GetAudioPlayer",
+        [](Scene::Node &node, const std::string &p_name)
+        {
+            return node.GetAudioPlayer(p_name).lock();
+        },
+        "GetScriptComponent",
+        [](Scene::Node &node, const std::string &p_name)
+        {
+            auto scripts = node.GetComponents<Scene::ScriptComponent>();
+        
+			for (const auto &script : scripts)
+			{
+				if (script->GetScriptPath() == p_name)
+				{
+					return script;
+				}
+			}
+        }	
 	);
 
 	LuaClassDefinition classDef;
@@ -178,20 +213,22 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 
 	classDef.functions =
 	{
-		{"GetPlayerData","PlayerData",{}},
-		{"GetName", "string", {}},
-		{"GetID", "integer", {}},
-		{"GetTransform", "Transform", {}},
-		{"GetParent", "Node", {}},
-		{"GetChildren", "table", {}},
-		{"GetCameraComponent", "CameraComponent", {}},
-		{"GetMeshComponent", "MeshComponent", {}},
-		{"GetPhysicsComponent", "PhysicsComponent", {}},
-		{"GetHealthComponent", "HealthComponent", {}},
-		{"GetPlayerComponent", "PlayerComponent", {}},
-		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
+		{"GetPlayerData","PlayerData", {} },
+		{"GetName", "string", {} },
+		{"GetID", "integer", {} },
+		{"GetTransform", "Transform", {} },
+		{"SetActiveSelf", "void", {{ "state", "bool" }} },
+		{"GetParent", "Node", {} },
+		{"GetChildren", "table", {} },
+		{"GetCameraComponent", "CameraComponent", {} },
+		{"GetMeshComponent", "MeshComponent", {} },
+		{"GetPhysicsComponent", "PhysicsComponent", {} },
+		{"GetHealthComponent", "HealthComponent", {} },
+		{"GetPlayerComponent", "PlayerComponent", {} },
+		{"GetPlayerBehaviour", "PlayerBehaviour", {} },
 		{"GetInteractableComponent", "InteractableComponent", {} },
-		{"GetLadderComponent", "LadderComponent", {} }
+		{"GetLadderComponent", "LadderComponent", {} },
+		{"GetScriptComponent", "ScriptComponent", {{"path", "string"} }}
 	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
@@ -854,6 +891,11 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 		glm.set_function("V3Refract",
 			[](glm::vec3 p_vec1, glm::vec3 p_vec2, float p_float) {
 				return glm::refract(p_vec1, p_vec2, p_float);
+			});
+
+		glm.set_function("V3Rotate",
+			[](glm::vec3 p_vec, glm::quat p_quat) {
+				return p_quat * p_vec;
 			});
 	}
 
@@ -1588,6 +1630,15 @@ void LuaBindings::RegisterGLM(sol::state_view p_luaState)
 				{ "vec1", "Vec3" },
 				{ "vec2", "Vec3" },
 				{ "float", "number" }
+			}
+		},
+		{
+			"V3Rotate",
+			"Vec3",
+			true,
+			{
+				{ "vec", "Vec3" },
+				{ "quat", "Quat" }
 			}
 		},
 
