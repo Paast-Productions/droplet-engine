@@ -1,12 +1,13 @@
 {
     "active": true,
     "children": [],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
             "data": {
-                "fs": 13680123319807966343,
-                "fsName": "Base.FS",
+                "fs": 4700928726894490275,
+                "fsName": "Screen.FS",
                 "gs": 0,
                 "gsName": "",
                 "meshDisplayName": "Seagrass_2_2",
@@ -17,6 +18,7 @@
                 "tesName": "",
                 "textureDisplayName": "Seagrass_2",
                 "textureGUID": 3979492177554091074,
+                "transparent": false,
                 "vs": 6846475175127286139,
                 "vsName": "wavy.VS"
             },
@@ -25,19 +27,19 @@
         }
     ],
     "drawLayer": 1,
-    "id": 7,
+    "id": 2565,
     "name": "Seagrass_2_2",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            20.0
+            1.7452125549316406,
+            0.22843998670578003,
+            1.9959068298339844
         ],
         "rotation": [
-            1.0,
-            0.0,
-            0.0,
-            0.0
+            0.0038795913569629192,
+            -0.07813957333564758,
+            0.9957084059715271,
+            -0.04943644255399704
         ],
         "scale": [
             1.0,

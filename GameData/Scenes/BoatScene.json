@@ -9,8 +9,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Boat",
@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 653,
+            "id": 328,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -116,7 +116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 655,
+                    "id": 330,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -166,7 +166,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 656,
+                    "id": 331,
                     "name": "Lantern",
                     "transform": {
                         "position": [
@@ -235,7 +235,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 654,
+            "id": 329,
             "name": "Player",
             "transform": {
                 "position": [
@@ -261,11 +261,54 @@
             "children": [
                 {
                     "active": true,
+                    "children": [],
                     "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Exterior",
+                                "meshGUID": 7445482948709711179,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "PodExterior",
+                                "textureGUID": 7599848563937726273,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "meshGUID": 7445482948709711179,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
                     "drawLayer": 1,
-                    "id": 658,
+                    "id": 333,
                     "name": "Pod Exterior",
-                    "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
                         "position": [
                             0.0,
@@ -289,7 +332,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 659,
+                    "id": 334,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -317,7 +360,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 8,
-                    "id": 668,
+                    "id": 343,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -346,8 +389,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Pod_Door",
@@ -386,7 +429,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 669,
+                    "id": 344,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -413,8 +456,8 @@
                 {
                     "active": true,
                     "data": {
-                        "button": 668,
-                        "player": 654,
+                        "button": 343,
+                        "player": 329,
                         "reach": 1.0,
                         "targetSceneName": "Internlevel"
                     },
@@ -423,7 +466,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 657,
+            "id": 332,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -455,8 +498,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -476,7 +519,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 671,
+                    "id": 346,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -505,8 +548,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -526,7 +569,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 672,
+                    "id": 347,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -555,8 +598,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -576,7 +619,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 673,
+                    "id": 348,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -605,8 +648,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -626,7 +669,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 674,
+                    "id": 349,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -655,8 +698,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -676,7 +719,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 675,
+                    "id": 350,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -705,8 +748,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -726,7 +769,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 676,
+                    "id": 351,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -755,8 +798,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -776,7 +819,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 677,
+                    "id": 352,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -805,8 +848,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -826,7 +869,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 678,
+                    "id": 353,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -855,8 +898,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -876,7 +919,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 679,
+                    "id": 354,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -905,8 +948,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -926,7 +969,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 680,
+                    "id": 355,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -955,8 +998,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -976,7 +1019,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 681,
+                    "id": 356,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1005,8 +1048,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1026,7 +1069,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 682,
+                    "id": 357,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1055,8 +1098,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1076,7 +1119,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 683,
+                    "id": 358,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1105,8 +1148,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1126,7 +1169,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 684,
+                    "id": 359,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1155,8 +1198,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1176,7 +1219,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 685,
+                    "id": 360,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1205,8 +1248,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1226,7 +1269,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 686,
+                    "id": 361,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1255,8 +1298,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1276,7 +1319,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 687,
+                    "id": 362,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1305,8 +1348,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1326,7 +1369,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 688,
+                    "id": 363,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1355,8 +1398,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1376,7 +1419,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 689,
+                    "id": 364,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1405,8 +1448,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1426,7 +1469,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 690,
+                    "id": 365,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1455,8 +1498,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1476,7 +1519,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 691,
+                    "id": 366,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1505,8 +1548,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1526,7 +1569,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 692,
+                    "id": 367,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1555,8 +1598,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1576,7 +1619,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 693,
+                    "id": 368,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1605,8 +1648,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1626,7 +1669,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 694,
+                    "id": 369,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1655,8 +1698,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Grid",
@@ -1676,7 +1719,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 695,
+                    "id": 370,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1701,7 +1744,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 670,
+            "id": 345,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1733,8 +1776,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "BaseFish",
@@ -1754,7 +1797,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 697,
+                    "id": 372,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -1779,7 +1822,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 696,
+            "id": 371,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -1808,8 +1851,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Portrait",
@@ -1829,7 +1872,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 698,
+            "id": 373,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -1858,8 +1901,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Crane",
@@ -1879,7 +1922,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 699,
+            "id": 374,
             "name": "Crane",
             "transform": {
                 "position": [
@@ -1930,7 +1973,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 700,
+            "id": 375,
             "name": "Empty Node",
             "transform": {
                 "position": [
@@ -1962,8 +2005,8 @@
                         {
                             "active": true,
                             "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
                                 "gs": 0,
                                 "gsName": "",
                                 "meshDisplayName": "Postit-CurveBottomAndOneTop",
@@ -1983,7 +2026,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 702,
+                    "id": 377,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -2026,7 +2069,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 703,
+                    "id": 378,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -2053,8 +2096,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Table",
@@ -2093,7 +2136,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 701,
+            "id": 376,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -2140,7 +2183,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 704,
+            "id": 379,
             "name": "Invisible Wall",
             "transform": {
                 "position": [
@@ -2187,7 +2230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 719,
+            "id": 380,
             "name": "Invisible Wall",
             "transform": {
                 "position": [

@@ -9,8 +9,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "metal_fish",
@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2193,
+            "id": 3409,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -75,13 +75,13 @@
         }
     ],
     "drawLayer": 1,
-    "id": 2192,
+    "id": 3408,
     "name": "Fish_Metal",
     "transform": {
         "position": [
-            9.79403305053711,
-            5.138550281524658,
-            17.6708984375
+            -33.1705207824707,
+            -11.953865051269531,
+            38.833065032958984
         ],
         "rotation": [
             1.9861630562445498e-08,
