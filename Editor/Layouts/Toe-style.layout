@@ -1,0 +1,9 @@
+{
+    "ShowBehaviourInspector": true,
+    "ShowEditorView": true,
+    "ShowNodeHierarchy": true,
+    "ShowNodeInspector": true,
+    "ShowResourceBrowser": true,
+    "ShowSavedData": true,
+    "ShowScripts": true
+}

@@ -1,0 +1,204 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Drone",
+                        "meshGUID": 11502053657790986835,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Drone",
+                        "textureGUID": 1365390299680718017,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 64,
+            "id": 4554,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    -0.09999960660934448,
+                    -0.09999960660934448
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.5,
+                    0.5,
+                    0.5
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 33,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "autoRender": true,
+                "camera": {
+                    "fov": 75.0,
+                    "planes": [
+                        0.10000000149011612,
+                        500.0
+                    ]
+                },
+                "clearColor": [
+                    0.0,
+                    0.0,
+                    0.30000001192092896,
+                    1.0
+                ],
+                "drawLayerMask": 65471,
+                "priority": 0,
+                "resolution": [
+                    1024,
+                    1024
+                ]
+            },
+            "id": 9,
+            "type": "CameraComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneControl.lua"
+            },
+            "id": 3,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "health": 100.0,
+                "maxHealth": 100.0
+            },
+            "id": 4,
+            "type": "HealthComponent"
+        },
+        {
+            "active": true,
+            "data": {},
+            "id": 5,
+            "type": "PlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "SuctionInteraction.lua"
+            },
+            "id": 8,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Death.lua"
+            },
+            "id": 10,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.8600000143051147,
+                "soundGuid": 5649831997769777985,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -9.729999542236328
+            },
+            "id": 12,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneAudioController.lua"
+            },
+            "id": 13,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.800000011920929,
+                "soundGuid": 8694620601437719986,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -3.4100000858306885
+            },
+            "id": 14,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "h": 0.10000000149011612,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 0,
+                "meshGUID": 0,
+                "motionType": 1,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 1.0,
+                "shapeType": 7
+            },
+            "id": 15,
+            "type": "PhysicsComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 4553,
+    "name": "Drone",
+    "transform": {
+        "position": [
+            43.0,
+            12.0,
+            -20.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0000039339065552,
+            1.0000039339065552
+        ]
+    }
+}

@@ -2,17 +2,18 @@
 --
 -- Member Variables
 --
+local suctionSystem = require("SuctionSystem")
 
 local trans = nil
 local ffi = require("ffi")
 
-ffi.cdef[[
-double sin(double x);
-double cos(double x);
-double atan(double x);
-double acos(double x);
-double sqrt(double x);
-]]
+--ffi.cdef [[
+--double sin(double x);
+--double cos(double x);
+--double atan(double x);
+--double acos(double x);
+--double sqrt(double x);
+--]]
 
 local orbitPoint = Vec3.new(0.0, 0.0, 0.0)
 local targetPoint = Vec3.new(0.0, 0.0, 0.0)
@@ -62,15 +63,15 @@ function NewTargetPoint()
     
 	-- Random point on a sphere using spherical coordinates
 	local theta = math.random() * 2 * math.pi
-    local phi = ffi.C.acos(2 * math.random() - 1)
+    local phi = math.acos(2 * math.random() - 1)
 
     -- Random distance, uniform by volume
     local r = targetRadius * math.random()^(1/3)
 
 	local v = Vec3.new(0.0, 0.0, 0.0)
-    v.x = r * ffi.C.sin(phi) * ffi.C.cos(theta)
-    v.y = r * ffi.C.sin(phi) * ffi.C.sin(theta)
-    v.z = r * ffi.C.cos(phi)
+    v.x = r * math.sin(phi) * math.cos(theta)
+    v.y = r * math.sin(phi) * math.sin(theta)
+    v.z = r * math.cos(phi)
 
 	targetPoint = GLM.V3Add(orbitPoint, v)
 
@@ -232,6 +233,9 @@ function OnStart()
     jit.flush()
     
 	print("New Fih")
+
+    suctionSystem.RegisterCollectible(self)
+
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()
@@ -340,4 +344,8 @@ function RenderUI()
     end
 
     tracy.ZoneEnd()
+end
+
+function OnDestroy()
+    suctionSystem.UnregisterCollectible(self)
 end

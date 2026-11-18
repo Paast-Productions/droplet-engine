@@ -97,14 +97,12 @@ namespace Droplet::Editor
 		void SetFocusCameraOnSelection(bool p_focus) { m_focusCameraOnSelection = p_focus; }
 		[[nodiscard]] bool ShouldFocusCameraOnSelection() const { return m_focusCameraOnSelection; }
 
-		void EnterPlayMode();
+				void EnterPlayMode();
 		void PausePlayMode();
 		void ExitPlayMode();
 
 		bool IsInPlayMode() const { return m_isInPlayMode; }
 		bool IsPaused() const { return m_isPaused; }
-
-
 	private:
 		Droplet::Engine &m_engine;
 		InteractionState m_interactionState;

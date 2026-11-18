@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Crane",
+            "guid": 12409680937219033218,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Crane",
+            "type": 1
+        }
+    ]
+}

@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Postit-CurveBottomAndOneTop",
+            "guid": 9885575008883634193,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Postit-CurveBottomAndOneTop",
+            "type": 3
+        }
+    ]
+}

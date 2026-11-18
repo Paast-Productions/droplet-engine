@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Geyser",
+            "guid": 15770750368057616550,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Geyser",
+            "type": 3
+        }
+    ]
+}

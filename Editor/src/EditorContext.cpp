@@ -131,7 +131,6 @@ Droplet::Engine &EditorContext::GetEngine()
 {
 	return m_engine;
 }
-
 void EditorContext::EnterPlayMode()
 {
 	if (m_isInPlayMode)
@@ -159,8 +158,8 @@ void EditorContext::EnterPlayMode()
 	}
 
 	EngineFlagsOwner::SetUpdateFlags(UpdateFlags::PlayModeFlags);
-
-	Audio::AudioSystem::GetInstance().SetMode(true); // Notify AudioSystem
+    
+    Audio::AudioSystem::GetInstance().SetMode(true); // Notify AudioSystem
 }
 
 void EditorContext::PausePlayMode()
@@ -184,8 +183,8 @@ void EditorContext::PausePlayMode()
 		EngineFlagsOwner::SetUpdateFlags(flags);
 		m_isPaused = true;
 	}
-
-	Audio::AudioSystem::GetInstance().SetGamePaused(m_isPaused);
+    
+    Audio::AudioSystem::GetInstance().SetGamePaused(m_isPaused);
 }
 
 void EditorContext::ExitPlayMode()
@@ -214,8 +213,8 @@ void EditorContext::ExitPlayMode()
 	// Restore to the state of each scene before entering play mode
 	for (auto &[name, state] : m_sceneStatesOnPlay)
 	{
-		auto scene = CreateNewScene(name);
-		state.serializer.DeserializeScene(state.json, scene.lock());
+	    auto scene = CreateNewScene(name);
+	    state.serializer.DeserializeScene(state.json, scene.lock());
 
 		if (state.isActive != scene.lock()->IsActive())
 		{
@@ -236,6 +235,6 @@ void EditorContext::ExitPlayMode()
 	}
 
 	m_sceneStatesOnPlay.clear();
-
-	Audio::AudioSystem::GetInstance().SetMode(false); // Notify AudioSystem
+    
+    Audio::AudioSystem::GetInstance().SetMode(false); // Notify AudioSystem
 }

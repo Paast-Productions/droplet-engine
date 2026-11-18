@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Particle",
+            "guid": 1127962353778719569,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Particle",
+            "type": 3
+        }
+    ]
+}
