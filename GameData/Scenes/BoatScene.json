@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 328,
+            "id": 10754,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -116,7 +116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 330,
+                    "id": 10756,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -166,7 +166,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 331,
+                    "id": 10757,
                     "name": "Lantern",
                     "transform": {
                         "position": [
@@ -235,7 +235,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 329,
+            "id": 10755,
             "name": "Player",
             "transform": {
                 "position": [
@@ -307,7 +307,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 333,
+                    "id": 10759,
                     "name": "Pod Exterior",
                     "transform": {
                         "position": [
@@ -332,7 +332,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 334,
+                    "id": 10760,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -360,7 +360,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 8,
-                    "id": 343,
+                    "id": 10769,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -429,7 +429,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 344,
+                    "id": 10770,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -456,8 +456,8 @@
                 {
                     "active": true,
                     "data": {
-                        "button": 343,
-                        "player": 329,
+                        "button": 10769,
+                        "player": 10755,
                         "reach": 1.0,
                         "targetSceneName": "Internlevel"
                     },
@@ -466,7 +466,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 332,
+            "id": 10758,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -519,7 +519,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 346,
+                    "id": 10772,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -569,7 +569,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 347,
+                    "id": 10773,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -619,7 +619,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 348,
+                    "id": 10774,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -669,7 +669,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 349,
+                    "id": 10775,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -719,7 +719,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 350,
+                    "id": 10776,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -769,7 +769,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 351,
+                    "id": 10777,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -819,7 +819,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 352,
+                    "id": 10778,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -869,7 +869,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 353,
+                    "id": 10779,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -919,7 +919,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 354,
+                    "id": 10780,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -969,7 +969,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 355,
+                    "id": 10781,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1019,7 +1019,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 356,
+                    "id": 10782,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1069,7 +1069,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 357,
+                    "id": 10783,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1119,7 +1119,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 358,
+                    "id": 10784,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1169,7 +1169,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 359,
+                    "id": 10785,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1219,7 +1219,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 360,
+                    "id": 10786,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1269,7 +1269,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 361,
+                    "id": 10787,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1319,7 +1319,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 362,
+                    "id": 10788,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1369,7 +1369,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 363,
+                    "id": 10789,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1419,7 +1419,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 364,
+                    "id": 10790,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1469,7 +1469,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 365,
+                    "id": 10791,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1519,7 +1519,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 366,
+                    "id": 10792,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1569,7 +1569,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 367,
+                    "id": 10793,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1619,7 +1619,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 368,
+                    "id": 10794,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1669,7 +1669,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 369,
+                    "id": 10795,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1719,7 +1719,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 370,
+                    "id": 10796,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1744,7 +1744,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 345,
+            "id": 10771,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1797,7 +1797,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 372,
+                    "id": 10798,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -1822,7 +1822,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 371,
+            "id": 10797,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -1869,10 +1869,25 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": "Cat.lua"
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 3,
+                    "type": "InteractableComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 373,
+            "id": 10799,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -1922,7 +1937,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 374,
+            "id": 10800,
             "name": "Crane",
             "transform": {
                 "position": [
@@ -1973,7 +1988,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 375,
+            "id": 10801,
             "name": "Empty Node",
             "transform": {
                 "position": [
@@ -2015,8 +2030,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "postit_inventory",
-                                "textureGUID": 18076552713249502673,
+                                "textureDisplayName": "postit_heatshield",
+                                "textureGUID": 16495453954712892499,
                                 "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
@@ -2026,7 +2041,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 377,
+                    "id": 10803,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -2069,7 +2084,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 378,
+                    "id": 10804,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -2136,7 +2151,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 376,
+            "id": 10802,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -2183,7 +2198,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 379,
+            "id": 10805,
             "name": "Invisible Wall",
             "transform": {
                 "position": [
@@ -2230,7 +2245,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 380,
+            "id": 10806,
             "name": "Invisible Wall",
             "transform": {
                 "position": [

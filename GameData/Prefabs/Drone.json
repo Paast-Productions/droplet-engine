@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 1911,
+            "id": 7391,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -89,7 +89,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1912,
+            "id": 7392,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -139,7 +139,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1913,
+            "id": 7393,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -190,15 +190,6 @@
                 {
                     "active": true,
                     "data": {
-                        "data": "",
-                        "filepath": "ShowVisualFeedback.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
                         "damage": 1.0,
                         "direction": [
                             0.0,
@@ -208,27 +199,36 @@
                     },
                     "id": 3,
                     "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": "ShowVisualFeedback.lua"
+                    },
+                    "id": 4,
+                    "type": "ScriptComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 1914,
+            "id": 7394,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
-                    -0.027164459228515625,
+                    -0.02410888671875,
                     -0.016134262084960938,
-                    1.0786323547363281
+                    1.0771045684814453
                 ],
                 "rotation": [
-                    0.49995559453964233,
-                    -0.4999556541442871,
+                    0.499955415725708,
+                    -0.49995583295822144,
                     0.5000444650650024,
                     -0.5000442862510681
                 ],
                 "scale": [
-                    1.7376890182495117,
-                    0.46063634753227234,
-                    1.8122844696044922
+                    2.513322591781616,
+                    0.460999995470047,
+                    5.578161239624023
                 ]
             }
         },
@@ -283,7 +283,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1915,
+            "id": 7395,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -298,9 +298,9 @@
                     0.5
                 ],
                 "scale": [
-                    1.7380000352859497,
+                    2.513000011444092,
                     0.46063581109046936,
-                    1.812000036239624
+                    5.578000068664551
                 ]
             }
         },
@@ -355,7 +355,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1916,
+            "id": 7396,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -370,9 +370,9 @@
                     0.5
                 ],
                 "scale": [
-                    1.7380000352859497,
+                    2.513000011444092,
                     0.46063581109046936,
-                    1.812000036239624
+                    5.578000068664551
                 ]
             }
         },
@@ -427,7 +427,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1917,
+            "id": 7397,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -442,9 +442,9 @@
                     -0.5
                 ],
                 "scale": [
-                    1.7380000352859497,
+                    2.513000011444092,
                     0.46063581109046936,
-                    1.812000036239624
+                    5.578000068664551
                 ]
             }
         },
@@ -456,8 +456,8 @@
                 {
                     "active": false,
                     "data": {
-                        "fs": 10241900047444207644,
-                        "fsName": "PlayerView.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Plane",
@@ -499,7 +499,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1918,
+            "id": 7398,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -514,9 +514,9 @@
                     0.5
                 ],
                 "scale": [
-                    1.7380000352859497,
+                    2.513000011444092,
                     0.46063581109046936,
-                    1.812000036239624
+                    5.578000068664551
                 ]
             }
         }
@@ -670,7 +670,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 1910,
+    "id": 7390,
     "name": "Drone",
     "transform": {
         "position": [

@@ -63,7 +63,8 @@ function OnUpdate(dt)
         local newPos = Vec3.new(46.000, 12.000, -20.000)
         trans:SetPosition(newPos)
         health:Heal(health:GetMaxHealth())
-
+        local freezeLevel = pb:GetFreezeLevel()
+        pb:IncreaseFreezeLevel(-freezeLevel)
         pb:ClearDroneInventory()
 
         deathTimer = 0.0
