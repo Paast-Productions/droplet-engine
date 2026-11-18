@@ -275,7 +275,7 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
     m_OBBs.resize(p_compJson["numObb"]);
     m_spheres.resize(p_compJson["numSphere"]);
     
-    glm::vec3 pos = GetOwner()->GetTransform().GetPosition();
+    glm::vec3 pos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
     for (int i = 0; i < m_AABBs.size(); i++)
     {
         std::string idx = std::to_string(i);
