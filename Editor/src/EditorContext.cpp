@@ -131,7 +131,6 @@ Droplet::Engine &EditorContext::GetEngine()
 {
 	return m_engine;
 }
-
 void EditorContext::EnterPlayMode()
 {
 	if (m_isInPlayMode)

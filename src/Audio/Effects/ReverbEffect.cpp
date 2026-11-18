@@ -15,6 +15,7 @@ void Droplet::Audio::ReverbEffect::StartImpl()
 	AudioSystem::GetInstance().CreateEffect(GetEffectHandle(), lowpassParams);
 }
 
+
 void Droplet::Audio::ReverbEffect::RenderUIImpl()
 {
 #ifdef _EDITOR
