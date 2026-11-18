@@ -69,7 +69,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetSurfaceFormat().format,
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
-
+	
 	constexpr Vulkan::ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),

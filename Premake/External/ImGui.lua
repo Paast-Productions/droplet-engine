@@ -2,6 +2,8 @@ project "ImGui"
 
     kind "StaticLib"
     location(projectsPath)
+    
+    dependson { "SDL" }
 
     warnings "Off"
 

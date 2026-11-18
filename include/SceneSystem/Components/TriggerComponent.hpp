@@ -53,7 +53,7 @@ namespace Droplet::Scene
         {
             Math::AABB aabb;
             void Draw(const glm::vec4 p_color, const bool p_depth = true, const bool p_wire = true) const
-            {
+            {  
                 Graphics::Debug::DebugDraw::DrawBox(aabb, p_color, p_depth, p_wire);
             }
         };
