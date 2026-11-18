@@ -198,6 +198,13 @@ namespace Droplet::Scene
 
         [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
 
+    	/// @brief Initializes the octree
+    	/// @param p_extents The extent length of the octree
+    	void InitializeOctree(float p_extents);
+    	
+    	/// @brief Rebuilds the octree
+    	void RebuildOctree();
+    	
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
 
@@ -279,6 +286,10 @@ namespace Droplet::Scene
 
     private:
 		friend class SceneManager;
+    	
+    	/// @brief Re-adds all nodes in the scene to the octree
+    	/// @param p_node The node to add to octree
+    	void RegisterNodeRecursive(const std::shared_ptr<Node> &p_node);
 
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;

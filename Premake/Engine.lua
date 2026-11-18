@@ -55,6 +55,8 @@ project "Engine"
         "VulkanMemoryAllocator",
         "Jolt",
         "Assimp",
+        "SDL",
+        "GLM",
         "Stb",
         "Gli",
         "bvh",

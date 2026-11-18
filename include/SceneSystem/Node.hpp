@@ -140,15 +140,15 @@ namespace Droplet::Scene
             m_collisionLayerMask = p_collisionLayerMask;
 		}
 
-        /// @brief Sets whether the Node is active.
-        ///
-        /// An inactive Node does not update its Components or child Nodes.
-        ///
-        /// If the Node is activated after its Scene has already started,
-        /// OnStart is called automatically.
-        ///
-        /// @param p_active true to activate the Node, false to deactivate it.
-        void SetActiveSelf(bool p_active);
+		/// @brief Sets whether the Node is active.
+		///
+		/// An inactive Node does not update its Components or child Nodes.
+		///
+		/// If the Node is activated after its Scene has already started,
+		/// OnStart is called automatically.
+		///
+		/// @param p_active true to activate the Node, false to deactivate it.
+		void SetActiveSelf(bool p_active);
 
 		/// @brief Checks whether the Node is active.
 		///

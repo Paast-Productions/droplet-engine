@@ -1,6 +1,4 @@
 #pragma once
-
-// TODO: Fix the ordering
 #include <vector>
 #include <memory>
 #include <Ray.hpp>
