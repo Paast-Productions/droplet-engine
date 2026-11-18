@@ -1,4 +1,4 @@
-#include "core/FileExplorer.hpp"
+#include "Core/FileExplorer.hpp"
 
 #include <PortableFileDialogs/portable-file-dialogs.h>
 

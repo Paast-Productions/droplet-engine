@@ -1,4 +1,4 @@
-#include "core/StringUtils.hpp"
+#include "Core/StringUtils.hpp"
 
 #include <algorithm>
 

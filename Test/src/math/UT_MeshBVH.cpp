@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <math/bounds/MeshBVH.hpp>
+#include <Math/Bounds/MeshBVH.hpp>
 #include <vector>
 
 using namespace Droplet;

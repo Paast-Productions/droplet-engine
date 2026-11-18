@@ -1,4 +1,4 @@
-#include "math/bounds/Intersection.hpp"
+#include "Math/Bounds/Intersection.hpp"
 #include <glm/gtx/closest_point.hpp>
 #include <glm/gtx/intersect.hpp>
 #include <glm/gtx/extended_min_max.hpp>

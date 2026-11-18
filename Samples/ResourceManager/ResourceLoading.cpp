@@ -3,7 +3,7 @@
 
 #include "resource/loaders/AssimpLoader.hpp"
 #
-#include "core/ThreadPool.hpp"
+#include "Core/ThreadPool.hpp"
 #include "resource/meta/MetaData.hpp"
 #include "resource/meta/MetaUtils.hpp"
 #include "resource/types/Texture2DResource.hpp"

@@ -3,7 +3,7 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene

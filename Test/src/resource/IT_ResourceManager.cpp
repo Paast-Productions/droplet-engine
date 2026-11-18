@@ -1,7 +1,7 @@
 #include "resource/ResourceManager.hpp"
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/types/ShaderResource.hpp"
-#include "core/ThreadPool.hpp"
+#include "Core/ThreadPool.hpp"
 
 #include <gtest/gtest.h>
 #include <filesystem>

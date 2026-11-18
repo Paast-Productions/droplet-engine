@@ -8,9 +8,9 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <math/bounds/Ray.hpp>
-#include <math/bounds/Plane.hpp>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/OBB.hpp>
-#include <math/bounds/Sphere.hpp>
-#include <math/bounds/Frustum.hpp>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Ray.hpp>
+#include <Math/Bounds/Plane.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/OBB.hpp>
+#include <Math/Bounds/Sphere.hpp>
+#include <Math/Bounds/Frustum.hpp>
+#include <Math/Bounds/Intersection.hpp>
 
 namespace Droplet::Scene
 {
