@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:include/Graphics/Vulkan/ImGui/ImGuiTextureResource.hpp
 #pragma once
 
 #include <vulkan/vulkan_raii.hpp>
@@ -28,5 +27,3 @@ namespace Droplet::Graphics::ImGui
 		vk::DescriptorSet m_texture { nullptr };
 	};
 }
-========
->>>>>>>> 9678edf7 (Cleaning up and organising the Engine project for migration.):include/Graphics/Vulkan/ImGuiTextureResource.hpp

@@ -6,7 +6,7 @@
 
 #include <Graphics/Vulkan/ShaderModule.hpp> 
 #include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/ImGuiTexture.hpp>
+#include <Graphics/Vulkan/ImGui/ImGuiTexture.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
 

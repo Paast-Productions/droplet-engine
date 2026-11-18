@@ -21,8 +21,8 @@ namespace Droplet::Editor::Resource
 	{
 		Graphics::Camera camera{};
 
-		Droplet::Graphics::RenderTarget renderTarget {};
-		Droplet::Graphics::ImGuiTexture texture {};
+		Graphics::RenderTarget renderTarget {};
+		Graphics::ImGui::ImGuiTexture texture {};
 		glm::ivec2 resolution{ 256, 256 };
 
 		StaticResourceHandle<Texture2DResource> texHandle {};

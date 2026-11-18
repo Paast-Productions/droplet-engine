@@ -1,4 +1,3 @@
-<<<<<<<< HEAD:include/Graphics/Vulkan/ImGui/ImGuiTexture.hpp
 #pragma once
 
 
@@ -44,5 +43,3 @@ namespace Droplet::Graphics::ImGui
 		DynamicResourceHandle<Vulkan::ImageView> m_imageView {};
 	};
 }
-========
->>>>>>>> 9678edf7 (Cleaning up and organising the Engine project for migration.):include/Graphics/Vulkan/ImGuiTexture.hpp

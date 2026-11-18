@@ -621,8 +621,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			ImVec2 scaledImageSize = imageSize * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
-
-			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
+			
 			m_previewCamera.texture = Graphics::Vulkan::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
 			ImTextureRef textureRef = m_previewCamera.texture.Get();
 			

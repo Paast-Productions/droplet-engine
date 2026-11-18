@@ -1773,7 +1773,7 @@ void SceneViewWindow::FocusCameraOnSelection()
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
+	IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
 		m_editorContext->GetEditorCamera().GetTarget(), 
 		m_editorContext->GetEditorCamera().GetTexture(), 
 		width, height

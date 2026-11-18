@@ -4,7 +4,7 @@
  * @date 2026-10-20
  * @brief Source implementation for the sandbox environment Slang shader compiler.
  */
-#include "Graphics/ShaderCompiler/ShaderCompiler.hpp"
+#include "Graphics/Compiler/ShaderCompiler.hpp"
 
 #include <slang/slang.h>
 
@@ -15,6 +15,8 @@
 #include <array>
 #include <cstring>
 #include <string>
+
+using namespace Droplet::Graphics;
 
 // =====================================================================
 // Slang compiler handler

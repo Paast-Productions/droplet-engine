@@ -1,13 +1,9 @@
-<<<<<<<< HEAD:include/Graphics/Common/Camera.hpp
 #pragma once
 
 #include <glm/glm.hpp>
 
 #include <Math/Bounds/Frustum.hpp>
 #include <Math/Bounds/Ray.hpp>
-
-#include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/RenderData.hpp>
 
 namespace Droplet::Graphics
 {
@@ -146,5 +142,3 @@ namespace Droplet::Graphics
 		void UpdateCameraVectors();
 	};
 }
-========
->>>>>>>> 9678edf7 (Cleaning up and organising the Engine project for migration.):include/Graphics/Vulkan/Camera.hpp

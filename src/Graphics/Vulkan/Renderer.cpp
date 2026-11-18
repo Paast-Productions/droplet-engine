@@ -1,5 +1,7 @@
 #include "Renderer.hpp"
 
+#include "RenderData.hpp"
+
 #ifdef _EDITOR
 #include <ImGui/imgui_impl_vulkan.h>
 #include <ImGui/imgui_impl_sdl3.h>
@@ -8,9 +10,9 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
+#include <Graphics/Common/Camera.hpp>
 #include <Graphics/Vulkan/IntermediaryStorage.hpp>
 #include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>
@@ -70,13 +72,13 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 
-	constexpr Vulkan::ViewProjectionBuffer vpb
+	constexpr ViewProjectionBuffer vpb
 	{
 		.view = glm::mat4(1),
 		.proj = glm::mat4(1)
 	};
 	
-	m_vpBufferIndex = Vulkan::IntermediaryStorage::GetInstance().CreateBufferResource<Vulkan::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
+	m_vpBufferIndex = Vulkan::IntermediaryStorage::GetInstance().CreateBufferResource<ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
 
 	CreateSyncObjects();
 
@@ -559,7 +561,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
 
-		Vulkan::ViewProjectionBuffer vp
+		ViewProjectionBuffer vp
 		{
 			.view = cam.GetViewMatrix(),
 			.proj = cam.GetProjectionMatrix()

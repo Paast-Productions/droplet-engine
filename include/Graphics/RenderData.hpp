@@ -5,9 +5,6 @@
 #include "Camera.hpp"
 #include "RenderTarget.hpp"
 
-#include "Camera.hpp"
-#include "RenderTarget.hpp"
-
 namespace Droplet::Graphics
 {
     struct PushConstantData
@@ -59,15 +56,12 @@ namespace Droplet::Graphics
             return transparent < p_other.transparent;
         }
     };
-
-    namespace Vulkan
+    
+    struct ViewProjectionBuffer
     {
-        struct ViewProjectionBuffer
-        {
-            glm::mat4 view{};
-            glm::mat4 proj{};
-        };
-    }
+        glm::mat4 view{};
+        glm::mat4 proj{};
+    };
     
     struct CameraRenderData
     {

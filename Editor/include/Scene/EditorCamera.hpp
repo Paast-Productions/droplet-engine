@@ -3,8 +3,8 @@
 #include <memory>
 #include <ImGui/imgui.h>
 #include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/ImGuiTexture.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Vulkan/ImGui/ImGuiTexture.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 
 namespace Droplet::Editor::Scene
@@ -19,8 +19,8 @@ namespace Droplet::Editor::Scene
 		[[nodiscard]] Graphics::RenderTarget GetTarget() const { return m_target; }
 		void SetTarget(Graphics::RenderTarget p_target) { m_target = p_target; }
 
-		[[nodiscard]] Graphics::ImGuiTexture GetTexture() const { return m_texture; }
-		void SetTexture(Graphics::ImGuiTexture p_texture) { m_texture = p_texture; }
+		[[nodiscard]] Graphics::ImGui::ImGuiTexture GetTexture() const { return m_texture; }
+		void SetTexture(Graphics::ImGui::ImGuiTexture p_texture) { m_texture = p_texture; }
 
 	private:
 
@@ -28,6 +28,6 @@ namespace Droplet::Editor::Scene
 		Graphics::RenderTarget m_target {};
 
 		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		Graphics::ImGuiTexture m_texture {};
+		Graphics::ImGui::ImGuiTexture m_texture {};
 	};
 }
