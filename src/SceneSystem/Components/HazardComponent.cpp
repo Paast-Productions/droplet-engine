@@ -50,6 +50,7 @@ void HazardComponent::RenderUIImpl()
     ImGui::RadioButton("Zone 4", &m_zone, 4);
     ImGui::SameLine();
     ImGui::RadioButton("Zone 5", &m_zone, 5);
+#endif
 }
 
 nlohmann::json HazardComponent::SerializeImpl()
