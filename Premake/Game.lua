@@ -102,6 +102,7 @@ project "Game"
         "setupapi",
         "version",
         "winmm",
+        "Imm32",
         AddQuotation("glm"),
         AddQuotation("SDL3-static"),
         AddQuotation("vulkan-1"),
