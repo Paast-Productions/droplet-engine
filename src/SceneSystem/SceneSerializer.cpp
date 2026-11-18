@@ -178,7 +178,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         if (p_json.contains("active"))
         {
-            node->SetActive(p_json["active"]);
+            node->SetActiveSelf(p_json["active"]);
         }
 	    
 	    DeserializeTransform(p_json["transform"], node->GetTransform());
@@ -193,10 +193,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 
         p_context.RegisterNode(p_json["id"], node);
 
-        if (p_json.contains("active"))
-        {
-            node->SetActive(p_json["active"]);
-        }
+
 
         if (p_json.contains("drawLayer"))
         {
@@ -209,6 +206,8 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
             uint16_t collisionLayerMaskValue = p_json["collisionLayerMask"];
             node->SetCollisionLayerMask(static_cast<CollisionLayer>(collisionLayerMaskValue));
         }
+        
+        DeserializeTransform(p_json["transform"], node->GetTransform());
 
         if (p_json.contains("children"))
         {
@@ -217,8 +216,6 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
                 DeserializeNode(childJson, node, p_scene, p_context);
             }
         }
-        
-        DeserializeTransform(p_json["transform"], node->GetTransform());
 
         if (p_json.contains("components"))
         {
@@ -226,6 +223,11 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
             {
                 DeserializeComponent(componentJson, node, p_json["id"], p_context);
             }
+        }
+        
+        if (p_json.contains("active"))
+        {
+            node->SetActiveSelf(p_json["active"]);
         }
     }
 }
@@ -252,7 +254,6 @@ void Droplet::Scene::SceneSerializer::DeserializeComponent(const nlohmann::json 
 
     std::uint64_t ID = p_json["id"];
     p_context.RegisterCopmonent(p_serializedNodeID, ID, sharedComponent);
-
 }
 
 nlohmann::json SceneSerializer::SerializeTransform( const Transform &p_transform)

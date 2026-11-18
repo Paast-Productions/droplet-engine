@@ -1,5 +1,5 @@
 project "Game"
-    kind "WindowedApp"
+    kind "ConsoleApp"
 
     location(projectsPath)
 
@@ -9,9 +9,10 @@ project "Game"
 
     local vkPath = os.getenv("VULKAN_SDK")
 
-    UseGraphicsPCH()
+    UseGamePCH()
 
     defines{ 
+        "_GAME",
 		"TRACY_ENABLE", 
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
@@ -44,16 +45,14 @@ project "Game"
             vkPath .. "/Lib"
         }
 
-        filter { "system:windows" }
-
         files 
         { 
             "../Game/resources.rc", 
-            "../Game/icon.ico" 
+            "../Game/drone-icon.ico" 
         }
         
         postbuildcommands {
-            "call  " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat")
+            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Game " .. "%{cfg.buildcfg}"
         }
 
     else
@@ -81,7 +80,7 @@ project "Game"
         "Engine",
         "json",
         "tracy",
-        "Lua",
+        "LuaJIT",
         "Jolt",
         "Dalia"
     }
@@ -101,10 +100,13 @@ project "Game"
         "dalia_engine",
         "ole32",
         "avrt",
-        AddQuotation("SDL3"),
+        "setupapi",
+        "version",
+        "winmm",
+        AddQuotation("glm"),
+        AddQuotation("SDL3-static"),
         AddQuotation("vulkan-1"),
-        AddQuotation("Shaderc"),
-		AddQuotation("lua_static"),
+		AddQuotation("lua51"),
 		AddQuotation("Jolt")
     }
 

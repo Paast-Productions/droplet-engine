@@ -5,6 +5,7 @@
 #include <Scene/EditorCameraController.hpp>
 #include <Engine/Engine.hpp>
 #include <SceneSystem/Node.hpp>
+#include <SceneSerializer.hpp>
 
 namespace Droplet::Scene
 {
@@ -58,7 +59,7 @@ namespace Droplet::Editor
 
 		/// @brief Creates a fresh new scene
 		/// @param p_sceneName scene name
-		void CreateNewScene(std::string p_sceneName);
+		std::weak_ptr<Droplet::Scene::Scene> CreateNewScene(std::string p_sceneName);
 		
 		/// @brief Serializes the scene
 		/// @param filepath filepath
@@ -96,6 +97,13 @@ namespace Droplet::Editor
 		void SetFocusCameraOnSelection(bool p_focus) { m_focusCameraOnSelection = p_focus; }
 		[[nodiscard]] bool ShouldFocusCameraOnSelection() const { return m_focusCameraOnSelection; }
 
+		void EnterPlayMode();
+		void PausePlayMode();
+		void ExitPlayMode();
+
+		bool IsInPlayMode() const { return m_isInPlayMode; }
+		bool IsPaused() const { return m_isPaused; }
+
 
 	private:
 		Droplet::Engine &m_engine;
@@ -113,5 +121,17 @@ namespace Droplet::Editor
 		
 		//Audio::AudioSystem m_audioSystem;
 		AudioMixerEditorState m_selectedBus;
+
+		struct SceneState
+		{
+			Droplet::Scene::SceneSerializer serializer;
+			nlohmann::json json;
+			bool isActive;
+			bool isMain;
+		};
+
+		std::unordered_map<std::string, SceneState> m_sceneStatesOnPlay;
+		bool m_isInPlayMode{ false };
+		bool m_isPaused{ false };
 	};
 }

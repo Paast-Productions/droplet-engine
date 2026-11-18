@@ -29,22 +29,15 @@ void Octree::Initialize(glm::vec3 p_center, glm::vec3 p_extents)
 {
 	ZoneScoped;
 
-	if (m_isInitialized)
-	{
-		return;
-	}
-
 	m_root = std::make_unique<TreeNode>();
 	m_root->octant = AABB(p_center, p_extents);
-
-	m_isInitialized = true;
 }
 
 void Octree::Update()
 {
 	ZoneScoped;
 
-	if (!m_isInitialized || m_root == nullptr)
+	if (m_root == nullptr)
 	{
 		return;
 	}
@@ -96,11 +89,6 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 {
 	ZoneScoped;
 
-	if (!m_isInitialized)
-	{
-		return;
-	}
-
 	if (p_node.expired())
 	{
 		return;
@@ -132,11 +120,6 @@ void Octree::RemoveNode(const std::weak_ptr<Node> &p_node)
 void Octree::RemoveNode(const Node *p_node)
 {
 	ZoneScoped;
-
-	if (!m_isInitialized)
-	{
-		return;
-	}
 
 	RemoveFromTreeNode(p_node, m_root);
 
@@ -560,6 +543,21 @@ void Octree::Render()
 	RenderOctant(m_root);
 }
 
+void Octree::Clear()
+{
+	m_placements.clear();
+	
+	if (!m_root)
+	{
+		return;
+	}
+	
+	const AABB rootBounds = m_root->octant;
+	
+	m_root = std::make_unique<TreeNode>(rootBounds);
+	m_root->level = 0;
+}
+
 void Octree::CollectDirtyNodes(std::vector<std::weak_ptr<Node>> &p_dirtyNodes)
 {
 	ZoneScoped;
@@ -894,7 +892,7 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 			}
 			else
 			{
-				RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
+				RayHit octantHit = Raycast(p_ray, child->octant);
 				if (!octantHit.didHit)
 				{
 					continue;

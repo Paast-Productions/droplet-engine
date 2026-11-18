@@ -5,8 +5,7 @@
 #include <unordered_map>
 #include <vector>
 #include <json/json.hpp>
-#include <AudioSystem/AudioSystem.hpp>
-
+#include <Audio/AudioSystem.hpp>
 namespace Droplet::Graphics
 {
 	struct CameraRenderData;
@@ -51,7 +50,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::runtime_error if a Scene with the specified name
         /// already exists or if the SceneFactory fails to create the Scene.
-        void LoadScene(const std::string &p_name);
+        std::weak_ptr<Scene> LoadScene(const std::string &p_name);
 
         /// @brief Unloads a Scene with the specified name.
         ///
@@ -144,12 +143,8 @@ namespace Droplet::Scene
 		/// @return A weak pointer to the CameraComponent at the end of the camera stack.
         [[nodiscard]] std::weak_ptr<CameraComponent> GetMainCamera() const;
 
-		[[nodiscard]] const std::unordered_map<std::string, std::shared_ptr<Scene>> &GetScenes() const { return m_scenes; }
-
-        /// @brief Is meant to enable other classes to use functionality in the audiomixer
-        /// @return A reference to the engines Audio mixer
-        [[nodiscard]] Audio::AudioSystem &GetAudioSystem() { return m_audioSystem; }
-
+        [[nodiscard]] const std::unordered_map<std::string, std::shared_ptr<Scene>> &GetScenes() const { return m_scenes; }
+        
         // HACK: Game system hardcoded into engine
         void SetItemRegistry(const Droplet::Game::ItemRegistry *p_reg) { m_itemRegistry = p_reg; }
         [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const { return m_itemRegistry; }
@@ -160,10 +155,7 @@ namespace Droplet::Scene
         const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
-
-        /// @brief  The Audio system, should only be one.
-        Audio::AudioSystem m_audioSystem;
-
+        
         /// @brief Prepares all active Scenes for rendering.
         void PrepareRender();
     };

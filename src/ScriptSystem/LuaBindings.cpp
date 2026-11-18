@@ -147,7 +147,19 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 				return playerComponent->GetPlayerBehaviourLua();
 			}
 			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+		},
+		"GetAudioEmitter",
+		[](Scene::Node &node, const std::string& p_name)
+		{
+			return node.GetAudioEmitter(p_name).lock();
+		},
+		"GetAudioPlayer",
+		[](Scene::Node &node, const std::string &p_name)
+		{
+			return node.GetAudioPlayer(p_name).lock();
 		}
+
+
 
 	);
 

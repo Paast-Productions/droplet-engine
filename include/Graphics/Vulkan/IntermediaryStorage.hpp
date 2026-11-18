@@ -28,8 +28,8 @@ namespace Droplet::Graphics
     // Forward declarations
     class Renderer;
     class RenderTarget;
-    class RenderData;
     class ImGuiTexture; 
+    struct RenderData;
 }
 
 namespace Droplet::Graphics::Vulkan
@@ -62,6 +62,7 @@ namespace Droplet::Graphics::Vulkan
         std::uint64_t tesGuid{ 0 };
         std::uint64_t gsGuid{ 0 };
         std::uint64_t fsGuid{ 0 };
+        std::uint8_t transparency { 0 };
 
         std::strong_ordering operator<=>(const PipelineKey&) const = default;
     };
@@ -76,6 +77,7 @@ namespace Droplet::Graphics::Vulkan
             res = res * 31 + std::hash<std::uint64_t>()(key.tesGuid);
             res = res * 31 + std::hash<std::uint64_t>()(key.gsGuid);
             res = res * 31 + std::hash<std::uint64_t>()(key.fsGuid);
+            res = res * 31 + std::hash<std::uint8_t>()(key.transparency);
 
             return res;
 
@@ -309,7 +311,7 @@ namespace Droplet::Graphics::Vulkan
         /// @param p_surfaceFormat Vulkan surface format
         /// @returns Vulkan Pipeline
         [[nodiscard]] Pipeline *GetPipeline(RenderData p_renderData,
-            vk::SurfaceFormatKHR p_surfaceFormat);
+                                            vk::SurfaceFormatKHR p_surfaceFormat);
         
         // TODO: </REFACTOR>
             

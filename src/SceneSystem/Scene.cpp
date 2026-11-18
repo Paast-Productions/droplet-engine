@@ -24,8 +24,14 @@ Scene::Scene(const std::string &p_name)
 
 Scene::~Scene()
 {
+    SetActive(false);
+    
     for (std::shared_ptr<Node> &node : m_roots)
     {
+        if (node == nullptr)
+        {
+            continue;
+        }
         std::vector<std::shared_ptr<PhysicsComponent>> comps = node->GetComponents<PhysicsComponent>();
         for (std::shared_ptr<PhysicsComponent> comp : comps)
         {
@@ -80,6 +86,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->Update();
         }
     }
@@ -88,6 +98,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->EditorUpdate();
         }
     }
@@ -109,6 +123,10 @@ void Scene::LateUpdate()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->LateUpdate();
         }
     }
@@ -141,6 +159,10 @@ void Scene::FixedUpdate()
 
     for (const auto &root : m_roots)
     {
+        if (root == nullptr)
+        {
+            continue;
+        }
         root->FixedUpdate();
     }
 }
@@ -331,6 +353,10 @@ void Scene::SetActive(bool p_active)
 
     for (const auto &root : m_roots)
     {
+        if (root == nullptr)
+        {
+            continue;
+        }
 		root->ActiveChanged(m_active);
     }
 }
@@ -359,6 +385,22 @@ std::weak_ptr<Node> Scene::FindNodeById(std::uint64_t p_id) const
     }
 
     return {};
+}
+
+void Scene::InitializeOctree(float p_extents)
+{
+    m_octree.Initialize(glm::vec3(0.0f), glm::vec3(p_extents));
+    RebuildOctree();
+}
+
+void Scene::RebuildOctree()
+{
+    m_octree.Clear();
+    
+    for (const auto &root : m_roots)
+    {
+        RegisterNodeRecursive(root);
+    }
 }
 
 void Scene::PrintOctree()
@@ -473,4 +515,19 @@ const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 		}
 	}
 	return cameraStack;
+}
+
+void Scene::RegisterNodeRecursive(const std::shared_ptr<Node> &p_node)
+{
+    if (!p_node)
+    {
+        return;
+    }
+    
+    m_octree.AddNode(p_node);
+    
+    for (const auto &child : p_node->GetChildren())
+    {
+        RegisterNodeRecursive(child);
+    }
 }

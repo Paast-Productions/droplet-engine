@@ -1,4 +1,5 @@
-#include "Scene/EditorCameraController.hpp"
+#include <Scene/EditorCameraController.hpp>
+#include "Audio/AudioSystem.hpp"
 #include <Editor/ViewOverlayUI.hpp>
 #include <iostream>
 #include <Time.hpp>
@@ -87,6 +88,13 @@ void EditorCameraController::Update()
 			ImGui::EndChild();
 		});
 	}
+    
+    Audio::AudioSystem::GetInstance().UpdateEditorListener3DAttributes(
+        m_editorCamera.GetPosition(),
+        m_editorCamera.GetForward(),
+        m_editorCamera.GetUp(),
+        { 0.0f, 0.0f, 0.0f } // Set velocity to 0 for now
+    );
 }
 
 void EditorCameraController::CameraLock(bool p_enabled, float p_centerX, float p_centerY)

@@ -40,11 +40,12 @@ namespace Droplet::Graphics::Vulkan
 		/// @param p_physicalDevice Hardware Device
 		/// @param shaderModules Queue of Vulkan Shader Modules and their shader type
 		/// @param p_surfaceFormat Format of the render Surface
+		/// @param p_transparent
 		Pipeline(const vk::raii::Device &p_device,
-			const vk::raii::PhysicalDevice &p_physicalDevice,
-			const std::vector<vk::DescriptorSetLayout> &p_descriptorSetLayouts,
-			std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules,
-			vk::SurfaceFormatKHR p_surfaceFormat);
+				const vk::raii::PhysicalDevice &p_physicalDevice,
+				const std::vector<vk::DescriptorSetLayout> &p_descriptorSetLayouts,
+				std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> &shaderModules,
+				vk::SurfaceFormatKHR p_surfaceFormat, bool p_transparent);
 
 		~Pipeline() = default;
 
