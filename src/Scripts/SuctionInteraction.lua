@@ -2,7 +2,7 @@
 local suctionSystem = require("SuctionSystem")
 local scene
 
-local interactionRange = 30.0
+local interactionRange = 5.0
 local interactionAngle = 30.0
 
 local suctionSpeed = 4.0
@@ -15,6 +15,26 @@ local suctionElapsed = 0.0
 local playerBehaviour
 local audioplayer
 
+
+function FindTarget()
+     for _, fish in ipairs(suctionSystem.GetFishes()) do
+        if InteractWith(fish) then
+            return fish
+        end
+    end
+    for _, upgrade in ipairs(suctionSystem.GetUpgrades()) do        
+        if InteractWith(upgrade) then
+            return upgrade
+        end
+    end
+    for _, brokenPart in ipairs(suctionSystem.GetBrokenParts()) do        
+        if InteractWith(brokenPart) then
+            return brokenPart
+        end
+    end
+
+    return nil
+end
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition(TransformSpace.World)
@@ -119,7 +139,12 @@ function SuctionUpdate(dt)
 
     fishTransform:SetPosition(newPosition, TransformSpace.World)
 end
+
 function SuctionEnd()
+
+    if currentTarget == nil then
+        return
+    end
 
     local registry = playerBehaviour:GetItemRegistry()
     local collectible = currentTarget
@@ -185,40 +210,35 @@ end
 
 function OnUpdate(dt)
 
+    if not Input:KeyHeld(Key.E) then
+        if currentTarget ~= nil then
+            SuctionCancel()
+        end
+        return
+    end
+
     if currentTarget ~= nil then
         SuctionUpdate(dt)
         return
     end
 
-    for _, fish in ipairs(suctionSystem.GetFishes()) do
-        if Input:KeyPressed(Key.E) then
-            print("fish", fish.node:GetName())
-            if InteractWith(fish) then
-                SuctionStart(fish)
-                return
-           end
-        end
+    if currentTarget ~= nil then
+        SuctionUpdate(dt)
+        return
     end
-    for _, upgrade in ipairs(suctionSystem.GetUpgrads()) do        
-        if Input:KeyPressed(Key.E) then
-            if InteractWith(upgrade) then
-                SuctionStart(upgrade)
-                return
-           end
-        end
-    end
-    for _, brokenPart in ipairs(suctionSystem.GetBrokenParts()) do        
-        if Input:KeyPressed(Key.E) then
-            if InteractWith(brokenPart) then
-                SuctionStart(brokenPart)
-                return
-           end
-        end
-    end
+
+    local target = FindTarget()
+
+    if target ~= nill
+     then
+        SuctionStart(target)
+        SuctionUpdate(dt)
+     end
+
 end
 
 function RenderUI()
-    _, interactionRange = ImGui.SliderFloat("Interaction Range", interactionRange, 0.5, 100)
+    _, interactionRange = ImGui.SliderFloat("Interaction Range", interactionRange, 0.5, 50)
     _, interactionAngle = ImGui.SliderFloat("interactionAngle", interactionAngle, 0.5, 180)
     _, suctionSpeed = ImGui.SliderFloat("Suction Speed", suctionSpeed, 0.5, 20.0)
     _, suctionDistance = ImGui.SliderFloat("Suction Distance", suctionDistance, 0.5, 20.0)

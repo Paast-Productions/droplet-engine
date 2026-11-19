@@ -45,10 +45,6 @@ function SuctionSystem.RegisterCollectible(node)
         return
     end
 
-    print("RegisterItem", node:GetName())
-    local position = node:GetTransform():GetPosition(TransformSpace.World)
-
-    print("Position:", position.x, position.y, position.z)
     table.insert(registry, 
     {
         node = node,
@@ -93,7 +89,7 @@ function SuctionSystem.GetFishes()
     return SuctionSystem.fishes
 end
 
-function SuctionSystem.GetUpgrads()
+function SuctionSystem.GetUpgrades()
     return SuctionSystem.upgrades
 end
 
