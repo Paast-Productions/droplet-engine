@@ -2,6 +2,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
+#include <NodeSlot.hpp>
 
 using namespace Droplet::Scene;
 
