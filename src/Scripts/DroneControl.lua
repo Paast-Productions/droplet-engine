@@ -237,6 +237,13 @@ function UpdateMovement(dt)
 
     -- Apply movement in world space
     local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 160.0)
+
+    local gravityModifier = MovementModifiers.GetGravityPull()
+
+    local pressureStrength = math.max(0.0, gravityModifier - 1.0)
+    local downwardSpeed = pressureStrength * 2.0
+
+    movement.y = movement.y - downwardSpeed
     
     -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then

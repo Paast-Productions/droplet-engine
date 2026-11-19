@@ -75,18 +75,8 @@ function OnTrigger(dt, node)
         health:TakeDamage(givinDamage)
     end
 
-    MovementModifiers.SetGravityPull(1)
-
-
-    local dronePos = trans:GetPosition()
-    -- 0.1 is the strength of gravity, making the drone easy to control
-    dronePos.y = dronePos.y - (gravityMultiplier * 0.1 * dt)
-
-    local shakeIntensity = gravityMultiplier * 0.05
-    dronePos.x = dronePos.x + (math.random() - 0.5) * shakeIntensity
-    dronePos.z = dronePos.z + (math.random() - 0.5) * shakeIntensity
-
-    trans:SetPosition(dronePos)
+    -- This function applies pressure, however this cannot be disable after leaving zone so I just leave this for now
+    --MovementModifiers.SetGravityPull(5)
 
 end
 
