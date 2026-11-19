@@ -219,9 +219,89 @@ void PhysicsComponent::SetVelocity(const glm::vec3 &p_velocity)
 	}
 }
 
+void PhysicsComponent::AddVelocity(const glm::vec3 &p_velocity)
+{
+	if (m_character != nullptr)
+	{
+		m_character->AddLinearVelocity(GLMtoJPH(p_velocity));
+	}
+	else
+	{
+		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+		bodyInterface->AddLinearVelocity(m_bodyID, GLMtoJPH(p_velocity));
+	}
+}
+
+void PhysicsComponent::AddForce(const glm::vec3 &p_force)
+{
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->AddForce(m_bodyID, GLMtoJPH(p_force));
+}
+
+void PhysicsComponent::SetFriction(const float p_friction)
+{
+	const float friction = p_friction < 0.0f ? 0.0f : p_friction;
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->SetFriction(m_bodyID, friction);
+}
+
+void PhysicsComponent::SetRestitution(const float p_restitution)
+{
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->SetRestitution(m_bodyID, p_restitution);
+}
+
+void PhysicsComponent::SetMass(const float p_mass)
+{
+	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
+	
+	if (lock.Succeeded())
+	{
+		JPH::Body &body = lock.GetBody();
+		
+		JPH::MotionProperties *motionProperties = body.GetMotionProperties();
+		
+		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
+		
+		massProperties.ScaleToMass(p_mass);
+		
+		motionProperties->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
+	}
+}
+
 glm::vec3 PhysicsComponent::GetVelocity() const
 {
 	return JPHtoGLM(m_physics->GetBodyInterface()->GetLinearVelocity(m_bodyID));
+}
+
+float PhysicsComponent::GetFriction() const
+{
+	return m_physics->GetBodyInterface()->GetFriction(m_bodyID);
+}
+
+float PhysicsComponent::GetRestitution() const
+{
+	return m_physics->GetBodyInterface()->GetRestitution(m_bodyID);
+}
+
+float PhysicsComponent::GetMass() const
+{
+	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
+	
+	if (!lock.Succeeded())
+	{
+		return 0.0f;
+	}
+	
+	JPH::Body &body = lock.GetBody();
+	JPH::MotionProperties *motionProperties = body.GetMotionProperties();
+	if (motionProperties == nullptr)
+	{
+		return 0.0f;
+	}
+	
+	const float inverseMass = motionProperties->GetInverseMass();
+	return inverseMass > 0.0f ? 1.0f / inverseMass : 0.0f;
 }
 
 void PhysicsComponent::StartImpl()
