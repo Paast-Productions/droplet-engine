@@ -315,11 +315,18 @@ namespace Droplet::Graphics::Vulkan
         
         // TODO: </REFACTOR>
             
-        /// TODO: Write doxygen (Lio)
+        /// @brief Fetches a mesh from intermediary storage
+        /// @param p_commandBuffer A commandbuffer to handle operations
+        /// @param p_renderData The data relating to the mesh
+        /// @return A mesh struct
         [[nodiscard]] const Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer,
             RenderData p_renderData);
 
-        /// TODO: Write doxygen (Lio)
+        /// @brief Getter for the ID of a texture to use for push constants
+        /// @param p_renderData Data structure containing texture
+        /// @param p_commandPool 
+        /// @param result Result of whether an ID was found or not
+        /// @return ID for a texture stored on the gpu side
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData,
             CommandPool &p_commandPool,
             bool &result);
