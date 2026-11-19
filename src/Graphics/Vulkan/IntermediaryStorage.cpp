@@ -294,6 +294,13 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         .fsGuid = p_renderData.fsData.GUID,
         .transparency = static_cast<std::uint8_t>(p_renderData.transparent)
     };
+
+#ifdef _EDITOR
+    if (!Droplet::EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+    {
+        key.fsGuid = 13680123319807966343;
+    }
+#endif
     
     auto it = m_pipelineMap.find(key);
     if (it != m_pipelineMap.end())

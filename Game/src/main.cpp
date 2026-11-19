@@ -37,6 +37,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 
@@ -56,7 +58,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         break;
     }
 
-    Droplet::EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::GameFlags);
+    Droplet::EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::GameFlags | Droplet::UpdateFlags::PlayModeFlags);
 
     bool mouseLock = true;
     bool fullscreen = true;
