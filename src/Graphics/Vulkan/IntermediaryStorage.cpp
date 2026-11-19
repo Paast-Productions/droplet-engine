@@ -4,6 +4,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
+#include <Graphics/Vulkan/Resource/Buffer.hpp>
 #include <Graphics/Vulkan/ShaderModule.hpp> 
 #include <Graphics/Vulkan/RenderTarget.hpp>
 #include <Graphics/Vulkan/ImGuiTexture.hpp>
@@ -36,12 +37,10 @@ void IntermediaryStorage::Shutdown()
     // STORAGE
     m_presentTargets.clear();
     m_uniformBuffers.clear();
-    //m_renderTargets.clear();
     m_viewMap.clear();
     m_imageMap.clear();
     m_worldMap.clear();
-    m_indexMap.clear();
-    m_vertexMap.clear();
+    m_meshMap.clear();
     m_pipelineMap.clear();
     
     // VULKAN
@@ -51,7 +50,6 @@ void IntermediaryStorage::Shutdown()
     m_commandPool = { nullptr };
     m_context = { nullptr };
 }
-
 
 std::uint32_t IntermediaryStorage::GetLiveObjectRefCount(GUID p_guid) const
 {
@@ -404,7 +402,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     return &m_pipelineMap.at(key);
 }
 
-const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_commandBuffer, RenderData p_renderData)
+Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_commandBuffer, RenderData p_renderData)
 {
     ZoneScoped;
 
@@ -413,9 +411,12 @@ const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_command
         .meshGUID = p_renderData.meshData.GUID
     };
     
-    auto it = m_indexMap.find(key);
+    auto it = m_meshMap.find(key);
+    
+    DynamicResourceHandle<Buffer> a {};
+    DynamicResourceHandle<Buffer> b {};
 
-    if (it == m_indexMap.end())
+    if (it == m_meshMap.end())
     {
         ResourceManager& RMInstance = ResourceManager::GetInstance();
         StaticResourceHandle<MeshResource> meshRes = RMInstance.LoadResource<MeshResource>(p_renderData.meshData.GUID);
@@ -426,17 +427,121 @@ const Mesh IntermediaryStorage::GetMesh(const vk::raii::CommandBuffer &p_command
             m.valid = false;
             return m;
         }
-
-        m_vertexMap[key] = VertexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetVertexData() };
-        m_indexMap[key] = IndexBuffer { m_allocator.Get(), m_context->GetDevice(), p_commandBuffer, meshRes.Get()->GetIndexData() };
+        
+        std::uint64_t vertexSize { meshRes.Get()->GetVertexData().size() * meshRes.Get()->GetVertexByteSize() };
+        
+        BufferCreateOptions vertexStagingBufferOptions { BufferCreateOptions::Staging(vertexSize) };
+        std::unique_ptr<Buffer> vertexStagingBuffer { std::make_unique<Buffer>(m_allocator.Get(), m_context->GetDevice(), vertexStagingBufferOptions, "Vertex Staging Buffer") };
+        
+        BufferCreateOptions vertexBufferOptions { BufferCreateOptions::Vertex(vertexSize) };
+        std::unique_ptr<Buffer> vertexBuffer { std::make_unique<Buffer>(m_allocator.Get(), m_context->GetDevice(), vertexBufferOptions, "Vertex Buffer")};
+        
+        vk::BufferMemoryBarrier2 vertexCopyBarrier
+        {
+            .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+            .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+            .dstStageMask = vk::PipelineStageFlagBits2::eVertexAttributeInput,
+            .dstAccessMask = vk::AccessFlagBits2::eVertexAttributeRead,
+            .buffer = vertexBuffer->Get(), 
+            .offset = 0,
+            .size = vk::WholeSize,
+        };
+        
+        vk::DependencyInfo vertexDependencyInfo 
+        {
+            .bufferMemoryBarrierCount = 1,
+            .pBufferMemoryBarriers = &vertexCopyBarrier,
+        };
+        
+        vertexBuffer->Upload(*vertexStagingBuffer, p_commandBuffer, vertexDependencyInfo, meshRes.Get()->GetVertexData().data(), meshRes.Get()->GetVertexByteSize() * meshRes.Get()->GetVertexData().size());
+        
+        std::uint64_t indexSize { meshRes.Get()->GetIndexData().size() * sizeof(std::uint32_t)};
+        
+        BufferCreateOptions indexStagingBufferOptions { BufferCreateOptions::Staging(indexSize) };
+        std::unique_ptr<Buffer> indexStagingBuffer { std::make_unique<Buffer>(m_allocator.Get(), m_context->GetDevice(), indexStagingBufferOptions, "Index Staging Buffer") };
+        
+        BufferCreateOptions indexBufferOptions { BufferCreateOptions::Index(indexSize) };
+        std::unique_ptr<Buffer> indexBuffer { std::make_unique<Buffer>(m_allocator.Get(), m_context->GetDevice(), indexBufferOptions, "Index Buffer") };
+        
+        vk::BufferMemoryBarrier2 indexCopyBarrier
+        {
+            .srcStageMask = vk::PipelineStageFlagBits2::eTransfer,
+            .srcAccessMask = vk::AccessFlagBits2::eTransferWrite,
+            .dstStageMask = vk::PipelineStageFlagBits2::eIndexInput,
+            .dstAccessMask = vk::AccessFlagBits2::eIndexRead,
+            .buffer = vertexBuffer->Get(), 
+            .offset = 0,
+            .size = vk::WholeSize,
+        };
+        
+        vk::DependencyInfo indexDependencyInfo 
+        {
+            .bufferMemoryBarrierCount = 1,
+            .pBufferMemoryBarriers = &indexCopyBarrier,
+        };
+        
+        indexBuffer->Upload(*indexStagingBuffer, p_commandBuffer, indexDependencyInfo, meshRes.Get()->GetIndexData().data(), indexSize);
+        
+        DynamicLiveResource vertexStagingBufferResource 
+        {
+            .type = DynamicResourceType::Buffer,
+            .resource = std::move(vertexStagingBuffer)
+        };
+        
+        // HACK: This will be alive til MoveToDeletionQueue(). Bug prone
+        GUID vertexStagingBufferGUID { GuidUtils::Generate() }; 
+        m_liveObjects[vertexStagingBufferGUID] = std::move(vertexStagingBufferResource);
+        DynamicResourceHandle<Buffer> vertexStagingBufferHandle { vertexStagingBufferGUID };
+        
+        DynamicLiveResource vertexBufferResource 
+        {
+            .type = DynamicResourceType::Buffer,
+            .resource = std::move(vertexBuffer)
+        };
+        
+        GUID vertexBufferGUID = GuidUtils::Generate();
+        m_liveObjects[vertexBufferGUID] = std::move(vertexBufferResource);
+        a = { vertexBufferGUID };
+        
+        DynamicLiveResource indexStagingBufferResource 
+        {
+            .type = DynamicResourceType::Buffer,
+            .resource = std::move(indexStagingBuffer)
+        };
+        
+        // HACK: This will be alive til MoveToDeletionQueue(). Bug prone
+        GUID indexStagingBufferGUID = GuidUtils::Generate();
+        m_liveObjects[indexStagingBufferGUID] = std::move(indexStagingBufferResource);
+        DynamicResourceHandle<Buffer> indexStagingBufferHandle { indexStagingBufferGUID };
+        
+        DynamicLiveResource indexBufferResource 
+        {
+            .type = DynamicResourceType::Buffer,
+            .resource = std::move(indexBuffer)
+        };
+        
+        GUID indexBufferGUID = GuidUtils::Generate();
+        m_liveObjects[indexBufferGUID] = std::move(indexBufferResource);
+        b = { indexBufferGUID };
+        
+        m_meshMap[key] = 
+        {
+            .vertexBufferGUID = vertexBufferGUID,
+            .indexBufferGUID = indexBufferGUID    
+        };
+    }
+    else
+    {
+        a = it->second.vertexBufferGUID;
+        b = it->second.indexBufferGUID;
     }
     
     Mesh mesh
     {
         .valid = true,
-        .vertexBuffer = m_vertexMap.at(key).Get(),
-        .indexBuffer = m_indexMap.at(key).Get(),
-        .indexCount = m_indexMap.at(key).GetIndexCount()
+        .vertexBuffer = a,
+        .indexBuffer = b,
+        .indexCount = static_cast<std::uint32_t>(b->GetSize()) / static_cast<std::uint32_t>(sizeof(std::uint32_t)) // HACK: sizeof(std::uint32_t) should be dynamic and be based on the data itself 
     };
     return mesh;
 }

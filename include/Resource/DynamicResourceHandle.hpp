@@ -44,4 +44,4 @@ namespace Droplet
     };
 }
 
-#include "Resource/DynamicResourceHandle.inl"
+//#include "Resource/DynamicResourceHandle.inl"

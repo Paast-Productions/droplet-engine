@@ -1,7 +1,9 @@
 #pragma once
 
 #include <vulkan/vulkan_raii.hpp>
+#include <vk_mem_alloc_raii.hpp>
 
+#include <Graphics/Vulkan/Resource/Buffer.hpp>
 #include <Graphics/Vulkan/Context.hpp>
 #include <Graphics/Vulkan/Image.hpp>
 #include <Graphics/Vulkan/ImageView.hpp>
@@ -11,9 +13,8 @@
 #include <Graphics/Vulkan/DescriptorPool.hpp>
 #include <Graphics/Vulkan/DescriptorSet.hpp>
 #include <Graphics/Vulkan/Sampler.hpp>
-#include <Graphics/Vulkan/VertexBuffer.hpp>
-#include <Graphics/Vulkan/IndexBuffer.hpp>
 #include <Graphics/Vulkan/UniformBuffer.hpp>
+#include <Resource/DynamicResourceHandle.hpp>
 #include <Resource/ResourceManager.hpp>
 
 namespace Droplet
@@ -90,13 +91,19 @@ namespace Droplet::Graphics::Vulkan
 
         std::strong_ordering operator<=>(const MeshKey&) const = default;
     };
+    
+    struct MeshData
+    {
+        std::uint64_t vertexBufferGUID {};
+        std::uint64_t indexBufferGUID {};
+    };
 
     struct Mesh
     {
         bool valid = false;
-        vk::Buffer vertexBuffer;
-        vk::Buffer indexBuffer;
-        std::uint32_t indexCount;
+        DynamicResourceHandle<Buffer> vertexBuffer {};
+        DynamicResourceHandle<Buffer> indexBuffer {};
+        std::uint32_t indexCount {};
     };
 
     struct MeshHasher
@@ -108,61 +115,6 @@ namespace Droplet::Graphics::Vulkan
 
             return res;
         }
-    };
-
-    struct TextureKey
-    {
-        std::uint64_t texGUID;
-
-        std::strong_ordering operator<=>(const TextureKey&) const = default;
-    };
-
-    struct TextureHasher
-    {
-        std::size_t operator()(const TextureKey& key) const
-        {
-            std::size_t res = 17;
-            res = res * 31 + std::hash<std::uint64_t>()(key.texGUID);
-
-            return res;
-        }
-    };
-
-    struct MeshBuffer
-    {
-        VertexBuffer vertices{ nullptr };
-        IndexBuffer indices{ nullptr };
-
-        MeshBuffer& operator=(MeshBuffer&& p_other) noexcept
-        {
-            if (*this == p_other)
-            {
-                return *this;
-            }
-
-            std::swap(vertices, p_other.vertices);
-            std::swap(indices, p_other.indices);
-
-            return *this;
-        }
-
-        bool operator==(const MeshBuffer& p_other) const 
-        {
-            return indices == p_other.indices && vertices == p_other.vertices;
-        }
-
-        MeshBuffer(MeshBuffer&& p_other) noexcept
-        {
-            std::swap(vertices, p_other.vertices);
-            std::swap(indices, p_other.indices);
-        }
-    };
-
-    struct SampleTexture
-    {
-        Sampler sampler;
-        Image image;
-        ImageView textureView;
     };
 
     class IntermediaryStorage
@@ -316,7 +268,7 @@ namespace Droplet::Graphics::Vulkan
         // TODO: </REFACTOR>
             
         /// TODO: Write doxygen (Lio)
-        [[nodiscard]] const Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer,
+        [[nodiscard]] Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer,
             RenderData p_renderData);
 
         /// TODO: Write doxygen (Lio)
@@ -344,8 +296,7 @@ namespace Droplet::Graphics::Vulkan
         
         // Stored buffers etc
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
-        std::unordered_map<MeshKey, VertexBuffer, MeshHasher> m_vertexMap {};
-        std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
+        std::unordered_map<MeshKey, MeshData, MeshHasher> m_meshMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
         // TODO: Remove?
@@ -383,3 +334,4 @@ namespace Droplet::Graphics::Vulkan
 }
 
 #include "IntermediaryStorage.inl"
+#include "DynamicResourceHandle.inl"

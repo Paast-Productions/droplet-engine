@@ -1,6 +1,6 @@
 #pragma once
-
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
+#include "DynamicResourceHandle.hpp"
+#include "IntermediaryStorage.hpp"
 
 namespace Droplet
 {

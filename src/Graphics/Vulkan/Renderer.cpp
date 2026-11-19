@@ -355,8 +355,8 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		};
 
 		commandBuffer.pushConstants2(pcInfo);
-		commandBuffer.bindVertexBuffers(0, mesh.vertexBuffer, { 0 });
-		commandBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
+		commandBuffer.bindVertexBuffers(0, *mesh.vertexBuffer->Get(), { 0 });
+		commandBuffer.bindIndexBuffer(*mesh.indexBuffer->Get(), 0, vk::IndexType::eUint32);
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
 

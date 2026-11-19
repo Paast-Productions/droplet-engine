@@ -107,5 +107,4 @@ IndexBuffer::IndexBuffer(const vma::raii::Allocator &p_allocator,
 	};
 	
 	p_commandBuffer.pipelineBarrier2(dependencyInfo);
-
 }
