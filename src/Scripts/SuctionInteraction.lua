@@ -7,7 +7,6 @@ local interactionAngle = 30.0
 
 local suctionSpeed = 4.0
 local suctionDistance = 0.3
-local maxSuctionTime = 2.0
 
 local currentTarget = nil
 local suctionElapsed = 0.0
@@ -118,7 +117,7 @@ function SuctionUpdate(dt)
         direction.z * direction.z
     )
 
-    if distance <= suctionDistance or suctionElapsed >= maxSuctionTime then
+    if distance <= suctionDistance then
         SuctionEnd()
         return
     end
@@ -242,5 +241,4 @@ function RenderUI()
     _, interactionAngle = ImGui.SliderFloat("interactionAngle", interactionAngle, 0.5, 180)
     _, suctionSpeed = ImGui.SliderFloat("Suction Speed", suctionSpeed, 0.5, 20.0)
     _, suctionDistance = ImGui.SliderFloat("Suction Distance", suctionDistance, 0.5, 20.0)
-    _, maxSuctionTime = ImGui.SliderFloat("Suction Time (max)", maxSuctionTime, 0.5, 20.0)
 end
