@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "crate",
+            "guid": 16648360746863494130,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "crate",
+            "type": 1
+        }
+    ]
+}
