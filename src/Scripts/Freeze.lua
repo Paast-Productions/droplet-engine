@@ -25,7 +25,6 @@ function OnStart()
 end
 
 function OnTrigger(dt, node)
-    print("trigger")
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
 
