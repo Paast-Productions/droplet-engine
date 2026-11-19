@@ -17,6 +17,7 @@ namespace Droplet::Scene
         StaticResourceHandle<SoundResource> handle;
         
         float volumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float stereoPan = Audio::C_STEREO_PAN_MIDDLE;
         float pitch = Audio::C_PITCH_DEFAULT;
         bool looping = false;
     };
@@ -27,7 +28,6 @@ namespace Droplet::Scene
         std::string_view GetTypeName() override { return "AudioBehaviour"; }
         bool IsSingleton() override { return true; }
         
-        void RegisterTrack(const std::string& p_name, GUID p_soundGuid); // TODO: Make private
         void PlayTrack(const std::string& p_name, float p_fadeSeconds = 0.0f);
         void StopTracks(float p_fadeSeconds = 0.0f);
         
@@ -44,15 +44,20 @@ namespace Droplet::Scene
         void DeserializeImpl(const nlohmann::json p_behJson) override;
         
     private:
+        AudioTrack* FindTrack(const std::string& p_name);
+        
         std::vector<AudioTrack> m_tracks;
         std::string m_currentTrackName;
         std::string m_busName = "Master";
         
-        Audio::PlaybackID m_currentId = Audio::C_INVALID_PLAYBACK_ID;
+        Audio::PlaybackID m_currentId   = Audio::C_INVALID_PLAYBACK_ID;
         Audio::PlaybackID m_fadingOutId = Audio::C_INVALID_PLAYBACK_ID;
         
-        float m_targetVolumeDb = Audio::C_VOLUME_DECIBEL_DEFAULT;
-        float m_fadeDuration = 0.0f;
-        float m_fadeElapsed = 0.0f;
+        float m_targetVolumeDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_fadeDuration    = 0.0f;
+        float m_fadeElapsed     = 0.0f;
+        
+        float m_currentTrackPeakDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_fadingOutStartDb    = Audio::C_VOLUME_DECIBEL_DEFAULT;
     };
 }
