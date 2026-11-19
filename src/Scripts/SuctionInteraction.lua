@@ -17,8 +17,10 @@ local audioplayer
 
 
 function InteractWith(target)
-    local playerPosition = self:GetTransform():GetPosition()
-    local targetPosition = target.node:GetTransform():GetPosition()
+    local playerPosition = self:GetTransform():GetPosition(TransformSpace.World)
+    local targetPosition = target.node:GetTransform():GetPosition(TransformSpace.World)
+
+    --print("Position:", targetPosition.x, targetPosition.y, targetPosition.z)
 
     local forward = self:GetTransform():GetForward()
 
@@ -78,8 +80,8 @@ function SuctionUpdate(dt)
 
     suctionElapsed = suctionElapsed + dt
 
-    local playerPosition = self:GetTransform():GetPosition()
-    local fishTransform = currentTarget.node:GetTransform()
+    local playerPosition = self:GetTransform():GetPosition(TransformSpace.World)
+    local fishTransform = currentTarget.node:GetTransform(TransformSpace.World)
     local fishPosition = fishTransform:GetPosition()
 
     local direction = Vec3.new( 
@@ -113,6 +115,7 @@ function SuctionUpdate(dt)
         fishPosition.z + direction.z * movement
     )
 
+    print("fish name", currentTarget.node:GetName())
     print("Succc Succc", newPosition.x, newPosition.y, newPosition.z)
     fishTransform:SetPosition(newPosition)
 
@@ -191,6 +194,7 @@ function OnUpdate(dt)
 
     for _, fish in ipairs(suctionSystem.GetFishes()) do
         if Input:KeyPressed(Key.E) then
+            print("fish", fish.node:GetName())
             if InteractWith(fish) then
                 SuctionStart(fish)
                 return
