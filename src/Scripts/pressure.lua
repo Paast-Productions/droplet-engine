@@ -43,22 +43,15 @@ function OnTrigger(dt, node)
     local hullIntegrity = player:GetHullIntegrity()
 
     local zone = haz:GetZone()
-
     local getCurrentLevel = player:GetPressureLevel()
-    
-    print(zone .. " <- zone")
-    print(getCurrentLevel .. " <- getCurrentLevel")
 
     if zone == getCurrentLevel then
-        print("player is in the same zone as the zone")
         CheckPressureZone(zone)
         higher = false
     elseif zone > getCurrentLevel then
-        print("player is in higher zone")
         CheckPressureZone(zone)
         higher = true
     else
-        print("player is in a lower zone")
         CheckPressureZone(zone)
         higher = false
     end
@@ -68,12 +61,10 @@ function OnTrigger(dt, node)
     local health = node:GetHealthComponent()
     if higher then
         local givinDamage = damageHealth * dt
-        print(givinDamage .. " <- damage")
         health:TakeDamage(givinDamage)
     end
 
     local givinDamage = damageHull * dt
-    print(givinDamage .. " <- damage")
     health:TakeDamageHullIntergrity(givinDamage)
 
 
