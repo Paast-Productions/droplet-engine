@@ -235,14 +235,11 @@ function UpdateMovement(dt)
         )
     end
 
-    -- Apply movement in world space
-    local movement = GLM.V3MulF(GLM.V3MulF(velocity, dt), 160.0)
-    
     -- Apply pulse-jet movement
     if currentPulseFadeOutTime > 0.0 and GLM.V3Length(pulseDirection) > 0.0 then
 		currentPulseFadeOutTime = currentPulseFadeOutTime - dt
-		movement = GLM.V3Add(
-			movement,
+		velocity = GLM.V3Add(
+			velocity,
 			GLM.V3MulF(GLM.V3Normalize(pulseDirection), pulseSpeed * currentPulseFadeOutTime * 10.0)
 		)
 		
@@ -276,7 +273,7 @@ function UpdateMovement(dt)
 		currentPulseCooldown = 0.0
 	end
     
-	physicsComponent:SetVelocity(movement)
+	physicsComponent:SetVelocity(velocity)
 
     tracy.ZoneEnd()
 end

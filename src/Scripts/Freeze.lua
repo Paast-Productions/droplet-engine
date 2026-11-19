@@ -1,33 +1,29 @@
+
 local MovementModifiers = require("MovementModifiers")
 
 local damageComp = nil
-local freezeDamage = 0
 
 -- Freeze configuration
-local freezeRate = 30.0
-local freezeThreshold = 200.0
-local freezeTier = 1
-
--- Slow configuration
--- These two variables are shared between this script and freezecontroller
 local freezeConfig = {}
 freezeConfig.maxFreeze = 1000.0
 freezeConfig.minSpeedMultiplier = 0.2
 
--- Damage configuration
-local damageScaling = 0.65
+local freezeRate = 50
+local damageScaling = 5
+
+-- Temperature configuration
+local temperatureChangeRate = 2.0
+local temperatureScaling = 0.05
 
 function OnStart()
-    damageComp = self:GetDamageComponent()
-        if damageComp == nil then
-            print("ERROR: DamageComponent missing!")
-            return
-        end
-    freezeDamage = (damageComp:GetDamage()) * 0.25
+    damageComp = self:GetHazardComponent()
+
+    if damageComp == nil then
+        print("ERROR: DamageComponent missing!")
+        return
+    end
 end
 
--- This trigger function slows down and damages the player
--- progressevly worse
 function OnTrigger(dt, node)
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
@@ -42,38 +38,83 @@ function OnTrigger(dt, node)
         return
     end
 
-    -- Increase the freeze level
-    local currentFreeze = pb:GetFreezeLevel()
+    local droneTemp = pb:GetDroneTemp()
+    local outsideTemp = -100 * damageComp:GetDamage()
 
-    local freezeIncrease = freezeRate * dt
-    
-    if currentFreeze < freezeConfig.maxFreeze then
-        pb:IncreaseFreezeLevel(freezeIncrease * (0.5 * freezeTier)^2)
+    pb:SetOutsideTemp(outsideTemp)
+
+    local freezeResistance = pb:GetFreezeResistance()
+    local freezeThreshold = -freezeResistance
+
+    -- Calculate how far outside temperature is below resistance.
+    local outsideFreezeDifference = math.max(
+        0.0,
+        freezeThreshold - outsideTemp
+    )
+
+    -- Scale temperature decrease based on resistance difference.
+    local temperatureMultiplier = 1.0 +
+        outsideFreezeDifference * temperatureScaling
+
+    local currentTemperatureRate =
+        temperatureChangeRate * temperatureMultiplier
+
+    -- Gradually move drone temperature towards outside temperature.
+    local temperatureDifference = outsideTemp - droneTemp
+
+    local temperatureChange = math.min(
+        math.abs(temperatureDifference),
+        currentTemperatureRate * dt
+    )
+
+    if temperatureDifference < 0.0 then
+        droneTemp = droneTemp - temperatureChange
+    else
+        droneTemp = droneTemp + temperatureChange
     end
 
-    -- Apply slow
-    local freezePercent = math.min(1.0, math.max(0.0, currentFreeze / freezeConfig.maxFreeze))
+    pb:SetDroneTemp(droneTemp)
 
-    local speedMultiplier = 1.0 - freezePercent * (1.0 - freezeConfig.minSpeedMultiplier)
+    -- Calculate how far below freeze resistance the drone is.
+    local freezeDifference = math.max(
+        0.0,
+        freezeThreshold - droneTemp
+    )
 
-    MovementModifiers.SetSlow(speedMultiplier)
+    if freezeDifference > 0.0 then
 
-    -- Get new tier that will exponentially damage the player more
-    freezeTier = math.floor(currentFreeze / freezeThreshold) + 1
+        -- Normalize temperature difference.
+        local freezeSeverity = math.min(freezeDifference / 50.0, 1.0)
 
-    currentFreeze = pb:GetFreezeLevel()
+        -- Increase freeze level.
+        local freezeIncrease = freezeRate * freezeSeverity * dt
+        pb:IncreaseFreezeLevel(freezeIncrease)
 
-    if currentFreeze > pb:GetFreezeResistance() then
-        local damagePerSecond = freezeDamage * (freezeDamage + (freezeTier * damageScaling)^2)
+        local currentFreeze = math.min(
+            pb:GetFreezeLevel(),
+            freezeConfig.maxFreeze
+        )
+
+        -- Apply progressive movement slowdown.
+        local freezePercent = currentFreeze / freezeConfig.maxFreeze
+
+        local speedMultiplier = 1.0 -
+            freezePercent * (1.0 - freezeConfig.minSpeedMultiplier)
+
+        MovementModifiers.SetSlow(speedMultiplier)
+
+        -- Apply progressively increasing damage.
+        local damagePerSecond = 1.0 +
+            damageScaling * freezeSeverity * freezeSeverity
+
         health:TakeDamage(damagePerSecond * dt)
     end
-    -- This timer prevents the palyer to recover immedietly after leaving the zone
+
+    -- Prevent immediate recovery after leaving the hazard.
     pb:SetFreezeTimer(3.0)
 end
 
--- Called to render variables in the script
 function RenderUI()
-    
 end
 
 return freezeConfig
