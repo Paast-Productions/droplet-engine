@@ -2,6 +2,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
+#include <NodeSlot.hpp>
 
 using namespace Droplet::Scene;
 
@@ -17,6 +18,10 @@ void Droplet::Editor::SceneInspectorWindow::CloseImpl()
 
 void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 {
+	static std::vector<std::weak_ptr<Droplet::Scene::Node>> nodes;
+
+	NodeListSlot("Scene Nodes", nodes);
+
 	// ImGui::SeparatorText("Scene");
 	//
 	// // Scene configurations
