@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,7 +23,7 @@
 #include "Integration/Assets/AssetTransfer.hpp"
 #include "Integration/Render/RenderWorld.hpp"
 #include "Integration/Render/PreparedFrame.hpp"
-
+struct ImDrawData;
 namespace Vulkan
 {
     /**
@@ -54,7 +55,21 @@ namespace Vulkan
 
         /// @brief Renders and presents `world`; does nothing while minimized. Assets it refers to that are not on the
         ///        GPU (yet) are drawn as placeholders.
-        void Render(const Render::RenderWorld& world);
+        void Render(const Render::RenderWorld& world, ImDrawData* overlay = nullptr);
+
+#ifdef _EDITOR
+        // == ImGui == the engine side owns the context and the frame (ImGuiFrame); the renderer draws it
+
+        /// @brief Initialises ImGui's Vulkan backend. @pre an ImGui context exists; call once
+        void InitImGui();
+        /// @brief The backend's per-frame start; call before ImGui::NewFrame
+        void NewImGuiFrame();
+        /// @brief An ImGui texture id that shows render target `target` (a camera's output): pass it to ImGui::Image.
+        ///        The id stays the same across frames; each frame it is pointed at the target's current image, and
+        ///        the frame graph reads the targets the overlay shows. A target the world does not declare shows the
+        ///        placeholder texture.
+        [[nodiscard]] std::uint64_t ImGuiTexture(Guid target);
+#endif
 
         /// @brief Uploads assets (see RenderDevice::Upload). Call between frames; the spans only have to live until
         ///        this returns.
@@ -71,6 +86,10 @@ namespace Vulkan
         void OnRestore() { m_wsi.OnRestore(); }
         [[nodiscard]] bool IsMinimized() const noexcept { return m_wsi.IsMinimized(); }
 
+        /// @brief False: the composite only clears the window instead of showing the presented view (editor mode,
+        ///        where viewport windows show the cameras); true by default
+        void SetCompositeScene(bool compositeScene) noexcept { m_compositeScene = compositeScene; }
+
         /// @brief Blocks until the GPU has finished all submitted work
         void WaitIdle() const{ m_vulkanContext.WaitIdle(); }
 
@@ -83,7 +102,11 @@ namespace Vulkan
 
         /// @brief Builds, compiles and executes this frame's render graph; a fallback graph clears the swapchain image
         ///        if it does not compile.
-        void RecordFrameGraph(const Frame& frame);
+        void RecordFrameGraph(const Frame& frame, ImDrawData* overlay);
+#ifdef _EDITOR
+        /// @brief Points the overlay's render-target ids at this frame's images; returns the targets they show
+        std::vector<Render::TargetHandle> ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world);
+#endif
 
         /// @brief Physical image of an import: the frame's swapchain image or a render target.
         [[nodiscard]] PhysicalResource ResolveImport(const RenderGraph::ResourceInfo& resource, const Frame& frame) const;
@@ -106,5 +129,12 @@ namespace Vulkan
         PipelineLibrary m_pipelineLibrary; ///< Pipelines by description; requested in Prepare
 
         Render::PreparedFrame m_preparedFrame; ///< This frame, prepared; the graph's pass callbacks read it
+        bool m_compositeScene{ true };         ///< SetCompositeScene
+
+#ifdef _EDITOR
+        std::optional<ImGuiPass> m_imguiPass;            ///< after InitImGui; destroyed before the device
+        std::vector<Guid> m_imguiTargets;                ///< the targets of ImGuiTexture ids, by index
+        std::vector<Render::TargetHandle> m_overlayReads; ///< this frame's targets the overlay shows
+#endif
     };
 }

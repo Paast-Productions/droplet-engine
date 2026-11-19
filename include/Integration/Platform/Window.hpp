@@ -49,6 +49,8 @@ namespace SDL
         void SetRestoreCallback(const std::function<void()>& callback);
         /// External callback for what happens when a key is pressed
         void SetKeyDownCallback(const std::function<void(SDL_Keycode)>& callback);
+        /// External callback that sees every event first, before the callbacks above (the editor's ImGui)
+        void SetEventCallback(const std::function<void(const SDL_Event&)>& callback);
         
         /// Poll for events and sets running to false if a quit message was caught or ESCAPE was pressed
         void PollEvents(bool* running) const;
@@ -67,6 +69,7 @@ namespace SDL
         std::function<void()> m_minimizeCallback;
         std::function<void()> m_restoreCallback;
         std::function<void(SDL_Keycode)> m_keyDownCallback;
+        std::function<void(const SDL_Event&)> m_eventCallback;
         
         Config m_cfg;
     };

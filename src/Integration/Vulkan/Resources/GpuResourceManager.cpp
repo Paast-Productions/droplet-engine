@@ -424,14 +424,40 @@ namespace Vulkan
         {
             if (GpuRenderTarget* existing = m_targets.Get(cachedTarget->second))
             {
+                if (existing->desc.width == desc.width && existing->desc.height == desc.height &&
+                    existing->desc.format == desc.format)
+            {
                 MarkUsed(existing->residency);
                 return cachedTarget->second;
+            }
+                // the description changed (a viewport resized it): the target and its history leave the pools now and
+                // are destroyed once the GPU is past their last use, as for an evicted target
+                RetireTarget(cachedTarget->second);
             }
         }
 
         const Render::TargetHandle handle = CreateTarget(desc);
         m_targetLookup.insert_or_assign(desc.id, handle);
         return handle;
+    }
+
+    void GpuResourceManager::RetireTarget(Render::TargetHandle target)
+    {
+        if (const auto historyIt = m_historyLookup.find(target.Key()); historyIt != m_historyLookup.end())
+        {
+            if (std::optional<GpuRenderTarget> history = m_targets.Remove(historyIt->second))
+            {
+                const QueueTimelineValues retireValues = history->residency.lastUsedRetireValues;
+                m_deletionQueue->Retire(std::move(*history), retireValues);
+            }
+            m_historyLookup.erase(historyIt);
+        }
+        if (std::optional<GpuRenderTarget> removed = m_targets.Remove(target))
+        {
+            const QueueTimelineValues retireValues = removed->residency.lastUsedRetireValues;
+            m_deletionQueue->Retire(std::move(*removed), retireValues);
+        }
+        ++m_replacedSinceEndFrame;
     }
 
     Render::TargetHandle GpuResourceManager::GetOrCreateHistory(Render::TargetHandle target)

@@ -45,6 +45,9 @@ namespace Vulkan
     struct PresentationInputs
     {
         bool enabled{false}; ///< false: no swapchain import, no composite
+        /// false: the composite only clears, so nothing reads the presented view for it (the editor shows views in
+        /// its windows instead)
+        bool compositeScene{true};
     };
 
     /// @brief Which kind of pass renders an effect step.
@@ -140,6 +143,14 @@ namespace Vulkan
          */
         std::function<void(PassContext&, RenderGraph::ResourceId source,
                            RenderGraph::ResourceId destination)> composite;
+
+        /**
+         * @brief Draws on top of the composite into the swapchain image `destination` (the editor's ImGui). Unset: no
+         *        overlay pass.
+         * @note the graph has `destination` in ColorWrite and `overlayReads` in SampledRead; graphics queue
+         */
+        std::function<void(PassContext&, RenderGraph::ResourceId destination)> overlay;
+        std::vector<Render::TargetHandle> overlayReads; ///< render targets the overlay samples (ImGui windows)
     };
 
     /// Pre-compiled frame graph build containing the graph, id for the swapchain target and any warnings generated during build

@@ -18,6 +18,9 @@
 #include "Integration/Vulkan/Graph/FrameGraphBuilder.hpp"
 #include "Integration/Vulkan/Graph/RenderGraphVk.hpp"
 #include "Integration/ShaderCompiler/ShaderCompiler.hpp"
+#ifdef _EDITOR
+#include <imgui.h>
+#endif
 
 namespace
 {
@@ -93,7 +96,7 @@ Renderer::~Renderer() noexcept
     }
 }
 
-void Renderer::Render(const Render::RenderWorld& world)
+void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawData* overlay)
 {
     if (m_wsi.IsMinimized())
         return;
@@ -129,10 +132,28 @@ void Renderer::Render(const Render::RenderWorld& world)
     m_compositor.BeginFrame(frame->frameSlot);
     m_effectPass.BeginFrame(frame->frameSlot);
 
+#ifdef _EDITOR
+    // the editor's ImGui: its textures uploaded before the graph, its render-target images resolved for this frame
+    if (!m_imguiPass)
+        overlay = nullptr;
+    m_overlayReads.clear();
+    if (overlay)
+    {
+        if (frame->swapchainImage.format != m_imguiPass->ColorFormat())
+        {
+            WaitIdle(); // the old pipeline may still be in use
+            m_imguiPass->SetColorFormat(frame->swapchainImage.format);
+        }
+        m_imguiPass->BeginFrame(frame->frameSlot);
+        m_imguiPass->UpdateTextures(*overlay);
+        m_overlayReads = ResolveImGuiTextures(*overlay, world);
+    }
+#endif
+
     // 3-4. the render graph: views, depth transients, effect chains (fragment passes, compute passes on the compute
     //      queue), history copies on the transfer queue, composite into the swapchain; recorded and submitted by the
     //      frame submitter
-    RecordFrameGraph(*frame);
+    RecordFrameGraph(*frame, overlay);
 
     // 5. present; the swapchain may be recreated
     m_wsi.EndFrame(*frame);
@@ -165,7 +186,7 @@ void Renderer::CompileShaders()
     });
 }
 
-void Renderer::RecordFrameGraph(const Frame& frame)
+void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData* overlay)
 {
     Vulkan::FrameGraphInputs inputs{
         .currentState = [this](Render::TargetHandle handle)
@@ -310,9 +331,8 @@ void Renderer::RecordFrameGraph(const Frame& frame)
                 ctx.resources->Extent(destination),
                 {.effect = PostProcess::Effect::Passthrough, .amount = 1.0f});
         },
-        .presentation = Vulkan::PresentationInputs{.enabled = true},
-        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source,
-                                    RenderGraph::ResourceId destination)
+        .presentation = Vulkan::PresentationInputs{.enabled = true, .compositeScene = m_compositeScene},
+        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source, RenderGraph::ResourceId destination)
         {
             // no source: RecordFullscreen only clears
             m_compositor.RecordFullscreen(
@@ -324,6 +344,30 @@ void Renderer::RecordFrameGraph(const Frame& frame)
                 {.effect = PostProcess::Effect::Passthrough, .amount = 1.0f});
         }
     };
+
+#ifdef _EDITOR
+    if (overlay)
+    {
+        inputs.overlayReads = m_overlayReads;
+        inputs.overlay = [this, overlay](PassContext& ctx, RenderGraph::ResourceId destination)
+        {
+            const vk::RenderingAttachmentInfo color{
+                .imageView = ctx.resources->View(destination),
+                .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
+                .loadOp = vk::AttachmentLoadOp::eLoad, // on top of the composite
+                .storeOp = vk::AttachmentStoreOp::eStore
+            };
+            ctx.cmd.beginRendering(vk::RenderingInfo{
+                .renderArea = {.offset = {0, 0}, .extent = ctx.resources->Extent(destination)},
+                .layerCount = 1,
+                .colorAttachmentCount = 1,
+                .pColorAttachments = &color
+            });
+            m_imguiPass->Record(ctx.cmd, *overlay);
+            ctx.cmd.endRendering();
+        };
+    }
+#endif
 
     Vulkan::FrameGraphBuild build = Vulkan::BuildFrameGraph(m_preparedFrame, inputs);
     RenderGraph::Compiled compiled = build.graph.Compile();
@@ -391,11 +435,9 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
             .image = {
                 .image = frame.swapchainImage.image,
                 .range = COLOR_RANGE,
-                .previousUse = SWAPCHAIN_ACQUIRE_USE
-            },
+                .previousUse = SWAPCHAIN_ACQUIRE_USE},
             .view = frame.swapchainImage.view,
-            .extent = frame.swapchainImage.extent
-        };
+            .extent = frame.swapchainImage.extent};
     }
 
     const Render::TargetHandle handle = Vulkan::TargetFromKey(resource.externalKey);
@@ -414,3 +456,77 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
         .extent = target->target.Extent()
     };
 }
+
+#ifdef _EDITOR
+namespace
+{
+    /// @brief Marks the ImGui texture ids that stand for render targets; the rest of the id is an index. VkDescriptorSet
+    ///        handles (the backend's real ids) are pointers and never have the top bit set
+    constexpr std::uint64_t IMGUI_TARGET_TAG = 1ull << 63;
+}
+
+void Renderer::InitImGui()
+{
+    if (!m_imguiPass)
+        m_imguiPass.emplace(m_vulkanContext, m_wsi.SwapchainFormat(), WSI::FramesInFlight());
+}
+
+void Renderer::NewImGuiFrame()
+{
+    if (m_imguiPass)
+        m_imguiPass->NewFrame();
+}
+
+std::uint64_t Renderer::ImGuiTexture(Guid target)
+{
+    auto targetIt = std::ranges::find(m_imguiTargets, target);
+    if (targetIt == m_imguiTargets.end())
+        targetIt = m_imguiTargets.insert(m_imguiTargets.end(), target);
+    return IMGUI_TARGET_TAG | static_cast<std::uint64_t>(targetIt - m_imguiTargets.begin());
+}
+
+std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world)
+{
+    GpuResourceManager& gpu = m_device.Resources();
+    std::vector<Render::TargetHandle> reads;
+    for (ImDrawList* list : overlay.CmdLists)
+    {
+        for (ImDrawCmd& command : list->CmdBuffer)
+        {
+            // ImGui's own textures (its font atlas) carry their data; callbacks draw nothing
+            const ImTextureID id = command.TexRef._TexID;
+            if (command.UserCallback || command.TexRef._TexData || (id & IMGUI_TARGET_TAG) == 0)
+                continue;
+
+            // the target, by the descriptions this frame's world carries (Prepare has already created it)
+            Render::TargetHandle handle{};
+            if (const std::size_t index = id & ~IMGUI_TARGET_TAG; index < m_imguiTargets.size())
+            {
+                const auto descIt = std::ranges::find(world.targets, m_imguiTargets[index],
+                                                      &Common::RenderTargetDesc::id);
+                if (descIt != world.targets.end())
+                    handle = gpu.GetOrCreateTarget(*descIt);
+            }
+
+            vk::ImageView view;
+            vk::Sampler sampler = gpu.DefaultSampler();
+            if (const GpuRenderTarget* target = handle.IsValid() ? gpu.Find(handle) : nullptr)
+            {
+                view = target->target.GetImageView();
+                if (std::ranges::find(reads, handle) == reads.end())
+                    reads.push_back(handle);
+            }
+            else
+            {
+                const GpuTexture* placeholder = gpu.Find(gpu.PlaceholderTexture());
+                view = placeholder->view.Get();
+                sampler = placeholder->sampler;
+            }
+            const vk::DescriptorSet set = m_imguiPass->SetFor(view, sampler);
+            command.TexRef._TexID = static_cast<ImTextureID>(
+                reinterpret_cast<std::uintptr_t>(static_cast<VkDescriptorSet>(set)));
+        }
+    }
+    return reads;
+}
+#endif

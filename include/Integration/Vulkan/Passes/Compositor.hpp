@@ -9,12 +9,8 @@
 #include <unordered_map>
 #include <vector>
 
-// TODO: this should be global for the project
-#ifndef VULKAN_HPP_NO_CONSTRUCTORS
-#define VULKAN_HPP_NO_CONSTRUCTORS
 #include <vulkan/vulkan_raii.hpp>
-#undef VULKAN_HPP_NO_CONSTRUCTORS
-#endif
+
 
 #include "Integration/Vulkan/Passes/PostProcessShader.hpp"
 
