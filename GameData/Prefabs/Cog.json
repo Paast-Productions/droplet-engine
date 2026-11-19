@@ -1,0 +1,69 @@
+{
+    "active": true,
+    "children": [],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cog",
+                "meshGUID": 13355020082004525987,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Cog",
+                "textureGUID": 14398772776344451943,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "h": 0.0,
+                "halfExtentsX": 0.0,
+                "halfExtentsY": 0.0,
+                "halfExtentsZ": 0.0,
+                "layer": 1,
+                "meshGUID": 13355020082004525987,
+                "motionType": 2,
+                "offsetX": 0.0,
+                "offsetY": 0.0,
+                "offsetZ": 0.0,
+                "r": 0.0,
+                "shapeType": 5
+            },
+            "id": 5,
+            "type": "PhysicsComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 946,
+    "name": "Cog",
+    "transform": {
+        "position": [
+            -0.03775334358215332,
+            1.4339503049850464,
+            -0.08749771118164063
+        ],
+        "rotation": [
+            0.9587096571922302,
+            -0.002223006682470441,
+            -0.20077165961265564,
+            0.20139911770820618
+        ],
+        "scale": [
+            0.9999876618385315,
+            0.9999884963035583,
+            0.9999996423721313
+        ]
+    }
+}

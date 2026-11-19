@@ -15,7 +15,17 @@
                 {
                     "active": false,
                     "children": [],
-                    "effects": [],
+                    "effects": [
+                        {
+                            "active": false,
+                            "data": {
+                                "frequency": 800.0,
+                                "resonance": 0.699999988079071
+                            },
+                            "slot": 0,
+                            "type": "LowPassEffect"
+                        }
+                    ],
                     "name": "WaterSFX",
                     "volume": 0.0
                 },

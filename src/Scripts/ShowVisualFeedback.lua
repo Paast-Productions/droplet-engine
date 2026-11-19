@@ -14,7 +14,6 @@ function OnUpdate(dt)
     local hazard = self:GetHazardComponent()
 
     level = hazard:GetDamage()
-    print("Level: ", level)
     if parent == nil then
         return
     end
@@ -29,7 +28,6 @@ function OnUpdate(dt)
     end
 
     local freezeLevel = pb:GetFreezeLevel() / 200
-    print("FreezeLevel: ", freezeLevel)
     local mesh = self:GetMeshComponent()
     
     if freezeLevel >= level and freezeLevel < level + 1 then

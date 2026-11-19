@@ -477,8 +477,13 @@ void ScriptManager::ReloadScript(const std::string &p_scriptFile)
 
 void ScriptManager::CheckForFileChanges()
 {
-	ZoneScoped;
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
+	{
+		return;
+	}
 
+	ZoneScoped;
+	
 	for (auto& [scriptFile, loadedScript] : m_loadedScripts)
 	{
 		if (HasScriptFileChanged(scriptFile))
