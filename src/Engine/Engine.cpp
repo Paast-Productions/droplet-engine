@@ -95,6 +95,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".ogg"}, IO::AudioFormat::ScanAssetResources);
+	resManInstance.RegisterAssetScanner({".slug"}, IO::FontFormat::ScanAssetResources);
 	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
@@ -102,6 +103,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
+    resManInstance.RegisterResourceType<FontResource>();
     // Don't register SoundResource for now /Arvid
 
 	// Register base items and set the item registry for the scene manager
