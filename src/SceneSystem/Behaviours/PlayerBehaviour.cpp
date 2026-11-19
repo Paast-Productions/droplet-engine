@@ -280,14 +280,23 @@ namespace Droplet::Scene
 
         m_data.pressureResistance = std::max(0.0f, m_data.pressureResistance);
 
-        ImGui::InputFloat(
-            "Pressure Level",
-            &m_data.pressureLevel,
-            0.1f,
-            5.0f,
-            "%.2f");
+        //ImGui::InputFloat(
+        //    "Pressure Level",
+        //    &m_data.pressureLevel,
+        //    0.1f,
+        //    5.0f,
+        //    "%.2f");
 
-        m_data.pressureLevel = std::max(0.0f, m_data.pressureLevel);
+        for (int x = 1; x <= 5; x++)
+        {   
+            std::string label = "level" + std::to_string(x);
+            ImGui::RadioButton(label.c_str(), &m_level, x);
+        	ImGui::SameLine();
+        }
+        m_data.pressureLevel = static_cast<float>(m_level);
+
+
+        //m_data.pressureLevel = std::max(0.0f, m_data.pressureLevel);
 
         ImGui::Spacing();
         ImGui::Separator();

@@ -52,7 +52,7 @@ namespace Droplet::Scene
         /// Stores a weak reference to the supplied Node.
         ///
         /// @param p_player Shared pointer to the player's Node.
-        void SetPlayer(const std::shared_ptr<Node> &p_player) { m_player = p_player; }
+        void SetPlayer(const std::shared_ptr<Node>& p_player) { m_player = p_player; }
 
         /// @brief Gets the Node representing the player.
         /// @return Shared pointer to the player's Node, or nullptr if it no longer exists.
@@ -60,7 +60,7 @@ namespace Droplet::Scene
 
         /// @brief Gets the player's persistent data.
         /// @return Constant reference to the stored PlayerData.
-        [[nodiscard]] const Droplet::Game::PlayerData &GetData() const { return m_data; }
+        [[nodiscard]] const Droplet::Game::PlayerData& GetData() const { return m_data; }
 
         // HEALTH
 
@@ -73,7 +73,7 @@ namespace Droplet::Scene
         [[nodiscard]] float GetMaxHealth() const { return m_data.maxHealth; }
 
         //HULL INTERGRITY 
-        
+
         /// @brief Sets the maximum hull integrity of the player.
         /// @param p_hullIntegrity New maximum health value.
         void SetHullIntegrity(float p_hullIntegrity) { m_data.maxHullIntegrity = p_hullIntegrity; }
@@ -108,9 +108,9 @@ namespace Droplet::Scene
         /// @return Current heat level value.
         [[nodiscard]] float GetHeatLevel() const { return m_data.heatLevel; }
 
-                
+
         /// FREEZE
-        
+
         /// @brief Sets the player's resistance to environmental heat.
         /// @param p_heatResistance New heat resistance value.
         void SetFreezeResistance(float p_freezeResistance) { m_data.freezeResistance = p_freezeResistance; }
@@ -130,15 +130,15 @@ namespace Droplet::Scene
         /// @brief Gets the player's current heat level.
         /// @return Current heat level value.
         [[nodiscard]] float GetFreezeLevel() const { return m_data.freezeLevel; }
-        
+
         /// @brief Start a timer of when the player cannot warm up from freeze
         /// @param p_time The amount of time that the player cannot get warm
         void SetFreezeTimer(float p_time) { m_data.timeSinceFreeze = p_time; }
-        
+
         /// @brief Get the time of when freeze was applied on the player
         /// @returns Time since last time player was affected by freeze
         [[nodiscard]] float GetFreezeTimer() const { return m_data.timeSinceFreeze; }
-        
+
 
         /// PRESSURE 
 
@@ -163,7 +163,7 @@ namespace Droplet::Scene
         [[nodiscard]] float GetPressureLevel() const { return m_data.pressureLevel; }
 
 
-		///DroneInventory
+        ///DroneInventory
         /// @brief The maximum inventory capacity of the drone.
         void SetDroneInventorySize(float p_droneinventorySize) { m_data.maxDroneInventorySlots = p_droneinventorySize; }
 
@@ -177,29 +177,29 @@ namespace Droplet::Scene
         void SetDroneMaxSpeed(float p_droneMaxSpeed) { m_data.DroneMaxSpeed = p_droneMaxSpeed; }
 
         /// @brief The maximum speed of the drone.
-		/// @return The maximum speed of the drone.
-		[[nodiscard]] float GetDroneMaxSpeed() const { return m_data.DroneMaxSpeed; }
+        /// @return The maximum speed of the drone.
+        [[nodiscard]] float GetDroneMaxSpeed() const { return m_data.DroneMaxSpeed; }
 
 
         /// @brief The maximum range of the drone.
         void SetDroneMaxRange(float p_droneMaxRange) { m_data.DroneMaxRange = p_droneMaxRange; }
 
         /// @brief The maximum range of the drone.
-		/// @return The maximum range of the drone.
+        /// @return The maximum range of the drone.
         [[nodiscard]] float GetDroneMaxRange() const { return m_data.DroneMaxRange; }
 
-		/// @brief Sets the current temperature of the drone.
-		/// @param p_droneTemp New temperature value for the drone.
-		void SetDroneTemp(float p_droneTemp) { m_data.droneTemp = p_droneTemp; }
+        /// @brief Sets the current temperature of the drone.
+        /// @param p_droneTemp New temperature value for the drone.
+        void SetDroneTemp(float p_droneTemp) { m_data.droneTemp = p_droneTemp; }
 
-		/// @brief Gets the current temperature of the drone.
-		[[nodiscard]] float GetDroneTemp() const { return m_data.droneTemp; }
+        /// @brief Gets the current temperature of the drone.
+        [[nodiscard]] float GetDroneTemp() const { return m_data.droneTemp; }
 
-		/// @brief Sets the current temperature outside the drone.
-		void SetOutsideTemp(float p_outsideTemp) { m_data.outsideTemp = p_outsideTemp; }
+        /// @brief Sets the current temperature outside the drone.
+        void SetOutsideTemp(float p_outsideTemp) { m_data.outsideTemp = p_outsideTemp; }
 
-		/// @brief Gets the current temperature outside the drone.
-		[[nodiscard]] float GetOutsideTemp() const { return m_data.outsideTemp; }
+        /// @brief Gets the current temperature outside the drone.
+        [[nodiscard]] float GetOutsideTemp() const { return m_data.outsideTemp; }
 
         // ITEMS
 
@@ -210,9 +210,9 @@ namespace Droplet::Scene
         ///
         /// @return Pointer to the item registry, or nullptr if no SceneManager
         ///         exists or no registry has been assigned.
-        [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const
+        [[nodiscard]] const Droplet::Game::ItemRegistry* GetItemRegistry() const
         {
-            const SceneManager *sceneManager = GetSceneManager();
+            const SceneManager* sceneManager = GetSceneManager();
             return sceneManager ? sceneManager->GetItemRegistry() : nullptr;
         }
 
@@ -296,7 +296,7 @@ namespace Droplet::Scene
         /// @brief Gets the inventory selected by the specified inventory type.
         /// @param p_type Inventory to retrieve.
         /// @return Mutable reference to the selected inventory.
-        std::vector<Droplet::Game::ItemStack> &Inv(InventoryType p_type)
+        std::vector<Droplet::Game::ItemStack>& Inv(InventoryType p_type)
         {
             return p_type == InventoryType::Player ? m_data.playerInventory : m_data.droneInventory;
         }
@@ -304,14 +304,13 @@ namespace Droplet::Scene
         /// @brief Gets the inventory selected by the specified inventory type.
         /// @param p_type Inventory to retrieve.
         /// @return Constant reference to the selected inventory.
-        const std::vector<Droplet::Game::ItemStack> &Inv(InventoryType p_type) const
+        const std::vector<Droplet::Game::ItemStack>& Inv(InventoryType p_type) const
         {
             return p_type == InventoryType::Player ? m_data.playerInventory : m_data.droneInventory;
         }
 
         std::weak_ptr<Node> m_player;     ///< Weak reference to the Node representing the player.
         Droplet::Game::PlayerData m_data; ///< Persistent data associated with the player.
-        Droplet::Game::PlayerData m_level; ///< Persistent data associated with the player.
-
+        int m_level = { 1 }; ///< Describes the player's current pressure level
     };
 }
