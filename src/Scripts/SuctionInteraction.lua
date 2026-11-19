@@ -4,13 +4,10 @@ local scene
 
 local interactionRange = 5.0
 local interactionAngle = 30.0
-
 local suctionSpeed = 4.0
 local suctionDistance = 0.3
 
 local activeTargets = {}
-local currentTarget = nil
-local suctionElapsed = 0.0
 
 local playerBehaviour
 local audioplayerMusic
@@ -213,6 +210,7 @@ function SuctionCancel()
 end
 
 function UpdateSuctionSound()
+    
     if Input:KeyHeld(Key.E) then
         if not playingSucction then
             audioplayerSucction:Play()
@@ -227,7 +225,6 @@ function UpdateSuctionSound()
             print("Stopping suction sound")
         end
     end
-
 end
 
 function OnStart()
