@@ -1,0 +1,222 @@
+{
+    "name": "ShipwreckScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "SeafloorFrigate",
+                        "meshGUID": 295305772516136488,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "SeafloorFrigateSceene",
+                        "textureGUID": 7706152668870636010,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "meshGUID": 295305772516136488,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "Seafloor",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -8.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 33,
+            "drawLayer": 1,
+            "id": 2,
+            "name": "Drone",
+            "prefab": "GameData\\Prefabs\\Drone.json",
+            "transform": {
+                "position": [
+                    32.60456848144531,
+                    3.0485315322875977,
+                    46.031646728515625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Shipwreck",
+                        "meshGUID": 8709349576870470792,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "shipwreck_ver2_base",
+                        "textureGUID": 16593724191898469646,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "meshGUID": 8709349576870470792,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 11,
+            "name": "shipwreck",
+            "transform": {
+                "position": [
+                    -43.00105667114258,
+                    -116.1053466796875,
+                    -56.357810974121094
+                ],
+                "rotation": [
+                    0.9594722986221313,
+                    0.0,
+                    0.0,
+                    -0.2818030118942261
+                ],
+                "scale": [
+                    1.7549999952316284,
+                    1.7550009489059448,
+                    1.7550009489059448
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 12,
+            "name": "Stone",
+            "prefab": "GameData\\Prefabs\\Stone.json",
+            "transform": {
+                "position": [
+                    -63.3562126159668,
+                    -107.62751770019531,
+                    -20.46308708190918
+                ],
+                "rotation": [
+                    0.6742359399795532,
+                    0.0,
+                    -0.7385160326957703,
+                    0.0
+                ],
+                "scale": [
+                    10.586050987243652,
+                    10.115151405334473,
+                    12.997610092163086
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 13,
+            "name": "Stone",
+            "prefab": "GameData\\Prefabs\\Stone.json",
+            "transform": {
+                "position": [
+                    -76.82865905761719,
+                    -97.67713165283203,
+                    -66.15186309814453
+                ],
+                "rotation": [
+                    0.6742359399795532,
+                    0.0,
+                    -0.7385160326957703,
+                    0.0
+                ],
+                "scale": [
+                    10.586050987243652,
+                    10.174793243408203,
+                    12.997610092163086
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
