@@ -52,7 +52,7 @@ namespace Droplet
 		std::chrono::high_resolution_clock::time_point m_startTime{};
 		std::chrono::high_resolution_clock::time_point m_lastTime{};
 		float m_deltaTime = 0.0f;
-		float m_fixedDeltaTime = 1.0f / 20.0f;
+		float m_fixedDeltaTime = 1.0f / 50.0f;
 		float m_accumulator = 0.0f;
 
 		/// @brief Get the current time.
