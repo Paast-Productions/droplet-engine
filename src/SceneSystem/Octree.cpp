@@ -78,11 +78,6 @@ void Octree::Update()
 		m_placements[nodePtr.get()].fatBounds = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
 	}
-		
-	if (GameInput::Get().KeyToggle(Key::KeyB)) // HACK: Should probably not be here
-	{
-		Render();
-	}
 }
 
 void Octree::AddNode(const std::weak_ptr<Node> &p_node)
@@ -538,9 +533,14 @@ std::string Octree::ToGraphvizTree()
 	return toReturn + "}\n";
 }
 	
-void Octree::Render()
+void Octree::Render(const bool p_renderOctants, const bool p_renderNodes)
 {
-	RenderOctant(m_root);
+	if (!p_renderOctants && !p_renderNodes)
+	{
+		return;
+	}
+	
+	RenderOctant(m_root, p_renderOctants, p_renderNodes);
 }
 
 void Octree::Clear()
@@ -1248,33 +1248,39 @@ std::string Octree::BoundingBoxToGraphviz(const Droplet::Math::AABB &p_aabb, con
 	return toReturn;
 }
 	
-void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode)
+void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode, const bool p_renderOctants, const bool p_renderNodes)
 {
 	if (p_treeNode == nullptr)
 	{
 		return;
 	}
 		
-	Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
-		
-	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+	if (p_renderOctants)
 	{
-		auto nodePtr = node.lock();
-		if (nodePtr != nullptr)
+		Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
+	}
+		
+	if (p_renderNodes)
+	{
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			OBB obb = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
-			Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
-				
-			if (m_placements.contains(nodePtr.get()))
+			auto nodePtr = node.lock();
+			if (nodePtr != nullptr)
 			{
-				Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()].fatBounds, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				OBB obb = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
+				Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
+				
+				if (m_placements.contains(nodePtr.get()))
+				{
+					Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()].fatBounds, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				}
 			}
 		}
 	}
 		
 	for (const std::unique_ptr<TreeNode> &treeNode : p_treeNode->children)
 	{
-		RenderOctant(treeNode);
+		RenderOctant(treeNode, p_renderOctants, p_renderNodes);
 	}
 }
 
