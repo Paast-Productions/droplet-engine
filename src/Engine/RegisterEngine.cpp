@@ -9,6 +9,7 @@
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/ParticleSystemComponent.hpp>
 
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
@@ -26,6 +27,7 @@ namespace Droplet
 		Droplet::Scene::ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<Droplet::Scene::PhysicsComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Droplet::Scene::CameraComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Droplet::Scene::SkeletonComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("ParticleSystemComponent", []() { return std::make_unique<Droplet::Scene::ParticleSystemComponent>(); });
 	}
 
 	void RegisterEngineBehaviours()
