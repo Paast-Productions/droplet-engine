@@ -86,6 +86,13 @@ void PodBehaviour::PreUpdateImpl()
 					}
 				}
 
+				// Call the target pod's OnTransitionToThisPod() method to handle any additional logic for the transition.
+				auto podInTargetScene = GetPodInScene(targetScene).lock();
+				if (podInTargetScene)
+				{
+					podInTargetScene->OnTransitionToThisPod();
+				}
+
 				// Activate the target scene
 				GetSceneManager()->ActivateScene(targetScene->GetName());
 

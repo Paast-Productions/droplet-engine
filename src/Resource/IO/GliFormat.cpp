@@ -28,22 +28,17 @@ namespace Droplet::IO::GliFormat
         switch (p_format)
         {
         case gli::FORMAT_R8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: R8_UNORM" << std::endl;
             return TextureResource::TextureFormat::R8_Unorm;
 
         case gli::FORMAT_RGB8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: RGB8_UNORM" << std::endl;
             return TextureResource::TextureFormat::RGB8_Unorm;
 
         case gli::FORMAT_RGBA8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: RGBA8_UNORM" << std::endl;
             return TextureResource::TextureFormat::RGBA8_Unorm;
 
         case gli::FORMAT_RGBA_BP_UNORM_BLOCK16:
-            std::cout << "TextureResourceFormat: BC7" << std::endl;
             return TextureResource::TextureFormat::BC7;
         default:
-            std::cout << "TextureResourceFormat: Unknown" << std::endl;
             return TextureResource::TextureFormat::Unknown;
         }
     }
@@ -77,7 +72,6 @@ namespace Droplet::IO::GliFormat
         if (!gli::save(texture2D, p_outputPath.generic_string()))
         {
             // TODO: Use logger to log error
-            std::cout << "Could not save KTX file" << std::endl;
         }
         
         return texture2D;

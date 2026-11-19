@@ -157,8 +157,6 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 
 	MeshResource mesh{};
 	mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-		
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // TODO: Remove temp log
 
 	s_importer.FreeScene();
 
@@ -303,9 +301,6 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 	assert(skinnedMesh.ValidateSkinnedVertexLayout() && "Vertex layout is invalid for skinned mesh.");
 
 	skinnedMesh.GenerateBoneBounds();
-
-	// Log Info: Successfully loaded p_meshFile
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // HACK: Temporary log
 
 	s_importer.FreeScene();
 
@@ -471,9 +466,6 @@ std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(cons
 	AnimationResource animation{};
 	animation.SetName(p_animName);
 	animation.SetKeyframes(animKeyframes);
-
-	// Log Info: Successfully loaded p_meshFile
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
 
 	s_importer.FreeScene();
 

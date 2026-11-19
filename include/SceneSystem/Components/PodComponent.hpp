@@ -44,6 +44,7 @@ namespace Droplet::Scene
 		float m_transitionButtonReach = 1.0f;
 		Key m_transitionButtonKey = Key::KeyE;
 
+		bool m_hasTransitionPeriod = false;
 		enum TransitionState
 		{
 			Idle,
@@ -53,5 +54,8 @@ namespace Droplet::Scene
 		float m_timeToCloseDoor = 0.5f;
 		float m_timeToOpenDoor = 2.0f;
 		float m_doorTimer = 0.0f;
+		float m_bufferTime = 0.5f;
+
+		void OnTransitionFromThisPod();
 	};
 }
