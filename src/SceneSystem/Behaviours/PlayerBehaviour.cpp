@@ -271,6 +271,29 @@ namespace Droplet::Scene
         ImGui::Spacing();
         ImGui::Separator();
 
+        ImGui::InputFloat(
+            "Pressure Resistance",
+            &m_data.pressureResistance,
+            0.1f,
+            1.0f,
+            "%.2f");
+
+        m_data.pressureResistance = std::max(0.0f, m_data.pressureResistance);
+
+        ImGui::InputFloat(
+            "Pressure Level",
+            &m_data.pressureLevel,
+            0.1f,
+            5.0f,
+            "%.2f");
+
+        m_data.pressureLevel = std::max(0.0f, m_data.pressureLevel);
+
+        ImGui::Spacing();
+        ImGui::Separator();
+
+
+
         const ItemRegistry *reg = GetItemRegistry();
 
         /// Drone inventory.

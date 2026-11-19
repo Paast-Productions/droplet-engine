@@ -49,14 +49,5 @@ namespace Droplet::Scene
 
     private:
         std::weak_ptr<PlayerBehaviour> m_playerBehaviour; /// Reference to the associated player behaviour.
-       
-        enum Levels
-        {
-            HeatLevel,
-            FreezeLevel,
-            PressureLevel
-        };
-
-        int m_level = {1};
     };
 }

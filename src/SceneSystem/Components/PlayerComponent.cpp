@@ -42,36 +42,7 @@ namespace Droplet::Scene
 
     void PlayerComponent::RenderUIImpl()
     {
-        const char *items[] = { "HeatLevel", "FreezeLevel", "PressureLevel" };
-        static int item_current = 0;
-        ImGui::Combo("combo", &item_current, items, IM_COUNTOF(items));
-        for(int x = 1; x <= 5; x++)
-        {
-            std::string lebel = "Level" + std::to_string(x);
-            ImGui::RadioButton(lebel.c_str(), &m_level, x);
-            ImGui::SameLine();
-        }
 
-        switch (item_current)
-        {
-            case HeatLevel:
-            {
-                m_playerBehaviour.lock()->SetHeatLevel(m_level);
-                break;
-            }
-            case FreezeLevel:
-            {
-                m_playerBehaviour.lock()->SetFreezeLevel(m_level);
-                break;
-            }
-            case PressureLevel:
-            {
-                m_playerBehaviour.lock()->SetPressureLevel(m_level);
-                break;
-            }
-        }
-
-        ImGui::SameLine();
     }
 
     nlohmann::json PlayerComponent::SerializeImpl()

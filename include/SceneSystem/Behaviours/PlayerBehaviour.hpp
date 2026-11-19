@@ -311,5 +311,7 @@ namespace Droplet::Scene
 
         std::weak_ptr<Node> m_player;     ///< Weak reference to the Node representing the player.
         Droplet::Game::PlayerData m_data; ///< Persistent data associated with the player.
+        Droplet::Game::PlayerData m_level; ///< Persistent data associated with the player.
+
     };
 }
