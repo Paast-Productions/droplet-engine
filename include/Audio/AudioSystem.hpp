@@ -64,11 +64,14 @@ namespace Droplet::Audio
 	    void UnloadSound(SoundResource* sound);
 	    double GetSoundLenghtInSeconds(SoundResource* sound) const;
 	    
-	    // --- Behaviour API ---
+	    // --- Behaviour API --- (survives scene transitions)
 	    PlaybackID Play2D(SoundResource* p_sound, const PlaybackConfig& p_config = {});
 	    
 	    void SetPlaybackVolumeDb(PlaybackID p_id, float p_volumeDb);
 	    void SetPlaybackPitch(PlaybackID p_id, float p_pitch);
+	    void SetPlaybackStereoPan(PlaybackID p_id, float p_pan);
+	    void SetPlaybackLooping(PlaybackID p_id, bool p_looping);
+	    bool RoutePlayback(PlaybackID p_id, const std::string& p_busName);
 	    
 	    // --- Component API ---
 	    void RegisterPlayerComponent(Scene::AudioPlayerComponent* player);
