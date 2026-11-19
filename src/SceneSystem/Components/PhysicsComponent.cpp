@@ -243,16 +243,23 @@ void PhysicsComponent::SetFriction(const float p_friction)
 	const float friction = p_friction < 0.0f ? 0.0f : p_friction;
 	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
 	bodyInterface->SetFriction(m_bodyID, friction);
+	m_serializeData.friction = p_friction;
 }
 
 void PhysicsComponent::SetRestitution(const float p_restitution)
 {
 	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
 	bodyInterface->SetRestitution(m_bodyID, p_restitution);
+	m_serializeData.restitution = p_restitution;
 }
 
 void PhysicsComponent::SetMass(const float p_mass)
 {
+	if (m_motion == JPH::EMotionType::Static)
+	{
+		return;
+	}
+	
 	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
 	
 	if (lock.Succeeded())
@@ -266,6 +273,8 @@ void PhysicsComponent::SetMass(const float p_mass)
 		massProperties.ScaleToMass(p_mass);
 		
 		motionProperties->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
+		
+		m_serializeData.mass = p_mass;
 	}
 }
 
@@ -286,6 +295,11 @@ float PhysicsComponent::GetRestitution() const
 
 float PhysicsComponent::GetMass() const
 {
+	if (m_motion == JPH::EMotionType::Static)
+	{
+		return 0.0f;
+	}
+	
 	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
 	
 	if (!lock.Succeeded())
@@ -533,7 +547,23 @@ void PhysicsComponent::RenderUIImpl()
 		}
 		
 		ImGui::NewLine();
-
+		
+		// Body settings
+		if (m_motion != JPH::EMotionType::Static && ImGui::DragFloat("Mass", &m_serializeData.mass, 0.1f, 0.0f))
+		{
+			SetMass(m_serializeData.mass);
+		}
+		if (ImGui::DragFloat("Friction", &m_serializeData.friction, 0.1f, 0.0f))
+		{
+			SetFriction(m_serializeData.friction);
+		}
+		if (ImGui::DragFloat("Restitution", &m_serializeData.restitution, 0.1f, 0.0f))
+		{
+			SetRestitution(m_serializeData.restitution);
+		}
+		
+		ImGui::NewLine();
+		
 		// Display remove collider button
 		if (ImGui::Button("Remove Collider Body"))
 		{
@@ -1011,6 +1041,9 @@ nlohmann::json PhysicsComponent::SerializeImpl()
 	json["halfExtentsZ"] = m_serializeData.halfExtents.z;
 	json["r"] = m_serializeData.r;
 	json["h"] = m_serializeData.h;
+	json["mass"] = m_serializeData.mass;
+	json["friction"] = m_serializeData.friction;
+	json["restitution"] = m_serializeData.restitution;
 	
 	return json;
 }
@@ -1068,6 +1101,19 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 		m_serializeData.h = p_compJson["h"].get<float>();
 	}
 	
+	if (p_compJson.contains("mass"))
+	{
+		m_serializeData.mass = p_compJson["mass"].get<float>();
+	}
+	if (p_compJson.contains("friction"))
+	{
+		m_serializeData.friction = p_compJson["friction"].get<float>();
+	}
+	if (p_compJson.contains("restitution"))
+	{
+		m_serializeData.restitution = p_compJson["restitution"].get<float>();
+	}
+	
 	StartImpl();
 	
 	if (!m_isDeserialized && m_physics != nullptr)
@@ -1087,7 +1133,7 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
 				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
-				   SetMeshCollider(p_meshGuid, p_offset);
+				    SetMeshCollider(p_meshGuid, p_offset);
 				});
 			break;
 		case ShapeType::ConvexHull:
@@ -1107,6 +1153,10 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	
 		SetMotionType(m_motion);
 		SetObjectLayer(m_layer);
+		
+		SetMass(m_serializeData.mass);
+		SetFriction(m_serializeData.friction);
+		SetRestitution(m_serializeData.restitution);
 
 		JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
 		JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));

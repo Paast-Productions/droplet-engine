@@ -71,7 +71,7 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 			physics->GetPhysicsSystem()->SetGravity(GLMtoJPH(gravity));
 		}
 	}
-	if (ImGui::Button("Initialize physics"))
+	if (physics == nullptr && ImGui::Button("Initialize physics"))
 	{
 		scene->InitializePhysics();
 	}

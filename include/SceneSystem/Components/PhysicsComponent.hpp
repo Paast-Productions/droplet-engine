@@ -270,6 +270,10 @@ namespace Droplet::Scene
 			glm::vec3 halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
 			float r = 0.0f;
 			float h = 0.0f;
+			float mass = 1.0f;
+			JPH::BodyCreationSettings temp;
+			float friction = temp.mFriction;
+			float restitution = temp.mRestitution;
 		} m_serializeData;
 		bool m_isDeserialized = false;
 		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
