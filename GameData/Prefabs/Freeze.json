@@ -4,78 +4,53 @@
     "collisionLayerMask": 1,
     "components": [
         {
-            "active": false,
-            "data": {
-                "fs": 13680123319807966343,
-                "fsName": "Base.FS",
-                "gs": 0,
-                "gsName": "",
-                "meshDisplayName": "Cube",
-                "meshGUID": 17470227938033865898,
-                "tcs": 0,
-                "tcsName": "",
-                "tes": 0,
-                "tesName": "",
-                "textureDisplayName": "FreezeColor",
-                "textureGUID": 4599309985099221335,
-                "transparent": false,
-                "vs": 7809030845991192100,
-                "vsName": "Base.VS"
-            },
-            "id": 1,
-            "type": "MeshComponent"
-        },
-        {
             "active": true,
             "data": {
-                "damage": 1.0,
+                "damage": 8.0,
                 "direction": [
                     0.0,
                     0.0,
                     1.0
                 ]
             },
-            "id": 2,
+            "id": 1,
             "type": "HazardComponent"
         },
         {
             "active": true,
             "data": {
-                "collisionLayerMask": 32,
-                "numAabb": 0,
-                "numObb": 1,
-                "numSphere": 0,
-                "obbExtX0": 1.0,
-                "obbExtY0": 1.0,
-                "obbExtZ0": 1.0,
-                "obbOffX0": 0.0,
-                "obbOffY0": 0.0,
-                "obbOffZ0": 0.0,
-                "obbRotX0": 0.0,
-                "obbRotY0": -0.0,
-                "obbRotZ0": 0.0
+                "aabbExtX0": 61.31700134277344,
+                "aabbExtY0": 66.80699920654297,
+                "aabbExtZ0": 118.28099822998047,
+                "aabbOffX0": 11.600000381469727,
+                "aabbOffY0": 0.0,
+                "aabbOffZ0": 0.0,
+                "collisionLayerMask": 65535,
+                "numAabb": 1,
+                "numObb": 0,
+                "numSphere": 0
             },
-            "id": 4,
+            "id": 2,
             "type": "TriggerComponent"
         },
         {
             "active": true,
             "data": {
                 "data": "",
-                "filepath": "Engine_Side/Freeze.lua"
+                "filepath": "Freeze.lua"
             },
-            "id": 5,
+            "id": 3,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 1076,
+    "id": 2781,
     "name": "Freeze",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            -66.69688415527344,
+            -69.8146743774414,
+            -3.5201520919799805
         ],
         "rotation": [
             1.0,
@@ -84,9 +59,9 @@
             0.0
         ],
         "scale": [
-            1.0,
-            1.0,
-            1.0
+            146.4171600341797,
+            116.00666809082031,
+            276.38067626953125
         ]
     }
 }

@@ -28,6 +28,9 @@ namespace Droplet::Scene
             return;
         }
 
+        
+        p_amount = p_amount * (2 - (m_hullIntegrity / 100));
+        
         m_health = std::max(0.0f, m_health - p_amount);
     }
 

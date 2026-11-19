@@ -38,12 +38,21 @@ function OnTrigger(dt, node)
     --see if i can remove this one
     -- local health = node:GetHealthComponent()
     local playerComponent = node:GetPlayerComponent()
-    local player = playerComponent:GetPlayerBehaviour()
-    local gravityMultiplier = MovementModifiers.GetGravityPull()
-    local hullIntegrity = player:GetHullIntegrity()
+    if playerComponent == nil then
+        print("playercomp fel") 
+        return
+    end
 
+    local pb = playerComponent:GetPlayerBehaviour()
+    if pb == nil then
+        print("pb fel")
+        return
+    end
+    local gravityMultiplier = MovementModifiers.GetGravityPull()
+    local hullIntegrity = pb:GetHullIntegrity()
     local zone = haz:GetZone()
-    local getCurrentLevel = player:GetPressureLevel()
+    local getCurrentLevel = pb:GetPressureLevel()
+    local health = node:GetHealthComponent()
 
     if zone == getCurrentLevel then
         CheckPressureZone(zone)
@@ -57,15 +66,16 @@ function OnTrigger(dt, node)
     end
 
     CheckPressureZone(zone)
+    
+    local givinDamage = damageHull * dt
+    health:TakeDamageHullIntergrity(givinDamage)
 
-    local health = node:GetHealthComponent()
     if higher then
         local givinDamage = damageHealth * dt
         health:TakeDamage(givinDamage)
     end
 
-    local givinDamage = damageHull * dt
-    health:TakeDamageHullIntergrity(givinDamage)
+    MovementModifiers.SetGravityPull(1)
 
 
     local dronePos = trans:GetPosition()
