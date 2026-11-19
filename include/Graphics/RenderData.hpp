@@ -20,6 +20,15 @@ namespace Droplet::Graphics
     {
         std::uint64_t GUID {0};
     };
+    
+    struct PipelineData
+    {
+        ShaderData vsData {};
+        ShaderData tcsData {};
+        ShaderData tesData {};
+        ShaderData gsData {};
+        ShaderData fsData {};
+    };
 
     struct MeshData
     {
@@ -34,6 +43,14 @@ namespace Droplet::Graphics
         std::uint64_t GUID {0};
     };
     
+    // TEMP TEMP TEMP TEMP
+    /// Describes a render target the camera would output to
+    struct TargetData
+    {
+        //TODO fill in
+    };
+    // TEMP TEMP TEMP TEMP
+    
     struct RenderData
     {
         ShaderData vsData {};
@@ -41,11 +58,12 @@ namespace Droplet::Graphics
         ShaderData tesData {};
         ShaderData gsData {};
         ShaderData fsData {};
-
+        
         MeshData meshData{};
         TextureData texData{};
 
         glm::mat4 transform{};
+
 
         // Settings
 		bool transparent { false };

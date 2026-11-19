@@ -42,6 +42,7 @@ namespace Droplet
 			RGB8_Sscaled,
 			RGB8_Uint,
 			RGB8_Sint,
+			RGB8_sRgb,
 
 			RGB16_Unorm,
 			RGB16_Snorm,

@@ -99,6 +99,8 @@ namespace Vulkan
         EvictedResources EndFrame(const QueueTimelineValues& frameRetireValues);
 
         /// @brief Uploads the mesh unless the same or a newer revision is resident; an older one is replaced.
+        /// @details A mesh whose vertex stride is not the scene layout's is not uploaded (reported once per revision):
+        ///          a resident older revision is kept, else the placeholder cube is drawn. Returns the invalid handle.
         Render::MeshHandle UploadMesh(const Assets::MeshUpload& upload);
         /// @brief Uploads the texture (with its mip chain) unless the same or a newer revision is resident; an older
         ///        one is replaced.
@@ -129,7 +131,7 @@ namespace Vulkan
 
         /// @brief A mesh without a GUID (debug or procedural geometry); never evicted, the caller releases it.
         Render::MeshHandle CreateDynamicMesh(
-            std::span<const Common::MeshVertex> vertices, std::span<const std::uint32_t> indices);
+            std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices);
         /// @brief Releases a CreateDynamicMesh mesh once the GPU is past `retireValues`.
         void ReleaseDynamicMesh(Render::MeshHandle handle, const QueueTimelineValues& retireValues,
                                 DeletionQueue& deletionQueue);
@@ -151,7 +153,9 @@ namespace Vulkan
         vk::Sampler GetOrCreateSampler(const Common::TextureSampling& sampling);
 
     private:
-        Render::MeshHandle CreateMesh(std::span<const Common::MeshVertex> vertices, std::span<const std::uint32_t> indices);
+        /// @brief A mesh from vertex bytes in the scene layout (Vertex::P3N3UV2); not in the GUID lookup.
+        Render::MeshHandle CreateMesh(std::span<const std::byte> vertexData, std::uint32_t vertexStride,
+                                      std::span<const std::uint32_t> indices);
         /// @brief A texture (with its mip chain) from tightly packed RGBA8 pixels; not in the GUID lookup.
         Render::TextureHandle CreateTexture(std::uint32_t width, std::uint32_t height, Common::PixelFormat format,
                                             std::span<const std::byte> pixels, const Common::TextureSampling& sampling);
@@ -181,6 +185,7 @@ namespace Vulkan
 
         // only resources in a lookup are evicted (dynamic meshes are not in one)
         std::unordered_map<Guid, Render::MeshHandle> m_meshLookup;
+        std::unordered_map<Guid, std::uint64_t> m_rejectedMeshes; ///< revision last reported as unusable
         std::unordered_map<Guid, Render::TextureHandle> m_textureLookup;
         std::unordered_map<Guid, Render::TargetHandle> m_targetLookup;
         std::unordered_map<std::uint64_t, Render::TargetHandle> m_historyLookup; ///< by the source target's Key()

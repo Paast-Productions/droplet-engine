@@ -21,10 +21,10 @@
 
 namespace
 {
-    constexpr auto FULLSCREEN_SHADER_PATH = "Shaders/fullscreen.vs.slang";     ///< fullscreen-triangle vertex shader
+    constexpr auto FULLSCREEN_SHADER_PATH = "Shaders/fullscreen.vs.slang"; ///< fullscreen-triangle vertex shader
     constexpr auto POST_PROCESSING_SHADER_PATH = "Shaders/postprocess.fs.slang"; ///< post-process fragment shader
-    constexpr auto EFFECT_SHADER_PATH = "Shaders/postprocess.cs.slang";          ///< post-process compute shader
-    constexpr auto SCENE_SHADER_PATH = "Shaders/scene.slang";                    ///< scene vertex + fragment shader
+    constexpr auto EFFECT_SHADER_PATH = "Shaders/postprocess.cs.slang"; ///< post-process compute shader
+    constexpr auto SCENE_SHADER_PATH = "Shaders/scene.slang"; ///< scene vertex + fragment shader
 
     /// The renderer's own default scene shader, under its own GUID: objects without a shader (or with one that is
     /// missing or broken) use it until the asset storage's override (Render::DEFAULT_SCENE_SHADER) has arrived, if
@@ -102,13 +102,16 @@ void Renderer::Render(const Render::RenderWorld& world)
 
     // 1. prepare: the world (by GUID) becomes draw lists: one per view (by GPU handle, or a placeholder).
     //    From here on nothing looks at the world
-    m_preparedFrame = Prepare(world, PrepareContext{
-        .gpu = m_device.Resources(),
-        .shaders = m_device.Shaders(),
-        .pipelines = m_pipelineLibrary,
-        .scenePass = m_drawPass,
-        .depthFormat = m_depthFormat
-    });
+    m_preparedFrame = Prepare(world,
+                              PrepareContext
+                              {
+                                  .gpu = m_device.Resources(),
+                                  .shaders = m_device.Shaders(),
+                                  .pipelines = m_pipelineLibrary,
+                                  .scenePass = m_drawPass,
+                                  .depthFormat = m_depthFormat
+                              }
+    );
 
     // 2. wait until the GPU has finished the frame that last used the next frame slot, on every queue (its command
     //    buffers are freed, its acquire semaphore is free), then acquire a swapchain image; nothing to draw if the
@@ -117,6 +120,7 @@ void Renderer::Render(const Render::RenderWorld& world)
     const std::optional<Frame> frame = m_wsi.BeginFrame();
     if (!frame)
     {
+        // no frame available
         m_device.EndFrame();
         return;
     }
@@ -184,7 +188,7 @@ void Renderer::RecordFrameGraph(const Frame& frame)
         },
         .effectFormat = static_cast<std::uint32_t>(EffectPass::IMAGE_FORMAT),
         .drawView = [this](PassContext& ctx, const Render::DrawList& view,
-            const Vulkan::ViewTargets& targets)
+                           const Vulkan::ViewTargets& targets)
         {
             if (!ctx.resources)
                 return;
@@ -307,7 +311,8 @@ void Renderer::RecordFrameGraph(const Frame& frame)
                 {.effect = PostProcess::Effect::Passthrough, .amount = 1.0f});
         },
         .presentation = Vulkan::PresentationInputs{.enabled = true},
-        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source, RenderGraph::ResourceId destination)
+        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source,
+                                    RenderGraph::ResourceId destination)
         {
             // no source: RecordFullscreen only clears
             m_compositor.RecordFullscreen(
@@ -358,7 +363,7 @@ void Renderer::RecordFrameGraph(const Frame& frame)
     {
         std::print("{}", RenderGraph::Dump(build.graph.Data(), compiled));
         throw std::logic_error("Renderer: the frame graph must wait on and signal the swapchain image exactly once, "
-                               "and synchronise nothing else from outside");
+            "and synchronise nothing else from outside");
     }
 
     m_graphExecutor.Execute(
@@ -386,9 +391,11 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
             .image = {
                 .image = frame.swapchainImage.image,
                 .range = COLOR_RANGE,
-                .previousUse = SWAPCHAIN_ACQUIRE_USE},
+                .previousUse = SWAPCHAIN_ACQUIRE_USE
+            },
             .view = frame.swapchainImage.view,
-            .extent = frame.swapchainImage.extent};
+            .extent = frame.swapchainImage.extent
+        };
     }
 
     const Render::TargetHandle handle = Vulkan::TargetFromKey(resource.externalKey);
@@ -401,7 +408,9 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
     return {
         .image = {
             .image = target->target.GetImage(),
-            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)},
+            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)
+        },
         .view = target->target.GetImageView(),
-        .extent = target->target.Extent()};
+        .extent = target->target.Extent()
+    };
 }

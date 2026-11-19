@@ -180,7 +180,7 @@ Render::PreparedFrame Vulkan::Prepare(
             }
 
             list.items.push_back({
-                .model = world.objects[objectIndex].model,
+                .model = world.objects[objectIndex].transform,
                 .pipeline = context.pipelines.GetOrCreate(
                     context.scenePass.MakePipelineDesc(object.shader, colorFormat, context.depthFormat)),
                 .mesh = object.mesh,

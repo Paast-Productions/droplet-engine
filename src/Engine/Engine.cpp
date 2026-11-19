@@ -37,6 +37,8 @@
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 
+#include "AssetProvider.hpp"
+
 using namespace Droplet;
 
 // Callback for traces, connect this to your own trace function if you have one
@@ -142,7 +144,7 @@ Engine::Engine(EngineConfig p_config)
     m_inWindow.SetResizeCallback([this]() { m_inRenderer.OnResize(); });
     m_inWindow.SetMinimizeCallback([this]() { m_inRenderer.OnMinimize(); });
     m_inWindow.SetRestoreCallback([this]() { m_inRenderer.OnRestore(); });
-    GameInput::Get().SetMainWindow(m_inWindow.GetSDLWindow());
+    // GameInput::Get().SetMainWindow(m_inWindow.GetSDLWindow());
 }
 
 Engine::~Engine()
@@ -229,7 +231,7 @@ DROPLET_RETURNTYPE Engine::Update()
 
 DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData>* camRenderDatas)
 {
-    ZoneScopedC(tracy::Color::SkyBlue1);
+    ZoneScopedC(tracy::Color::SkyBlue1)
 
     auto renderData = m_sceneManager.GetRenderData();
 
@@ -270,7 +272,224 @@ DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData>* camRe
     return DROPLET_RETURNTYPE::OK;
 }
 
-void Engine::Render(const Render::RenderWorld& p_world)
-{
+// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
+// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
+// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
 
+namespace
+{
+    namespace
+    {
+        
+        /// @brief The entry for id in assets, or nullptr
+        const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Guid id)
+        {
+            const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
+            return assetIt != assets.end()
+                       ? &*assetIt
+                       : nullptr;
+        }
+        
+        /// @brief Adds the mesh to uploads if it exists in the asset storage
+        void AddMesh(ResourceManager &resMan, Assets::AssetUploads& uploads, Guid id)
+        {
+            const auto * mesh = resMan.GetResource<MeshResource>(GUID{id.value});
+            
+            if (!mesh || mesh->GetVertexData().empty() || mesh->GetIndexData().empty())
+                return; // not in the storage: the renderer draws its placeholder cube
+
+            uploads.meshes.push_back({
+                .id = id,
+                .revision = 0, // donot' bother with revision
+                .vertexData = mesh->GetVertexData(),
+                .vertexStride = static_cast<std::uint32_t>(mesh->GetVertexByteSize()),
+                .indices = mesh->GetIndexData()
+            });
+        }
+
+        /// @brief Adds the texture to uploads if it exists in the asset storage
+        void AddTexture(ResourceManager &resMan, Assets::AssetUploads& uploads, Guid id)
+        {
+            const auto * texture = resMan.GetResource<Texture2DResource>(GUID{id.value});
+
+            if (!texture)
+                return; // not in the storage: the renderer draws its placeholder texture
+
+            Common::PixelFormat format = Common::PixelFormat::RGBA8_SRGB;
+            
+            if (texture->GetFormat() == TextureResource::TextureFormat::RGBA8_Unorm)
+                format = Common::PixelFormat::RGBA8_UNORM;
+            
+            uploads.textures.push_back({
+                .id = id,
+                .revision = 0,
+                .width = texture->GetWidth(),
+                .height = texture->GetHeight(),
+                .format = format,
+                .pixels = texture->GetPixelData(),
+                .sampling = Common::TextureSampling{
+                    .generateMips = texture->GetMipLevels() > 1,
+                    .filter = Common::TextureFilter::Linear,
+                    .maxAnisotropy = 1.0f,
+                    .repeat = true
+                }
+            });
+        }
+
+        /// @brief Adds the shader to uploads if it exists in the asset storage
+        void AddShader(ResourceManager &rscMan, Assets::AssetUploads& uploads, Guid id)
+        {
+            // TODO: find out how shaders work atm and make it work™
+            // const auto * shader = rscMan.GetResource<ShaderResource>(GUID{id.value});
+            //
+            // if (!shader)
+            //     return; // not in the storage: the renderer uses its default shader
+            //
+            // uploads.shaders.push_back({
+            //     .id = id, 
+            //     .revision = 0, 
+            //     .shader = *shader
+            // });
+        }
+        
+        Render::RenderWorld ToRenderWorld(std::span<const Graphics::CameraRenderData> p_cameras)
+        {
+            using namespace Droplet::Graphics;
+            
+            // RenderData -> RenderObject
+            auto toRenderObject = [](const RenderData& object) -> Render::RenderObject
+            {
+                Render::RenderObject output{};
+
+                output.meshId = Guid{(object.meshData.GUID)};
+                output.transform = object.transform;
+                output.shaderId = Guid{object.vsData.GUID}; // TODO: see how pipelines are handled
+                output.imageTexture = Common::ImageRef{
+                    .kind = Common::ImageRef::Kind::Texture, // TODO: change this when mesh can carry a render target texture
+                    .id = Guid{object.texData.GUID}
+                };
+
+                return output;
+            };
+
+            // CameraRenderData -> RenderView
+            auto toRenderView = [](const CameraRenderData& view) -> Render::RenderView
+            {
+                Render::RenderView output{};
+
+                output.view = view.camera.GetViewMatrix();
+                output.proj = view.camera.GetProjectionMatrix();
+                output.needsHistory = false;
+
+                return output;
+            };
+
+            // std::vector<CameraRenderData> -> Render::RenderWorld
+            auto toRenderWorld = [toRenderView, toRenderObject](std::span<const CameraRenderData> data)
+            {
+                Render::RenderWorld output;
+
+                for (const auto& view : data)
+                {
+                    for (const auto& object : view.renderData)
+                    {
+                        output.objects.emplace_back(toRenderObject(object));
+                    }
+                    output.views.emplace_back(toRenderView(view));
+                }
+
+                return output;
+            };
+
+            Render::RenderWorld world = toRenderWorld(p_cameras);
+            
+            return world;
+        }
+    }
+
+    namespace
+    {
+        /// @brief Adds a valid `id` to `ids` unless it is already there (a world names the same asset many times).
+        void AddUniqueId(std::vector<Guid>& ids, Guid id)
+        {
+            if (id.IsValid() && std::ranges::find(ids, id) == ids.end())
+                ids.push_back(id);
+        }
+
+        /// @brief Adds the texture `image` refers to; a render target or no image is not an asset.
+        void AddRequiredTexture(Assets::RequiredAssets& required, const Common::ImageRef& image)
+        {
+            if (image.kind == Common::ImageRef::Kind::Texture)
+                AddUniqueId(required.textures, image.id);
+        }
+    }
+
+    Assets::AssetUploads ProvideAssets(
+        const Assets::RequiredAssets& required,
+        const Assets::ResidentAssets& resident)
+    {
+        auto& assets = ResourceManager::GetInstance();
+
+        Assets::AssetUploads uploads;
+
+        // a mesh or texture the GPU lacks, or holds an older revision of
+        for (const Guid id : required.meshes)
+        {
+            const Assets::ResidentAsset* onGpu = Find(resident.meshes, id);
+            if (!onGpu /* unsure if resource manager tracks revisions || assets.MeshRevision(id) > onGpu->revision*/)
+                AddMesh(assets, uploads, id);
+        }
+        for (const Guid id : required.textures)
+        {
+            const Assets::ResidentAsset* onGpu = Find(resident.textures, id);
+            if (!onGpu)
+                AddTexture(assets, uploads, id);
+        }
+
+        // a shader the GPU has not seen, or one that did not compile at an older revision; compiled ones stay
+        for (const Guid id : required.shaders)
+        {
+            if (Find(resident.shaders, id))
+                continue;
+            const Assets::ResidentAsset* failed = Find(resident.failedShaders, id);
+            if (!failed)
+                AddShader(assets, uploads, id);
+        }
+
+        return uploads;
+    }
+}
+
+void Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
+{
+    using namespace Droplet::Graphics;
+    // order shouldn't matter because render graph sorts it out
+    std::vector<CameraRenderData> renderLists = m_sceneManager.GetRenderData();
+    renderLists.assign(p_cameras.begin(), p_cameras.end());
+    
+    // 1. convert scene output to RenderWorld (temporarily)
+    Render::RenderWorld world = ToRenderWorld(renderLists);
+
+    // until render targets can be created this is how to draw the main menu TODO: fix this
+    static constexpr Guid mainTargetId = Guid::FromName("target/mainCamera");
+    int width, height;
+    SDL_GetWindowSizeInPixels(m_window.Get(), &width, &height);
+    const Common::RenderTargetDesc mainTarget{
+        .id = mainTargetId,
+        .width = static_cast<uint32_t>(width),
+        .height = static_cast<uint32_t>(height),
+    };
+    world.targets.emplace_back(mainTarget);
+    world.views.front().targetId = mainTargetId;
+
+    // 2. Scuffed way of upload/bridge
+    Assets::AssetUploads uploads = ProvideAssets(Bridge::RequiredAssetsOf(world), m_inRenderer.Resident());
+    
+    
+    
+    m_inRenderer.Upload(uploads);
+
+
+    // 3. Submit to renderer
+    m_inRenderer.Render(world);
 }

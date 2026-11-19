@@ -12,6 +12,7 @@
 #include <exception>
 #include <string>
 #include <utility>
+#include <span>
 #include <vector>
 
 
@@ -31,38 +32,43 @@ namespace
     constexpr Rgba DARK_GREY{80, 80, 85, 255};
     constexpr Rgba LIGHT_GREY{120, 120, 125, 255};
 
-    /// Compute the spherical bounds of a mesh
-    MeshAsset ComputeBounds(MeshAsset& mesh)
+    /// @brief A mesh while it is built: typed vertices in the scene layout, before they become asset bytes
+    struct MeshBuilder
     {
-        if (mesh.vertices.empty())
-        {
-            mesh.boundsCenter = glm::vec3(0.0f);
-            mesh.boundsRadius = 0.0f;
-            return mesh;
-        }
-        glm::vec3 smallest = mesh.vertices.front().position;
-        glm::vec3 biggest = smallest;
+        std::vector<Common::MeshVertex> vertices;
+        std::vector<std::uint32_t> indices;
+    };
 
-        for (const auto& vertex : mesh.vertices)
+    /// @brief The asset for `builder`: its vertices as bytes, and spherical bounds computed from their positions
+    MeshAsset ToMeshAsset(const MeshBuilder& builder)
+    {
+        MeshAsset mesh;
+        const std::span<const std::byte> bytes = std::as_bytes(std::span(builder.vertices));
+        mesh.vertexData.assign(bytes.begin(), bytes.end());
+        mesh.vertexStride = sizeof(Common::MeshVertex);
+        mesh.indices = builder.indices;
+        if (builder.vertices.empty())
+            return mesh;
+
+        glm::vec3 smallest = builder.vertices.front().position;
+        glm::vec3 biggest = smallest;
+        for (const Common::MeshVertex& vertex : builder.vertices)
         {
             smallest = glm::min(smallest, vertex.position);
             biggest = glm::max(biggest, vertex.position);
         }
         mesh.boundsCenter = (smallest + biggest) * 0.5f;
-
-        mesh.boundsRadius = 0.0f;
-        for (const auto& vertex : mesh.vertices)
+        for (const Common::MeshVertex& vertex : builder.vertices)
         {
             mesh.boundsRadius = std::max(mesh.boundsRadius, glm::length(vertex.position - mesh.boundsCenter));
         }
-
         return mesh;
     }
 
     // Appends one quad (BL, BR, TR, TL) facing along normal, with vec1 = right and vec2 = up (vec1 x vec2 == normal).
     // Winding is counter-clockwise when viewed from outside, uv (0,0) = top-left
     void AddFace(
-        MeshAsset& mesh,
+        MeshBuilder& mesh,
         glm::vec3 center,
         glm::vec3 normal,
         glm::vec3 vec1,
@@ -136,7 +142,7 @@ namespace Spoof
     MeshAsset MakeCube(float size)
     {
         const float half = size * 0.5f;
-        MeshAsset mesh;
+        MeshBuilder mesh;
         mesh.vertices.reserve(24);
         mesh.indices.reserve(36);
 
@@ -160,15 +166,15 @@ namespace Spoof
             AddFace(mesh, face.normal * half, face.normal, face.v1, face.v2, half, half);
         }
 
-        return ComputeBounds(mesh);
+        return ToMeshAsset(mesh);
     }
 
     MeshAsset MakeQuad(float width, float height)
     {
-        MeshAsset mesh;
+        MeshBuilder mesh;
         AddFace(mesh, {0, 0, 0}, {0, 0, 1}, {1, 0, 0}, {0, 1, 0}, width * 0.5f, height * 0.5f);
 
-        return ComputeBounds(mesh);
+        return ToMeshAsset(mesh);
     }
 
     /// Makes a checker texture

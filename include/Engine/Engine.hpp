@@ -57,7 +57,7 @@ namespace Droplet
 		/// @brief Will render the subsystems. Is needed to run anything.
 		/// @brief If camRenderDatas is provided, the engine will render the provided camera render data in addition to the scene's render data.
 		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas = nullptr);
+		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas);
 
 		/// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
@@ -75,7 +75,8 @@ namespace Droplet
 		//HACK: (RENDERER) This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
 		Graphics::Renderer &GetRenderer() { return m_renderer; }
 		
-		void Render(const Render::RenderWorld &p_world);
+		// TEMP TEMP TEMP TEMP
+		void Render(std::span<const Graphics::CameraRenderData> p_cameras);
 		
 	private:
 
@@ -120,6 +121,8 @@ namespace Droplet
 		void RegisterComponents();
 		
 		// TEMP TEMP TEMP TEMP integration
+		uint32_t m_inWidth {0};
+		uint32_t m_inHeight {0};
 		SDL::Window m_inWindow;
 		SDL::VulkanSurfaceProvider m_inSurfaceProvider;
 		Vulkan::Renderer m_inRenderer;

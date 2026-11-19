@@ -17,8 +17,12 @@ namespace Assets
 	/// Stored Mesh, loaded from file or created in memory (always in memory for sandbox)
 	struct MeshAsset
 	{
-		std::vector<Common::MeshVertex> vertices;
+		std::vector<std::byte> vertexData; ///< vertices back to back, vertexStride bytes each
+		std::uint32_t vertexStride{ 0 };   ///< bytes per vertex; the layout is the renderer's (Common::MeshVertex today)
 		std::vector<std::uint32_t> indices;
+
+		/// @brief Number of whole vertices in vertexData
+		[[nodiscard]] std::size_t VertexCount() const noexcept { return vertexStride ? vertexData.size() / vertexStride : 0; }
 
 		// use sphere instead of aabb to keep the data light
 		glm::vec3 boundsCenter{ 0.0f };
@@ -106,3 +110,4 @@ namespace Assets
 		std::unordered_map<Guid, Entry<ShaderAsset>> m_shaders;
 	};
 }
+

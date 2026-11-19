@@ -148,7 +148,7 @@ namespace Vulkan
         std::vector<Common::MeshVertex> vertices;
         std::vector<std::uint32_t> indices;
         MakeCube(Render::PLACEHOLDER_CUBE_HALF_EXTENT, vertices, indices);
-        m_placeholderMesh = CreateMesh(vertices, indices);
+        m_placeholderMesh = CreateMesh(std::as_bytes(std::span(vertices)), sizeof(Common::MeshVertex), indices);
 
         constexpr std::array<std::uint8_t, 4> BLUE{ 30, 60, 255, 255 };
         constexpr std::array<std::uint8_t, 4> MAGENTA{ 255, 0, 255, 255 };
@@ -226,18 +226,20 @@ namespace Vulkan
     }
 
     Render::MeshHandle GpuResourceManager::CreateMesh(
-        std::span<const Common::MeshVertex> vertices, std::span<const std::uint32_t> indices)
+        std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices)
     {
-        if (vertices.empty() || indices.empty())
+        if (vertexData.empty() || indices.empty())
             throw std::invalid_argument("Mesh has no vertices or indices");
+        if (vertexStride != sizeof(Vertex::P3N3UV2) || vertexData.size() % vertexStride != 0)
+            throw std::invalid_argument("Mesh vertices are not in the scene layout (Vertex::P3N3UV2)");
 
         GpuMesh gpu;
-        gpu.vertexCount = static_cast<std::uint32_t>(vertices.size());
+        gpu.vertexCount = static_cast<std::uint32_t>(vertexData.size() / vertexStride);
         gpu.indexCount = static_cast<std::uint32_t>(indices.size());
         MarkUsed(gpu.residency);
         gpu.vertexBuffer = m_uploader.CreateDeviceBuffer(
-            vertices.data(),
-            vertices.size_bytes(),
+            vertexData.data(),
+            vertexData.size_bytes(),
             vk::BufferUsageFlagBits::eVertexBuffer);
         gpu.indexBuffer = m_uploader.CreateDeviceBuffer(
             indices.data(),
@@ -297,6 +299,21 @@ namespace Vulkan
 
     Render::MeshHandle GpuResourceManager::UploadMesh(const Assets::MeshUpload& upload)
     {
+        // the scene pipelines read one vertex layout; any other is reported once per revision and not uploaded, and a
+        // resident older revision keeps being drawn
+        if (upload.vertexStride != sizeof(Vertex::P3N3UV2) || upload.vertexData.size() % upload.vertexStride != 0)
+        {
+            if (const auto rejectedIt = m_rejectedMeshes.find(upload.id);
+                rejectedIt == m_rejectedMeshes.end() || rejectedIt->second < upload.revision)
+            {
+                std::println("GpuResourceManager: mesh {:016x} has a vertex stride of {} bytes ({} bytes of data); the scene "
+                             "layout needs {}. Not uploaded", upload.id.value, upload.vertexStride,
+                             upload.vertexData.size(), sizeof(Vertex::P3N3UV2));
+                m_rejectedMeshes.insert_or_assign(upload.id, upload.revision);
+            }
+            return {};
+        }
+
         if (const auto residentIt = m_meshLookup.find(upload.id); residentIt != m_meshLookup.end())
         {
             if (GpuMesh* resident = m_meshes.Get(residentIt->second))
@@ -312,7 +329,7 @@ namespace Vulkan
             }
         }
 
-        const Render::MeshHandle handle = CreateMesh(upload.vertices, upload.indices);
+        const Render::MeshHandle handle = CreateMesh(upload.vertexData, upload.vertexStride, upload.indices);
         m_meshes.Get(handle)->residency.revision = upload.revision;
         m_meshLookup.insert_or_assign(upload.id, handle);
         return handle;
@@ -389,9 +406,9 @@ namespace Vulkan
     }
 
     Render::MeshHandle GpuResourceManager::CreateDynamicMesh(
-        std::span<const Common::MeshVertex> vertices, std::span<const std::uint32_t> indices)
+        std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices)
     {
-        return CreateMesh(vertices, indices);
+        return CreateMesh(vertexData, vertexStride, indices);
     }
 
     void GpuResourceManager::ReleaseDynamicMesh(
