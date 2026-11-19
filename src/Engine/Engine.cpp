@@ -460,6 +460,11 @@ namespace
     }
 }
 
+void Droplet::Engine::BeginFrame()
+{
+    m_inImGuiFrame.Begin(m_inRenderer);
+}
+
 void Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
 {
     using namespace Droplet::Graphics;
@@ -486,10 +491,26 @@ void Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
     Assets::AssetUploads uploads = ProvideAssets(Bridge::RequiredAssetsOf(world), m_inRenderer.Resident());
     
     
-    
     m_inRenderer.Upload(uploads);
+    
+    // 3. capture imgui
+    ImDrawData* overlay = nullptr;
+#ifdef _EDITOR
+    m_inImGuiFrame.Begin(m_renderer);
+    EditorContext editorContext{
+        .scene = m_scene,
+        .targetTexture = [this](Guid target) { return m_renderer.ImGuiTexture(target); },
+        .lastFrame = m_renderer.Prepared()
+    };
+    m_editor.Draw(editorContext);
+    overlay = m_inImGuiFrame.End();
+    m_renderer.SetCompositeScene(m_editor.SceneBehindEditor());
+#endif
 
-
-    // 3. Submit to renderer
+    // 4. Submit to renderer
     m_inRenderer.Render(world);
+}
+
+void Droplet::Engine::EndFrame()
+{
 }

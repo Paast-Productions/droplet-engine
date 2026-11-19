@@ -17,12 +17,14 @@
 #include "Integration/Vulkan/Frame/RenderDevice.hpp"
 #include "Integration/Vulkan/Passes/DrawPass.hpp"
 #include "Integration/Vulkan/Passes/EffectPass.hpp"
+#include "Integration/Vulkan/Passes/ImGuiPass.hpp"
 #include "Integration/Vulkan/Graph/GraphExecutor.hpp"
 #include "Integration/Vulkan/Resources/PipelineLibrary.hpp"
 #include "Integration/Vulkan/WSI/WSI.hpp"
 #include "Integration/Assets/AssetTransfer.hpp"
 #include "Integration/Render/RenderWorld.hpp"
 #include "Integration/Render/PreparedFrame.hpp"
+
 struct ImDrawData;
 namespace Vulkan
 {
