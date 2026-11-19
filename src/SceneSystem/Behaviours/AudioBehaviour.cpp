@@ -243,6 +243,84 @@ namespace Droplet::Scene
         ImGui::PopID();
     }
 
+    nlohmann::json AudioBehaviour::SerializeImpl()
+    {
+        nlohmann::json json;
+
+        json["busName"] = m_busName;
+        json["targetVolumeDb"] = m_targetVolumeDb;
+
+        nlohmann::json tracksJson = nlohmann::json::array();
+        for (const AudioTrack& track : m_tracks)
+        {
+            nlohmann::json trackJson;
+            trackJson["name"] = track.name;
+            trackJson["soundGuid"] = track.soundGuid;
+            trackJson["volumeDb"] = track.volumeDb;
+            trackJson["stereoPan"] = track.stereoPan;
+            trackJson["pitch"] = track.pitch;
+            trackJson["looping"] = track.looping;
+
+            tracksJson.push_back(std::move(trackJson));
+        }
+
+        json["tracks"] = std::move(tracksJson);
+        return json;
+    }
+
+    void AudioBehaviour::DeserializeImpl(const nlohmann::json p_behJson)
+    {
+        StopTracks(0.0f);
+        m_tracks.clear();
+
+        if (p_behJson.contains("busName"))
+        {
+            m_busName = p_behJson["busName"].get<std::string>();
+        }
+        if (!Audio::AudioSystem::GetInstance().GetMixer().HasAudioBusWithName(m_busName))
+        {
+            m_busName = "Master";
+        }
+
+        if (p_behJson.contains("targetVolumeDb"))
+        {
+            m_targetVolumeDb = std::clamp(
+                p_behJson["targetVolumeDb"].get<float>(),
+                Audio::C_VOLUME_DECIBEL_MIN,
+                Audio::C_VOLUME_DECIBEL_MAX
+            );
+        }
+
+        if (p_behJson.contains("tracks") && p_behJson["tracks"].is_array())
+        {
+            for (const auto& trackJson : p_behJson["tracks"])
+            {
+                AudioTrack track;
+
+                if (trackJson.contains("name"))      track.name      = trackJson["name"].get<std::string>();
+                if (trackJson.contains("soundGuid")) track.soundGuid = trackJson["soundGuid"].get<GUID>();
+                if (trackJson.contains("volumeDb"))  track.volumeDb  = std::clamp(trackJson["volumeDb"].get<float>(), 
+                    Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
+                if (trackJson.contains("stereoPan")) track.stereoPan = std::clamp(trackJson["stereoPan"].get<float>(), 
+                    Audio::C_STEREO_PAN_LEFT, Audio::C_STEREO_PAN_RIGHT);
+                if (trackJson.contains("pitch"))     track.pitch     = std::clamp(trackJson["pitch"].get<float>(), 
+                    Audio::C_PITCH_MIN, Audio::C_PITCH_MAX);
+                if (trackJson.contains("looping"))   track.looping   = trackJson["looping"].get<bool>();
+
+                if (track.soundGuid != C_INVALID_GUID)
+                {
+                    track.handle = ResourceManager::GetInstance().LoadResource<SoundResource>(track.soundGuid);
+                    if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(track.soundGuid, entry))
+                    {
+                        track.soundName = entry.displayName;
+                    }
+                }
+
+                m_tracks.push_back(std::move(track));
+            }
+        }
+    }
+
     AudioTrack * AudioBehaviour::FindTrack(const std::string &p_name)
     {
         auto it = std::find_if(m_tracks.begin(), m_tracks.end(), [&p_name](const AudioTrack& track)
