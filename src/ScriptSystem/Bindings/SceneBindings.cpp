@@ -15,14 +15,19 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 		"RemoveNode",
 		[](Scene::Scene &p_scene, Scene::Node *p_node)
 		{
-			if (p_node == nullptr)
-			{
-				return;
-			}
+            if (p_node == nullptr)
+            {
+                return;
+            }
 
-			auto node = p_node->shared_from_this();
+            auto node = p_node->shared_from_this();
 
-			p_scene.RemoveRoot(node);
+            if (auto parent = p_node->GetParent().lock())
+            {
+                parent->RemoveChild(node, true);
+            }
+            
+            p_scene.RemoveRoot(node);
 		},
         "FindNodeById",
         [](Scene::Scene &p_scene, std::uint64_t p_id)

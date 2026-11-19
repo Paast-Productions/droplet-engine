@@ -4,6 +4,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -20,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -28,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 134,
+            "id": 506,
             "name": "SeafloorMain",
             "transform": {
                 "position": [
@@ -52,6 +54,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -68,6 +71,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -76,7 +80,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 135,
+            "id": 507,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -100,6 +104,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -116,6 +121,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -124,7 +130,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 136,
+            "id": 508,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -148,6 +154,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -164,6 +171,7 @@
                         "tesName": "",
                         "textureDisplayName": "underwater_lab2_base",
                         "textureGUID": 17525405162226008434,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -172,7 +180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 137,
+            "id": 509,
             "name": "UnderWaterLab",
             "transform": {
                 "position": [
@@ -196,6 +204,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -212,6 +221,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -220,7 +230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 138,
+            "id": 510,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -244,6 +254,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -260,6 +271,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -268,7 +280,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 139,
+            "id": 511,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -292,6 +304,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -308,6 +321,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -316,7 +330,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 140,
+            "id": 512,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -340,6 +354,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -356,6 +371,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -364,7 +380,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 141,
+            "id": 513,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -388,6 +404,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -404,6 +421,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -412,7 +430,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 142,
+            "id": 514,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -436,6 +454,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -452,6 +471,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -460,7 +480,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 143,
+            "id": 515,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -484,6 +504,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -500,6 +521,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -508,7 +530,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 144,
+            "id": 516,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -532,6 +554,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -548,6 +571,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -556,7 +580,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 145,
+            "id": 517,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -580,6 +604,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -596,6 +621,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -604,7 +630,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 146,
+            "id": 518,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -628,6 +654,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -644,6 +671,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -652,7 +680,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 147,
+            "id": 519,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -676,6 +704,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -692,6 +721,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -700,7 +730,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 148,
+            "id": 520,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -724,6 +754,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -740,6 +771,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -748,7 +780,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 149,
+            "id": 521,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -772,6 +804,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -788,6 +821,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -796,7 +830,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 150,
+            "id": 522,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -820,6 +854,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -836,6 +871,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -844,7 +880,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 151,
+            "id": 523,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -868,6 +904,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -884,6 +921,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -892,7 +930,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 152,
+            "id": 524,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -916,6 +954,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -932,6 +971,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -940,7 +980,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 153,
+            "id": 525,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -964,6 +1004,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -980,6 +1021,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -988,7 +1030,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 154,
+            "id": 526,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -1012,6 +1054,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1028,6 +1071,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1036,7 +1080,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 155,
+            "id": 527,
             "name": "kelp2",
             "transform": {
                 "position": [
@@ -1060,6 +1104,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1076,6 +1121,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1084,7 +1130,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 156,
+            "id": 528,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1108,6 +1154,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1124,6 +1171,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1132,7 +1180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 157,
+            "id": 529,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1156,6 +1204,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1172,6 +1221,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1180,7 +1230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 158,
+            "id": 530,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1204,6 +1254,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1220,6 +1271,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1228,7 +1280,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 159,
+            "id": 531,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1252,6 +1304,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1268,6 +1321,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1276,7 +1330,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 160,
+            "id": 532,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1300,6 +1354,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1316,6 +1371,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1324,7 +1380,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 161,
+            "id": 533,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1348,6 +1404,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1364,6 +1421,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1372,7 +1430,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 162,
+            "id": 534,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1396,6 +1454,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1412,6 +1471,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1420,7 +1480,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 163,
+            "id": 535,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1444,6 +1504,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1460,6 +1521,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1468,7 +1530,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 164,
+            "id": 536,
             "name": "kelp3",
             "transform": {
                 "position": [
@@ -1492,6 +1554,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1508,6 +1571,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1516,7 +1580,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 165,
+            "id": 537,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1540,6 +1604,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1556,6 +1621,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 0,
                         "vsName": "BaseVS"
                     },
@@ -1564,7 +1630,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 166,
+            "id": 538,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -1588,6 +1654,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1604,6 +1671,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1612,7 +1680,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 167,
+            "id": 539,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1636,6 +1704,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1652,6 +1721,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1660,7 +1730,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 168,
+            "id": 540,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1684,6 +1754,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1700,6 +1771,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1708,7 +1780,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 169,
+            "id": 541,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -1732,6 +1804,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1748,6 +1821,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1756,7 +1830,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 170,
+            "id": 542,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -1780,6 +1854,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1796,6 +1871,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1804,7 +1880,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 171,
+            "id": 543,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -1828,6 +1904,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1844,6 +1921,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1852,7 +1930,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 172,
+            "id": 544,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -1876,6 +1954,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1892,6 +1971,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -1900,7 +1980,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 173,
+            "id": 545,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -1924,6 +2004,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1940,6 +2021,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1948,7 +2030,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 174,
+            "id": 546,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -1972,6 +2054,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -1988,6 +2071,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1996,7 +2080,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 175,
+            "id": 547,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2020,6 +2104,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2036,6 +2121,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2044,7 +2130,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 176,
+            "id": 548,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2068,6 +2154,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2084,6 +2171,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2092,7 +2180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 177,
+            "id": 549,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -2116,6 +2204,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2132,6 +2221,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2140,7 +2230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 178,
+            "id": 550,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -2164,6 +2254,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2180,6 +2271,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2188,7 +2280,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 179,
+            "id": 551,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2212,6 +2304,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2228,6 +2321,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2236,7 +2330,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 180,
+            "id": 552,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2260,6 +2354,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2276,6 +2371,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2284,7 +2380,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 181,
+            "id": 553,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2308,6 +2404,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2324,6 +2421,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2332,7 +2430,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 182,
+            "id": 554,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -2356,6 +2454,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2372,6 +2471,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2380,7 +2480,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 183,
+            "id": 555,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2404,6 +2504,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2420,6 +2521,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2428,7 +2530,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 184,
+            "id": 556,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2452,6 +2554,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2468,6 +2571,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -2476,7 +2580,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 185,
+            "id": 557,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -2500,6 +2604,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2516,6 +2621,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2524,7 +2630,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 186,
+            "id": 558,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2548,6 +2654,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2564,6 +2671,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2572,7 +2680,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 187,
+            "id": 559,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2596,6 +2704,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2612,6 +2721,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2620,7 +2730,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 188,
+            "id": 560,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2644,6 +2754,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2660,6 +2771,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2668,7 +2780,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 189,
+            "id": 561,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2692,6 +2804,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2708,6 +2821,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2716,7 +2830,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 190,
+            "id": 562,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2740,6 +2854,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2756,6 +2871,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2764,7 +2880,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 191,
+            "id": 563,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2788,6 +2904,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2804,6 +2921,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2812,7 +2930,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 192,
+            "id": 564,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2836,6 +2954,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2852,6 +2971,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2860,7 +2980,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 193,
+            "id": 565,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2884,6 +3004,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2900,6 +3021,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2908,7 +3030,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 194,
+            "id": 566,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2932,6 +3054,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2948,6 +3071,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -2956,7 +3080,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 195,
+            "id": 567,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -2980,6 +3104,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -2996,6 +3121,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3004,7 +3130,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 196,
+            "id": 568,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3028,6 +3154,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3044,6 +3171,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3052,7 +3180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 197,
+            "id": 569,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3076,6 +3204,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3092,6 +3221,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3100,7 +3230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 198,
+            "id": 570,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3124,6 +3254,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3140,6 +3271,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3148,7 +3280,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 199,
+            "id": 571,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3172,6 +3304,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3188,6 +3321,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 6846475175127286139,
                         "vsName": "wavy.VS"
                     },
@@ -3196,7 +3330,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 200,
+            "id": 572,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -3220,6 +3354,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3236,6 +3371,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 6846475175127286139,
                         "vsName": "wavy.VS"
                     },
@@ -3244,7 +3380,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 201,
+            "id": 573,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -3268,6 +3404,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3284,6 +3421,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 6846475175127286139,
                         "vsName": "wavy.VS"
                     },
@@ -3292,7 +3430,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 202,
+            "id": 574,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -3316,6 +3454,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3332,6 +3471,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3340,7 +3480,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 203,
+            "id": 575,
             "name": "BigSeaGrass2",
             "transform": {
                 "position": [
@@ -3364,6 +3504,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3380,6 +3521,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3388,7 +3530,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 204,
+            "id": 576,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3412,6 +3554,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3428,6 +3571,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3436,7 +3580,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 205,
+            "id": 577,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3460,6 +3604,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3476,6 +3621,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3484,7 +3630,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 206,
+            "id": 578,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3508,6 +3654,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3524,6 +3671,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3532,7 +3680,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 207,
+            "id": 579,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3556,6 +3704,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3572,6 +3721,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3580,7 +3730,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 208,
+            "id": 580,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3604,6 +3754,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3620,6 +3771,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3628,7 +3780,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 209,
+            "id": 581,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3652,6 +3804,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3668,6 +3821,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -3676,7 +3830,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 210,
+            "id": 582,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -3700,6 +3854,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3716,6 +3871,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3724,7 +3880,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 211,
+            "id": 583,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3748,6 +3904,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3764,6 +3921,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3772,7 +3930,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 212,
+            "id": 584,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3796,6 +3954,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3812,6 +3971,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3820,7 +3980,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 213,
+            "id": 585,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3844,6 +4004,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3860,6 +4021,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3868,7 +4030,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 214,
+            "id": 586,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3892,6 +4054,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3908,6 +4071,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3916,7 +4080,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 215,
+            "id": 587,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3940,6 +4104,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -3956,6 +4121,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -3964,7 +4130,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 216,
+            "id": 588,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -3988,6 +4154,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4004,6 +4171,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -4012,7 +4180,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 217,
+            "id": 589,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -4036,6 +4204,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4052,6 +4221,7 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -4060,7 +4230,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 218,
+            "id": 590,
             "name": "Stone",
             "transform": {
                 "position": [
@@ -4084,6 +4254,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4100,6 +4271,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4108,7 +4280,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 219,
+            "id": 591,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4132,6 +4304,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4148,6 +4321,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4156,7 +4330,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 220,
+            "id": 592,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4180,6 +4354,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4196,6 +4371,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4204,7 +4380,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 221,
+            "id": 593,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4228,6 +4404,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4244,6 +4421,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4252,7 +4430,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 222,
+            "id": 594,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4276,6 +4454,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4292,6 +4471,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4300,7 +4480,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 223,
+            "id": 595,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4324,6 +4504,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4340,6 +4521,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4348,7 +4530,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 224,
+            "id": 596,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4372,6 +4554,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4388,6 +4571,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4396,7 +4580,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 225,
+            "id": 597,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4420,6 +4604,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4436,6 +4621,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4444,7 +4630,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 226,
+            "id": 598,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4468,6 +4654,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4484,6 +4671,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4492,7 +4680,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 227,
+            "id": 599,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4516,6 +4704,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4532,6 +4721,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4540,7 +4730,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 228,
+            "id": 600,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4564,6 +4754,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4580,6 +4771,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4588,7 +4780,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 229,
+            "id": 601,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4612,6 +4804,7 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -4628,6 +4821,7 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -4636,7 +4830,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 230,
+            "id": 602,
             "name": "kelp",
             "transform": {
                 "position": [
@@ -4659,1674 +4853,11 @@
         },
         {
             "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 232,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Engine_Side/Fih.lua"
-                    },
-                    "id": 4,
-                    "type": "ScriptComponent"
-                }
-            ],
+            "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 231,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    10.413576126098633,
-                    4.397385597229004,
-                    -33.154170989990234
-                ],
-                "rotation": [
-                    -0.0005652375402860343,
-                    0.7799511551856995,
-                    -0.0004496207693591714,
-                    -0.6258399486541748
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 234,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 6,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 233,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    8.282058715820313,
-                    4.123851299285889,
-                    -32.90113067626953
-                ],
-                "rotation": [
-                    -0.022676417604088783,
-                    0.757433295249939,
-                    -0.019527826458215714,
-                    -0.6522263884544373
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 236,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 7,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 235,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    5.506815433502197,
-                    -0.062211036682128906,
-                    -32.000396728515625
-                ],
-                "rotation": [
-                    0.05638402700424194,
-                    0.3125292956829071,
-                    -0.1683545857667923,
-                    0.933168351650238
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 238,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 237,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    5.093953609466553,
-                    8.385071754455566,
-                    -32.2767448425293
-                ],
-                "rotation": [
-                    0.1320067197084427,
-                    -0.4309394061565399,
-                    0.261455237865448,
-                    0.8535259962081909
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 240,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 239,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -15.150277137756348,
-                    5.5727386474609375,
-                    -55.542823791503906
-                ],
-                "rotation": [
-                    -0.0006792700733058155,
-                    0.0032769718673080206,
-                    -0.20180781185626984,
-                    -0.9794194102287292
-                ],
-                "scale": [
-                    1.000015139579773,
-                    1.0000202655792236,
-                    1.000000238418579
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 242,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 241,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -16.205259323120117,
-                    12.201380729675293,
-                    -60.550201416015625
-                ],
-                "rotation": [
-                    0.4342059791088104,
-                    -0.7982585430145264,
-                    -0.1994578093290329,
-                    -0.366694837808609
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 244,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 243,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -13.947216987609863,
-                    6.836797714233398,
-                    -62.1097297668457
-                ],
-                "rotation": [
-                    0.007830316200852394,
-                    0.1702234148979187,
-                    -0.045280564576387405,
-                    0.9843334555625916
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 246,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 7,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 245,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -16.997291564941406,
-                    6.335254192352295,
-                    -58.45003890991211
-                ],
-                "rotation": [
-                    0.21356700360774994,
-                    0.7860768437385559,
-                    -0.15208400785923004,
-                    0.5597703456878662
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000053644180298,
-                    1.0000004768371582
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 248,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 10,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 247,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -14.640911102294922,
-                    7.37954568862915,
-                    -54.219051361083984
-                ],
-                "rotation": [
-                    0.251941978931427,
-                    -0.9251924157142639,
-                    -0.0953797996044159,
-                    -0.2672956585884094
-                ],
-                "scale": [
-                    1.000004529953003,
-                    1.0000057220458984,
-                    1.000001311302185
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 250,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 10,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 249,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -18.708192825317383,
-                    9.8839111328125,
-                    -54.20281219482422
-                ],
-                "rotation": [
-                    -0.10354018956422806,
-                    0.8164490461349487,
-                    -0.07146997004747391,
-                    -0.5635444521903992
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 252,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 9,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 251,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -34.680667877197266,
-                    15.126229286193848,
-                    -21.34641456604004
-                ],
-                "rotation": [
-                    -0.015942538157105446,
-                    0.9365825057029724,
-                    -0.005959696136415005,
-                    -0.3500337302684784
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 254,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 9,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 253,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -38.108680725097656,
-                    18.51063346862793,
-                    -39.02329635620117
-                ],
-                "rotation": [
-                    0.00987386703491211,
-                    0.9949217438697815,
-                    -0.0009945440106093884,
-                    0.10016132891178131
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 256,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 9,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 255,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -8.327348709106445,
-                    18.006582260131836,
-                    -110.41485595703125
-                ],
-                "rotation": [
-                    0.005478743929415941,
-                    -0.030591463670134544,
-                    -0.17608663439750671,
-                    -0.9838840365409851
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 258,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 257,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    -7.105037689208984,
-                    9.917034149169922,
-                    -118.7445068359375
-                ],
-                "rotation": [
-                    0.000901897088624537,
-                    0.08533766865730286,
-                    0.010512048378586769,
-                    -0.9962962865829468
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 260,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 8,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 259,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    38.637054443359375,
-                    15.39419174194336,
-                    -97.58106231689453
-                ],
-                "rotation": [
-                    -0.03886443004012108,
-                    -0.8765519857406616,
-                    -0.021247930824756622,
-                    0.4792648255825043
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000051259994507,
-                    1.000000238418579
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 262,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 10,
-                        "collectibleType": 0,
-                        "itemId": 1
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 261,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    31.048770904541016,
-                    10.98567008972168,
-                    -99.40141296386719
-                ],
-                "rotation": [
-                    -0.21635955572128296,
-                    0.9554054141044617,
-                    0.04438455402851105,
-                    0.19600801169872284
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [
-                {
-                    "active": true,
-                    "children": [],
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 3658838734074951198,
-                                "fsName": "BlueTint.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Fish",
-                                "meshGUID": 13422515732780036519,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "WoodTexture",
-                                "textureGUID": 1466059150086384494,
-                                "vs": 7809030845991192100,
-                                "vsName": "BaseVS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
-                        }
-                    ],
-                    "drawLayer": 1,
-                    "id": 264,
-                    "name": "Mesh",
-                    "transform": {
-                        "position": [
-                            -1.924212611470466e-08,
-                            0.0,
-                            -0.16141465306282043
-                        ],
-                        "rotation": [
-                            -4.5577415619391104e-08,
-                            -0.7071678042411804,
-                            -5.715653372817542e-08,
-                            0.7070457339286804
-                        ],
-                        "scale": [
-                            0.999984860420227,
-                            1.0000131130218506,
-                            0.9999954700469971
-                        ]
-                    }
-                }
-            ],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "amount": 10,
-                        "collectibleType": 0,
-                        "itemId": 3
-                    },
-                    "id": 3,
-                    "type": "CollectibleTypeComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "Fih.lua"
-                    },
-                    "id": 2,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 263,
-            "name": "Fish",
-            "transform": {
-                "position": [
-                    41.510009765625,
-                    9.792048454284668,
-                    -98.63969421386719
-                ],
-                "rotation": [
-                    -0.02611827291548252,
-                    0.254741370677948,
-                    -0.09860571473836899,
-                    -0.9616140723228455
-                ],
-                "scale": [
-                    1.0000046491622925,
-                    1.0000046491622925,
-                    1.0
-                ]
-            }
-        },
-        {
-            "active": true,
-            "children": [],
-            "components": [
-                {
-                    "active": true,
-                    "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "Cube.004",
-                        "meshGUID": 12885130674664679680,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "Drone",
-                        "textureGUID": 1365390299680718017,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
-                    },
-                    "id": 1,
-                    "type": "MeshComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "autoRender": true,
-                        "camera": {
-                            "fov": 90.0,
-                            "planes": [
-                                0.10000000149011612,
-                                100.0
-                            ]
-                        },
-                        "drawLayerMask": 65535,
-                        "priority": 0,
-                        "resolution": [
-                            1280,
-                            720
-                        ]
-                    },
-                    "id": 5,
-                    "type": "CameraComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "DroneControl.lua"
-                    },
-                    "id": 3,
-                    "type": "ScriptComponent"
-                },
-                {
-                    "active": true,
-                    "data": {},
-                    "id": 6,
-                    "type": "PlayerComponent"
-                },
-                {
-                    "active": true,
-                    "data": {
-                        "filepath": "SuctionInteraction.lua"
-                    },
-                    "id": 7,
-                    "type": "ScriptComponent"
-                }
-            ],
-            "drawLayer": 1,
-            "id": 265,
+            "id": 603,
             "name": "Drone",
+            "prefab": "GameData\\Prefabs\\Drone.json",
             "transform": {
                 "position": [
                     0.0,
@@ -6348,7 +4879,128 @@
         },
         {
             "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cube",
+                                "meshGUID": 15104664662864096133,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "amount": 1,
+                                "collectibleType": 1,
+                                "itemId": 3
+                            },
+                            "id": 3,
+                            "type": "CollectibleTypeComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "data": "",
+                                "filepath": "CollectibleItem.lua"
+                            },
+                            "id": 2,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 605,
+                    "name": "Mesh Node",
+                    "transform": {
+                        "position": [
+                            8.957576751708984,
+                            -7.366691589355469,
+                            -11.376890182495117
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.30000001192092896,
+                            0.30000001192092896,
+                            0.30000001192092896
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 17470227938033865898,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 604,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -8.957576751708984,
+                    14.044591903686523,
+                    1.6737565994262695
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
@@ -6365,6 +5017,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -6384,6 +5037,7 @@
                 {
                     "active": true,
                     "data": {
+                        "data": "",
                         "filepath": "CollectibleItem.lua"
                     },
                     "id": 2,
@@ -6391,13 +5045,13 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 266,
-            "name": "Mesh Node",
+            "id": 606,
+            "name": "Mesh Node2",
             "transform": {
                 "position": [
-                    0.0,
-                    6.677900314331055,
-                    -9.703133583068848
+                    8.957576751708984,
+                    6.471819877624512,
+                    -11.376890182495117
                 ],
                 "rotation": [
                     1.0,
