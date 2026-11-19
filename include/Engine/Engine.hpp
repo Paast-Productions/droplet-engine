@@ -7,6 +7,7 @@
 #include "Integration/Platform/Window.hpp"
 #include "Integration/Platform/SDLVulkan.hpp"
 #include "Integration/Vulkan/Frame/Renderer.hpp"
+#include "Integration/App/ImGuiFrame.hpp"
 // TEMP TEMP TEMP TEMP
 
 #include <Engine/EngineFlags.hpp>
@@ -76,8 +77,9 @@ namespace Droplet
 		Graphics::Renderer &GetRenderer() { return m_renderer; }
 		
 		// TEMP TEMP TEMP TEMP
+		void BeginFrame();
 		void Render(std::span<const Graphics::CameraRenderData> p_cameras);
-		
+		void EndFrame();
 	private:
 
 		/// @brief Setter class with the sole purpose of setting the update flags for the engine.
@@ -126,5 +128,8 @@ namespace Droplet
 		SDL::Window m_inWindow;
 		SDL::VulkanSurfaceProvider m_inSurfaceProvider;
 		Vulkan::Renderer m_inRenderer;
+		#if _EDITOR
+		ImGuiFrame m_inImGuiFrame; // holds imgui context separate from renderer
+		#endif
 	};
 }

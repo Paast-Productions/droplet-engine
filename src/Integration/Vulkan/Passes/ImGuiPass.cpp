@@ -7,8 +7,8 @@
 #include <format>
 #include <stdexcept>
 
-#include <imgui.h>
-#include <imgui_impl_vulkan.h>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_vulkan.h>
 
 #include "Vulkan/Core/Context.hpp"
 

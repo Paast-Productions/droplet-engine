@@ -7,10 +7,10 @@
 
 #include <stdexcept>
 
-#include <imgui.h>
-#include <imgui_impl_sdl3.h>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_sdl3.h>
 
-#include "Vulkan/Frame/Renderer.hpp"
+#include "Integration/Vulkan/Frame/Renderer.hpp"
 
 ImGuiFrame::ImGuiFrame(SDL_Window* window)
 {
