@@ -217,7 +217,7 @@ void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
 	{
 	    m_isDirty = true;
 	}
-    ImGui::SameLine(), ImGui::Text(ICON_LC_AUDIO_WAVEFORM);
+    ImGui::SameLine(); ImGui::Text(ICON_LC_AUDIO_WAVEFORM);
     
     ImGui::PopID();
 #endif
