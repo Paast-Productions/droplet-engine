@@ -4,6 +4,7 @@
 #include <SceneSystem/Serialization/SerializationContext.hpp>
 #include <SceneSystem/Behaviours/PodBehaviour.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 #include <Editor/NodeSlot.hpp>
 #include <GameInput.hpp>
 
@@ -14,6 +15,21 @@ PodComponent::~PodComponent()
 	if (auto podBehaviourShared = m_podBehaviour.lock())
 	{
 		podBehaviourShared->RemovePodComponent(this);
+	}
+}
+
+void PodComponent::OnTransitionToThisPod()
+{
+	if (m_doorNode.GetTarget())
+	{
+		m_transitionState = OpeningDoor;
+		m_doorTimer = m_timeToOpenDoor;
+
+		std::weak_ptr<ScriptComponent> doorScriptComponent = GetOwner()->GetComponent<ScriptComponent>();
+		if (auto doorScript = doorScriptComponent.lock())
+		{
+			doorScript->Call("OpenDoor", m_timeToOpenDoor);
+		}
 	}
 }
 
@@ -123,6 +139,12 @@ void PodComponent::RenderUIImpl()
 		m_transitionButton.SetTarget(buttonNode.lock());
 	}
 
+	std::weak_ptr<Node> doorNode = m_doorNode.GetTarget();
+	if (Editor::NodeSlot("Door", doorNode, ImVec2(buttonWidth, 0)))
+	{
+		m_doorNode.SetTarget(doorNode.lock());
+	}
+
 	ImGui::InputText("Target Scene Name", &m_targetSceneName);
 
 	ImGui::DragFloat("Button Reach", &m_transitionButtonReach, 0.05f, 0.2f);
@@ -156,6 +178,11 @@ nlohmann::json PodComponent::SerializeImpl()
 		json["button"] = m_transitionButton.GetTarget()->GetID();
 	}
 
+	if (m_doorNode.GetTarget())
+	{
+		json["door"] = m_doorNode.GetTarget()->GetID();
+	}
+
 	json["reach"] = m_transitionButtonReach;
 
 	json["targetSceneName"] = m_targetSceneName;
@@ -184,6 +211,13 @@ void PodComponent::DeserializeImpl(const nlohmann::json p_compJson)
 		SceneObjectID buttonID;
 		buttonID.nodeID = p_compJson["button"];
 		m_transitionButton.SetSerializedID(buttonID);
+	}
+
+	if (p_compJson.contains("door"))
+	{
+		SceneObjectID doorID;
+		doorID.nodeID = p_compJson["door"];
+		m_doorNode.SetSerializedID(doorID);
 	}
 
 	if (p_compJson.contains("reach"))
@@ -215,5 +249,11 @@ void PodComponent::ResolveReferences(SerializationContext &p_context)
 	if (button)
 	{
 		m_transitionButton.SetTarget(button);
+	}
+
+	auto door = p_context.FindNode(m_doorNode.serializedID.nodeID);
+	if (door)
+	{
+		m_doorNode.SetTarget(door);
 	}
 }
