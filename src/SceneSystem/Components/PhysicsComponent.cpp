@@ -154,6 +154,10 @@ void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, con
 	SetMotionType(JPH::EMotionType::Dynamic);
 	SetObjectLayer(Layers::MOVING);
 	
+	m_serializeData.mass = characterSettings->mMass;
+	m_serializeData.friction = characterSettings->mFriction;
+	m_serializeData.restitution = 0.0f;
+	
 	m_currentPos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
 	m_previousPos = m_currentPos;
 }
@@ -284,8 +288,16 @@ void PhysicsComponent::SetMass(const float p_mass)
 		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
 		
 		massProperties.ScaleToMass(p_mass);
-		
-		motionProperties->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
+
+		if (m_shapeType == ShapeType::Player)
+		{
+			JPH::EAllowedDOFs allowedDoFs = motionProperties->GetAllowedDOFs();
+			motionProperties->SetMassProperties(allowedDoFs, massProperties);
+		}
+		else
+		{
+			motionProperties->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
+		}
 		
 		m_serializeData.mass = p_mass;
 	}
