@@ -106,8 +106,10 @@ const std::vector<AudioBus *> & AudioBus::GetChildren() const
 
 void Droplet::Audio::AudioBus::RenderUI()
 {
+#ifdef _EDITOR
 	ZoneScoped;
 	ZoneText(m_name.c_str(), m_name.size());
+#endif
 }
 
 nlohmann::json Droplet::Audio::AudioBus::SerializeAudioBus()

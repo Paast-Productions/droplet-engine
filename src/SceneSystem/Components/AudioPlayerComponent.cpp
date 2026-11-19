@@ -1,4 +1,4 @@
-#include "AudioEmitterComponent.hpp"
+#include "AudioPlayerComponent.hpp"
 #include "ImGui/imgui.h"
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -10,16 +10,7 @@
 #include "Editor/DragDropFields.hpp"
 #include "Editor/ResourceSlot.hpp"
 
-Droplet::Scene::AudioPlayerComponent::AudioPlayerComponent()
-{
-
-}
-
-Droplet::Scene::AudioPlayerComponent::~AudioPlayerComponent()
-{
-	Stop();
-	Audio::AudioSystem::GetInstance().UnregisterPlayerComponent(this);
-}
+Droplet::Scene::AudioPlayerComponent::~AudioPlayerComponent() {}
 
 void Droplet::Scene::AudioPlayerComponent::Play()
 {

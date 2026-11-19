@@ -2,6 +2,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
+#include <NodeSlot.hpp>
 
 using namespace Droplet::Scene;
 
@@ -40,6 +41,22 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 	if (ImGui::Button("Rebuild octree"))
 	{
 		scene->RebuildOctree();
+	}
+	
+	ImGui::NewLine();
+	
+	// Render octree options
+	static bool rOctant = true;
+	static bool rNode = true;
+	ImGui::Checkbox("Octant", &rOctant);
+	ImGui::SameLine();
+	ImGui::Checkbox("Node", &rNode);
+	
+	static bool renderOctree = false;
+	ImGui::Checkbox("Render Octree", &renderOctree);
+	if (renderOctree)
+	{
+		scene->RenderOctree(rOctant, rNode);
 	}
 	
 	ImGui::SeparatorText("Physics");

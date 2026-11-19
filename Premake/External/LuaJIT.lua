@@ -24,6 +24,7 @@ project "LuaJIT"
     buildoutputs {
         targetBuildPath .. "/External/lib/minilua.lib",
         targetBuildPath .. "/External/lib/lua51.lib",
+        targetBuildPath .. "/External/lib/vc140.pdb",
         targetBuildPath .. "/External/lib/luajit.lib",
         targetBuildPath .. "/External/lib/buildvm.lib"
     }
@@ -41,6 +42,7 @@ project "LuaJIT"
         "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/minilua.lib") .. " " .. AddQuotation(libPath),
         "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/buildvm.lib") .. " " .. AddQuotation(libPath),
         "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/lua51.lib") .. " " .. AddQuotation(libPath),
+        "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/vc140.pdb") .. " " .. AddQuotation(libPath),
         "{MOVE} " .. AddQuotation(moduleDirectory .. "/src/luajit.lib") .. " " .. AddQuotation(libPath),
         
         "{DELETE} " .. AddQuotation(moduleDirectory .. "/src/*.pdb"),

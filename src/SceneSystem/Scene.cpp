@@ -284,6 +284,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
+    p_node->SetActiveSelf(false);
     m_roots.erase(it);
 }
 
@@ -401,6 +402,11 @@ void Scene::RebuildOctree()
     {
         RegisterNodeRecursive(root);
     }
+}
+
+void Scene::RenderOctree(const bool p_renderOctants, const bool p_renderNodes)
+{
+    m_octree.Render(p_renderOctants, p_renderNodes);
 }
 
 void Scene::PrintOctree()

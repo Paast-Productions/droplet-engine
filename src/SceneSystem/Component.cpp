@@ -154,14 +154,17 @@ void Component::RenderUI()
 
 void Droplet::Scene::Component::Destroy()
 {
-	if (!IsActiveSelf() || !m_started)
+    // NOTE: Make sure you do not call GetOwner() anywhere in this function or within DestroyImpl as the shared pointer
+    // it returns will have 0 references and the lock will fail. This is due to nodes using shared pointers instead
+    // of unique pointers (which should hopefully get fixed at some point) /Arvid
+    
+	if (!m_started)
 	{
 		return;
 	}
 
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
-
 	DestroyImpl();
 }
 
