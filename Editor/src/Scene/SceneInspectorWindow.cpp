@@ -42,6 +42,13 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 		scene->RebuildOctree();
 	}
 	
+	static bool renderOctree = false;
+	ImGui::Checkbox("Render Octree", &renderOctree);
+	if (renderOctree)
+	{
+		scene->RenderOctree();
+	}
+	
 	ImGui::SeparatorText("Physics");
 	
 	// Physics configurations

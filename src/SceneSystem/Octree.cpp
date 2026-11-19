@@ -78,11 +78,6 @@ void Octree::Update()
 		m_placements[nodePtr.get()].fatBounds = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
 	}
-		
-	if (GameInput::Get().KeyToggle(Key::KeyB)) // HACK: Should probably not be here
-	{
-		Render();
-	}
 }
 
 void Octree::AddNode(const std::weak_ptr<Node> &p_node)

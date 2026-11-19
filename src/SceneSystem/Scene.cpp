@@ -403,6 +403,11 @@ void Scene::RebuildOctree()
     }
 }
 
+void Scene::RenderOctree()
+{
+    m_octree.Render();
+}
+
 void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();

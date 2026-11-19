@@ -204,6 +204,9 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    
+		/// @brief Render octree
+    	void RenderOctree();
     	
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
