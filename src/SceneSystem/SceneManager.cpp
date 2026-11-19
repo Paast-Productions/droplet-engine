@@ -5,27 +5,25 @@
 #include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
-#include <algorithm>
-#include <stdexcept>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
 
 Droplet::Scene::SceneManager::SceneManager()
 {
-    m_audioSystem.Initialize();
+
 }
 
 Droplet::Scene::SceneManager::~SceneManager()
 {
-    m_audioSystem.ShutDown();
+    
 }
 
-void SceneManager::LoadScene(const std::string &p_name)
+std::weak_ptr<Scene> SceneManager::LoadScene(const std::string &p_name)
 {
     ZoneScoped;
     ZoneText(p_name.c_str(), p_name.size());
@@ -45,8 +43,9 @@ void SceneManager::LoadScene(const std::string &p_name)
     }
 
     scene->Load();
-
+    
     m_scenes[p_name] = scene;
+    return scene;
 }
 
 void SceneManager::UnloadScene(const std::string &p_name)
@@ -163,6 +162,8 @@ void SceneManager::Update()
 {
     ZoneScoped;
 
+    Droplet::Time &time = Droplet::Time::Get();
+
 	// Pre-Update all active Behaviours
     if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipBehaviourLogic))
     {
@@ -204,7 +205,6 @@ void SceneManager::Update()
     }
 
 	// Fixed-Update all active Scenes
-    Droplet::Time &time = Droplet::Time::Get();
     while (time.GetFixedTimeAccumulator() >= time.GetFixedDeltaTime())
     {
         ZoneNamedNC(sceneFixedUpdateZone, "Scene Fixed Update", tracy::Color::Orange, true);

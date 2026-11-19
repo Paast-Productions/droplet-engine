@@ -7,9 +7,9 @@
 #include <json/json.hpp>
 
 #include <SceneSystem/Component.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
-#include <Graphics/VK/ImGuiTexture.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Graphics/Vulkan/ImGuiTexture.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 #include <Graphics/DrawLayer.hpp>
 

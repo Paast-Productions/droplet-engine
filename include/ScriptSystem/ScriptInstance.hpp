@@ -68,7 +68,13 @@ namespace Droplet::Script
 		/// @param p_otherNode Other node that the script will affect
 		void OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode);
 
-		void OnDestory();
+		/// @brief Serializes the script instance's state to a string.
+		/// @return Serialized string representation of the script instance's state.
+		std::string OnSerialize();
+
+		/// @brief Deserializes the script instance's state from a string.
+		/// @param p_data Serialized string representation of the script instance's state.
+		void OnDeserialize(const std::string &p_data);
 
 		/// @brief Reloads the script instance with a new Lua script.
 		/// The script environment is updated using the provided loaded script.
@@ -109,8 +115,6 @@ namespace Droplet::Script
 		sol::protected_function m_onTrigger;
 
 		sol::protected_function m_onDestory;
-
-		bool m_isShutdown = false;
 	};
 
 	/// @brief Calls a Lua function in the script instance's environment.

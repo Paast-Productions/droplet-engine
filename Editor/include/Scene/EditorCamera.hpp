@@ -2,9 +2,9 @@
 #include <vector>
 #include <memory>
 #include <ImGui/imgui.h>
-#include <Graphics/VK/RenderTarget.hpp>
-#include <Graphics/VK/ImGuiTexture.hpp>
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Graphics/Vulkan/ImGuiTexture.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 
 namespace Droplet::Editor::Scene

@@ -1,17 +1,12 @@
 #pragma once
 
-#include <functional>
-#include <memory>
-#include <string>
-#include <string_view>
-#include <vector>
-
 #include <Engine/EngineFlags.hpp>
 #include <Graphics/SDL/Window.hpp>
-#include <Graphics/VK/Renderer.hpp>
+#include <Graphics/Vulkan/Renderer.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
+#include <Audio/AudioSystem.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
 namespace Droplet

@@ -16,6 +16,7 @@
 #include <GameInput.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 
+using namespace Droplet::Core;
 using namespace Droplet::Math;
 using namespace Droplet::Scene;
 
@@ -28,22 +29,15 @@ void Octree::Initialize(glm::vec3 p_center, glm::vec3 p_extents)
 {
 	ZoneScoped;
 
-	if (m_isInitialized)
-	{
-		return;
-	}
-
 	m_root = std::make_unique<TreeNode>();
 	m_root->octant = AABB(p_center, p_extents);
-
-	m_isInitialized = true;
 }
 
 void Octree::Update()
 {
 	ZoneScoped;
 
-	if (!m_isInitialized || m_root == nullptr)
+	if (m_root == nullptr)
 	{
 		return;
 	}
@@ -95,11 +89,6 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 {
 	ZoneScoped;
 
-	if (!m_isInitialized)
-	{
-		return;
-	}
-
 	if (p_node.expired())
 	{
 		return;
@@ -132,11 +121,6 @@ void Octree::RemoveNode(const Node *p_node)
 {
 	ZoneScoped;
 
-	if (!m_isInitialized)
-	{
-		return;
-	}
-
 	RemoveFromTreeNode(p_node, m_root);
 
 	// Remove the node from the contained nodes list
@@ -144,12 +128,12 @@ void Octree::RemoveNode(const Node *p_node)
 		[&p_node](const std::weak_ptr<Node> &n) { return n.lock().get() == p_node; }), m_containedNodes.end());
 }
 
-void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
+void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 
 	std::vector<std::weak_ptr<Node>> found;
-	CollectIntersected(found, p_frustum, m_root);
+	CollectIntersected(found, p_frustum, m_root, p_layerMask);
 
 	// A node may be stored in several octants, so only keep unique ones
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
@@ -159,12 +143,12 @@ void Octree::GetNodesFromCulling(const Frustum &p_frustum, std::vector<std::weak
 	p_outNodes.insert(p_outNodes.end(), found.begin(), found.end());
 }
 
-void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes)
+void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 
 	std::vector<std::weak_ptr<Node>> found;
-	CollectContained(found, p_frustum, m_root);
+	CollectContained(found, p_frustum, m_root, p_layerMask);
 
 	// A node may be stored in several octants, so only keep unique ones
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
@@ -175,7 +159,7 @@ void Octree::GetNodesFullyInFrustum(const Frustum &p_frustum, std::vector<std::w
 }
 
 void Octree::CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
-	const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained)
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, bool p_octantContained)
 {
 	ZoneScoped;
 
@@ -208,6 +192,11 @@ void Octree::CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const
 			continue;
 		}
 
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
+
 		if (octantContained)
 		{
 			p_nodes.push_back(node);
@@ -229,13 +218,13 @@ void Octree::CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CollectIntersected(p_nodes, p_frustum, child, octantContained);
+			CollectIntersected(p_nodes, p_frustum, child, p_layerMask, octantContained);
 		}
 	}
 }
 
 void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum,
-	const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained)
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, bool p_octantContained)
 {
 	ZoneScoped;
 
@@ -270,6 +259,11 @@ void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const F
 			continue;
 		}
 
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
+
 		const NodeBounds *bounds = nodePtr->GetBounds();
 
 		assert(bounds != nullptr && "Node bounds are null. This should never happen.");
@@ -284,17 +278,18 @@ void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const F
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CollectContained(p_nodes, p_frustum, child, octantContained);
+			CollectContained(p_nodes, p_frustum, child, p_layerMask, octantContained);
 		}
 	}
 }
 
-std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit, 
+	std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask)
 {
 	RayHit hit{};
 	std::weak_ptr<Node> node{};
 
-	RaycastNode(node, hit, p_ray, m_root, p_ignoreNodes);
+	RaycastNode(node, hit, p_ray, m_root, p_layerMask, p_ignoreNodes);
 
 	if (p_hit != nullptr)
 	{
@@ -304,40 +299,40 @@ std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit, 
 	return node;
 }
 
-std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray)
+std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray, CollisionLayer p_layerMask)
 {
 	std::vector<std::weak_ptr<Node>> nodes{};
-	RaycastNodes(nodes, p_ray, m_root);
+	RaycastNodes(nodes, p_ray, m_root, p_layerMask);
 	return nodes;
 }
 
-void Octree::GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes)
+void Octree::GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
-	CheckIntersecting(p_nodes, p_aabb, m_root);
+	CheckIntersecting(p_nodes, p_aabb, m_root, p_layerMask);
 		
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
 	FindUniqueNodes(p_nodes, uniqueNodes);
 	p_nodes = std::move(uniqueNodes);
 }
 
-void Octree::GetNodesFromOBB(const OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes)
+void Octree::GetNodesFromOBB(const OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
-	CheckIntersecting(p_nodes, p_obb, m_root);
+	CheckIntersecting(p_nodes, p_obb, m_root, p_layerMask);
 		
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
 	FindUniqueNodes(p_nodes, uniqueNodes);
 	p_nodes = std::move(uniqueNodes);
 }
 
-void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes)
+void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
-	CheckIntersecting(p_nodes, p_sphere, m_root);
+	CheckIntersecting(p_nodes, p_sphere, m_root, p_layerMask);
 		
 	std::vector<std::weak_ptr<Node>> uniqueNodes;
 	FindUniqueNodes(p_nodes, uniqueNodes);
@@ -345,7 +340,7 @@ void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::w
 }
 
 void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::AABB& p_shape,
-	const std::unique_ptr<TreeNode>& p_treeNode)
+	const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
@@ -369,6 +364,11 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const 
 		{
 			continue;
 		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
 			
 		const NodeBounds *bounds = nodePtr->GetBounds();
 			
@@ -387,16 +387,18 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const 
 		}
 			
 	}
+
 	if (p_treeNode->isSubdivided)
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CheckIntersecting(p_nodes, p_shape, child);
+			CheckIntersecting(p_nodes, p_shape, child, p_layerMask);
 		}
 	}
 }
 
-void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const OBB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode)
+void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const OBB &p_shape, 
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
@@ -420,6 +422,11 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 		{
 			continue;
 		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
 			
 		const NodeBounds *bounds = nodePtr->GetBounds();
 			
@@ -438,17 +445,18 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 		}
 			
 	}
+
 	if (p_treeNode->isSubdivided)
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CheckIntersecting(p_nodes, p_shape, child);
+			CheckIntersecting(p_nodes, p_shape, child, p_layerMask);
 		}
 	}
 }
 
 void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::Sphere& p_shape,
-	const std::unique_ptr<TreeNode>& p_treeNode)
+	const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
@@ -472,6 +480,11 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const 
 		{
 			continue;
 		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
 			
 		const NodeBounds *bounds = nodePtr->GetBounds();
 			
@@ -490,11 +503,12 @@ void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const 
 		}
 			
 	}
+
 	if (p_treeNode->isSubdivided)
 	{
 		for (const std::unique_ptr<TreeNode> &child : p_treeNode->children)
 		{
-			CheckIntersecting(p_nodes, p_shape, child);
+			CheckIntersecting(p_nodes, p_shape, child, p_layerMask);
 		}
 	}
 }
@@ -527,6 +541,21 @@ std::string Octree::ToGraphvizTree()
 void Octree::Render()
 {
 	RenderOctant(m_root);
+}
+
+void Octree::Clear()
+{
+	m_placements.clear();
+	
+	if (!m_root)
+	{
+		return;
+	}
+	
+	const AABB rootBounds = m_root->octant;
+	
+	m_root = std::make_unique<TreeNode>(rootBounds);
+	m_root->level = 0;
 }
 
 void Octree::CollectDirtyNodes(std::vector<std::weak_ptr<Node>> &p_dirtyNodes)
@@ -776,7 +805,8 @@ void Octree::SubdivideOctant(const AABB &p_parentOctant, std::array<AABB, 8> &p_
 	p_childOctants[7] = AABB(glm::vec3(c.x - h.x, c.y - h.y, c.z - h.z), h); // -x -y -z 
 }
 
-void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum, const std::unique_ptr<TreeNode> &p_treeNode)
+void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Frustum &p_frustum, 
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 
@@ -799,6 +829,11 @@ void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 				continue;
 			}
 
+			if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+			{
+				continue;
+			}
+
 			if (nodePtr->GetBounds()->Intersect(p_frustum, nodePtr->GetTransform().GetMatrix(Transform::Space::World)) != IntersectType::None)
 			{
 				p_nodes.push_back(node);
@@ -812,19 +847,19 @@ void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 			{
 				if (child != nullptr)
 				{
-					CheckIntersection(p_nodes, p_frustum, child);
+					CheckIntersection(p_nodes, p_frustum, child, p_layerMask);
 				}
 			}
 		}
 		break;
 	case IntersectType::Contains:
-		AddAllNodeElements(p_nodes, p_treeNode);
+		AddAllNodeElements(p_nodes, p_treeNode, p_layerMask);
 		break;
 	}
 }
 
-void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode, 
-                         std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, 
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
 {
 	if (p_treeNode == nullptr)
 	{
@@ -845,13 +880,26 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 				continue;
 			}
 
-			RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
-			if (!octantHit.didHit)
+			if (Contains(child->octant, p_ray.pos))
 			{
-				continue;
+				RayHit defaultHit = {
+					.point = p_ray.pos,
+					.normal = -p_ray.dir,
+					.distance = 0.0f,
+					.didHit = true
+				};
+				octantHits.emplace_back(defaultHit, &child);
 			}
+			else
+			{
+				RayHit octantHit = Raycast(p_ray, child->octant);
+				if (!octantHit.didHit)
+				{
+					continue;
+				}
 
-			octantHits.emplace_back(octantHit, &child);
+				octantHits.emplace_back(octantHit, &child);
+			}
 		}
 
 		// Sort the octant hits by distance to ensure we check the closest octants first
@@ -864,7 +912,7 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 		{
 			const RayHit &octantHit = octantHits[i].first;
 
-			RaycastNode(p_node, p_hit, p_ray, *octantHits[i].second, p_ignoreNodes);
+			RaycastNode(p_node, p_hit, p_ray, *octantHits[i].second, p_layerMask, p_ignoreNodes);
 
 			if (!p_hit.didHit)
 			{
@@ -892,6 +940,11 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 	{
 		auto nodePtr = node.lock();
 		if (nodePtr == nullptr)
+		{
+			continue;
+		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
 		{
 			continue;
 		}
@@ -925,7 +978,8 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 	}
 }
 
-void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, const std::unique_ptr<TreeNode> &p_treeNode)
+void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, 
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask)
 {
 	if (p_treeNode == nullptr)
 	{
@@ -949,7 +1003,7 @@ void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math:
 				continue;
 			}
 
-			RaycastNodes(p_nodes, p_ray, child);
+			RaycastNodes(p_nodes, p_ray, child, p_layerMask);
 		}
 
 		return;
@@ -960,6 +1014,11 @@ void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math:
 	{
 		auto nodePtr = node.lock();
 		if (nodePtr == nullptr)
+		{
+			continue;
+		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
 		{
 			continue;
 		}
@@ -975,7 +1034,8 @@ void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math:
 	}
 }
 
-void Octree::AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode)
+void Octree::AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, 
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 
@@ -986,6 +1046,17 @@ void Octree::AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const
 
 	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 	{
+		auto nodePtr = node.lock();
+		if (nodePtr == nullptr)
+		{
+			continue;
+		}
+
+		if (!LayerUtility::IsAnyLayerEnabled(p_layerMask, nodePtr->GetCollisionLayerMask()))
+		{
+			continue;
+		}
+
 		p_nodes.push_back(node);
 	}
 
@@ -995,7 +1066,7 @@ void Octree::AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const
 		{
 			if (child != nullptr)
 			{
-				AddAllNodeElements(p_nodes, child);
+				AddAllNodeElements(p_nodes, child, p_layerMask);
 			}
 		}
 	}

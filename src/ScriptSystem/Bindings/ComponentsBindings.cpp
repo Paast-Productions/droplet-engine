@@ -6,6 +6,9 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/AudioEmitterComponent.hpp>
+#include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
@@ -24,6 +27,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+    RegisterAudioEmitterComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -702,4 +706,53 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(registryDef);
+}
+
+void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<AudioEmitterComponent>(
+        "AudioEmitterComponent",
+        "Play", &AudioEmitterComponent::Play,
+        "Pause", &AudioEmitterComponent::Pause,
+        "Resume", &AudioEmitterComponent::Resume,
+        "Stop", &AudioEmitterComponent::Stop
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioEmitterComponent";
+
+    classDef.functions =
+    {
+        {"Play", "void", {}},
+        {"Pause", "void", {}},
+        {"Resume", "void", {}},
+        {"Stop", "void", {}},
+        
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<AudioPlayerComponent>(
+        "AudioPlayerComponent",
+        "Play", &AudioPlayerComponent::Play,
+        "Pause", &AudioPlayerComponent::Pause,
+        "Resume", &AudioPlayerComponent::Resume,
+        "Stop", &AudioPlayerComponent::Stop
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "AudioPlayerComponent";
+
+    classDef.functions =
+    {
+        {"Play", "void", {}},
+        {"Pause", "void", {}},
+        {"Resume", "void", {}},
+        {"Stop", "void", {}},
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
 }

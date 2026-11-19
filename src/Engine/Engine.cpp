@@ -20,6 +20,7 @@
 #include <RegisterGame.hpp>
 #include <RegisterEngine.hpp>
 #include <Time.hpp>
+#include <Resource/IO/AudioFormat.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/SkeletonComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
@@ -89,10 +90,11 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	resManInstance.Initialize(assetDir);
 
     // Register scanners
-    // TODO: Don't hardcode accepted extensions in Engine constructor
+    // TODO: Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
+    resManInstance.RegisterAssetScanner({".ogg"}, IO::AudioFormat::ScanAssetResources);
 	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
@@ -100,6 +102,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
 	resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
+    // Don't register SoundResource for now /Arvid
 
 	// Register base items and set the item registry for the scene manager
 	Game::RegisterBaseItems(m_itemRegistry);
@@ -119,6 +122,10 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 
 	// Script Init
 	Script::ScriptSystem::Get().Initialize(m_sceneManager);
+    
+    // Audio Init
+    Audio::AudioSystem::GetInstance().Initialize();
+    
 	GameInput::Get().SetMainWindow(m_window.Get());
 }
 
@@ -140,6 +147,7 @@ Engine::~Engine()
 
 void Engine::Shutdown()
 {
+    Audio::AudioSystem::GetInstance().Shutdown();
 	ThreadPool::GetInstance().Shutdown();
 	Script::ScriptSystem::Get().Shutdown();
 }
@@ -196,6 +204,8 @@ DROPLET_RETURNTYPE Engine::Update()
 	// ResourceManager
 
 	ResourceManager::GetInstance().Update();
+    
+    Audio::AudioSystem::GetInstance().Update();
 
 	return DROPLET_RETURNTYPE::OK;
 }
@@ -234,7 +244,7 @@ DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData> *camRe
 	m_sceneManager.PostRender();
 
 	ResourceManager::GetInstance().Update();
-	Graphics::VK::IntermediaryStorage::GetInstance().DestroyUnusedResources();
+	Graphics::Vulkan::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
 	FrameMark;
 

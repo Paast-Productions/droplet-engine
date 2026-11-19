@@ -4,6 +4,7 @@
 #include <Math/Bounds/AABB.hpp>
 #include <Math/Bounds/OBB.hpp>
 #include <Math/Bounds/Sphere.hpp>
+#include <SceneSystem/Physics/CollisionLayer.hpp>
 
 namespace Droplet::Scene
 {
@@ -13,16 +14,16 @@ namespace Droplet::Scene
         TriggerComponent() = default;
         
         std::string_view GetTypeName() const override { return "TriggerComponent"; }
+
+		[[nodiscard]] CollisionLayer GetCollisionLayerMask() const { return m_collisionLayerMask; }
+		void SetCollisionLayerMask(CollisionLayer p_mask) { m_collisionLayerMask = p_mask; }
         
-    protected:
-        /// @brief Starts the component.
-        void StartImpl() override;
-		
+    protected:		
         /// @brief Checks every fixed frame when to call trigger functions.
         void FixedUpdateImpl() override;
         
-        /// @brief Update function that is mainly used for drawcalls
-        void UpdateImpl() override;
+		/// @brief Late update function that is called after all Update functions have been called.
+        void LateUpdateImpl() override;
 		
         /// @brief Internal rendering function for the component's UI.
         ///
@@ -95,8 +96,11 @@ namespace Droplet::Scene
         int ListShapes(const int p_currentShape);
 #endif
         
+		bool m_updatedThisFrame = false;
         bool m_isColliding = false;
         std::vector<std::weak_ptr<Node>> m_collidingNodes;
+
+		CollisionLayer m_collisionLayerMask = CollisionLayer::All;
         
         // Trigger shapes
         std::vector<TriggerAABB> m_AABBs;

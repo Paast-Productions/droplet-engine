@@ -9,13 +9,13 @@
 #include <Resource/ResourceBrowser.hpp>
 #include <Scene/SceneViewWindow.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/VK/Camera.hpp>
-#include <Graphics/VK/TestData.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
 #include <EditorConfig.hpp>
+#include <SceneInspectorWindow.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
@@ -170,6 +170,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		Scene::SceneViewWindow sceneViewWindow(&editorContext);
 		MixerWindow mixerWindow(&editorContext);
    		BusInspectorWindow busInspectorWindow(&editorContext);
+		SceneInspectorWindow sceneInspectorWindow(&editorContext);
    		
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
@@ -180,6 +181,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		sceneViewWindow.Init();
 		mixerWindow.Init();
     	busInspectorWindow.Init();
+		sceneInspectorWindow.Init();
     	
 		FrameMark;
 
@@ -369,6 +371,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 						{
 							EditorConfig::StoreBool("Editor.ShowBusInspector", !currState);
 						}
+						
+						currState = EditorConfig::LoadBool("Editor.SceneInspector", true);
+						if (ImGui::MenuItem("Scene Inspector", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.SceneInspector", !currState);
+						}
 
 						ImGui::EndMenu();
 					}
@@ -537,6 +545,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				busInspectorWindow.Render();
 			}
 
+			if (EditorConfig::LoadBool("Editor.SceneInspector", true))
+			{
+				sceneInspectorWindow.Render();
+			}
+
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
 			editorContext.SetGameCamera(engine.GetSceneManager().GetMainCamera());
 
@@ -550,7 +563,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
-				using namespace Droplet::Graphics::VK;
+				using namespace Droplet::Graphics::Vulkan;
 
 				Droplet::Graphics::CameraRenderData camRenderData{ };
 				camRenderData.debug = true;
@@ -559,52 +572,55 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				auto &editorCamera = editorContext.GetEditorCamera();
 				auto activeScene = editorContext.GetActiveScene().lock();
 
-				camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-				camRenderData.renderTarget = editorCamera.GetTarget();
-
-				auto &renderables = activeScene->GetRenderables();
-
-				Droplet::Math::Frustum frustum = editorCamera.GetFrustum();
-
-				auto visibleComponents = activeScene->GetNodesIntersectingFrustum(frustum);
-
-				std::vector<std::weak_ptr<Droplet::Scene::Component>> componentsToRender;
-
-				// Filter the renderables to only include those that are visible in the editor camera's frustum
-				for (const auto &[node, component] : renderables)
+				if (activeScene)
 				{
-					if (!node || !component)
+					camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
+					camRenderData.renderTarget = editorCamera.GetTarget();
+
+					auto &renderables = activeScene->GetRenderables();
+
+					Droplet::Math::Frustum frustum = editorCamera.GetFrustum();
+
+					auto visibleComponents = activeScene->GetNodesIntersectingFrustum(frustum);
+
+					std::vector<std::weak_ptr<Droplet::Scene::Component>> componentsToRender;
+
+					// Filter the renderables to only include those that are visible in the editor camera's frustum
+					for (const auto &[node, component] : renderables)
 					{
-						continue;
+						if (!node || !component)
+						{
+							continue;
+						}
+
+						// Check if the node is in the list of visible components
+						auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
+							[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
+								auto sharedNode = weakNode.lock();
+								return sharedNode && sharedNode == node;
+							});
+
+						if (it != visibleComponents.end())
+						{
+							componentsToRender.emplace_back(component);
+						}
 					}
 
-					// Check if the node is in the list of visible components
-					auto it = std::find_if(visibleComponents.begin(), visibleComponents.end(),
-						[&node](const std::weak_ptr<Droplet::Scene::Node> &weakNode) {
-							auto sharedNode = weakNode.lock();
-							return sharedNode && sharedNode == node;
-						});
-
-					if (it != visibleComponents.end())
+					camRenderData.renderData.reserve(componentsToRender.size());
+					for (const auto &componentWeak : componentsToRender)
 					{
-						componentsToRender.emplace_back(component);
+						auto component = componentWeak.lock();
+						if (!component)
+						{
+							continue;
+						}
+
+						camRenderData.renderData.emplace_back(component->GetRenderData());
 					}
+
+					if (renderEditorView)
+						queuedEditorCameras.push_back(camRenderData);
 				}
-
-				camRenderData.renderData.reserve(componentsToRender.size());
-				for (const auto &componentWeak : componentsToRender)
-				{
-					auto component = componentWeak.lock();
-					if (!component)
-					{
-						continue;
-					}
-
-					camRenderData.renderData.emplace_back(component->GetRenderData());
-				}
-
-				if (renderEditorView)
-					queuedEditorCameras.push_back(camRenderData);
 			}
 
 			// Render the engine

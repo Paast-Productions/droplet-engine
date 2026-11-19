@@ -14,6 +14,7 @@ namespace Droplet
         Animation,
         Shader,
         Material,
+        Sound,
         Font
     };
     

@@ -1,11 +1,11 @@
 #include "MixerWindow.hpp"
-#include <AudioSystem/AudioBus.hpp>
+#include <Audio/AudioBus.hpp>
 
 using namespace Droplet;
 
 void Droplet::Editor::MixerWindow::InitImpl()
 {
-	SetName("Audio Mixer");
+	SetName(ICON_LC_DISC_3 " Audio Mixer " ICON_LC_DISC_3);
 }
 
 void Droplet::Editor::MixerWindow::CloseImpl()
@@ -14,8 +14,13 @@ void Droplet::Editor::MixerWindow::CloseImpl()
 
 void Droplet::Editor::MixerWindow::RenderImpl()
 {
-	Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
+	
+	if (ImGui::Button("Save as default mixing hierarchy"))
+	{
+		mixer.SerializeHierarchy();
+	}
 
 	Audio::AudioBus *selectedBus = nullptr;
 
@@ -32,7 +37,7 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 
 	ImGui::InputText("Bus Name", busName, sizeof(busName));
 
-	if (ImGui::Button("Add Bus"))
+	if (ImGui::Button(ICON_LC_BUS" Add Bus"))
 	{
 		if (!mixer.HasAudioBusWithName(busName))
 		{
@@ -44,7 +49,7 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 		}
 	}
 
-	ImGui::SeparatorText("Bus hierarchy");
+	ImGui::SeparatorText("Bus hierarchy " ICON_LC_BUS_FRONT);
 	{
 		ImGui::BeginChild("BusHierarchy", ImVec2(0.0f, 0.0f), true);
 		const ImVec2 available = ImGui::GetContentRegionAvail();
@@ -100,6 +105,8 @@ void Droplet::Editor::MixerWindow::RenderImpl()
 
 		m_pendingRemoveBusID.reset();
 	}
+
+
 }
 
 void Droplet::Editor::MixerWindow::RenderToolbar()
@@ -113,7 +120,7 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 		return;
 	}
 
-	Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+	Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 	AudioMixerEditorState &state = m_editorContext->GetAudioMixerState();
 
 	const std::uint64_t busID = p_bus->GetID();
@@ -156,13 +163,11 @@ void Droplet::Editor::MixerWindow::DrawBus(Audio::AudioBus *p_bus)
 
 	if (ImGui::BeginDragDropSource())
 	{
-		Audio::AudioBus *bus = p_bus;
-		ImGui::SetDragDropPayload("AUDIO_BUS", &busID, sizeof(busID));
-
+		ImGui::SetDragDropPayload(std::string(PAYLOAD_AUDIO_BUS).c_str(), &busID, sizeof(busID));
 		ImGui::Text("%s", p_bus->GetName().c_str());
 
 		ImGui::EndDragDropSource();
-	}
+	}		
 
 	HandleBusDropTarget(p_bus);
 
@@ -185,14 +190,14 @@ void Droplet::Editor::MixerWindow::HandleBusDropTarget(Audio::AudioBus *p_parent
 	}
 	if (ImGui::BeginDragDropTarget())
 	{
-		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("AUDIO_BUS");
+		const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(std::string(PAYLOAD_AUDIO_BUS).c_str());
 
 		if (payload != nullptr && payload->IsDelivery() && payload->DataSize == sizeof(std::uint64_t))
 		{
 			std::uint64_t draggedBusID = 0;
 			std::memcpy(&draggedBusID, payload->Data, sizeof(draggedBusID));
 
-			Audio::AudioMixer &mixer = m_editorContext->GetAudioSystem().GetMixer();
+			Audio::AudioMixer &mixer = Audio::AudioSystem::GetInstance().GetMixer();
 			Audio::AudioBus *draggedBus = mixer.FindAudioBus(draggedBusID);
 
 			if (draggedBus != nullptr && draggedBus != mixer.GetMasterBus() && !p_parent->IsDecendantOf(draggedBus))

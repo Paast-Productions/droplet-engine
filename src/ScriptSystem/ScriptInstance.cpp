@@ -38,7 +38,6 @@ ScriptInstance::ScriptInstance(Scene::Node *p_owner, GameInput &p_input, LuaStat
 	m_onUpdate = m_environment["OnUpdate"];
 	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
-	m_onDestory = m_environment["OnDestory"];
 }
 
 ScriptInstance::~ScriptInstance()
@@ -111,24 +110,40 @@ void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::S
 	}
 }
 
-void Droplet::Script::ScriptInstance::OnDestory()
+std::string ScriptInstance::OnSerialize()
 {
 	ZoneScoped;
-	if (m_onDestory.valid())
+	sol::protected_function serializeFunction = m_environment["Serialize"];
+	if (!serializeFunction.valid())
 	{
-		sol::protected_function_result result = m_onDestory();
-		if (!result.valid())
-		{
-			sol::error err = result;
-			std::print("ScriptInstance: Error in OnDestory for script {}\n", m_scriptPath, err.what());
-		}
+		return std::string();
 	}
 
-	m_environment = sol::nil;
-	m_onStart = sol::nil;
-	m_onUpdate = sol::nil;
-	m_onTrigger = sol::nil;
-	m_onDestory = sol::nil;
+	sol::protected_function_result result = serializeFunction();
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::print("ScriptInstance: Error in Serialize for script {}\n", m_scriptPath, error.what());
+		return std::string();
+	}
+	return result.get<std::string>();
+}
+
+void ScriptInstance::OnDeserialize(const std::string &p_data)
+{
+	ZoneScoped;
+	sol::protected_function deserializeFunction = m_environment["Deserialize"];
+	if (!deserializeFunction.valid())
+	{
+		return;
+	}
+
+	sol::protected_function_result result = deserializeFunction(p_data);
+	if (!result.valid())
+	{
+		sol::error error = result;
+		std::print("ScriptInstance: Error in Deserialize for script {}\n", m_scriptPath, error.what());
+	}
 }
 
 bool ScriptInstance::Reload(sol::load_result &p_script)
@@ -155,6 +170,7 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 
 	m_onStart = m_environment["OnStart"];
 	m_onUpdate = m_environment["OnUpdate"];
+	m_onDestroy = m_environment["OnDestroy"];
 	m_onTrigger = m_environment["OnTrigger"];
 
 	return true;

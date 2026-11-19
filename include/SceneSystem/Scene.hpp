@@ -181,51 +181,72 @@ namespace Droplet::Scene
         /// @return true if the Scene is active, otherwise false.
         bool IsActive() const;
 
+        /// @brief Sets whether the Scene is active.
+        ///
+        /// Activating a loaded Scene starts all root Nodes and their
+        /// hierarchies. An active Scene is updated and rendered by the
+        /// SceneManager.
+        ///
+        /// Deactivating a Scene prevents its Node hierarchies from being
+        /// updated or rendered.
+        ///
+        /// @param p_active true to activate the Scene, false to deactivate it.
+        ///
+        /// @throws std::runtime_error if attempting to activate a Scene
+        /// that has not been loaded.
+        void SetActive(bool p_active);
+
         [[nodiscard]] std::weak_ptr<Node> FindNodeById(std::uint64_t p_id) const;
 
+    	/// @brief Initializes the octree
+    	/// @param p_extents The extent length of the octree
+    	void InitializeOctree(float p_extents);
+    	
+    	/// @brief Rebuilds the octree
+    	void RebuildOctree();
+    	
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
 
         /// @brief Prints graphviz code for visualizing the octree as a tree
         void PrintOctreeTree();
 
+        /// @brief Initialize the physics engine for this scene
+        /// @param p_initializer Struct contaning values to initialize the physics engine
+        void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
+        [[nodiscard]] std::weak_ptr<Physics> GetPhysics();
+
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
 		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr, CollisionLayer p_layerMask = CollisionLayer::All);
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
-		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray);
-
-        /// @brief Initialize the physics engine for this scene
-        /// @param p_initializer Struct contaning values to initialize the physics engine
-        void InitializePhysics(const Physics::Initializer p_initializer = Physics::Initializer());
+		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask = CollisionLayer::All);
 
         /// @brief Finds all Node instances whose world-space bounds intersect a frustum
         /// @param p_frustum The frustum that must intersect the nodes
         /// @return A vector of all Node instances intersecting the frustum
-        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesIntersectingFrustum(const Math::Frustum &p_frustum);
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesIntersectingFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask = CollisionLayer::All);
 
         /// @brief Finds all Node instances whose world-space bounds are fully contained within a frustum
         /// @param p_frustum The frustum that must fully contain the nodes
         /// @return A vector of all Node instances fully contained in the frustum
-        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum);
+        [[nodiscard]] std::vector<std::weak_ptr<Node>> GetNodesFullyInFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask = CollisionLayer::All);
     	
     	/// @brief Finds all Node instances whose world-space bounds are fully contained within a shape
     	/// @param p_shape The shape that contain the nodes
     	/// @param[out] p_nodes The out vector containing nodes inside the shape
-    	void GetNodesInShape(const Math::AABB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
+    	void GetNodesInShape(const Math::AABB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All); 
     	/// @copydoc GetNodesInShape()
-    	void GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
+    	void GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All); 
     	/// @copydoc GetNodesInShape()
-    	void GetNodesInShape(const Math::Sphere &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes); 
+    	void GetNodesInShape(const Math::Sphere &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All); 
 
-        [[nodiscard]] std::weak_ptr<Physics> GetPhysics();
-        
         std::shared_ptr<Node> LoadNodeFromFile( const std::string &p_filepath, std::optional<glm::vec3> p_overridePosition = std::nullopt);
 
 		/// @brief Queues a component to be rendered in the next render pass
@@ -258,7 +279,6 @@ namespace Droplet::Scene
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
         void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
-        Audio::AudioSystem &GetAudioSystem() { return m_sceneManager->GetAudioSystem(); }
 
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
@@ -266,6 +286,10 @@ namespace Droplet::Scene
 
     private:
 		friend class SceneManager;
+    	
+    	/// @brief Re-adds all nodes in the scene to the octree
+    	/// @param p_node The node to add to octree
+    	void RegisterNodeRecursive(const std::shared_ptr<Node> &p_node);
 
         std::string m_name;
         std::vector<std::shared_ptr<Node>> m_roots;
@@ -280,20 +304,5 @@ namespace Droplet::Scene
         bool m_active = false;
 
 		SceneManager *m_sceneManager = nullptr;
-
-        /// @brief Sets whether the Scene is active.
-        ///
-        /// Activating a loaded Scene starts all root Nodes and their
-        /// hierarchies. An active Scene is updated and rendered by the
-        /// SceneManager.
-        ///
-        /// Deactivating a Scene prevents its Node hierarchies from being
-        /// updated or rendered.
-        ///
-        /// @param p_active true to activate the Scene, false to deactivate it.
-        ///
-        /// @throws std::runtime_error if attempting to activate a Scene
-        /// that has not been loaded.
-        void SetActive(bool p_active);
     };     
 }

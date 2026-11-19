@@ -9,7 +9,7 @@
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 
-#include <Graphics/VK/IntermediaryStorage.hpp>
+#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Editor::Resource;
 
@@ -44,7 +44,7 @@ void ResourceBrowser::InitImpl()
 		glm::vec2(0.1f, 100.0f) // Near and far planes
 	);
 
-	Graphics::VK::IntermediaryStorage &instance = Graphics::VK::IntermediaryStorage::GetInstance();
+	Graphics::Vulkan::IntermediaryStorage &instance = Graphics::Vulkan::IntermediaryStorage::GetInstance();
 	m_previewCamera.renderTarget = instance.CreateRenderTarget(m_previewCamera.resolution.x, m_previewCamera.resolution.y);
 	m_previewCamera.texture = instance.CreateImGuiTexture(
 		m_previewCamera.renderTarget
@@ -623,7 +623,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
 			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			m_previewCamera.texture = Graphics::VK::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
+			m_previewCamera.texture = Graphics::Vulkan::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
 			ImTextureRef textureRef = m_previewCamera.texture.Get();
 			
 			SetCursorPos(previewPos);
@@ -842,6 +842,8 @@ std::string ResourceBrowser::ResourceTypeToString(StaticResourceType p_type)
 				return "2D Texture";
 		case StaticResourceType::Texture3D:
 			return "3D Texture";
+	    case StaticResourceType::Sound:
+	        return "Sound";
 		default:
 			return "None";
 	}

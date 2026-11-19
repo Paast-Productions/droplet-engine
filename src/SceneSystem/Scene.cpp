@@ -24,8 +24,14 @@ Scene::Scene(const std::string &p_name)
 
 Scene::~Scene()
 {
+    SetActive(false);
+    
     for (std::shared_ptr<Node> &node : m_roots)
     {
+        if (node == nullptr)
+        {
+            continue;
+        }
         std::vector<std::shared_ptr<PhysicsComponent>> comps = node->GetComponents<PhysicsComponent>();
         for (std::shared_ptr<PhysicsComponent> comp : comps)
         {
@@ -80,6 +86,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->Update();
         }
     }
@@ -88,6 +98,10 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->EditorUpdate();
         }
     }
@@ -109,6 +123,10 @@ void Scene::LateUpdate()
     {
         for (const auto &root : m_roots)
         {
+            if (root == nullptr)
+            {
+                continue;
+            }
             root->LateUpdate();
         }
     }
@@ -133,15 +151,19 @@ void Scene::FixedUpdate()
 
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
-
-    for (const auto &root : m_roots)
-    {
-        root->FixedUpdate();
-    }
-        
+    
     if (m_physics != nullptr)
     {
         m_physics->FixedUpdate();
+    }
+
+    for (const auto &root : m_roots)
+    {
+        if (root == nullptr)
+        {
+            continue;
+        }
+        root->FixedUpdate();
     }
 }
 
@@ -331,6 +353,10 @@ void Scene::SetActive(bool p_active)
 
     for (const auto &root : m_roots)
     {
+        if (root == nullptr)
+        {
+            continue;
+        }
 		root->ActiveChanged(m_active);
     }
 }
@@ -361,6 +387,22 @@ std::weak_ptr<Node> Scene::FindNodeById(std::uint64_t p_id) const
     return {};
 }
 
+void Scene::InitializeOctree(float p_extents)
+{
+    m_octree.Initialize(glm::vec3(0.0f), glm::vec3(p_extents));
+    RebuildOctree();
+}
+
+void Scene::RebuildOctree()
+{
+    m_octree.Clear();
+    
+    for (const auto &root : m_roots)
+    {
+        RegisterNodeRecursive(root);
+    }
+}
+
 void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
@@ -371,43 +413,43 @@ void Scene::PrintOctreeTree()
     std::cout << m_octree.ToGraphvizTree();
 }
 
-std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask)
 {
-	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes);
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes, p_layerMask);
 }
 
-std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray)
+std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask)
 {
-    return m_octree.GetNodesFromRaycast(p_ray);
+    return m_octree.GetNodesFromRaycast(p_ray, p_layerMask);
 }
 
-std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum)
+std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask)
 {
     std::vector<std::weak_ptr<Node>> nodes;
-    m_octree.GetNodesFromCulling(p_frustum, nodes);
+    m_octree.GetNodesFromCulling(p_frustum, nodes, p_layerMask);
     return nodes;
 }
 
-std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum)
+std::vector<std::weak_ptr<Node>> Scene::GetNodesFullyInFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask)
 {
     std::vector<std::weak_ptr<Node>> nodes;
-    m_octree.GetNodesFullyInFrustum(p_frustum, nodes);
+    m_octree.GetNodesFullyInFrustum(p_frustum, nodes, p_layerMask);
     return nodes;
 }
 
-void Scene::GetNodesInShape(const Math::AABB& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
+void Scene::GetNodesInShape(const Math::AABB& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromAABB(p_shape, p_nodes);
+    m_octree.GetNodesFromAABB(p_shape, p_nodes, p_layerMask);
 }
 
-void Scene::GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes)
+void Scene::GetNodesInShape(const Math::OBB &p_shape, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromOBB(p_shape, p_nodes);
+    m_octree.GetNodesFromOBB(p_shape, p_nodes, p_layerMask);
 }
 
-void Scene::GetNodesInShape(const Math::Sphere& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes)
+void Scene::GetNodesInShape(const Math::Sphere& p_shape, std::vector<std::weak_ptr<Node>>& p_nodes, CollisionLayer p_layerMask)
 {
-    m_octree.GetNodesFromSphere(p_shape, p_nodes);
+    m_octree.GetNodesFromSphere(p_shape, p_nodes, p_layerMask);
 }
 
 void Scene::InitializePhysics(const Physics::Initializer p_initializer)
@@ -419,7 +461,6 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 
     m_physics = std::make_unique<Physics>(p_initializer);
 }
-
 
 std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
@@ -474,4 +515,19 @@ const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 		}
 	}
 	return cameraStack;
+}
+
+void Scene::RegisterNodeRecursive(const std::shared_ptr<Node> &p_node)
+{
+    if (!p_node)
+    {
+        return;
+    }
+    
+    m_octree.AddNode(p_node);
+    
+    for (const auto &child : p_node->GetChildren())
+    {
+        RegisterNodeRecursive(child);
+    }
 }

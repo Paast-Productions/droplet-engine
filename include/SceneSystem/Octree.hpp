@@ -44,40 +44,40 @@ namespace Droplet::Scene
 		/// @brief Gets all Node instances intersecting with a frustum
 		/// @param p_frustum The frustum to check for intersections
 		/// @param[out] p_outNodes The vector with Nodes to be rendered
-		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes);
+		void GetNodesFromCulling(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes, CollisionLayer p_layerMask = CollisionLayer::All);
 
 		/// @brief Gets all Node instances whose world-space bounds are fully contained within a frustum
 		/// @note Nodes spanning several octants are only reported once
 		/// @param p_frustum The frustum that must fully contain the nodes
 		/// @param[out] p_outNodes The vector that nodes fully contained in the frustum are appended to
-		void GetNodesFullyInFrustum(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes);
+		void GetNodesFullyInFrustum(const Math::Frustum &p_frustum, std::vector<std::weak_ptr<Node>> &p_outNodes, CollisionLayer p_layerMask = CollisionLayer::All);
 
 		/// @brief Finds the first Node instance intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
 		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		std::weak_ptr<Node> GetNodeFromRaycast(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
+		std::weak_ptr<Node> GetNodeFromRaycast(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr, CollisionLayer p_layerMask = CollisionLayer::All);
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
-		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray);
+		std::vector<std::weak_ptr<Node>> GetNodesFromRaycast(const Math::Ray &p_ray, CollisionLayer p_layerMask = CollisionLayer::All);
 		
 		/// @brief Finds all Node instances intersecting with an AABB
 		/// @param p_aabb The AABB to check for intersections
     	/// @param[out] p_nodes The out vector containing nodes inside the shape
-		void GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes);
+		void GetNodesFromAABB(const Math::AABB &p_aabb, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All);
 		
 		/// @brief Finds all Node instances intersecting with an OBB
 		/// @param p_obb The OBB to check for intersections
     	/// @param[out] p_nodes The out vector containing nodes inside the shape
-		void GetNodesFromOBB(const Math::OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes);
+		void GetNodesFromOBB(const Math::OBB &p_obb, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All);
 		
 		/// @brief Finds all Node instances intersecting with a sphere
 		/// @param p_sphere The sphere to check for intersections
     	/// @param[out] p_nodes The out vector containing nodes inside the shape
-		void GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes);
+		void GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All);
 		
 		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
@@ -91,6 +91,9 @@ namespace Droplet::Scene
 		
 		/// @brief Render the octree octants and nodes 
 		void Render();
+		
+		/// @brief Clear outs the octree so that the scene can rebuild it from scratch
+		void Clear();
 
 	private:
 		struct TreeNode;
@@ -127,17 +130,17 @@ namespace Droplet::Scene
 		/// @param p_frustum The frustum to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum, 
-			const std::unique_ptr<TreeNode> &p_treeNode);
+			const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 
 		/// @brief Helper function for getting Node instances intersecting with a shape
 		/// @param[out] p_nodes The Vector that contains all Node instances intersecting the shape
 		/// @param p_shape The shape to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::AABB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::AABB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 		/// @copydoc CheckIntersecting()
-		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::OBB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::OBB &p_shape, const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 		/// @copydoc CheckIntersecting()
-		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Sphere &p_shape, const std::unique_ptr<TreeNode> &p_treeNode);
+		void CheckIntersecting(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Sphere &p_shape, const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 		
 		/// @brief Helper function for collecting Node instances intersecting with a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum
@@ -146,7 +149,7 @@ namespace Droplet::Scene
 		/// @param p_octantContained True if an ancestor octant is already known to be fully inside the frustum, 
 		/// which guarantees that this octant and all contained Nodes are too, so their octant intersection tests can be skipped
 		void CollectIntersected(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
-			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false);
+			const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, bool p_octantContained = false);
 
 		/// @brief Helper function for collecting Node instances fully contained in a frustum
 		/// @param[out] p_nodes The vector that contains all Node instances fully contained in the frustum
@@ -155,7 +158,7 @@ namespace Droplet::Scene
 		/// @param p_octantContained True if an ancestor octant is already known to be fully inside the frustum, which
 		/// guarantees that this octant is too, so its octant intersection test can be skipped
 		void CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Frustum &p_frustum,
-			const std::unique_ptr<TreeNode> &p_treeNode, bool p_octantContained = false);
+			const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, bool p_octantContained = false);
 		
 		/// @brief Helper function for raycasting a single Node instance
 		/// @param[out] p_node The weak pointer to the Node instance intersecting with the ray
@@ -164,19 +167,19 @@ namespace Droplet::Scene
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
 		void RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray,
-			const std::unique_ptr<TreeNode> &p_treeNode, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
+			const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr);
 
 		/// @brief Helper function for raycasting all Node instances intersecting with a ray
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the ray
 		/// @param p_ray The ray to check for intersections
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
 		void RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, 
-			const std::unique_ptr<TreeNode> &p_treeNode);
+			const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 
 		/// @brief Helper function for checking frustum culling
 		/// @param[out] p_nodes The vector that contains all Node instances intersecting the frustum 
 		/// @param p_treeNode The TreeNode instance to be checked for intersection
-		void AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode);
+		void AddAllNodeElements(std::vector<std::weak_ptr<Node>> &p_nodes, const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask);
 		
 		/// @brief Recursive function trying to merge octants
 		/// @param p_treeNode The TreeNode trying to merge
@@ -230,7 +233,6 @@ namespace Droplet::Scene
 			GUID meshGuid = C_INVALID_GUID;
 		};
 
-		bool m_isInitialized = false;
 		std::unique_ptr<TreeNode> m_root;
 		
 		std::vector<std::weak_ptr<Node>> m_containedNodes;

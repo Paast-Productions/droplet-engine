@@ -1,6 +1,4 @@
 #pragma once
-
-// TODO: Fix the ordering
 #include <vector>
 #include <memory>
 #include <Ray.hpp>
@@ -11,9 +9,8 @@
 #include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/VK/RenderTarget.hpp>
+#include <Graphics/Vulkan/RenderTarget.hpp>
 #include <Engine.hpp>
-#include <SceneSerializer.hpp>
 
 namespace Droplet::Editor::Scene
 {
@@ -55,6 +52,8 @@ namespace Droplet::Editor::Scene
 		/// @brief Aggregate selection bounds (min, max) relative to the group gizmo matrix
 		glm::vec3 m_groupGizmoBounds[2] = { glm::vec3(-0.5f), glm::vec3(0.5f) };
 		bool m_groupGizmoActive = false;
+		/// @brief Unsnapped gizmo matrix kept between frames while absolute snapping is in use
+		glm::mat4 m_gizmoRawMatrix = glm::mat4(1.0f);
 		
 		/// @brief Bool indicating whether the SDL Window has been resized
 		bool m_hasBeenResized = false;
@@ -67,13 +66,6 @@ namespace Droplet::Editor::Scene
 
 		bool m_wrapMouse = false;
 		int m_skipMouseDeltas = 0;
-
-		/// @brief Serializer is needed to store temporary scene data in memory
-		Droplet::Scene::SceneSerializer serializer;
-
-		/// @brief Contains a json object that hold temporary scene data in memory
-		/// It is useful for when you have unsaved changes and want to enter play-mode
-		nlohmann::json m_json;
 
 		/// @brief Camera snapping
 		glm::vec3 m_cameraSnapPos = glm::vec3(0.0f);
