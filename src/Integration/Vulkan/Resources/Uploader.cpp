@@ -185,7 +185,7 @@ namespace Vulkan
         {
             TransitionImage(cmd, image, state, ImageState::TransferDst(), range);
             cmd.clearColorImage(image, vk::ImageLayout::eTransferDstOptimal,
-                                vk::ClearColorValue{std::array{0.0f, 0.0f, 0.0f, 1.0f}}, range);
+                                vk::ClearColorValue{}.setFloat32({0.0f, 0.0f, 0.0f, 1.0f}), range);
             TransitionImage(cmd, image, state, ImageState::Sampled(vk::PipelineStageFlagBits2::eFragmentShader), range);
         });
     }

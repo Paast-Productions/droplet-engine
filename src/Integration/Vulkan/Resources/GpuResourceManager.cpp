@@ -426,10 +426,10 @@ namespace Vulkan
             {
                 if (existing->desc.width == desc.width && existing->desc.height == desc.height &&
                     existing->desc.format == desc.format)
-            {
-                MarkUsed(existing->residency);
-                return cachedTarget->second;
-            }
+                {
+                    MarkUsed(existing->residency);
+                    return cachedTarget->second;
+                }
                 // the description changed (a viewport resized it): the target and its history leave the pools now and
                 // are destroyed once the GPU is past their last use, as for an evicted target
                 RetireTarget(cachedTarget->second);
@@ -439,6 +439,18 @@ namespace Vulkan
         const Render::TargetHandle handle = CreateTarget(desc);
         m_targetLookup.insert_or_assign(desc.id, handle);
         return handle;
+    }
+
+    Render::TargetHandle GpuResourceManager::FindTarget(Guid id)
+    {
+        const auto cachedTarget = m_targetLookup.find(id);
+        if (cachedTarget == m_targetLookup.end())
+            return {};
+        GpuRenderTarget* existing = m_targets.Get(cachedTarget->second);
+        if (!existing)
+            return {};
+        MarkUsed(existing->residency);
+        return cachedTarget->second;
     }
 
     void GpuResourceManager::RetireTarget(Render::TargetHandle target)

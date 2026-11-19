@@ -3,7 +3,7 @@
  * @brief ImGuiFrame implementation
  */
 #ifdef _EDITOR
-#include "App/ImGuiFrame.hpp"
+#include "Integration/App/ImGuiFrame.hpp"
 
 #include <stdexcept>
 
@@ -49,8 +49,6 @@ void ImGuiFrame::Begin(Vulkan::Renderer& renderer)
     renderer.NewImGuiFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
-    // the scene stays visible where no window is docked
-    ImGui::DockSpaceOverViewport(0, nullptr, ImGuiDockNodeFlags_PassthruCentralNode);
 }
 
 ImDrawData* ImGuiFrame::End()

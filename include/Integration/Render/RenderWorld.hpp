@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -17,7 +18,7 @@ namespace Render
     /// @brief Half the edge of the placeholder cube the renderer draws for a mesh it does not have. Extract culls an
     ///        object whose mesh is not in the storage with this cube's bounds.
     inline constexpr float PLACEHOLDER_CUBE_HALF_EXTENT = 0.5f;
-    
+
     /// A single object (mesh) in the RenderWorld
     struct RenderObject
     {
@@ -29,6 +30,34 @@ namespace Render
         std::uint64_t meshRevision{ 0 };    ///< the storage's revision of meshId; 0: not in the storage
         std::uint64_t textureRevision{ 0 }; ///< the storage's revision of a texture imageTexture
         std::uint64_t shaderRevision{ 0 };  ///< the storage's revision of shaderId
+        bool transparent = false;           ///< alpha blended, drawn after the opaque objects without depth writes
+    };
+
+    /// @brief How a dynamic draw's vertices are laid out
+    enum class DynamicVertexLayout : std::uint8_t
+    {
+        P3N3UV2, ///< position, normal, uv: drawn with a scene shader and material
+        P3C4     ///< position, RGBA colour: drawn unlit and alpha blended (debug lines and shapes)
+    };
+
+    enum class DynamicTopology : std::uint8_t
+    {
+        Triangles,
+        Lines
+    };
+
+    /// @brief Geometry rebuilt every frame (particles, debug shapes): sent as data, nothing stays on the GPU
+    struct DynamicDraw
+    {
+        DynamicVertexLayout layout = DynamicVertexLayout::P3N3UV2;
+        DynamicTopology topology = DynamicTopology::Triangles;
+        std::vector<std::byte> vertexData;  ///< tightly packed vertices of `layout`
+        std::vector<std::uint32_t> indices; ///< into vertexData; empty: drawn in vertex order
+        glm::mat4 transform{1.0f};
+        Common::ImageRef imageTexture;      ///< P3N3UV2 only: a texture asset (a render target shows the placeholder)
+        Guid shaderId;                      ///< P3N3UV2 only; invalid: the default scene shader
+        bool transparent = false;           ///< P3N3UV2: alpha blended without depth writes, after the opaque draws
+        bool depthTest = true;              ///< false: drawn over everything, after the rest
     };
 
     /// A single rendering camera
@@ -37,6 +66,7 @@ namespace Render
         std::string name; ///< name, primarily for debug
         glm::mat4 view{1.0f}; ///< camera view matrix
         glm::mat4 proj{1.0f}; ///< camera projection matrix
+        glm::vec4 clearColor{0.05f, 0.05f, 0.08f, 1.0f}; ///< the target's colour before the view draws
         std::vector<std::uint32_t> visible; ///< indices into RenderWorld::objects
 
         Guid targetId;              ///< RenderTargetDesc id of what this camera draws to
@@ -46,6 +76,7 @@ namespace Render
         /// views (e.g. C sees A's screen while A sees C's)
         std::vector<Guid> previousReadIds;
         std::vector<Common::PostEffectDesc> effects; ///< enabled effects of the node's PostProcessComponent
+        std::vector<std::uint32_t> dynamicVisible;   ///< indices into RenderWorld::dynamicDraws
     };
 
     /// Snapshot of the scene at a given frame
@@ -53,11 +84,13 @@ namespace Render
     {
         std::vector<RenderObject> objects; ///< meshes
         std::vector<RenderView> views; ///< cameras
+        std::vector<DynamicDraw> dynamicDraws; ///< this frame's dynamic geometry, shown by the views that list it
         /// Every render target the world refers to, copied from the scene
         std::vector<Common::RenderTargetDesc> targets;
         Guid presentedId;       ///< target the frame presents
         /// the storage's revision of its override of the default scene shader (Render::DEFAULT_SCENE_SHADER);
         /// 0: no override, the renderer's built-in one is used
         std::uint64_t defaultShaderRevision{ 0 };
+        float time = 0.0f; ///< seconds, for shaders
     };
 }

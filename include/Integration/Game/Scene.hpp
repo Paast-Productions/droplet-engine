@@ -112,6 +112,8 @@ namespace Game
 
     /// @param cameraNode a node with a CameraComponent
     CameraMatrices MakeCameraMatrices(const Node& cameraNode);
+    /// The matrices of `camera` placed at `transform`, for a camera that is not a scene node (the editor's)
+    CameraMatrices MakeCameraMatrices(const Transform& transform, const CameraComponent& camera);
 
     /// Replaces the aspect ratio of a symmetric perspective projection (as MakeCameraMatrices builds it), keeping the
     /// vertical field of view. Use it when the surface you draw into is not the size the view was made for, e.g. a
@@ -129,6 +131,7 @@ namespace Game
     {
         std::vector<Node> nodes;
         std::vector<Common::RenderTargetDesc> renderTargets;
+        float animationTime = 0.0f; ///< seconds, as of the last Animate
 
         const Common::RenderTargetDesc* FindTarget(Guid id) const
         {
@@ -136,13 +139,13 @@ namespace Game
                 if (target.id == id) return &target;
             return nullptr;
         }
-        Common::RenderTargetDesc* FindTarget(Guid id)
-        {
-            return const_cast<Common::RenderTargetDesc*>(std::as_const(*this).FindTarget(id));
-        }
 
         /// A view per camera node with the mesh nodes inside its frustum. A stand-in for the scene's octree query
         std::vector<SceneView> CullViews() const;
+
+        /// The mesh nodes inside the frustum of `matrices`, in node order, leaving out `skipNode` (a camera's own)
+        std::vector<std::uint32_t> CullNodes(const CameraMatrices& matrices, std::uint32_t skipNode = NO_NODE) const;
+        static constexpr std::uint32_t NO_NODE = 0xFFFFFFFFu;
 
         Node* FindNode(std::string_view name)
         {
@@ -155,6 +158,7 @@ namespace Game
         void Animate(float time)
         {
             static constexpr float TWO_PI = 6.28318530718f;
+            animationTime = time;
 
             for (Node& node : nodes)
             {

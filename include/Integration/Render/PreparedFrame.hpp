@@ -3,6 +3,7 @@
 /// Render layer, no Vulkan; Vulkan::DrawPass consumes it.
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <variant>
@@ -31,12 +32,27 @@ namespace Render
         ImageBinding material;   ///< a texture (the object's, placeholder or white), or a render target or history
     };
 
+    /// @brief A run of PreparedFrame's packed dynamic geometry, drawn with one call
+    struct DynamicDrawItem
+    {
+        glm::mat4 model{1.0f};
+        PipelineHandle pipeline;
+        ImageBinding material;
+        std::uint32_t vertexByteOffset = 0; ///< where the run's vertex layout starts in dynamicVertexData
+        bool indexed = false;               ///< `first` and `count` are indices (into dynamicIndices), else vertices
+        std::uint32_t first = 0;
+        std::uint32_t count = 0;
+    };
+
     /// @brief Everything needed to render one view: where it draws, what it samples and its draws.
     /// @details Handles are valid unless a field says otherwise; a view whose target does not exist has no draw list.
     struct DrawList
     {
         std::string name;        ///< the view's name, for graph and debug names
         glm::mat4 viewProj{1.0f}; ///< projection * view of the camera
+        glm::vec4 clearColor{0.05f, 0.05f, 0.08f, 1.0f}; ///< the target's colour before the draws
+        glm::vec3 cameraPosition{0.0f};                  ///< world space
+        glm::vec3 cameraForward{0.0f, 0.0f, -1.0f};      ///< world space, unit length
 
         TargetHandle target;     ///< what the view draws to
         TargetHandle history;    ///< previous-frame copy of target, refreshed after the view; invalid: none is kept
@@ -46,9 +62,11 @@ namespace Render
         std::vector<TargetHandle> previousReads; ///< other views' histories its draws sample (loop-breaking reads)
         std::vector<Common::PostEffectDesc> effects; ///< applied to the view's output, in order
 
-        /// ordered by pipeline, then material (textures, render targets), then mesh, so consecutive draws share
-        /// pipelines, descriptor sets and vertex buffers
+        /// opaque draws ordered by pipeline, then material (textures, render targets), then mesh, so consecutive draws
+        /// share pipelines, descriptor sets and vertex buffers; then transparent draws, back to front
         std::vector<DrawItem> items;
+        /// after `items`: opaque, then blended, then without depth test; neighbours that share all state are merged
+        std::vector<DynamicDrawItem> dynamicItems;
     };
 
     // == Frame ==
@@ -57,5 +75,10 @@ namespace Render
     struct PreparedFrame
     {
         std::vector<DrawList> views; ///< in the world's view order (the frame graph orders the passes)
+        float time = 0.0f;           ///< RenderWorld::time
+        /// the dynamic geometry the views show, packed once: vertices grouped by layout, indices relative to the start of
+        /// their layout's vertices
+        std::vector<std::byte> dynamicVertexData;
+        std::vector<std::uint32_t> dynamicIndices;
     };
 }

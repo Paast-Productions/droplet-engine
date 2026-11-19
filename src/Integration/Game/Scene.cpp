@@ -14,10 +14,13 @@ namespace Game
 {
     CameraMatrices MakeCameraMatrices(const Node& cameraNode)
     {
-        const CameraComponent& camera = *cameraNode.camera;
-        const glm::mat4 cameraToWorld = glm::translate(glm::mat4(1.0f), cameraNode.transform.position) *
-            glm::mat4_cast(cameraNode.transform.rotation); // no scale on cameras
+        return MakeCameraMatrices(cameraNode.transform, *cameraNode.camera);
+    }
 
+    CameraMatrices MakeCameraMatrices(const Transform& transform, const CameraComponent& camera)
+    {
+        const glm::mat4 cameraToWorld = glm::translate(glm::mat4(1.0f), transform.position) *
+            glm::mat4_cast(transform.rotation); // no scale on cameras
         return {
             .view = glm::inverse(cameraToWorld),
             .proj = glm::perspectiveRH_ZO(glm::radians(camera.fovYDegrees), camera.aspect, camera.nearZ, camera.farZ)
@@ -39,27 +42,31 @@ namespace Game
         {
             if (!nodes[cameraIndex].camera)
                 continue;
-
-            const CameraMatrices matrices = MakeCameraMatrices(nodes[cameraIndex]);
-            const Math::Frustum frustum = Math::ExtractFrustumFromViewProj(matrices.proj * matrices.view);
-
-            SceneView& view = views.emplace_back(SceneView{.cameraNode = cameraIndex});
-            for (std::uint32_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
-            {
-                // a camera does not see its own node's mesh (e.g. the marker showing where the camera is)
-                const Node& node = nodes[nodeIndex];
-                if (!node.mesh || nodeIndex == cameraIndex)
-                    continue;
-
-                const glm::mat4 model = node.transform.Matrix();
-                const glm::vec3 scale = glm::abs(node.transform.scale);
-                const glm::vec3 worldCenter(model * glm::vec4(node.mesh->boundsCenter, 1.0f));
-                const float worldRadius = node.mesh->boundsRadius * std::max({scale.x, scale.y, scale.z});
-
-                if (Math::IntersectsSphere(frustum, worldCenter, worldRadius))
-                    view.visibleNodes.push_back(nodeIndex);
-            }
+            // a camera does not see its own node's mesh (e.g. the marker showing where the camera is)
+            views.push_back(SceneView{
+                .cameraNode = cameraIndex,
+                .visibleNodes = CullNodes(MakeCameraMatrices(nodes[cameraIndex]), cameraIndex)
+            });
         }
         return views;
+    }
+
+    std::vector<std::uint32_t> Scene::CullNodes(const CameraMatrices& matrices, std::uint32_t skipNode) const
+    {
+        const Math::Frustum frustum = Math::ExtractFrustumFromViewProj(matrices.proj * matrices.view);
+        std::vector<std::uint32_t> visible;
+        for (std::uint32_t nodeIndex = 0; nodeIndex < nodes.size(); ++nodeIndex)
+        {
+            const Node& node = nodes[nodeIndex];
+            if (!node.mesh || nodeIndex == skipNode)
+                continue;
+            const glm::mat4 model = node.transform.Matrix();
+            const glm::vec3 scale = glm::abs(node.transform.scale);
+            const glm::vec3 worldCenter(model * glm::vec4(node.mesh->boundsCenter, 1.0f));
+            const float worldRadius = node.mesh->boundsRadius * std::max({scale.x, scale.y, scale.z});
+            if (Math::IntersectsSphere(frustum, worldCenter, worldRadius))
+                visible.push_back(nodeIndex);
+        }
+        return visible;
     }
 }

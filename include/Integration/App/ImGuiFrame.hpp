@@ -37,7 +37,7 @@ public:
     /// @brief ImGui uses the keyboard this frame (a text field has focus): the game should ignore it
     [[nodiscard]] bool WantsKeyboard() const;
 
-    /// @brief Starts the frame: the renderer's backend, the platform backend, ImGui::NewFrame and the dock space
+    /// @brief Starts the frame: the renderer's backend, the platform backend and ImGui::NewFrame
     void Begin(Vulkan::Renderer& renderer);
     /// @brief Ends the frame; what to pass to Renderer::Render. Valid until the next Begin()
     [[nodiscard]] ImDrawData* End();

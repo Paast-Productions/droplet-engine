@@ -30,4 +30,25 @@ namespace Vulkan::Vertex
             }};
         }
     };
+
+    /// Position / RGBA colour (dynamic debug geometry). Tightly packed: 28 bytes.
+    struct P3C4
+    {
+        glm::vec3 position;
+        glm::vec4 color;
+
+        static constexpr vk::VertexInputBindingDescription GetBindingDescription()
+        {
+            return {.binding = 0, .stride = static_cast<std::uint32_t>(sizeof(P3C4)), .inputRate = vk::VertexInputRate::eVertex};
+        }
+
+        static constexpr std::array<vk::VertexInputAttributeDescription, 2> GetAttributeDescription()
+        {
+            return {{
+                {.location = 0, .binding = 0, .format = vk::Format::eR32G32B32Sfloat,    .offset = offsetof(P3C4, position)},
+                {.location = 1, .binding = 0, .format = vk::Format::eR32G32B32A32Sfloat, .offset = offsetof(P3C4, color)},
+            }};
+        }
+    };
+    static_assert(sizeof(P3C4) == 28, "P3C4 must be tightly packed");
 }

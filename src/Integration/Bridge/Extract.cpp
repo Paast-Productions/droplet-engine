@@ -92,9 +92,10 @@ namespace Bridge
         }
     }
 
-    RenderWorld Extract(const Game::Scene& scene)
+    RenderWorld Extract(const Game::Scene& scene, std::span<const ExternalCamera> externalCameras)
     {
         RenderWorld world;
+        world.time = scene.animationTime;
 
         // 1. objects: every mesh node; the views below name them by node index
         constexpr std::uint32_t NO_OBJECT = 0xFFFFFFFFu;
@@ -121,6 +122,40 @@ namespace Bridge
             objectOfNode[i] = static_cast<std::uint32_t>(world.objects.size());
             world.objects.emplace_back(renderObject);
         }
+
+        // a view of the meshes in `visibleNodes`, with the render targets they show as reads
+        const auto addView = [&](RenderView camera, const std::vector<std::uint32_t>& visibleNodes)
+        {
+            for (const std::uint32_t nodeIndex : visibleNodes)
+            {
+                const std::uint32_t index = objectOfNode[nodeIndex];
+                const auto& renderObject = world.objects[index];
+
+                camera.visible.push_back(index);
+
+                if (renderObject.imageTexture.kind != Common::ImageRef::Kind::RenderTarget)
+                    continue;
+
+                // a target the scene does not declare is not read (nothing renders it)
+                const Guid sampledTarget = renderObject.imageTexture.id;
+                const auto declaresSampledTarget = [sampledTarget](const Common::RenderTargetDesc& desc)
+                {
+                    return desc.id == sampledTarget;
+                };
+                if (std::ranges::none_of(world.targets, declaresSampledTarget))
+                    continue;
+                if (sampledTarget == camera.targetId)
+                {
+                    // the camera sees its own output: it reads last frame's copy (history)
+                    camera.needsHistory = true;
+                }
+                else if (std::ranges::find(camera.readIds, sampledTarget) == camera.readIds.end())
+                {
+                    camera.readIds.push_back(sampledTarget);
+                }
+            }
+            world.views.push_back(std::move(camera));
+        };
 
         // 2. views: the scene says which meshes each camera sees
         for (const Game::SceneView& sceneView : scene.CullViews())
@@ -159,40 +194,31 @@ namespace Bridge
                 }
             }
 
-            for (const std::uint32_t nodeIndex : sceneView.visibleNodes)
-            {
-                const std::uint32_t index = objectOfNode[nodeIndex];
-                const auto& renderObject = world.objects[index];
-
-                camera.visible.push_back(index);
-
-                if (renderObject.imageTexture.kind != Common::ImageRef::Kind::RenderTarget)
-                    continue;
-
-                // a target the scene does not declare is not read (nothing renders it)
-                const Guid sampledTarget = renderObject.imageTexture.id;
-                const auto declaresSampledTarget = [sampledTarget](const Common::RenderTargetDesc& desc)
-                {
-                    return desc.id == sampledTarget;
-                };
-                if (std::ranges::none_of(world.targets, declaresSampledTarget))
-                    continue;
-                if (sampledTarget == camera.targetId)
-                {
-                    // the camera sees its own output: it reads last frame's copy (history)
-                    camera.needsHistory = true;
-                }
-                else if (std::ranges::find(camera.readIds, sampledTarget) == camera.readIds.end())
-                {
-                    camera.readIds.push_back(sampledTarget);
-                }
-            }
-
-            world.views.push_back(std::move(camera));
+            addView(std::move(camera), sceneView.visibleNodes);
         }
 
         if (!world.presentedId.IsValid() && !world.views.empty())
             world.presentedId = world.views.back().targetId;
+
+        // 3. cameras from outside the scene (the editor's): culled the same way, into targets of their own
+        for (const ExternalCamera& external : externalCameras)
+        {
+            if (!external.target.id.IsValid() ||
+                std::ranges::any_of(world.targets, [&external](const Common::RenderTargetDesc& desc)
+                {
+                    return desc.id == external.target.id;
+                }))
+                continue; // a target the scene already uses would get two writers
+            world.targets.push_back(external.target);
+
+            const Game::CameraMatrices matrices = Game::MakeCameraMatrices(external.transform, external.camera);
+            RenderView camera;
+            camera.name = external.name;
+            camera.targetId = external.target.id;
+            camera.view = matrices.view;
+            camera.proj = matrices.proj;
+            addView(std::move(camera), scene.CullNodes(matrices));
+        }
 
         BreakViewLoops(world);
 
