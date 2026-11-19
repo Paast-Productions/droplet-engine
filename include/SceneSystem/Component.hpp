@@ -9,7 +9,9 @@
 namespace Droplet::Scene
 {
     // Forward declaration
+    class Scene;
     class Node;
+    class Transform;
     class SerializationContext;
 
     /// @brief Base class for components that can be attached to a Node.
@@ -153,7 +155,11 @@ namespace Droplet::Scene
         /// created node/component can be set as a target and more easily referenced
         /// 
         /// @param p_context The context that holds the mapping of newly deserialized nodes and components
-        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
+        virtual void ResolveReferences([[maybe_unused]] SerializationContext &p_context);
+
+        Transform &GetTransform();
+
+        std::shared_ptr<Scene> GetScene() const;
 
     protected:
 
