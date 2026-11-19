@@ -310,7 +310,11 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     StaticResourceHandle<ShaderResource> fs;
 
     auto vsIT = m_loading.find(key.vsGuid);
-    if (vsIT == m_loading.end())
+    if (vsIT != m_loading.end())
+    {
+        vs = m_loading[key.vsGuid];
+    }
+    else if (key.vsGuid != 0)
     {
         vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
 
@@ -326,7 +330,11 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     }
 
     auto tcsIT = m_loading.find(key.tcsGuid);
-    if (tcsIT == m_loading.end())
+    if (tcsIT != m_loading.end())
+    {
+        tcs = m_loading[key.tcsGuid];
+    }
+    else if (key.tcsGuid != 0)
     {
         tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
 
@@ -337,7 +345,11 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     }
 
     auto tesIT = m_loading.find(key.tesGuid);
-    if (tesIT == m_loading.end())
+    if (tesIT != m_loading.end())
+    {
+        tes = m_loading[key.tesGuid];
+    }
+    else if (key.tesGuid != 0)
     {
         tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
 
@@ -348,7 +360,11 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     }
 
     auto gsIT = m_loading.find(key.gsGuid);
-    if (gsIT == m_loading.end())
+    if (gsIT != m_loading.end())
+    {
+        gs = m_loading[key.gsGuid];
+    }
+    if (gsIT == m_loading.end() && key.gsGuid != 0)
     {
         gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
 
@@ -359,7 +375,11 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
     }
 
     auto fsIT = m_loading.find(key.fsGuid);
-    if (fsIT == m_loading.end())
+    if (fsIT != m_loading.end())
+    {
+        fs = m_loading[key.fsGuid];
+    }
+    else if (fsIT == m_loading.end() && key.fsGuid != 0)
     {
         fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
 
@@ -380,7 +400,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         vsModule = ShaderModule{ m_context->GetDevice(), vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
 
-        auto vsIT = m_loading.find(key.vsGuid);
+        vsIT = m_loading.find(key.vsGuid);
         if (vsIT != m_loading.end())
         {
             m_loading.erase(vsIT);
@@ -442,7 +462,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         fsModule = ShaderModule{ m_context->GetDevice(), fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
 
-        auto fsIT = m_loading.find(key.fsGuid);
+        fsIT = m_loading.find(key.fsGuid);
         if (fsIT != m_loading.end())
         {
             m_loading.erase(fsIT);
