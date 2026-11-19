@@ -122,6 +122,6 @@ namespace Droplet::Graphics
 		VkFormat m_imGuiColorFormat {};
 #endif
 
-		VK::Slug::SlugPrototype m_slugPrototype;
+		Vulkan::Slug::SlugPrototype m_slugPrototype;
 	};
 }

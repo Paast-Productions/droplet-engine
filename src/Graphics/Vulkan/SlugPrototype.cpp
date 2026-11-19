@@ -1,10 +1,10 @@
 #include "SlugPrototype.hpp"
-#include <Graphics/VK/Camera.hpp>
+#include <Graphics/Vulkan/Camera.hpp>
 #include <fstream>
-#include <Graphics/VK/Image.hpp>
+#include <Graphics/Vulkan/Image.hpp>
 
 // Shamelessly stolen from DebugDraw.cpp
-std::vector<char> Droplet::Graphics::VK::Slug::ReadShader(const std::filesystem::path &p_path)
+std::vector<char> Droplet::Graphics::Vulkan::Slug::ReadShader(const std::filesystem::path &p_path)
 {
 	ZoneScoped;
 
@@ -33,7 +33,7 @@ std::vector<char> Droplet::Graphics::VK::Slug::ReadShader(const std::filesystem:
 	return code;
 }
 
-vk::raii::ShaderModule Droplet::Graphics::VK::Slug::CreateShaderModule(const vk::raii::Device &p_device, const std::filesystem::path &p_path)
+vk::raii::ShaderModule Droplet::Graphics::Vulkan::Slug::CreateShaderModule(const vk::raii::Device &p_device, const std::filesystem::path &p_path)
 {
 	ZoneScoped;
 
@@ -47,7 +47,7 @@ vk::raii::ShaderModule Droplet::Graphics::VK::Slug::CreateShaderModule(const vk:
 	return vk::raii::ShaderModule(p_device, createInfo);
 }
 
-vma::raii::Buffer Droplet::Graphics::VK::Slug::CreateHostBuffer(const vma::raii::Allocator &p_allocator,
+vma::raii::Buffer Droplet::Graphics::Vulkan::Slug::CreateHostBuffer(const vma::raii::Allocator &p_allocator,
 	vk::DeviceSize p_size, vk::BufferUsageFlags p_usage)
 {
 	const vk::BufferCreateInfo bufferInfo {
@@ -84,7 +84,7 @@ vma::raii::Buffer CreateHostBuffer(const vma::raii::Allocator &p_allocator, vk::
 	return vma::raii::Buffer(p_allocator, bufferInfo, allocationInfo);
 }
 
-void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_context, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
+void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p_context, const vma::raii::Allocator &p_allocator, const vk::raii::DescriptorPool &p_descriptorPool, vk::Format p_colorFormat,
 	vk::Format p_depthFormat, const CommandPool &p_commandPool)
 {
 	m_device = &p_context.GetDevice();
@@ -467,7 +467,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Initialize(const Context &p_con
 	m_pipeline = createPipeline(0);
 }
 
-void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_camera,
+void Droplet::Graphics::Vulkan::Slug::SlugPrototype::RenderToCamera(const Camera &p_camera,
 	const vk::raii::CommandBuffer &p_commandBuffer, vk::Extent2D p_extent, std::uint32_t p_frameIndex)
 {
 	if (!m_device)
@@ -515,7 +515,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::RenderToCamera(const Camera &p_
 	p_commandBuffer.draw(6, m_glyphInstances.size(), 0,0);
 }
 
-void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
+void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Shutdown()
 {
 	if (m_device)
 	{
@@ -547,7 +547,7 @@ void Droplet::Graphics::VK::Slug::SlugPrototype::Shutdown()
 	m_bandTexture.reset();
 }
 
-bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const std::filesystem::path &p_inputPath)
+bool Droplet::Graphics::Vulkan::Slug::SlugPrototype::LoadFont(const std::filesystem::path &p_inputPath)
 {
 	std::ifstream inFile(p_inputPath.string(), std::ios::binary);
 	if (!inFile.is_open())
@@ -625,7 +625,7 @@ bool Droplet::Graphics::VK::Slug::SlugPrototype::LoadFont(const std::filesystem:
 	return true;
 }
 
-const Droplet::Graphics::VK::Slug::SlugCodePoint* Droplet::Graphics::VK::Slug::SlugPrototype::GetGlyph(const uint32_t p_codePoint) const
+const Droplet::Graphics::Vulkan::Slug::SlugCodePoint* Droplet::Graphics::Vulkan::Slug::SlugPrototype::GetGlyph(const uint32_t p_codePoint) const
 {
 	const auto it = std::ranges::find(
 		m_codePoints,
@@ -636,7 +636,7 @@ const Droplet::Graphics::VK::Slug::SlugCodePoint* Droplet::Graphics::VK::Slug::S
 	return it != m_codePoints.end() ? &(*it) : nullptr;
 }
 
-std::vector<std::uint32_t> Droplet::Graphics::VK::Slug::SlugPrototype::DecodeUTF8(std::string_view p_text)
+std::vector<std::uint32_t> Droplet::Graphics::Vulkan::Slug::SlugPrototype::DecodeUTF8(std::string_view p_text)
 {
 	std::vector<std::uint32_t> codePoints;
 

@@ -16,7 +16,7 @@ namespace Droplet::Graphics
 	class Camera;
 }
 
-namespace Droplet::Graphics::VK::Slug
+namespace Droplet::Graphics::Vulkan::Slug
 {
 	/// @brief Width, in texels, of the generated curve and band textures.
 	inline constexpr uint32_t TEXTURE_WIDTH = 4096;
