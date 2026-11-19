@@ -210,9 +210,9 @@ namespace Droplet::Scene
         ///
         /// @return Pointer to the item registry, or nullptr if no SceneManager
         ///         exists or no registry has been assigned.
-        [[nodiscard]] const Droplet::Game::ItemRegistry* GetItemRegistry() const
+        [[nodiscard]] const Droplet::Game::ItemRegistry *GetItemRegistry() const
         {
-            const SceneManager* sceneManager = GetSceneManager();
+            const SceneManager *sceneManager = GetSceneManager();
             return sceneManager ? sceneManager->GetItemRegistry() : nullptr;
         }
 
@@ -296,7 +296,7 @@ namespace Droplet::Scene
         /// @brief Gets the inventory selected by the specified inventory type.
         /// @param p_type Inventory to retrieve.
         /// @return Mutable reference to the selected inventory.
-        std::vector<Droplet::Game::ItemStack>& Inv(InventoryType p_type)
+        std::vector<Droplet::Game::ItemStack> &Inv(InventoryType p_type)
         {
             return p_type == InventoryType::Player ? m_data.playerInventory : m_data.droneInventory;
         }
@@ -304,7 +304,7 @@ namespace Droplet::Scene
         /// @brief Gets the inventory selected by the specified inventory type.
         /// @param p_type Inventory to retrieve.
         /// @return Constant reference to the selected inventory.
-        const std::vector<Droplet::Game::ItemStack>& Inv(InventoryType p_type) const
+        const std::vector<Droplet::Game::ItemStack> &Inv(InventoryType p_type) const
         {
             return p_type == InventoryType::Player ? m_data.playerInventory : m_data.droneInventory;
         }
