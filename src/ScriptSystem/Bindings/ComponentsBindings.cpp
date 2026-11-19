@@ -660,6 +660,10 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
         "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
         "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+		"GetDroneTemp", &Scene::PlayerBehaviour::GetDroneTemp,
+		"SetDroneTemp", &Scene::PlayerBehaviour::SetDroneTemp,
+		"GetOutsideTemp", &Scene::PlayerBehaviour::GetOutsideTemp,
+		"SetOutsideTemp", &Scene::PlayerBehaviour::SetOutsideTemp,
 
         "GetPressureResistance", &Scene::PlayerBehaviour::GetPressureResistance,
         "SetPressureResistance", &Scene::PlayerBehaviour::SetPressureResistance,
