@@ -403,9 +403,9 @@ void Scene::RebuildOctree()
     }
 }
 
-void Scene::RenderOctree()
+void Scene::RenderOctree(const bool p_renderOctants, const bool p_renderNodes)
 {
-    m_octree.Render();
+    m_octree.Render(p_renderOctants, p_renderNodes);
 }
 
 void Scene::PrintOctree()

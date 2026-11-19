@@ -42,11 +42,20 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 		scene->RebuildOctree();
 	}
 	
+	ImGui::NewLine();
+	
+	// Render octree options
+	static bool rOctant = true;
+	static bool rNode = true;
+	ImGui::Checkbox("Octant", &rOctant);
+	ImGui::SameLine();
+	ImGui::Checkbox("Node", &rNode);
+	
 	static bool renderOctree = false;
 	ImGui::Checkbox("Render Octree", &renderOctree);
 	if (renderOctree)
 	{
-		scene->RenderOctree();
+		scene->RenderOctree(rOctant, rNode);
 	}
 	
 	ImGui::SeparatorText("Physics");
