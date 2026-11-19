@@ -8,6 +8,11 @@
 #include <Editor/DragDropFields.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <string>
+#include <chrono>
+
+#ifdef _EDITOR
+#include <Editor/ShaderOverride.hpp>
+#endif
 
 // imgui helper function
 
@@ -73,6 +78,31 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	renderData.tesData.GUID = m_shaderData.tes.GetGUID();
 	renderData.gsData.GUID = m_shaderData.gs.GetGUID();
 	renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+	
+#ifdef _EDITOR
+	switch (Droplet::Editor::Graphics::ShaderOverride::GetFragmentFlag())
+	{
+	default:
+		break;
+	case Droplet::Editor::Graphics::FragmentFlag::Basic:
+		renderData.fsData.GUID = 13680123319807966343;
+		break;
+	case Droplet::Editor::Graphics::FragmentFlag::Color:
+		renderData.fsData.GUID = 1781302864085332600;
+		break;
+	case Droplet::Editor::Graphics::FragmentFlag::Normal:
+		renderData.fsData.GUID = 6544072074583339891;
+		break;
+	case Droplet::Editor::Graphics::FragmentFlag::UV:
+		renderData.fsData.GUID = 12244945915070321057;
+		break;
+	}
+
+	if (Droplet::Editor::Graphics::ShaderOverride::GetVertexFlag() == Droplet::Editor::Graphics::VertexFlag::Basic)
+	{
+		//renderData.vsData.GUID =
+	}
+#endif
 
 	renderData.meshData.GUID = m_mesh.GetGUID();
 	renderData.texData.GUID = m_2dTexture.GetGUID();

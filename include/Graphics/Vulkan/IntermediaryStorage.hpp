@@ -348,6 +348,9 @@ namespace Droplet::Graphics::Vulkan
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
+        // Currently loading Shaders
+        std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
+
         // TODO: Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
@@ -363,6 +366,8 @@ namespace Droplet::Graphics::Vulkan
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
         std::queue<DynamicLiveResource> m_destroyQueue {};
+
+
 
         
         // DESCRIPTORS
