@@ -319,7 +319,9 @@ namespace Vulkan
 
             // what the composite samples: the presented view's target, which already has the view's effects
             const auto presentedView = std::ranges::find(views, true, &DrawList::presented);
-            const ResourceId source = presentedView != views.end() ? importTarget(presentedView->target) : ResourceId{};
+            const ResourceId source = inputs.presentation.compositeScene && presentedView != views.end() 
+            ? importTarget(presentedView->target) 
+            : ResourceId{};
 
             // writes a resource with a required final usage, so the graph keeps it (and everything it reads) alive
             const ResourceId swapchain = out.swapchain;
@@ -340,6 +342,27 @@ namespace Vulkan
                         composite(ctx, source, swapchain);
                     }
                 });
+
+            // the overlay (the editor's ImGui) on top: it reads the render targets its windows show, so the views
+            // that render them come first and stay alive
+            if (inputs.overlay)
+            {
+                std::vector<ResourceId> overlayReads;
+                for (const TargetHandle read : inputs.overlayReads)
+                    overlayReads.push_back(importTarget(read));
+                out.graph.AddPass(
+                    "Overlay",
+                    [&](PassBuilder& builder)
+                    {
+                        for (const ResourceId read : overlayReads)
+                            builder.Read(read, Usage::SampledRead);
+                        builder.Write(swapchain, Usage::ColorWrite);
+                    },
+                    [overlay = inputs.overlay, swapchain](PassContext& ctx)
+                    {
+                        overlay(ctx, swapchain);
+                    });
+            }
         }
 
         return out;

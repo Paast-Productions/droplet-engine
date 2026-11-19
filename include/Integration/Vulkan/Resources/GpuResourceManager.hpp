@@ -67,7 +67,7 @@ namespace Vulkan
         std::uint32_t meshes{0};
         std::uint32_t textures{0};
         std::uint32_t targets{0};  ///< including histories
-        std::uint32_t replaced{0}; ///< meshes and textures replaced by an upload of a newer revision
+        std::uint32_t replaced{0}; ///< meshes and textures replaced by a newer revision, targets by a new description
 
         [[nodiscard]] bool Any() const noexcept { return meshes + textures + targets + replaced > 0; }
     };
@@ -99,8 +99,6 @@ namespace Vulkan
         EvictedResources EndFrame(const QueueTimelineValues& frameRetireValues);
 
         /// @brief Uploads the mesh unless the same or a newer revision is resident; an older one is replaced.
-        /// @details A mesh whose vertex stride is not the scene layout's is not uploaded (reported once per revision):
-        ///          a resident older revision is kept, else the placeholder cube is drawn. Returns the invalid handle.
         Render::MeshHandle UploadMesh(const Assets::MeshUpload& upload);
         /// @brief Uploads the texture (with its mip chain) unless the same or a newer revision is resident; an older
         ///        one is replaced.
@@ -160,6 +158,8 @@ namespace Vulkan
         Render::TextureHandle CreateTexture(std::uint32_t width, std::uint32_t height, Common::PixelFormat format,
                                             std::span<const std::byte> pixels, const Common::TextureSampling& sampling);
         Render::TargetHandle CreateTarget(const Common::RenderTargetDesc& desc);
+        /// @brief Takes `target` and its history out of the pools, into the deletion queue, and reports them released
+        void RetireTarget(Render::TargetHandle target);
         /// @brief Creates the placeholder cube, the placeholder checker texture and the white texture.
         void CreatePlaceholders();
 

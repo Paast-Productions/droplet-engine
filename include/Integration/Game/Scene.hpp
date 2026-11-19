@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Integration/Core/Guid.hpp"
@@ -134,6 +135,10 @@ namespace Game
             for (const auto& target : renderTargets)
                 if (target.id == id) return &target;
             return nullptr;
+        }
+        Common::RenderTargetDesc* FindTarget(Guid id)
+        {
+            return const_cast<Common::RenderTargetDesc*>(std::as_const(*this).FindTarget(id));
         }
 
         /// A view per camera node with the mesh nodes inside its frustum. A stand-in for the scene's octree query

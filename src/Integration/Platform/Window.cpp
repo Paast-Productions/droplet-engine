@@ -51,12 +51,20 @@ void Window::SetKeyDownCallback(const std::function<void(SDL_Keycode)>& callback
     m_keyDownCallback = callback;
 }
 
+void Window::SetEventCallback(const std::function<void(const SDL_Event&)>& callback)
+{
+    m_eventCallback = callback;
+}
+
 void Window::PollEvents(bool* running) const
 {
     SDL_Event event{};
 
     while (SDL_PollEvent(&event))
     {
+        if (m_eventCallback)
+            m_eventCallback(event);
+
         if (event.type == SDL_EVENT_QUIT)
             *running = false;
         if (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)
