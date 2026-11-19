@@ -429,7 +429,7 @@ void AudioSystem::SetMode(bool p_isGameMode)
     for (auto* emitter : m_emitterComponents) emitter->OnPlaybackFinished();
     
     // Activate/deactivate listeners based on mode
-        m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !p_isGameMode);
+    m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !p_isGameMode);
     for (uint32_t i = 1; i < 4; i++)
     {
         if (m_listeners[i].taken && m_listeners[i].active != false)
