@@ -557,9 +557,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             bool renderEditorView =
                 EditorConfig::LoadBool("Editor.ShowEditorView", true) &&
                 !sceneViewWindow.IsRenderingGameView();
+            
+            // TEMP TEMP TEMP TEMP this is the part I give a shit about
 
-            std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.
-                GetQueuedEditorCameras();
+            std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
 
             if (renderEditorView)
             {
@@ -641,6 +642,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
                 run = false;
                 break;
             }
+            
+            // TEMP TEMP TEMP TEMP
+            // upload data, steal the cameras and draw to pipeline
+            engine.Render(queuedEditorCameras);
+            // TEMP TEMP TEMP TEMP
 
             editorContext.ClearQueuedEditorCameras();
         }

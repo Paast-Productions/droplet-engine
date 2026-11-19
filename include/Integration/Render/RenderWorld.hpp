@@ -17,11 +17,11 @@ namespace Render
     /// @brief Half the edge of the placeholder cube the renderer draws for a mesh it does not have. Extract culls an
     ///        object whose mesh is not in the storage with this cube's bounds.
     inline constexpr float PLACEHOLDER_CUBE_HALF_EXTENT = 0.5f;
-
+    
     /// A single object (mesh) in the RenderWorld
     struct RenderObject
     {
-        glm::mat4 model{1.0f};
+        glm::mat4 transform{1.0f};
         std::uint32_t sourceNode = 0;  ///< index into Scene::nodes; a camera skips its own node's object
         Guid meshId;                   ///< MeshAsset id
         Common::ImageRef imageTexture; ///< texture asset or render target, by id

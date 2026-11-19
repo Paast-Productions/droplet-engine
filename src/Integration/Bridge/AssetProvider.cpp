@@ -22,13 +22,14 @@ namespace Bridge
         void AddMesh(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Guid id)
         {
             const Assets::MeshAsset* mesh = assets.FindMesh(id);
-            if (!mesh || mesh->vertices.empty() || mesh->indices.empty())
+            if (!mesh || mesh->vertexData.empty() || mesh->indices.empty())
                 return; // not in the storage: the renderer draws its placeholder cube
 
             uploads.meshes.push_back({
                 .id = id,
                 .revision = assets.MeshRevision(id),
-                .vertices = mesh->vertices,
+                .vertexData = mesh->vertexData,
+                .vertexStride = mesh->vertexStride,
                 .indices = mesh->indices });
         }
 
@@ -124,3 +125,4 @@ namespace Bridge
         return uploads;
     }
 }
+

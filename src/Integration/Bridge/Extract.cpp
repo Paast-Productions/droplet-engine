@@ -106,7 +106,7 @@ namespace Bridge
                 continue;
 
             RenderObject renderObject{
-                .model = node.transform.Matrix(),
+                .transform = node.transform.Matrix(),
                 .sourceNode = i,
                 .meshId = node.mesh->mesh,
                 .imageTexture = node.mesh->imageTexture,

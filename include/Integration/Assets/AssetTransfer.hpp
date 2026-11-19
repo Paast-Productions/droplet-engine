@@ -19,7 +19,8 @@ namespace Assets
     {
         Guid id;
         std::uint64_t revision{ 0 }; ///< the storage's revision the data is from
-        std::span<const Common::MeshVertex> vertices;
+        std::span<const std::byte> vertexData; ///< vertices back to back
+        std::uint32_t vertexStride{ 0 };         ///< bytes per vertex
         std::span<const std::uint32_t> indices;
     };
 
