@@ -1,8 +1,15 @@
 #pragma once
 
-#include <Engine/EngineFlags.hpp>
 #include <Graphics/SDL/Window.hpp>
 #include <Graphics/Vulkan/Renderer.hpp>
+
+// TEMP TEMP TEMP TEMP
+#include "Integration/Platform/Window.hpp"
+#include "Integration/Platform/SDLVulkan.hpp"
+#include "Integration/Vulkan/Frame/Renderer.hpp"
+// TEMP TEMP TEMP TEMP
+
+#include <Engine/EngineFlags.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
@@ -23,6 +30,11 @@ namespace Droplet
 	{
 		Graphics::SDL::WindowConfig WindowConfig;
 		UpdateFlags UpdateFlags{ UpdateFlags::DefaultFlags };
+		// TEMP TEMP TEMP TEMP
+		SDL::Window::Config inWinCfg{
+			
+		};
+		// TEMP TEMP TEMP TEMP
 	};
 	
 	/// @brief Engine owns all long-lived engine subsystems. The engine is responsible for initializing the subsystems and to destroy them.
@@ -90,7 +102,7 @@ namespace Droplet
 		Graphics::Renderer m_renderer;
 				
 		/// @brief Registry containing the game's registered item definitions.
-		Droplet::Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
+		Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
@@ -104,5 +116,10 @@ namespace Droplet
 
 		/// @brief Registers all components owned by the engine.
 		void RegisterComponents();
+		
+		// TEMP TEMP TEMP TEMP
+		SDL::Window m_inWindow;
+		SDL::VulkanSurfaceProvider m_inSurfaceProvider;
+		Vulkan::Renderer m_inRenderer;
 	};
 }
