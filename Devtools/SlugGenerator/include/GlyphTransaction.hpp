@@ -29,7 +29,7 @@ namespace Droplet::Devtools::SlugGenerator
 			std::vector<float>& p_curves,
 			std::vector<uint16_t>& p_bandOffsets,
 			std::vector<uint16_t>& p_curveOffsets,
-			std::vector<SlugCodePoint>& p_codePoints)
+			std::vector<SlugGlyph>& p_codePoints)
 				:	m_curves(&p_curves),
 					m_bandOffsets(&p_bandOffsets),
 					m_curveOffsets(&p_curveOffsets),
@@ -73,7 +73,7 @@ namespace Droplet::Devtools::SlugGenerator
 		std::vector<float>* m_curves;
 		std::vector<uint16_t>* m_bandOffsets;
 		std::vector<uint16_t>* m_curveOffsets;
-		std::vector<SlugCodePoint>* m_codePoints;
+		std::vector<SlugGlyph>* m_codePoints;
 
 		size_t m_curvesSize;
 		size_t m_bandOffsetsSize;

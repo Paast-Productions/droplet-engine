@@ -98,7 +98,7 @@ namespace Droplet::Devtools::SlugGenerator
 	/// location of its band headers within the shared band texture.
 	///
 	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
-	struct SlugCodePoint
+	struct SlugGlyph
 	{
         /// @brief Unicode code point represented by the glyph.
 		uint32_t codePoint;
@@ -135,5 +135,5 @@ namespace Droplet::Devtools::SlugGenerator
 	};
 #pragma pack(pop)
 	
-	static_assert(sizeof(SlugCodePoint) == 40, "Unexpected SlugCodePoint binary layout.");
+	static_assert(sizeof(SlugGlyph) == 40, "Unexpected SlugGlyph binary layout.");
 }

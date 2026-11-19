@@ -167,7 +167,7 @@ namespace Droplet::Devtools::SlugGenerator
 		std::vector<uint16_t> m_bandsTextureCurveOffsets;
 		
 		/// @brief Metadata describing successfully processed code points.
-		std::vector<SlugCodePoint> m_codePoints;
+		std::vector<SlugGlyph> m_glyphs;
 		
 		/// @brief Metadata describing common font information
 		SlugFontHeader m_fontHeader;

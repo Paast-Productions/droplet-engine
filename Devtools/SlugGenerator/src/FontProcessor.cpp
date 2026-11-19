@@ -107,7 +107,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	int advanceWidth, leftSideBearing;
 	stbtt_GetGlyphHMetrics(&m_fontInfo, glyphIdx, &advanceWidth, &leftSideBearing);
 	
-	SlugCodePoint cp{};
+	SlugGlyph cp{};
 	cp.codePoint = p_codePoint;
 	cp.advanceWidth = advanceWidth;
 	
@@ -117,7 +117,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	std::unique_ptr<stbtt_vertex, StbVertexDeleter> vertices (rawVertices, StbVertexDeleter{&m_fontInfo});
 	
 	// Start a transaction to rollback texture data in the case of a failure
-	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_codePoints);
+	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_glyphs);
 	
 	if (vertexCount > 0)
 	{
@@ -408,7 +408,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	m_fontHeader.lineGap = lineGap;
 	
 	
-	m_codePoints.push_back(cp);
+	m_glyphs.push_back(cp);
 	transaction.Commit();
 	return true;
 }
@@ -416,7 +416,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesystem::path& p_outPath)
 {
 	// TODO: Handle endianness correctly
-	if (m_codePoints.empty())
+	if (m_glyphs.empty())
 	{
 		Logger::PrintError("No valid code point found.");
 		return false;
@@ -460,9 +460,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	
 	if (!outFile.WriteBytes(&m_fontHeader, sizeof(SlugFontHeader))) return false;
 	
-	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());
+	const uint16_t codePointCount = static_cast<uint16_t>(m_glyphs.size());
 	if (!outFile.WriteBytes(&codePointCount, sizeof(codePointCount))) return false;
-	if (!outFile.WriteBytes(m_codePoints.data(), codePointCount * sizeof(SlugCodePoint))) return false;
+	if (!outFile.WriteBytes(m_glyphs.data(), codePointCount * sizeof(SlugGlyph))) return false;
 	
 	const uint32_t curvesTexTexels = m_curvesTexture.size() / 4;
 	const uint32_t curvesTexBytes = m_curvesTexture.size() * sizeof(m_curvesTexture.front());

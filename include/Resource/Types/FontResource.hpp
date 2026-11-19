@@ -27,7 +27,7 @@ namespace Droplet
 				/// location of its band headers within the shared band texture.
 				///
 				/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
-				struct SlugCodePoint
+				struct SlugGlyph
 				{
 					/// @brief Unicode code point represented by the glyph.
 					uint32_t codePoint;
@@ -64,14 +64,17 @@ namespace Droplet
 				};
 		#pragma pack(pop)
 		
-		const SlugCodePoint* GetGlyph(uint32_t p_codePoint) const;
+		/// @brief Get metadata
+		const SlugGlyph* GetGlyph(uint32_t p_codePoint) const;
 		
+		/// @brief Get the font metadata
+		/// @return Reference to the metadata header associated with the font
 		const SlugFontHeader& GetFontHeader() const;
 		
 	private:
 		std::string m_name{}; // Name of the font
 		
-		std::vector<SlugCodePoint> m_codePoints; // Metadata of decoded glyphs
+		std::vector<SlugGlyph> m_glyphs; // Metadata of decoded glyphs
 		std::vector<glm::vec4> m_curvesTextureData; // RGBA texture containing information about all glyph curves in the font
 		std::vector<glm::u16vec2> m_bandsTextureData; // RG uint texture containing information....
 		SlugFontHeader m_fontHeader; // Metadata about the font
