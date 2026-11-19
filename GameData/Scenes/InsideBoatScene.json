@@ -49,7 +49,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2319,
+            "id": 1079,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -105,7 +105,7 @@
                                 }
                             ],
                             "drawLayer": 32,
-                            "id": 2322,
+                            "id": 1082,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -130,7 +130,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2321,
+                    "id": 1081,
                     "name": "Body",
                     "transform": {
                         "position": [
@@ -183,7 +183,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 2324,
+                            "id": 1084,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -253,7 +253,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 2325,
+                            "id": 1085,
                             "name": "Camera",
                             "transform": {
                                 "position": [
@@ -278,7 +278,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2323,
+                    "id": 1083,
                     "name": "Head",
                     "transform": {
                         "position": [
@@ -347,7 +347,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2320,
+            "id": 1080,
             "name": "BasePlayer",
             "transform": {
                 "position": [
@@ -400,7 +400,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2327,
+                    "id": 1087,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -443,7 +443,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2328,
+                    "id": 1088,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -491,7 +491,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2326,
+            "id": 1086,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -553,7 +553,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2330,
+                    "id": 1090,
                     "name": "wheel",
                     "transform": {
                         "position": [
@@ -603,7 +603,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2331,
+                    "id": 1091,
                     "name": "enginePart1",
                     "transform": {
                         "position": [
@@ -653,7 +653,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2332,
+                    "id": 1092,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -678,7 +678,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 2333,
+                    "id": 1093,
                     "name": "BlackParticleSystem",
                     "prefab": "GameData\\Prefabs\\BlackParticleSystem.json",
                     "transform": {
@@ -704,7 +704,7 @@
                     "active": false,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 2341,
+                    "id": 1101,
                     "name": "WhiteParticleSystem",
                     "prefab": "GameData\\Prefabs\\WhiteParticleSystem.json",
                     "transform": {
@@ -755,7 +755,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2349,
+                    "id": 1109,
                     "name": "EnginePart2",
                     "transform": {
                         "position": [
@@ -871,7 +871,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2329,
+            "id": 1089,
             "name": "engine",
             "transform": {
                 "position": [
@@ -921,7 +921,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2350,
+            "id": 1110,
             "name": "Ladderhatch",
             "transform": {
                 "position": [
@@ -997,7 +997,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2352,
+                    "id": 1112,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1006,10 +1006,10 @@
                             -0.03041219711303711
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.0077103725634515285,
-                            -3.7109422201808684e-09,
-                            1.891620859950649e-09
+                            0.9999702572822571,
+                            0.007710371632128954,
+                            -3.7109417760916585e-09,
+                            1.891620637906044e-09
                         ],
                         "scale": [
                             1.0000537633895874,
@@ -1047,7 +1047,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2353,
+                    "id": 1113,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1056,10 +1056,10 @@
                             0.030334830284118652
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.007710393518209457,
-                            -3.7399146002314865e-09,
-                            1.892535905767545e-09
+                            0.9999702572822571,
+                            0.007710392586886883,
+                            -3.739914156142277e-09,
+                            1.89253568372294e-09
                         ],
                         "scale": [
                             0.9999998807907104,
@@ -1116,7 +1116,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2354,
+                    "id": 1114,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1125,10 +1125,10 @@
                             -0.00011396408081054688
                         ],
                         "rotation": [
-                            0.9999703764915466,
-                            0.007710376754403114,
-                            -3.7110656769812067e-09,
-                            1.8918746569340783e-09
+                            0.9999702572822571,
+                            0.00771037582308054,
+                            -3.711065232891997e-09,
+                            1.8918744348894734e-09
                         ],
                         "scale": [
                             1.0,
@@ -1167,7 +1167,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2355,
+                    "id": 1115,
                     "name": "InteractionNode",
                     "transform": {
                         "position": [
@@ -1192,7 +1192,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2351,
+            "id": 1111,
             "name": "Ladder",
             "transform": {
                 "position": [
@@ -1242,7 +1242,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2356,
+            "id": 1116,
             "name": "Postit",
             "transform": {
                 "position": [
@@ -1260,6 +1260,1327 @@
                     0.17998836934566498,
                     0.178740456700325,
                     0.17876096069812775
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Crate",
+                                "meshGUID": 2748477329771002648,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "crate",
+                                "textureGUID": 16648360746863494130,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "meshGUID": 2748477329771002648,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 1118,
+                    "name": "Crate Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1120,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.4339503049850464,
+                                    -0.08749771118164063
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223006682470441,
+                                    -0.20077165961265564,
+                                    0.20139911770820618
+                                ],
+                                "scale": [
+                                    0.9999876618385315,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1121,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1122,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1123,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1124,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1125,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1126,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.03775334358215332,
+                                    1.2518336772918701,
+                                    -0.14955711364746094
+                                ],
+                                "rotation": [
+                                    0.9587096571922302,
+                                    -0.002223010640591383,
+                                    -0.20077165961265564,
+                                    0.20139914751052856
+                                ],
+                                "scale": [
+                                    0.9999876022338867,
+                                    0.9999884963035583,
+                                    0.9999996423721313
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1127,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1128,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1129,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1130,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1131,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1132,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1133,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1134,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1135,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.10405826568603516,
+                                    1.2450122833251953,
+                                    0.11017131805419922
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697571337223053
+                                ],
+                                "scale": [
+                                    0.999988317489624,
+                                    0.9999895691871643,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1136,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1137,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1138,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1139,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1140,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1141,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.1601104736328125,
+                                    1.2664763927459717,
+                                    0.10931873321533203
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1142,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1143,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1144,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1145,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1146,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1147,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1148,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1149,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
+                                ],
+                                "scale": [
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1150,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1151,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1152,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1153,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1154,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1155,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1156,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1157,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
+                                ],
+                                "scale": [
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1158,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1159,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1160,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1161,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1162,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1163,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1164,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    0.11061406135559082,
+                                    0.7684691548347473,
+                                    -0.07337236404418945
+                                ],
+                                "rotation": [
+                                    0.8338508009910583,
+                                    0.4079669117927551,
+                                    -0.16340914368629456,
+                                    0.3339959979057312
+                                ],
+                                "scale": [
+                                    0.9999877214431763,
+                                    0.9999889731407166,
+                                    1.0000003576278687
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "collisionLayerMask": 1,
+                            "drawLayer": 1,
+                            "id": 1165,
+                            "name": "Cog",
+                            "prefab": "GameData\\Prefabs\\Cog.json",
+                            "transform": {
+                                "position": [
+                                    -0.24932074546813965,
+                                    0.7982883453369141,
+                                    -0.063720703125
+                                ],
+                                "rotation": [
+                                    0.5772697329521179,
+                                    0.5503585934638977,
+                                    0.5665916800498962,
+                                    -0.20697566866874695
+                                ],
+                                "scale": [
+                                    0.9999882578849792,
+                                    0.9999896287918091,
+                                    1.000001311302185
+                                ]
+                            }
+                        }
+                    ],
+                    "collisionLayerMask": 1,
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 1119,
+                    "name": "Contents",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 1117,
+            "name": "Crate",
+            "transform": {
+                "position": [
+                    -3.185407876968384,
+                    -0.7958874702453613,
+                    5.456320762634277
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }
