@@ -10,6 +10,9 @@ local activeTime = 5.0
 local inactiveTime = 15.0
 local timer = 0
 
+local audioEmitter = nil
+local isPlayingSound = false
+
 local heatOverlay = nil
 local timeSinceTrigger = math.huge
 local overlayGracePeriod = 0.1
@@ -20,7 +23,14 @@ function OnStart()
     newDamage = heatDamage
 
     isActive = true
+    isPlayingSound = false
     timer = math.random() * inactiveTime
+
+    audioEmitter = self:GetAudioEmitter("Thermal-vents")
+    if audioEmitter == nil then  
+        print("Unable to find emitter")
+        return
+    end
 end
 
 function OnUpdate(dt)
@@ -51,6 +61,18 @@ function OnUpdate(dt)
 
         if particleSystem ~= nil then
             particleSystem:SetActiveSelf(isActive)
+        end
+    end
+
+    if isActive then
+        if isPlayingSound == false then
+            audioEmitter:Play()
+            isPlayingSound = true;
+        end
+    elseif !isActive then
+        if isPlayingSound == true then
+            audioEmitter:Stop()
+            isPlayingSound = false;
         end
     end
 
