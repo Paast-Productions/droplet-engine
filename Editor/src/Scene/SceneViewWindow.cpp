@@ -242,6 +242,7 @@ void SceneViewWindow::InitImpl()
 
 	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
+	m_useEditorCameraInPlayMode = EditorConfig::LoadBool("Editor.UseEditorCameraInPlayMode", false);
 	
 	Engine& engine = m_editorContext->GetEngine();
 	engine.AddEventListener([&](SDL_Event &event)
@@ -370,6 +371,11 @@ void SceneViewWindow::RenderToolbar()
 
 	if (ImGui::BeginMenu("View"))
 	{
+		if (ImGui::Checkbox("Use Editor Camera in Play Mode", &m_useEditorCameraInPlayMode))
+		{
+			EditorConfig::StoreBool("Editor.UseEditorCameraInPlayMode", m_useEditorCameraInPlayMode);
+		}
+
 		ImGui::Text(
 			"Info:\n"
 			"    Editor Camera rotates & zooms relative to a pivot point\n"
@@ -448,7 +454,7 @@ void SceneViewWindow::RenderImpl()
 	
 	m_renderingGameView = false;
 
-	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode) && !m_useEditorCameraInPlayMode)
 	{
 		RemovePrefabPreview();
 		RenderGameView();
@@ -1019,34 +1025,7 @@ void SceneViewWindow::RenderEditorView()
 
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
-	// Render play button
-	{
-		ImVec2 buttonSize = ImVec2(30, 30);
-		ImVec2 buttonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
-			camViewRectMin.y + 10
-		);
-		ImVec2 stopButtonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
-			camViewRectMin.y + 10
-		);
-
-		// Make green
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-		ImGui::SetCursorScreenPos(buttonPos);
-		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-		{
-			m_editorContext->EnterPlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		m_hoveringPlayButton = ImGui::IsItemHovered();
-	}
+	RenderPlayControls(camViewRectMin, camSize);
 
 	RenderOverlayQueue();
 
@@ -1183,72 +1162,87 @@ void SceneViewWindow::RenderGameView()
 		}
 	}
 
-	// Render pause/stop buttons
-	{
-		ImVec2 buttonSize = ImVec2(30, 30);
-		ImVec2 buttonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
-			camViewRectMin.y + 10
-		);
-		ImVec2 stopButtonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
-			camViewRectMin.y + 10
-		);
-
-		ImGui::BeginGroup();
-
-		std::string icon = "";
-		if (m_editorContext->IsPaused())
-		{
-			// Make green
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			icon = ICON_LC_PLAY;
-		}
-		else
-		{
-			// Make orange
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			icon = ICON_LC_PAUSE;
-		}
-
-		ImGui::SetCursorScreenPos(buttonPos);
-		if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
-		{
-			m_editorContext->PausePlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		// Make red
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-		ImGui::SetCursorScreenPos(stopButtonPos);
-		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
-		{
-			m_editorContext->ExitPlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		ImGui::EndGroup();
-
-		m_hoveringPlayButton = ImGui::IsItemHovered();
-	}
+	RenderPlayControls(camViewRectMin, camSize);
 
 	RenderOverlayQueue();
 
 	ImGui::EndChild();
+}
+
+void SceneViewWindow::RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewSize)
+{
+	ImVec2 buttonSize = ImVec2(30, 30);
+	ImVec2 buttonPos = ImVec2(
+		p_sceneViewMin.x + p_sceneViewSize.x * 0.5f - buttonSize.x - 10,
+		p_sceneViewMin.y + 10
+	);
+	ImVec2 stopButtonPos = ImVec2(
+		p_sceneViewMin.x + p_sceneViewSize.x * 0.5f - buttonSize.x + 30,
+		p_sceneViewMin.y + 10
+	);
+
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+		ImGui::SetCursorScreenPos(buttonPos);
+		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+		{
+			m_editorContext->EnterPlayMode();
+		}
+
+		ImGui::PopStyleColor(4);
+		m_hoveringPlayButton = ImGui::IsItemHovered();
+		return;
+	}
+
+	ImGui::BeginGroup();
+
+	std::string icon = "";
+	if (m_editorContext->IsPaused())
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		icon = ICON_LC_PLAY;
+	}
+	else
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		icon = ICON_LC_PAUSE;
+	}
+
+	ImGui::SetCursorScreenPos(buttonPos);
+	if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
+	{
+		m_editorContext->PausePlayMode();
+	}
+
+	ImGui::PopStyleColor(4);
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	ImGui::SetCursorScreenPos(stopButtonPos);
+	if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
+	{
+		m_editorContext->ExitPlayMode();
+	}
+
+	ImGui::PopStyleColor(4);
+
+	ImGui::EndGroup();
+
+	m_hoveringPlayButton = ImGui::IsItemHovered();
 }
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
