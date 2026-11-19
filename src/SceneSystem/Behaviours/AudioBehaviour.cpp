@@ -88,9 +88,15 @@ namespace Droplet::Scene
     void AudioBehaviour::SetTargetVolumeDb(float p_volumeDb)
     {
         m_targetVolumeDb = std::clamp(p_volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
-        if (m_fadeDuration <= 0.0f && m_currentId != Audio::C_INVALID_PLAYBACK_ID)
+        if (auto* track = FindTrack(m_currentTrackName))
         {
-            Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_targetVolumeDb);
+            m_currentTrackPeakDb = std::clamp(track->volumeDb + m_targetVolumeDb, 
+                Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
+            
+            if (m_fadeDuration <= 0.0f && m_currentId != Audio::C_INVALID_PLAYBACK_ID)
+            {
+                Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_targetVolumeDb);
+            }
         }
     }
 
@@ -151,6 +157,15 @@ namespace Droplet::Scene
          	
                 Audio::AudioBus *draggedBus = Audio::AudioSystem::GetInstance().GetMixer().FindAudioBus(draggedBusID);
                 if (draggedBus) m_busName = draggedBus->GetName();
+                
+                if (m_currentId != Audio::C_INVALID_PLAYBACK_ID)
+                {
+                    Audio::AudioSystem::GetInstance().RoutePlayback(m_currentId, m_busName);
+                }
+                if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID)
+                {
+                    Audio::AudioSystem::GetInstance().RoutePlayback(m_fadingOutId, m_busName);
+                }
             }
             ImGui::EndDragDropTarget();
         }
@@ -159,7 +174,7 @@ namespace Droplet::Scene
         {
             SetTargetVolumeDb(m_targetVolumeDb);
         }
-        ImGui::SameLine(); ImGui::Text(ICON_LC_VOLUME_2);
+        ImGui::SameLine(); ImGui::Text("Master Volume" ICON_LC_VOLUME_2);
         
         ImGui::SeparatorText("Tracks");
         
@@ -175,12 +190,16 @@ namespace Droplet::Scene
             AudioTrack& track = m_tracks[i];
             ImGui::PushID(i);
             
-            std::string headerLabel = track.name + "##TrackHeader";
+            std::string headerLabel = track.name + "###TrackHeader";
             bool open = ImGui::CollapsingHeader(headerLabel.c_str());
             if (open)
             {
                 // Track name
-                ImGui::InputText("Name", &track.name);
+                std::string oldName = track.name;
+                if (ImGui::InputText("Name", &track.name))
+                {
+                    if (m_currentTrackName == oldName) m_currentTrackName = track.name;
+                }
                 
                 // --- Resource Drag & Drop ---
                 GUID newGuid = C_INVALID_GUID;
@@ -203,6 +222,7 @@ namespace Droplet::Scene
                         {
                             track.handle = ResourceManager::GetInstance().LoadResource<SoundResource>(newGuid);
                         }
+                        else track.handle = {};
             
                         track.soundGuid = newGuid;
                         track.soundName = newName;
@@ -212,16 +232,29 @@ namespace Droplet::Scene
                 }
                 
                 // Parameters
-                ImGui::SliderFloat("##VolumeSlider", &track.volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX, "%.2f");
+                if (ImGui::SliderFloat("##VolumeSlider", &track.volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
+                {
+                    m_currentTrackPeakDb = std::clamp(track.volumeDb + m_targetVolumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
+                    if (m_fadeDuration <= 0.0f) Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_currentTrackPeakDb);
+                }
                 ImGui::SameLine(); ImGui::Text(ICON_LC_VOLUME_2);
 	
-                ImGui::SliderFloat("##StereoPanSlider", &track.stereoPan, Audio::C_STEREO_PAN_LEFT, Audio::C_STEREO_PAN_RIGHT);
+                if (ImGui::SliderFloat("##StereoPanSlider", &track.stereoPan, Audio::C_STEREO_PAN_LEFT, Audio::C_STEREO_PAN_RIGHT))
+                {
+                    Audio::AudioSystem::GetInstance().SetPlaybackStereoPan(m_currentId, track.stereoPan);
+                }
                 ImGui::SameLine(); ImGui::Text(ICON_LC_HEADPHONES);
 
-                ImGui::SliderFloat("##PitchSlider", &track.pitch, Audio::C_PITCH_MIN, Audio::C_PITCH_MAX, " % .2f");
-                ImGui::SameLine(), ImGui::Text(ICON_LC_AUDIO_WAVEFORM);
+                if (ImGui::SliderFloat("##PitchSlider", &track.pitch, Audio::C_PITCH_MIN, Audio::C_PITCH_MAX, " % .2f"))
+                {
+                    Audio::AudioSystem::GetInstance().SetPlaybackPitch(m_currentId, track.pitch);
+                }
+                ImGui::SameLine(); ImGui::Text(ICON_LC_AUDIO_WAVEFORM);
                 
-                ImGui::Checkbox("Looping", &track.looping);
+                if (ImGui::Checkbox("Looping", &track.looping))
+                {
+                    Audio::AudioSystem::GetInstance().SetPlaybackLooping(m_currentId, track.looping);
+                }
                 
                 // Preview
                 if (ImGui::Button(ICON_LC_PLAY "##Preview")) PlayTrack(track.name);
