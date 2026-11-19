@@ -1,6 +1,6 @@
 {
     "SERIALIZATION_TYPE": "AUDIO_BUS_HIERARCHY",
-    "active": false,
+    "active": true,
     "children": [
         {
             "active": false,
@@ -10,16 +10,16 @@
             "volume": 0.0
         },
         {
-            "active": false,
+            "active": true,
             "children": [
                 {
-                    "active": false,
+                    "active": true,
                     "children": [],
                     "effects": [
                         {
                             "active": false,
                             "data": {
-                                "frequency": 800.0,
+                                "frequency": 311.6789855957031,
                                 "resonance": 0.699999988079071
                             },
                             "slot": 0,

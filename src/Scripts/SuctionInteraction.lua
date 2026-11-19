@@ -13,8 +13,10 @@ local currentTarget = nil
 local suctionElapsed = 0.0
 
 local playerBehaviour
-local audioplayer
-
+local audioplayerMusic
+local audioplayerCollect
+local audioplayerSucction
+local playingSucction = false
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition()
@@ -63,6 +65,7 @@ end
 function SuctionStart(target)
     print("suctionStart")
     currentTarget = target
+
     suctionElapsed = 0.0
 end
 
@@ -120,6 +123,8 @@ end
 
 function SuctionEnd()
 
+
+
     local registry = playerBehaviour:GetItemRegistry()
     local collectible = currentTarget
     
@@ -129,6 +134,7 @@ function SuctionEnd()
             collectible.item,
             collectible.amount
         )
+        audioplayerCollect:Play()
         print("Collected item:", collectible.amount)
     else
         print("Collectible has invalid ItemId", collectible.item)
@@ -137,7 +143,7 @@ function SuctionEnd()
 
     if collectible.item and collectible.item:IsValid() then
         if collectible.item == repairedPartId then
-            audioplayer:Play()
+            audioplayerMusic:Play()
         end
         --HACK -- This is for the game test, picking up the engine starts music
     end
@@ -154,19 +160,48 @@ function SuctionCancel()
     suctionElapsed = 0.0
 end
 
+function UpdateSuctionSound()
+    if Input:KeyHeld(Key.E) then
+        if not playingSucction then
+            audioplayerSucction:Play()
+            playingSucction = true
+            print("start suction sound")
+        end
+
+    else
+        if playingSucction then
+            audioplayerSucction:Stop()
+            playingSucction = false
+            print("Stopping suction sound")
+        end
+    end
+
+end
+
 function OnStart()
     scene = self:GetScene()
-    audioplayer = self:GetAudioPlayer("The Big Blue(Vorbis 96kHz Mono)") --HACK
-    if not audioplayer then
-        print("Could not find audio player")
+    audioplayerMusic = self:GetAudioPlayer("The Big Blue(Vorbis 96kHz Mono)") --HACK
+    if audioplayerMusic == nil then
+        print("Could not find audio player for The Big Blue")
     end
+
+    audioplayerCollect = self:GetAudioPlayer("Fwomp")
+    if audioplayerCollect == nil then
+        print("Could not find audioplayer for suction-two")
+    end
+
+    audioplayerSucction = self:GetAudioPlayer("leaf-blower")
+    if audioplayerSucction == nil then
+        print("Could not find audioplayer for 'leaf-blower'")
+    end
+
+    playingSucction = false
+
     local playerComponent = self:GetPlayerComponent()
     if not playerComponent then
         print("GetPlayerComponent returned nil")
         return
     end
-    
-
 
     playerBehaviour = playerComponent:GetPlayerBehaviour()
     if not playerBehaviour then
@@ -183,6 +218,7 @@ function OnStart()
 end
 
 function OnUpdate(dt)
+    UpdateSuctionSound()
 
     if currentTarget ~= nil then
         SuctionUpdate(dt)
@@ -191,7 +227,7 @@ function OnUpdate(dt)
 
     for _, fish in ipairs(suctionSystem.GetFishes()) do
         if Input:KeyPressed(Key.E) then
-            if InteractWith(fish) then
+            if InteractWith(fish) then 
                 SuctionStart(fish)
                 return
            end
@@ -213,6 +249,7 @@ function OnUpdate(dt)
            end
         end
     end
+
 end
 
 function RenderUI()

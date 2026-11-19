@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 7391,
+            "id": 2364,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -89,7 +89,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7392,
+            "id": 2365,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -139,7 +139,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7393,
+            "id": 2366,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -211,7 +211,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7394,
+            "id": 2367,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
@@ -283,7 +283,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7395,
+            "id": 2368,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -355,7 +355,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7396,
+            "id": 2369,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -427,7 +427,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7397,
+            "id": 2370,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -499,7 +499,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 7398,
+            "id": 2371,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -667,10 +667,38 @@
             },
             "id": 15,
             "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "WaterSFX",
+                "looping": false,
+                "pitch": 1.0,
+                "soundGuid": 2864208152884035373,
+                "startTimeSeconds": 0.0,
+                "stereoPan": -0.2460000067949295,
+                "volumeDb": 0.0
+            },
+            "id": 18,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "WaterSFX",
+                "looping": true,
+                "pitch": 1.0,
+                "soundGuid": 6432343425258581869,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": 0.0
+            },
+            "id": 19,
+            "type": "AudioPlayerComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 7390,
+    "id": 2363,
     "name": "Drone",
     "transform": {
         "position": [
