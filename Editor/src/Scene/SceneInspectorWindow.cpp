@@ -18,10 +18,6 @@ void Droplet::Editor::SceneInspectorWindow::CloseImpl()
 
 void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 {
-	static std::vector<std::weak_ptr<Droplet::Scene::Node>> nodes;
-
-	NodeListSlot("Scene Nodes", nodes);
-
 	// ImGui::SeparatorText("Scene");
 	//
 	// // Scene configurations
