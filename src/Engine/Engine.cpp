@@ -67,7 +67,15 @@ static bool AssertFailedImpl(const char *inExpression, const char *inMessage, co
 
 #endif // JPH_ENABLE_ASSERTS
 
-Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags), m_window(p_config.WindowConfig), m_renderer(m_window.Get())
+Engine::Engine(EngineConfig p_config) 
+: 
+m_updateFlagsSetter(p_config.UpdateFlags), 
+m_window(p_config.WindowConfig), 
+m_renderer(m_window.Get()),
+// TEMP TEMP TEMP TEMP
+m_inWindow(p_config.inWinCfg),
+m_inSurfaceProvider(m_inWindow.GetSDLWindow()),
+m_inRenderer(m_inSurfaceProvider)
 {
 	ZoneScoped;
 	
@@ -82,6 +90,7 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
 	JPH::Factory::sInstance = new JPH::Factory();
 	JPH::RegisterTypes();
     
+	
     // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
 
@@ -127,6 +136,12 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     Audio::AudioSystem::GetInstance().Initialize();
     
 	GameInput::Get().SetMainWindow(m_window.Get());
+	
+	// TEMP TEMP TEMP TEMP
+	m_inWindow.SetResizeCallback([this]() { m_inRenderer.OnResize(); });
+	m_inWindow.SetMinimizeCallback([this]() { m_inRenderer.OnMinimize(); });
+	m_inWindow.SetRestoreCallback([this]() { m_inRenderer.OnRestore(); });
+	GameInput::Get().SetMainWindow(m_inWindow.GetSDLWindow());
 }
 
 Engine::~Engine()
