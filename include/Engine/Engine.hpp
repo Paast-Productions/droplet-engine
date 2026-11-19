@@ -75,6 +75,8 @@ namespace Droplet
 		//HACK: (RENDERER) This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
 		Graphics::Renderer &GetRenderer() { return m_renderer; }
 		
+		void Render(const Render::RenderWorld &p_world);
+		
 	private:
 
 		/// @brief Setter class with the sole purpose of setting the update flags for the engine.
@@ -117,7 +119,7 @@ namespace Droplet
 		/// @brief Registers all components owned by the engine.
 		void RegisterComponents();
 		
-		// TEMP TEMP TEMP TEMP
+		// TEMP TEMP TEMP TEMP integration
 		SDL::Window m_inWindow;
 		SDL::VulkanSurfaceProvider m_inSurfaceProvider;
 		Vulkan::Renderer m_inRenderer;

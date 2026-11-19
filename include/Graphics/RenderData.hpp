@@ -2,6 +2,9 @@
 
 #include <glm/glm.hpp>
 
+#include "Graphics/Vulkan/Camera.hpp"
+#include "Graphics/Vulkan/RenderTarget.hpp"
+
 namespace Droplet::Graphics
 {
     struct PushConstantData
@@ -62,6 +65,17 @@ namespace Droplet::Graphics
             glm::mat4 proj{};
         };
     }
-
+    
+    struct CameraRenderData
+    {
+        Camera camera {};
+        RenderTarget renderTarget {};
+        std::int32_t priority {};
+        std::vector<RenderData> renderData {};
+        glm::vec4 clearColor { glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) };
+		
+        // DEBUG
+        bool debug = false;
+    };
 }
 

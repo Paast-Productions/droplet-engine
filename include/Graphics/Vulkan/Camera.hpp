@@ -5,9 +5,6 @@
 #include <Math/Bounds/Frustum.hpp>
 #include <Math/Bounds/Ray.hpp>
 
-#include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/RenderData.hpp>
-
 namespace Droplet::Graphics
 {
 	/// @brief This class handles view and projection of the rendering
@@ -167,17 +164,5 @@ namespace Droplet::Graphics
 
 		/// @brief Updates the cameras direction vectors
 		void UpdateCameraVectors();
-	};
-
-	struct CameraRenderData
-	{
-		Camera camera {};
-		RenderTarget renderTarget {};
-		std::int32_t priority {};
-		std::vector<RenderData> renderData {};
-		glm::vec4 clearColor { glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) };
-		
-		// DEBUG
-		bool debug = false;
 	};
 }
