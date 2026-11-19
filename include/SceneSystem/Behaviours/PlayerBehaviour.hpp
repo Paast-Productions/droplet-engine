@@ -188,6 +188,19 @@ namespace Droplet::Scene
 		/// @return The maximum range of the drone.
         [[nodiscard]] float GetDroneMaxRange() const { return m_data.DroneMaxRange; }
 
+		/// @brief Sets the current temperature of the drone.
+		/// @param p_droneTemp New temperature value for the drone.
+		void SetDroneTemp(float p_droneTemp) { m_data.droneTemp = p_droneTemp; }
+
+		/// @brief Gets the current temperature of the drone.
+		[[nodiscard]] float GetDroneTemp() const { return m_data.droneTemp; }
+
+		/// @brief Sets the current temperature outside the drone.
+		void SetOutsideTemp(float p_outsideTemp) { m_data.outsideTemp = p_outsideTemp; }
+
+		/// @brief Gets the current temperature outside the drone.
+		[[nodiscard]] float GetOutsideTemp() const { return m_data.outsideTemp; }
+
         // ITEMS
 
         /// @brief Gets the item registry assigned to the SceneManager.

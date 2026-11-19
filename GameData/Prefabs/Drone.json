@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 3715,
+            "id": 124,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -89,7 +89,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3716,
+            "id": 125,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -139,7 +139,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3717,
+            "id": 126,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -211,7 +211,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3718,
+            "id": 127,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
@@ -283,7 +283,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3719,
+            "id": 128,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -355,7 +355,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3720,
+            "id": 129,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -427,7 +427,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3721,
+            "id": 130,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -499,7 +499,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3722,
+            "id": 131,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -526,34 +526,12 @@
         {
             "active": true,
             "data": {
-                "fs": 13680123319807966343,
-                "fsName": "Base.FS",
-                "gs": 0,
-                "gsName": "",
-                "meshDisplayName": "Cube.004",
-                "meshGUID": 12885130674664679680,
-                "tcs": 0,
-                "tcsName": "",
-                "tes": 0,
-                "tesName": "",
-                "textureDisplayName": "Drone",
-                "textureGUID": 1365390299680718017,
-                "transparent": false,
-                "vs": 7809030845991192100,
-                "vsName": "Base.VS"
-            },
-            "id": 1,
-            "type": "MeshComponent"
-        },
-        {
-            "active": true,
-            "data": {
                 "autoRender": true,
                 "camera": {
-                    "fov": 90.0,
+                    "fov": 75.0,
                     "planes": [
                         0.10000000149011612,
-                        100.0
+                        500.0
                     ]
                 },
                 "clearColor": [
@@ -562,14 +540,14 @@
                     0.30000001192092896,
                     1.0
                 ],
-                "drawLayerMask": 65535,
+                "drawLayerMask": 65471,
                 "priority": 0,
                 "resolution": [
-                    1280,
-                    720
+                    1920,
+                    1080
                 ]
             },
-            "id": 5,
+            "id": 9,
             "type": "CameraComponent"
         },
         {
@@ -583,8 +561,31 @@
         },
         {
             "active": true,
+            "data": {
+                "health": 100.0,
+                "maxHealth": 100.0
+            },
+            "id": 4,
+            "type": "HealthComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Master",
+                "looping": false,
+                "pitch": 1.0,
+                "soundGuid": 10719051070911821420,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": 0.0
+            },
+            "id": 10,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
             "data": {},
-            "id": 6,
+            "id": 5,
             "type": "PlayerComponent"
         },
         {
@@ -593,8 +594,60 @@
                 "data": "",
                 "filepath": "SuctionInteraction.lua"
             },
-            "id": 7,
+            "id": 8,
             "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Death.lua"
+            },
+            "id": 17,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.8600000143051147,
+                "soundGuid": 5649831997769777985,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -9.729999542236328
+            },
+            "id": 12,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "DroneAudioController.lua"
+            },
+            "id": 13,
+            "type": "ScriptComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "busName": "Water",
+                "looping": true,
+                "pitch": 0.800000011920929,
+                "soundGuid": 8694620601437719986,
+                "startTimeSeconds": 0.0,
+                "stereoPan": 0.0,
+                "volumeDb": -3.4100000858306885
+            },
+            "id": 14,
+            "type": "AudioPlayerComponent"
+        },
+        {
+            "active": true,
+            "data": null,
+            "id": 16,
+            "type": "AudioListenerComponent"
         },
         {
             "active": true,
@@ -612,8 +665,17 @@
                 "r": 1.0,
                 "shapeType": 7
             },
-            "id": 8,
+            "id": 15,
             "type": "PhysicsComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "FreezeControl.lua"
+            },
+            "id": 18,
+            "type": "ScriptComponent"
         },
         {
             "active": true,
@@ -623,22 +685,8 @@
                 "pitch": 1.0,
                 "soundGuid": 2864208152884035373,
                 "startTimeSeconds": 0.0,
-                "stereoPan": -0.2460000067949295,
-                "volumeDb": 0.0
-            },
-            "id": 18,
-            "type": "AudioPlayerComponent"
-        },
-        {
-            "active": true,
-            "data": {
-                "busName": "WaterSFX",
-                "looping": true,
-                "pitch": 1.0,
-                "soundGuid": 6432343425258581869,
-                "startTimeSeconds": 0.0,
-                "stereoPan": 0.0,
-                "volumeDb": 0.0
+                "stereoPan": -0.257999986410141,
+                "volumeDb": 3.1700000762939453
             },
             "id": 19,
             "type": "AudioPlayerComponent"
@@ -646,43 +694,20 @@
         {
             "active": true,
             "data": {
-                "busName": "Music",
+                "busName": "WaterSFX",
                 "looping": false,
                 "pitch": 1.0,
-                "soundGuid": 10719051070911821420,
+                "soundGuid": 6432343425258581869,
                 "startTimeSeconds": 0.0,
                 "stereoPan": 0.0,
-                "volumeDb": 0.0
+                "volumeDb": -3.619999885559082
             },
             "id": 20,
             "type": "AudioPlayerComponent"
-        },
-        {
-            "active": true,
-            "data": {
-                "busName": "Music",
-                "looping": false,
-                "pitch": 1.0,
-                "soundGuid": 5649831997769777985,
-                "startTimeSeconds": 0.0,
-                "stereoPan": 0.0,
-                "volumeDb": 0.0
-            },
-            "id": 21,
-            "type": "AudioPlayerComponent"
-        },
-        {
-            "active": true,
-            "data": {
-                "data": "",
-                "filepath": "DroneAudioController.lua"
-            },
-            "id": 22,
-            "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 3714,
+    "id": 123,
     "name": "Drone",
     "transform": {
         "position": [

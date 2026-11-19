@@ -26,7 +26,9 @@ namespace Droplet::Game
         float freezeResistance = 50;    ///< Resistance to environmental freeze.
         float freezeLevel = 0;          ///< Current freeze level of the player.
         float timeSinceFreeze = 0;
-		float pressureResistance = 50;  ///< Resistance to environmental pressure.
-		float pressureLevel = 1;        ///< Current pressure level of the player.
+        float pressureResistance = 50;  ///< Resistance to environmental pressure.
+        float pressureLevel = 1;        ///< Current pressure level of the player.
+		    float droneTemp = 0;	  ///< Current temperature of the drone.
+        float outsideTemp = 0;      ///< Current temperature outside the drone.
     };
 }
