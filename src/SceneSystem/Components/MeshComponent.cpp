@@ -80,6 +80,12 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	renderData.vsData.GUID = m_shaderData.vs.GetGUID();
 	
 #ifdef _EDITOR
+
+	if (Droplet::Editor::Graphics::ShaderOverride::GetVertexFlag() == Droplet::Editor::Graphics::VertexFlag::Basic)
+	{
+		renderData.vsData.GUID = 7809030845991192100;
+	}
+
 	switch (Droplet::Editor::Graphics::ShaderOverride::GetFragmentFlag())
 	{
 	default:
@@ -96,11 +102,6 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	case Droplet::Editor::Graphics::FragmentFlag::UV:
 		renderData.fsData.GUID = 12244945915070321057;
 		break;
-	}
-
-	if (Droplet::Editor::Graphics::ShaderOverride::GetVertexFlag() == Droplet::Editor::Graphics::VertexFlag::Basic)
-	{
-		//renderData.vsData.GUID =
 	}
 #endif
 
