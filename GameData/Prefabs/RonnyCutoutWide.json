@@ -33,7 +33,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 375,
+                    "id": 1113,
                     "name": "RonnyFront",
                     "transform": {
                         "position": [
@@ -83,7 +83,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 376,
+                    "id": 1114,
                     "name": "RonnyBehind",
                     "transform": {
                         "position": [
@@ -92,10 +92,10 @@
                             0.0
                         ],
                         "rotation": [
-                            0.5000002384185791,
+                            0.5000001788139343,
+                            0.4999999403953552,
                             0.5,
-                            0.5000000596046448,
-                            -0.49999988079071045
+                            -0.4999998211860657
                         ],
                         "scale": [
                             0.6670001149177551,
@@ -108,7 +108,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 374,
+            "id": 1112,
             "name": "Cardboard",
             "transform": {
                 "position": [
@@ -158,7 +158,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 377,
+            "id": 1115,
             "name": "Cardboard Stand",
             "transform": {
                 "position": [
@@ -208,7 +208,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 378,
+            "id": 1116,
             "name": "Cardboard Stand",
             "transform": {
                 "position": [
@@ -258,7 +258,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 379,
+            "id": 1117,
             "name": "Cardboard Stand",
             "transform": {
                 "position": [
@@ -308,7 +308,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 380,
+            "id": 1118,
             "name": "Cardboard Stand",
             "transform": {
                 "position": [
@@ -331,9 +331,25 @@
         }
     ],
     "collisionLayerMask": 1,
-    "components": [],
+    "components": [
+        {
+            "active": true,
+            "data": null,
+            "id": 1,
+            "type": "InteractableComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Cat.lua"
+            },
+            "id": 2,
+            "type": "ScriptComponent"
+        }
+    ],
     "drawLayer": 1,
-    "id": 373,
+    "id": 1111,
     "name": "RonnyCutoutWide",
     "transform": {
         "position": [
