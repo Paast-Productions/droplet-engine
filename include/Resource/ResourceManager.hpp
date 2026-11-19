@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <string>
 #include <memory>
@@ -13,8 +13,8 @@
 #include "resource/StaticResourceHandle.hpp"
 #include "resource/ResourceRegistry.hpp"
 
-#include "core/ThreadSafeQueue.hpp"
-#include "core/ThreadPool.hpp"
+#include "Core/ThreadSafeQueue.hpp"
+#include "Core/ThreadPool.hpp"
 
 #include "Audio/AudioSystem.hpp"
 

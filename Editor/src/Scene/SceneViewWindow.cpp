@@ -1,7 +1,7 @@
 #include "SceneViewWindow.hpp"
 #include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
-#include <math/bounds/Intersection.hpp>
-#include <math/bounds/Conversion.hpp>
+#include <Math/Bounds/Intersection.hpp>
+#include <Math/Bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>

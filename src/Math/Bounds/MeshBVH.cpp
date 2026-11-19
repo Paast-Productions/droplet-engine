@@ -1,4 +1,4 @@
-#include "math/bounds/MeshBVH.hpp"
+#include "Math/Bounds/MeshBVH.hpp"
 
 #include <bvh/v2/vec.h>
 #include <bvh/v2/default_builder.h>

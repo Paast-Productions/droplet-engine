@@ -1,9 +1,9 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <SceneSystem/bounds/NodeBounds.hpp>
-#include <math/bounds/Intersection.hpp>
-#include <math/bounds/Conversion.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
+#include <Math/Bounds/Intersection.hpp>
+#include <Math/Bounds/Conversion.hpp>
 
 namespace Droplet::Scene
 {
