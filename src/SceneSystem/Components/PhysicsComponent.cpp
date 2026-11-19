@@ -87,6 +87,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 	
 	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
 	
+	std::cout << "SetMeshCollider this: " << this << '\n';
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 	m_meshGuid = p_meshGuid;
@@ -203,6 +204,18 @@ void PhysicsComponent::RemoveCollider()
 		}
 		
 		m_shapeType = ShapeType::None;
+		return;
+	}
+	
+	m_function = nullptr;
+	if (m_isDeserialized && m_bodyID.IsInvalid())
+	{
+		if (m_shapeType == ShapeType::Mesh || m_shapeType == ShapeType::ConvexHull)
+		{
+			MeshColliderManager::Get().UnloadMeshSetting(m_meshGuid);
+		}
+		m_shapeType = ShapeType::None;
+		m_meshGuid = C_INVALID_GUID;
 	}
 }
 
@@ -330,12 +343,11 @@ void PhysicsComponent::StartImpl()
 
 void PhysicsComponent::UpdateImpl()
 {
-	if (!m_isDeserialized && m_function != nullptr)
+	if (m_function != nullptr)
 	{
 		if (ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshGuid).IsReady())
 		{
-			(*m_function)(m_meshGuid, m_offset, m_serializeData.r);
-			m_isDeserialized = true;
+			m_function(m_meshGuid, m_offset, m_serializeData.r);
 			m_function = nullptr;
 		}
 		else
@@ -1130,15 +1142,16 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Mesh:
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
+					std::cout << "Callback this: " << this << '\n';
 				    SetMeshCollider(p_meshGuid, p_offset);
 				});
 			break;
 		case ShapeType::ConvexHull:
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
 					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
 				});
@@ -1161,6 +1174,7 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 		JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
 		JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));
 		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+		m_isDeserialized = true;
 	}
 }
 

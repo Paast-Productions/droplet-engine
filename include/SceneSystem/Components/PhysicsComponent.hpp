@@ -225,7 +225,7 @@ namespace Droplet::Scene
 	private:
 		/// @brief Helper function for creating collider body
 		/// @param p_shapeSettings The shape settings for the collider body
-		/// /// @param p_offset The offset position from the nodes position
+		/// @param p_offset The offset position from the nodes position
 		/// @throw std::runtime_error Mesh collider could not be created
 		void CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
@@ -276,6 +276,6 @@ namespace Droplet::Scene
 			float restitution = temp.mRestitution;
 		} m_serializeData;
 		bool m_isDeserialized = false;
-		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
+		std::function<void(Droplet::GUID, JPH::Vec3, float)> m_function;
 	};
 }
