@@ -4,9 +4,18 @@ local transform = nil
 local interacted = false
 local timer = 0
 
+local audioEmitter = nil
+local isPlayingSound = false
+
 function OnStart()
     InteractableSystem.RegisterInteractable(self)
     transform = self:GetTransform()
+
+    audioEmitter = self:GetAudioEmitter("Maxwell-song")
+    if audioEmitter == nil then  
+        print("Unable to find emitter (Cat.lua)")
+        return
+    end
 end
 
 function OnDestroy()
@@ -45,6 +54,11 @@ function OnUpdate(dt)
 
         if transform:GetPosition().y > 100 then
             interacted = false
+        end
+
+        if isPlayingSound == false then
+            audioEmitter:Play()
+            isPlayingSound = true;
         end
     end
 end
