@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <optional>
+#include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -16,6 +17,7 @@
 #include "Integration/Vulkan/Core/Context.hpp"
 #include "Integration/Vulkan/Frame/RenderDevice.hpp"
 #include "Integration/Vulkan/Passes/DrawPass.hpp"
+#include "Integration/Vulkan/Passes/ImGuiPass.hpp"
 #include "Integration/Vulkan/Passes/EffectPass.hpp"
 #include "Integration/Vulkan/Passes/ImGuiPass.hpp"
 #include "Integration/Vulkan/Graph/GraphExecutor.hpp"
@@ -26,6 +28,7 @@
 #include "Integration/Render/PreparedFrame.hpp"
 
 struct ImDrawData;
+
 namespace Vulkan
 {
     /**
@@ -66,11 +69,15 @@ namespace Vulkan
         void InitImGui();
         /// @brief The backend's per-frame start; call before ImGui::NewFrame
         void NewImGuiFrame();
-        /// @brief An ImGui texture id that shows render target `target` (a camera's output): pass it to ImGui::Image.
-        ///        The id stays the same across frames; each frame it is pointed at the target's current image, and
-        ///        the frame graph reads the targets the overlay shows. A target the world does not declare shows the
+        /// @brief An ImGui texture id that shows `image`, a render target (a camera's output) or a texture asset:
+        ///        pass it to ImGui::Image. The id stays the same across frames; each frame it is pointed at the image's
+        ///        current GPU copy, and the frame graph reads the targets the overlay shows. A target no view draws
+        ///        this frame shows its last image; one never drawn, or a texture not on the GPU (yet), shows the
         ///        placeholder texture.
-        [[nodiscard]] std::uint64_t ImGuiTexture(Guid target);
+        [[nodiscard]] std::uint64_t ImGuiTexture(Guid image);
+        /// @brief The images ImGuiTexture was asked for since the last NewImGuiFrame; pass to Bridge::RequiredAssetsOf
+        ///        so the texture assets among them are uploaded
+        [[nodiscard]] std::span<const Guid> ImGuiImages() const noexcept { return m_imguiImagesThisFrame; }
 #endif
 
         /// @brief Uploads assets (see RenderDevice::Upload). Call between frames; the spans only have to live until
@@ -118,7 +125,6 @@ namespace Vulkan
         Context m_vulkanContext;
         vk::Format m_depthFormat{vk::Format::eUndefined};
         WSI m_wsi;               ///< Swapchain, acquire and present, frame slots
-        
         /// Frame submitter, GPU resources, scene shaders and the deletion queue; flushed in ~Renderer, because the
         /// deletion queue can hold DrawPass's material sets, whose pool goes before the device
         RenderDevice m_device;
@@ -135,7 +141,8 @@ namespace Vulkan
 
 #ifdef _EDITOR
         std::optional<ImGuiPass> m_imguiPass;            ///< after InitImGui; destroyed before the device
-        std::vector<Guid> m_imguiTargets;                ///< the targets of ImGuiTexture ids, by index
+        std::vector<Guid> m_imguiImages;                 ///< the images of ImGuiTexture ids, by index
+        std::vector<Guid> m_imguiImagesThisFrame;        ///< ImGuiImages
         std::vector<Render::TargetHandle> m_overlayReads; ///< this frame's targets the overlay shows
 #endif
     };

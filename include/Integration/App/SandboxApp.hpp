@@ -55,12 +55,6 @@ private:
     /// @brief Switches effect `effectIndex` of `cameraName`'s PostProcessComponent on or off.
     void ToggleEffect(std::string_view cameraName, std::size_t effectIndex);
 
-#ifdef _EDITOR
-    /// @brief The editor's windows, between ImGuiFrame::Begin and End
-    void DrawEditor();
-    /// @brief A window showing the camera's output (its render target), fitted to the window
-    void DrawViewport(std::string_view cameraName);
-#endif
 
 private:
     SandboxAppConfig m_config;                    ///< Config saved at construction
@@ -73,13 +67,11 @@ private:
     /// Everything on the GPU side. Declared last, so it is destroyed first.
 #ifdef _EDITOR
     ImGuiFrame m_imgui; ///< the ImGui context and frame; outlives the renderer's ImGui backend
+    Editor m_editor;    ///< the editor's windows and its viewport camera
 #endif
     Vulkan::Renderer m_renderer; ///< Vulkan rendering, rsc management, graph building, frame construction, command execution and presentation
 
     // -- runtime variables --
     bool m_running = true; ///< set to false if SDL event is close or Renderer calls exit
     bool m_worldDescribed = false; ///< the first extracted world is printed once
-#ifdef _EDITOR
-    bool m_sceneBehindEditor = false; ///< the presented view fills the window behind the editor's windows
-#endif
 };

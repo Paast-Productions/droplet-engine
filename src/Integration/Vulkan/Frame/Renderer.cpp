@@ -19,7 +19,7 @@
 #include "Integration/Vulkan/Graph/RenderGraphVk.hpp"
 #include "Integration/ShaderCompiler/ShaderCompiler.hpp"
 #ifdef _EDITOR
-#include <imgui.h>
+#include <ImGui/imgui.h>
 #endif
 
 namespace
@@ -71,7 +71,7 @@ Renderer::Renderer(const ISurfaceProvider& surfaceProvider)
       m_compositor(m_vulkanContext, WSI::FramesInFlight()),
       m_effectPass(m_vulkanContext, WSI::FramesInFlight()),
       m_graphExecutor(m_vulkanContext, m_device),
-      m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{}),
+      m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{ .framesInFlight = WSI::FramesInFlight() }),
       m_pipelineLibrary(m_vulkanContext.GetDevice(), m_device.Shaders())
 {
     m_device.Shaders().SetDefault(Render::DEFAULT_SCENE_SHADER, BUILT_IN_SCENE_SHADER, DEFAULT_SCENE_SHADER_ASSET);
@@ -105,16 +105,13 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
     // 1. prepare: the world (by GUID) becomes draw lists: one per view (by GPU handle, or a placeholder).
     //    From here on nothing looks at the world
-    m_preparedFrame = Prepare(world,
-                              PrepareContext
-                              {
-                                  .gpu = m_device.Resources(),
-                                  .shaders = m_device.Shaders(),
-                                  .pipelines = m_pipelineLibrary,
-                                  .scenePass = m_drawPass,
-                                  .depthFormat = m_depthFormat
-                              }
-    );
+    m_preparedFrame = Prepare(world, PrepareContext{
+        .gpu = m_device.Resources(),
+        .shaders = m_device.Shaders(),
+        .pipelines = m_pipelineLibrary,
+        .scenePass = m_drawPass,
+        .depthFormat = m_depthFormat
+    });
 
     // 2. wait until the GPU has finished the frame that last used the next frame slot, on every queue (its command
     //    buffers are freed, its acquire semaphore is free), then acquire a swapchain image; nothing to draw if the
@@ -131,6 +128,7 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
     // the slot's descriptor pools are free now (the submitter waited for the slot on every queue)
     m_compositor.BeginFrame(frame->frameSlot);
     m_effectPass.BeginFrame(frame->frameSlot);
+    m_drawPass.BeginFrame(frame->frameSlot, m_preparedFrame);
 
 #ifdef _EDITOR
     // the editor's ImGui: its textures uploaded before the graph, its render-target images resolved for this frame
@@ -209,7 +207,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         },
         .effectFormat = static_cast<std::uint32_t>(EffectPass::IMAGE_FORMAT),
         .drawView = [this](PassContext& ctx, const Render::DrawList& view,
-                           const Vulkan::ViewTargets& targets)
+            const Vulkan::ViewTargets& targets)
         {
             if (!ctx.resources)
                 return;
@@ -221,9 +219,8 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                 .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,
                 .loadOp = vk::AttachmentLoadOp::eClear,
                 .storeOp = vk::AttachmentStoreOp::eStore,
-                .clearValue = vk::ClearValue{
-                    .color = vk::ClearColorValue{std::array{0.05f, 0.05f, 0.08f, 1.0f}}
-                }
+                .clearValue = vk::ClearValue{}.setColor(vk::ClearColorValue{}.setFloat32(
+                    {view.clearColor.r, view.clearColor.g, view.clearColor.b, view.clearColor.a}))
             };
 
             // cleared here and not needed after the pass so don't store
@@ -235,12 +232,10 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                     .imageLayout = vk::ImageLayout::eDepthStencilAttachmentOptimal,
                     .loadOp = vk::AttachmentLoadOp::eClear,
                     .storeOp = vk::AttachmentStoreOp::eDontCare,
-                    .clearValue = vk::ClearValue{
-                        .depthStencil = vk::ClearDepthStencilValue{
-                            .depth = 1.0f,
-                            .stencil = 0
-                        }
-                    }
+                    .clearValue = vk::ClearValue{}.setDepthStencil(vk::ClearDepthStencilValue{
+                        .depth = 1.0f,
+                        .stencil = 0
+                    })
                 };
             }
 
@@ -252,7 +247,8 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                 .pDepthAttachment = targets.depth.IsValid() ? &depth : nullptr
             });
             // All: the graph guarantees any target this view samples was written earlier in the frame
-            m_drawPass.Record(ctx.cmd, extent, view, m_pipelineLibrary, DrawFilter::All);
+            const auto viewIndex = static_cast<std::uint32_t>(&view - m_preparedFrame.views.data()); // a list of m_preparedFrame
+            m_drawPass.Record(ctx.cmd, extent, view, viewIndex, m_pipelineLibrary, DrawFilter::All);
             ctx.cmd.endRendering();
         },
         .copyTarget = [this](PassContext& ctx, Render::TargetHandle srcHandle, Render::TargetHandle dstHandle)
@@ -450,11 +446,9 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
     return {
         .image = {
             .image = target->target.GetImage(),
-            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)
-        },
+            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)},
         .view = target->target.GetImageView(),
-        .extent = target->target.Extent()
-    };
+        .extent = target->target.Extent()};
 }
 
 #ifdef _EDITOR
@@ -475,14 +469,17 @@ void Renderer::NewImGuiFrame()
 {
     if (m_imguiPass)
         m_imguiPass->NewFrame();
+    m_imguiImagesThisFrame.clear();
 }
 
-std::uint64_t Renderer::ImGuiTexture(Guid target)
+std::uint64_t Renderer::ImGuiTexture(Guid image)
 {
-    auto targetIt = std::ranges::find(m_imguiTargets, target);
-    if (targetIt == m_imguiTargets.end())
-        targetIt = m_imguiTargets.insert(m_imguiTargets.end(), target);
-    return IMGUI_TARGET_TAG | static_cast<std::uint64_t>(targetIt - m_imguiTargets.begin());
+    auto imageIt = std::ranges::find(m_imguiImages, image);
+    if (imageIt == m_imguiImages.end())
+        imageIt = m_imguiImages.insert(m_imguiImages.end(), image);
+    if (std::ranges::find(m_imguiImagesThisFrame, image) == m_imguiImagesThisFrame.end())
+        m_imguiImagesThisFrame.push_back(image);
+    return IMGUI_TARGET_TAG | static_cast<std::uint64_t>(imageIt - m_imguiImages.begin());
 }
 
 std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world)
@@ -498,14 +495,20 @@ std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& ove
             if (command.UserCallback || command.TexRef._TexData || (id & IMGUI_TARGET_TAG) == 0)
                 continue;
 
-            // the target, by the descriptions this frame's world carries (Prepare has already created it)
+            // a target, by the descriptions this frame's world carries (Prepare has already created it), else one
+            // that no view draws this frame (it shows its last image), else a texture asset on the GPU
             Render::TargetHandle handle{};
-            if (const std::size_t index = id & ~IMGUI_TARGET_TAG; index < m_imguiTargets.size())
+            Render::TextureHandle textureHandle{};
+            if (const std::size_t index = id & ~IMGUI_TARGET_TAG; index < m_imguiImages.size())
             {
-                const auto descIt = std::ranges::find(world.targets, m_imguiTargets[index],
+                const auto descIt = std::ranges::find(world.targets, m_imguiImages[index],
                                                       &Common::RenderTargetDesc::id);
                 if (descIt != world.targets.end())
                     handle = gpu.GetOrCreateTarget(*descIt);
+                else
+                    handle = gpu.FindTarget(m_imguiImages[index]);
+                if (!handle.IsValid())
+                    textureHandle = gpu.FindTexture(m_imguiImages[index]);
             }
 
             vk::ImageView view;
@@ -515,6 +518,11 @@ std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& ove
                 view = target->target.GetImageView();
                 if (std::ranges::find(reads, handle) == reads.end())
                     reads.push_back(handle);
+            }
+            else if (const GpuTexture* texture = textureHandle.IsValid() ? gpu.Find(textureHandle) : nullptr)
+            {
+                view = texture->view.Get(); // uploaded textures stay shader-readable: nothing for the graph to order
+                sampler = texture->sampler;
             }
             else
             {

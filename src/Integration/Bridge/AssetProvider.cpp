@@ -77,7 +77,7 @@ namespace Bridge
         }
     }
 
-    Assets::RequiredAssets RequiredAssetsOf(const Render::RenderWorld& world)
+    Assets::RequiredAssets RequiredAssetsOf(const Render::RenderWorld& world, std::span<const Guid> images)
     {
         Assets::RequiredAssets required;
         AddUniqueId(required.shaders, Render::DEFAULT_SCENE_SHADER);
@@ -87,6 +87,16 @@ namespace Bridge
             AddUniqueId(required.meshes, object.meshId);
             AddRequiredTexture(required, object.imageTexture);
             AddUniqueId(required.shaders, object.shaderId);
+        }
+        for (const Render::DynamicDraw& draw : world.dynamicDraws)
+        {
+            AddRequiredTexture(required, draw.imageTexture);
+            AddUniqueId(required.shaders, draw.shaderId);
+        }
+        for (const Guid image : images)
+        {
+            if (std::ranges::none_of(world.targets, [image](const Common::RenderTargetDesc& desc) { return desc.id == image; }))
+                AddUniqueId(required.textures, image);
         }
         return required;
     }
@@ -125,4 +135,3 @@ namespace Bridge
         return uploads;
     }
 }
-

@@ -99,6 +99,8 @@ namespace Vulkan
         EvictedResources EndFrame(const QueueTimelineValues& frameRetireValues);
 
         /// @brief Uploads the mesh unless the same or a newer revision is resident; an older one is replaced.
+        /// @details A mesh whose vertex stride is not the scene layout's is not uploaded (reported once per revision):
+        ///          a resident older revision is kept, else the placeholder cube is drawn. Returns the invalid handle.
         Render::MeshHandle UploadMesh(const Assets::MeshUpload& upload);
         /// @brief Uploads the texture (with its mip chain) unless the same or a newer revision is resident; an older
         ///        one is replaced.
@@ -124,7 +126,11 @@ namespace Vulkan
         /// @brief The resident texture for `id`, marked used; invalid if it was never uploaded or has been evicted.
         Render::TextureHandle FindTexture(Guid id);
 
+        /// @brief The target for `desc`, marked used; created the first time, and replaced (new handle, new history)
+        ///        when its size or format changed
         Render::TargetHandle GetOrCreateTarget(const Common::RenderTargetDesc& desc);
+        /// @brief The existing target for `id`, marked used (it keeps its contents); invalid if there is none
+        Render::TargetHandle FindTarget(Guid id);
         Render::TargetHandle GetOrCreateHistory(Render::TargetHandle target);
 
         /// @brief A mesh without a GUID (debug or procedural geometry); never evicted, the caller releases it.

@@ -3,6 +3,7 @@
  * @brief Bridge::RequiredAssetsOf (what a world needs) and Bridge::ProvideAssets (the data for it, from the asset storage).
  */
 #pragma once
+#include <span>
 
 #include "Integration/Assets/Assets.hpp"
 #include "Integration/Assets/AssetTransfer.hpp"
@@ -12,7 +13,10 @@ namespace Bridge
 {
     /// @brief Every mesh, texture and shader `world` refers to, and the default scene
     ///        shader, which the asset storage may override. Render targets are not assets.
-    [[nodiscard]] Assets::RequiredAssets RequiredAssetsOf(const Render::RenderWorld& world);
+    /// @param images also shown outside the world (Renderer::ImGuiImages): the ones that are not the world's targets
+    ///        are required as textures
+    [[nodiscard]] Assets::RequiredAssets RequiredAssetsOf(
+        const Render::RenderWorld& world, std::span<const Guid> images = {});
 
     /**
      * @brief The uploads for what `required` needs and `resident` lacks or holds an older revision of.

@@ -6,17 +6,12 @@
 #include <Jolt/Core/Factory.h>
 #include <Jolt/Core/IssueReporting.h>
 #include <algorithm>
+#include <cstddef>
 #include <SceneSystem/Items/BaseItems.hpp>
 
 #include <SceneSystem/ComponentRegistry.hpp>
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
-#include <Jolt/Jolt.h>
-#include <Jolt/RegisterTypes.h>
-#include <Jolt/Core/Factory.h>
-#include <Jolt/Core/IssueReporting.h>
-#include <algorithm>
-#include <SceneSystem/Items/BaseItems.hpp>
 #include <RegisterGame.hpp>
 #include <RegisterEngine.hpp>
 #include <Time.hpp>
@@ -32,11 +27,10 @@
 #include <SceneSystem/Components/TriggerComponent.hpp>
 #include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/HealthComponent.hpp>
-
-#include <SceneSystem/BehaviourRegistry.hpp>
-#include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <Graphics/DebugDraw.hpp>
 
+// TEMP TEMP TEMP TEMP
 #include "AssetProvider.hpp"
 
 using namespace Droplet;
@@ -70,17 +64,188 @@ static bool AssertFailedImpl(const char* inExpression, const char* inMessage, co
 
 #endif // JPH_ENABLE_ASSERTS
 
+// TEMP TEMP TEMP TEMP the bridge from production's scene output and resources to the sandbox renderer
+namespace
+{
+    // -- GUIDs --
+
+    Guid ToSandboxGuid(GUID p_guid) { return Guid{ p_guid }; }
+    GUID ToProductionGuid(Guid p_guid) { return GUID{ p_guid.value }; }
+
+    // -- Assets --
+
+    /// @brief The entry for `id` in `assets`, or nullptr
+    const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Guid id)
+    {
+        const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
+        return assetIt != assets.end() ? &*assetIt : nullptr;
+    }
+
+    /// @brief Adds the mesh to `uploads` once the resource manager has loaded it
+    void AddMesh(ResourceManager& resMan, Assets::AssetUploads& uploads, Guid id)
+    {
+        const auto* mesh = resMan.GetResource<MeshResource>(ToProductionGuid(id));
+        if (!mesh || mesh->GetVertexData().empty() || mesh->GetIndexData().empty())
+            return; // not loaded (yet): the placeholder cube
+
+        uploads.meshes.push_back({
+            .id = id,
+            .revision = 0, // no revisions yet
+            .vertexData = mesh->GetVertexData(),
+            .vertexStride = static_cast<std::uint32_t>(mesh->GetVertexByteSize()),
+            .indices = mesh->GetIndexData()
+        });
+    }
+
+    /// @brief Adds the texture's top mip level to `uploads` once the resource manager has loaded it
+    void AddTexture(ResourceManager& resMan, Assets::AssetUploads& uploads, Guid id)
+    {
+        const auto* texture = resMan.GetResource<Texture2DResource>(ToProductionGuid(id));
+        if (!texture)
+            return; // not loaded (yet): the placeholder texture
+
+        // RGBA8 only: a compressed texture is smaller than this and shows the placeholder
+        const std::size_t topLevelBytes = static_cast<std::size_t>(texture->GetWidth()) * texture->GetHeight() * 4;
+        const std::span<const std::byte> pixels = texture->GetPixelData();
+        if (pixels.size() < topLevelBytes)
+            return;
+
+        uploads.textures.push_back({
+            .id = id,
+            .revision = 0,
+            .width = texture->GetWidth(),
+            .height = texture->GetHeight(),
+            .format = Common::PixelFormat::RGBA8_SRGB, // colour space later
+            .pixels = pixels.first(topLevelBytes),
+            .sampling = Common::TextureSampling{
+                .generateMips = true, // the renderer builds the chain from the top level
+                .filter = Common::TextureFilter::Linear,
+                .maxAnisotropy = 1.0f,
+                .repeat = true
+            }
+        });
+    }
+
+    /// @brief Adds the default scene shader; production's own shaders need bindless
+    void AddShader(Assets::AssetUploads& uploads, Guid id)
+    {
+        if (id != Render::DEFAULT_SCENE_SHADER)
+            return;
+        uploads.shaders.push_back({
+            .id = id,
+            .revision = 1,
+            .shader = Common::ShaderDesc{ .moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang" }
+        });
+    }
+
+    /// @brief The uploads for what `required` needs and the GPU lacks
+    Assets::AssetUploads ProvideAssets(const Assets::RequiredAssets& required, const Assets::ResidentAssets& resident)
+    {
+        ResourceManager& resMan = ResourceManager::GetInstance();
+        Assets::AssetUploads uploads;
+
+        for (const Guid id : required.meshes)
+        {
+            if (!Find(resident.meshes, id))
+                AddMesh(resMan, uploads, id);
+        }
+        for (const Guid id : required.textures)
+        {
+            if (!Find(resident.textures, id))
+                AddTexture(resMan, uploads, id);
+        }
+        for (const Guid id : required.shaders)
+        {
+            if (!Find(resident.shaders, id) && !Find(resident.failedShaders, id))
+                AddShader(uploads, id);
+        }
+        return uploads;
+    }
+
+    // -- World --
+
+    /// @brief DebugDraw's batched meshes as dynamic draws; returns their indices
+    std::vector<std::uint32_t> AddDebugDraws(Render::RenderWorld& world)
+    {
+        Graphics::Debug::DebugDraw& debugDraw = Graphics::Debug::DebugDraw::Get();
+        debugDraw.PrepareRender(0); // not initialised: builds the meshes, uploads nothing
+
+        std::vector<std::uint32_t> indices;
+        const auto add = [&](std::span<const std::byte> vertices, Render::DynamicTopology topology, bool depthTest)
+        {
+            if (vertices.empty())
+                return;
+            indices.push_back(static_cast<std::uint32_t>(world.dynamicDraws.size()));
+            world.dynamicDraws.push_back({
+                .layout = Render::DynamicVertexLayout::P3C4,
+                .topology = topology,
+                .vertexData = { vertices.begin(), vertices.end() },
+                .depthTest = depthTest });
+        };
+        add(debugDraw.WireMesh(true), Render::DynamicTopology::Lines, true);
+        add(debugDraw.FillMesh(true), Render::DynamicTopology::Triangles, true);
+        add(debugDraw.WireMesh(false), Render::DynamicTopology::Lines, false);
+        add(debugDraw.FillMesh(false), Render::DynamicTopology::Triangles, false);
+
+        debugDraw.ClearDrawCommands();
+        return indices;
+    }
+
+    /// @brief A view and a target per camera, an object per draw
+    void AddCameras(Render::RenderWorld& world, std::span<const Graphics::CameraRenderData> p_cameras,
+                    std::span<const std::uint32_t> debugDraws)
+    {
+        for (const Graphics::CameraRenderData& camera : p_cameras)
+        {
+            const Guid targetId = ToSandboxGuid(camera.renderTarget.GetColourImageGuid());
+            const vk::Extent2D extent = camera.renderTarget.GetExtent();
+            if (!targetId.IsValid() || extent.width == 0 || extent.height == 0)
+                continue;
+            if (std::ranges::any_of(world.targets, [&](const Common::RenderTargetDesc& desc) { return desc.id == targetId; }))
+                continue; // one writer per target
+
+            world.targets.push_back({ .id = targetId, .width = extent.width, .height = extent.height });
+
+            Render::RenderView view;
+            view.view = camera.camera.GetViewMatrix();
+            view.proj = camera.camera.GetProjectionMatrix();
+            view.clearColor = camera.clearColor;
+            view.targetId = targetId;
+            if (camera.debug)
+                view.dynamicVisible.assign(debugDraws.begin(), debugDraws.end());
+
+            // already culled by the scene
+            for (const Graphics::RenderData& object : camera.renderData)
+            {
+                const Guid textureId = ToSandboxGuid(object.texData.GUID);
+                view.visible.push_back(static_cast<std::uint32_t>(world.objects.size()));
+                world.objects.push_back({
+                    .transform = object.transform,
+                    .meshId = ToSandboxGuid(object.meshData.GUID),
+                    .imageTexture = {
+                        .kind = textureId.IsValid() ? Common::ImageRef::Kind::Texture : Common::ImageRef::Kind::None,
+                        .id = textureId },
+                    .transparent = object.transparent }); // shaderId invalid: the default shader
+            }
+            world.views.push_back(std::move(view));
+        }
+    }
+}
+
 Engine::Engine(EngineConfig p_config)
-    :
-    m_updateFlagsSetter(p_config.UpdateFlags),
+    : m_updateFlagsSetter(p_config.UpdateFlags),
     m_window(p_config.WindowConfig),
-    m_renderer(m_window.Get()),
-    // TEMP TEMP TEMP TEMP
-    m_inWindow(p_config.inWinCfg),
-    m_inSurfaceProvider(m_inWindow.GetSDLWindow()),
-    m_inRenderer(m_inSurfaceProvider)
+    m_surfaceProvider(m_window.GetSDLWindow()),
+#ifdef _EDITOR
+    m_imguiFrame(m_window.GetSDLWindow()),
+#endif
+    m_renderer(m_surfaceProvider)
 {
     ZoneScoped;
+
+#ifdef _EDITOR
+    m_renderer.InitImGui(); // the backend needs the context ImGuiFrame created
+#endif
 
     ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
     ThreadPool::GetInstance().Initialize();
@@ -138,13 +303,7 @@ Engine::Engine(EngineConfig p_config)
     // Audio Init
     Audio::AudioSystem::GetInstance().Initialize();
 
-    GameInput::Get().SetMainWindow(m_window.Get());
-
-    // TEMP TEMP TEMP TEMP
-    m_inWindow.SetResizeCallback([this]() { m_inRenderer.OnResize(); });
-    m_inWindow.SetMinimizeCallback([this]() { m_inRenderer.OnMinimize(); });
-    m_inWindow.SetRestoreCallback([this]() { m_inRenderer.OnRestore(); });
-    // GameInput::Get().SetMainWindow(m_inWindow.GetSDLWindow());
+    GameInput::Get().SetMainWindow(m_window.GetSDLWindow());
 }
 
 Engine::~Engine()
@@ -180,41 +339,52 @@ DROPLET_RETURNTYPE Engine::Update()
     // Inputs
     GameInput::Get().Update();
 
-    const auto event = m_renderer.Event;
     // Window
-    while (SDL_PollEvent(&m_renderer.Event))
+    SDL_Event event{};
+    while (SDL_PollEvent(&event))
     {
 #ifdef TRACY_ENABLE
         ZoneNamedNC(eventZone, "Event", tracy::Color::MistyRose1, true);
 
         constexpr int eventStrMaxLen = 256;
         char eventStrBuf[eventStrMaxLen]{};
-        int eventStrLen = SDL_GetEventDescription(&m_renderer.Event, eventStrBuf, eventStrMaxLen);
+        int eventStrLen = SDL_GetEventDescription(&event, eventStrBuf, eventStrMaxLen);
 
         ZoneTextV(eventZone, eventStrBuf, eventStrLen);
+#endif
+#ifdef _EDITOR
+        m_imguiFrame.ProcessEvent(event); // before the listeners, which may ask ImGui whether it wants input
 #endif
         // Call all event listeners
         for (int i = 0; i < m_eventListeners.size(); i++)
         {
-            m_eventListeners[i](m_renderer.Event);
+            m_eventListeners[i](event);
         }
 
-        switch (m_renderer.Event.type)
+        switch (event.type)
         {
         case SDL_EVENT_QUIT:
             FrameMark;
             return DROPLET_RETURNTYPE::EXIT;
 
         case SDL_EVENT_WINDOW_RESIZED:
+            m_renderer.OnResize();
+            break;
+
         case SDL_EVENT_WINDOW_MINIMIZED:
-            m_renderer.ResizeWindow();
+            m_renderer.OnMinimize();
+            break;
+
+        case SDL_EVENT_WINDOW_RESTORED:
+        case SDL_EVENT_WINDOW_MAXIMIZED: // un-minimising a maximised window reports MAXIMIZED
+            m_renderer.OnRestore();
             break;
 
         default:
             break;
         }
 
-        GameInput::Get().ProcessEvent(m_renderer.Event);
+        GameInput::Get().ProcessEvent(event);
     }
 
     // Scenesystem
@@ -229,288 +399,50 @@ DROPLET_RETURNTYPE Engine::Update()
     return DROPLET_RETURNTYPE::OK;
 }
 
-DROPLET_RETURNTYPE Engine::Render(std::vector<Graphics::CameraRenderData>* camRenderDatas)
+void Engine::BeginFrame()
+{
+#ifdef _EDITOR
+    m_imguiFrame.Begin(m_renderer);
+#endif
+}
+
+DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
 {
     ZoneScopedC(tracy::Color::SkyBlue1)
 
-    auto renderData = m_sceneManager.GetRenderData();
+    // the scene's cameras and the editor's; the render graph orders the passes
+    std::vector<Graphics::CameraRenderData> cameras = m_sceneManager.GetRenderData();
+    cameras.insert(cameras.end(), p_cameras.begin(), p_cameras.end());
 
-    if (camRenderDatas)
-    {
-        for (const auto& camRenderData : *camRenderDatas)
-        {
-            renderData.push_back(camRenderData);
-        }
+    Render::RenderWorld world;
+    world.time = 0.0f; // TODO: the engine's elapsed time in seconds
+    const std::vector<std::uint32_t> debugDraws = AddDebugDraws(world);
+    AddCameras(world, cameras, debugDraws);
 
-        // Sort the render data by priority, higher priority first
-        std::sort(renderData.begin(), renderData.end(),
-                  [](const Graphics::CameraRenderData& a, const Graphics::CameraRenderData& b)
-                  {
-                      return a.priority > b.priority;
-                  });
-    }
-
-    // Rendering
-    m_renderer.Draw(renderData);
+    ImDrawData* overlay = nullptr;
+#ifdef _EDITOR
+    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, m_renderer.ImGuiImages());
+    m_renderer.SetCompositeScene(false); // the editor's windows show the cameras
+#else
+    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
+#endif
+    m_renderer.Upload(ProvideAssets(required, m_renderer.Resident()));
 
 #ifdef _EDITOR
-    // ImGui
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-    }
+    overlay = m_imguiFrame.End();
 #endif
+    m_renderer.Render(world, overlay);
 
-    m_sceneManager.PostRender();
-
+    m_sceneManager.PostRender(); // clears the cameras' render data
     ResourceManager::GetInstance().Update();
-    Graphics::Vulkan::IntermediaryStorage::GetInstance().DestroyUnusedResources();
 
     FrameMark;
-
     return DROPLET_RETURNTYPE::OK;
 }
 
-// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
-// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
-// TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP TEMP
-
-namespace
-{
-    namespace
-    {
-        
-        /// @brief The entry for id in assets, or nullptr
-        const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Guid id)
-        {
-            const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
-            return assetIt != assets.end()
-                       ? &*assetIt
-                       : nullptr;
-        }
-        
-        /// @brief Adds the mesh to uploads if it exists in the asset storage
-        void AddMesh(ResourceManager &resMan, Assets::AssetUploads& uploads, Guid id)
-        {
-            const auto * mesh = resMan.GetResource<MeshResource>(GUID{id.value});
-            
-            if (!mesh || mesh->GetVertexData().empty() || mesh->GetIndexData().empty())
-                return; // not in the storage: the renderer draws its placeholder cube
-
-            uploads.meshes.push_back({
-                .id = id,
-                .revision = 0, // donot' bother with revision
-                .vertexData = mesh->GetVertexData(),
-                .vertexStride = static_cast<std::uint32_t>(mesh->GetVertexByteSize()),
-                .indices = mesh->GetIndexData()
-            });
-        }
-
-        /// @brief Adds the texture to uploads if it exists in the asset storage
-        void AddTexture(ResourceManager &resMan, Assets::AssetUploads& uploads, Guid id)
-        {
-            const auto * texture = resMan.GetResource<Texture2DResource>(GUID{id.value});
-
-            if (!texture)
-                return; // not in the storage: the renderer draws its placeholder texture
-
-            Common::PixelFormat format = Common::PixelFormat::RGBA8_SRGB;
-            
-            if (texture->GetFormat() == TextureResource::TextureFormat::RGBA8_Unorm)
-                format = Common::PixelFormat::RGBA8_UNORM;
-            
-            uploads.textures.push_back({
-                .id = id,
-                .revision = 0,
-                .width = texture->GetWidth(),
-                .height = texture->GetHeight(),
-                .format = format,
-                .pixels = texture->GetPixelData(),
-                .sampling = Common::TextureSampling{
-                    .generateMips = texture->GetMipLevels() > 1,
-                    .filter = Common::TextureFilter::Linear,
-                    .maxAnisotropy = 1.0f,
-                    .repeat = true
-                }
-            });
-        }
-
-        /// @brief Adds the shader to uploads if it exists in the asset storage
-        void AddShader(ResourceManager &rscMan, Assets::AssetUploads& uploads, Guid id)
-        {
-            // TODO: find out how shaders work atm and make it work™
-            // const auto * shader = rscMan.GetResource<ShaderResource>(GUID{id.value});
-            //
-            // if (!shader)
-            //     return; // not in the storage: the renderer uses its default shader
-            //
-            // uploads.shaders.push_back({
-            //     .id = id, 
-            //     .revision = 0, 
-            //     .shader = *shader
-            // });
-        }
-        
-        Render::RenderWorld ToRenderWorld(std::span<const Graphics::CameraRenderData> p_cameras)
-        {
-            using namespace Droplet::Graphics;
-            
-            // RenderData -> RenderObject
-            auto toRenderObject = [](const RenderData& object) -> Render::RenderObject
-            {
-                Render::RenderObject output{};
-
-                output.meshId = Guid{(object.meshData.GUID)};
-                output.transform = object.transform;
-                output.shaderId = Guid{object.vsData.GUID}; // TODO: see how pipelines are handled
-                output.imageTexture = Common::ImageRef{
-                    .kind = Common::ImageRef::Kind::Texture, // TODO: change this when mesh can carry a render target texture
-                    .id = Guid{object.texData.GUID}
-                };
-
-                return output;
-            };
-
-            // CameraRenderData -> RenderView
-            auto toRenderView = [](const CameraRenderData& view) -> Render::RenderView
-            {
-                Render::RenderView output{};
-
-                output.view = view.camera.GetViewMatrix();
-                output.proj = view.camera.GetProjectionMatrix();
-                output.needsHistory = false;
-
-                return output;
-            };
-
-            // std::vector<CameraRenderData> -> Render::RenderWorld
-            auto toRenderWorld = [toRenderView, toRenderObject](std::span<const CameraRenderData> data)
-            {
-                Render::RenderWorld output;
-
-                for (const auto& view : data)
-                {
-                    for (const auto& object : view.renderData)
-                    {
-                        output.objects.emplace_back(toRenderObject(object));
-                    }
-                    output.views.emplace_back(toRenderView(view));
-                }
-
-                return output;
-            };
-
-            Render::RenderWorld world = toRenderWorld(p_cameras);
-            
-            return world;
-        }
-    }
-
-    namespace
-    {
-        /// @brief Adds a valid `id` to `ids` unless it is already there (a world names the same asset many times).
-        void AddUniqueId(std::vector<Guid>& ids, Guid id)
-        {
-            if (id.IsValid() && std::ranges::find(ids, id) == ids.end())
-                ids.push_back(id);
-        }
-
-        /// @brief Adds the texture `image` refers to; a render target or no image is not an asset.
-        void AddRequiredTexture(Assets::RequiredAssets& required, const Common::ImageRef& image)
-        {
-            if (image.kind == Common::ImageRef::Kind::Texture)
-                AddUniqueId(required.textures, image.id);
-        }
-    }
-
-    Assets::AssetUploads ProvideAssets(
-        const Assets::RequiredAssets& required,
-        const Assets::ResidentAssets& resident)
-    {
-        auto& assets = ResourceManager::GetInstance();
-
-        Assets::AssetUploads uploads;
-
-        // a mesh or texture the GPU lacks, or holds an older revision of
-        for (const Guid id : required.meshes)
-        {
-            const Assets::ResidentAsset* onGpu = Find(resident.meshes, id);
-            if (!onGpu /* unsure if resource manager tracks revisions || assets.MeshRevision(id) > onGpu->revision*/)
-                AddMesh(assets, uploads, id);
-        }
-        for (const Guid id : required.textures)
-        {
-            const Assets::ResidentAsset* onGpu = Find(resident.textures, id);
-            if (!onGpu)
-                AddTexture(assets, uploads, id);
-        }
-
-        // a shader the GPU has not seen, or one that did not compile at an older revision; compiled ones stay
-        for (const Guid id : required.shaders)
-        {
-            if (Find(resident.shaders, id))
-                continue;
-            const Assets::ResidentAsset* failed = Find(resident.failedShaders, id);
-            if (!failed)
-                AddShader(assets, uploads, id);
-        }
-
-        return uploads;
-    }
-}
-
-void Droplet::Engine::BeginFrame()
-{
-    m_inImGuiFrame.Begin(m_inRenderer);
-}
-
-void Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
-{
-    using namespace Droplet::Graphics;
-    // order shouldn't matter because render graph sorts it out
-    std::vector<CameraRenderData> renderLists = m_sceneManager.GetRenderData();
-    renderLists.assign(p_cameras.begin(), p_cameras.end());
-    
-    // 1. convert scene output to RenderWorld (temporarily)
-    Render::RenderWorld world = ToRenderWorld(renderLists);
-
-    // until render targets can be created this is how to draw the main menu TODO: fix this
-    static constexpr Guid mainTargetId = Guid::FromName("target/mainCamera");
-    int width, height;
-    SDL_GetWindowSizeInPixels(m_window.Get(), &width, &height);
-    const Common::RenderTargetDesc mainTarget{
-        .id = mainTargetId,
-        .width = static_cast<uint32_t>(width),
-        .height = static_cast<uint32_t>(height),
-    };
-    world.targets.emplace_back(mainTarget);
-    world.views.front().targetId = mainTargetId;
-
-    // 2. Scuffed way of upload/bridge
-    Assets::AssetUploads uploads = ProvideAssets(Bridge::RequiredAssetsOf(world), m_inRenderer.Resident());
-    
-    
-    m_inRenderer.Upload(uploads);
-    
-    // 3. capture imgui
-    ImDrawData* overlay = nullptr;
 #ifdef _EDITOR
-    m_inImGuiFrame.Begin(m_renderer);
-    EditorContext editorContext{
-        .scene = m_scene,
-        .targetTexture = [this](Guid target) { return m_renderer.ImGuiTexture(target); },
-        .lastFrame = m_renderer.Prepared()
-    };
-    m_editor.Draw(editorContext);
-    overlay = m_inImGuiFrame.End();
-    m_renderer.SetCompositeScene(m_editor.SceneBehindEditor());
-#endif
-
-    // 4. Submit to renderer
-    m_inRenderer.Render(world);
-}
-
-void Droplet::Engine::EndFrame()
+ImTextureRef Engine::GetImGuiTexture(GUID p_image)
 {
+    return ImTextureRef(m_renderer.ImGuiTexture(ToSandboxGuid(p_image)));
 }
+#endif

@@ -1,7 +1,7 @@
 /// @file ImGuiPass.cpp
 /// @brief Vulkan::ImGuiPass implementation.
 #ifdef _EDITOR
-#include "Vulkan/Passes/ImGuiPass.hpp"
+#include "Integration/Vulkan/Passes/ImGuiPass.hpp"
 
 #include <algorithm>
 #include <format>
@@ -10,7 +10,7 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_vulkan.h>
 
-#include "Vulkan/Core/Context.hpp"
+#include "Integration/Vulkan/Core/Context.hpp"
 
 namespace
 {

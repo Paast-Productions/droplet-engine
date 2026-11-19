@@ -62,10 +62,10 @@ namespace Vulkan
         void CreateDescriptorPools();
         void CreatePipelineLayout();
 
-        /// @brief The pipeline rendering to `colorFormat`, created the first time
+        /// @brief The pipeline rendering to `colorFormat`, created the first time.
         [[nodiscard]] vk::Pipeline PipelineFor(vk::Format colorFormat);
 
-        /// @brief Allocates a set from the current slot's pool and points it at `source`
+        /// @brief Allocates a set from the current slot's pool and points it at `source`.
         [[nodiscard]] vk::DescriptorSet AllocateSourceSet(vk::ImageView source);
 
         const vk::raii::Device& Device() const noexcept;
@@ -74,8 +74,8 @@ namespace Vulkan
         const Context* m_context; ///< Not owned; outlives the compositor.
         std::uint32_t m_framesInFlight;
         std::uint32_t m_frameSlot{0}; ///< Slot of the frame being recorded (BeginFrame)
-        
-       vk::ClearValue m_defaultClearColor{vk::ClearColorValue{}.setFloat32({0.01f, 0.01f, 0.1f, 1.0f})};
+
+        vk::ClearValue m_defaultClearColor = vk::ClearValue{}.setColor(vk::ClearColorValue{}.setFloat32({0.01f, 0.01f, 0.1f, 1.0f}));
 
         // == Pipelines ==
         vk::raii::ShaderModule m_vertexShaderModule{nullptr};

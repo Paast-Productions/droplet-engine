@@ -14,12 +14,6 @@
 #include "Core/Time.hpp"   // Delta timing
 #include "Spoof/Spoof.hpp" // Creates a Scene from scratch
 
-#ifdef _EDITOR
-#include <string>
-
-#include <imgui.h>
-#endif
-
 SandboxApp::SandboxApp(SandboxAppConfig cfg)
     : m_config(cfg),
     m_window(m_config.wnd),
@@ -70,6 +64,9 @@ void SandboxApp::Init()
 {
     m_assets = Spoof::MakeResources();
     m_scene = Spoof::MakeScene(m_assets);
+#ifdef _EDITOR
+    m_editor.Init(m_scene);
+#endif
 }
 
 void SandboxApp::MainLoop()
@@ -95,7 +92,11 @@ void SandboxApp::MainLoop()
         Update(dt);
 
         // 1. the scene as a snapshot, by GUID
+#ifdef _EDITOR
+        const Render::RenderWorld world = Bridge::Extract(m_scene, m_editor.Cameras()); // and the editor's camera
+#else
         const Render::RenderWorld world = Bridge::Extract(m_scene);
+#endif
         if (!m_worldDescribed)
         {
             Bridge::Describe(world, m_scene);
@@ -104,15 +105,26 @@ void SandboxApp::MainLoop()
 
         // 2. the assets the snapshot refers to that the GPU lacks or holds an out-of-date copy of, from the asset storage
         //    to the GPU: separate from rendering, so it can move to a thread pool
-        m_renderer.Upload(Bridge::ProvideAssets(m_assets, Bridge::RequiredAssetsOf(world), m_renderer.Resident()));
+#ifdef _EDITOR
+        // and the textures the editor's windows showed last frame
+        const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, m_renderer.ImGuiImages());
+#else
+        const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
+#endif
+        m_renderer.Upload(Bridge::ProvideAssets(m_assets, required, m_renderer.Resident()));
 
         // 3. the editor's windows (ImGui), drawn on top of the frame
         ImDrawData* overlay = nullptr;
 #ifdef _EDITOR
         m_imgui.Begin(m_renderer);
-        DrawEditor();
+        EditorContext editorContext{
+            .scene = m_scene,
+            .targetTexture = [this](Guid target) { return m_renderer.ImGuiTexture(target); },
+            .lastFrame = m_renderer.Prepared()
+        };
+        m_editor.Draw(editorContext);
         overlay = m_imgui.End();
-        m_renderer.SetCompositeScene(m_sceneBehindEditor);
+        m_renderer.SetCompositeScene(m_editor.SceneBehindEditor());
 #endif
 
         // 4. draw the snapshot
@@ -137,62 +149,3 @@ void SandboxApp::Update(float dt)
     elapsed += dt;
     m_scene.Animate(elapsed);
 }
-
-#ifdef _EDITOR
-void SandboxApp::DrawEditor()
-{
-    ImGui::ShowDemoWindow();
-
-    ImGui::SetNextWindowPos({20.0f, 20.0f}, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize({280.0f, 150.0f}, ImGuiCond_FirstUseEver);
-    if (ImGui::Begin("Stats"))
-    {
-        const ImGuiIO& io = ImGui::GetIO();
-        ImGui::Text("%.2f ms  %.0f fps", 1000.0f / io.Framerate, io.Framerate);
-        // editor mode: the window only shows the editor, the cameras are in their viewports
-        ImGui::Checkbox("Scene behind the editor", &m_sceneBehindEditor);
-        for (const Render::DrawList& view : m_renderer.Prepared().views)
-            ImGui::BulletText("%s: %zu draws", view.name.c_str(), view.items.size());
-    }
-    ImGui::End();
-
-    // cameras recording to viewports: each window shows a camera's render target
-    ImGui::SetNextWindowPos({20.0f, 190.0f}, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize({440.0f, 280.0f}, ImGuiCond_FirstUseEver);
-    DrawViewport(Spoof::CameraMainName);
-    ImGui::SetNextWindowPos({480.0f, 190.0f}, ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize({300.0f, 330.0f}, ImGuiCond_FirstUseEver);
-    DrawViewport(Spoof::CameraAName);
-}
-
-void SandboxApp::DrawViewport(std::string_view cameraName)
-{
-    const std::string title = std::format("Viewport: {}", cameraName);
-    if (ImGui::Begin(title.c_str()))
-    {
-        Game::Node* camera = m_scene.FindNode(cameraName);
-        Common::RenderTargetDesc* target = camera && camera->camera ? m_scene.FindTarget(camera->camera->output) : nullptr;
-        const ImVec2 space = ImGui::GetContentRegionAvail();
-        if (!target)
-        {
-            ImGui::TextUnformatted("No camera or render target");
-        }
-        else if (space.x >= 1.0f && space.y >= 1.0f)
-        {
-            // the camera renders at the window's size: the target follows the window, the projection its aspect. The
-            // renderer replaces the target when it sees the new size, from the next frame's world
-            ImVec2 pixelScale = ImGui::GetIO().DisplayFramebufferScale;
-            const auto width = static_cast<std::uint32_t>(space.x * pixelScale.x);
-            const auto height = static_cast<std::uint32_t>(space.y * pixelScale.y);
-            if (target->width != width || target->height != height)
-            {
-                target->width = width;
-                target->height = height;
-                camera->camera->aspect = static_cast<float>(width) / static_cast<float>(height);
-            }
-            ImGui::Image(ImTextureRef(m_renderer.ImGuiTexture(target->id)), space);
-        }
-    }
-    ImGui::End();
-}
-#endif

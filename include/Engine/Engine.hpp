@@ -1,15 +1,21 @@
 #pragma once
 
-#include <Graphics/SDL/Window.hpp>
-#include <Graphics/Vulkan/Renderer.hpp>
+#include <cstdint>
+#include <functional>
+#include <span>
+#include <vector>
 
 // TEMP TEMP TEMP TEMP
 #include "Integration/Platform/Window.hpp"
 #include "Integration/Platform/SDLVulkan.hpp"
 #include "Integration/Vulkan/Frame/Renderer.hpp"
+#ifdef _EDITOR
 #include "Integration/App/ImGuiFrame.hpp"
+#include <ImGui/imgui.h>
+#endif
 // TEMP TEMP TEMP TEMP
 
+#include <Graphics/RenderData.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
@@ -29,13 +35,8 @@ namespace Droplet
 	/// @brief EngineConfig is used to configure engine functionality on startup.
 	struct EngineConfig
 	{
-		Graphics::SDL::WindowConfig WindowConfig;
+		::SDL::Window::Config WindowConfig;
 		UpdateFlags UpdateFlags{ UpdateFlags::DefaultFlags };
-		// TEMP TEMP TEMP TEMP
-		SDL::Window::Config inWinCfg{
-			
-		};
-		// TEMP TEMP TEMP TEMP
 	};
 	
 	/// @brief Engine owns all long-lived engine subsystems. The engine is responsible for initializing the subsystems and to destroy them.
@@ -54,13 +55,16 @@ namespace Droplet
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
-		
-		/// @brief Will render the subsystems. Is needed to run anything.
-		/// @brief If camRenderDatas is provided, the engine will render the provided camera render data in addition to the scene's render data.
-		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas);
 
-		/// @brief Adds an event listener that will be called when an SDL event is polled.
+                /// @brief Starts the ImGui frame; call before any ImGui window
+                void BeginFrame();
+
+                /// @brief Renders the scene's cameras and `p_cameras` (the
+                /// editor's), then the ImGui frame
+                [[nodiscard]] DROPLET_RETURNTYPE
+                Render(std::span<const Graphics::CameraRenderData> p_cameras);
+
+                /// @brief Adds an event listener that will be called when an SDL event is polled.
 		/// @param p_listener The event listener to add.
 		void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
 		
@@ -69,28 +73,26 @@ namespace Droplet
 		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 		
 
-		/// @brief Getter for the window of the engine
-		/// @return An SDL window handle
-		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
+       /// @brief Getter for the window of the engine
+       /// @return An SDL window handle
+       [[nodiscard]] SDL_Window *GetWindow() { return m_window.GetSDLWindow(); }
 
-		//HACK: This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
-		Graphics::Renderer &GetRenderer() { return m_renderer; }
-		
-		// TEMP TEMP TEMP TEMP
-		void BeginFrame();
-		void Render(std::span<const Graphics::CameraRenderData> p_cameras);
-		void EndFrame();
+#ifdef _EDITOR
+       /// @brief ImGui texture id for a render target or texture asset
+       [[nodiscard]] ImTextureRef GetImGuiTexture(GUID p_image);
+#endif
+
 	private:
 
-		/// @brief Setter class with the sole purpose of setting the update flags for the engine.
-		/// 
-		/// This is done to ensure that the update flags are set before any other subsystems are 
-		/// initialized while still following RAII principles.
-		/// @note Does this make you happy, Christoffer?
-		class UpdateFlagsSetter
-		{
-		public:
-			UpdateFlagsSetter() = delete;
+       /// @brief Setter class with the sole purpose of setting the update flags for the engine.
+       ///
+       /// This is done to ensure that the update flags are set before any other subsystems are
+       /// initialized while still following RAII principles.
+       /// @note Does this make you happy, Christoffer?
+       class UpdateFlagsSetter
+       {
+       public:
+          UpdateFlagsSetter() = delete;
 
 			UpdateFlagsSetter(UpdateFlags p_flags)
 			{
@@ -98,16 +100,18 @@ namespace Droplet
 			}
 		};
 
-		UpdateFlagsSetter m_updateFlagsSetter;
-		
-		/// @brief The window instance should only be one.
-		Graphics::SDL::Window m_window;
+       UpdateFlagsSetter m_updateFlagsSetter;
 
-		/// @brief The renderer instance, should only be one.
-		Graphics::Renderer m_renderer;
-				
-		/// @brief Registry containing the game's registered item definitions.
-		Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
+       // == Window and rendering == constructed in this order, destroyed in reverse
+       ::SDL::Window m_window;
+       ::SDL::VulkanSurfaceProvider m_surfaceProvider;
+#ifdef _EDITOR
+       ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
+#endif
+       Vulkan::Renderer m_renderer;
+
+       /// @brief Registry containing the game's registered item definitions.
+       Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
@@ -119,17 +123,7 @@ namespace Droplet
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 
-		/// @brief Registers all components owned by the engine.
-		void RegisterComponents();
-		
-		// TEMP TEMP TEMP TEMP integration
-		uint32_t m_inWidth {0};
-		uint32_t m_inHeight {0};
-		SDL::Window m_inWindow;
-		SDL::VulkanSurfaceProvider m_inSurfaceProvider;
-		Vulkan::Renderer m_inRenderer;
-		#if _EDITOR
-		ImGuiFrame m_inImGuiFrame; // holds imgui context separate from renderer
-		#endif
-	};
+       /// @brief Registers all components owned by the engine.
+       void RegisterComponents();
+    };
 }
