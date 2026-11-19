@@ -93,6 +93,7 @@ namespace Vulkan
         Context m_vulkanContext;
         vk::Format m_depthFormat{vk::Format::eUndefined};
         WSI m_wsi;               ///< Swapchain, acquire and present, frame slots
+        
         /// Frame submitter, GPU resources, scene shaders and the deletion queue; flushed in ~Renderer, because the
         /// deletion queue can hold DrawPass's material sets, whose pool goes before the device
         RenderDevice m_device;
