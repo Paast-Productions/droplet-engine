@@ -24,7 +24,6 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 
             if (auto parent = p_node->GetParent().lock())
             {
-                // Child node: remove it from its parent.
                 parent->RemoveChild(node, true);
             }
             
