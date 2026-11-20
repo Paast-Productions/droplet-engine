@@ -551,7 +551,9 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		"TakeDamage", &Scene::HealthComponent::TakeDamage,
 		"Heal", &Scene::HealthComponent::Heal,
 		"SetHealth", &Scene::HealthComponent::SetHealth,
-		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth
+		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth,
+
+		"TakeDamageHullIntergrity", & Scene::HealthComponent::TakeDamageHullIntergrity
 	);
 
 	LuaClassDefinition classDef;
@@ -564,18 +566,20 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		{ "TakeDamage", "void", { { "amount", "number" } } },
 		{ "Heal", "void", { { "amount", "number" } } },
 		{ "SetHealth", "void", { { "amount", "number" } } },
-		{ "SetMaxHealth", "void", { { "amount", "number" } } }
+		{ "SetMaxHealth", "void", { { "amount", "number" } } },
+	
+		{ "TakeDamageHullIntergrity", "void", { { "amount", "number" } } }
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
-
 }
 
 void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_usertype<Scene::HazardComponent>(
 		"HazardComponent",
-		"GetDamage", &HazardComponent::GetDamage,
+		"GetDamage", &Scene::HazardComponent::GetDamage,
+        "GetZone", &Scene::HazardComponent::GetZone,
 		"GetDirection", &HazardComponent::GetDirection,
 		
 		"SetDamage", &HazardComponent::SetDamage,
@@ -592,6 +596,7 @@ void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
         
         { "SetDamage", "void", {{"damage", "number"}} },
         { "SetDirection", "void", {{"direction", "Vec3"}} },
+        { "GetZone", "int",{} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -646,6 +651,10 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+
+        "GetHullIntegrity", &Scene::PlayerBehaviour::GetHullIntegrity,
+        "SetHullIntegrity", &Scene::PlayerBehaviour::SetHullIntegrity,
+        "IncreaseHullIntegrity", &Scene::PlayerBehaviour::IncreaseHullIntegrity,
 		
         "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"SetHeatResistance", & Scene::PlayerBehaviour::SetHeatResistance,
@@ -686,7 +695,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
         "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
         "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
-
 	);
 
     // PlayerBehaviour API metadata.
@@ -695,6 +703,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetMaxHealth", "float", {} },
+        { "GetHullIntegrity", "float",{} },
+        { "SetHullIntegrity", "void",{ { "resistance", "number" } } },
+        { "IncreaseHullIntegrity",   "void",{ { "amount", "number" } } },
         { "GetHeatResistance", "float", {} },
         { "GetHeatLevel", "float", {} },
         { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
@@ -715,11 +726,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetPressureLevel", "float", {} },
         { "SetPressureLevel", "void", { { "amount", "number" } } },
         { "IncreasePressureLevel", "void", { { "amount", "number" } } },
-        { "GetRadiationResistance", "float", {} },
-        { "SetRadiationResistance", "void", { { "amount", "number" } } },
-        { "GetRadiationLevel", "float", {} },
-        { "SetRadiationLevel", "void", { { "amount", "number" } } },
-		{ "IncreaseRadiationLevel", "void", { { "amount", "number" } } },
 		{ "SetDroneInventorySize", "void", { { "amount", "number" } } },
 		{ "GetDroneInventorySize", "float", {} },
 		{ "SetDroneMaxSpeed", "void", { { "amount", "number" } } },
@@ -744,7 +750,6 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
     LuaBindings::PushLuaClassDefinition(registryDef);
 }
-
 
 void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
 {
