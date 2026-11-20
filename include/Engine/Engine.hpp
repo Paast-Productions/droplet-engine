@@ -15,7 +15,7 @@
 #endif
 // TEMP TEMP TEMP TEMP
 
-#include <Graphics/RenderData.hpp>
+#include <Graphics/Common/RenderData.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>

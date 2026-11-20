@@ -8,7 +8,7 @@
 #include <Graphics/Vulkan/RenderTarget.hpp>
 #include <Graphics/Vulkan/TextureFormatUtils.hpp>
 #include <Graphics/Vulkan/ImGuiTexture.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Graphics/Common/RenderData.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
 
 using namespace Droplet::Graphics::Vulkan;

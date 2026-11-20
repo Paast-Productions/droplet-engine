@@ -1,15 +1,8 @@
 #include "DebugDraw.hpp"
 
-#include <Graphics/Vulkan/Camera.hpp>
-#include <Graphics/Vulkan/Context.hpp>
-#include <Graphics/Vulkan/CommandPool.hpp>
-#include <Graphics/Vulkan/Image.hpp>
-#include <Graphics/Vulkan/ImageView.hpp>
-#include <Graphics/Vulkan/TextureFormatUtils.hpp>
-#include <Graphics/Vulkan/Sampler.hpp>
-#include <resource/ResourceManager.hpp>
-#include <Math/Bezier.hpp>
-#include <Math/Curves.hpp>
+#include <Graphics/Common/Camera.hpp>
+#include <math/Bezier.hpp>
+#include <math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <tracy/public/tracy/Tracy.hpp>

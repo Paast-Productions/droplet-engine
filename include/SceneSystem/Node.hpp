@@ -14,9 +14,9 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include <Transform.hpp>
-#include <SceneSystem/Bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
-#include <Graphics/DrawLayer.hpp>
+#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <Graphics/Common/RenderData.hpp>
+#include <Graphics/Common/DrawLayer.hpp>
 #include <SceneSystem/Physics/CollisionLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>

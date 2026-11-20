@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include "RenderWorld.hpp"
 #include "Integration/Core/Guid.hpp"
 #include "Integration/Vulkan/Resources/DeletionQueue.hpp"
 #include "Integration/Vulkan/Resources/GpuResourceManager.hpp"
