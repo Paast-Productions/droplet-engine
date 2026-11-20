@@ -11,6 +11,9 @@ namespace Droplet::Scene
     {
         m_maxHealth = std::max(0.0f, m_maxHealth);
         m_health = std::clamp(m_health, 0.0f, m_maxHealth);
+
+        m_maxHullIntegrity = std::max(0.0f, m_maxHullIntegrity);
+        m_hullIntegrity = std::clamp(m_hullIntegrity, 0.0f, m_maxHullIntegrity);
     }
 
     void HealthComponent::UpdateImpl()
@@ -25,9 +28,21 @@ namespace Droplet::Scene
             return;
         }
 
+        
+        p_amount = p_amount * (2 - (m_hullIntegrity / 100));
+        
         m_health = std::max(0.0f, m_health - p_amount);
     }
 
+    void HealthComponent::TakeDamageHullIntergrity(float p_amount)
+    {
+        if (!std::isfinite(p_amount) || p_amount <= 0.0f)
+        {
+            return;
+        }
+
+        m_hullIntegrity = std::max(0.0f, m_hullIntegrity - p_amount);
+    }
     void HealthComponent::Heal(float p_amount)
     {
         if (!std::isfinite(p_amount) || p_amount <= 0.0f)
@@ -53,6 +68,19 @@ namespace Droplet::Scene
             : 0.0f;
 
         ImGui::ProgressBar(fraction, ImVec2(-1.0f, 0.0f));
+
+
+        ImGui::DragFloat("Hull Integrity", &m_hullIntegrity, 1.0f, 0.0f, m_maxHullIntegrity);
+        ImGui::DragFloat("Max Hull Integrity", &m_maxHullIntegrity, 1.0f, 0.0f);
+
+        m_maxHullIntegrity = std::max(0.0f, m_maxHullIntegrity);
+        m_hullIntegrity = std::clamp(m_hullIntegrity, 0.0f, m_maxHullIntegrity);
+
+        const float fractionHullIntegrity = m_maxHullIntegrity > 0.0f
+            ? m_hullIntegrity / m_maxHullIntegrity
+            : 0.0f;
+
+        ImGui::ProgressBar(fractionHullIntegrity, ImVec2(-1.0f, 0.0f));
 #endif
     }
 
@@ -60,7 +88,10 @@ namespace Droplet::Scene
     {
         return {
             {"health", m_health},
-            {"maxHealth", m_maxHealth}
+            {"maxHealth", m_maxHealth},
+            { "hullIntegrity", m_hullIntegrity },
+            { "maxHullIntegrity", m_maxHullIntegrity }
+
         };
     }
 
@@ -71,5 +102,12 @@ namespace Droplet::Scene
 
         m_health = p_compJson.value("health", m_maxHealth);
         m_health = std::clamp(m_health, 0.0f, m_maxHealth);
+
+
+        m_maxHullIntegrity = p_compJson.value("maxHullIntegrity", 100.0f);
+        m_maxHullIntegrity = std::max(0.0f, m_maxHullIntegrity);
+
+        m_hullIntegrity = p_compJson.value("hullIntegrity", m_maxHullIntegrity);
+        m_hullIntegrity = std::clamp(m_hullIntegrity, 0.0f, m_maxHullIntegrity);
     }
 }
