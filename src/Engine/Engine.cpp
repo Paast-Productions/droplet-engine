@@ -31,7 +31,10 @@
 #include <Graphics/DebugDraw.hpp>
 
 // TEMP TEMP TEMP TEMP
-#include "AssetProvider.hpp"
+#include "RenderTargetDesc.hpp"
+#include "Integration/Bridge/AssetProvider.hpp"
+// TEMP TEMP TEMP TEMP
+
 
 using namespace Droplet;
 
@@ -208,8 +211,8 @@ namespace
                 .id = targetId,
                 .width = target.extent.width,
                 .height = target.extent.height,
-                .format = target.format == Graphics::Common::PixelFormat::RGBA8_SRGB ? ::Common::PixelFormat::RGBA8_SRGB
-                                                                                     : ::Common::PixelFormat::RGBA8_UNORM });
+                .format = target.format == Graphics::Common::PixelFormat::RGBA8_UNORM ? ::Common::PixelFormat::RGBA8_UNORM
+                                                                                     : ::Common::PixelFormat::RGBA8_SRGB });
 
             Render::RenderView view;
             view.view = camera.camera.GetViewMatrix();
@@ -251,7 +254,10 @@ Engine::Engine(EngineConfig p_config)
 #ifdef _EDITOR
     m_renderer.InitImGui(); // the backend needs the context ImGuiFrame created
     // the camera inspector's preview
-    Scene::CameraComponent::SetImGuiTextureLookup([this](GUID p_image) { return m_renderer.ImGuiTexture(ToSandboxGuid(p_image)); });
+    Scene::CameraComponent::SetImGuiTextureLookup([this](GUID p_image)
+    {
+        return m_renderer.ImGuiTexture(ToSandboxGuid(p_image));
+    });
 #endif
 
     ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
@@ -318,7 +324,7 @@ Engine::~Engine()
     ZoneScoped;
 
 #ifdef _EDITOR
-    Scene::CameraComponent::SetImGuiTextureLookup(nullptr); // it points at this engine's renderer
+    Scene::CameraComponent::SetImGuiTextureLookup(nullptr);
 #endif
 
     // Make sure we detach our behaviours from Scene Manager before Scene Manager might destroy them

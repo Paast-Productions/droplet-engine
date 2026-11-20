@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <string_view>
 
+#include "Integration/App/Editor.hpp"
 #include "Integration/Assets/Assets.hpp"
 #include "Integration/Vulkan/Frame/Renderer.hpp"
 #include "Integration/Platform/SDLVulkan.hpp"

@@ -1,8 +1,8 @@
 #include "DebugDraw.hpp"
 
 #include <Graphics/Common/Camera.hpp>
-#include <math/Bezier.hpp>
-#include <math/Curves.hpp>
+#include <Math/Bezier.hpp>
+#include <Math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
