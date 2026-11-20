@@ -223,6 +223,15 @@ namespace Droplet::Scene
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
 	private:
+		enum TransformSync
+		{
+			SyncPosition = 1 << 0,
+			SyncRotation = 1 << 1,
+
+			SyncNone = 0,
+			SyncAll = SyncPosition | SyncRotation
+		};
+
 		/// @brief Helper function for creating collider body
 		/// @param p_shapeSettings The shape settings for the collider body
 		/// @param p_offset The offset position from the nodes position
@@ -230,10 +239,10 @@ namespace Droplet::Scene
 		void CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Sends transform changes from the game engine to Jolt
-		void PushTransformToPhysics();
+		void PushTransformToPhysics(TransformSync p_syncFlags = SyncAll);
 
 		/// @brief Applies the simulated Jolt transform to the Node Transform
-		void PullTransformFromPhysics();
+		void PullTransformFromPhysics(TransformSync p_syncFlags = SyncAll);
 
 		/// @brief Draw the collider shape
 		/// @note This does not draw mesh, convex hull, and compound colliders
@@ -251,7 +260,8 @@ namespace Droplet::Scene
 		Layers m_layer = NON_MOVING;
 
 		std::shared_ptr<Physics> m_physics;
-		std::size_t m_transformVersion = 0;
+		std::size_t m_transformPositionVersion = 0;
+		std::size_t m_transformRotationVersion = 0;
 
 		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};
 		JPH::ShapeRefC m_shape{};
