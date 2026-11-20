@@ -105,7 +105,17 @@ namespace Droplet
 		
 		/// @brief Get the font metadata
 		/// @return Reference to the metadata header associated with the font
-		const SlugFontHeader& GetFontHeader() const;
+		const SlugFontHeader &GetFontHeader() const;
+		
+		/// @brief Get curves texture
+		/// @return Reference to vec4 vector containing the curve texture data
+		const std::vector<glm::vec4> &GetCurvesTextureData() const;
+		
+		/// @brief Get bands texture
+		/// @return Reference to uint16 vec2 vector containing the band texture data
+		const std::vector<glm::u16vec2> &GetBandsTextureData() const;
+		
+		const std::string &GetName() const;
 		
 	private:
 		std::string m_name{}; // Name of the font

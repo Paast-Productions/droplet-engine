@@ -36,4 +36,19 @@ namespace Droplet
 	{
 		return m_fontHeader;
 	}
+
+	const std::vector<glm::vec4> &FontResource::GetCurvesTextureData() const
+	{
+		return m_curvesTextureData;
+	}
+
+	const std::vector<glm::u16vec2> &FontResource::GetBandsTextureData() const
+	{
+		return m_bandsTextureData;
+	}
+
+	const std::string &FontResource::GetName() const
+	{
+		return m_name;
+	}
 }
