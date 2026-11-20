@@ -3,6 +3,7 @@
 #include "Effects/ReverbEffect.hpp"
 #include "Effects/LowPassEffect.hpp"
 #include "Effects/HighPassEffect.hpp"
+#include "Effects/BandPassEffect.hpp"
 #include "SceneSystem/Components/AudioListenerComponent.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include "SceneSystem/Components/AudioPlayerComponent.hpp"
@@ -651,4 +652,5 @@ void Droplet::Audio::AudioSystem::RegisterEffects()
     //EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
     EffectRegistry::RegisterEffect("LowPassEffect", []() {return std::make_unique<LowPassEffect>();});
     EffectRegistry::RegisterEffect("HighPassEffect", []() {return std::make_unique<HighPassEffect>();});
+    EffectRegistry::RegisterEffect("BandPassEffect", []() {return std::make_unique<BandPassEffect>();});
 }
