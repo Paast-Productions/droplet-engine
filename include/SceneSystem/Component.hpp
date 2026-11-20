@@ -3,13 +3,15 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene
 {
     // Forward declaration
+    class Scene;
     class Node;
+    class Transform;
     class SerializationContext;
 
     /// @brief Base class for components that can be attached to a Node.
@@ -153,7 +155,11 @@ namespace Droplet::Scene
         /// created node/component can be set as a target and more easily referenced
         /// 
         /// @param p_context The context that holds the mapping of newly deserialized nodes and components
-        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
+        virtual void ResolveReferences([[maybe_unused]] SerializationContext &p_context);
+
+        Transform &GetTransform();
+
+        std::shared_ptr<Scene> GetScene() const;
 
     protected:
 
@@ -172,7 +178,7 @@ namespace Droplet::Scene
     	virtual void ActiveChangedImpl(const bool p_active) {}
 
         virtual void QueueRenderImpl() {}
-
+        
 		virtual void DestroyImpl() {}
 
         [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }

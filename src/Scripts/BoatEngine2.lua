@@ -4,6 +4,8 @@ local MeshToggleSystem = require("MeshToggleSystem")
 local brokenEngine
 local repairedEngine
 
+local repaired = false;
+local partReplaced = false;
 local engineRepairSound = nil;
 local engineRepairFailedSound = nil;
 
@@ -66,13 +68,17 @@ function OnTrigger(dt, node)
         tracy.ZoneEnd()
         return
     end
-    if pb:CountItem(InventoryType.Player, repairedPartId) >= 1 then
+    if (pb:CountItem(InventoryType.Player, repairedPartId) >= 1) or (partReplaced) then
 
-        print("Repaired")
-        engineRepairSound:Play()
-
-        if((pb:CountItem(InventoryType.Player, woodId) >= 10) and (pb:CountItem(InventoryType.Player, metalId) >= 10)) then
+        if (partReplaced == false) then
+            MeshToggleSystem.SetActive(repairedEngine, true)
             pb:RemoveItem(InventoryType.Player, repairedPartId, 1)
+            engineRepairSound:Play()
+            partReplaced = true
+        end
+
+        if((pb:CountItem(InventoryType.Player, woodId) >= 10) and (pb:CountItem(InventoryType.Player, metalId) >= 10) and (repaired == false)) then
+            engineRepairSound:Play()
             pb:RemoveItem(InventoryType.Player, woodId, 10)
             pb:RemoveItem(InventoryType.Player, metalId, 10)
             local Children = self:GetChildren()
@@ -85,13 +91,16 @@ function OnTrigger(dt, node)
                     value:SetActiveSelf(true)
                 end
             end
-            MeshToggleSystem.SetActive(repairedEngine, true)
+            repaired = true
+        else
+            print("Can't do anything with the engine")
+            engineRepairFailedSound:Play()
         end
     else
         print("Can't do anything with the engine")
         engineRepairFailedSound:Play()
     end
-
+                
     tracy.ZoneEnd()
 end
 

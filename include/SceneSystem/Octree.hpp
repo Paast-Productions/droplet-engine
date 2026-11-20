@@ -6,8 +6,8 @@
 #include <vector>
 #include <array>
 #include <string>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/Frustum.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Resource/GuidUtils.hpp>
 
@@ -90,7 +90,9 @@ namespace Droplet::Scene
 		std::string ToGraphvizTree();
 		
 		/// @brief Render the octree octants and nodes 
-		void Render();
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+		void Render(const bool p_renderOctants, const bool p_renderNodes);
 		
 		/// @brief Clear outs the octree so that the scene can rebuild it from scratch
 		void Clear();
@@ -209,7 +211,9 @@ namespace Droplet::Scene
 		
 		/// @brief Helper function for rendering every octant and node
 		/// @param p_treeNode The TreeNode to be rendered
-		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode, const bool p_renderOctants, const bool p_renderNodes);
 
 		static constexpr std::uint8_t C_MAX_NODES = 32;
 		static constexpr std::uint8_t C_MAX_DEPTH = 6;

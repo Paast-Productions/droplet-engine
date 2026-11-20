@@ -1,6 +1,7 @@
 #pragma once
 #include "InteractionState.hpp"
 #include "SceneSystem/Scene.hpp"
+#include <Graphics/Vulkan/Camera.hpp>
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
 #include <Engine/Engine.hpp>
