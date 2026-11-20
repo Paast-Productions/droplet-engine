@@ -84,7 +84,7 @@ void RenderSettings::RenderImpl()
 
     float fov = editorCamera.GetFOV();
 
-    SliderFloat("", &fov, 20.0f, 120.0f);
+    SliderFloat("##", &fov, 20.0f, 120.0f);
     SameLine();
 
     PushID(1);
