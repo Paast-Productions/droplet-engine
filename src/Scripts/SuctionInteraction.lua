@@ -2,21 +2,33 @@
 local suctionSystem = require("SuctionSystem")
 local scene
 
-local interactionRange = 30.0
+local interactionRange = 5.0
 local interactionAngle = 30.0
-
 local suctionSpeed = 4.0
 local suctionDistance = 0.3
-local maxSuctionTime = 2.0
 
-local currentTarget = nil
-local suctionElapsed = 0.0
+local activeTargets = {}
 
 local playerBehaviour
 local audioplayerMusic
 local audioplayerCollect
 local audioplayerSucction
 local playingSucction = false
+
+function FindNewTargets()
+
+    for _, fish in ipairs(suctionSystem.GetFishes()) do
+        TryAddtarget(fish)
+    end
+
+    for _, upgrade in ipairs(suctionSystem.GetUpgrades()) do
+        TryAddtarget(upgrade)
+    end
+
+    for _, part in ipairs(suctionSystem.GetBrokenParts()) do
+        TryAddtarget(part)
+    end
+end
 
 function InteractWith(target)
     local playerPosition = self:GetTransform():GetPosition(TransformSpace.World)
@@ -63,36 +75,53 @@ function InteractWith(target)
 
 end 
 
-function SuctionStart(target)
-    print("suctionStart")
-    currentTarget = target
+function IsAlreadySucking(target)
 
-    suctionElapsed = 0.0
+    for _, active in ipairs(activeTargets) do
+        if active.node == target.node then
+            return true
+        end
+    end
+
+    return false
 end
 
-function SuctionUpdate(dt)
-    if currentTarget == nil then
+function TryAddtarget(target)
+
+    if #activeTargets >= 3 then
         return
     end
 
-    if not Input:KeyHeld(Key.E) then
-        SuctionCancel()
+    if IsAlreadySucking(target) then
         return
     end
 
-    suctionElapsed = suctionElapsed + dt
+    if InteractWith(target) then
+        SuctionStart(target)
+    end
+end
 
-    local playerTransform = self:GetTransform()
-    local fishTransform = currentTarget.node:GetTransform()
+function SuctionStart(target) 
+    local suctionTarget = {
+        collectible = target,
+        node = target.node,
+        type = target.type
+    }
 
-    local playerPosition = playerTransform:GetPosition(TransformSpace.World)
+    table.insert(activeTargets, suctionTarget)
+    print("Started suction:", target.node:GetName())
+end
 
-    local fishPosition = fishTransform:GetPosition(TransformSpace.World)
+function SuctionUpdateTarget(target, dt)
+
+    local playerPosition = self:GetTransform():GetPosition(TransformSpace.World)
+    local targetTransform = target.node:GetTransform(TransformSpace.World)
+    local targetPosition = targetTransform:GetPosition(TransformSpace.World)
 
     local direction = Vec3.new(
-        playerPosition.x - fishPosition.x,
-        playerPosition.y - fishPosition.y,
-        playerPosition.z - fishPosition.z
+        playerPosition.x - targetPosition.x,
+        playerPosition.y - targetPosition.y,
+        playerPosition.z - targetPosition.z
     )
 
     local distance = math.sqrt(
@@ -101,9 +130,11 @@ function SuctionUpdate(dt)
         direction.z * direction.z
     )
 
-    if distance <= suctionDistance or suctionElapsed >= maxSuctionTime then
-        SuctionEnd()
-        return
+    if distance <= suctionDistance then
+        return true
+    end
+        if distance < 0.0001 then
+        return true
     end
 
     direction = Vec3.new(
@@ -115,19 +146,34 @@ function SuctionUpdate(dt)
     local movement = math.min(suctionSpeed * dt, distance)
 
     local newPosition = Vec3.new(
-        fishPosition.x + direction.x * movement,
-        fishPosition.y + direction.y * movement,
-        fishPosition.z + direction.z * movement
+        targetPosition.x + direction.x * movement,
+        targetPosition.y + direction.y * movement,
+        targetPosition.z + direction.z * movement
     )
 
-    fishTransform:SetPosition(newPosition, TransformSpace.World)
+    targetTransform:SetPosition(newPosition, TransformSpace.World)
+
+    return false
 end
-function SuctionEnd()
 
+function SuctionUpdateAll(dt)
 
+    for i = #activeTargets, 1, -1 do
+        
+        local target = activeTargets[i]
 
+        if SuctionUpdateTarget(target, dt) then
+
+            SuctionEnd(target)
+            table.remove(activeTargets, i)
+        end
+    end
+end
+
+function SuctionEnd(target)
+
+    local collectible = target.collectible
     local registry = playerBehaviour:GetItemRegistry()
-    local collectible = currentTarget
     
     if collectible.item and collectible.item:IsValid() then
         playerBehaviour:AddItem(
@@ -140,6 +186,7 @@ function SuctionEnd()
     else
         print("Collectible has invalid ItemId", collectible.item)
     end
+
     local repairedPartId = registry:Find("upgrade:repaired_engine_part")
 
     if collectible.item and collectible.item:IsValid() then
@@ -149,19 +196,21 @@ function SuctionEnd()
         --HACK -- This is for the game test, picking up the engine starts music
     end
 
-    currentTarget = nil
-    suctionElapsed = 0.0
-
     suctionSystem.UnregisterCollectible(collectible.node)
     scene:RemoveNode(collectible.node)
 end
 
 function SuctionCancel()
-    currentTarget = nil
-    suctionElapsed = 0.0
+    if #activeTargets == 0 then
+        return
+    end
+    
+    activeTargets = {}
+    print("We stop all succ")
 end
 
 function UpdateSuctionSound()
+    
     if Input:KeyHeld(Key.E) then
         if not playingSucction then
             audioplayerSucction:Play()
@@ -176,7 +225,6 @@ function UpdateSuctionSound()
             print("Stopping suction sound")
         end
     end
-
 end
 
 function OnStart()
@@ -221,43 +269,19 @@ end
 function OnUpdate(dt)
     UpdateSuctionSound()
 
-    if currentTarget ~= nil then
-        SuctionUpdate(dt)
+    if not Input:KeyHeld(Key.E) then
+        SuctionCancel()
         return
-    end
-
-    for _, fish in ipairs(suctionSystem.GetFishes()) do
-        if Input:KeyPressed(Key.E) then
-            print("fish", fish.node:GetName())
-            if InteractWith(fish) then
-                SuctionStart(fish)
-                return
-           end
-        end
-    end
-    for _, upgrade in ipairs(suctionSystem.GetUpgrads()) do        
-        if Input:KeyPressed(Key.E) then
-            if InteractWith(upgrade) then
-                SuctionStart(upgrade)
-                return
-           end
-        end
-    end
-    for _, brokenPart in ipairs(suctionSystem.GetBrokenParts()) do        
-        if Input:KeyPressed(Key.E) then
-            if InteractWith(brokenPart) then
-                SuctionStart(brokenPart)
-                return
-           end
-        end
+    else
+        FindNewTargets()
+        SuctionUpdateAll(dt)
     end
 
 end
 
 function RenderUI()
-    _, interactionRange = ImGui.SliderFloat("Interaction Range", interactionRange, 0.5, 100)
+    _, interactionRange = ImGui.SliderFloat("Interaction Range", interactionRange, 0.5, 50)
     _, interactionAngle = ImGui.SliderFloat("interactionAngle", interactionAngle, 0.5, 180)
     _, suctionSpeed = ImGui.SliderFloat("Suction Speed", suctionSpeed, 0.5, 20.0)
     _, suctionDistance = ImGui.SliderFloat("Suction Distance", suctionDistance, 0.5, 20.0)
-    _, maxSuctionTime = ImGui.SliderFloat("Suction Time (max)", maxSuctionTime, 0.5, 20.0)
 end
