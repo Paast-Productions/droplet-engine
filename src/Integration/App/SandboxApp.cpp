@@ -107,24 +107,24 @@ void SandboxApp::MainLoop()
         //    to the GPU: separate from rendering, so it can move to a thread pool
 #ifdef _EDITOR
         // and the textures the editor's windows showed last frame
-        const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, m_renderer.ImGuiImages());
+        // const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, Vulkan::Renderer::ImGuiImages(*overlay));
 #else
         const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
 #endif
-        m_renderer.Upload(Bridge::ProvideAssets(m_assets, required, m_renderer.Resident()));
+        // m_renderer.Upload(Bridge::ProvideAssets(m_assets, required, m_renderer.Resident()));
 
         // 3. the editor's windows (ImGui), drawn on top of the frame
         ImDrawData* overlay = nullptr;
 #ifdef _EDITOR
-        m_imgui.Begin(m_renderer);
-        EditorContext editorContext{
-            .scene = m_scene,
-            .targetTexture = [this](Guid target) { return m_renderer.ImGuiTexture(target); },
-            .lastFrame = m_renderer.Prepared()
-        };
-        m_editor.Draw(editorContext);
-        overlay = m_imgui.End();
-        m_renderer.SetCompositeScene(m_editor.SceneBehindEditor());
+        // m_imgui.Begin(m_renderer);
+        // EditorContext editorContext{
+        //     .scene = m_scene,
+        //     .targetTexture = [this](Guid target) { return m_renderer.ImGuiTexture(target); },
+        //     .lastFrame = m_renderer.Prepared()
+        // };
+        // m_editor.Draw(editorContext);
+        // overlay = m_imgui.End();
+        // m_renderer.SetCompositeScene(m_editor.SceneBehindEditor());
 #endif
 
         // 4. draw the snapshot

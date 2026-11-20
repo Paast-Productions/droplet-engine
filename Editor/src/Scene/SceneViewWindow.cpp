@@ -226,7 +226,7 @@ void SceneViewWindow::InitImpl()
 	ToggleToolbar(true);
 	
 	// a new id; the renderer creates the image when it first sees it
-	m_editorContext->GetEditorCamera().SetTarget(Graphics::Common::RenderTargetDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
+	m_editorContext->GetEditorCamera().SetTarget(Graphics::Common::RenderDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -526,7 +526,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = m_editorContext->GetEngine().GetImGuiTexture(m_editorContext->GetEditorCamera().GetTarget().id);
+	ImTextureRef camViewTexture = ImTextureRef(Graphics::ImGuiTextureId(m_editorContext->GetEditorCamera().GetTarget().id));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1136,7 +1136,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = m_editorContext->GetEngine().GetImGuiTexture(camera->GetTarget().id);
+			ImTextureRef camViewTexture = ImTextureRef(Graphics::ImGuiTextureId(camera->GetTarget().id));
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1764,7 +1764,7 @@ void SceneViewWindow::FocusCameraOnSelection()
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
 	// same id, new size: the renderer replaces the image on the next frame
-	Graphics::Common::RenderTargetDesc target = m_editorContext->GetEditorCamera().GetTarget();
+	Graphics::Common::RenderDesc target = m_editorContext->GetEditorCamera().GetTarget();
 	target.extent = { width, height };
 	m_editorContext->GetEditorCamera().SetTarget(target);
 }

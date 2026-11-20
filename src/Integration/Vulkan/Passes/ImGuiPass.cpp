@@ -51,7 +51,7 @@ namespace Vulkan
         info.Device = *context.GetDevice();
         info.QueueFamily = context.GetGraphicsPresentQueueFamily();
         info.Queue = *context.GetGraphicsQueue();
-        info.DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_IMAGE_SAMPLER_POOL_SIZE + MAX_IMAGES_PER_FRAME * framesInFlight;
+        info.DescriptorPoolSize = IMGUI_IMPL_VULKAN_MINIMUM_SAMPLED_IMAGE_POOL_SIZE + MAX_IMAGES_PER_FRAME * framesInFlight;
         // the backend cycles its vertex and index buffers through ImageCount frames: one per frame in flight
         info.MinImageCount = 2;
         info.ImageCount = std::max(2u, framesInFlight);

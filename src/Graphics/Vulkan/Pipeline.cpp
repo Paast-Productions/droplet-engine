@@ -1,7 +1,7 @@
 #include "Pipeline.hpp"
 
 #include <Graphics/Vulkan/VertexBuffer.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Graphics/Common/RenderData.hpp>
 
 using namespace Droplet::Graphics::Vulkan;
 

@@ -5,6 +5,9 @@
  */
 #include "Integration/Vulkan/Frame/Renderer.hpp"
 
+#include <tracy/public/tracy/Tracy.hpp>
+
+
 #include <algorithm>
 #include <array>
 #include <exception>
@@ -12,12 +15,14 @@
 #include <print>
 #include <stdexcept>
 
+#include "Graphics/Common/RenderData.hpp"
 #include "Integration/Vulkan/Core/VulkanUtils.hpp"
 #include "Integration/Vulkan/Passes/PostProcessShader.hpp"
 #include "Integration/Vulkan/Frame/Prepare.hpp"
 #include "Integration/Vulkan/Graph/FrameGraphBuilder.hpp"
 #include "Integration/Vulkan/Graph/RenderGraphVk.hpp"
 #include "Integration/ShaderCompiler/ShaderCompiler.hpp"
+
 #ifdef _EDITOR
 #include <ImGui/imgui.h>
 #endif
@@ -71,7 +76,7 @@ Renderer::Renderer(const ISurfaceProvider& surfaceProvider)
       m_compositor(m_vulkanContext, WSI::FramesInFlight()),
       m_effectPass(m_vulkanContext, WSI::FramesInFlight()),
       m_graphExecutor(m_vulkanContext, m_device),
-      m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{ .framesInFlight = WSI::FramesInFlight() }),
+      m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{.framesInFlight = WSI::FramesInFlight()}),
       m_pipelineLibrary(m_vulkanContext.GetDevice(), m_device.Shaders())
 {
     m_device.Shaders().SetDefault(Render::DEFAULT_SCENE_SHADER, BUILT_IN_SCENE_SHADER, DEFAULT_SCENE_SHADER_ASSET);
@@ -98,6 +103,8 @@ Renderer::~Renderer() noexcept
 
 void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawData* overlay)
 {
+    ZoneScopedC(tracy::Color::LightGoldenrodYellow);
+    
     if (m_wsi.IsMinimized())
         return;
 
@@ -106,12 +113,12 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
     // 1. prepare: the world (by GUID) becomes draw lists: one per view (by GPU handle, or a placeholder).
     //    From here on nothing looks at the world
     m_preparedFrame = Prepare(world, PrepareContext{
-        .gpu = m_device.Resources(),
-        .shaders = m_device.Shaders(),
-        .pipelines = m_pipelineLibrary,
-        .scenePass = m_drawPass,
-        .depthFormat = m_depthFormat
-    });
+                                  .gpu = m_device.Resources(),
+                                  .shaders = m_device.Shaders(),
+                                  .pipelines = m_pipelineLibrary,
+                                  .scenePass = m_drawPass,
+                                  .depthFormat = m_depthFormat
+                              });
 
     // 2. wait until the GPU has finished the frame that last used the next frame slot, on every queue (its command
     //    buffers are freed, its acquire semaphore is free), then acquire a swapchain image; nothing to draw if the
@@ -158,6 +165,7 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
     // 6. resources nothing asked for in a while are released; what the GPU is done with is destroyed
     m_device.EndFrame();
+    FrameMark;
 }
 
 void Renderer::CompileShaders()
@@ -207,7 +215,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         },
         .effectFormat = static_cast<std::uint32_t>(EffectPass::IMAGE_FORMAT),
         .drawView = [this](PassContext& ctx, const Render::DrawList& view,
-            const Vulkan::ViewTargets& targets)
+                           const Vulkan::ViewTargets& targets)
         {
             if (!ctx.resources)
                 return;
@@ -247,7 +255,8 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                 .pDepthAttachment = targets.depth.IsValid() ? &depth : nullptr
             });
             // All: the graph guarantees any target this view samples was written earlier in the frame
-            const auto viewIndex = static_cast<std::uint32_t>(&view - m_preparedFrame.views.data()); // a list of m_preparedFrame
+            const auto viewIndex = static_cast<std::uint32_t>(&view - m_preparedFrame.views.data());
+            // a list of m_preparedFrame
             m_drawPass.Record(ctx.cmd, extent, view, viewIndex, m_pipelineLibrary, DrawFilter::All);
             ctx.cmd.endRendering();
         },
@@ -328,7 +337,8 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                 {.effect = PostProcess::Effect::Passthrough, .amount = 1.0f});
         },
         .presentation = Vulkan::PresentationInputs{.enabled = true, .compositeScene = m_compositeScene},
-        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source, RenderGraph::ResourceId destination)
+        .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source,
+                                    RenderGraph::ResourceId destination)
         {
             // no source: RecordFullscreen only clears
             m_compositor.RecordFullscreen(
@@ -431,9 +441,11 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
             .image = {
                 .image = frame.swapchainImage.image,
                 .range = COLOR_RANGE,
-                .previousUse = SWAPCHAIN_ACQUIRE_USE},
+                .previousUse = SWAPCHAIN_ACQUIRE_USE
+            },
             .view = frame.swapchainImage.view,
-            .extent = frame.swapchainImage.extent};
+            .extent = frame.swapchainImage.extent
+        };
     }
 
     const Render::TargetHandle handle = Vulkan::TargetFromKey(resource.externalKey);
@@ -446,17 +458,21 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
     return {
         .image = {
             .image = target->target.GetImage(),
-            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)},
+            .range = target->target.GetImageResource().GetSubresourceRange(vk::ImageAspectFlagBits::eColor)
+        },
         .view = target->target.GetImageView(),
-        .extent = target->target.Extent()};
+        .extent = target->target.Extent()
+    };
 }
 
 #ifdef _EDITOR
 namespace
 {
-    /// @brief Marks the ImGui texture ids that stand for render targets; the rest of the id is an index. VkDescriptorSet
-    ///        handles (the backend's real ids) are pointers and never have the top bit set
-    constexpr std::uint64_t IMGUI_TARGET_TAG = 1ull << 63;
+    /// @brief The image an ImGuiTextureId names; invalid for ImGui's own ids
+    Guid ImageOfImGuiTextureId(std::uint64_t id)
+    {
+        return (id & Droplet::Graphics::IMGUI_IMAGE_TAG) != 0 ? Guid{ id & ~Droplet::Graphics::IMGUI_IMAGE_TAG } : Guid{};
+    }
 }
 
 void Renderer::InitImGui()
@@ -469,17 +485,23 @@ void Renderer::NewImGuiFrame()
 {
     if (m_imguiPass)
         m_imguiPass->NewFrame();
-    m_imguiImagesThisFrame.clear();
 }
 
-std::uint64_t Renderer::ImGuiTexture(Guid image)
+std::vector<Guid> Renderer::ImGuiImages(const ImDrawData& overlay)
 {
-    auto imageIt = std::ranges::find(m_imguiImages, image);
-    if (imageIt == m_imguiImages.end())
-        imageIt = m_imguiImages.insert(m_imguiImages.end(), image);
-    if (std::ranges::find(m_imguiImagesThisFrame, image) == m_imguiImagesThisFrame.end())
-        m_imguiImagesThisFrame.push_back(image);
-    return IMGUI_TARGET_TAG | static_cast<std::uint64_t>(imageIt - m_imguiImages.begin());
+    std::vector<Guid> images;
+    for (const ImDrawList* list : overlay.CmdLists)
+    {
+        for (const ImDrawCmd& command : list->CmdBuffer)
+        {
+            if (command.UserCallback || command.TexRef._TexData)
+                continue;
+            const Guid image = ImageOfImGuiTextureId(command.TexRef._TexID);
+            if (image.IsValid() && std::ranges::find(images, image) == images.end())
+                images.push_back(image);
+        }
+    }
+    return images;
 }
 
 std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world)
@@ -491,25 +513,20 @@ std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& ove
         for (ImDrawCmd& command : list->CmdBuffer)
         {
             // ImGui's own textures (its font atlas) carry their data; callbacks draw nothing
-            const ImTextureID id = command.TexRef._TexID;
-            if (command.UserCallback || command.TexRef._TexData || (id & IMGUI_TARGET_TAG) == 0)
+            const Guid image = ImageOfImGuiTextureId(command.TexRef._TexID);
+            if (command.UserCallback || command.TexRef._TexData || !image.IsValid())
                 continue;
 
-            // a target, by the descriptions this frame's world carries (Prepare has already created it), else one
-            // that no view draws this frame (it shows its last image), else a texture asset on the GPU
+            // a world target, else an idle target (its last image), else a texture asset
             Render::TargetHandle handle{};
             Render::TextureHandle textureHandle{};
-            if (const std::size_t index = id & ~IMGUI_TARGET_TAG; index < m_imguiImages.size())
-            {
-                const auto descIt = std::ranges::find(world.targets, m_imguiImages[index],
-                                                      &Common::RenderTargetDesc::id);
-                if (descIt != world.targets.end())
-                    handle = gpu.GetOrCreateTarget(*descIt);
-                else
-                    handle = gpu.FindTarget(m_imguiImages[index]);
-                if (!handle.IsValid())
-                    textureHandle = gpu.FindTexture(m_imguiImages[index]);
-            }
+            const auto descIt = std::ranges::find(world.targets, image, &Common::RenderTargetDesc::id);
+            if (descIt != world.targets.end())
+                handle = gpu.GetOrCreateTarget(*descIt);
+            else
+                handle = gpu.FindTarget(image);
+            if (!handle.IsValid())
+                textureHandle = gpu.FindTexture(image);
 
             vk::ImageView view;
             vk::Sampler sampler = gpu.DefaultSampler();
@@ -521,7 +538,7 @@ std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& ove
             }
             else if (const GpuTexture* texture = textureHandle.IsValid() ? gpu.Find(textureHandle) : nullptr)
             {
-                view = texture->view.Get(); // uploaded textures stay shader-readable: nothing for the graph to order
+                view = texture->view.Get(); // already shader-readable
                 sampler = texture->sampler;
             }
             else

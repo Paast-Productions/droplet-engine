@@ -8,7 +8,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;

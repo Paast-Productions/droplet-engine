@@ -56,33 +56,25 @@ namespace Droplet
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
 
-                /// @brief Starts the ImGui frame; call before any ImGui window
-                void BeginFrame();
+       /// @brief Starts the ImGui frame; call before any ImGui window
+       void BeginFrame();
 
-                /// @brief Renders the scene's cameras and `p_cameras` (the
-                /// editor's), then the ImGui frame
-                [[nodiscard]] DROPLET_RETURNTYPE
-                Render(std::span<const Graphics::CameraRenderData> p_cameras);
+       /// @brief Renders the scene's cameras and `p_cameras` (the editor's), then the ImGui frame
+       [[nodiscard]] DROPLET_RETURNTYPE Render(std::span<const Graphics::CameraRenderData> p_cameras);
 
-                /// @brief Adds an event listener that will be called when an SDL event is polled.
-		/// @param p_listener The event listener to add.
-		void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
-		
-		/// @brief Is meant to enable other classes to use functionality from scenemanager
-		/// @return A reference to engines scenemanager
-		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
-		
+       /// @brief Adds an event listener that will be called when an SDL event is polled.
+       /// @param p_listener The event listener to add.
+       void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
+
+       /// @brief Is meant to enable other classes to use functionality from scenemanager
+       /// @return A reference to engines scenemanager
+       [[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 
        /// @brief Getter for the window of the engine
        /// @return An SDL window handle
        [[nodiscard]] SDL_Window *GetWindow() { return m_window.GetSDLWindow(); }
 
-#ifdef _EDITOR
-       /// @brief ImGui texture id for a render target or texture asset
-       [[nodiscard]] ImTextureRef GetImGuiTexture(GUID p_image);
-#endif
-
-	private:
+    private:
 
        /// @brief Setter class with the sole purpose of setting the update flags for the engine.
        ///
@@ -94,11 +86,11 @@ namespace Droplet
        public:
           UpdateFlagsSetter() = delete;
 
-			UpdateFlagsSetter(UpdateFlags p_flags)
-			{
-				EngineFlagsOwner::SetUpdateFlags(p_flags);
-			}
-		};
+          UpdateFlagsSetter(UpdateFlags p_flags)
+          {
+             EngineFlagsOwner::SetUpdateFlags(p_flags);
+          }
+       };
 
        UpdateFlagsSetter m_updateFlagsSetter;
 

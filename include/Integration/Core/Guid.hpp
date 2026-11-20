@@ -20,7 +20,7 @@ struct Guid
             hash ^= static_cast<unsigned char>(c);
             hash *= 1099511628211ull;
         }
-        return Guid{hash};
+        return Guid{hash & ~(1ull << 63)}; // keep top bit clear for imgui image tag
     }
 };
 

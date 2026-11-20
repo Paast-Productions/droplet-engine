@@ -31,10 +31,7 @@
 #include <Graphics/DebugDraw.hpp>
 
 // TEMP TEMP TEMP TEMP
-#include "RenderTargetDesc.hpp"
-#include "Integration/Bridge/AssetProvider.hpp"
-// TEMP TEMP TEMP TEMP
-
+#include "AssetProvider.hpp"
 
 using namespace Droplet;
 
@@ -170,11 +167,10 @@ namespace
     /// @brief DebugDraw's batched meshes as dynamic draws; returns their indices
     std::vector<std::uint32_t> AddDebugDraws(Render::RenderWorld& world)
     {
-        Graphics::Debug::DebugDraw& debugDraw = Graphics::Debug::DebugDraw::Get();
-        debugDraw.PrepareRender(0); // not initialised: builds the meshes, uploads nothing
+        Graphics::Debug::DebugDraw::FrameMeshes meshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
 
         std::vector<std::uint32_t> indices;
-        const auto add = [&](std::span<const std::byte> vertices, Render::DynamicTopology topology, bool depthTest)
+        const auto add = [&](std::vector<std::byte>& vertices, Render::DynamicTopology topology, bool depthTest)
         {
             if (vertices.empty())
                 return;
@@ -182,15 +178,13 @@ namespace
             world.dynamicDraws.push_back({
                 .layout = Render::DynamicVertexLayout::P3C4,
                 .topology = topology,
-                .vertexData = { vertices.begin(), vertices.end() },
+                .vertexData = std::move(vertices),
                 .depthTest = depthTest });
         };
-        add(debugDraw.WireMesh(true), Render::DynamicTopology::Lines, true);
-        add(debugDraw.FillMesh(true), Render::DynamicTopology::Triangles, true);
-        add(debugDraw.WireMesh(false), Render::DynamicTopology::Lines, false);
-        add(debugDraw.FillMesh(false), Render::DynamicTopology::Triangles, false);
-
-        debugDraw.ClearDrawCommands();
+        add(meshes.wireDepth, Render::DynamicTopology::Lines, true);
+        add(meshes.fillDepth, Render::DynamicTopology::Triangles, true);
+        add(meshes.wire, Render::DynamicTopology::Lines, false);
+        add(meshes.fill, Render::DynamicTopology::Triangles, false);
         return indices;
     }
 
@@ -200,7 +194,7 @@ namespace
     {
         for (const Graphics::CameraRenderData& camera : p_cameras)
         {
-            const Graphics::Common::RenderTargetDesc& target = camera.renderTarget;
+            const Graphics::Common::RenderDesc& target = camera.renderTarget;
             const Guid targetId = ToSandboxGuid(target.id);
             if (!targetId.IsValid() || target.extent.width == 0 || target.extent.height == 0)
                 continue;
@@ -253,11 +247,6 @@ Engine::Engine(EngineConfig p_config)
 
 #ifdef _EDITOR
     m_renderer.InitImGui(); // the backend needs the context ImGuiFrame created
-    // the camera inspector's preview
-    Scene::CameraComponent::SetImGuiTextureLookup([this](GUID p_image)
-    {
-        return m_renderer.ImGuiTexture(ToSandboxGuid(p_image));
-    });
 #endif
 
     ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
@@ -322,10 +311,6 @@ Engine::Engine(EngineConfig p_config)
 Engine::~Engine()
 {
     ZoneScoped;
-
-#ifdef _EDITOR
-    Scene::CameraComponent::SetImGuiTextureLookup(nullptr);
-#endif
 
     // Make sure we detach our behaviours from Scene Manager before Scene Manager might destroy them
     for (const auto& behaviour : m_sceneManager.GetBehaviours())
@@ -438,16 +423,26 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
 
     ImDrawData* overlay = nullptr;
 #ifdef _EDITOR
-    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, m_renderer.ImGuiImages());
+    overlay = m_imguiFrame.End();
+    // and the textures the editor's windows show
+    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, Vulkan::Renderer::ImGuiImages(*overlay));
     m_renderer.SetCompositeScene(false); // the editor's windows show the cameras
 #else
     const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
 #endif
     m_renderer.Upload(ProvideAssets(required, m_renderer.Resident()));
-
+    
+    static int debugFrames = 0;
+    if (debugFrames++ < 3)
+    {
+        for (const auto& target : world.targets)
+            std::println("target {:016x} {}x{}", target.id.value, target.width, target.height);
 #ifdef _EDITOR
-    overlay = m_imguiFrame.End();
+        for (const Guid image : Vulkan::Renderer::ImGuiImages(*overlay))
+            std::println("imgui image {:016x}", image.value);
 #endif
+    }
+
     m_renderer.Render(world, overlay);
 
     m_sceneManager.PostRender(); // clears the cameras' render data
@@ -456,10 +451,3 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
     FrameMark;
     return DROPLET_RETURNTYPE::OK;
 }
-
-#ifdef _EDITOR
-ImTextureRef Engine::GetImGuiTexture(GUID p_image)
-{
-    return ImTextureRef(m_renderer.ImGuiTexture(ToSandboxGuid(p_image)));
-}
-#endif

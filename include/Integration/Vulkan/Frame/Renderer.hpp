@@ -63,21 +63,12 @@ namespace Vulkan
         void Render(const Render::RenderWorld& world, ImDrawData* overlay = nullptr);
 
 #ifdef _EDITOR
-        // == ImGui == the engine side owns the context and the frame (ImGuiFrame); the renderer draws it
-
-        /// @brief Initialises ImGui's Vulkan backend. @pre an ImGui context exists; call once
+        /// @brief Initialises ImGui's Vulkan backend, call once @pre an ImGui context exists
         void InitImGui();
-        /// @brief The backend's per-frame start; call before ImGui::NewFrame
+        /// @brief The backend's per-frame start. Call before ImGui::NewFrame
         void NewImGuiFrame();
-        /// @brief An ImGui texture id that shows `image`, a render target (a camera's output) or a texture asset:
-        ///        pass it to ImGui::Image. The id stays the same across frames; each frame it is pointed at the image's
-        ///        current GPU copy, and the frame graph reads the targets the overlay shows. A target no view draws
-        ///        this frame shows its last image; one never drawn, or a texture not on the GPU (yet), shows the
-        ///        placeholder texture.
-        [[nodiscard]] std::uint64_t ImGuiTexture(Guid image);
-        /// @brief The images ImGuiTexture was asked for since the last NewImGuiFrame; pass to Bridge::RequiredAssetsOf
-        ///        so the texture assets among them are uploaded
-        [[nodiscard]] std::span<const Guid> ImGuiImages() const noexcept { return m_imguiImagesThisFrame; }
+        /// @brief The images an ImGui frame shows by ImGuiTextureId (for Bridge::RequiredAssetsOf)
+        [[nodiscard]] static std::vector<Guid> ImGuiImages(const ImDrawData& overlay);
 #endif
 
         /// @brief Uploads assets (see RenderDevice::Upload). Call between frames; the spans only have to live until
@@ -140,9 +131,7 @@ namespace Vulkan
         bool m_compositeScene{ true };         ///< SetCompositeScene
 
 #ifdef _EDITOR
-        std::optional<ImGuiPass> m_imguiPass;            ///< after InitImGui; destroyed before the device
-        std::vector<Guid> m_imguiImages;                 ///< the images of ImGuiTexture ids, by index
-        std::vector<Guid> m_imguiImagesThisFrame;        ///< ImGuiImages
+        std::optional<ImGuiPass> m_imguiPass;            ///< after InitImGui
         std::vector<Render::TargetHandle> m_overlayReads; ///< this frame's targets the overlay shows
 #endif
     };
