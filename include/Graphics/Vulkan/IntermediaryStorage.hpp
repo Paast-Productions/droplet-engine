@@ -315,11 +315,18 @@ namespace Droplet::Graphics::Vulkan
         
         // TODO: </REFACTOR>
             
-        /// TODO: (DOXYGEN) Write doxygen (Lio)
+        /// @brief Fetches a mesh from intermediary storage
+        /// @param p_commandBuffer A commandbuffer to handle operations
+        /// @param p_renderData The data relating to the mesh
+        /// @return A mesh struct
         [[nodiscard]] const Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer,
             RenderData p_renderData);
 
-        /// TODO: (DOXYGEN) Write doxygen (Lio)
+        /// @brief Getter for the ID of a texture to use for push constants
+        /// @param p_renderData Data structure containing texture
+        /// @param p_commandPool 
+        /// @param result Result of whether an ID was found or not
+        /// @return ID for a texture stored on the gpu side
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData,
             CommandPool &p_commandPool,
             bool &result);
@@ -348,6 +355,12 @@ namespace Droplet::Graphics::Vulkan
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
+        // Currently loading Shaders
+        std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
+
+        // Currently loading Shaders
+        std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
+
         // TODO: (RENDERING) Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
@@ -363,6 +376,8 @@ namespace Droplet::Graphics::Vulkan
         
         std::unordered_map<GUID, DynamicLiveResource> m_liveObjects {};
         std::queue<DynamicLiveResource> m_destroyQueue {};
+
+
 
         
         // DESCRIPTORS

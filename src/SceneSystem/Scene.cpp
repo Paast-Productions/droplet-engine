@@ -470,6 +470,7 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 
 std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
+    if (m_physics == nullptr) return {};
     return std::weak_ptr<Droplet::Physics>(m_physics);
 }
 
