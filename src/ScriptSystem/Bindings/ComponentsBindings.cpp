@@ -941,7 +941,7 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         {"GetVolumeDb", "float", {}},
         {"GetPitch", "float",{}},
         {"IsLooping", "bool", {}},
-        {"GetStereoPan", "float", {}
+        {"GetStereoPan", "float", {}}
     }; 
 
     LuaBindings::PushLuaClassDefinition(classDef);
