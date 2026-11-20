@@ -2,8 +2,7 @@
 #include <vector>
 #include <memory>
 #include <ImGui/imgui.h>
-#include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/ImGuiTexture.hpp>
+#include <Graphics/RenderDesc.hpp> // your Graphics::Common header
 #include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/GraphicsTypes.hpp>
 
@@ -16,18 +15,12 @@ namespace Droplet::Editor::Scene
 		EditorCamera();
 		~EditorCamera();
 
-		[[nodiscard]] Graphics::RenderTarget GetTarget() const { return m_target; }
-		void SetTarget(Graphics::RenderTarget p_target) { m_target = p_target; }
-
-		[[nodiscard]] Graphics::ImGuiTexture GetTexture() const { return m_texture; }
-		void SetTexture(Graphics::ImGuiTexture p_texture) { m_texture = p_texture; }
+		[[nodiscard]] const Graphics::Common::RenderTargetDesc &GetTarget() const { return m_target; }
+		void SetTarget(const Graphics::Common::RenderTargetDesc &p_target) { m_target = p_target; }
 
 	private:
 
-		/// @brief The index of the texture that the renderer will render to
-		Graphics::RenderTarget m_target {};
-
-		/// @brief The index of the texture that ImGui uses to render the scene in a ImGui window
-		Graphics::ImGuiTexture m_texture {};
+		/// @brief What the editor view renders into
+		Graphics::Common::RenderTargetDesc m_target {};
 	};
 }

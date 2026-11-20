@@ -37,13 +37,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
     Droplet::EngineConfig config{
-        Droplet::Graphics::SDL::WindowConfig{
-            static_cast<int>(windowSize.x),
-            static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE},
-            "Droplet Editor"
+        .WindowConfig = {
+            .window = {
+                .name = "Droplet Editor",
+                .width = static_cast<int>(windowSize.x),
+                .height = static_cast<int>(windowSize.y)
+            }
         },
-        Droplet::UpdateFlags::EditorFlags
+        .UpdateFlags = Droplet::UpdateFlags::EditorFlags
     };
     Droplet::Engine engine(config);
 
@@ -56,13 +57,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    // Setup SDL polling listener
-    engine.AddEventListener([](SDL_Event& event)
-    {
-        // ImGui listener callback
-        ImGui_ImplSDL3_ProcessEvent(&event);
-    });
-
+    // Setup SDL polling listener (the engine passes every event to ImGui first)
     engine.AddEventListener([](SDL_Event& event)
     {
         // Window state event callback
@@ -234,9 +229,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             }
 
             // ImGui
-            ImGui_ImplVulkan_NewFrame();
-            ImGui_ImplSDL3_NewFrame();
-            ImGui::NewFrame();
+            engine.BeginFrame(); // the renderer's and SDL's ImGui backends, then ImGui::NewFrame
             ImGui::DockSpaceOverViewport();
             ImGuizmo::BeginFrame();
 
@@ -566,12 +559,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             {
                 ZoneScopedN("Editor Camera Render Data");
 
-                using namespace Droplet::Graphics::Vulkan;
-
                 Droplet::Graphics::CameraRenderData camRenderData{};
                 camRenderData.debug = true;
 
-                IntermediaryStorage& instance = IntermediaryStorage::GetInstance();
                 auto& editorCamera = editorContext.GetEditorCamera();
                 auto activeScene = editorContext.GetActiveScene().lock();
 
@@ -627,8 +617,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
                 }
             }
 
-            // render the scene with the engine
-            switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
+            // render the scene's cameras and the editor's, then the ImGui frame
+            switch (engine.Render(queuedEditorCameras))
             {
             case Droplet::DROPLET_RETURNTYPE::OK:
                 break;
@@ -643,11 +633,6 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
                 break;
             }
             
-            // TEMP TEMP TEMP TEMP
-            // upload data, steal the cameras and draw to pipeline
-            engine.Render(queuedEditorCameras);
-            // TEMP TEMP TEMP TEMP
-
             editorContext.ClearQueuedEditorCameras();
         }
     }

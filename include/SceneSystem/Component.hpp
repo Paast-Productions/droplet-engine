@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 #include <SceneSystem/bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Graphics/Common/RenderData.hpp>
 
 namespace Droplet::Scene
 {
@@ -12,7 +12,7 @@ namespace Droplet::Scene
     class Node;
     class SerializationContext;
 
-    /// @brief Base class for components that can be attached to a Node.
+    /// @brief Base class for componens that can be attached to a Node.
     ///
     /// Components provide reusable functionality that can be added to Nodes
     /// at runtime. Derived components can override Initialize(), OnStart(),
