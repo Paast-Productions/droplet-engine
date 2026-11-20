@@ -1,8 +1,8 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <SceneSystem/bounds/NodeBounds.hpp>
-#include <math/bounds/Intersection.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <memory>
 
 namespace Droplet::Scene

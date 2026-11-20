@@ -163,11 +163,45 @@ namespace Droplet::Scene
 		/// @param p_velocity The velocity vector
 		void SetVelocity(const glm::vec3 &p_velocity);
 		
+		/// @brief Add velocity to the physics body
+		/// @param p_velocity The velocity vector
+		void AddVelocity(const glm::vec3 &p_velocity);
+		
+		/// @brief Add force to the physics body
+		/// @param p_force The force vector
+		void AddForce(const glm::vec3 &p_force);
+		
+		/// @brief Set friction
+		/// @param p_friction The friction
+		/// @note If p_friction is negative, it will be set to 0.0f
+		void SetFriction(const float p_friction);
+		
+		/// @brief Set restitution to the physics body
+		/// @param p_restitution The restitution
+		void SetRestitution(const float p_restitution);
+		
+		/// @brief Set the mass
+		/// @param p_mass The mass
+		/// @note This updates the inertia to the body
+		void SetMass(const float p_mass);
+		
 		// ---------- Get physics ----------
 		
 		/// @brief Get the velocity of the physics body
 		/// @return A vector of the velocity
 		glm::vec3 GetVelocity() const;
+		
+		/// @brief Get the friction
+		/// @return Friction number
+		float GetFriction() const;
+		
+		/// @brief Get the restitution
+		/// @return Restitution number
+		float GetRestitution() const;
+		
+		/// @brief Get the mass
+		/// @return Mass number
+		float GetMass() const;
 
 	protected:
 		/// @brief Starts the component.
@@ -189,17 +223,26 @@ namespace Droplet::Scene
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
 	private:
+		enum TransformSync
+		{
+			SyncPosition = 1 << 0,
+			SyncRotation = 1 << 1,
+
+			SyncNone = 0,
+			SyncAll = SyncPosition | SyncRotation
+		};
+
 		/// @brief Helper function for creating collider body
 		/// @param p_shapeSettings The shape settings for the collider body
-		/// /// @param p_offset The offset position from the nodes position
+		/// @param p_offset The offset position from the nodes position
 		/// @throw std::runtime_error Mesh collider could not be created
 		void CreateCollider(JPH::ShapeSettings *p_shapeSettings, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 
 		/// @brief Sends transform changes from the game engine to Jolt
-		void PushTransformToPhysics();
+		void PushTransformToPhysics(TransformSync p_syncFlags = SyncAll);
 
 		/// @brief Applies the simulated Jolt transform to the Node Transform
-		void PullTransformFromPhysics();
+		void PullTransformFromPhysics(TransformSync p_syncFlags = SyncAll);
 
 		/// @brief Draw the collider shape
 		/// @note This does not draw mesh, convex hull, and compound colliders
@@ -217,7 +260,8 @@ namespace Droplet::Scene
 		Layers m_layer = NON_MOVING;
 
 		std::shared_ptr<Physics> m_physics;
-		std::size_t m_transformVersion = 0;
+		std::size_t m_transformPositionVersion = 0;
+		std::size_t m_transformRotationVersion = 0;
 
 		JPH::BodyID m_bodyID{JPH::BodyID::cInvalidBodyID};
 		JPH::ShapeRefC m_shape{};
@@ -236,8 +280,12 @@ namespace Droplet::Scene
 			glm::vec3 halfExtents = glm::vec3(0.0f, 0.0f, 0.0f);
 			float r = 0.0f;
 			float h = 0.0f;
+			float mass = 1.0f;
+			JPH::BodyCreationSettings temp;
+			float friction = temp.mFriction;
+			float restitution = temp.mRestitution;
 		} m_serializeData;
 		bool m_isDeserialized = false;
-		std::unique_ptr<std::function<void(Droplet::GUID, JPH::Vec3, float)>> m_function;
+		std::function<void(Droplet::GUID, JPH::Vec3, float)> m_function;
 	};
 }

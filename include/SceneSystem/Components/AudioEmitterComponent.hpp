@@ -12,7 +12,6 @@ namespace Droplet::Scene
 	class AudioEmitterComponent : public Component
 	{
 	public:
-		AudioEmitterComponent();
 	    ~AudioEmitterComponent() override;
 	    
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioEmitterComponent"; }

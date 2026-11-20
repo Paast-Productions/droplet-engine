@@ -13,7 +13,6 @@ namespace Droplet::Scene
 	class AudioPlayerComponent : public Component
 	{
 	public:
-		AudioPlayerComponent();
 	    ~AudioPlayerComponent() override;
 	    
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioPlayerComponent"; }
@@ -65,7 +64,7 @@ namespace Droplet::Scene
 		void RenderUIImpl() override;
 		
 		void ActiveChangedImpl(const bool p_active) override;
-
+	    
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
