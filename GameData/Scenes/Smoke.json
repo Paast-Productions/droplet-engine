@@ -1,0 +1,87 @@
+{
+    "name": "Smoke",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 73.84300231933594,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            831,
+                            1057
+                        ]
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 28,
+            "name": "Camera Node",
+            "transform": {
+                "position": [
+                    2.895683526992798,
+                    2.2461085319519043,
+                    2.4427435398101807
+                ],
+                "rotation": [
+                    -0.42095112800598145,
+                    -0.02001154236495495,
+                    0.9058395624160767,
+                    -0.04306236281991005
+                ],
+                "scale": [
+                    1.000001311302185,
+                    1.0000001192092896,
+                    1.0000022649765015
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 29,
+            "name": "ParticleSystem",
+            "prefab": "GameData\\Prefabs\\ParticleSystem.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

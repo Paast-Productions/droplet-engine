@@ -1,4 +1,5 @@
 #include "Component.hpp"
+#include <Scene.hpp>
 #include <Node.hpp>
 #include <ImGui/imgui.h>
 #include <stdexcept>
@@ -251,6 +252,27 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	DeserializeImpl(dataJson);
 }
 
-void Component::ResolveReferences([[maybe_unused]] SerializationContext &p_context)
+void Component::ResolveReferences(SerializationContext &p_context)
 {
+
+}
+
+Transform &Component::GetTransform()
+{
+	auto owner = m_owner.lock();
+	if (!owner)
+	{
+		throw std::runtime_error("Component has no owner.");
+	}
+	return owner->GetTransform();
+}
+
+std::shared_ptr<Scene> Component::GetScene() const
+{
+	auto owner = m_owner.lock();
+	if (!owner)
+	{
+		throw std::runtime_error("Component has no owner.");
+	}
+	return owner->GetScene();
 }

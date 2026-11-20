@@ -89,7 +89,7 @@ void SceneManager::ActivateScene(const std::string &p_name)
 
     if (scene->IsActive())
     {
-        return; //Scene is already active
+		return; // Scene is already active
     }
 
     scene->SetActive(true);
@@ -116,7 +116,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
 
     if (!scene->IsActive())
     {
-        return; //Scene is already inactive
+		return; // Scene is already inactive
     }
 
     scene->SetActive(false);

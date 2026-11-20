@@ -40,6 +40,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
 
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
     engine.GetSceneManager().ActivateScene("BoatScene");
 
     //Do one update without game flags set to prevent physics components landing at (0,0,0)

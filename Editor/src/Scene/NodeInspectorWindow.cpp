@@ -244,7 +244,29 @@ void NodeInspectorWindow::RenderImpl()
 				headerLabel = scriptName + " (script)";
 			}
 		}
+
+		if (component->GetTypeName() == "AudioEmitterComponent")
+		{
+			Droplet::Scene::AudioEmitterComponent *emitterComp = dynamic_cast<Droplet::Scene::AudioEmitterComponent *>(component.get());
+			std::string name = emitterComp->GetName();
+
+			if (!name.empty())
+			{
+				headerLabel = name + " (audio emitter)";
+			}
+		}
 		
+		if (component->GetTypeName() == "AudioPlayerComponent")
+		{
+			Droplet::Scene::AudioPlayerComponent *audioplayer = dynamic_cast<Droplet::Scene::AudioPlayerComponent *>(component.get());
+			std::string name = audioplayer->GetName();
+
+			if (!name.empty())
+			{
+				headerLabel = name + " (audio player)";
+			}
+		}
+
 		if (headerLabel.empty())
 		{
 			headerLabel = component->GetTypeName().data();

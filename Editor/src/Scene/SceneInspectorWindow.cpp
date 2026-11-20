@@ -19,10 +19,15 @@ void Droplet::Editor::SceneInspectorWindow::CloseImpl()
 void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 {
 	// ImGui::SeparatorText("Scene");
-	//
-	// // Scene configurations
+
+	// Scene configurations
 	std::shared_ptr<Droplet::Scene::Scene> scene = m_editorContext->GetActiveScene().lock();
-	// static std::string sceneName = scene->GetName();
+	if (scene == nullptr || !scene->IsLoaded())
+	{
+		return;
+	}
+	
+	// static std::string sceneName = scene->GetName(); // Changing scene name doesn't work
 	// if (ImGui::InputText("Scene name", &sceneName))
 	// {
 	// 	scene->SetName(sceneName);
@@ -63,16 +68,16 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 	
 	// Physics configurations
 	std::shared_ptr<Physics> physics = scene->GetPhysics().lock();
-	static glm::vec3 gravity = glm::vec3(0.0f, 0.0f, 0.0f);
 	if (physics != nullptr)
 	{
+		static glm::vec3 gravity = glm::vec3(0.0f, 0.0f, 0.0f);
 		gravity = JPHtoGLM(physics->GetPhysicsSystem()->GetGravity());
 		if (ImGui::DragFloat3("Gravity", &gravity.x, 0.01f))
 		{
 			physics->GetPhysicsSystem()->SetGravity(GLMtoJPH(gravity));
 		}
 	}
-	if (physics == nullptr && ImGui::Button("Initialize physics"))
+	else if (ImGui::Button("Initialize physics"))
 	{
 		scene->InitializePhysics();
 	}

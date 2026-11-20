@@ -1,4 +1,4 @@
-local audioEmitter
+local audioEmitter = nil
 
 -- Called when script starts
 function OnStart()

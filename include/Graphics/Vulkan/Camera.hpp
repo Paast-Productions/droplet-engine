@@ -62,7 +62,11 @@ namespace Droplet::Graphics
 
 		/// @brief Get the frustum of the camera
 		/// @returns A frustum of the camera
-		[[nodiscard]] Math::Frustum GetFrustum() const; 
+		[[nodiscard]] Math::Frustum GetFrustum() const;
+		
+		/// @brief Get the ray of the camera
+		/// @return A ray of the camera
+		[[nodiscard]] Math::Ray GetRay() const;
 
 		/// @brief Return the view matrix
 		/// @returns A view matrix
@@ -80,6 +84,8 @@ namespace Droplet::Graphics
 
 		/// @brief Gets the near and far clipping planes of the camera. 
 		[[nodiscard]] glm::vec2 GetPlanes() const { return m_planes; }
+
+		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
 
 		/// @brief Sets the position of the camera in world space.
 		/// @param p_position Position in world space to set
@@ -118,6 +124,23 @@ namespace Droplet::Graphics
 		/// @param p_near  
 		void SetPlanes(float p_near, 
 			float p_far) { m_planes = glm::vec2(p_near, p_far); }
+
+		/// @brief Sets the rgb values for the clear color of the camera
+		/// @param p_r Red
+		/// @param p_g Green
+		/// @param p_b Blue
+		void SetClearColor3(float p_r, float p_g, float p_b) {
+			m_clearColor = glm::vec4(glm::vec3(p_r, p_g, p_b), m_clearColor.a);
+		}
+
+		/// @brief Sets the rgba values for the clear color of the camera
+		/// @param p_r Red
+		/// @param p_g Green
+		/// @param p_b Blue
+		/// @param p_a Alpha
+		void SetClearColor4(float p_r, float p_g, float p_b, float p_a) {
+			m_clearColor = glm::vec4(p_r, p_g, p_b, p_a);
+		}
 		
 		// TODO: </REFACTOR>
 		
@@ -140,6 +163,7 @@ namespace Droplet::Graphics
 
 		float m_fov { 45.0f };		// horizontal field of view in degrees
 		float m_aspect { 1.0f };		// width / height
+		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 		/// @brief Updates the cameras direction vectors
 		void UpdateCameraVectors();

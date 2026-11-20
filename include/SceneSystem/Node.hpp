@@ -21,7 +21,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 
@@ -117,9 +117,9 @@ namespace Droplet::Scene
 		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
 		{
 			assert(
-				Core::LayerUtility::IsSingleLayer(p_drawLayer) &&
-				"p_drawLayer must be a single layer"
-			);
+                Core::LayerUtility::IsSingleLayer(p_drawLayer) &&
+                "p_drawLayer must be a single layer"
+            );
 
 			m_drawLayer = p_drawLayer;
 		}
@@ -136,8 +136,8 @@ namespace Droplet::Scene
 
 		/// @brief Sets the Node's collision layer mask.
 		void SetCollisionLayerMask(CollisionLayer p_collisionLayerMask)
-		{
-			m_collisionLayerMask = p_collisionLayerMask;
+        {
+            m_collisionLayerMask = p_collisionLayerMask;
 		}
 
 		/// @brief Sets whether the Node is active.
@@ -415,11 +415,11 @@ namespace Droplet::Scene
 			return components.empty() ? nullptr : components.front();
 		}
 		
-		/// @brief Gets the DamageComponent attached to this Node.
-		/// @return The DamageComponent, or nullptr if none is attached.
-		[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+		/// @brief Gets the HazardComponent attached to this Node.
+		/// @return The HazardComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
 		{
-			const auto components = GetComponents<DamageComponent>();
+			const auto components = GetComponents<HazardComponent>();
 			return components.empty() ? nullptr : components.front();
 		}
 
@@ -457,13 +457,13 @@ namespace Droplet::Scene
 		Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
 
 		/// @brief Collision layer mask for the Node.
-		///
-		/// The collision layer mask determines which collisions the Node and its
+        ///
+        /// The collision layer mask determines which collisions the Node and its
 		/// Components will participate in.
 		CollisionLayer m_collisionLayerMask = CollisionLayer::Layer1;
 
-		bool m_constructed = false;
-		bool m_started = false;
+        bool m_constructed = false;
+        bool m_started = false;
 
 		// Transform
 

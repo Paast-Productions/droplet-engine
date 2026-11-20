@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "volcano",
+            "guid": 8694434999896840886,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "volcano",
+            "type": 3
+        }
+    ]
+}

@@ -1,0 +1,50 @@
+{
+    "active": true,
+    "children": [],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 4700928726894490275,
+                "fsName": "Screen.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Scallop",
+                "meshGUID": 16657662898013156579,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "scallop",
+                "textureGUID": 7597406607391414002,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 2449,
+    "name": "Scallop",
+    "transform": {
+        "position": [
+            -7.383190155029297,
+            -2.3149075508117676,
+            11.83806324005127
+        ],
+        "rotation": [
+            0.7071096301078796,
+            0.0,
+            0.7071040272712708,
+            0.0
+        ],
+        "scale": [
+            0.9999999403953552,
+            1.0,
+            0.9999999403953552
+        ]
+    }
+}

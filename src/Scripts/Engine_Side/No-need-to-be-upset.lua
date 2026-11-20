@@ -9,7 +9,7 @@ function OnStart()
     print("Script Start")
     audioEmitter = self:GetAudioEmitter("No need to be upset")
     if audioEmitter == nil then  
-        print("Unable to find emitter")
+        print("Unable to find emitter (No-need-to-be-upset.lua)")
         return
     end
 
