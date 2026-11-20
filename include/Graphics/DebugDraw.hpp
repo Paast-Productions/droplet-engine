@@ -2,11 +2,11 @@
 #include <vector>
 #include <map>
 #include <glm/glm.hpp>
-#include <math/bounds/Ray.hpp>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/OBB.hpp>
-#include <math/bounds/Sphere.hpp>
-#include <math/bounds/Frustum.hpp>
+#include <Math/Bounds/Ray.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/OBB.hpp>
+#include <Math/Bounds/Sphere.hpp>
+#include <Math/Bounds/Frustum.hpp>
 #include <resource/GuidUtils.hpp>
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS

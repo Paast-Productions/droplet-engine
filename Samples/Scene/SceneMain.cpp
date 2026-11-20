@@ -22,7 +22,7 @@
 #include <SceneSystem/Physics/PhysicsHelpers.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <resource/ResourceManager.hpp>
-#include <core/ThreadPool.hpp>
+#include <Core/ThreadPool.hpp>
 #include <resource/types/MeshResource.hpp>
 #include <Jolt/Core/Factory.h>
 #include <Jolt/RegisterTypes.h>

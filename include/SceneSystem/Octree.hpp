@@ -6,8 +6,8 @@
 #include <vector>
 #include <array>
 #include <string>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/Frustum.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Resource/GuidUtils.hpp>
 

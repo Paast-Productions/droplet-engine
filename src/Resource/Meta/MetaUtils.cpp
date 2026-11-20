@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-#include "core/StringUtils.hpp"
+#include "Core/StringUtils.hpp"
 #include <tracy/public/tracy/Tracy.hpp>
 
 using json = nlohmann::json;

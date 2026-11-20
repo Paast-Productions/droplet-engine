@@ -1,8 +1,8 @@
-#include "SceneSystem/bounds/MeshNodeBounds.hpp"
+#include "SceneSystem/Bounds/MeshNodeBounds.hpp"
 #include <SceneSystem/Components/MeshComponent.hpp>
-#include <math/bounds/Conversion.hpp>
+#include <Math/Bounds/Conversion.hpp>
 #include <resource/types/MeshResource.hpp>
-#include <math/bounds/MeshBVH.hpp>
+#include <Math/Bounds/MeshBVH.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Math;

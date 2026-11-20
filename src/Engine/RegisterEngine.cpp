@@ -12,6 +12,7 @@
 
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
+#include <SceneSystem/Behaviours/AudioBehaviour.hpp>
 
 namespace Droplet
 {
@@ -30,5 +31,6 @@ namespace Droplet
 	void RegisterEngineBehaviours()
 	{
 		Scene::BehaviourRegistry::RegisterBehaviour("ScriptBehaviour", []() { return std::make_unique<Scene::ScriptBehaviour>(); });
+	    Scene::BehaviourRegistry::RegisterBehaviour("AudioBehaviour", []() { return std::make_unique<Scene::AudioBehaviour>(); });
 	}
 }

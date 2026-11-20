@@ -3,7 +3,7 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Graphics/RenderData.hpp>
 
 namespace Droplet::Scene
@@ -172,7 +172,7 @@ namespace Droplet::Scene
     	virtual void ActiveChangedImpl(const bool p_active) {}
 
         virtual void QueueRenderImpl() {}
-
+        
 		virtual void DestroyImpl() {}
 
         [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }

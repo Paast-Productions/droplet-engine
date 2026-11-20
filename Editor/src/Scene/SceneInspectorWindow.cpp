@@ -2,6 +2,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
+#include <NodeSlot.hpp>
 
 using namespace Droplet::Scene;
 
@@ -71,7 +72,7 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 			physics->GetPhysicsSystem()->SetGravity(GLMtoJPH(gravity));
 		}
 	}
-	if (ImGui::Button("Initialize physics"))
+	if (physics == nullptr && ImGui::Button("Initialize physics"))
 	{
 		scene->InitializePhysics();
 	}
