@@ -115,11 +115,11 @@ namespace
             .revision = 0,
             .width = texture->GetWidth(),
             .height = texture->GetHeight(),
-            .format = Common::PixelFormat::RGBA8_SRGB, // colour space later
+            .format = ::Common::PixelFormat::RGBA8_UNORM, // as production's targets
             .pixels = pixels.first(topLevelBytes),
-            .sampling = Common::TextureSampling{
+            .sampling = ::Common::TextureSampling{
                 .generateMips = true, // the renderer builds the chain from the top level
-                .filter = Common::TextureFilter::Linear,
+                .filter = ::Common::TextureFilter::Linear,
                 .maxAnisotropy = 1.0f,
                 .repeat = true
             }
@@ -134,7 +134,7 @@ namespace
         uploads.shaders.push_back({
             .id = id,
             .revision = 1,
-            .shader = Common::ShaderDesc{ .moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang" }
+            .shader = ::Common::ShaderDesc{ .moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang" }
         });
     }
 
@@ -197,14 +197,19 @@ namespace
     {
         for (const Graphics::CameraRenderData& camera : p_cameras)
         {
-            const Guid targetId = ToSandboxGuid(camera.renderTarget.GetColourImageGuid());
-            const vk::Extent2D extent = camera.renderTarget.GetExtent();
-            if (!targetId.IsValid() || extent.width == 0 || extent.height == 0)
+            const Graphics::Common::RenderTargetDesc& target = camera.renderTarget;
+            const Guid targetId = ToSandboxGuid(target.id);
+            if (!targetId.IsValid() || target.extent.width == 0 || target.extent.height == 0)
                 continue;
-            if (std::ranges::any_of(world.targets, [&](const Common::RenderTargetDesc& desc) { return desc.id == targetId; }))
+            if (std::ranges::any_of(world.targets, [&](const ::Common::RenderTargetDesc& desc) { return desc.id == targetId; }))
                 continue; // one writer per target
 
-            world.targets.push_back({ .id = targetId, .width = extent.width, .height = extent.height });
+            world.targets.push_back({
+                .id = targetId,
+                .width = target.extent.width,
+                .height = target.extent.height,
+                .format = target.format == Graphics::Common::PixelFormat::RGBA8_SRGB ? ::Common::PixelFormat::RGBA8_SRGB
+                                                                                     : ::Common::PixelFormat::RGBA8_UNORM });
 
             Render::RenderView view;
             view.view = camera.camera.GetViewMatrix();
@@ -223,7 +228,7 @@ namespace
                     .transform = object.transform,
                     .meshId = ToSandboxGuid(object.meshData.GUID),
                     .imageTexture = {
-                        .kind = textureId.IsValid() ? Common::ImageRef::Kind::Texture : Common::ImageRef::Kind::None,
+                        .kind = textureId.IsValid() ? ::Common::ImageRef::Kind::Texture : ::Common::ImageRef::Kind::None,
                         .id = textureId },
                     .transparent = object.transparent }); // shaderId invalid: the default shader
             }
@@ -245,6 +250,8 @@ Engine::Engine(EngineConfig p_config)
 
 #ifdef _EDITOR
     m_renderer.InitImGui(); // the backend needs the context ImGuiFrame created
+    // the camera inspector's preview
+    Scene::CameraComponent::SetImGuiTextureLookup([this](GUID p_image) { return m_renderer.ImGuiTexture(ToSandboxGuid(p_image)); });
 #endif
 
     ResourceManager::GetInstance().Initialize(ROOT_PATH "/Assets");
@@ -309,6 +316,10 @@ Engine::Engine(EngineConfig p_config)
 Engine::~Engine()
 {
     ZoneScoped;
+
+#ifdef _EDITOR
+    Scene::CameraComponent::SetImGuiTextureLookup(nullptr); // it points at this engine's renderer
+#endif
 
     // Make sure we detach our behaviours from Scene Manager before Scene Manager might destroy them
     for (const auto& behaviour : m_sceneManager.GetBehaviours())

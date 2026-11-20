@@ -9,7 +9,6 @@
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Editor::Resource;
 
@@ -44,11 +43,10 @@ void ResourceBrowser::InitImpl()
 		glm::vec2(0.1f, 100.0f) // Near and far planes
 	);
 
-	Graphics::Vulkan::IntermediaryStorage &instance = Graphics::Vulkan::IntermediaryStorage::GetInstance();
-	m_previewCamera.renderTarget = instance.CreateRenderTarget(m_previewCamera.resolution.x, m_previewCamera.resolution.y);
-	m_previewCamera.texture = instance.CreateImGuiTexture(
-		m_previewCamera.renderTarget
-	);
+	// the renderer creates the image when the preview first renders. Released if unused for a while
+	m_previewCamera.renderTarget.id = GuidUtils::Generate();
+	m_previewCamera.renderTarget.extent = {
+		static_cast<std::uint32_t>(m_previewCamera.resolution.x), static_cast<std::uint32_t>(m_previewCamera.resolution.y) };
 }
 
 void ResourceBrowser::RenderToolbar()
@@ -217,7 +215,6 @@ void ResourceBrowser::RenderImpl()
 	{
 		if (m_previewResourceHandle.IsValid())
 		{
-			m_previewCamera.renderTarget = {};
 			m_previewResourceHandle = {};
 		}
 
@@ -581,11 +578,6 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 	case StaticResourceType::Texture2D:
 		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
 		{
-			if (m_previewResourceHandle.IsValid())
-			{
-				m_previewCamera.texture = {};
-			}
-
 			m_isPreviewResourceLoaded = false;
 
 			StaticResourceHandle<Texture2DResource> textureHandle = resManInstance.LoadResource<Texture2DResource>(
@@ -622,9 +614,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = imageSize * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			//ImTextureRef textureRef = m_editorContext->GetEngine().GetOrCreateImGuiTexture(guid);
-			m_previewCamera.texture = Graphics::Vulkan::IntermediaryStorage::GetInstance().CreateImGuiTexture(guid);
-			ImTextureRef textureRef = m_previewCamera.texture.Get();
+			ImTextureRef textureRef = m_editorContext->GetEngine().GetImGuiTexture(guid);
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -704,7 +694,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = ImVec2(previewSizeX, previewSizeY) * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef previewTexture = m_previewCamera.texture.Get();
+			ImTextureRef previewTexture = m_editorContext->GetEngine().GetImGuiTexture(m_previewCamera.renderTarget.id);
 
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);

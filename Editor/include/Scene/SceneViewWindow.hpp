@@ -9,7 +9,7 @@
 #include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Graphics/Common/RenderDesc.hpp>
 #include <Engine.hpp>
 
 namespace Droplet::Editor::Scene

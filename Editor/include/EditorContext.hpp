@@ -1,4 +1,5 @@
 #pragma once
+
 #include "InteractionState.hpp"
 #include "SceneSystem/Scene.hpp"
 #include <Graphics/Vulkan/Camera.hpp>

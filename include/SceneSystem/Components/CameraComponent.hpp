@@ -7,11 +7,10 @@
 #include <json/json.hpp>
 
 #include <SceneSystem/Component.hpp>
-#include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/ImGuiTexture.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
-#include <Graphics/GraphicsTypes.hpp>
-#include <Graphics/DrawLayer.hpp>
+#include <Graphics/Common/RenderDesc.hpp>
+#include <Graphics/Common/Camera.hpp>
+#include <Graphics/Common/GraphicsTypes.hpp>
+#include <Graphics/Common/DrawLayer.hpp>
 
 namespace Droplet::Scene
 {
@@ -51,11 +50,8 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
 		void ClearRenderData() { m_renderData.clear(); }
 
-        [[nodiscard]] Graphics::RenderTarget GetTarget() const { return m_target; }
-        void SetTarget(Graphics::RenderTarget p_renderTarget) { m_target = p_renderTarget; }
-
-        [[nodiscard]] Graphics::ImGuiTexture GetTexture() const { return m_texture; }
-        void SetTexture(Graphics::ImGuiTexture p_textureIndex) { m_texture = p_textureIndex; }
+        [[nodiscard]] const Graphics::Common::RenderTargetDesc &GetTarget() const { return m_target; }
+        void SetTarget(const Graphics::Common::RenderTargetDesc &p_renderTarget) { m_target = p_renderTarget; }
 
 		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
 		void SetClearColor(const glm::vec4 &p_clearColor) { m_clearColor = p_clearColor; }
@@ -76,9 +72,8 @@ namespace Droplet::Scene
 
 		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
 		int32_t m_priority{ 0 };
-
-        Graphics::RenderTarget m_target { }; // The index of the texture that the camera will render to
-        Graphics::ImGuiTexture m_texture { }; // The index of the texture that ImGui uses to render the camera view
+		
+        Graphics::Common::RenderTargetDesc m_target { }; // What the camera renders into; the renderer owns the image
 		glm::ivec2 m_resolution{ 256, 256 };
 		bool m_dirty{ true };
 

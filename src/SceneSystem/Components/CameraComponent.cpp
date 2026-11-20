@@ -4,7 +4,6 @@
 #include <SceneSystem/Node.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
@@ -12,18 +11,10 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	using namespace Graphics::Vulkan;
-	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
-	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
-
-#ifdef _EDITOR
-	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
-	{
-		m_texture = instance.CreateImGuiTexture(
-			m_target
-		);
-	}
-#endif
+	m_target = {
+		.id = GuidUtils::Generate(),
+		{ static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) }
+	};
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -40,15 +31,8 @@ void CameraComponent::QueueRenderImpl()
 {
 	if (m_dirty)
 	{
-		// TODO: (RENDERING)
-
-#ifdef _EDITOR
-		Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-			m_target, m_texture,
-			m_resolution.x, m_resolution.y
-		);
-#endif
-
+		// same id, new size: the renderer replaces the image
+		m_target.extent = { static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) };
 		m_dirty = false;
 	}
 
@@ -139,15 +123,16 @@ void CameraComponent::RenderUIImpl()
 
 	if (TreeNode("Preview"))
 	{
-		ImTextureRef camViewTexture = m_texture.Get();
+		ImTextureRef camViewTexture = ImTextureRef(textureId);
 		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
 		float availWidth = GetContentRegionAvail().x;
 		float imageWidth = availWidth * m_uiScale;
 		float imageHeight = imageWidth / m_camera.GetAspect();
 
-		// Render the camera view texture to the scene view window
-		ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+			// Render the camera view texture to the scene view window
+		if (textureId != 0)
+			ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 
 		TreePop();
 	}

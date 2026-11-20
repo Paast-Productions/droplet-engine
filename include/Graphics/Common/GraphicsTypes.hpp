@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <limits>
 
-namespace Droplet::Graphics::Vulkan
+namespace Droplet::Graphics::Common
 {
 	constexpr std::uint32_t INVALID_INDEX{ std::numeric_limits<std::uint32_t>::max() };
 }

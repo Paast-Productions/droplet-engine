@@ -1,4 +1,5 @@
 #pragma once
+
 #include <vector>
 #include <map>
 #include <glm/glm.hpp>
@@ -14,10 +15,8 @@
 #include <resource/StaticResourceHandle.hpp>
 #include <resource/types/Texture2DResource.hpp>
 
-#define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include <vulkan/vulkan_raii.hpp>
 #include <vk_mem_alloc_raii.hpp>
-#undef VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 
 #include <array>
 #include <cstdint>
@@ -307,6 +306,13 @@ namespace Droplet::Graphics::Debug
 
 		/// @brief Clear all draw commands for the next frame
 		void ClearDrawCommands();
+
+		/// @brief This frame's batched lines (PrepareRender builds them), as P3C4 bytes
+		[[nodiscard]] std::span<const std::byte> WireMesh(bool p_depthTest) const { return std::as_bytes(std::span(p_depthTest ? m_wireDepthMesh : m_wireMesh)); }
+		
+		/// @brief This frame's batched triangles (PrepareRender builds them), as P3C4 bytes
+		[[nodiscard]] std::span<const std::byte> FillMesh(bool p_depthTest) const { return std::as_bytes(std::span(p_depthTest ? m_fillDepthMesh : m_fillMesh)); }
+
 
 
 	private:

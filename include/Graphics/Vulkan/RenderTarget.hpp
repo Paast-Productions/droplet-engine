@@ -16,19 +16,19 @@ namespace Droplet::Graphics
 {
 	/// @brief A class that represent the endpoints of what the renderer need
 	/// for rendering to a texture
-    // TODO: (RENDERING) Add option to skip depth buffer if not needed.
-	class RenderTarget
-	{
-	public:
-		RenderTarget() = default;
-		
+    // TODO: Add option to skip depth buffer if not needed.
+    class RenderTarget
+    {
+    public:
+        RenderTarget() = default;
+
 		RenderTarget(const RenderTarget &p_other) = default;
 		RenderTarget &operator=(const RenderTarget &p_other) = default;
 		RenderTarget(RenderTarget &&p_other) noexcept = default;
 		RenderTarget &operator=(RenderTarget &&p_other) noexcept = default;
-		
-		~RenderTarget() = default;
-		
+
+        ~RenderTarget() = default;
+
 		//
 		// TODO: (RENDERING) <REFACTOR>
 		// This should be extended to also returning handles.
@@ -51,7 +51,7 @@ namespace Droplet::Graphics
 		[[nodiscard]] GUID GetDepthImageGuid() const { return m_depthImageHandle.GetGUID(); }
 		
 		[[nodiscard]] vk::Format GetDepthFormat() const { return m_depthImageHandle->GetFormat(); }
-		
+
 		/// @brief Get the descriptor of the texture
 		/// @returns A custom ImageView
 		[[nodiscard]] const vk::raii::ImageView &GetColourImageView() const { return m_colourImageViewHandle->Get(); }
@@ -69,8 +69,8 @@ namespace Droplet::Graphics
 		//
 		// TODO: </REFACTOR> 
 		//
-		
-	private:
+
+    private:
 		// Friend to access data
 		friend class Vulkan::IntermediaryStorage;
 		
@@ -98,5 +98,5 @@ namespace Droplet::Graphics
 		DynamicResourceHandle<Vulkan::Image> m_depthImageHandle {};
 		DynamicResourceHandle<Vulkan::ImageView> m_depthImageViewHandle {};
 		
-	};
+    };
 }
