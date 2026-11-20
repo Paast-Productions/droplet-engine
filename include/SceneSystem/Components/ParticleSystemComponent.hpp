@@ -39,6 +39,13 @@ namespace Droplet::Scene
             World
         };
 
+        enum class StartColorMode
+        {
+            RandomPerComponent,
+            Lerp,
+            SphericalLerp
+        };
+
         struct FloatRange
         {
             float min = 1.0f;
@@ -107,6 +114,7 @@ namespace Droplet::Scene
         void SetRotationRange(const FloatRange &range);
         void SetAngularVelocityRange(const FloatRange &range);
         void SetStartColorRange(const ColorRange &range);
+        void SetStartColorMode(StartColorMode mode);
         void SetGravityModifier(float gravityModifier);
         void SetEmissionShape(EmissionShape shape);
         void SetSimulationSpace(SimulationSpace space);
@@ -117,6 +125,7 @@ namespace Droplet::Scene
         [[nodiscard]] FloatRange GetRotationRange() const { return m_rotationRange; }
         [[nodiscard]] FloatRange GetAngularVelocityRange() const { return m_angularVelocityRange; }
         [[nodiscard]] ColorRange GetStartColorRange() const { return m_startColorRange; }
+        [[nodiscard]] StartColorMode GetStartColorMode() const { return m_startColorMode; }
 
         void SetShapeRadius(float radius);
         void SetShapeBoxSize(const glm::vec3 &size);
@@ -156,6 +165,7 @@ namespace Droplet::Scene
 
         float EvaluateCurve(const ScalarCurve &curve, float normalizedTime) const;
         float RandomFloat(float min, float max);
+        glm::vec4 RandomStartColor();
         glm::vec3 RandomUnitSphere();
         glm::vec3 RandomDirectionForEmission();
         void SpawnParticle();
@@ -163,6 +173,7 @@ namespace Droplet::Scene
         void UpdateBurstEmission();
         void ResetBurstTriggers();
         void DrawDebugParticles() const;
+        void DrawDebugEmitter() const;
         void SerializeCurve(nlohmann::json &json, const char *key, const ScalarCurve &curve) const;
         void DeserializeCurve(const nlohmann::json &json, const char *key, ScalarCurve &curve);
 
@@ -172,6 +183,7 @@ namespace Droplet::Scene
         bool m_looping = true;
         bool m_transparent = true;
         bool m_debugDraw = false;
+        bool m_uiSelected = false;
         float m_duration = 5.0f;
         float m_startDelay = 0.0f;
         float m_delayElapsed = 0.0f;
@@ -186,6 +198,7 @@ namespace Droplet::Scene
 
         EmissionShape m_emissionShape = EmissionShape::Point;
         SimulationSpace m_simulationSpace = SimulationSpace::World;
+        StartColorMode m_startColorMode = StartColorMode::RandomPerComponent;
         FloatRange m_lifetimeRange{ 1.0f, 2.0f };
         FloatRange m_speedRange{ 5.0f, 5.0f };
         FloatRange m_sizeRange{ 0.1f, 0.1f };

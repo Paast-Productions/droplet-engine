@@ -309,13 +309,13 @@ namespace Droplet::Graphics::Debug
 					return icon < other.icon;
 				if (depthTest != other.depthTest)
 					return depthTest < other.depthTest;
-				if (color.x != other.color.x)
+				if ((uint8_t)(color.x * 255.0f) != (uint8_t)(other.color.x * 255.0f))
 					return color.x < other.color.x;
-				if (color.y != other.color.y)
+				if ((uint8_t)(color.y * 255.0f) != (uint8_t)(other.color.y * 255.0f))
 					return color.y < other.color.y;
-				if (color.z != other.color.z)
+				if ((uint8_t)(color.z * 255.0f) != (uint8_t)(other.color.z * 255.0f))
 					return color.z < other.color.z;
-				if (color.w != other.color.w)
+				if ((uint8_t)(color.w * 255.0f) != (uint8_t)(other.color.w * 255.0f))
 					return color.w < other.color.w;
 				return false;
 			}

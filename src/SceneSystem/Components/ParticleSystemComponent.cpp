@@ -8,8 +8,11 @@
 #include <Editor/ImGuiCurve.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <Math/Bounds/Sphere.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/OBB.hpp>
 #include <cmath>
 #include <algorithm>
+#include <cstddef>
 
 using namespace Droplet;
 using namespace Droplet::Scene;
@@ -97,6 +100,7 @@ void ParticleSystemComponent::SetSizeRange(const FloatRange &range) { m_sizeRang
 void ParticleSystemComponent::SetRotationRange(const FloatRange &range) { m_rotationRange = range; }
 void ParticleSystemComponent::SetAngularVelocityRange(const FloatRange &range) { m_angularVelocityRange = range; }
 void ParticleSystemComponent::SetStartColorRange(const ColorRange &range) { m_startColorRange = range; }
+void ParticleSystemComponent::SetStartColorMode(StartColorMode mode) { m_startColorMode = mode; }
 void ParticleSystemComponent::SetGravityModifier(float gravityModifier) { m_gravityModifier = gravityModifier; }
 void ParticleSystemComponent::SetEmissionShape(EmissionShape shape) { m_emissionShape = shape; }
 void ParticleSystemComponent::SetSimulationSpace(SimulationSpace space) { m_simulationSpace = space; }
@@ -134,6 +138,47 @@ glm::vec3 ParticleSystemComponent::RandomUnitSphere()
     const float angle = RandomFloat(0.0f, glm::two_pi<float>());
     const float radius = std::sqrt(std::max(0.0f, 1.0f - z * z));
     return glm::vec3(radius * std::cos(angle), radius * std::sin(angle), z);
+}
+
+glm::vec4 ParticleSystemComponent::RandomStartColor()
+{
+    switch (m_startColorMode)
+    {
+    case StartColorMode::Lerp:
+        return glm::mix(m_startColorRange.min, m_startColorRange.max, RandomFloat(0.0f, 1.0f));
+    case StartColorMode::SphericalLerp:
+    {
+        glm::vec4 start = m_startColorRange.min;
+        glm::vec4 end = m_startColorRange.max;
+        const float startLength = glm::length(start);
+        const float endLength = glm::length(end);
+        if (startLength <= 0.0001f || endLength <= 0.0001f)
+            return glm::mix(start, end, RandomFloat(0.0f, 1.0f));
+
+        start /= startLength;
+        end /= endLength;
+        float dot = std::clamp(glm::dot(start, end), -1.0f, 1.0f);
+        const float t = RandomFloat(0.0f, 1.0f);
+        if (dot > 0.9995f)
+            return glm::normalize(glm::mix(start, end, t));
+        if (dot < -0.9995f)
+            return glm::mix(m_startColorRange.min, m_startColorRange.max, t);
+
+        const float theta = std::acos(dot);
+        const float sinTheta = std::sin(theta);
+        const glm::vec4 result =
+            (std::sin((1.0f - t) * theta) / sinTheta) * start +
+            (std::sin(t * theta) / sinTheta) * end;
+        return glm::clamp(glm::normalize(result), glm::vec4(0.0f), glm::vec4(1.0f));
+    }
+    case StartColorMode::RandomPerComponent:
+    default:
+        return glm::vec4(
+            RandomFloat(m_startColorRange.min.r, m_startColorRange.max.r),
+            RandomFloat(m_startColorRange.min.g, m_startColorRange.max.g),
+            RandomFloat(m_startColorRange.min.b, m_startColorRange.max.b),
+            RandomFloat(m_startColorRange.min.a, m_startColorRange.max.a));
+    }
 }
 
 glm::vec3 ParticleSystemComponent::RandomDirectionForEmission()
@@ -174,7 +219,7 @@ void ParticleSystemComponent::SpawnParticle()
         break;
     case EmissionShape::Hemisphere:
         localPosition = RandomUnitSphere() * m_shapeRadius;
-        localPosition.y = std::abs(localPosition.y);
+        localPosition.z = std::abs(localPosition.z);
         direction = glm::normalize(localPosition);
         break;
     case EmissionShape::Box:
@@ -197,27 +242,29 @@ void ParticleSystemComponent::SpawnParticle()
         break;
     }
 
+    glm::vec3 worldDirection = glm::normalize(direction);
     glm::vec3 worldPosition = localPosition;
     if (GetOwner())
+    {
+        Transform &transform = GetOwner()->GetTransform();
         worldPosition = m_simulationSpace == SimulationSpace::Local
-            ? GetOwner()->GetTransform().GetMatrix(Transform::Space::World) * glm::vec4(localPosition, 1.0f)
-            : GetOwner()->GetTransform().GetPosition(Transform::Space::World) + localPosition;
+            ? glm::vec3(transform.GetMatrix(Transform::Space::World) * glm::vec4(localPosition, 1.0f))
+            : transform.GetPosition(Transform::Space::World) + glm::mat3(transform.GetRotation(Transform::Space::World)) * localPosition;
+        worldDirection = glm::normalize(glm::mat3(transform.GetRotation(Transform::Space::World)) * direction);
+    }
 
     const float lifetime = RandomFloat(m_lifetimeRange.min, m_lifetimeRange.max);
     const float speed = RandomFloat(m_speedRange.min, m_speedRange.max);
-    const float red = RandomFloat(m_startColorRange.min.r, m_startColorRange.max.r);
-    const float green = RandomFloat(m_startColorRange.min.g, m_startColorRange.max.g);
-    const float blue = RandomFloat(m_startColorRange.min.b, m_startColorRange.max.b);
-    const float alpha = RandomFloat(m_startColorRange.min.a, m_startColorRange.max.a);
+    const glm::vec4 startColor = RandomStartColor();
 
     Particle particle;
     particle.position = worldPosition;
-    particle.velocity = glm::normalize(direction) * speed;
+    particle.velocity = worldDirection * speed;
     particle.baseSize = RandomFloat(m_sizeRange.min, m_sizeRange.max);
     particle.size = particle.baseSize;
     particle.rotation = glm::radians(RandomFloat(m_rotationRange.min, m_rotationRange.max));
     particle.angularVelocity = glm::radians(RandomFloat(m_angularVelocityRange.min, m_angularVelocityRange.max));
-    particle.color = glm::vec4(red, green, blue, alpha);
+    particle.color = startColor;
     particle.lifetime = lifetime;
     m_particles.push_back(particle);
 }
@@ -228,56 +275,43 @@ float ParticleSystemComponent::EvaluateCurve(const ScalarCurve &curve, float nor
         return 0.0f;
     if (curve.points.size() == 1)
         return curve.points.front().position.y;
-
     normalizedTime = std::clamp(normalizedTime, 0.0f, 1.0f);
-    std::size_t right = 1;
-    while (right < curve.points.size() && curve.points[right].position.x < normalizedTime)
-        ++right;
-    if (right >= curve.points.size())
-        return curve.points.back().position.y;
+    if (curve.IsInjective())
+        return curve.SampleInjective(normalizedTime);
 
-    const auto &left = curve.points[right - 1];
-    const auto &righ = curve.points[right];
-    const float span = righ.position.x - left.position.x;
-    if (span <= 0.0001f)
-        return righ.position.y;
-
-    float t = std::clamp((normalizedTime - left.position.x) / span, 0.0f, 1.0f);
-    if (curve.type == Math::Curves::CurveType::BezierCubic)
-        return glm::mix(glm::mix(glm::mix(left.position, left.controlPoint2, t), glm::mix(left.controlPoint2, righ.controlPoint1, t), t),
-            glm::mix(glm::mix(left.controlPoint2, righ.controlPoint1, t), glm::mix(righ.controlPoint1, righ.position, t), t), t).y;
-    if (curve.type == Math::Curves::CurveType::BezierQuadratic)
-    {
-        const glm::vec2 p0 = left.position;
-        const glm::vec2 p1 = left.controlPoint1;
-        const glm::vec2 p2 = righ.position;
-        return (1.0f - t) * (1.0f - t) * p0.y + 2.0f * (1.0f - t) * t * p1.y + t * t * p2.y;
-    }
-    return glm::mix(left.position.y, righ.position.y, t);
+    return curve.SamplePoint(normalizedTime).y;
 }
 
 void ParticleSystemComponent::UpdateParticles(float deltaTime)
 {
     const glm::vec3 gravity(0.0f, -9.81f * m_gravityModifier, 0.0f);
-    for (std::size_t i = 0; i < m_particles.size();)
+    #pragma omp parallel for schedule(static)
+    for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(m_particles.size()); ++i)
     {
-        Particle &particle = m_particles[i];
+        Particle &particle = m_particles[static_cast<std::size_t>(i)];
         particle.age += deltaTime;
-        if (particle.age >= particle.lifetime)
+        if (particle.age < particle.lifetime)
         {
-            m_particles[i] = m_particles.back();
-            m_particles.pop_back();
-            continue;
+            const float normalizedLife = std::clamp(particle.age / particle.lifetime, 0.0f, 1.0f);
+            const float velocityMultiplier = EvaluateCurve(m_velocityOverLifetime, normalizedLife);
+            particle.velocity += gravity * deltaTime;
+            particle.position += particle.velocity * velocityMultiplier * deltaTime;
+            particle.size = particle.baseSize * EvaluateCurve(m_sizeOverLifetime, normalizedLife);
+            particle.rotation += particle.angularVelocity * deltaTime + EvaluateCurve(m_rotationOverLifetime, normalizedLife) * deltaTime;
         }
-
-        const float normalizedLife = std::clamp(particle.age / particle.lifetime, 0.0f, 1.0f);
-        const float velocityMultiplier = EvaluateCurve(m_velocityOverLifetime, normalizedLife);
-        particle.velocity += gravity * deltaTime;
-        particle.position += particle.velocity * velocityMultiplier * deltaTime;
-        particle.size = particle.baseSize * EvaluateCurve(m_sizeOverLifetime, normalizedLife);
-        particle.rotation += particle.angularVelocity * deltaTime + EvaluateCurve(m_rotationOverLifetime, normalizedLife) * deltaTime;
-        ++i;
     }
+
+    std::size_t writeIndex = 0;
+    for (std::size_t readIndex = 0; readIndex < m_particles.size(); ++readIndex)
+    {
+        if (m_particles[readIndex].age < m_particles[readIndex].lifetime)
+        {
+            if (writeIndex != readIndex)
+                m_particles[writeIndex] = m_particles[readIndex];
+            ++writeIndex;
+        }
+    }
+    m_particles.resize(writeIndex);
 }
 
 void ParticleSystemComponent::ResetBurstTriggers()
@@ -340,8 +374,12 @@ void ParticleSystemComponent::EditorUpdateImpl()
 {
     const float deltaTime = Time::Get().GetDeltaTime();
     UpdateParticles(deltaTime);
-    if (m_debugDraw)
+    if (m_debugDraw || m_uiSelected)
+    {
         DrawDebugParticles();
+        DrawDebugEmitter();
+    }
+    m_uiSelected = false;
 }
 
 void ParticleSystemComponent::DrawDebugParticles() const
@@ -356,6 +394,86 @@ void ParticleSystemComponent::DrawDebugParticles() const
             particle.color,
             1,
             false);
+    }
+}
+
+void ParticleSystemComponent::DrawDebugEmitter() const
+{
+    using Droplet::Graphics::Debug::DebugDraw;
+
+    glm::vec3 position(0.0f);
+    glm::vec3 forward(0.0f, 0.0f, 1.0f);
+    glm::vec3 up(0.0f, 1.0f, 0.0f);
+    glm::vec3 right(1.0f, 0.0f, 0.0f);
+    float radiusScale = 1.0f;
+
+    if (GetOwner())
+    {
+        Transform &transform = GetOwner()->GetTransform();
+        position = transform.GetPosition(Transform::Space::World);
+        forward = transform.GetForward(Transform::Space::World);
+        up = transform.GetUp(Transform::Space::World);
+        right = transform.GetRight(Transform::Space::World);
+        const glm::mat4 worldMatrix = transform.GetMatrix(Transform::Space::World);
+        radiusScale = std::max({
+            glm::length(glm::vec3(worldMatrix[0])),
+            glm::length(glm::vec3(worldMatrix[1])),
+            glm::length(glm::vec3(worldMatrix[2]))
+        });
+    }
+
+    const glm::vec4 color(0.25f, 0.75f, 1.0f, 0.75f);
+    const float radius = std::max(0.001f, m_shapeRadius * radiusScale);
+
+    switch (m_emissionShape)
+    {
+    case EmissionShape::Point:
+        DebugDraw::DrawSphere(Droplet::Math::Sphere(position, 0.05f * radiusScale), color, 1, false);
+        break;
+    case EmissionShape::Sphere:
+    case EmissionShape::Hemisphere:
+        DebugDraw::DrawSphere(Droplet::Math::Sphere(position, radius), color, 2, false);
+        if (m_emissionShape == EmissionShape::Hemisphere)
+            DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
+        break;
+    case EmissionShape::Box:
+    {
+        if (GetOwner())
+        {
+            Transform &transform = GetOwner()->GetTransform();
+            Droplet::Math::OBB obb(
+                position,
+                m_shapeBoxSize * 0.5f,
+                glm::mat3(transform.GetRotation(Transform::Space::World)));
+            DebugDraw::DrawBox(obb, color, false, true);
+        }
+        else
+        {
+            DebugDraw::DrawBox(
+                Droplet::Math::AABB(position, m_shapeBoxSize * 0.5f),
+                color,
+                false,
+                true);
+        }
+        break;
+    }
+    case EmissionShape::Cone:
+    {
+        const float angle = glm::radians(m_coneAngle);
+        const float length = radius;
+        const float baseRadius = length * std::tan(std::clamp(angle, 0.0f, glm::pi<float>() * 0.49f));
+        const glm::vec3 baseCenter = position + forward * length;
+        DebugDraw::DrawRay(position, forward * length, color, false);
+        DebugDraw::DrawCircle(baseCenter, forward, baseRadius, color, 24, false, true);
+        DebugDraw::DrawLine(position, baseCenter + right * baseRadius, color, false);
+        DebugDraw::DrawLine(position, baseCenter - right * baseRadius, color, false);
+        DebugDraw::DrawLine(position, baseCenter + up * baseRadius, color, false);
+        DebugDraw::DrawLine(position, baseCenter - up * baseRadius, color, false);
+        break;
+    }
+    case EmissionShape::Circle:
+        DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
+        break;
     }
 }
 
@@ -430,6 +548,7 @@ nlohmann::json ParticleSystemComponent::SerializeImpl()
     json["gravityModifier"] = m_gravityModifier;
     json["emissionShape"] = static_cast<int>(m_emissionShape);
     json["simulationSpace"] = static_cast<int>(m_simulationSpace);
+    json["startColorMode"] = static_cast<int>(m_startColorMode);
     json["shapeRadius"] = m_shapeRadius;
     json["shapeBoxSize"] = { m_shapeBoxSize.x, m_shapeBoxSize.y, m_shapeBoxSize.z };
     json["coneAngle"] = m_coneAngle;
@@ -471,6 +590,8 @@ void ParticleSystemComponent::DeserializeImpl(const nlohmann::json p_compJson)
         SetEmissionShape(static_cast<EmissionShape>(p_compJson["emissionShape"].get<int>()));
     if (p_compJson.contains("simulationSpace"))
         SetSimulationSpace(static_cast<SimulationSpace>(p_compJson["simulationSpace"].get<int>()));
+    if (p_compJson.contains("startColorMode"))
+        SetStartColorMode(static_cast<StartColorMode>(p_compJson["startColorMode"].get<int>()));
     if (p_compJson.contains("shapeRadius")) SetShapeRadius(p_compJson["shapeRadius"].get<float>());
     if (p_compJson.contains("shapeBoxSize"))
     {
@@ -532,6 +653,8 @@ void ParticleSystemComponent::RenderUIImpl()
 #ifdef _EDITOR
     using namespace ImGui;
 
+    m_uiSelected = true;
+
     PushID(this);
 
     if (Button(m_playing ? "Pause" : "Play"))
@@ -582,6 +705,10 @@ void ParticleSystemComponent::RenderUIImpl()
     DragFloat2("Angular Velocity", &m_angularVelocityRange.min, 1.0f, -3600.0f, 3600.0f);
     ColorEdit4("Start Color Min", &m_startColorRange.min.r);
     ColorEdit4("Start Color Max", &m_startColorRange.max.r);
+    const char *startColorModeNames[] = { "Random Per Component", "Lerp", "Spherical Lerp" };
+    int startColorMode = static_cast<int>(m_startColorMode);
+    if (Combo("Start Color Mode", &startColorMode, startColorModeNames, IM_ARRAYSIZE(startColorModeNames)))
+        m_startColorMode = static_cast<StartColorMode>(startColorMode);
 
     Separator();
     TextUnformatted("Bursts");
@@ -618,6 +745,7 @@ void ParticleSystemComponent::RenderUIImpl()
 
     auto RenderCurve = [](const char *label, ScalarCurve &curve)
     {
+        PushID(label);
         std::vector<ImGui::BezierPoint> points;
         points.reserve(curve.points.size());
         for (const auto &point : curve.points)
@@ -628,8 +756,19 @@ void ParticleSystemComponent::RenderUIImpl()
                 ImVec2(point.controlPoint2.x, point.controlPoint2.y)
             });
         }
+
+        const char *curveTypeNames[] = { "Linear", "Quadratic Bezier", "Cubic Bezier" };
+        int curveType = static_cast<int>(curve.type);
+        if (Combo("Curve Type", &curveType, curveTypeNames, IM_ARRAYSIZE(curveTypeNames)))
+            curve.type = static_cast<Droplet::Math::Curves::CurveType>(curveType);
+
         ImGuiCurveEditFlags flags = ImGuiCurveEditFlags_ClampPoints | ImGuiCurveEditFlags_ForceSpanWidth | ImGuiCurveEditFlags_ForceInjective;
-        if (ImGui::CurveEdit(label, &points, ImVec2(0, 150), ImRect(0.0f, 0.0f, 1.0f, 2.0f), 2.0f,
+        if (curve.type == Droplet::Math::Curves::CurveType::Linear)
+            flags |= ImGuiCurveEditFlags_Linear;
+        if (curve.type == Droplet::Math::Curves::CurveType::BezierQuadratic)
+            flags |= ImGuiCurveEditFlags_Quadratic;
+
+        if (ImGui::CurveEdit(label, &points, ImVec2(0, 300), ImRect(0.0f, 0.0f, 1.0f, 2.0f), 2.0f,
             ImRect(48, 24, 20, 24), ImVec2i(4, 4), flags))
         {
             curve.points.clear();
@@ -642,6 +781,7 @@ void ParticleSystemComponent::RenderUIImpl()
                 curve.points.push_back(value);
             }
         }
+        PopID();
     };
 
     if (CollapsingHeader("Over Lifetime", ImGuiTreeNodeFlags_DefaultOpen))
