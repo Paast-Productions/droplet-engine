@@ -1,6 +1,6 @@
 #include "DebugDraw.hpp"
 
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <math/Bezier.hpp>
 #include <math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>

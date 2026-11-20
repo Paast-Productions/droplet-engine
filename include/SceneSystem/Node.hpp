@@ -15,8 +15,8 @@
 
 #include <Transform.hpp>
 #include <SceneSystem/bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
-#include <Graphics/DrawLayer.hpp>
+#include <Graphics/Common/RenderData.hpp>
+#include <Graphics/Common/DrawLayer.hpp>
 #include <SceneSystem/Physics/CollisionLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>

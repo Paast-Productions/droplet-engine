@@ -9,8 +9,8 @@
 #include <tracy/public/tracy/TracyVulkan.hpp>
 
 #include <Graphics/Vulkan/IntermediaryStorage.hpp>
-#include <Graphics/Vulkan/RenderTarget.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Common/RenderTargetDesc.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <GameInput.hpp>
 #include <Time.hpp>

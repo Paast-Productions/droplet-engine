@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <string_view>
 
@@ -7,7 +9,7 @@
 #include <json/json.hpp>
 
 #include <SceneSystem/Component.hpp>
-#include <Graphics/Common/RenderDesc.hpp>
+#include <Graphics/Common/RenderTargetDesc.hpp>
 #include <Graphics/Common/Camera.hpp>
 #include <Graphics/Common/GraphicsTypes.hpp>
 #include <Graphics/Common/DrawLayer.hpp>
@@ -50,6 +52,9 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
 		void ClearRenderData() { m_renderData.clear(); }
 
+        /// @brief Set by the Engine: the ImGui texture id for a render target (the inspector's preview)
+        static void SetImGuiTextureLookup(std::function<std::uint64_t(GUID)> p_lookup) { s_imguiTextureLookup = std::move(p_lookup); }
+
         [[nodiscard]] const Graphics::Common::RenderTargetDesc &GetTarget() const { return m_target; }
         void SetTarget(const Graphics::Common::RenderTargetDesc &p_renderTarget) { m_target = p_renderTarget; }
 
@@ -87,5 +92,7 @@ namespace Droplet::Scene
 		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.3f, 1.0f };
 
 		std::vector<Graphics::RenderData> m_renderData{ };
+
+		static inline std::function<std::uint64_t(GUID)> s_imguiTextureLookup;
     };
 }

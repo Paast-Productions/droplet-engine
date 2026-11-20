@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-#include "Graphics/Vulkan/Camera.hpp"
-#include <Graphics/RenderDesc.hpp>
+#include "Graphics/Common/Camera.hpp"
+#include <Graphics/Common/RenderTargetDesc.hpp>
 
 namespace Droplet::Graphics
 {
