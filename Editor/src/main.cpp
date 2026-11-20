@@ -6,8 +6,11 @@
 #include "Audio/MixerWindow.hpp"
 #include "Audio/BusInspectorWindow.hpp"
 #include "BehaviourInspector.hpp"
-#include <Resource/ResourceBrowser.hpp>
-#include <Scene/SceneViewWindow.hpp>
+#include "Resource/ResourceBrowser.hpp"
+#include "Scene/SceneViewWindow.hpp"
+#include "SceneInspectorWindow.hpp"	
+#include "Graphics/RenderSettings.hpp"
+
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <Graphics/Vulkan/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
@@ -15,7 +18,6 @@
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
 #include <EditorConfig.hpp>
-#include <SceneInspectorWindow.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <ImGui/UIStyle.hpp>
 #include <IconFontCppHeaders/IconsLucide.h>
@@ -171,6 +173,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		MixerWindow mixerWindow(&editorContext);
    		BusInspectorWindow busInspectorWindow(&editorContext);
 		SceneInspectorWindow sceneInspectorWindow(&editorContext);
+		Graphics::RenderSettings renderSettingsWindow(&editorContext);
    		
 		hierarchyWindow.Init();
 		nodeInspectorWindow.Init();
@@ -182,6 +185,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		mixerWindow.Init();
     	busInspectorWindow.Init();
 		sceneInspectorWindow.Init();
+		renderSettingsWindow.Init();
     	
 		FrameMark;
 
@@ -372,10 +376,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							EditorConfig::StoreBool("Editor.ShowBusInspector", !currState);
 						}
 						
-						currState = EditorConfig::LoadBool("Editor.SceneInspector", true);
+						currState = EditorConfig::LoadBool("Editor.ShowSceneInspector", true);
 						if (ImGui::MenuItem("Scene Inspector", nullptr, currState))
 						{
-							EditorConfig::StoreBool("Editor.SceneInspector", !currState);
+							EditorConfig::StoreBool("Editor.ShowSceneInspector", !currState);
+						}
+
+						currState = EditorConfig::LoadBool("Editor.ShowRenderSettings", true);
+						if (ImGui::MenuItem("Render Settings", nullptr, currState))
+						{
+							EditorConfig::StoreBool("Editor.ShowRenderSettings", !currState);
 						}
 
 						ImGui::EndMenu();
@@ -545,9 +555,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				busInspectorWindow.Render();
 			}
 
-			if (EditorConfig::LoadBool("Editor.SceneInspector", true))
+			if (EditorConfig::LoadBool("Editor.ShowSceneInspector", true))
 			{
 				sceneInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowRenderSettings", true))
+			{
+				renderSettingsWindow.Render();
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
@@ -574,6 +589,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
 				if (activeScene)
 				{
+					camRenderData.clearColor = editorCamera.GetClearColor();
 					camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
 					camRenderData.renderTarget = editorCamera.GetTarget();
 
