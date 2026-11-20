@@ -21,7 +21,7 @@ namespace Droplet::Graphics::Vulkan
             m_imageView = { p_nullptr };   
         }
         
-        // TODO: <REFACTOR>  
+        // TODO: (RENDERER) <REFACTOR>  
         // EXPLANATION: Should be one singular constructor that can take in all combinations of flags.
         // If you would like a specific combination, create a factory class
         

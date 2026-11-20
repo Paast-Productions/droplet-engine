@@ -560,7 +560,7 @@ void ResourceBrowser::DrawResourceSettings(MetaEntry &p_entry) const
 		}
 	}
 
-	// TODO: Dependency modifications should go here when we start using that
+	// TODO: (RESOURCES) Dependency modifications should go here when we start using that
 }
 
 void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
@@ -644,7 +644,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 				[this]([[maybe_unused]] StaticResourceHandle<MeshResource> handle) { 
 					m_isPreviewResourceLoaded = true; 
 
-					// TODO: Calculate the bounding box of the mesh and adjust the preview camera accordingly
+					// TODO: (UI) Calculate the bounding box of the mesh and adjust the preview camera accordingly
 				}
 			);
 
@@ -710,7 +710,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			BeginChild("Preview Image", scaledImageSize);
 			ImGui::Image(previewTexture, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
 
-			// TODO: Handle rotation through mouse interaction
+			// TODO: (UI) Handle rotation through mouse interaction
 
 			EndChild();
 
@@ -795,7 +795,7 @@ void ResourceBrowser::RegisterAsset()
 				std::filesystem::copy_file(normAbsPath, destination, std::filesystem::copy_options::overwrite_existing, ec);
 				if (ec)
 				{
-					// TODO: Log error
+					// TODO: (LOGGING) Log error
 					continue;
 				}
 				

@@ -34,7 +34,7 @@ namespace Droplet::Graphics
 
 namespace Droplet::Graphics::Vulkan
 {
-    // TODO: <REFACTOR>
+    // TODO: (RENDERING) <REFACTOR>
     // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something
     constexpr std::uint32_t C_INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
     // TODO: </REFACTOR>
@@ -301,7 +301,7 @@ namespace Droplet::Graphics::Vulkan
         /// @note Use carefully as misuse will result in memory leaks or crashes
         [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
         
-        // TODO: <REFACTOR>
+        // TODO: (RENDERING) <REFACTOR>
         // --   Should return vk::raii::Pipeline instead
         //      New function for vk::raii::PipelineLayout needs to be created
         // --   Refactor Get functions to have similar handling of invalid GUIDs
@@ -315,11 +315,11 @@ namespace Droplet::Graphics::Vulkan
         
         // TODO: </REFACTOR>
             
-        /// TODO: Write doxygen (Lio)
+        /// TODO: (DOXYGEN) Write doxygen (Lio)
         [[nodiscard]] const Mesh GetMesh(const vk::raii::CommandBuffer &p_commandBuffer,
             RenderData p_renderData);
 
-        /// TODO: Write doxygen (Lio)
+        /// TODO: (DOXYGEN) Write doxygen (Lio)
         [[nodiscard]] std::uint32_t GetTextureID(RenderData p_renderData,
             CommandPool &p_commandPool,
             bool &result);
@@ -348,13 +348,13 @@ namespace Droplet::Graphics::Vulkan
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
 
-        // TODO: Remove?
+        // TODO: (RENDERING) Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
         std::vector<PresentTarget> m_presentTargets {};
         std::vector<UniformBuffer> m_uniformBuffers {};
         
-        // TODO: Remove?
+        // TODO: (RENDERING) Remove?
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};

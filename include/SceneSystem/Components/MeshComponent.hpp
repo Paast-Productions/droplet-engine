@@ -87,9 +87,9 @@ namespace Droplet::Scene
 
         // Resource handles
         StaticResourceHandle<MeshResource> m_mesh {};
-        StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
+        StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: (RENDERING) Until Material class is implemented
 
-        // TODO: REWRITE AS MATERIAL
+        // TODO: (RENDERING) REWRITE AS MATERIAL
         struct ShaderResources
         {
             StaticResourceHandle<ShaderResource> vs {};

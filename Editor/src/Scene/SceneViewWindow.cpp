@@ -1,5 +1,5 @@
 #include "SceneViewWindow.hpp"
-#include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
+#include <Editor/ViewOverlayUI.hpp> // TODO: (BEYOND OUR PAY GRADE) Clean whatever this mess is
 #include <Math/Bounds/Intersection.hpp>
 #include <Math/Bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -226,7 +226,7 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	// TODO: 
+	// TODO: (RENDERING)
 	//     Move this to the renderer and camera class. 
 	//     The camera should request the renderer to create a render target.
 	using namespace Graphics::Vulkan;
@@ -1635,7 +1635,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
 		// Rotate around the pivot, keeping the distance to it
-		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
+		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: (EDITOR) Make configurable
 
 		camera.Rotate(
 			-input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
@@ -1648,7 +1648,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
-		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
+		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: (EDITOR) Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
 		if (p_viewWidth > 0.0f && m_skipMouseDeltas == 0)
@@ -1664,7 +1664,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_hoveringSceneView && io.MouseWheel != 0.0f)
 	{
-		constexpr float C_SCROLL_STEP = 0.1f; // TODO: Make configurable
+		constexpr float C_SCROLL_STEP = 0.1f; // TODO: (EDITOR) Make configurable
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{

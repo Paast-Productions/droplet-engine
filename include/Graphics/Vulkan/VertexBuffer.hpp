@@ -10,7 +10,7 @@ namespace Droplet::Graphics::Vulkan
 {
 	/// @brief Vertex structure with position, normal, color, and texture coordinates
 	/// The buffer currently assumes the resourcemanager will give it the same layout
-	/// TODO: Make VertexBuffer vertex-layout agnostic
+	/// TODO: (RENDERING) Allow for custom vertex layouts
 	struct Vertex
 	{
 		glm::vec3 pos;

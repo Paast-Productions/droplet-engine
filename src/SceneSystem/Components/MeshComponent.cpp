@@ -57,7 +57,7 @@ void MeshComponent::StartImpl()
 
 void MeshComponent::UpdateImpl()
 {
-	//TODO: will be inplemted later when the mesh system is implemented
+	//TODO: (COMPONENT) will be inplemted later when the mesh system is implemented
 }
 
 void MeshComponent::QueueRenderImpl()

@@ -169,12 +169,12 @@ void Droplet::Scene::Component::Destroy()
 	DestroyImpl();
 }
 
-std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer
+std::shared_ptr<Node> Component::GetOwner() const // TODO: (COMPONENT Make weak pointer
 {
     return m_owner.lock();
 }
 
-void Component::SetOwner(std::shared_ptr<Node> p_owner) // TODO: Make weak pointer
+void Component::SetOwner(std::shared_ptr<Node> p_owner) // TODO: (COMPONENT) Make weak pointer
 {
     m_owner = p_owner;
 }
@@ -222,7 +222,7 @@ nlohmann::json Component::Serialize()
 
 	nlohmann::json compJson;
 
-    // TODO: Insert component type name.
+    // TODO: (COMPONENT) Insert component type name.
 	// This is how we know what type of component to create when deserializing.
     // Must be an exact match to the type name used in the ComponentRegistry.
     compJson["type"] = GetTypeName(); 
