@@ -31,12 +31,12 @@ namespace Droplet::Graphics
         std::uint64_t GUID {0};
     };
 
-    struct TextData
-    {
-        std::uint64_t GUID {0};
-        
-        std::shared_ptr<const std::vector<GlyphInstance>> glyphInstances;
-    };
+    // struct TextData
+    // {
+    //     std::uint64_t GUID {0};
+    //     
+    //     std::shared_ptr<const std::vector<GlyphInstance>> glyphInstances;
+    // };
     
     struct RenderData
     {
