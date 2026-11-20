@@ -403,7 +403,9 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 	for (int i = 0; i < pointCount; i++)
 	{
-		assert(i >= 0 && i < points->size());
+		//assert(i >= 0 && i < points->size());
+		if (i < 0 || i >= points->size())
+			continue;
 
 		ImVec2 pPos = (*points)[i].position * pScale + pOffset;
 
@@ -732,10 +734,79 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 					newPointAdded = i + 1;
 					points->insert(points->begin() + newPointAdded, newPoint);
+					changed = true;
 				}
 				else if (quadratic)
 				{
-					// TODO
+					ImVec2 screenStart = (*points)[i].position * pScale + pOffset;
+					ImVec2 screenControl = (*points)[i].controlPoint1 * pScale + pOffset;
+					ImVec2 screenEnd = (*points)[i + 1ll].position * pScale + pOffset;
+
+					float closestT = 0.0f;
+					float closestDistanceSq = FLT_MAX;
+
+					for (int j = 0; j <= 20; j++)
+					{
+						float sampleT = j / 20.0f;
+						ImVec2 samplePoint = ImBezierQuadraticCalc(screenStart, screenControl, screenEnd, sampleT);
+						float sampleDistanceSq = ImLengthSqr(mousePos - samplePoint);
+
+						if (sampleDistanceSq < closestDistanceSq)
+						{
+							closestDistanceSq = sampleDistanceSq;
+							closestT = sampleT;
+						}
+					}
+
+					if (closestDistanceSq > thickness * thickness * 2.5f + 1.0f)
+						continue;
+
+					float t = closestT;
+					for (int j = 0; j < 20; j++)
+					{
+						float sampleT1 = std::clamp(t - 0.01f, 0.0f, 1.0f);
+						float sampleT2 = std::clamp(t + 0.01f, 0.0f, 1.0f);
+
+						ImVec2 samplePoint1 = ImBezierQuadraticCalc(screenStart, screenControl, screenEnd, sampleT1);
+						ImVec2 samplePoint2 = ImBezierQuadraticCalc(screenStart, screenControl, screenEnd, sampleT2);
+
+						float sampleDistanceSq1 = ImLengthSqr(mousePos - samplePoint1);
+						float sampleDistanceSq2 = ImLengthSqr(mousePos - samplePoint2);
+
+						if (sampleDistanceSq1 < closestDistanceSq)
+						{
+							closestDistanceSq = sampleDistanceSq1;
+							t = sampleT1;
+						}
+						else if (sampleDistanceSq2 < closestDistanceSq)
+						{
+							closestDistanceSq = sampleDistanceSq2;
+							t = sampleT2;
+						}
+						else
+						{
+							break;
+						}
+					}
+
+					ImVec2 curveStart = (*points)[i].position;
+					ImVec2 curveControl = (*points)[i].controlPoint1;
+					ImVec2 curveEnd = (*points)[i + 1ll].position;
+
+					ImVec2 leftControl = curveStart + (curveControl - curveStart) * t;
+					ImVec2 rightControl = curveControl + (curveEnd - curveControl) * t;
+					ImVec2 splitPoint = leftControl + (rightControl - leftControl) * t;
+
+					BezierPoint newPoint;
+					newPoint.position = splitPoint;
+					newPoint.controlPoint1 = rightControl;
+					newPoint.controlPoint2 = splitPoint;
+
+					(*points)[i].controlPoint1 = leftControl;
+
+					newPointAdded = i + 1;
+					points->insert(points->begin() + newPointAdded, newPoint);
+					changed = true;
 				}
 				else
 				{
@@ -823,6 +894,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 					newPointAdded = i + 1;
 					points->insert(points->begin() + newPointAdded, newPoint);
+					changed = true;
 				}
 
 				if (newPointAdded != -1)
