@@ -25,7 +25,7 @@ namespace RenderGraph
     /// Position in Compiled::submissions
     using SubmissionIndex = std::uint32_t;
     
-    /// Index in the 
+    /// Id and Index for a pass in Compiled::passes
     using PassId = std::uint32_t;
     
     
@@ -51,38 +51,28 @@ namespace RenderGraph
         std::unreachable();
     }
 
+    /// Number of queues supported
     inline constexpr std::size_t QUEUE_COUNT = static_cast<std::size_t>(Queue::Count);
+    
+    /// index of the queue type in 
     constexpr std::size_t ToIndex(Queue queue) noexcept { return static_cast<std::size_t>(queue); }
-
-    /// Bit set with bit ToIndex(queue) per queue
-    using QueueMask = std::uint32_t;
-
-    /// Bit set with UsageBit(usage) per usage
-    using UsageMask = std::uint32_t;
-
-    /// Position in Compiled::steps
-    using StepIndex = std::uint32_t;
-
-    /// Position in Compiled::submissions
-    using SubmissionIndex = std::uint32_t;
-
 
     /// describes how the resource will be used
     enum class Usage : std::uint8_t
     {
         None,
-        ColorWrite, ///< image
-        DepthWrite, ///< image
-        SampledRead, ///< image
+        ColorWrite,   ///< image
+        DepthWrite,   ///< image
+        SampledRead,  ///< image
         StorageWrite, ///< image or buffer; a shader may read it too
-        TransferSrc, ///< image or buffer
-        TransferDst, ///< image or buffer
-        Present, ///< image; only as ImportOptions::requiredFinal
-        StorageRead, ///< image or buffer
-        UniformRead, ///< buffer
+        TransferSrc,  ///< image or buffer
+        TransferDst,  ///< image or buffer
+        Present,      ///< image; only as ImportOptions::requiredFinal
+        StorageRead,  ///< image or buffer
+        UniformRead,  ///< buffer
         IndirectRead, ///< buffer: draw or dispatch arguments
-        VertexRead, ///< buffer
-        IndexRead ///< buffer
+        VertexRead,   ///< buffer
+        IndexRead     ///< buffer
     };
 
     /// Helper function to get Usage enum value as a string
@@ -115,6 +105,7 @@ namespace RenderGraph
         return 1u << static_cast<uint32_t>(usage);
     }
 
+    /// @brief Returns true if usage performs write
     constexpr bool IsWrite(Usage usage) noexcept
     {
         return usage == Usage::ColorWrite ||
@@ -162,15 +153,15 @@ namespace RenderGraph
     /// defines what width and height for image texture mean
     enum class SizeClass
     {
-        Absolute, ///< width and height of image are pixels     
-        SwapchainRelative, ///< width and height scale swapchain extent
-        InputRelative ///< width and height scale extent of TransientDesc::relativeTo
+        Absolute,           ///< width and height of image are pixels     
+        SwapchainRelative,  ///< width and height scale swapchain extent
+        InputRelative       ///< width and height scale extent of TransientDesc::relativeTo
     };
 
     struct ResourceId
     {
         static constexpr std::uint32_t INVALID = 0xFFFFFFFFu;
-        std::uint32_t index{INVALID}; ///< acts as id and also index entry in
+        std::uint32_t index{INVALID}; ///< acts as id and also index entry in steps
 
         /// returns true if index is not INVALID
         [[nodiscard]] constexpr bool IsValid() const noexcept { return index != INVALID; }
@@ -262,8 +253,8 @@ namespace RenderGraph
     struct PassInfo
     {
         std::string name; ///< debug name
-        std::vector<Access> accesses;
-        Queue queue = Queue::Graphics;
+        std::vector<Access> accesses; ///<
+        Queue queue = Queue::Graphics; ///< queue output gets submitted to
         bool sideEffect = false;
         std::vector<std::string> setupErrors; /// stored errors
     };
