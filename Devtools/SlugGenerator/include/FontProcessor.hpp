@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include "SlugHelper.hpp"
+#include "resource/types/FontResource.hpp"
 
 namespace Droplet::Devtools::SlugGenerator
 {
@@ -167,10 +168,10 @@ namespace Droplet::Devtools::SlugGenerator
 		std::vector<uint16_t> m_bandsTextureCurveOffsets;
 		
 		/// @brief Metadata describing successfully processed code points.
-		std::vector<SlugGlyph> m_glyphs;
+		std::vector<FontResource::SlugGlyph> m_glyphs;
 		
 		/// @brief Metadata describing common font information
-		SlugFontHeader m_fontHeader;
+		FontResource::SlugFontHeader m_fontHeader;
 	};
 	
 	/// @brief Custom deleter for glyph vertices allocated by stb_truetype.

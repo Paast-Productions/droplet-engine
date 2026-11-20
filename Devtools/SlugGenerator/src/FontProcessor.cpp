@@ -107,7 +107,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 	int advanceWidth, leftSideBearing;
 	stbtt_GetGlyphHMetrics(&m_fontInfo, glyphIdx, &advanceWidth, &leftSideBearing);
 	
-	SlugGlyph cp{};
+	FontResource::SlugGlyph cp{};
 	cp.codePoint = p_codePoint;
 	cp.advanceWidth = advanceWidth;
 	
@@ -158,7 +158,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 			// We don't currently support two texels in separate rows.
 			// A curve is later decoded	using two adjacent texels on the same row. Thus, if this curve's first texel is the
 			// last one on this row, pad with -1 to start on a new row.
-			const bool newRow = (m_curvesTexture.size() / 4) % TEXTURE_WIDTH == TEXTURE_WIDTH - 1;
+			const bool newRow = (m_curvesTexture.size() / 4) % FontResource::TEXTURE_WIDTH == FontResource::TEXTURE_WIDTH - 1;
 			if (newRow)
 			{
 				const size_t toAdd = 8 - (m_curvesTexture.size() % 4 );
@@ -254,8 +254,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 				
 				// Store the curve's offset in the texture
 				const uint32_t texelIndex = curve.texelIndex;
-				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % TEXTURE_WIDTH);
-				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / TEXTURE_WIDTH);
+				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % FontResource::TEXTURE_WIDTH);
+				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / FontResource::TEXTURE_WIDTH);
 				m_bandsTextureCurveOffsets.push_back(curveOffsetX);
 				m_bandsTextureCurveOffsets.push_back(curveOffsetY);
 				
@@ -328,8 +328,8 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 					continue;
 				
 				const uint32_t texelIndex = curve.texelIndex;
-				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % TEXTURE_WIDTH);
-				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / TEXTURE_WIDTH);
+				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % FontResource::TEXTURE_WIDTH);
+				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / FontResource::TEXTURE_WIDTH);
 				m_bandsTextureCurveOffsets.push_back(curveOffsetX);
 				m_bandsTextureCurveOffsets.push_back(curveOffsetY);
 				
@@ -361,10 +361,10 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		cp.bandCount = bandCount;
 		cp.bandDimX = bandDimX;
 		cp.bandDimY = bandDimY;
-		cp.bandsTexCoordX = static_cast<uint16_t>(bandsTexelIndex % TEXTURE_WIDTH);
-		cp.bandsTexCoordY = static_cast<uint16_t>(bandsTexelIndex / TEXTURE_WIDTH);
+		cp.bandsTexCoordX = static_cast<uint16_t>(bandsTexelIndex % FontResource::TEXTURE_WIDTH);
+		cp.bandsTexCoordY = static_cast<uint16_t>(bandsTexelIndex / FontResource::TEXTURE_WIDTH);
 		
-		if (bandsTexelIndex / TEXTURE_WIDTH >= 0xFFFF)
+		if (bandsTexelIndex / FontResource::TEXTURE_WIDTH >= 0xFFFF)
 		{
 			Logger::PrintError("Too much curve data generated.");
 			return false;
@@ -375,9 +375,9 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		// rows, this assumption will fail.
 		for (const Curve& c : curves)
 		{
-			if (c.texelIndex / TEXTURE_WIDTH
+			if (c.texelIndex / FontResource::TEXTURE_WIDTH
 				!=
-				(c.texelIndex + 1) / TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
+				(c.texelIndex + 1) / FontResource::TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
 			{
 				Logger::PrintError("Encoding failed! Texel indices {} and {} are not in the same row.", c.texelIndex, c.texelIndex + 1);
 				return false;
@@ -454,19 +454,19 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
-	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
+	if (!outFile.WriteBytes(FontResource::SLUG_HEADER_DATA, FontResource::SLUG_HEADER_LEN)) return false;
 	
-	if (!outFile.WriteBytes(SLUG_FILE_VERSION, SLUG_FILE_VERSION_LEN)) return false;
+	if (!outFile.WriteBytes(FontResource::SLUG_FILE_VERSION, FontResource::SLUG_FILE_VERSION_LEN)) return false;
 	
-	if (!outFile.WriteBytes(&m_fontHeader, sizeof(SlugFontHeader))) return false;
+	if (!outFile.WriteBytes(&m_fontHeader, sizeof(FontResource::SlugFontHeader))) return false;
 	
 	const uint16_t codePointCount = static_cast<uint16_t>(m_glyphs.size());
 	if (!outFile.WriteBytes(&codePointCount, sizeof(codePointCount))) return false;
-	if (!outFile.WriteBytes(m_glyphs.data(), codePointCount * sizeof(SlugGlyph))) return false;
+	if (!outFile.WriteBytes(m_glyphs.data(), codePointCount * sizeof(FontResource::SlugGlyph))) return false;
 	
 	const uint32_t curvesTexTexels = m_curvesTexture.size() / 4;
 	const uint32_t curvesTexBytes = m_curvesTexture.size() * sizeof(m_curvesTexture.front());
-	const uint16_t curvesTexWidth = TEXTURE_WIDTH;
+	const uint16_t curvesTexWidth = FontResource::TEXTURE_WIDTH;
 	const uint16_t curvesTexHeight = (curvesTexTexels + curvesTexWidth - 1) / curvesTexWidth;
 	
 	if (!outFile.WriteBytes(&curvesTexWidth, sizeof(curvesTexWidth))) return false;
@@ -474,7 +474,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	if (!outFile.WriteBytes(&curvesTexBytes, sizeof(curvesTexBytes))) return false;
 	if (!outFile.WriteBytes(m_curvesTexture.data(), curvesTexBytes)) return false;
 	
-	const uint16_t bandsTexWidth = TEXTURE_WIDTH;
+	const uint16_t bandsTexWidth = FontResource::TEXTURE_WIDTH;
 	const uint16_t bandsTexHeight = (bandsTexTexels + bandsTexWidth - 1) / bandsTexWidth;
 	const uint32_t bandsTexBytes = bandsTexTexels * sizeof(uint16_t) * 2;
 	

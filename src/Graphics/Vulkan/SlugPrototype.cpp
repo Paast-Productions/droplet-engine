@@ -160,7 +160,7 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 			continue;
 		}
 		
-		const SlugCodePoint* glyph = GetGlyph(codePoint);
+		const FontResource::SlugGlyph* glyph = GetGlyph(codePoint);
 		
 		float advance = 0.0f;
 		bool shouldRender = false;
@@ -556,25 +556,25 @@ bool Droplet::Graphics::Vulkan::Slug::SlugPrototype::LoadFont(const std::filesys
 		return false;
 	}
 	
-	char header[SLUG_HEADER_LEN + 1];
-	inFile.read(header, SLUG_HEADER_LEN);
-	header[SLUG_HEADER_LEN] = '\0';
-	if (strcmp(header, SLUG_HEADER_DATA) != 0)
+	char header[FontResource::SLUG_HEADER_LEN + 1];
+	inFile.read(header, FontResource::SLUG_HEADER_LEN);
+	header[FontResource::SLUG_HEADER_LEN] = '\0';
+	if (strcmp(header, FontResource::SLUG_HEADER_DATA) != 0)
 	{
-		std::cerr << "Invalid header found (" << header << " instead of " << SLUG_HEADER_DATA << ")" << std::endl;
+		std::cerr << "Invalid header found (" << header << " instead of " << FontResource::SLUG_HEADER_DATA << ")" << std::endl;
 		return false;
 	}
 	
-	char version[SLUG_FILE_VERSION_LEN + 1];
-	inFile.read(version, SLUG_FILE_VERSION_LEN);
-	version[SLUG_FILE_VERSION_LEN] = '\0';
-	if (strcmp(version, SLUG_FILE_VERSION) != 0)
+	char version[FontResource::FontResource::SLUG_FILE_VERSION_LEN + 1];
+	inFile.read(version, FontResource::FontResource::SLUG_FILE_VERSION_LEN);
+	version[FontResource::FontResource::SLUG_FILE_VERSION_LEN] = '\0';
+	if (strcmp(version, FontResource::SLUG_FILE_VERSION) != 0)
 	{
-		std::cerr << "Version mismatch! Expected version number " << SLUG_FILE_VERSION << " but got " << version << std::endl;
+		std::cerr << "Version mismatch! Expected version number " << FontResource::SLUG_FILE_VERSION << " but got " << version << std::endl;
 		return false;
 	}
 	
-	inFile.read(reinterpret_cast<char *>(&m_fontHeader), sizeof(SlugFontHeader));
+	inFile.read(reinterpret_cast<char *>(&m_fontHeader), sizeof(FontResource::SlugFontHeader));
 	
 	uint16_t codePointCount = 0;
 	inFile.read(reinterpret_cast<char *>(&codePointCount), sizeof(codePointCount));
@@ -585,13 +585,13 @@ bool Droplet::Graphics::Vulkan::Slug::SlugPrototype::LoadFont(const std::filesys
 	}
 	
 	m_codePoints.resize(codePointCount);
-	inFile.read(reinterpret_cast<char *>(m_codePoints.data()), static_cast<std::streamsize>(m_codePoints.size() * sizeof(SlugCodePoint)));
+	inFile.read(reinterpret_cast<char *>(m_codePoints.data()), static_cast<std::streamsize>(m_codePoints.size() * sizeof(FontResource::SlugGlyph)));
 	
 	uint32_t curveTextureBytes;
 	inFile.read(reinterpret_cast<char *>(&m_curveTextureWidth), sizeof(m_curveTextureWidth));
 	inFile.read(reinterpret_cast<char *>(&m_curveTextureHeight), sizeof(m_curveTextureHeight));
 	inFile.read(reinterpret_cast<char *>(&curveTextureBytes), sizeof(curveTextureBytes));
-	if (m_curveTextureWidth == 0 || m_curveTextureHeight == 0 || curveTextureBytes == 0 || m_curveTextureWidth != TEXTURE_WIDTH)
+	if (m_curveTextureWidth == 0 || m_curveTextureHeight == 0 || curveTextureBytes == 0 || m_curveTextureWidth != FontResource::TEXTURE_WIDTH)
 	{
 		std::cerr << "Invalid curve texture dimensions." << std::endl;
 		return false;
@@ -608,7 +608,7 @@ bool Droplet::Graphics::Vulkan::Slug::SlugPrototype::LoadFont(const std::filesys
 	inFile.read(reinterpret_cast<char *>(&m_bandsTextureWidth), sizeof(m_bandsTextureWidth));
 	inFile.read(reinterpret_cast<char *>(&m_bandsTextureHeight), sizeof(m_bandsTextureHeight));
 	inFile.read(reinterpret_cast<char *>(&bandsTextureBytes), sizeof(bandsTextureBytes));
-	if (m_bandsTextureWidth == 0 || m_bandsTextureHeight == 0 || bandsTextureBytes == 0 || m_bandsTextureWidth != TEXTURE_WIDTH)
+	if (m_bandsTextureWidth == 0 || m_bandsTextureHeight == 0 || bandsTextureBytes == 0 || m_bandsTextureWidth != FontResource::TEXTURE_WIDTH)
 	{
 		std::cerr << "Invalid bands texture dimensions." << std::endl;
 		return false;
@@ -625,12 +625,12 @@ bool Droplet::Graphics::Vulkan::Slug::SlugPrototype::LoadFont(const std::filesys
 	return true;
 }
 
-const Droplet::Graphics::Vulkan::Slug::SlugCodePoint* Droplet::Graphics::Vulkan::Slug::SlugPrototype::GetGlyph(const uint32_t p_codePoint) const
+const Droplet::FontResource::SlugGlyph* Droplet::Graphics::Vulkan::Slug::SlugPrototype::GetGlyph(const uint32_t p_codePoint) const
 {
 	const auto it = std::ranges::find(
 		m_codePoints,
 		p_codePoint,
-		&SlugCodePoint::codePoint
+		&FontResource::SlugGlyph::codePoint
 	);
 	
 	return it != m_codePoints.end() ? &(*it) : nullptr;

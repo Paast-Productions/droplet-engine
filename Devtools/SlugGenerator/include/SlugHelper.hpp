@@ -5,24 +5,6 @@
 
 namespace Droplet::Devtools::SlugGenerator
 {
-	/// @brief Width, in texels, of the generated curve and band textures.
-	inline constexpr uint32_t TEXTURE_WIDTH = 4096;
-	
-	/// @brief Magic identifier used to recognize Slug binary files.
-	inline constexpr char SLUG_HEADER_DATA[] = "SLUG";
-	
-	/// @brief Number of bytes written for the Slug file identifier.
-	inline constexpr size_t SLUG_HEADER_LEN = 4;
-	
-	/// @brief Identifier updated when the binary layout of the file is changed.
-	/// @note Make sure to update this upon changes to the metadata structs.
-	inline constexpr char SLUG_FILE_VERSION[] = "1";
-	
-	/// @brief Number of bytes that the version number consists of
-	/// @note Update when the file version changes in a way that changes the byte count.
-	inline constexpr size_t SLUG_FILE_VERSION_LEN = 1;
-	
-
 	/// @brief Represents a quadratic Bézier curve.
 	///
 	/// Contains three control points in glyph-local coordinates,
@@ -74,66 +56,4 @@ namespace Droplet::Devtools::SlugGenerator
 		/// @brief Returns the maximum Y coordinate as a float.
 		[[nodiscard]] float GetMaxY() const { return static_cast<float>(yMax); }
 	};
-	
-#pragma pack(push, 1)
-	/// @brief Font metadata
-	/// 
-	/// Contains information that is common for all glyphs within the font.
-	/// 
-	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
-	struct SlugFontHeader
-	{
-		uint16_t unitsPerEm = 0;
-		
-		uint32_t ascent = 0;
-		uint32_t descent = 0;
-		uint32_t lineGap = 0;
-	};
-#pragma pack(pop)
-	
-#pragma pack(push, 1)
-	/// @brief Metadata required to render a processed Slug glyph.
-	///
-	/// Describes the glyph's dimensions, band configuration, and
-	/// location of its band headers within the shared band texture.
-	///
-	/// @note Serialized directly into the Slug binary file. Changes require regeneration of .slug files.
-	struct SlugGlyph
-	{
-        /// @brief Unicode code point represented by the glyph.
-		uint32_t codePoint;
-		
-		/// @brief Width of the glyph's bounding box in font units.
-		uint32_t width;
-		
-		/// @brief Height of the glyph's bounding box in font units.
-		uint32_t height;
-		
-		/// @brief Spacing to the next character.
-		int32_t advanceWidth;
-		
-		/// @brief Minimum x-value of the glyph bounding box.
-		int32_t xMin;
-		
-		/// @brief Minimum y-value of the glyph bounding box.
-		int32_t yMin;
-		
-		/// @brief Number of horizontal and vertical bands per glyph.
-		uint32_t bandCount;
-		
-		/// @brief Width of each vertical band in glyph-local units.
-		uint32_t bandDimX;
-		
-		/// @brief Height of each horizontal band in glyph-local units.
-		uint32_t bandDimY;
-		
-		/// @brief X texel coordinate of the glyph's first band header.
-		uint16_t bandsTexCoordX;
-		
-		/// @brief Y texel coordinate of the glyph's first band header.
-		uint16_t bandsTexCoordY;
-	};
-#pragma pack(pop)
-	
-	static_assert(sizeof(SlugGlyph) == 40, "Unexpected SlugGlyph binary layout.");
 }
