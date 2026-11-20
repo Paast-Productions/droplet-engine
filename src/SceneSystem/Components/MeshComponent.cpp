@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <Resource/ResourceManager.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Graphics/Common/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <Editor/DragDropFields.hpp>

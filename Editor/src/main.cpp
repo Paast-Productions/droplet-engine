@@ -12,7 +12,7 @@
 #include "Graphics/RenderSettings.hpp"
 
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Common/Camera.hpp>
 #include <Graphics/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>

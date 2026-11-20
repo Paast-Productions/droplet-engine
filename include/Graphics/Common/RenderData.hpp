@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 
 #include "Graphics/Common/Camera.hpp"
-#include <Graphics/Common/RenderTargetDesc.hpp>
+#include <Graphics/Common/RenderDesc.hpp>
 
 namespace Droplet::Graphics
 {
@@ -12,53 +12,54 @@ namespace Droplet::Graphics
         glm::mat4 world{};
         float cameraDir[4]{};
         float cameraPos[4]{};
-        glm::float32_t time{ 0 };
-        std::uint32_t textureID{ 0 };
+        glm::float32_t time{0};
+        std::uint32_t textureID{0};
     };
 
     struct ShaderData
     {
-        std::uint64_t GUID {0};
+        std::uint64_t GUID{0};
     };
-    
+
     struct PipelineData
     {
-        ShaderData vsData {};
-        ShaderData tcsData {};
-        ShaderData tesData {};
-        ShaderData gsData {};
-        ShaderData fsData {};
+        ShaderData vsData{};
+        ShaderData tcsData{};
+        ShaderData tesData{};
+        ShaderData gsData{};
+        ShaderData fsData{};
     };
 
     struct MeshData
     {
         //Extra mesh rendering options could possibly be added here
 
-        std::uint64_t GUID {0};
+        std::uint64_t GUID{0};
     };
 
     struct TextureData
     {
         //Texture sampling options could be added here
-        std::uint64_t GUID {0};
+        std::uint64_t GUID{0};
     };
-    
+
     // TEMP TEMP TEMP TEMP
     /// Describes a render target the camera would output to
     struct TargetData
     {
         //TODO fill in
     };
+
     // TEMP TEMP TEMP TEMP
-    
+
     struct RenderData
     {
-        ShaderData vsData {};
-        ShaderData tcsData {};
-        ShaderData tesData {};
-        ShaderData gsData {};
-        ShaderData fsData {};
-        
+        ShaderData vsData{};
+        ShaderData tcsData{};
+        ShaderData tesData{};
+        ShaderData gsData{};
+        ShaderData fsData{};
+
         MeshData meshData{};
         TextureData texData{};
 
@@ -66,10 +67,10 @@ namespace Droplet::Graphics
 
 
         // Settings
-		bool transparent { false };
-       
-        // HACK: (RENDERER) Sort based on transparency
-        bool operator<(const RenderData &p_other) const
+        bool transparent{false};
+
+        // HACK: Sort based on transparency
+        bool operator<(const RenderData& p_other) const
         {
             return transparent < p_other.transparent;
         }
@@ -83,17 +84,27 @@ namespace Droplet::Graphics
             glm::mat4 proj{};
         };
     }
-    
+
     struct CameraRenderData
     {
-        Camera camera {};
-        Common::RenderTargetDesc renderTarget {};
-        std::int32_t priority {};
-        std::vector<RenderData> renderData {};
-        glm::vec4 clearColor { glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) };
-		
+        Camera camera{};
+        Common::RenderDesc renderTarget{};
+        std::int32_t priority{};
+        std::vector<RenderData> renderData{};
+        glm::vec4 clearColor{glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)};
+
         // DEBUG
         bool debug = false;
     };
-}
 
+#ifdef _EDITOR
+    // == ImGui ==
+
+    /// Marks ImGui texture ids that name an image by GUID. ImGui's own ids are pointers and never set it themselves
+    inline constexpr std::uint64_t IMGUI_IMAGE_TAG = 1ull << 63;
+
+    /// The ImGui texture id that shows render target or texture p_image, resolved by renderer each frame
+    constexpr std::uint64_t ImGuiTextureId(GUID p_image) noexcept { return IMGUI_IMAGE_TAG | p_image; }
+
+#endif
+}

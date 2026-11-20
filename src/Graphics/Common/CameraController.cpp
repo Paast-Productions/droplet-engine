@@ -1,6 +1,6 @@
 #include "CameraController.hpp"
 
-#include <Graphics/Vulkan/Camera.hpp> 
+#include <Graphics/Common/Camera.hpp> 
 #include <GameInput.hpp>
 
 using namespace Droplet::Graphics;

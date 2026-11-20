@@ -614,7 +614,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = imageSize * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef textureRef = m_editorContext->GetEngine().GetImGuiTexture(guid);
+			ImTextureRef textureRef = ImTextureRef(Graphics::ImGuiTextureId(guid));
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -694,7 +694,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = ImVec2(previewSizeX, previewSizeY) * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef previewTexture = m_editorContext->GetEngine().GetImGuiTexture(m_previewCamera.renderTarget.id);
+			ImTextureRef previewTexture = ImTextureRef(Graphics::ImGuiTextureId(m_previewCamera.renderTarget.id));
 
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);

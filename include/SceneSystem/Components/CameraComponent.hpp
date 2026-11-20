@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-#include <functional>
 #include <memory>
 #include <string_view>
 
@@ -9,7 +7,7 @@
 #include <json/json.hpp>
 
 #include <SceneSystem/Component.hpp>
-#include <Graphics/Common/RenderTargetDesc.hpp>
+#include <Graphics/Common/RenderDesc.hpp>
 #include <Graphics/Common/Camera.hpp>
 #include <Graphics/Common/GraphicsTypes.hpp>
 #include <Graphics/Common/DrawLayer.hpp>
@@ -52,11 +50,8 @@ namespace Droplet::Scene
         [[nodiscard]] Graphics::CameraRenderData GetRenderData() const;
 		void ClearRenderData() { m_renderData.clear(); }
 
-        /// @brief Set by the Engine: the ImGui texture id for a render target (the inspector's preview)
-        static void SetImGuiTextureLookup(std::function<std::uint64_t(GUID)> p_lookup) { s_imguiTextureLookup = std::move(p_lookup); }
-
-        [[nodiscard]] const Graphics::Common::RenderTargetDesc &GetTarget() const { return m_target; }
-        void SetTarget(const Graphics::Common::RenderTargetDesc &p_renderTarget) { m_target = p_renderTarget; }
+        [[nodiscard]] const Graphics::Common::RenderDesc &GetTarget() const { return m_target; }
+        void SetTarget(const Graphics::Common::RenderDesc &p_renderTarget) { m_target = p_renderTarget; }
 
 		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
 		void SetClearColor(const glm::vec4 &p_clearColor) { m_clearColor = p_clearColor; }
@@ -77,8 +72,8 @@ namespace Droplet::Scene
 
 		Graphics::DrawLayer m_drawLayerMask{ Graphics::DrawLayer::All };
 		int32_t m_priority{ 0 };
-		
-        Graphics::Common::RenderTargetDesc m_target { }; // What the camera renders into; the renderer owns the image
+
+        Graphics::Common::RenderDesc m_target { };
 		glm::ivec2 m_resolution{ 256, 256 };
 		bool m_dirty{ true };
 
@@ -92,7 +87,5 @@ namespace Droplet::Scene
 		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.3f, 1.0f };
 
 		std::vector<Graphics::RenderData> m_renderData{ };
-
-		static inline std::function<std::uint64_t(GUID)> s_imguiTextureLookup;
     };
 }

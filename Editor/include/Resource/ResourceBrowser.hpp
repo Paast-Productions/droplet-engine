@@ -22,7 +22,7 @@ namespace Droplet::Editor::Resource
 	{
 		Graphics::Camera camera{};
 
-		Droplet::Graphics::Common::RenderTargetDesc renderTarget {};
+		Droplet::Graphics::Common::RenderDesc renderTarget {};
 		glm::ivec2 resolution{ 256, 256 };
 
 		StaticResourceHandle<Texture2DResource> texHandle {};

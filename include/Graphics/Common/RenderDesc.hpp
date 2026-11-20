@@ -27,7 +27,7 @@ namespace Droplet::Graphics::Common
         glm::vec2 size{0.0f};
     };
 
-     struct RenderTargetDesc
+     struct RenderDesc
     {
         GUID id {C_INVALID_GUID};
         Extent2D extent{.width = 0,.height = 0};

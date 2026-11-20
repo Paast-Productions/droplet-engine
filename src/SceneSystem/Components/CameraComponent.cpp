@@ -11,10 +11,8 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	m_target = {
-		.id = GuidUtils::Generate(),
-		{ static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) }
-	};
+	m_target.id = GuidUtils::Generate();
+	m_target.extent = { static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) };
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -123,19 +121,19 @@ void CameraComponent::RenderUIImpl()
 
 	if (TreeNode("Preview"))
 	{
-		ImTextureRef camViewTexture = ImTextureRef(textureId);
+		ImTextureRef camViewTexture = ImTextureRef(ImGuiTextureId(m_target.id));
 		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
 		float availWidth = GetContentRegionAvail().x;
 		float imageWidth = availWidth * m_uiScale;
 		float imageHeight = imageWidth / m_camera.GetAspect();
 
-			// Render the camera view texture to the scene view window
-		if (textureId != 0)
-			ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
+		// Render the camera view texture to the scene view window
+		ImGui::Image(camViewTexture, ImVec2(imageWidth, imageHeight), ImVec2(0, 0), ImVec2(1, 1));
 
 		TreePop();
 	}
+
 #endif
 }
 

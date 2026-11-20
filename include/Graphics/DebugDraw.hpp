@@ -20,9 +20,7 @@
 
 #include <array>
 #include <cstdint>
-#include <unordered_map>
-#include <unordered_set>
-#include <memory>
+#include <cstddef> // for size_t
 
 namespace Droplet::Graphics
 {
@@ -246,6 +244,17 @@ namespace Droplet::Graphics::Debug
 			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
 			bool p_depth = true
 		);
+		
+		/// @brief Store vertex data recorded during one frame.
+		struct FrameMeshes
+		{
+			std::vector<std::byte> wire;
+			std::vector<std::byte> wireDepth;
+			std::vector<std::byte> fill;
+			std::vector<std::byte> fillDepth;
+		};
+		
+		[[nodiscard]] static FrameMeshes GetFrameMeshes();
 
 
 	protected:
