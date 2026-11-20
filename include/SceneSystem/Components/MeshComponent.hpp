@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <SceneSystem/Bounds/MeshNodeBounds.hpp>
 #include <resource/StaticResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>

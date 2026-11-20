@@ -1,4 +1,4 @@
-#include "core/ThreadSafeQueue.hpp"
+#include "Core/ThreadSafeQueue.hpp"
 #include <gtest/gtest.h>
 
 #include <thread>

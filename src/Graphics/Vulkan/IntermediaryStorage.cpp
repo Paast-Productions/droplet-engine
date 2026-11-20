@@ -303,15 +303,90 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
 
     // IF FAILED, CREATE NEW
     ResourceManager& RMInstance = ResourceManager::GetInstance();
-    StaticResourceHandle<ShaderResource> vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
-    StaticResourceHandle<ShaderResource> tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
-    StaticResourceHandle<ShaderResource> tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
-    StaticResourceHandle<ShaderResource> gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
-    StaticResourceHandle<ShaderResource> fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
+    StaticResourceHandle<ShaderResource> vs;
+    StaticResourceHandle<ShaderResource> tcs;
+    StaticResourceHandle<ShaderResource> tes;
+    StaticResourceHandle<ShaderResource> gs;
+    StaticResourceHandle<ShaderResource> fs;
+
+    auto vsIT = m_loading.find(key.vsGuid);
+    if (vsIT != m_loading.end())
+    {
+        vs = m_loading[key.vsGuid];
+    }
+    else if (key.vsGuid != 0)
+    {
+        vs = RMInstance.LoadResource<ShaderResource>(key.vsGuid);
+
+        if (!vs.IsReady())
+        {
+            m_loading[key.vsGuid] = vs;
+        }
+    }
 
     if (!(vs.IsReady() || vs.HasFailed()))
     {
-		return nullptr;
+        return nullptr;
+    }
+
+    auto tcsIT = m_loading.find(key.tcsGuid);
+    if (tcsIT != m_loading.end())
+    {
+        tcs = m_loading[key.tcsGuid];
+    }
+    else if (key.tcsGuid != 0)
+    {
+        tcs = RMInstance.LoadResource<ShaderResource>(key.tcsGuid);
+
+        if (!tcs.IsReady())
+        {
+            m_loading[key.tcsGuid] = tcs;
+        }
+    }
+
+    auto tesIT = m_loading.find(key.tesGuid);
+    if (tesIT != m_loading.end())
+    {
+        tes = m_loading[key.tesGuid];
+    }
+    else if (key.tesGuid != 0)
+    {
+        tes = RMInstance.LoadResource<ShaderResource>(key.tesGuid);
+
+        if (!tes.IsReady())
+        {
+            m_loading[key.tesGuid] = tes;
+        }
+    }
+
+    auto gsIT = m_loading.find(key.gsGuid);
+    if (gsIT != m_loading.end())
+    {
+        gs = m_loading[key.gsGuid];
+    }
+    if (gsIT == m_loading.end() && key.gsGuid != 0)
+    {
+        gs = RMInstance.LoadResource<ShaderResource>(key.gsGuid);
+
+        if (!gs.IsReady())
+        {
+            m_loading[key.gsGuid] = gs;
+        }
+    }
+
+    auto fsIT = m_loading.find(key.fsGuid);
+    if (fsIT != m_loading.end())
+    {
+        fs = m_loading[key.fsGuid];
+    }
+    else if (fsIT == m_loading.end() && key.fsGuid != 0)
+    {
+        fs = RMInstance.LoadResource<ShaderResource>(key.fsGuid);
+
+        if (!fs.IsReady())
+        {
+            m_loading[key.fsGuid] = fs;
+        }
     }
 
     std::vector<std::pair<vk::ShaderModule, vk::ShaderStageFlagBits>> shaderVec{};
@@ -324,6 +399,12 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         ShaderResource* vsRes = vs.Get();
         vsModule = ShaderModule{ m_context->GetDevice(), vsRes->GetByteCode() };
         shaderVec.emplace_back(vsModule.Get(), vk::ShaderStageFlagBits::eVertex);
+
+        vsIT = m_loading.find(key.vsGuid);
+        if (vsIT != m_loading.end())
+        {
+            m_loading.erase(vsIT);
+        }
     }
     else if (vs.IsValid())
     {
@@ -380,6 +461,12 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         ShaderResource* fsRes = fs.Get();
         fsModule = ShaderModule{ m_context->GetDevice(), fsRes->GetByteCode() };
         shaderVec.emplace_back(fsModule.Get(), vk::ShaderStageFlagBits::eFragment);
+
+        fsIT = m_loading.find(key.fsGuid);
+        if (fsIT != m_loading.end())
+        {
+            m_loading.erase(fsIT);
+        }
     }
     else if (fs.IsValid())
     {

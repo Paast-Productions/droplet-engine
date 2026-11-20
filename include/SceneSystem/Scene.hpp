@@ -204,6 +204,11 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    
+		/// @brief Render octree
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+    	void RenderOctree(const bool p_renderOctants, const bool p_renderNodes);
     	
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();

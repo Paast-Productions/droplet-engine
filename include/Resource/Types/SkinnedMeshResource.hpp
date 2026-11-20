@@ -1,7 +1,7 @@
 #pragma once
 #include "resource/types/MeshResource.hpp"
 
-#include <math/bounds/OBB.hpp>
+#include <Math/Bounds/OBB.hpp>
 #include <glm/glm.hpp>
 
 #include <unordered_map>

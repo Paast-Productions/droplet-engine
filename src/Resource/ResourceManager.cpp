@@ -1,6 +1,6 @@
 #include "resource/ResourceManager.hpp"
 
-#include "core/StringUtils.hpp"
+#include "Core/StringUtils.hpp"
 #include "resource/meta/MetaUtils.hpp"
 #include <tracy/public/tracy/Tracy.hpp>
 

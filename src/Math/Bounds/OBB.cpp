@@ -1,4 +1,4 @@
-#include "math/bounds/OBB.hpp"
+#include "Math/Bounds/OBB.hpp"
 #include <glm/gtx/pca.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <tracy/public/tracy/Tracy.hpp>

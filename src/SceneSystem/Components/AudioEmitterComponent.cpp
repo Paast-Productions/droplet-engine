@@ -12,16 +12,7 @@
 
 using namespace Droplet::Scene;
 
-AudioEmitterComponent::AudioEmitterComponent()
-{
-
-}
-
-AudioEmitterComponent::~AudioEmitterComponent()
-{
-    Stop();
-    Audio::AudioSystem::GetInstance().UnregisterEmitterComponent(this);
-}
+AudioEmitterComponent::~AudioEmitterComponent() {}
 
 void AudioEmitterComponent::Play()
 {

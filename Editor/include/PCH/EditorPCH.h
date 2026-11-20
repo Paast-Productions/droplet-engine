@@ -9,7 +9,7 @@
 #include <ImGuizmo/ImGuizmo.h>
 
 // Editor
-#include <core/FileExplorer.hpp>
+#include <Core/FileExplorer.hpp>
 #include <ImGui/UIStyle.hpp>
 #include <Scene/ComponentList.hpp>
 #include <EditorConfig.hpp>

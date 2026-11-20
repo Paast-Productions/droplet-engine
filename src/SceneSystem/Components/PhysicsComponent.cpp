@@ -87,6 +87,7 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 	
 	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
 	
+	std::cout << "SetMeshCollider this: " << this << '\n';
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 	m_meshGuid = p_meshGuid;
@@ -139,8 +140,8 @@ void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, con
 	characterSettings->mMaxSlopeAngle = JPH::DegreesToRadians(50.0f);
 	m_character = new JPH::Character(
 		characterSettings,
-		GLMtoJPH(GetOwner()->GetTransform().GetPosition()),
-		GLMtoJPH(GetOwner()->GetTransform().GetRotation()),
+		GLMtoJPH(GetTransform().GetPosition()),
+		GLMtoJPH(GetTransform().GetRotation()),
 		0,
 		m_physics->GetPhysicsSystem());
 	m_character->AddToPhysicsSystem(JPH::EActivation::Activate);
@@ -153,8 +154,19 @@ void PhysicsComponent::SetPlayerCollider(const float p_halfHeightOfCylinder, con
 	SetMotionType(JPH::EMotionType::Dynamic);
 	SetObjectLayer(Layers::MOVING);
 	
-	m_currentPos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
+	m_serializeData.mass = characterSettings->mMass;
+	m_serializeData.friction = characterSettings->mFriction;
+	m_serializeData.restitution = 0.0f;
+	
+	m_serializeData.mass = characterSettings->mMass;
+	m_serializeData.friction = characterSettings->mFriction;
+	m_serializeData.restitution = 0.0f;
+	
+	m_currentPos = GetTransform().GetPosition(Transform::Space::World);
 	m_previousPos = m_currentPos;
+
+	m_transformPositionVersion = GetTransform().GetPositionVersion();
+	m_transformRotationVersion = GetTransform().GetRotationVersion();
 }
 
 void PhysicsComponent::SetMotionType(const JPH::EMotionType p_motionType)
@@ -212,6 +224,18 @@ void PhysicsComponent::RemoveCollider()
 		}
 		
 		m_shapeType = ShapeType::None;
+		return;
+	}
+	
+	m_function = nullptr;
+	if (m_isDeserialized && m_bodyID.IsInvalid())
+	{
+		if (m_shapeType == ShapeType::Mesh || m_shapeType == ShapeType::ConvexHull)
+		{
+			MeshColliderManager::Get().UnloadMeshSetting(m_meshGuid);
+		}
+		m_shapeType = ShapeType::None;
+		m_meshGuid = C_INVALID_GUID;
 	}
 }
 
@@ -228,9 +252,111 @@ void PhysicsComponent::SetVelocity(const glm::vec3 &p_velocity)
 	}
 }
 
+void PhysicsComponent::AddVelocity(const glm::vec3 &p_velocity)
+{
+	if (m_character != nullptr)
+	{
+		m_character->AddLinearVelocity(GLMtoJPH(p_velocity));
+	}
+	else
+	{
+		JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+		bodyInterface->AddLinearVelocity(m_bodyID, GLMtoJPH(p_velocity));
+	}
+}
+
+void PhysicsComponent::AddForce(const glm::vec3 &p_force)
+{
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->AddForce(m_bodyID, GLMtoJPH(p_force));
+}
+
+void PhysicsComponent::SetFriction(const float p_friction)
+{
+	const float friction = p_friction < 0.0f ? 0.0f : p_friction;
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->SetFriction(m_bodyID, friction);
+	m_serializeData.friction = p_friction;
+}
+
+void PhysicsComponent::SetRestitution(const float p_restitution)
+{
+	JPH::BodyInterface *bodyInterface = m_physics->GetBodyInterface();
+	bodyInterface->SetRestitution(m_bodyID, p_restitution);
+	m_serializeData.restitution = p_restitution;
+}
+
+void PhysicsComponent::SetMass(const float p_mass)
+{
+	if (m_motion == JPH::EMotionType::Static)
+	{
+		return;
+	}
+	
+	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
+	
+	if (lock.Succeeded())
+	{
+		JPH::Body &body = lock.GetBody();
+		
+		JPH::MotionProperties *motionProperties = body.GetMotionProperties();
+		
+		JPH::MassProperties massProperties = body.GetShape()->GetMassProperties();
+		
+		massProperties.ScaleToMass(p_mass);
+
+		if (m_shapeType == ShapeType::Player)
+		{
+			JPH::EAllowedDOFs allowedDoFs = motionProperties->GetAllowedDOFs();
+			motionProperties->SetMassProperties(allowedDoFs, massProperties);
+		}
+		else
+		{
+			motionProperties->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
+		}
+		
+		m_serializeData.mass = p_mass;
+	}
+}
+
 glm::vec3 PhysicsComponent::GetVelocity() const
 {
 	return JPHtoGLM(m_physics->GetBodyInterface()->GetLinearVelocity(m_bodyID));
+}
+
+float PhysicsComponent::GetFriction() const
+{
+	return m_physics->GetBodyInterface()->GetFriction(m_bodyID);
+}
+
+float PhysicsComponent::GetRestitution() const
+{
+	return m_physics->GetBodyInterface()->GetRestitution(m_bodyID);
+}
+
+float PhysicsComponent::GetMass() const
+{
+	if (m_motion == JPH::EMotionType::Static)
+	{
+		return 0.0f;
+	}
+	
+	JPH::BodyLockWrite lock(m_physics->GetPhysicsSystem()->GetBodyLockInterface(), m_bodyID);
+	
+	if (!lock.Succeeded())
+	{
+		return 0.0f;
+	}
+	
+	JPH::Body &body = lock.GetBody();
+	JPH::MotionProperties *motionProperties = body.GetMotionProperties();
+	if (motionProperties == nullptr)
+	{
+		return 0.0f;
+	}
+	
+	const float inverseMass = motionProperties->GetInverseMass();
+	return inverseMass > 0.0f ? 1.0f / inverseMass : 0.0f;
 }
 
 void PhysicsComponent::StartImpl()
@@ -241,16 +367,20 @@ void PhysicsComponent::StartImpl()
 		GetOwner()->GetScene()->InitializePhysics();
 		m_physics = GetOwner()->GetScene()->GetPhysics().lock();
 	}
+
+	if (m_shapeType != ShapeType::None && m_bodyID.IsInvalid())
+	{
+		PushTransformToPhysics();
+	}
 }
 
 void PhysicsComponent::UpdateImpl()
 {
-	if (!m_isDeserialized && m_function != nullptr)
+	if (m_function != nullptr)
 	{
 		if (ResourceManager::GetInstance().LoadResource<MeshResource>(m_meshGuid).IsReady())
 		{
-			(*m_function)(m_meshGuid, m_offset, m_serializeData.r);
-			m_isDeserialized = true;
+			m_function(m_meshGuid, m_offset, m_serializeData.r);
 			m_function = nullptr;
 		}
 		else
@@ -259,10 +389,11 @@ void PhysicsComponent::UpdateImpl()
 		}
 	}
 	
-	if (GetOwner()->GetTransform().IsOutdated(m_transformVersion))
-	{
-		PushTransformToPhysics();
-	}
+	TransformSync syncFlags = SyncNone;
+	if (GetTransform().IsPositionOutdated(m_transformPositionVersion)) syncFlags = (TransformSync)(syncFlags | SyncPosition);
+	if (GetTransform().IsRotationOutdated(m_transformRotationVersion)) syncFlags = (TransformSync)(syncFlags | SyncRotation);
+
+	PushTransformToPhysics(syncFlags);
 }
 
 void PhysicsComponent::FixedUpdateImpl()
@@ -275,8 +406,14 @@ void PhysicsComponent::FixedUpdateImpl()
 	if (m_skipSyncFrame)
 	{
 		m_skipSyncFrame = false;
+		return;
 	}
-	else if (!GetOwner()->GetTransform().IsOutdated(m_transformVersion))
+
+	TransformSync syncFlags = SyncNone;
+	if (GetTransform().IsPositionOutdated(m_transformPositionVersion)) syncFlags = (TransformSync)(syncFlags | SyncPosition);
+	if (GetTransform().IsRotationOutdated(m_transformRotationVersion)) syncFlags = (TransformSync)(syncFlags | SyncRotation);
+
+	if (syncFlags == SyncNone)
 	{
 		m_previousPos = m_currentPos;
 		PullTransformFromPhysics();
@@ -287,11 +424,24 @@ void PhysicsComponent::LateUpdateImpl()
 {
 	const static Time &time = Time::Get();
 	const float alpha = time.GetFixedTimeAccumulator() / time.GetFixedDeltaTime();
-	
-	const glm::vec3 lerpPos = glm::mix(m_previousPos, m_currentPos, alpha);
-	GetOwner()->GetTransform().SetPosition(lerpPos, Transform::Space::World);
-	
-	m_transformVersion = GetOwner()->GetTransform().GetVersion();
+
+	TransformSync syncFlags = SyncNone;
+	if (GetTransform().IsPositionOutdated(m_transformPositionVersion)) syncFlags = (TransformSync)(syncFlags | SyncPosition);
+	if (GetTransform().IsRotationOutdated(m_transformRotationVersion)) syncFlags = (TransformSync)(syncFlags | SyncRotation);
+
+	if (syncFlags != SyncNone)
+	{
+		// Transform was modified outside of the physics system, since the last LateUpdate. 
+		// We need to push the new transform to the physics system and update the previous and current positions accordingly.
+		PushTransformToPhysics();
+	}
+	else
+	{
+		const glm::vec3 lerpPos = glm::mix(m_previousPos, m_currentPos, alpha);
+		GetTransform().SetPosition(lerpPos, Transform::Space::World);
+		m_transformPositionVersion = GetTransform().GetPositionVersion();
+		m_transformRotationVersion = GetTransform().GetRotationVersion();
+	}
 }
 
 void PhysicsComponent::ActiveChangedImpl(const bool p_active)
@@ -462,7 +612,23 @@ void PhysicsComponent::RenderUIImpl()
 		}
 		
 		ImGui::NewLine();
-
+		
+		// Body settings
+		if (m_motion != JPH::EMotionType::Static && ImGui::DragFloat("Mass", &m_serializeData.mass, 0.1f, 0.0f))
+		{
+			SetMass(m_serializeData.mass);
+		}
+		if (ImGui::DragFloat("Friction", &m_serializeData.friction, 0.1f, 0.0f))
+		{
+			SetFriction(m_serializeData.friction);
+		}
+		if (ImGui::DragFloat("Restitution", &m_serializeData.restitution, 0.1f, 0.0f))
+		{
+			SetRestitution(m_serializeData.restitution);
+		}
+		
+		ImGui::NewLine();
+		
 		// Display remove collider button
 		if (ImGui::Button("Remove Collider Body"))
 		{
@@ -940,6 +1106,9 @@ nlohmann::json PhysicsComponent::SerializeImpl()
 	json["halfExtentsZ"] = m_serializeData.halfExtents.z;
 	json["r"] = m_serializeData.r;
 	json["h"] = m_serializeData.h;
+	json["mass"] = m_serializeData.mass;
+	json["friction"] = m_serializeData.friction;
+	json["restitution"] = m_serializeData.restitution;
 	
 	return json;
 }
@@ -997,6 +1166,19 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 		m_serializeData.h = p_compJson["h"].get<float>();
 	}
 	
+	if (p_compJson.contains("mass"))
+	{
+		m_serializeData.mass = p_compJson["mass"].get<float>();
+	}
+	if (p_compJson.contains("friction"))
+	{
+		m_serializeData.friction = p_compJson["friction"].get<float>();
+	}
+	if (p_compJson.contains("restitution"))
+	{
+		m_serializeData.restitution = p_compJson["restitution"].get<float>();
+	}
+	
 	StartImpl();
 	
 	if (!m_isDeserialized && m_physics != nullptr)
@@ -1013,15 +1195,16 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Mesh:
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
-				   SetMeshCollider(p_meshGuid, p_offset);
+					std::cout << "Callback this: " << this << '\n';
+				    SetMeshCollider(p_meshGuid, p_offset);
 				});
 			break;
 		case ShapeType::ConvexHull:
-			m_function = std::make_unique<std::function<void(Droplet::GUID, JPH::Vec3, float)>>(
-				[&](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
 					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
 				});
@@ -1036,10 +1219,15 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	
 		SetMotionType(m_motion);
 		SetObjectLayer(m_layer);
+		
+		SetMass(m_serializeData.mass);
+		SetFriction(m_serializeData.friction);
+		SetRestitution(m_serializeData.restitution);
 
-		JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
-		JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));
+		JPH::Vec3 pos = GLMtoJPH(GetTransform().GetPosition(Transform::Space::World));
+		JPH::Quat rot = GLMtoJPH(GetTransform().GetRotation(Transform::Space::World));
 		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+		m_isDeserialized = true;
 	}
 }
 
@@ -1060,8 +1248,8 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	}
 
 	m_shape = result.Get();
-	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World)), 
-		GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
+	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(GetTransform().GetPosition(Transform::Space::World)), 
+		GLMtoJPH(GetTransform().GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
 	bodySettings.mFriction = 0.2f;
 	bodySettings.mAllowDynamicOrKinematic = true;
 	bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
@@ -1080,35 +1268,52 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	SetMotionType(m_motion);
 	SetObjectLayer(m_layer);
 	
-	m_currentPos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
+	m_currentPos = GetTransform().GetPosition(Transform::Space::World);
 	m_previousPos = m_currentPos;
+
+	m_transformPositionVersion = GetTransform().GetPositionVersion();
+	m_transformRotationVersion = GetTransform().GetRotationVersion();
 }
 
-void PhysicsComponent::PushTransformToPhysics()
+void PhysicsComponent::PushTransformToPhysics(TransformSync p_syncFlags)
 {
+	if (p_syncFlags == SyncNone)
+		return;
+
 	if (m_shapeType == ShapeType::None)
 	{
 		return;
 	}
-	
-	const JPH::Vec3 pos = GLMtoJPH(GetOwner()->GetTransform().GetPosition(Transform::Space::World));
-	const JPH::Quat rot = GLMtoJPH(GetOwner()->GetTransform().GetRotation(Transform::Space::World));
+
+	Transform &t = GetTransform();
+
+	if (p_syncFlags & SyncPosition)
+	{
+		m_previousPos = m_currentPos = t.GetPosition(Transform::Space::World);
+	}
 
 	if (m_character != nullptr)
 	{
-		m_character->SetPosition(pos);
-		m_character->SetRotation(rot);
+		if (p_syncFlags & SyncPosition)		m_character->SetPosition(GLMtoJPH(m_currentPos));
+		if (p_syncFlags & SyncRotation)		m_character->SetRotation(GLMtoJPH(t.GetRotation(Transform::Space::World)));
 	}
 	else
 	{
-		m_physics->GetBodyInterface()->SetPositionAndRotation(m_bodyID, pos, rot, JPH::EActivation::Activate);
+		auto bI = m_physics->GetBodyInterface();
+		if (p_syncFlags & SyncAll)			 bI->SetPositionAndRotation(m_bodyID, GLMtoJPH(m_currentPos), GLMtoJPH(t.GetRotation(Transform::Space::World)), JPH::EActivation::Activate);
+		else if (p_syncFlags & SyncPosition) bI->SetPosition(m_bodyID, GLMtoJPH(m_currentPos), JPH::EActivation::Activate);
+		else if (p_syncFlags & SyncRotation) bI->SetRotation(m_bodyID, GLMtoJPH(t.GetRotation(Transform::Space::World)), JPH::EActivation::Activate);
 	}
 
-	m_transformVersion = GetOwner()->GetTransform().GetVersion();
+	if (p_syncFlags & SyncPosition) m_transformPositionVersion = t.GetPositionVersion();
+	if (p_syncFlags & SyncRotation) m_transformRotationVersion = t.GetRotationVersion();
 }
 
-void PhysicsComponent::PullTransformFromPhysics()
+void PhysicsComponent::PullTransformFromPhysics(TransformSync p_syncFlags)
 {
+	if (p_syncFlags == SyncNone)
+		return;
+
 	if (m_shapeType == ShapeType::None)
 	{
 		return;
@@ -1123,15 +1328,23 @@ void PhysicsComponent::PullTransformFromPhysics()
 	{
 		joltTransform = m_physics->GetBodyInterface()->GetWorldTransform(m_bodyID);
 	}
-	
 
-	m_currentPos = JPHtoGLM(joltTransform.GetTranslation());
-	const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
+	Transform &t = GetTransform();
 
-	GetOwner()->GetTransform().SetRotation(rot, Transform::Space::World);
-	GetOwner()->GetTransform().MakePhysicsDirty();
+	if (p_syncFlags & SyncPosition)
+	{
+		m_currentPos = JPHtoGLM(joltTransform.GetTranslation());
+		m_transformPositionVersion = t.GetPositionVersion();
+	}
 
-	m_transformVersion = GetOwner()->GetTransform().GetVersion();
+	if (p_syncFlags & SyncRotation)
+	{
+		const glm::quat rot = JPHtoGLM(joltTransform.GetQuaternion());
+		t.SetRotation(rot, Transform::Space::World);
+		m_transformRotationVersion = t.GetRotationVersion();
+	}
+
+	t.MakePhysicsDirty();
 }
 
 void PhysicsComponent::DebugDrawShape()
@@ -1148,7 +1361,7 @@ void PhysicsComponent::DebugDrawShape()
 	case PhysicsComponent::ShapeType::Box:
 	{
 		Math::OBB obb{ JPHtoGLM(m_offset), m_serializeData.halfExtents };
-		obb = Math::OBB::Transform(obb, GetOwner()->GetTransform().GetMatrix(Transform::Space::World));
+		obb = Math::OBB::Transform(obb, GetTransform().GetMatrix(Transform::Space::World));
 
 		DebugDraw::DrawBox(
 			obb,
@@ -1165,11 +1378,11 @@ void PhysicsComponent::DebugDrawShape()
 		float radius = m_serializeData.r;
 
 		// Transform the center to world space
-		center = vec3(GetOwner()->GetTransform().GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+		center = vec3(GetTransform().GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
 
-		vec3 up = vec3(GetOwner()->GetTransform().GetUp(Transform::Space::World));
-		vec3 right = vec3(GetOwner()->GetTransform().GetRight(Transform::Space::World));
-		vec3 forward = vec3(GetOwner()->GetTransform().GetForward(Transform::Space::World));
+		vec3 up = vec3(GetTransform().GetUp(Transform::Space::World));
+		vec3 right = vec3(GetTransform().GetRight(Transform::Space::World));
+		vec3 forward = vec3(GetTransform().GetForward(Transform::Space::World));
 
 		DebugDraw::DrawCircle(center, up, radius, color, 24, false, true);
 		DebugDraw::DrawCircle(center, right, radius, color, 24, false, true);
@@ -1188,11 +1401,11 @@ void PhysicsComponent::DebugDrawShape()
 		float radius = m_serializeData.r;
 		float halfHeight = m_serializeData.h * 0.5f;
 
-		center = vec3(GetOwner()->GetTransform().GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
+		center = vec3(GetTransform().GetMatrix(Transform::Space::World) * vec4(center, 1.0f));
 
-		vec3 up = vec3(GetOwner()->GetTransform().GetUp(Transform::Space::World));
-		vec3 right = vec3(GetOwner()->GetTransform().GetRight(Transform::Space::World));
-		vec3 forward = vec3(GetOwner()->GetTransform().GetForward(Transform::Space::World));
+		vec3 up = vec3(GetTransform().GetUp(Transform::Space::World));
+		vec3 right = vec3(GetTransform().GetRight(Transform::Space::World));
+		vec3 forward = vec3(GetTransform().GetForward(Transform::Space::World));
 
 		// Calculate the top and bottom centers of the capsule
 		vec3 topCenter = center + up * halfHeight;
