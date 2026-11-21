@@ -397,6 +397,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 	bool multiSelect = IsKeyDown(ImGuiMod_Shift);
 	bool snapping = IsKeyDown(ImGuiMod_Ctrl);
+	bool isHovered = IsWindowHovered(ImGuiHoveredFlags_RootAndChildWindows);
 
 	static BezierPoint unSnappedPos = BezierPoint();
 	static ImVec2 deltaBuffer = ImVec2();
@@ -699,7 +700,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 
 	if (!readOnly && !mouseAbsorbed)
 	{
-		if (IsMouseClicked(ImGuiMouseButton_Left))
+		if (IsMouseClicked(ImGuiMouseButton_Left) && isHovered)
 		{
 			// Check if user has clicked on a curve and add a new point if so
 			ImVec2 mousePos = io.MousePos;
@@ -923,7 +924,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 	// Clear selections if user clicks outside of any points or control points while not holding multi-select
 	if (!mouseAbsorbed && !multiSelect)
 	{
-		if (IsMouseClicked(ImGuiMouseButton_Left))
+		if (IsMouseClicked(ImGuiMouseButton_Left) && isHovered)
 		{
 			if (IsMouseHoveringRect(contentArea.Min, contentArea.Max, true))
 			{
@@ -936,7 +937,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 	// If mouse was absorbed, prevent ex. dragging window
 	if (mouseAbsorbed)
 	{
-		SetKeyOwner(ImGuiKey_MouseLeft, window->ID);
+		//SetKeyOwner(ImGuiKey_MouseLeft, window->ID);
 	}
 
 	drawList->PopClipRect();

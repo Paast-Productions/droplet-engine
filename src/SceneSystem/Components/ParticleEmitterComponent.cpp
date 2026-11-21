@@ -809,7 +809,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 		ImGuiID maxValueID = ImGui::GetID("maxValue");
 		ImGuiID lineThicknessID = ImGui::GetID("lineThickness");
 
-		int height = storage->GetInt(heightID, 300);
+		int height = storage->GetInt(heightID, 150);
 		float minValue = storage->GetFloat(minValueID, 0.0f);
 		float maxValue = storage->GetFloat(maxValueID, 2.0f);
 		float lineThickness = storage->GetFloat(lineThicknessID, 3.0f);
@@ -832,12 +832,12 @@ void ParticleEmitterComponent::RenderUIImpl()
 			}
 		}
 
-		if (TreeNode("Curve Options"))
+		if (ImGui::BeginPopupContextItem("Curve Options"))
 		{
 			if (ImGui::Button("Reset"))
 				curve = MakeDefaultCurve(1.0f);
 
-			if (Combo("Curve Type", &curveType, curveTypeNames, IM_ARRAYSIZE(curveTypeNames)))
+			if (ImGui::Combo("Curve Type", &curveType, curveTypeNames, IM_ARRAYSIZE(curveTypeNames)))
 				curve.type = static_cast<Droplet::Math::Curves::CurveType>(curveType);
 
 			if (ImGui::DragInt("Height", &height, 1.0f, 1))
@@ -853,7 +853,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 			if (ImGui::DragFloat("Line Thickness", &lineThickness, 0.1f, 1))
 				storage->SetFloat(lineThicknessID, lineThickness);
 
-			TreePop();
+			ImGui::EndPopup();
 		}
 
 		EndChild();
@@ -861,9 +861,14 @@ void ParticleEmitterComponent::RenderUIImpl()
 
 	if (CollapsingHeader("Over Lifetime", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		RenderCurve("Size Over Lifetime", m_sizeOverLifetime);
-		RenderCurve("Velocity Over Lifetime", m_velocityOverLifetime);
-		RenderCurve("Rotation Over Lifetime", m_rotationOverLifetime);
+		TextUnformatted("Size Over Lifetime");
+		RenderCurve("##Size Over Lifetime", m_sizeOverLifetime);
+
+		TextUnformatted("Velocity Over Lifetime");
+		RenderCurve("##Velocity Over Lifetime", m_velocityOverLifetime);
+
+		TextUnformatted("Rotation Over Lifetime");
+		RenderCurve("##Rotation Over Lifetime", m_rotationOverLifetime);
 	}
 
 	PopID();
