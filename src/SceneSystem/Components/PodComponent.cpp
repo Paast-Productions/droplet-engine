@@ -101,6 +101,7 @@ void PodComponent::UpdateImpl()
 	}
 	else
 	{
+		float prevDoorTimer = m_doorTimer;
 		m_doorTimer -= Time::Get().GetDeltaTime();
 
 		if (m_transitionState == ClosingDoor)
@@ -116,6 +117,18 @@ void PodComponent::UpdateImpl()
 		}
 		else if (m_transitionState == OpeningDoor)
 		{
+			if (prevDoorTimer > m_timeToOpenDoor && m_doorTimer <= m_timeToOpenDoor)
+			{
+				if (m_doorNode.GetTarget())
+				{
+					std::weak_ptr<ScriptComponent> doorScriptComponent = m_doorNode.GetTarget()->GetComponent<ScriptComponent>();
+					if (auto doorScript = doorScriptComponent.lock())
+					{
+						doorScript->Call("OpenDoor", m_timeToOpenDoor);
+					}
+				}
+			}
+
 			if (m_doorTimer <= 0.0f)
 			{
 				m_transitionState = Idle;
@@ -320,7 +333,7 @@ void PodComponent::OnTransitionToThisPod()
 	std::weak_ptr<ScriptComponent> doorScriptComponent = m_doorNode.GetTarget()->GetComponent<ScriptComponent>();
 	if (auto doorScript = doorScriptComponent.lock())
 	{
-		doorScript->Call("OpenDoor", m_timeToOpenDoor);
+		doorScript->Call("SetDoorClosed");
 	}
 }
 

@@ -69,10 +69,11 @@ namespace Droplet::IO::GliFormat
         std::memcpy(texture2D.data(), data, width * height * 4);
         stbi_image_free(data);
 
-        if (!gli::save(texture2D, p_outputPath.generic_string()))
+        // HACK
+        /*if (!gli::save(texture2D, p_outputPath.generic_string()))
         {
             // TODO: Use logger to log error
-        }
+        }*/
         
         return texture2D;
     }

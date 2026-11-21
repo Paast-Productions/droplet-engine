@@ -55,6 +55,42 @@ function OnUpdate(dt)
     end
 end
 
+function SetDoorOpen(duration)
+    isOpen = true
+
+    isAnimating = false
+    animationDuration = 1.0
+    timer = 0.0
+
+    if trans == nil then
+        trans = self:GetTransform()
+    end
+
+    local eulerRot = trans:GetEuler(TransformSpace.Local)
+    eulerRot.x = 0.0
+    eulerRot.y = openAngle * (math.pi / 180.0)
+    eulerRot.z = 0.0
+    trans:SetEuler(eulerRot, TransformSpace.Local)
+end
+
+function SetDoorClosed()
+    isOpen = false
+
+    isAnimating = false
+    animationDuration = 1.0
+    timer = 0.0
+
+    if trans == nil then
+        trans = self:GetTransform()
+    end
+
+    local eulerRot = trans:GetEuler(TransformSpace.Local)
+    eulerRot.x = 0.0
+    eulerRot.y = closedAngle * (math.pi / 180.0)
+    eulerRot.z = 0.0
+    trans:SetEuler(eulerRot, TransformSpace.Local)
+end
+
 function OpenDoor(duration)
     if isOpen then
         return
@@ -71,7 +107,8 @@ function OpenDoor(duration)
 
     local eulerRot = trans:GetEuler(TransformSpace.Local)
     eulerRot.x = 0.0
-    eulerRot.y = openAngle * (math.pi / 180.0)
+    --eulerRot.y = openAngle * (math.pi / 180.0) -- TODO: Why is this openAngle and not closedAngle?
+    eulerRot.y = closedAngle * (math.pi / 180.0)
     eulerRot.z = 0.0
     trans:SetEuler(eulerRot, TransformSpace.Local)
 
@@ -94,7 +131,8 @@ function CloseDoor(duration)
 
     local eulerRot = trans:GetEuler(TransformSpace.Local)
     eulerRot.x = 0.0
-    eulerRot.y = closedAngle * (math.pi / 180.0)
+    --eulerRot.y = closedAngle * (math.pi / 180.0) -- TODO: Why is this closedAngle and not openAngle?
+    eulerRot.y = openAngle * (math.pi / 180.0)
     eulerRot.z = 0.0
     trans:SetEuler(eulerRot, TransformSpace.Local)
 
