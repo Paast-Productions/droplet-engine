@@ -28,7 +28,7 @@ function OnStart()
 
     audioEmitter = self:GetAudioEmitter("Thermal-vents")
     if audioEmitter == nil then  
-        print("Unable to find emitter")
+        print("Unable to find emitter (Heat.lua)")
         return
     end
 end

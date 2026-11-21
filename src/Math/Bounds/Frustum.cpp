@@ -1,4 +1,4 @@
-#include "math/bounds/Frustum.hpp"
+#include "Math/Bounds/Frustum.hpp"
 #include <glm/glm.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 

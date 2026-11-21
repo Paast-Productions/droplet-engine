@@ -14,11 +14,16 @@ namespace Droplet::Scene
         /// @brief Gets the amount of damage per second
         /// @return The amount of damage
         [[nodiscard]] float GetDamage() const { return m_damage; }
-        
+
+        /// @brief Gets the selected zone.
+        /// @return The selected zone.
+        [[nodiscard]] int GetZone() const { return m_zone; }
+
         /// @brief Gets the direction vector
         /// @return The vector of direction
         [[nodiscard]] glm::vec3 GetDirection();
         
+        /// @brief Sets the amount of damage per second 
         void SetDamage(float p_damage) { m_damage = p_damage; }
         
         /// @brief Set the direction
@@ -36,5 +41,6 @@ namespace Droplet::Scene
         float m_damage{ 1.0f }; // Amount of damage per second
         glm::vec3 m_direction{ glm::vec3(0.0f, 0.0f, 1.0f) };
         
+        int m_zone{1};
     };
 }

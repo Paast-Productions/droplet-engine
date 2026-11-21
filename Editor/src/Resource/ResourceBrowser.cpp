@@ -5,7 +5,7 @@
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
 
-#include <core/FileExplorer.hpp>
+#include <Core/FileExplorer.hpp>
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
 

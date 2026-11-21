@@ -319,6 +319,7 @@ void Transform::SetPosition(const vec3 &p_position, Space p_space)
 	}
 
 	MakeDirty();
+	IncrementPositionVersion();
 }
 
 void Transform::SetRotation(const quat &p_rotation, Space p_space)
@@ -347,8 +348,6 @@ void Transform::SetRotation(const quat &p_rotation, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::SetEuler(const vec3 &p_eulerAngles, Space p_space)
@@ -378,8 +377,6 @@ void Transform::SetEuler(const vec3 &p_eulerAngles, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::SetScale(const vec3 &p_scale)
@@ -391,6 +388,7 @@ void Transform::SetScale(const vec3 &p_scale)
 	m_scale.z = (std::abs(p_scale.z) < MIN_SCALE) ? (Sign(p_scale.z) * MIN_SCALE) : p_scale.z;
 
 	MakeDirty();
+	IncrementScaleVersion();
 }
 
 void Transform::SetMatrix(const mat4 &p_matrix, Space p_space)
@@ -451,15 +449,15 @@ void Transform::SetMatrix(const mat4 &p_matrix, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
+	IncrementPositionVersion();
+	IncrementScaleVersion();
 }
 
 void Transform::MakeDirty()
 {
 	m_isDirty = true;
 	m_wasChanged = true;
-	m_version++;
+	IncrementVersion();
 
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())
@@ -495,6 +493,48 @@ void Transform::ResetFrame()
 void Transform::ResetPhysicsDirty()
 {
 	m_physicsDirty = false;
+}
+
+void Transform::IncrementVersion()
+{
+	++m_version;
+
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().IncrementVersion();
+	}
+}
+
+void Transform::IncrementPositionVersion()
+{
+	++m_posVersion;
+
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().IncrementPositionVersion();
+	}
+}
+
+void Transform::IncrementRotationVersion()
+{
+	++m_rotVersion;
+
+	for (const auto &child : m_owner->GetChildren())
+	{
+		++(child->GetTransform().m_posVersion);
+		child->GetTransform().IncrementRotationVersion();
+	}
+}
+
+void Transform::IncrementScaleVersion()
+{
+	++m_scaleVersion;
+
+	for (const auto &child : m_owner->GetChildren())
+	{
+		child->GetTransform().IncrementPositionVersion();
+		child->GetTransform().IncrementScaleVersion();
+	}
 }
 
 void Transform::RecalculateMatrices()
@@ -543,6 +583,7 @@ void Transform::Move(const vec3 &p_delta, Space p_space)
 	}
 
 	MakeDirty();
+	IncrementPositionVersion();
 }
 
 void Transform::Rotate(const quat &p_delta, Space p_space)
@@ -572,8 +613,6 @@ void Transform::Rotate(const quat &p_delta, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::SlerpRotation(const quat &p_target, float p_t, Space p_space)
@@ -623,8 +662,6 @@ void Transform::RotateEuler(const vec3 &p_delta, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::MoveRelative(const vec3 &p_delta)
@@ -655,6 +692,7 @@ void Transform::AddScale(const vec3 &p_delta)
 {
 	m_scale += p_delta;
 	MakeDirty();
+	IncrementScaleVersion();
 }
 
 void Transform::RotateAxis(float p_angle, const vec3 &p_axis, Space p_space)
@@ -684,8 +722,6 @@ void Transform::RotateAxis(float p_angle, const vec3 &p_axis, Space p_space)
 	}
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::LookAt(const vec3 &p_target, const vec3 &p_up, Space p_space)
@@ -724,8 +760,6 @@ void Transform::LookAt(const vec3 &p_target, const vec3 &p_up, Space p_space)
 	m_rotation = quat_cast(inverse(lookAt(vec3(0.0f), -direction, up)));
 
 	ValidateRotation();
-
-	MakeDirty();
 }
 
 void Transform::TransformByMatrix(const mat4 &p_matrix, Space p_space)
@@ -740,15 +774,13 @@ void Transform::TransformByMatrix(const mat4 &p_matrix, Space p_space)
 	}
 
 	SetMatrix(GetMatrix(p_space) * p_matrix, p_space);
-
-	ValidateRotation();
-	MakeDirty();
 }
 
 void Transform::ValidateRotation()
 {
 	m_rotation = normalize(m_rotation);
 	MakeDirty();
+	IncrementRotationVersion();
 }
 
 void Transform::UpdateLocalMatrix()

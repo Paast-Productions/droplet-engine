@@ -1,24 +1,123 @@
 {
     "active": true,
-    "children": [],
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 9759910495874114300,
+                        "fsName": "FreezeZone.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Sphere",
+                        "meshGUID": 4479448817565862415,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Freeze_Transperency_color",
+                        "textureGUID": 8122894306574146974,
+                        "transparent": true,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "aabbExtX0": 4.800000190734863,
+                        "aabbExtY0": 3.9000000953674316,
+                        "aabbExtZ0": 9.300000190734863,
+                        "aabbOffX0": 0.0,
+                        "aabbOffY0": 0.0,
+                        "aabbOffZ0": 0.0,
+                        "collisionLayerMask": 65535,
+                        "numAabb": 1,
+                        "numObb": 1,
+                        "numSphere": 0,
+                        "obbExtX0": 0.0,
+                        "obbExtY0": 0.0,
+                        "obbExtZ0": 0.0,
+                        "obbOffX0": 0.0,
+                        "obbOffY0": 0.0,
+                        "obbOffZ0": 0.0,
+                        "obbRotX0": 0.0,
+                        "obbRotY0": -0.0,
+                        "obbRotZ0": 0.0
+                    },
+                    "id": 4,
+                    "type": "TriggerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "damage": 1.0,
+                        "direction": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "id": 5,
+                    "type": "HazardComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": "Freeze.lua"
+                    },
+                    "id": 6,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 33,
+            "name": "Freeze",
+            "transform": {
+                "position": [
+                    5.960464477539063e-08,
+                    2.9103830456733704e-11,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    1.0,
+                    -0.0
+                ],
+                "scale": [
+                    -1.0,
+                    -0.99998939037323,
+                    -1.0
+                ]
+            }
+        }
+    ],
     "collisionLayerMask": 1,
     "components": [
         {
-            "active": false,
+            "active": true,
             "data": {
-                "fs": 13680123319807966343,
-                "fsName": "Base.FS",
+                "fs": 9759910495874114300,
+                "fsName": "FreezeZone.FS",
                 "gs": 0,
                 "gsName": "",
-                "meshDisplayName": "Cube",
-                "meshGUID": 17470227938033865898,
+                "meshDisplayName": "Sphere",
+                "meshGUID": 4479448817565862415,
                 "tcs": 0,
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
-                "textureDisplayName": "FreezeColor",
-                "textureGUID": 4599309985099221335,
-                "transparent": false,
+                "textureDisplayName": "Freeze_Transperency_color",
+                "textureGUID": 8122894306574146974,
+                "transparent": true,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -28,26 +127,19 @@
         {
             "active": true,
             "data": {
-                "damage": 1.0,
-                "direction": [
-                    0.0,
-                    0.0,
-                    1.0
-                ]
-            },
-            "id": 2,
-            "type": "HazardComponent"
-        },
-        {
-            "active": true,
-            "data": {
-                "collisionLayerMask": 32,
-                "numAabb": 0,
+                "aabbExtX0": 4.800000190734863,
+                "aabbExtY0": 3.9000000953674316,
+                "aabbExtZ0": 9.300000190734863,
+                "aabbOffX0": 0.0,
+                "aabbOffY0": 0.0,
+                "aabbOffZ0": 0.0,
+                "collisionLayerMask": 65535,
+                "numAabb": 1,
                 "numObb": 1,
                 "numSphere": 0,
-                "obbExtX0": 1.0,
-                "obbExtY0": 1.0,
-                "obbExtZ0": 1.0,
+                "obbExtX0": 0.0,
+                "obbExtY0": 0.0,
+                "obbExtZ0": 0.0,
                 "obbOffX0": 0.0,
                 "obbOffY0": 0.0,
                 "obbOffZ0": 0.0,
@@ -61,21 +153,34 @@
         {
             "active": true,
             "data": {
-                "data": "",
-                "filepath": "Engine_Side/Freeze.lua"
+                "damage": 1.0,
+                "direction": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
             },
             "id": 5,
+            "type": "HazardComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Freeze.lua"
+            },
+            "id": 6,
             "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 1076,
+    "id": 32,
     "name": "Freeze",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            -14.58353042602539,
+            -0.0070362091064453125,
+            -1.524233341217041
         ],
         "rotation": [
             1.0,
@@ -84,9 +189,9 @@
             0.0
         ],
         "scale": [
-            1.0,
-            1.0,
-            1.0
+            22.14904022216797,
+            18.457199096679688,
+            44.298255920410156
         ]
     }
 }

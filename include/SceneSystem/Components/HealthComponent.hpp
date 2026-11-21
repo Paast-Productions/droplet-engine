@@ -38,6 +38,10 @@ namespace Droplet::Scene
         /// @param p_amount The amount of damage to apply.
         void TakeDamage(float p_amount);
 
+        /// @brief Applies damage to hullIntergrity the node.
+		/// @param p_amount The amount of damage to apply.
+        void TakeDamageHullIntergrity(float p_amount);
+
         /// @brief Restores health to the node.
         /// @param p_amount The amount of health to restore.
         void Heal(float p_amount);
@@ -63,5 +67,8 @@ namespace Droplet::Scene
     private:
         float m_health = 100.0f;    /// current health.
         float m_maxHealth = 100.0f; /// maximum health.
+
+        float m_hullIntegrity = 100.0f;
+        float m_maxHullIntegrity = 100.0f;
     };
 }

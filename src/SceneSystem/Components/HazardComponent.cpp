@@ -40,6 +40,16 @@ void HazardComponent::RenderUIImpl()
         glm::vec3 start = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
         Graphics::Debug::DebugDraw::DrawLine(start, start + m_direction, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true);
     }
+
+    ImGui::RadioButton("Zone 1", &m_zone, 1);
+    ImGui::SameLine();
+    ImGui::RadioButton("Zone 2", &m_zone, 2);
+    ImGui::SameLine();
+    ImGui::RadioButton("Zone 3", &m_zone, 3);
+    ImGui::SameLine();
+    ImGui::RadioButton("Zone 4", &m_zone, 4);
+    ImGui::SameLine();
+    ImGui::RadioButton("Zone 5", &m_zone, 5);
 #endif
 }
 
@@ -48,6 +58,7 @@ nlohmann::json HazardComponent::SerializeImpl()
     nlohmann::json json;
     
     json["damage"] = m_damage;
+    json["zone"] = m_zone;
     json["direction"][0] = m_direction.x;
     json["direction"][1] = m_direction.y;
     json["direction"][2] = m_direction.z;
@@ -70,4 +81,11 @@ void HazardComponent::DeserializeImpl(const nlohmann::json p_compJson)
     m_direction.x = p_compJson["direction"][0];
     m_direction.y = p_compJson["direction"][1];
     m_direction.z = p_compJson["direction"][2];
+
+    if (p_compJson.contains("zone"))
+    {
+        m_zone = p_compJson["zone"];
+
+        //throw std::runtime_error("HazardComponent missing required field 'zone'");
+    }
 }

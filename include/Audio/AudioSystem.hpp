@@ -21,6 +21,16 @@ namespace Droplet::Scene
 
 namespace Droplet::Audio
 {
+    struct PlaybackConfig
+    {
+        std::string busName = "Master";
+        float volumeDb = C_VOLUME_DECIBEL_DEFAULT;
+        float pitch = C_PITCH_DEFAULT;
+        float stereoPan = C_STEREO_PAN_MIDDLE;
+        double startTimeSeconds = 0.0;
+        bool looping = false;
+    };
+    
     enum class PlaybackState : uint8_t
     {
         Playing     = 0,
@@ -54,7 +64,16 @@ namespace Droplet::Audio
 	    void UnloadSound(SoundResource* sound);
 	    double GetSoundLenghtInSeconds(SoundResource* sound) const;
 	    
-	    // Component registration
+	    // --- Behaviour API --- (survives scene transitions)
+	    PlaybackID Play2D(SoundResource* p_sound, const PlaybackConfig& p_config = {});
+	    
+	    void SetPlaybackVolumeDb(PlaybackID p_id, float p_volumeDb);
+	    void SetPlaybackPitch(PlaybackID p_id, float p_pitch);
+	    void SetPlaybackStereoPan(PlaybackID p_id, float p_pan);
+	    void SetPlaybackLooping(PlaybackID p_id, bool p_looping);
+	    bool RoutePlayback(PlaybackID p_id, const std::string& p_busName);
+	    
+	    // --- Component API ---
 	    void RegisterPlayerComponent(Scene::AudioPlayerComponent* player);
 	    void UnregisterPlayerComponent(Scene::AudioPlayerComponent* player);
 	    
@@ -75,7 +94,7 @@ namespace Droplet::Audio
 	    
 	    AudioMixer& GetMixer() { return m_mixer; }
 	    
-	    // --- Editor ---
+	    // --- Editor API ---
 	    void SetMode(bool p_isGameMode);
 	    void SetGamePaused(bool p_isPaused);
 	    
