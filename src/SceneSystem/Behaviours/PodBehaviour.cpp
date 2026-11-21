@@ -86,15 +86,15 @@ void PodBehaviour::PreUpdateImpl()
 					}
 				}
 
+				// Activate the target scene
+				GetSceneManager()->ActivateScene(targetScene->GetName());
+
 				// Call the target pod's OnTransitionToThisPod() method to handle any additional logic for the transition.
 				auto podInTargetScene = GetPodInScene(targetScene).lock();
 				if (podInTargetScene)
 				{
 					podInTargetScene->OnTransitionToThisPod();
 				}
-
-				// Activate the target scene
-				GetSceneManager()->ActivateScene(targetScene->GetName());
 
 				// Deactivate the current scene (the pod scene)
 				if (auto podScene = m_podScene.lock())
@@ -112,7 +112,7 @@ void PodBehaviour::PreUpdateImpl()
 
 void PodBehaviour::RenderUIImpl()
 {
-#ifndef _GAME
+#ifdef _EDITOR
 
 	ImGui::DragFloat("Transition Time", &m_transitionTime, 0.05f, 1.0f);
 

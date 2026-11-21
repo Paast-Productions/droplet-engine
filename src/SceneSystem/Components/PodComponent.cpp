@@ -126,7 +126,7 @@ void PodComponent::UpdateImpl()
 
 void PodComponent::RenderUIImpl()
 {
-#ifndef _GAME
+#ifdef _EDITOR
 
 	float buttonWidth = ImGui::GetContentRegionAvail().x;
 
