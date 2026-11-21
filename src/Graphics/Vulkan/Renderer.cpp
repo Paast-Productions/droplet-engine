@@ -68,7 +68,9 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_debugDescriptorPool,
 		m_swapchain.GetSurfaceFormat().format,
 		m_swapchain.GetDepthFormat(),
-		MAX_FRAMES_IN_FLIGHT);
+		MAX_FRAMES_IN_FLIGHT,
+		m_context.SupportsRectangularSmooth() ? vk::LineRasterizationMode::eRectangularSmooth : vk::LineRasterizationMode::eBresenham
+	);
 
 	constexpr Vulkan::ViewProjectionBuffer vpb
 	{

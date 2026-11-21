@@ -169,6 +169,7 @@ namespace Droplet::Scene
 		glm::vec3 RandomUnitSphere();
 		glm::vec3 RandomDirectionForEmission();
 		void SpawnParticle();
+		void UpdateEmitter(float deltaTime);
 		void UpdateParticles(float deltaTime);
 		void UpdateBurstEmission();
 		void ResetBurstTriggers();
@@ -198,7 +199,7 @@ namespace Droplet::Scene
 
 		EmissionShape m_emissionShape = EmissionShape::Point;
 		SimulationSpace m_simulationSpace = SimulationSpace::World;
-		StartColorMode m_startColorMode = StartColorMode::RandomPerComponent;
+		StartColorMode m_startColorMode = StartColorMode::Lerp;
 		FloatRange m_lifetimeRange{ 1.0f, 2.0f };
 		FloatRange m_speedRange{ 5.0f, 5.0f };
 		FloatRange m_sizeRange{ 0.1f, 0.1f };

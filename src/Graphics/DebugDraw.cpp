@@ -338,7 +338,8 @@ void DebugDraw::Initialize(
 	const vk::raii::DescriptorPool &p_descriptorPool,
 	vk::Format p_colorFormat,
 	vk::Format p_depthFormat,
-	std::uint32_t p_framesInFlight)
+	std::uint32_t p_framesInFlight,
+	vk::LineRasterizationMode p_lineRasterizationMode)
 {
 	ZoneScoped;
 
@@ -485,7 +486,7 @@ void DebugDraw::Initialize(
 		};
 
 		const vk::PipelineRasterizationLineStateCreateInfo lineRasterizer {
-			.lineRasterizationMode = vk::LineRasterizationMode::eBresenham,
+			.lineRasterizationMode = p_lineRasterizationMode,
 			.stippledLineEnable = vk::False
 		};
 
@@ -1097,6 +1098,77 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv
 	InternalDrawOptions intOpt(p_col, p_depth);
 
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+}
+
+void DebugDraw::DrawWireSphere(const Math::Sphere &p_sphere, glm::vec4 p_col, int p_seg, bool p_depth)
+{
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	const int segments = ClampCircleSegments(p_seg);
+
+	if (dbgDraw.m_circleCache.find(segments) == dbgDraw.m_circleCache.end())
+	{
+		std::vector<glm::vec3> points;
+
+		::GenerateCircle(segments, points);
+
+		dbgDraw.m_circleCache[segments] = std::move(points);
+	}
+
+	std::vector<glm::vec3> points = dbgDraw.m_circleCache[segments];
+
+	InternalDrawOptions intOpt(p_col, p_depth);
+
+	for (size_t i = 0; i < 3; i++)
+	{
+		glm::vec3 normal = glm::vec3(0.0f);
+		normal[i] = 1.0f;
+
+		std::vector<glm::vec3> tPoints;
+		tPoints.resize(points.size());
+
+		if (i == 2)
+		{
+			// Z axis, no need to rotate, just scale and translate
+			for (int j = 0; j < points.size(); ++j)
+			{
+				tPoints[j] = p_sphere.center + points[j] * p_sphere.radius;
+			}
+		}
+		else
+		{
+			// points is a unit circle in the XY plane, we need to transform it to the desired position and orientation
+			// Create a rotation matrix that aligns the Z axis with the normal
+			glm::vec3 zAxis = glm::vec3(0.0f, 0.0f, 1.0f);
+
+			float dot = glm::clamp(glm::dot(zAxis, normal), -1.0f, 1.0f);
+			glm::mat4 rotation = glm::mat4(1.0f);
+			if (dot <= -1.0f + 1e-6f)
+			{
+				rotation = glm::rotate(glm::mat4(1.0f), float(std::numbers::pi), glm::vec3(1.0f, 0.0f, 0.0f));
+			}
+			else if (dot < 1.0f - 1e-6f)
+			{
+				glm::vec3 axis = glm::normalize(glm::cross(zAxis, normal));
+				float angle = std::acos(dot);
+				rotation = glm::rotate(glm::mat4(1.0f), angle, axis);
+			}
+
+			for (int j = 0; j < points.size(); ++j)
+			{
+				tPoints[j] = p_sphere.center + glm::vec3(rotation * glm::vec4(points[j] * p_sphere.radius, 1.0f));
+			}
+		}
+
+		std::vector<DbgLine> lines;
+		lines.reserve(tPoints.size());
+
+		for (std::size_t i = 0; i < tPoints.size(); ++i)
+		{
+			lines.emplace_back(tPoints[i], tPoints[(i + 1) % tPoints.size()]);
+		}
+
+		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
+	}
 }
 
 void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, const glm::vec3 &p_centerToStart, float p_radius, float p_angle, glm::vec4 p_col, int p_seg, bool p_depth, bool p_wire)

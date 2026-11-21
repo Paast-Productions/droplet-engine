@@ -15,6 +15,7 @@
 #include <cstddef>
 
 using namespace Droplet;
+using namespace Droplet::Math;
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
 
@@ -282,6 +283,45 @@ float ParticleEmitterComponent::EvaluateCurve(const ScalarCurve &curve, float no
 	return curve.SamplePoint(normalizedTime).y;
 }
 
+void ParticleEmitterComponent::UpdateEmitter(float deltaTime)
+{
+	UpdateParticles(deltaTime);
+
+	if (m_debugDraw)
+		DrawDebugParticles();
+
+	if (!m_playing)
+		return;
+
+	if (m_delayElapsed < m_startDelay)
+	{
+		m_delayElapsed += deltaTime;
+		return;
+	}
+
+	m_systemTime += deltaTime;
+	if (m_systemTime >= m_duration)
+	{
+		if (m_looping)
+		{
+			m_systemTime = std::fmod(m_systemTime, m_duration);
+			m_emissionAccumulator = 0.0f;
+			ResetBurstTriggers();
+		}
+		else
+		{
+			m_systemTime = m_duration;
+			m_playing = false;
+		}
+	}
+
+	UpdateBurstEmission();
+	m_emissionAccumulator += m_emissionRate * deltaTime;
+	uint32_t toEmit = static_cast<uint32_t>(m_emissionAccumulator);
+	m_emissionAccumulator -= static_cast<float>(toEmit);
+	Emit(toEmit);
+}
+
 void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 {
 	const glm::vec3 gravity(0.0f, -9.81f * m_gravityModifier, 0.0f);
@@ -338,41 +378,7 @@ void ParticleEmitterComponent::UpdateImpl()
 		return;
 
 	const float deltaTime = Time::Get().GetDeltaTime();
-	UpdateParticles(deltaTime);
-
-	if (m_debugDraw)
-		DrawDebugParticles();
-
-	if (!m_playing)
-		return;
-
-	if (m_delayElapsed < m_startDelay)
-	{
-		m_delayElapsed += deltaTime;
-		return;
-	}
-
-	m_systemTime += deltaTime;
-	if (m_systemTime >= m_duration)
-	{
-		if (m_looping)
-		{
-			m_systemTime = std::fmod(m_systemTime, m_duration);
-			m_emissionAccumulator = 0.0f;
-			ResetBurstTriggers();
-		}
-		else
-		{
-			m_systemTime = m_duration;
-			m_playing = false;
-		}
-	}
-
-	UpdateBurstEmission();
-	m_emissionAccumulator += m_emissionRate * deltaTime;
-	uint32_t toEmit = static_cast<uint32_t>(m_emissionAccumulator);
-	m_emissionAccumulator -= static_cast<float>(toEmit);
-	Emit(toEmit);
+	UpdateEmitter(deltaTime);
 }
 
 void ParticleEmitterComponent::EditorUpdateImpl()
@@ -381,58 +387,26 @@ void ParticleEmitterComponent::EditorUpdateImpl()
 		return;
 
 	const float deltaTime = Time::Get().GetDeltaTime();
-	UpdateParticles(deltaTime);
-
-	if (m_debugDraw)
-		DrawDebugParticles();
+	UpdateEmitter(deltaTime);
 
 	if (m_uiSelected)
 	{
 		DrawDebugEmitter();
 	}
 	m_uiSelected = false;
-
-	if (!m_playing)
-		return;
-
-	if (m_delayElapsed < m_startDelay)
-	{
-		m_delayElapsed += deltaTime;
-		return;
-	}
-
-	m_systemTime += deltaTime;
-	if (m_systemTime >= m_duration)
-	{
-		if (m_looping)
-		{
-			m_systemTime = std::fmod(m_systemTime, m_duration);
-			m_emissionAccumulator = 0.0f;
-			ResetBurstTriggers();
-		}
-		else
-		{
-			m_systemTime = m_duration;
-			m_playing = false;
-		}
-	}
-
-	UpdateBurstEmission();
-	m_emissionAccumulator += m_emissionRate * deltaTime;
-	uint32_t toEmit = static_cast<uint32_t>(m_emissionAccumulator);
-	m_emissionAccumulator -= static_cast<float>(toEmit);
-	Emit(toEmit);
 }
 
 void ParticleEmitterComponent::DrawDebugParticles() const
 {
+	ZoneScoped;
+
 	using Droplet::Graphics::Debug::DebugDraw;
 
 	for (const Particle &particle : m_particles)
 	{
 		const float radius = std::max(0.001f, particle.size * 0.5f);
 		DebugDraw::DrawSphere(
-			Droplet::Math::Sphere(particle.position, radius),
+			Sphere(particle.position, radius),
 			particle.color,
 			1,
 			false);
@@ -441,6 +415,8 @@ void ParticleEmitterComponent::DrawDebugParticles() const
 
 void ParticleEmitterComponent::DrawDebugEmitter() const
 {
+	ZoneScoped;
+
 	using Droplet::Graphics::Debug::DebugDraw;
 
 	glm::vec3 position(0.0f);
@@ -470,20 +446,27 @@ void ParticleEmitterComponent::DrawDebugEmitter() const
 	switch (m_emissionShape)
 	{
 	case EmissionShape::Point:
-		DebugDraw::DrawSphere(Droplet::Math::Sphere(position, 0.05f * radiusScale), color, 1, false);
+		DebugDraw::DrawSphere(Sphere(position, 0.05f * radiusScale), color, 1, false);
 		break;
+
 	case EmissionShape::Sphere:
-	case EmissionShape::Hemisphere:
-		DebugDraw::DrawSphere(Droplet::Math::Sphere(position, radius), color, 2, false);
-		if (m_emissionShape == EmissionShape::Hemisphere)
-			DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
+		DebugDraw::DrawWireSphere(Sphere(position, radius), color, 24, false);
 		break;
+
+	case EmissionShape::Hemisphere:
+	{
+		DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
+		DebugDraw::DrawArc(position, -up, right * radius, radius, 180.0f, color, 12, false, true);
+		DebugDraw::DrawArc(position, right, up * radius, radius, 180.0f, color, 12, false, true);
+		break;
+	}
+
 	case EmissionShape::Box:
 	{
 		if (GetOwner())
 		{
 			Transform &transform = GetOwner()->GetTransform();
-			Droplet::Math::OBB obb(
+			OBB obb(
 				position,
 				m_shapeBoxSize * 0.5f,
 				glm::mat3(transform.GetRotation(Transform::Space::World)));
@@ -492,13 +475,14 @@ void ParticleEmitterComponent::DrawDebugEmitter() const
 		else
 		{
 			DebugDraw::DrawBox(
-				Droplet::Math::AABB(position, m_shapeBoxSize * 0.5f),
+				AABB(position, m_shapeBoxSize * 0.5f),
 				color,
 				false,
 				true);
 		}
 		break;
 	}
+
 	case EmissionShape::Cone:
 	{
 		const float angle = glm::radians(m_coneAngle);
@@ -513,6 +497,7 @@ void ParticleEmitterComponent::DrawDebugEmitter() const
 		DebugDraw::DrawLine(position, baseCenter - up * baseRadius, color, false);
 		break;
 	}
+
 	case EmissionShape::Circle:
 		DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
 		break;
@@ -556,7 +541,7 @@ void ParticleEmitterComponent::DeserializeCurve(const nlohmann::json &json, cons
 
 	const nlohmann::json &curveJson = json[key];
 	if (curveJson.contains("type"))
-		curve.type = static_cast<Droplet::Math::Curves::CurveType>(curveJson["type"].get<int>());
+		curve.type = static_cast<Curves::CurveType>(curveJson["type"].get<int>());
 
 	if (!curveJson.contains("points") || !curveJson["points"].is_array())
 		return;
@@ -566,7 +551,7 @@ void ParticleEmitterComponent::DeserializeCurve(const nlohmann::json &json, cons
 	{
 		if (!pointJson.contains("position"))
 			continue;
-		Droplet::Math::Curves::Point<glm::vec2> point;
+		Curves::Point<glm::vec2> point;
 		point.position = glm::vec2(pointJson["position"][0].get<float>(), pointJson["position"][1].get<float>());
 		if (pointJson.contains("controlPoint1"))
 			point.controlPoint1 = glm::vec2(pointJson["controlPoint1"][0].get<float>(), pointJson["controlPoint1"][1].get<float>());
@@ -815,8 +800,8 @@ void ParticleEmitterComponent::RenderUIImpl()
 		float lineThickness = storage->GetFloat(lineThicknessID, 3.0f);
 
 		ImGuiCurveEditFlags flags = ImGuiCurveEditFlags_ClampPoints | ImGuiCurveEditFlags_ForceSpanWidth | ImGuiCurveEditFlags_ForceInjective;
-		if (curve.type == Droplet::Math::Curves::CurveType::BezierQuadratic)    flags |= ImGuiCurveEditFlags_Quadratic;
-		else if (curve.type == Droplet::Math::Curves::CurveType::Linear)        flags |= ImGuiCurveEditFlags_Linear;
+		if (curve.type == Curves::CurveType::BezierQuadratic)    flags |= ImGuiCurveEditFlags_Quadratic;
+		else if (curve.type == Curves::CurveType::Linear)        flags |= ImGuiCurveEditFlags_Linear;
 
 		if (ImGui::CurveEdit(label, &points, ImVec2(0, height), ImRect(0.0f, minValue, 1.0f, maxValue), lineThickness,
 			ImRect(48, 24, 20, 24), ImVec2i(4, 4), flags))
@@ -824,7 +809,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 			curve.points.clear();
 			for (const ImGui::BezierPoint &point : points)
 			{
-				Droplet::Math::Curves::Point<glm::vec2> value;
+				Curves::Point<glm::vec2> value;
 				value.position = glm::vec2(point.position.x, point.position.y);
 				value.controlPoint1 = glm::vec2(point.controlPoint1.x, point.controlPoint1.y);
 				value.controlPoint2 = glm::vec2(point.controlPoint2.x, point.controlPoint2.y);
@@ -838,7 +823,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 				curve = MakeDefaultCurve(1.0f);
 
 			if (ImGui::Combo("Curve Type", &curveType, curveTypeNames, IM_ARRAYSIZE(curveTypeNames)))
-				curve.type = static_cast<Droplet::Math::Curves::CurveType>(curveType);
+				curve.type = static_cast<Curves::CurveType>(curveType);
 
 			if (ImGui::DragInt("Height", &height, 1.0f, 1))
 				storage->SetInt(heightID, height);
@@ -878,5 +863,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 
 void ParticleEmitterComponent::GenerateParticleMesh(std::vector<ParticleVertex> &outVertices) const
 {
+	ZoneScoped;
+
 	// TODO
 }

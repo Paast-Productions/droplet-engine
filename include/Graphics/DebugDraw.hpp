@@ -160,6 +160,18 @@ namespace Droplet::Graphics::Debug
 			int p_subdiv = 1,
 			bool p_depth = true
 		);
+		
+		/// @brief Draw a wireframe sphere in 3D space.
+		/// @param p_sphere The sphere to be drawn.
+		/// @param p_col The color of the sphere.
+		/// @param p_seg The number of segments to divide the sphere into.
+		/// @param p_depth Whether to enable depth testing for the sphere.
+		static void DrawWireSphere(
+			const Math::Sphere &p_sphere,
+			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
+			int p_seg = 12,
+			bool p_depth = true
+		);
 
 		/// @brief Draw an arc in 3D space.
 		/// @param p_center The center of the arc.
@@ -255,7 +267,9 @@ namespace Droplet::Graphics::Debug
 			const vk::raii::DescriptorPool &p_descriptorPool,
 			vk::Format p_colorFormat,
 			vk::Format p_depthFormat,
-			std::uint32_t p_framesInFlight);
+			std::uint32_t p_framesInFlight,
+			vk::LineRasterizationMode p_lineRasterizationMode
+		);
 
 		/// @brief Shutdown the debug draw system and release graphics resources
 		void Shutdown();
