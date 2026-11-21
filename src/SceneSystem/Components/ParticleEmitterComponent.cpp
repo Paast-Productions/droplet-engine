@@ -408,8 +408,8 @@ void ParticleEmitterComponent::DrawDebugParticles() const
 		DebugDraw::DrawSphere(
 			Sphere(particle.position, radius),
 			particle.color,
-			1,
-			false);
+			0
+		);
 	}
 }
 

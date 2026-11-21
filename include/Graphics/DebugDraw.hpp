@@ -315,19 +315,18 @@ namespace Droplet::Graphics::Debug
 		/// @brief Internal structure to order draws by their draw options
 		struct InternalDrawOptions
 		{
-			glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			bool depthTest = true;
 			GUID icon = 0;
 
 			InternalDrawOptions() = default;
 
-			InternalDrawOptions(glm::vec4 p_color, bool p_depthTest, GUID p_icon = 0)
-				: color(p_color), depthTest(p_depthTest), icon(p_icon) {}
+			InternalDrawOptions(bool p_depthTest, GUID p_icon = 0)
+				: depthTest(p_depthTest), icon(p_icon) {}
 
 			// Comparison operators for unordered_map key
 			bool operator==(const InternalDrawOptions &other) const
 			{
-				return icon == other.icon && color == other.color && depthTest == other.depthTest;
+				return icon == other.icon && depthTest == other.depthTest;
 			}
 			bool operator!=(const InternalDrawOptions &other) const
 			{
@@ -339,14 +338,6 @@ namespace Droplet::Graphics::Debug
 					return icon < other.icon;
 				if (depthTest != other.depthTest)
 					return depthTest < other.depthTest;
-				if ((uint8_t)(color.x * 255.0f) != (uint8_t)(other.color.x * 255.0f))
-					return color.x < other.color.x;
-				if ((uint8_t)(color.y * 255.0f) != (uint8_t)(other.color.y * 255.0f))
-					return color.y < other.color.y;
-				if ((uint8_t)(color.z * 255.0f) != (uint8_t)(other.color.z * 255.0f))
-					return color.z < other.color.z;
-				if ((uint8_t)(color.w * 255.0f) != (uint8_t)(other.color.w * 255.0f))
-					return color.w < other.color.w;
 				return false;
 			}
 			bool operator<=(const InternalDrawOptions &other) const
@@ -366,17 +357,20 @@ namespace Droplet::Graphics::Debug
 		struct DbgLine
 		{
 			glm::vec3 v1, v2;
+			glm::vec4 color;
 		};
 
 		struct DbgTri
 		{
 			glm::vec3 v1, v2, v3;
+			glm::vec4 color;
 		};
 
 		struct DbgIcon
 		{
 			glm::vec3 position;
 			glm::vec2 scale;
+			glm::vec4 color;
 		};
 
 		struct Vertex
@@ -423,22 +417,19 @@ namespace Droplet::Graphics::Debug
 		/// @brief Append the given lines to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_lines The lines to convert to vertices and append
-		/// @param p_color The color to use for the vertices
-		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines, glm::vec4 p_color);
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines);
 
 		/// @brief Append the given triangles to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_tris The triangles to convert to vertices and append
-		/// @param p_color The color to use for the vertices
-		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris, glm::vec4 p_color);
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris);
 
 		/// @brief Append the given icons to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_icons The icons to convert to vertices and append
-		/// @param p_color The color to use for the vertices
 		/// @param p_right The right direction for the icons
 		/// @param p_up The up direction for the icons
-		void AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec4 p_color, glm::vec3 p_right, glm::vec3 p_up);
+		void AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec3 p_right, glm::vec3 p_up);
 
 		// Draw commands for the current frame, organized by draw options.
 		std::map<InternalDrawOptions, std::vector<DbgLine>>	m_wireLists{};

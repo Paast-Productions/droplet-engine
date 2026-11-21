@@ -356,8 +356,9 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 					changed = true;
 				}
 
+				int iter = 0;
 				int attempts = 0;
-				while (attempts++ < 32) // Prevent infinite loop in extreme cases
+				while (attempts++ < 32 && iter++ < 128) // Prevent infinite loop in extreme cases
 				{
 					bool monotonic = true;
 

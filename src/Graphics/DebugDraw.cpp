@@ -746,11 +746,11 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 	{
 		if (opt.depthTest)
 		{
-			AppendToMesh(wireDepthMesh, lines, opt.color);
+			AppendToMesh(wireDepthMesh, lines);
 		}
 		else
 		{
-			AppendToMesh(wireMesh, lines, opt.color);
+			AppendToMesh(wireMesh, lines);
 		}
 	}
 
@@ -758,11 +758,11 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 	{
 		if (opt.depthTest)
 		{
-			AppendToMesh(fillDepthMesh, tris, opt.color);
+			AppendToMesh(fillDepthMesh, tris);
 		}
 		else
 		{
-			AppendToMesh(fillMesh, tris, opt.color);
+			AppendToMesh(fillMesh, tris);
 		}
 	}
 
@@ -850,11 +850,11 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 	{
 		if (opt.depthTest)
 		{
-			AppendToMesh(iconDepthMeshes[opt.icon], icons, opt.color, cameraRight, cameraUp);
+			AppendToMesh(iconDepthMeshes[opt.icon], icons, cameraRight, cameraUp);
 		}
 		else
 		{
-			AppendToMesh(iconMeshes[opt.icon], icons, opt.color, cameraRight, cameraUp);
+			AppendToMesh(iconMeshes[opt.icon], icons, cameraRight, cameraUp);
 		}
 	}
 	
@@ -983,32 +983,32 @@ void DebugDraw::ClearDrawCommands()
 // Mesh Generation
 //
 
-void DebugDraw::AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines, glm::vec4 p_color)
+void DebugDraw::AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines)
 {
 	ZoneScoped;
 
 	p_mesh.reserve(p_mesh.size() + p_lines.size() * 2);
 	for (const auto &line : p_lines)
 	{
-		p_mesh.emplace_back(Vertex{ line.v1, p_color });
-		p_mesh.emplace_back(Vertex{ line.v2, p_color });
+		p_mesh.emplace_back(Vertex{ line.v1, line.color });
+		p_mesh.emplace_back(Vertex{ line.v2, line.color });
 	}
 }
 
-void DebugDraw::AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris, glm::vec4 p_color)
+void DebugDraw::AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris)
 {
 	ZoneScoped;
 
 	p_mesh.reserve(p_mesh.size() + p_tris.size() * 3);
 	for (const auto &tri : p_tris)
 	{
-		p_mesh.emplace_back(Vertex{ tri.v1, p_color });
-		p_mesh.emplace_back(Vertex{ tri.v2, p_color });
-		p_mesh.emplace_back(Vertex{ tri.v3, p_color });
+		p_mesh.emplace_back(Vertex{ tri.v1, tri.color });
+		p_mesh.emplace_back(Vertex{ tri.v2, tri.color });
+		p_mesh.emplace_back(Vertex{ tri.v3, tri.color });
 	}
 }
 
-void DebugDraw::AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec4 p_color, glm::vec3 p_right, glm::vec3 p_up)
+void DebugDraw::AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec3 p_right, glm::vec3 p_up)
 {
 	ZoneScoped;
 
@@ -1019,10 +1019,10 @@ void DebugDraw::AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<
 		glm::vec3 right = p_right * icon.scale.x * 0.5f;
 		glm::vec3 up = p_up * icon.scale.y * 0.5f;
 
-		const IconVertex bottomLeft { center - right - up, p_color, glm::vec2(0.0f, 0.0f) };
-		const IconVertex bottomRight { center + right - up, p_color, glm::vec2(1.0f, 0.0f) };
-		const IconVertex topRight { center + right + up, p_color, glm::vec2(1.0f, 1.0f) };
-		const IconVertex topLeft { center - right + up, p_color, glm::vec2(0.0f, 1.0f) };
+		const IconVertex bottomLeft { center - right - up, icon.color, glm::vec2(0.0f, 0.0f) };
+		const IconVertex bottomRight { center + right - up, icon.color, glm::vec2(1.0f, 0.0f) };
+		const IconVertex topRight { center + right + up, icon.color, glm::vec2(1.0f, 1.0f) };
+		const IconVertex topLeft { center - right + up, icon.color, glm::vec2(0.0f, 1.0f) };
 		p_mesh.insert(p_mesh.end(), { bottomLeft, bottomRight, topRight, bottomLeft, topRight, topLeft });
 	}
 }
@@ -1036,29 +1036,38 @@ void DebugDraw::AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<
 void DebugDraw::DrawRay(const Ray &p_ray, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
-	dbgDraw.m_wireLists[intOpt].emplace_back(p_ray.pos, p_ray.pos + p_ray.dir);
+	InternalDrawOptions intOpt(p_depth);
+	dbgDraw.m_wireLists[intOpt].emplace_back(p_ray.pos, p_ray.pos + p_ray.dir, p_col);
 }
 
 void DebugDraw::DrawRay(const glm::vec3 &p_pos, const glm::vec3 &p_dir, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
-	dbgDraw.m_wireLists[intOpt].emplace_back(p_pos, p_pos + p_dir);
+	InternalDrawOptions intOpt(p_depth);
+	dbgDraw.m_wireLists[intOpt].emplace_back(p_pos, p_pos + p_dir, p_col);
 }
 
 void DebugDraw::DrawLine(const glm::vec3 &p_start, const glm::vec3 &p_end, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
-	dbgDraw.m_wireLists[intOpt].emplace_back(p_start, p_end);
+	InternalDrawOptions intOpt(p_depth);
+	dbgDraw.m_wireLists[intOpt].emplace_back(p_start, p_end, p_col);
 }
 
 void DebugDraw::DrawTri(const glm::vec3 &p_v1, const glm::vec3 &p_v2, const glm::vec3 &p_v3, glm::vec4 p_col, bool p_depth, bool p_wire)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
-	dbgDraw.m_fillLists[intOpt].emplace_back(p_v1, p_v2, p_v3);
+	InternalDrawOptions intOpt(p_depth);
+	if (p_wire)
+	{
+		dbgDraw.m_wireLists[intOpt].emplace_back(p_v1, p_v2, p_col);
+		dbgDraw.m_wireLists[intOpt].emplace_back(p_v2, p_v3, p_col);
+		dbgDraw.m_wireLists[intOpt].emplace_back(p_v3, p_v1, p_col);
+	}
+	else
+	{
+		dbgDraw.m_fillLists[intOpt].emplace_back(p_v1, p_v2, p_v3, p_col);
+	}
 }
 
 void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const glm::vec3 &p_right, glm::vec4 p_col, bool p_depth, bool p_wire)
@@ -1070,19 +1079,19 @@ void DebugDraw::DrawQuad(const glm::vec3 &p_center, const glm::vec3 &p_up, const
 	glm::vec3 v4 = p_center - p_right + p_up; // Top-left
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
-		dbgDraw.m_wireLists[intOpt].emplace_back(v1, v2);
-		dbgDraw.m_wireLists[intOpt].emplace_back(v2, v3);
-		dbgDraw.m_wireLists[intOpt].emplace_back(v3, v4);
-		dbgDraw.m_wireLists[intOpt].emplace_back(v4, v1);
+		dbgDraw.m_wireLists[intOpt].emplace_back(v1, v2, p_col);
+		dbgDraw.m_wireLists[intOpt].emplace_back(v2, v3, p_col);
+		dbgDraw.m_wireLists[intOpt].emplace_back(v3, v4, p_col);
+		dbgDraw.m_wireLists[intOpt].emplace_back(v4, v1, p_col);
 	}
 	else
 	{
-		dbgDraw.m_fillLists[intOpt].emplace_back(v1, v2, v3);
-		dbgDraw.m_fillLists[intOpt].emplace_back(v1, v3, v4);
+		dbgDraw.m_fillLists[intOpt].emplace_back(v1, v2, v3, p_col);
+		dbgDraw.m_fillLists[intOpt].emplace_back(v1, v3, v4, p_col);
 	}
 }
 
@@ -1092,13 +1101,13 @@ void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d, const glm
 	GenerateBezierCurve(p_p1, p_d, p_p2, ClampCurveSegments(p_seg), curvePoints);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	dbgDraw.m_wireLists[intOpt].reserve(dbgDraw.m_wireLists[intOpt].size() + curvePoints.size() - 1);
 
 	for (std::size_t i = 0; i < curvePoints.size() - 1; ++i)
 	{
-		dbgDraw.m_wireLists[intOpt].emplace_back(curvePoints[i], curvePoints[i + 1]);
+		dbgDraw.m_wireLists[intOpt].emplace_back(curvePoints[i], curvePoints[i + 1], p_col);
 	}
 }
 
@@ -1108,13 +1117,13 @@ void DebugDraw::DrawCurve(const glm::vec3 &p_p1, const glm::vec3 &p_d1, const gl
 	GenerateBezierCurve(p_p1, p_d1, p_d2, p_p2, ClampCurveSegments(p_seg), curvePoints);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	dbgDraw.m_wireLists[intOpt].reserve(dbgDraw.m_wireLists[intOpt].size() + curvePoints.size() - 1);
 
 	for (std::size_t i = 0; i < curvePoints.size() - 1; ++i)
 	{
-		dbgDraw.m_wireLists[intOpt].emplace_back(curvePoints[i], curvePoints[i + 1]);
+		dbgDraw.m_wireLists[intOpt].emplace_back(curvePoints[i], curvePoints[i + 1], p_col);
 	}
 }
 
@@ -1133,7 +1142,7 @@ void DebugDraw::DrawBox(const AABB &p_aabb, const glm::vec4 p_col, bool p_depth,
 	glm::vec3 v8 = glm::vec3(min.x, max.y, max.z);
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
@@ -1143,6 +1152,7 @@ void DebugDraw::DrawBox(const AABB &p_aabb, const glm::vec4 p_col, bool p_depth,
 			{v5, v6}, {v6, v7}, {v7, v8}, {v8, v5}, // Top face
 			{v1, v5}, {v2, v6}, {v3, v7}, {v4, v8}  // Vertical edges
 		};
+		for (auto &line : lines) line.color = p_col;
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
 	}
 	else
@@ -1162,6 +1172,7 @@ void DebugDraw::DrawBox(const AABB &p_aabb, const glm::vec4 p_col, bool p_depth,
 			// Right face
 			{v2, v3, v7}, {v2, v7, v6}
 		};
+		for (auto &triangle : triangles) triangle.color = p_col;
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 	}
 }
@@ -1174,7 +1185,7 @@ void DebugDraw::DrawBox(const OBB &p_obb, glm::vec4 p_col, bool p_depth, bool p_
 	p_obb.GetCorners(v.data());
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
@@ -1184,6 +1195,7 @@ void DebugDraw::DrawBox(const OBB &p_obb, glm::vec4 p_col, bool p_depth, bool p_
 			{v[4], v[5]}, {v[5], v[6]}, {v[6], v[7]}, {v[7], v[4]}, // Top face
 			{v[0], v[4]}, {v[1], v[5]}, {v[2], v[6]}, {v[3], v[7]}  // Vertical edges
 		};
+		for (auto &line : lines) line.color = p_col;
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
 	}
 	else
@@ -1203,6 +1215,7 @@ void DebugDraw::DrawBox(const OBB &p_obb, glm::vec4 p_col, bool p_depth, bool p_
 			// Right face
 			{v[1], v[2], v[6]}, {v[1], v[6], v[5]}
 		};
+		for (auto &triangle : triangles) triangle.color = p_col;
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 	}
 }
@@ -1226,7 +1239,8 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv
 			triangles.emplace_back(
 				vertices[indices[i + 0]],
 				vertices[indices[i + 1]],
-				vertices[indices[i + 2]]
+				vertices[indices[i + 2]],
+				p_col
 			);
 		}
 
@@ -1240,9 +1254,10 @@ void DebugDraw::DrawSphere(const Sphere &p_sphere, glm::vec4 p_col, int p_subdiv
 		tri.v1 = p_sphere.center + tri.v1 * p_sphere.radius;
 		tri.v2 = p_sphere.center + tri.v2 * p_sphere.radius;
 		tri.v3 = p_sphere.center + tri.v3 * p_sphere.radius;
+		tri.color = p_col;
 	}
 
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 }
@@ -1263,7 +1278,7 @@ void DebugDraw::DrawWireSphere(const Math::Sphere &p_sphere, glm::vec4 p_col, in
 
 	std::vector<glm::vec3> points = dbgDraw.m_circleCache[segments];
 
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	for (size_t i = 0; i < 3; i++)
 	{
@@ -1311,7 +1326,7 @@ void DebugDraw::DrawWireSphere(const Math::Sphere &p_sphere, glm::vec4 p_col, in
 
 		for (std::size_t i = 0; i < tPoints.size(); ++i)
 		{
-			lines.emplace_back(tPoints[i], tPoints[(i + 1) % tPoints.size()]);
+			lines.emplace_back(tPoints[i], tPoints[(i + 1) % tPoints.size()], p_col);
 		}
 
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
@@ -1337,7 +1352,7 @@ void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, co
 		points[i] = p_center + glm::vec3(glm::normalize(glm::rotate(glm::mat4(1.0f), glm::radians(p_angle * i / (segments + 1)), p_normal) * glm::vec4(p_centerToStart, 0.0f)) * p_radius);
 	}
 
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
@@ -1346,7 +1361,7 @@ void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, co
 
 		for (int i = 0; i < points.size() - 1; ++i)
 		{
-			lines.emplace_back(points[i], points[i + 1]);
+			lines.emplace_back(points[i], points[i + 1], p_col);
 		}
 
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
@@ -1358,7 +1373,7 @@ void DebugDraw::DrawArc(const glm::vec3 &p_center, const glm::vec3 &p_normal, co
 
 		for (int i = 0; i < points.size() - 1; ++i)
 		{
-			triangles.emplace_back(p_center, points[i], points[i + 1]);
+			triangles.emplace_back(p_center, points[i], points[i + 1], p_col);
 		}
 
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
@@ -1412,7 +1427,7 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 		p = p_center + glm::vec3(rotation * glm::vec4(p * p_radius, 1.0f));
 	}
 
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
@@ -1421,7 +1436,7 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 
 		for (std::size_t i = 0; i < points.size(); ++i)
 		{
-			lines.emplace_back(points[i], points[(i + 1) % points.size()]);
+			lines.emplace_back(points[i], points[(i + 1) % points.size()], p_col);
 		}
 
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
@@ -1433,7 +1448,7 @@ void DebugDraw::DrawCircle(const glm::vec3 &p_center, const glm::vec3 &p_normal,
 
 		for (std::size_t i = 0; i < points.size(); ++i)
 		{
-			triangles.emplace_back(p_center, points[i], points[(i + 1) % points.size()]);
+			triangles.emplace_back(p_center, points[i], points[(i + 1) % points.size()], p_col);
 		}
 
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
@@ -1448,7 +1463,7 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_de
 	p_frustum.GetCorners(v.data());
 
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth);
+	InternalDrawOptions intOpt(p_depth);
 
 	if (p_wire)
 	{
@@ -1458,6 +1473,7 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_de
 			{v[4], v[5]}, {v[5], v[7]}, {v[7], v[6]}, {v[6], v[4]}, // Far face
 			{v[0], v[4]}, {v[1], v[5]}, {v[2], v[6]}, {v[3], v[7]}  // Connecting edges
 		};
+		for (auto &line : lines) line.color = p_col;
 		dbgDraw.m_wireLists[intOpt].insert(dbgDraw.m_wireLists[intOpt].end(), lines.begin(), lines.end());
 	}
 	else
@@ -1477,6 +1493,7 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_de
 			// Bottom face
 			{v[2], v[3], v[7]}, {v[2], v[7], v[6]}
 		};
+		for (auto &triangle : triangles) triangle.color = p_col;
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
 	}
 }
@@ -1484,10 +1501,11 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_de
 void DebugDraw::DrawIcon(const GUID &p_icon, const glm::vec3 &p_pos, const glm::vec2 &p_scale, glm::vec4 p_col, bool p_depth)
 {
 	DebugDraw &dbgDraw = DebugDraw::Get();
-	InternalDrawOptions intOpt(p_col, p_depth, p_icon);
+	InternalDrawOptions intOpt(p_depth, p_icon);
 
 	dbgDraw.m_iconLists[intOpt].emplace_back(
 		p_pos,
-		p_scale
+		p_scale,
+		p_col
 	);
 }
