@@ -1,6 +1,12 @@
 #include "DebugDraw.hpp"
 
 #include <Graphics/Vulkan/Camera.hpp>
+#include <Graphics/Vulkan/Context.hpp>
+#include <Graphics/Vulkan/CommandPool.hpp>
+#include <Graphics/Vulkan/Image.hpp>
+#include <Graphics/Vulkan/ImageView.hpp>
+#include <Graphics/Vulkan/Sampler.hpp>
+#include <resource/ResourceManager.hpp>
 #include <Math/Bezier.hpp>
 #include <Math/Curves.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -333,8 +339,9 @@ void DebugDraw::Initialize(
 	const vk::raii::PhysicalDevice &p_physicalDevice,
 	const vk::raii::Device &p_device,
 	const vma::raii::Allocator &p_allocator,
+	const Vulkan::Context &p_context,
 	const vk::raii::Queue &p_queue,
-	const vk::raii::CommandPool &p_commandPool,
+	const Vulkan::CommandPool &p_commandPool,
 	const vk::raii::DescriptorPool &p_descriptorPool,
 	vk::Format p_colorFormat,
 	vk::Format p_depthFormat,
@@ -349,6 +356,7 @@ void DebugDraw::Initialize(
 	m_physicalDevice = &p_physicalDevice;
 	m_device = &p_device;
 	m_allocator = &p_allocator;
+	m_context = &p_context;
 	m_queue = &p_queue;
 	m_commandPool = &p_commandPool;
 	m_descriptorPool = &p_descriptorPool;
@@ -378,12 +386,41 @@ void DebugDraw::Initialize(
 		.pBindings = &cameraBinding
 	});
 
-	const vk::PipelineLayoutCreateInfo layoutInfo {
-		.setLayoutCount = 1,
-		.pSetLayouts = &*m_descriptorSetLayout
+	const vk::DescriptorSetLayoutBinding iconBinding {
+		.binding = 0,
+		.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+		.descriptorCount = 1,
+		.stageFlags = vk::ShaderStageFlagBits::eFragment
 	};
 
-	m_pipelineLayout = vk::raii::PipelineLayout(p_device, layoutInfo);
+	m_iconDescriptorSetLayout = vk::raii::DescriptorSetLayout(p_device, vk::DescriptorSetLayoutCreateInfo {
+		.bindingCount = 1,
+		.pBindings = &iconBinding
+	});
+
+	m_iconSampler = Vulkan::Sampler(p_physicalDevice, p_device);
+
+	const std::array<vk::DescriptorSetLayout, 1> meshSetLayouts {{
+		*m_descriptorSetLayout
+	}};
+
+	const std::array<vk::DescriptorSetLayout, 2> iconSetLayouts {{
+		*m_descriptorSetLayout,
+		*m_iconDescriptorSetLayout
+	}};
+
+	const vk::PipelineLayoutCreateInfo meshLayoutInfo {
+		.setLayoutCount = static_cast<std::uint32_t>(meshSetLayouts.size()),
+		.pSetLayouts = meshSetLayouts.data()
+	};
+
+	const vk::PipelineLayoutCreateInfo iconLayoutInfo {
+		.setLayoutCount = static_cast<std::uint32_t>(iconSetLayouts.size()),
+		.pSetLayouts = iconSetLayouts.data()
+	};
+
+	m_pipelineLayout = vk::raii::PipelineLayout(p_device, meshLayoutInfo);
+	m_iconPipelineLayout = vk::raii::PipelineLayout(p_device, iconLayoutInfo);
 
 	m_shaderModules[0] = CreateShaderModule(p_device, "debug_draw.vert.spv");
 	m_shaderModules[1] = CreateShaderModule(p_device, "debug_draw.frag.spv");
@@ -546,7 +583,7 @@ void DebugDraw::Initialize(
 				.pDepthStencilState = &depthStencil,
 				.pColorBlendState = &colorBlending,
 				.pDynamicState = &dynamicState,
-				.layout = *m_pipelineLayout
+				.layout = p_icon ? *m_iconPipelineLayout : *m_pipelineLayout
 			},
 			{
 				.colorAttachmentCount = 1,
@@ -575,6 +612,7 @@ void DebugDraw::Shutdown()
 		m_device->waitIdle();
 	}
 
+	m_iconTextureCache.clear();
 	m_frameResources.clear();
 	for (auto &pipeline : m_pipelines)
 	{
@@ -582,6 +620,9 @@ void DebugDraw::Shutdown()
 	}
 
 	m_pipelineLayout = nullptr;
+	m_iconPipelineLayout = nullptr;
+	m_iconSampler = { nullptr };
+	m_iconDescriptorSetLayout = nullptr;
 	for (auto &shaderModule : m_shaderModules)
 	{
 		shaderModule = nullptr;
@@ -593,6 +634,7 @@ void DebugDraw::Shutdown()
 	m_physicalDevice = nullptr;
 	m_device = nullptr;
 	m_allocator = nullptr;
+	m_context = nullptr;
 	m_queue = nullptr;
 	m_commandPool = nullptr;
 	m_descriptorPool = nullptr;
@@ -603,6 +645,96 @@ void DebugDraw::Shutdown()
 void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 {
 	ZoneScoped;
+
+	std::unordered_set<GUID> usedIconTextures;
+	for (const auto &[options, icons] : m_iconLists)
+	{
+		if (!icons.empty())
+		{
+			usedIconTextures.insert(options.icon);
+		}
+	}
+
+	for (auto it = m_iconTextureCache.begin(); it != m_iconTextureCache.end();)
+	{
+		if (usedIconTextures.contains(it->first))
+		{
+			it->second.unusedFrames = 0;
+			++it;
+		}
+		else if (++it->second.unusedFrames >= C_ICON_TEXTURE_CACHE_FRAMES)
+		{
+			it = m_iconTextureCache.erase(it);
+		}
+		else
+		{
+			++it;
+		}
+	}
+
+	if (m_context && m_commandPool && m_device && m_allocator)
+	{
+		for (GUID guid : usedIconTextures)
+		{
+			IconTexture &cached = m_iconTextureCache.try_emplace(guid).first->second;
+			if (!cached.resourceHandle.IsValid())
+			{
+				cached.resourceHandle = ResourceManager::GetInstance().LoadResource<Texture2DResource>(guid);
+			}
+
+			if (cached.image || !cached.resourceHandle.IsReady())
+			{
+				continue;
+			}
+
+			Texture2DResource *texture = cached.resourceHandle.Get();
+			if (!texture || texture->GetWidth() == 0 || texture->GetHeight() == 0)
+			{
+				continue;
+			}
+
+			cached.image = std::make_unique<Vulkan::Image>(
+				*m_allocator,
+				*m_commandPool,
+				*m_context,
+				texture->GetPixelData().data(),
+				texture->GetPixelData().size(),
+				texture->GetWidth(),
+				texture->GetHeight(),
+				vk::Format::eR8G8B8A8Unorm,
+				vk::ImageTiling::eOptimal,
+				vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+				vk::MemoryPropertyFlagBits::eDeviceLocal
+			);
+			cached.imageView = std::make_unique<Vulkan::ImageView>(
+				*m_device,
+				cached.image->Get(),
+				vk::Format::eR8G8B8A8Unorm,
+				vk::ImageAspectFlagBits::eColor
+			);
+
+			const vk::DescriptorSetAllocateInfo allocateInfo {
+				.descriptorPool = *m_descriptorPool,
+				.descriptorSetCount = 1,
+				.pSetLayouts = &*m_iconDescriptorSetLayout
+			};
+			cached.descriptorSet = std::move(m_device->allocateDescriptorSets(allocateInfo).front());
+
+			const vk::DescriptorImageInfo imageInfo {
+				.sampler = m_iconSampler.Get(),
+				.imageView = cached.imageView->Get(),
+				.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
+			};
+			const vk::WriteDescriptorSet descriptorWrite {
+				.dstSet = cached.descriptorSet,
+				.dstBinding = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eCombinedImageSampler,
+				.pImageInfo = &imageInfo
+			};
+			m_device->updateDescriptorSets(descriptorWrite, {});
+		}
+	}
 
 	// Generate all but icon draw data
 	// Combine all wireframe draw data into two meshes (depth + no depth) and all filled draw data into two other meshes
@@ -804,7 +936,22 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 		std::uint32_t firstVertex = p_firstVertex;
 		for (const auto &[icon, vertices] : p_meshes)
 		{
-			(void)icon; // TODO: Fetch the icon texture and bind it to the pipeline before drawing
+			const auto textureIt = m_iconTextureCache.find(icon);
+			if (textureIt == m_iconTextureCache.end() ||
+				textureIt->second.descriptorSet == nullptr ||
+				textureIt->second.image == nullptr)
+			{
+				firstVertex += static_cast<std::uint32_t>(vertices.size());
+				continue;
+			}
+
+			p_commandBuffer.bindDescriptorSets(
+				vk::PipelineBindPoint::eGraphics,
+				*m_iconPipelineLayout,
+				1,
+				*textureIt->second.descriptorSet,
+				nullptr
+			);
 
 			drawMesh(p_pipelineIndex, frame.iconBuffer, firstVertex, static_cast<std::uint32_t>(vertices.size()));
 			firstVertex += static_cast<std::uint32_t>(vertices.size());

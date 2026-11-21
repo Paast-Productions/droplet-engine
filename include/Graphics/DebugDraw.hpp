@@ -8,6 +8,11 @@
 #include <Math/Bounds/Sphere.hpp>
 #include <Math/Bounds/Frustum.hpp>
 #include <resource/GuidUtils.hpp>
+#include <Graphics/Vulkan/Sampler.hpp>
+#include <Graphics/Vulkan/Image.hpp>
+#include <Graphics/Vulkan/ImageView.hpp>
+#include <resource/StaticResourceHandle.hpp>
+#include <resource/types/Texture2DResource.hpp>
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include <vulkan/vulkan_raii.hpp>
@@ -16,12 +21,22 @@
 
 #include <array>
 #include <cstdint>
+#include <unordered_map>
+#include <unordered_set>
+#include <memory>
 
 namespace Droplet::Graphics
 {
 	// Forward declarations
 	class Renderer;
 	class Camera;
+}
+
+namespace Droplet::Graphics::Vulkan
+{
+	class Context;
+	class CommandPool;
+	class Sampler;
 }
 
 namespace Droplet::Graphics::Debug
@@ -262,8 +277,9 @@ namespace Droplet::Graphics::Debug
 			const vk::raii::PhysicalDevice &p_physicalDevice,
 			const vk::raii::Device &p_device,
 			const vma::raii::Allocator &p_allocator,
+			const Vulkan::Context &p_context,
 			const vk::raii::Queue &p_queue,
-			const vk::raii::CommandPool &p_commandPool,
+			const Vulkan::CommandPool &p_commandPool,
 			const vk::raii::DescriptorPool &p_descriptorPool,
 			vk::Format p_colorFormat,
 			vk::Format p_depthFormat,
@@ -376,6 +392,15 @@ namespace Droplet::Graphics::Debug
 			glm::vec2 texCoord;
 		};
 
+		struct IconTexture
+		{
+			StaticResourceHandle<Texture2DResource> resourceHandle{};
+			std::unique_ptr<Vulkan::Image> image{};
+			std::unique_ptr<Vulkan::ImageView> imageView{};
+			vk::raii::DescriptorSet descriptorSet { nullptr };
+			std::uint32_t unusedFrames = 0;
+		};
+
 		struct FrameResources
 		{
 			vma::raii::Buffer wireBuffer { nullptr };
@@ -427,6 +452,8 @@ namespace Droplet::Graphics::Debug
 		std::vector<Vertex> m_fillDepthMesh{};
 		std::map<GUID, std::vector<IconVertex>> m_iconMeshes{};
 		std::map<GUID, std::vector<IconVertex>> m_iconDepthMeshes{};
+		std::unordered_map<GUID, IconTexture> m_iconTextureCache{};
+		static constexpr std::uint32_t C_ICON_TEXTURE_CACHE_FRAMES = 120;
 
 		// Cached unit geometry by detail level.
 		std::map<int, std::vector<DbgTri>> m_icosphereCache{};
@@ -437,14 +464,18 @@ namespace Droplet::Graphics::Debug
 		const vk::raii::PhysicalDevice *m_physicalDevice = nullptr;
 		const vk::raii::Device *m_device = nullptr;
 		const vma::raii::Allocator *m_allocator = nullptr;
+		const Vulkan::Context *m_context = nullptr;
 		const vk::raii::Queue *m_queue = nullptr;
-		const vk::raii::CommandPool *m_commandPool = nullptr;
+		const Vulkan::CommandPool *m_commandPool = nullptr;
 		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
 		vk::Format m_colorFormat {};
 		vk::Format m_depthFormat {}; 
 		std::vector<FrameResources> m_frameResources {};
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
+		vk::raii::DescriptorSetLayout m_iconDescriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
+		vk::raii::PipelineLayout m_iconPipelineLayout { nullptr };
+		Vulkan::Sampler m_iconSampler { nullptr };
 		std::array<vk::raii::ShaderModule, 4> m_shaderModules
 		{
 			vk::raii::ShaderModule { nullptr },

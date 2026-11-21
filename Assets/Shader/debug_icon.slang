@@ -6,6 +6,7 @@ struct CameraUniform
 
 [[vk::binding(0, 0)]]
 ConstantBuffer<CameraUniform> camera;
+layout(set = 1, binding = 0) Sampler2D iconTexture;
 
 struct IconVertexInput
 {
@@ -34,5 +35,5 @@ IconVertexOutput iconVertMain(IconVertexInput input)
 [shader("fragment")]
 float4 iconFragMain(IconVertexOutput input) : SV_TARGET
 {
-    return input.color;
+    return input.color * iconTexture.Sample(input.texCoord);
 }
