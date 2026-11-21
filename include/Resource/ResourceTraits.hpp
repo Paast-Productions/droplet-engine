@@ -47,7 +47,7 @@ namespace Droplet
             }
             catch (std::exception &)
             {
-                // TODO: Log error
+                // TODO: (LOGGING) Log error
                 return nullptr;
             }
         }
@@ -59,7 +59,7 @@ namespace Droplet
     };
     
     
-    // TODO: Implement 3D texture traits
+    // TODO: (RESOURCES) Implement 3D texture traits
     // template<>
     // struct ResourceLoaderTraits<Texture2DResource>
     // {
@@ -71,7 +71,7 @@ namespace Droplet
     //     }
     // };
     
-    // TODO: Implement material traits
+    // TODO: (RESOURCES) Implement material traits
     // template<>
     // struct ResourceLoaderTraits<MaterialResource>
     // {
@@ -105,7 +105,7 @@ namespace Droplet
             }
             catch (std::exception &)
             {
-                // TODO: Log error
+                // TODO: (LOGGING) Log error
                 return nullptr;
             }
         }
@@ -136,7 +136,7 @@ namespace Droplet
             }
             catch (std::exception &)
             {
-                // TODO: Log error
+                // TODO: (LOGGING) Log error
                 return nullptr;
             }
         }
@@ -167,7 +167,7 @@ namespace Droplet
             }
             catch (std::exception &)
             {
-                // TODO: Log error
+                // TODO: (LOGGING) Log error
                 return nullptr;
             }
         }
@@ -200,7 +200,7 @@ namespace Droplet
             }
             catch (std::exception &)
             {
-                // TODO: Log error
+                // TODO: (LOGGING) Log error
                 return nullptr;
             }
         }

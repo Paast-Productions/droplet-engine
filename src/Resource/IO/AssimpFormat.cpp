@@ -36,7 +36,7 @@ namespace
 		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
 		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 		{
-			// TODO: Make not hardcoded
+			// TODO: (BOUNDS) Make not hardcoded
 
 			// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
 			const float attributes[8] = {
@@ -158,8 +158,6 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 	MeshResource mesh{};
 	mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
 		
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // TODO: Remove temp log
-
 	s_importer.FreeScene();
 
 	mesh.GenerateBVH();
@@ -303,9 +301,6 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 	assert(skinnedMesh.ValidateSkinnedVertexLayout() && "Vertex layout is invalid for skinned mesh.");
 
 	skinnedMesh.GenerateBoneBounds();
-
-	// Log Info: Successfully loaded p_meshFile
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // HACK: Temporary log
 
 	s_importer.FreeScene();
 

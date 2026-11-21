@@ -118,7 +118,7 @@ namespace Droplet::Graphics::Vulkan
 		};
 	
 		p_queue.submit(submitInfo);
-		p_queue.waitIdle(); // TODO: There is a risk that this becomes a bottleneck. Reconsider the suitability further up.
+		p_queue.waitIdle(); // TODO: (RENDERING) There is a risk that this becomes a bottleneck. Reconsider the suitability further up.
 	}
 
 }

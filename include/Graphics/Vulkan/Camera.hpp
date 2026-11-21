@@ -113,7 +113,7 @@ namespace Droplet::Graphics
 		/// @param p_aspect Camera aspect ratio
 		void SetAspect(float p_aspect) { m_aspect = p_aspect; }
 
-		// TODO: <REFACTOR>
+		// TODO: (RENDERING) <REFACTOR>
 		// The constructor takes a glm::vec2. Therefore either the ctor or this function should be changed
 		
 		/// @brief Sets the near and far clipping planes of the camera. 

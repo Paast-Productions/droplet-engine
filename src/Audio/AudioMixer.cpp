@@ -68,7 +68,7 @@ AudioBus* Droplet::Audio::AudioMixer::AddAudioBus(const std::string& p_name, Aud
 	}
 
 	SetBusParent(busPointer, p_parent);
-	busPointer->m_started = true; //HACK Maybe change this when doing deserialization of different mixes
+	busPointer->m_started = true; //HACK: (AUDIO) Maybe change this when doing deserialization of different mixes
 	m_nextBusID++;
 
 	return busPointer;

@@ -16,9 +16,9 @@ void Droplet::Editor::EditorClipboard::CopyNodes(const std::vector<nlohmann::jso
 
 std::optional<std::vector<nlohmann::json>> Droplet::Editor::EditorClipboard::PasteNodes()
 {
-	// HACK this assumes that we only will call this function and only this function when doing ctrl+v 
-	// HACK Maybe try catch should be implemented to fix this, but i heard we should avoid that
-	// HACK Gupta made this... blame him in the future for being lazy and asssuming stuff
+	// HACK: (EDITOR) this assumes that we only will call this function and only this function when doing ctrl+v 
+	// HACK: (EDITOR) Maybe try catch should be implemented to fix this, but i heard we should avoid that
+	// HACK: (GUPTA) Gupta made this... blame him in the future for being lazy and asssuming stuff
 	const char *clipboardText = ImGui::GetClipboardText();
 
 

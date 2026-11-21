@@ -76,7 +76,7 @@ namespace Droplet::IO::GliFormat
 
         if (!gli::save(texture2D, p_outputPath.generic_string()))
         {
-            // TODO: Use logger to log error
+            // TODO: (LOGGING) Use logger to log error
             std::cout << "Could not save KTX file" << std::endl;
         }
         
@@ -89,7 +89,7 @@ namespace Droplet::IO::GliFormat
 
         bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
         generateMipMaps;
-        // TODO: Use load setting
+        // TODO: (RESOURCES) Use load setting
         // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
         // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
 

@@ -4,7 +4,7 @@
 
 namespace Droplet::Graphics::Vulkan
 {
-	//TODO: Make sampler modular
+	//TODO: (RENDERING) Make sampler modular
 	class Sampler
 	{
 	public:

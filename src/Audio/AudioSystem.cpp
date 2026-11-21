@@ -648,7 +648,7 @@ bool Droplet::Audio::AudioSystem::ChangeEffectSetting(dalia::EffectHandle &p_eff
 
 void Droplet::Audio::AudioSystem::RegisterEffects()
 {
-    //TODO Every effect type that we create in droplet gets registered here to be used later
+    //TODO: (AUDIO) Every effect type that we create in droplet gets registered here to be used later
     //EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
     EffectRegistry::RegisterEffect("LowPassEffect", []() {return std::make_unique<LowPassEffect>();});
     EffectRegistry::RegisterEffect("HighPassEffect", []() {return std::make_unique<HighPassEffect>();});
