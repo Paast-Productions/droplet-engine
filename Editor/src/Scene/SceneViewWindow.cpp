@@ -226,9 +226,6 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	// TODO: (RENDERING)
-	//     Move this to the renderer and camera class. 
-	//     The camera should request the renderer to create a render target.
 	using namespace Graphics::Vulkan;
 
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
