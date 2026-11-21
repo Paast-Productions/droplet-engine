@@ -386,6 +386,9 @@ void ParticleEmitterComponent::EditorUpdateImpl()
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
 		return;
 
+	if (!IsActive())
+		return;
+
 	const float deltaTime = Time::Get().GetDeltaTime();
 	UpdateEmitter(deltaTime);
 
