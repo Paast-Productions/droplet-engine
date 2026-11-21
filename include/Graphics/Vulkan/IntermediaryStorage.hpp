@@ -358,9 +358,6 @@ namespace Droplet::Graphics::Vulkan
         // Currently loading Shaders
         std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
 
-        // Currently loading Shaders
-        std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
-
         // TODO: (RENDERING) Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
