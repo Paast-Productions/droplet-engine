@@ -161,7 +161,7 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		// HACK: (SCENE) Resetting rotation to zero doesn't consistently undo all rotation. 
+		// HACK: (EDITOR) Resetting rotation to zero doesn't consistently undo all rotation. 
 		// Added a right-click context menu to reset rotation to alleviate issue.
 
 		if (ImGui::BeginPopupContextItem("Rotation Context Menu"))
