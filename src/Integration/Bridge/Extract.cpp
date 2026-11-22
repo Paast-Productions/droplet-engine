@@ -92,6 +92,28 @@ namespace Bridge
         }
     }
 
+    void ResolveTargetReads(RenderWorld& world)
+    {
+        for (RenderView& view : world.views)
+        {
+            for (const std::uint32_t objectIndex : view.visible)
+            {
+                const Common::ImageRef& image = world.objects[objectIndex].imageTexture;
+                if (image.kind != Common::ImageRef::Kind::RenderTarget)
+                    continue;
+
+                // undeclared target: not read this frame
+                if (std::ranges::none_of(world.targets, [&image](const Common::RenderTargetDesc& desc) { return desc.id == image.id; }))
+                    continue;
+                if (image.id == view.targetId)
+                    view.needsHistory = true; // sees its own output
+                else if (std::ranges::find(view.readIds, image.id) == view.readIds.end())
+                    view.readIds.push_back(image.id);
+            }
+        }
+        BreakViewLoops(world);
+    }
+
     RenderWorld Extract(const Game::Scene& scene, std::span<const ExternalCamera> externalCameras)
     {
         RenderWorld world;
@@ -123,37 +145,11 @@ namespace Bridge
             world.objects.emplace_back(renderObject);
         }
 
-        // a view of the meshes in `visibleNodes`, with the render targets they show as reads
+        // a view of the meshes in `visibleNodes`
         const auto addView = [&](RenderView camera, const std::vector<std::uint32_t>& visibleNodes)
         {
             for (const std::uint32_t nodeIndex : visibleNodes)
-            {
-                const std::uint32_t index = objectOfNode[nodeIndex];
-                const auto& renderObject = world.objects[index];
-
-                camera.visible.push_back(index);
-
-                if (renderObject.imageTexture.kind != Common::ImageRef::Kind::RenderTarget)
-                    continue;
-
-                // a target the scene does not declare is not read (nothing renders it)
-                const Guid sampledTarget = renderObject.imageTexture.id;
-                const auto declaresSampledTarget = [sampledTarget](const Common::RenderTargetDesc& desc)
-                {
-                    return desc.id == sampledTarget;
-                };
-                if (std::ranges::none_of(world.targets, declaresSampledTarget))
-                    continue;
-                if (sampledTarget == camera.targetId)
-                {
-                    // the camera sees its own output: it reads last frame's copy (history)
-                    camera.needsHistory = true;
-                }
-                else if (std::ranges::find(camera.readIds, sampledTarget) == camera.readIds.end())
-                {
-                    camera.readIds.push_back(sampledTarget);
-                }
-            }
+                camera.visible.push_back(objectOfNode[nodeIndex]);
             world.views.push_back(std::move(camera));
         };
 
@@ -220,7 +216,7 @@ namespace Bridge
             addView(std::move(camera), scene.CullNodes(matrices));
         }
 
-        BreakViewLoops(world);
+        ResolveTargetReads(world);
 
         return world;
     }

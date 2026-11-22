@@ -36,7 +36,9 @@ namespace
         case Common::ImageRef::Kind::RenderTarget:
             if (const Render::TargetHandle target = ResolveTarget(image.id, targetHandles); target.IsValid())
                 return target;
-            return gpu.PlaceholderTexture(); // a target the scene does not declare
+            if (const Render::TargetHandle idle = gpu.FindTarget(image.id); idle.IsValid())
+                return idle; // its last image
+            return gpu.PlaceholderTexture(); // never rendered
         case Common::ImageRef::Kind::None:
             break;
         }
@@ -289,6 +291,10 @@ Render::PreparedFrame Vulkan::Prepare(
                     material = substitute->history.IsValid()
                                    ? Render::ImageBinding{substitute->history}
                                    : Render::ImageBinding{gpu.PlaceholderTexture()};
+                }
+                else if (std::ranges::find(list.reads, *sampledTarget) == list.reads.end())
+                {
+                    list.reads.push_back(*sampledTarget); // idle target
                 }
             }
 

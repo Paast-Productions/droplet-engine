@@ -28,6 +28,9 @@ namespace Bridge
     /// GPU calls; Vulkan::Prepare turns the world into draw lists.
     Render::RenderWorld Extract(const Game::Scene& scene, std::span<const ExternalCamera> externalCameras = {});
 
+    /// @brief Fills each view's render-target reads and breaks loops between views
+    void ResolveTargetReads(Render::RenderWorld& world);
+
     /// Prints all of a RenderWorld's views, what they see, and what they depend on
     void Describe(const Render::RenderWorld& world, const Game::Scene& scene);
 }
