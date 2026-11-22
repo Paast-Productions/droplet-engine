@@ -107,9 +107,9 @@ namespace Vulkan
         Render::TextureHandle UploadTexture(const Assets::TextureUpload& upload);
 
         /// @brief The mesh to draw for `id`, marked used: the resident one, or the placeholder cube.
-        Render::MeshHandle ResolveMesh(Guid id);
+        Render::MeshHandle ResolveMesh(Droplet::GUID id);
         /// @brief The texture to draw for `id`, marked used: the resident one, or the placeholder texture.
-        Render::TextureHandle ResolveTexture(Guid id);
+        Render::TextureHandle ResolveTexture(Droplet::GUID id);
 
         /// @brief Adds the resident meshes and textures, with the revisions they were uploaded from, to `resident`.
         void AppendResident(Assets::ResidentAssets& resident) const;
@@ -122,15 +122,15 @@ namespace Vulkan
         [[nodiscard]] Render::TextureHandle WhiteTexture() const noexcept { return m_whiteTexture; }
 
         /// @brief The resident mesh for `id`, marked used; invalid if it was never uploaded or has been evicted.
-        Render::MeshHandle FindMesh(Guid id);
+        Render::MeshHandle FindMesh(Droplet::GUID id);
         /// @brief The resident texture for `id`, marked used; invalid if it was never uploaded or has been evicted.
-        Render::TextureHandle FindTexture(Guid id);
+        Render::TextureHandle FindTexture(Droplet::GUID id);
 
         /// @brief The target for `desc`, marked used; created the first time, and replaced (new handle, new history)
         ///        when its size or format changed
         Render::TargetHandle GetOrCreateTarget(const Common::RenderTargetDesc& desc);
         /// @brief The existing target for `id`, marked used (it keeps its contents); invalid if there is none
-        Render::TargetHandle FindTarget(Guid id);
+        Render::TargetHandle FindTarget(Droplet::GUID id);
         Render::TargetHandle GetOrCreateHistory(Render::TargetHandle target);
 
         /// @brief A mesh without a GUID (debug or procedural geometry); never evicted, the caller releases it.
@@ -190,10 +190,10 @@ namespace Vulkan
         HandlePool<Render::TargetTag, GpuRenderTarget> m_targets;
 
         // only resources in a lookup are evicted (dynamic meshes are not in one)
-        std::unordered_map<Guid, Render::MeshHandle> m_meshLookup;
-        std::unordered_map<Guid, std::uint64_t> m_rejectedMeshes; ///< revision last reported as unusable
-        std::unordered_map<Guid, Render::TextureHandle> m_textureLookup;
-        std::unordered_map<Guid, Render::TargetHandle> m_targetLookup;
+        std::unordered_map<Droplet::GUID, Render::MeshHandle> m_meshLookup;
+        std::unordered_map<Droplet::GUID, std::uint64_t> m_rejectedMeshes; ///< revision last reported as unusable
+        std::unordered_map<Droplet::GUID, Render::TextureHandle> m_textureLookup;
+        std::unordered_map<Droplet::GUID, Render::TargetHandle> m_targetLookup;
         std::unordered_map<std::uint64_t, Render::TargetHandle> m_historyLookup; ///< by the source target's Key()
 
         // == Placeholders == (no GUID, so never evicted)

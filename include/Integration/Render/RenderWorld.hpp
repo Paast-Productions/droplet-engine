@@ -13,7 +13,7 @@ namespace Render
 {
     /// @brief GUID of the default scene shader, drawn with by objects without a (working) shader. A shader asset under
     ///        this GUID in the asset store replaces the renderer's built-in one (Shaders/scene.slang).
-    inline constexpr Guid DEFAULT_SCENE_SHADER = Guid::FromName("shader/scene");
+    inline constexpr Droplet::GUID DEFAULT_SCENE_SHADER = GuidFromName("shader/scene");
 
     /// @brief Half the edge of the placeholder cube the renderer draws for a mesh it does not have. Extract culls an
     ///        object whose mesh is not in the storage with this cube's bounds.
@@ -24,9 +24,9 @@ namespace Render
     {
         glm::mat4 transform{1.0f};
         std::uint32_t sourceNode = 0;  ///< index into Scene::nodes; a camera skips its own node's object
-        Guid meshId;                   ///< MeshAsset id
+        Droplet::GUID meshId{ Droplet::C_INVALID_GUID }; ///< MeshAsset id
         Common::ImageRef imageTexture; ///< texture asset or render target, by id
-        Guid shaderId;                 ///< ShaderAsset id; invalid: the default scene shader
+        Droplet::GUID shaderId{ Droplet::C_INVALID_GUID }; ///< ShaderAsset id; invalid: the default scene shader
         std::uint64_t meshRevision{ 0 };    ///< the storage's revision of meshId; 0: not in the storage
         std::uint64_t textureRevision{ 0 }; ///< the storage's revision of a texture imageTexture
         std::uint64_t shaderRevision{ 0 };  ///< the storage's revision of shaderId
@@ -55,7 +55,7 @@ namespace Render
         std::vector<std::uint32_t> indices; ///< into vertexData; empty: drawn in vertex order
         glm::mat4 transform{1.0f};
         Common::ImageRef imageTexture;      ///< P3N3UV2 only: a texture asset (a render target shows the placeholder)
-        Guid shaderId;                      ///< P3N3UV2 only; invalid: the default scene shader
+        Droplet::GUID shaderId{ Droplet::C_INVALID_GUID }; ///< P3N3UV2 only; invalid: the default scene shader
         bool transparent = false;           ///< P3N3UV2: alpha blended without depth writes, after the opaque draws
         bool depthTest = true;              ///< false: drawn over everything, after the rest
     };
@@ -69,12 +69,12 @@ namespace Render
         glm::vec4 clearColor{0.05f, 0.05f, 0.08f, 1.0f}; ///< the target's colour before the view draws
         std::vector<std::uint32_t> visible; ///< indices into RenderWorld::objects
 
-        Guid targetId;              ///< RenderTargetDesc id of what this camera draws to
+        Droplet::GUID targetId{ Droplet::C_INVALID_GUID }; ///< RenderTargetDesc id of what this camera draws to
         bool needsHistory = false;  ///< the target keeps a previous-frame copy: this view or a loop-breaking read samples it
-        std::vector<Guid> readIds;  ///< other targets sampled by visible objects, this frame's contents
+        std::vector<Droplet::GUID> readIds; ///< other targets sampled by visible objects, this frame's contents
         /// other views' targets sampled as last frame's copy, because reading this frame's would close a loop between
         /// views (e.g. C sees A's screen while A sees C's)
-        std::vector<Guid> previousReadIds;
+        std::vector<Droplet::GUID> previousReadIds;
         std::vector<Common::PostEffectDesc> effects; ///< enabled effects of the node's PostProcessComponent
         std::vector<std::uint32_t> dynamicVisible;   ///< indices into RenderWorld::dynamicDraws
     };
@@ -87,7 +87,7 @@ namespace Render
         std::vector<DynamicDraw> dynamicDraws; ///< this frame's dynamic geometry, shown by the views that list it
         /// Every render target the world refers to, copied from the scene
         std::vector<Common::RenderTargetDesc> targets;
-        Guid presentedId;       ///< target the frame presents
+        Droplet::GUID presentedId{ Droplet::C_INVALID_GUID }; ///< target the frame presents
         /// the storage's revision of its override of the default scene shader (Render::DEFAULT_SCENE_SHADER);
         /// 0: no override, the renderer's built-in one is used
         std::uint64_t defaultShaderRevision{ 0 };

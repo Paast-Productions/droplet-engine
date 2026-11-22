@@ -57,8 +57,8 @@ namespace Vulkan
      */
     struct GraphicsPipelineDesc
     {
-        Guid vertexShader{};
-        Guid fragmentShader{};            ///< Leave default (null) for depth-only pipelines
+        Droplet::GUID vertexShader{};
+        Droplet::GUID fragmentShader{};   ///< Leave default (null) for depth-only pipelines
         bool hasFragmentShader = true;
 
         vk::PipelineLayout layout{};      ///< Non-owning; layouts live longer than pipelines

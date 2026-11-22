@@ -181,12 +181,12 @@ namespace Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
-		const Guid& shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
+		Droplet::GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
 		constexpr auto binding = Vertex::P3N3UV2::GetBindingDescription();
 		constexpr auto attributes = Vertex::P3N3UV2::GetAttributeDescription();
 
-		// Depth range 0..1 (glm::perspectiveRH_ZO), cleared to 1.0, so "less" keeps the nearest fragment.
+		// Depth range 0..1 (glm::perspectiveRH_ZO), cleared to 1.0, so "less" keeps the nearest fragment
 		const bool hasDepth = depthFormat != vk::Format::eUndefined;
 
 		return GraphicsPipelineDesc{
@@ -218,7 +218,7 @@ namespace Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakeDynamicPipelineDesc(
-		const Guid& shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
+		Droplet::GUID shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent, bool depthTest) const
 	{
 		const bool vertexColor = layout == Render::DynamicVertexLayout::P3C4;

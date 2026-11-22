@@ -21,7 +21,7 @@ namespace Bridge
     namespace
     {
         /// Copies the scene's description of target `id` into the world once. Returns false if the scene has none.
-        bool CollectTarget(RenderWorld& world, const Game::Scene& scene, Guid id)
+        bool CollectTarget(RenderWorld& world, const Game::Scene& scene, Droplet::GUID id)
         {
             if (std::ranges::any_of(world.targets, [id](const Common::RenderTargetDesc& desc)
             {
@@ -29,7 +29,7 @@ namespace Bridge
             }))
                 return true;
 
-            const Common::RenderTargetDesc* desc = scene.FindTarget(id);
+            const Common::RenderTargetDesc* desc = scene.FindTarget(Guid{ id });
             if (!desc)
                 return false;
 
@@ -41,13 +41,13 @@ namespace Bridge
         ///        still on the search path (the edges that close a loop).
         void FindLoopReads(
             const RenderWorld& world,
-            const std::unordered_map<Guid, std::uint32_t>& viewOfTarget,
+            const std::unordered_map<Droplet::GUID, std::uint32_t>& viewOfTarget,
             std::uint32_t viewIndex,
             std::vector<std::uint8_t>& visitState, // 0 not visited, 1 on the search path, 2 done
-            std::vector<std::pair<std::uint32_t, Guid>>& loopReads)
+            std::vector<std::pair<std::uint32_t, Droplet::GUID>>& loopReads)
         {
             visitState[viewIndex] = 1;
-            for (const Guid readId : world.views[viewIndex].readIds)
+            for (const Droplet::GUID readId : world.views[viewIndex].readIds)
             {
                 const auto ownerIt = viewOfTarget.find(readId);
                 if (ownerIt == viewOfTarget.end())
@@ -69,13 +69,13 @@ namespace Bridge
         ///        searched in declaration order.
         void BreakViewLoops(RenderWorld& world)
         {
-            std::unordered_map<Guid, std::uint32_t> viewOfTarget;
+            std::unordered_map<Droplet::GUID, std::uint32_t> viewOfTarget;
             for (std::uint32_t viewIndex = 0; viewIndex < world.views.size(); ++viewIndex)
                 viewOfTarget.emplace(world.views[viewIndex].targetId, viewIndex);
 
             // removing every edge that closes a loop in a depth-first search leaves no loop
             std::vector<std::uint8_t> visitState(world.views.size(), 0);
-            std::vector<std::pair<std::uint32_t, Guid>> loopReads;
+            std::vector<std::pair<std::uint32_t, Droplet::GUID>> loopReads;
             for (std::uint32_t viewIndex = 0; viewIndex < world.views.size(); ++viewIndex)
             {
                 if (visitState[viewIndex] == 0)
@@ -167,7 +167,7 @@ namespace Bridge
 
             if (node.camera->present)
             {
-                if (world.presentedId.IsValid())
+                if (world.presentedId != Droplet::C_INVALID_GUID)
                 {
                     std::println("Extract: more than one camera set to present; {} is ignored.", node.name);
                 }
@@ -193,13 +193,13 @@ namespace Bridge
             addView(std::move(camera), sceneView.visibleNodes);
         }
 
-        if (!world.presentedId.IsValid() && !world.views.empty())
+        if (world.presentedId == Droplet::C_INVALID_GUID && !world.views.empty())
             world.presentedId = world.views.back().targetId;
 
         // 3. cameras from outside the scene (the editor's): culled the same way, into targets of their own
         for (const ExternalCamera& external : externalCameras)
         {
-            if (!external.target.id.IsValid() ||
+            if (external.target.id == Droplet::C_INVALID_GUID ||
                 std::ranges::any_of(world.targets, [&external](const Common::RenderTargetDesc& desc)
                 {
                     return desc.id == external.target.id;
@@ -223,7 +223,7 @@ namespace Bridge
 
     void Describe(const RenderWorld& world, const Game::Scene& scene)
     {
-        const auto targetName = [&](Guid targetId)
+        const auto targetName = [&](Droplet::GUID targetId)
         {
             for (const auto& view : world.views)
                 if (view.targetId == targetId)
@@ -238,11 +238,11 @@ namespace Bridge
             {
                 std::println("  sees  : {}", scene.nodes[world.objects[index].sourceNode].name);
             }
-            for (const Guid readTarget : view.readIds)
+            for (const Droplet::GUID readTarget : view.readIds)
             {
                 std::println("  reads : output of '{}'", targetName(readTarget));
             }
-            for (const Guid previousTarget : view.previousReadIds)
+            for (const Droplet::GUID previousTarget : view.previousReadIds)
             {
                 std::println("  reads : previous frame of '{}' (breaks a loop)", targetName(previousTarget));
             }

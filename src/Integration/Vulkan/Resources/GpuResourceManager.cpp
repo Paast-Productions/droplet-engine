@@ -273,7 +273,7 @@ namespace Vulkan
         return m_targets.Add(std::move(gpu));
     }
 
-    Render::MeshHandle GpuResourceManager::FindMesh(Guid id)
+    Render::MeshHandle GpuResourceManager::FindMesh(Droplet::GUID id)
     {
         const auto cachedMesh = m_meshLookup.find(id);
         if (cachedMesh == m_meshLookup.end())
@@ -285,7 +285,7 @@ namespace Vulkan
         return cachedMesh->second;
     }
 
-    Render::TextureHandle GpuResourceManager::FindTexture(Guid id)
+    Render::TextureHandle GpuResourceManager::FindTexture(Droplet::GUID id)
     {
         const auto cachedTexture = m_textureLookup.find(id);
         if (cachedTexture == m_textureLookup.end())
@@ -307,7 +307,7 @@ namespace Vulkan
                 rejectedIt == m_rejectedMeshes.end() || rejectedIt->second < upload.revision)
             {
                 std::println("GpuResourceManager: mesh {:016x} has a vertex stride of {} bytes ({} bytes of data); the scene "
-                             "layout needs {}. Not uploaded", upload.id.value, upload.vertexStride,
+                             "layout needs {}. Not uploaded", upload.id, upload.vertexStride,
                              upload.vertexData.size(), sizeof(Vertex::P3N3UV2));
                 m_rejectedMeshes.insert_or_assign(upload.id, upload.revision);
             }
@@ -379,13 +379,13 @@ namespace Vulkan
         return m_textures.Add(std::move(gpu));
     }
 
-    Render::MeshHandle GpuResourceManager::ResolveMesh(Guid id)
+    Render::MeshHandle GpuResourceManager::ResolveMesh(Droplet::GUID id)
     {
         const Render::MeshHandle resident = FindMesh(id);
         return m_meshes.Get(resident) ? resident : m_placeholderMesh;
     }
 
-    Render::TextureHandle GpuResourceManager::ResolveTexture(Guid id)
+    Render::TextureHandle GpuResourceManager::ResolveTexture(Droplet::GUID id)
     {
         const Render::TextureHandle resident = FindTexture(id);
         return m_textures.Get(resident) ? resident : m_placeholderTexture;
@@ -441,7 +441,7 @@ namespace Vulkan
         return handle;
     }
 
-    Render::TargetHandle GpuResourceManager::FindTarget(Guid id)
+    Render::TargetHandle GpuResourceManager::FindTarget(Droplet::GUID id)
     {
         const auto cachedTarget = m_targetLookup.find(id);
         if (cachedTarget == m_targetLookup.end())

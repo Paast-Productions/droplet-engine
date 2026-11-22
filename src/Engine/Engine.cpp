@@ -30,8 +30,7 @@
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <Graphics/DebugDraw.hpp>
 
-// TEMP TEMP TEMP TEMP
-#include "AssetProvider.hpp"
+#include "Integration/Bridge/AssetProvider.hpp"
 #include "Integration/Bridge/Extract.hpp"
 
 using namespace Droplet;
@@ -68,24 +67,19 @@ static bool AssertFailedImpl(const char* inExpression, const char* inMessage, co
 // TEMP TEMP TEMP TEMP the bridge from production's scene output and resources to the sandbox renderer
 namespace
 {
-    // -- GUIDs --
-
-    Guid ToSandboxGuid(GUID p_guid) { return Guid{ p_guid }; }
-    GUID ToProductionGuid(Guid p_guid) { return GUID{ p_guid.value }; }
-
     // -- Assets --
 
     /// @brief The entry for `id` in `assets`, or nullptr
-    const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Guid id)
+    const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Droplet::GUID id)
     {
         const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
         return assetIt != assets.end() ? &*assetIt : nullptr;
     }
 
     /// @brief Adds the mesh to `uploads` once the resource manager has loaded it
-    void AddMesh(ResourceManager& resMan, Assets::AssetUploads& uploads, Guid id)
+    void AddMesh(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
     {
-        const auto* mesh = resMan.GetResource<MeshResource>(ToProductionGuid(id));
+        const auto* mesh = resMan.GetResource<MeshResource>(id);
         if (!mesh || mesh->GetVertexData().empty() || mesh->GetIndexData().empty())
             return; // not loaded (yet): the placeholder cube
 
@@ -99,9 +93,9 @@ namespace
     }
 
     /// @brief Adds the texture's top mip level to `uploads` once the resource manager has loaded it
-    void AddTexture(ResourceManager& resMan, Assets::AssetUploads& uploads, Guid id)
+    void AddTexture(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
     {
-        const auto* texture = resMan.GetResource<Texture2DResource>(ToProductionGuid(id));
+        const auto* texture = resMan.GetResource<Texture2DResource>(id);
         if (!texture)
         {            return; // not loaded (yet): the placeholder texture
         }
@@ -130,7 +124,7 @@ namespace
     }
 
     /// @brief Adds the default scene shader; production's own shaders need bindless
-    void AddShader(Assets::AssetUploads& uploads, Guid id)
+    void AddShader(Assets::AssetUploads& uploads, Droplet::GUID id)
     {
         if (id != Render::DEFAULT_SCENE_SHADER)
             return;
@@ -147,17 +141,17 @@ namespace
         ResourceManager& resMan = ResourceManager::GetInstance();
         Assets::AssetUploads uploads;
 
-        for (const Guid id : required.meshes)
+        for (const Droplet::GUID id : required.meshes)
         {
             if (!Find(resident.meshes, id))
                 AddMesh(resMan, uploads, id);
         }
-        for (const Guid id : required.textures)
+        for (const Droplet::GUID id : required.textures)
         {
             if (!Find(resident.textures, id))
                 AddTexture(resMan, uploads, id);
         }
-        for (const Guid id : required.shaders)
+        for (const Droplet::GUID id : required.shaders)
         {
             if (!Find(resident.shaders, id) && !Find(resident.failedShaders, id))
                 AddShader(uploads, id);
@@ -198,8 +192,8 @@ namespace
         for (const Graphics::CameraRenderData& camera : p_cameras)
         {
             const Graphics::Common::RenderDesc& target = camera.renderTarget;
-            const Guid targetId = ToSandboxGuid(target.id);
-            if (!targetId.IsValid() || target.extent.width == 0 || target.extent.height == 0)
+            const Droplet::GUID targetId = target.id;
+            if (targetId == C_INVALID_GUID || target.extent.width == 0 || target.extent.height == 0)
                 continue;
             if (std::ranges::any_of(world.targets, [&](const ::Common::RenderTargetDesc& desc) { return desc.id == targetId; }))
                 continue; // one writer per target
@@ -222,9 +216,9 @@ namespace
             // already culled by the scene
             for (const Graphics::RenderData& object : camera.renderData)
             {
-                const Guid textureId = ToSandboxGuid(object.texData.GUID);
+                const Droplet::GUID textureId = object.texData.GUID;
                 const ::Common::ImageRef image{
-                    .kind = !textureId.IsValid() ? ::Common::ImageRef::Kind::None
+                    .kind = textureId == C_INVALID_GUID ? ::Common::ImageRef::Kind::None
                           : object.texData.isRenderTarget ? ::Common::ImageRef::Kind::RenderTarget
                                                           : ::Common::ImageRef::Kind::Texture,
                     .id = textureId };
@@ -232,7 +226,7 @@ namespace
                 view.visible.push_back(static_cast<std::uint32_t>(world.objects.size()));
                 world.objects.push_back({
                     .transform = object.transform,
-                    .meshId = ToSandboxGuid(object.meshData.GUID),
+                    .meshId = object.meshData.GUID,
                     .imageTexture = image,
                     .transparent = object.transparent }); // shaderId invalid: the default shader
             }
