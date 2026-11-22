@@ -46,7 +46,11 @@ namespace Droplet::Scene
 
         /// @brief Gets the GUID of the assigned 2D texture resource.
         /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
-        [[nodiscard]] GUID GetTextureGUID() const { return m_2dTexture.GetGUID(); }
+        [[nodiscard]] GUID GetTextureGUID() const { return m_textureIsTarget ? m_textureTarget : m_2dTexture.GetGUID(); }
+
+        /// @brief Shows a camera's output (its target id) instead of a texture resource
+        void SetTextureTarget(GUID p_targetId, const std::string &p_displayName);
+        [[nodiscard]] bool IsTextureRenderTarget() const { return m_textureIsTarget; }
         
         void SetVSGUID(GUID p_guid);
         [[nodiscard]] GUID GetVSGUID() const { return m_shaderData.vs.GetGUID(); }
@@ -84,6 +88,10 @@ namespace Droplet::Scene
     private:
         // Settings
 		bool m_transparent = false;
+
+        // A texture that is not a resource
+        GUID m_textureTarget = C_INVALID_GUID; ///< a camera's target id, when m_textureIsTarget
+        bool m_textureIsTarget = false;
 
         // Resource handles
         StaticResourceHandle<MeshResource> m_mesh {};

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <span>
+#include <unordered_map>
 #include <vector>
 
 // TEMP TEMP TEMP TEMP
