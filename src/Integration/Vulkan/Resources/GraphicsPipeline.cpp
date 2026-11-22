@@ -63,8 +63,8 @@ namespace Vulkan
     std::uint64_t GraphicsPipelineDesc::Hash() const
     {
         std::uint64_t seed = 0;
-        HashCombine(seed, vertexShader.value);
-        HashCombine(seed, fragmentShader.value);
+        HashCombine(seed, vertexShader);
+        HashCombine(seed, fragmentShader);
         HashCombine(seed, hasFragmentShader ? 1u : 0u);
         HashCombine(seed, reinterpret_cast<std::uint64_t>(static_cast<VkPipelineLayout>(layout)));
 

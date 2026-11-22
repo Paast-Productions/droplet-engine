@@ -22,12 +22,12 @@ namespace Vulkan
 
     ShaderLibrary::~ShaderLibrary() = default;
 
-    bool ShaderLibrary::IsReady(const Guid& id) const
+    bool ShaderLibrary::IsReady(Droplet::GUID id) const
     {
         return Find(id, vk::ShaderStageFlagBits::eVertex) && Find(id, vk::ShaderStageFlagBits::eFragment);
     }
 
-    bool ShaderLibrary::GetOrCreate(const Guid& id, const Common::ShaderDesc& asset, std::uint64_t revision)
+    bool ShaderLibrary::GetOrCreate(Droplet::GUID id, const Common::ShaderDesc& asset, std::uint64_t revision)
     {
         if (IsReady(id))
         {
@@ -71,23 +71,23 @@ namespace Vulkan
         }
     }
 
-    void ShaderLibrary::SetDefault(const Guid& overrideId, const Guid& builtInId, Common::ShaderDesc builtIn)
+    void ShaderLibrary::SetDefault(Droplet::GUID overrideId, Droplet::GUID builtInId, Common::ShaderDesc builtIn)
     {
         m_defaultOverride = overrideId;
         m_builtInDefault = builtInId;
         m_builtInAsset = std::move(builtIn);
     }
 
-    Guid ShaderLibrary::ResolveDefault()
+    Droplet::GUID ShaderLibrary::ResolveDefault()
     {
-        const Guid builtIn = m_builtInDefault;
+        const Droplet::GUID builtIn = m_builtInDefault;
         if (!IsReady(builtIn) && !HasFailed(builtIn))
             GetOrCreate(builtIn, m_builtInAsset);
-        const Guid fallback = IsReady(builtIn) ? builtIn : Guid{};
+        const Droplet::GUID fallback = IsReady(builtIn) ? builtIn : Droplet::C_INVALID_GUID;
         return IsReady(m_defaultOverride) ? m_defaultOverride : fallback;
     }
 
-    Guid ShaderLibrary::Resolve(const Guid& id, const Guid& fallback)
+    Droplet::GUID ShaderLibrary::Resolve(Droplet::GUID id, Droplet::GUID fallback)
     {
         return IsReady(id) ? id : fallback;
     }
@@ -103,7 +103,7 @@ namespace Vulkan
             resident.failedShaders.push_back({ .id = id, .revision = revision });
     }
 
-    const Shader& ShaderLibrary::Set(const Guid& id, const ShaderCreateInfo& info)
+    const Shader& ShaderLibrary::Set(Droplet::GUID id, const ShaderCreateInfo& info)
     {
         // Safe even if pipelines were built from the previous shader: modules are not
         // referenced by pipelines after creation.
@@ -112,13 +112,13 @@ namespace Vulkan
         return *slot;
     }
 
-    const Shader* ShaderLibrary::Find(const Guid& id, vk::ShaderStageFlagBits stage) const
+    const Shader* ShaderLibrary::Find(Droplet::GUID id, vk::ShaderStageFlagBits stage) const
     {
         const auto shaderIt = m_shaders.find({id, stage});
         return shaderIt != m_shaders.end() ? shaderIt->second.get() : nullptr;
     }
 
-    const Shader& ShaderLibrary::Get(const Guid& id, vk::ShaderStageFlagBits stage) const
+    const Shader& ShaderLibrary::Get(Droplet::GUID id, vk::ShaderStageFlagBits stage) const
     {
         if (const Shader* shader = Find(id, stage))
             return *shader;

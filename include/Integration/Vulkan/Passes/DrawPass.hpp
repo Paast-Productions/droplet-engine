@@ -69,11 +69,11 @@ namespace Vulkan
 
         /// @brief The pipeline description for drawing with `shader` into the given attachment formats.
         [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
-            const Guid& shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
+            Droplet::GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
 
         /// @brief The pipeline description for dynamic geometry of `layout` (P3C4 ignores `transparent`: it always blends)
         [[nodiscard]] GraphicsPipelineDesc MakeDynamicPipelineDesc(
-            const Guid& shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
+            Droplet::GUID shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent, bool depthTest) const;
 
         /// @brief Writes every view's SceneViewUniforms and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame

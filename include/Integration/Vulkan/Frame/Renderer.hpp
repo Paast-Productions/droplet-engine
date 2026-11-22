@@ -68,7 +68,7 @@ namespace Vulkan
         /// @brief The backend's per-frame start. Call before ImGui::NewFrame
         void NewImGuiFrame();
         /// @brief The images an ImGui frame shows by ImGuiTextureId (for Bridge::RequiredAssetsOf)
-        [[nodiscard]] static std::vector<Guid> ImGuiImages(const ImDrawData& overlay);
+        [[nodiscard]] static std::vector<Droplet::GUID> ImGuiImages(const ImDrawData& overlay);
 #endif
 
         /// @brief Uploads assets (see RenderDevice::Upload). Call between frames; the spans only have to live until

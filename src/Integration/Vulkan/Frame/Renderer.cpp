@@ -37,7 +37,7 @@ namespace
     /// The renderer's own default scene shader, under its own GUID: objects without a shader (or with one that is
     /// missing or broken) use it until the asset storage's override (Render::DEFAULT_SCENE_SHADER) has arrived, if
     /// there is one. Compiled on the first frame.
-    constexpr Guid BUILT_IN_SCENE_SHADER = Guid::FromName("shader/built-in-scene");
+    constexpr Droplet::GUID BUILT_IN_SCENE_SHADER = GuidFromName("shader/built-in-scene");
     const Common::ShaderDesc DEFAULT_SCENE_SHADER_ASSET{
         .moduleName = "scene",
         .sourcePath = SCENE_SHADER_PATH,
@@ -469,9 +469,9 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
 namespace
 {
     /// @brief Convert imgui texture id to guid
-    Guid ImageOfImGuiTextureId(std::uint64_t id)
+    Droplet::GUID ImageOfImGuiTextureId(std::uint64_t id)
     {
-        return Guid{ id };
+        return Droplet::GUID{ id };
     }
 }
 
@@ -487,17 +487,17 @@ void Renderer::NewImGuiFrame()
         m_imguiPass->NewFrame();
 }
 
-std::vector<Guid> Renderer::ImGuiImages(const ImDrawData& overlay)
+std::vector<Droplet::GUID> Renderer::ImGuiImages(const ImDrawData& overlay)
 {
-    std::vector<Guid> images;
+    std::vector<Droplet::GUID> images;
     for (const ImDrawList* list : overlay.CmdLists)
     {
         for (const ImDrawCmd& command : list->CmdBuffer)
         {
             if (command.UserCallback || command.TexRef._TexData)
                 continue;
-            const Guid image = ImageOfImGuiTextureId(command.TexRef._TexID);
-            if (image.IsValid() && std::ranges::find(images, image) == images.end())
+            const Droplet::GUID image = ImageOfImGuiTextureId(command.TexRef._TexID);
+            if (image != Droplet::C_INVALID_GUID && std::ranges::find(images, image) == images.end())
                 images.push_back(image);
         }
     }
@@ -507,14 +507,14 @@ std::vector<Guid> Renderer::ImGuiImages(const ImDrawData& overlay)
 std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world)
 {
     GpuResourceManager& gpu = m_device.Resources();
-    std::vector<Render::TargetHandle> reads;
+    std::vector<Render::TargetHandle> reads;    
     for (ImDrawList* list : overlay.CmdLists)
     {
         for (ImDrawCmd& command : list->CmdBuffer)
         {
             // ImGui's own textures (its font atlas) carry their data; callbacks draw nothing
-            const Guid image = ImageOfImGuiTextureId(command.TexRef._TexID);
-            if (command.UserCallback || command.TexRef._TexData || !image.IsValid())
+            const Droplet::GUID image = ImageOfImGuiTextureId(command.TexRef._TexID);
+            if (command.UserCallback || command.TexRef._TexData || image == Droplet::C_INVALID_GUID)
                 continue;
 
             // a world target, else an idle target (its last image), else a texture asset

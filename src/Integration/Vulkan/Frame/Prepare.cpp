@@ -15,8 +15,8 @@ namespace
 {
     /// @brief Target handle for `targetId`, or an invalid handle if the world has no description for it.
     Render::TargetHandle ResolveTarget(
-        Guid targetId,
-        const std::unordered_map<Guid, Render::TargetHandle>& targetHandles)
+        Droplet::GUID targetId,
+        const std::unordered_map<Droplet::GUID, Render::TargetHandle>& targetHandles)
     {
         const auto targetIt = targetHandles.find(targetId);
         return targetIt != targetHandles.end() ? targetIt->second : Render::TargetHandle{};
@@ -27,7 +27,7 @@ namespace
     Render::ImageBinding ResolveImage(
         const Common::ImageRef& image,
         Vulkan::GpuResourceManager& gpu,
-        const std::unordered_map<Guid, Render::TargetHandle>& targetHandles)
+        const std::unordered_map<Droplet::GUID, Render::TargetHandle>& targetHandles)
     {
         switch (image.kind)
         {
@@ -50,7 +50,7 @@ namespace
     {
         Render::MeshHandle mesh;
         Render::ImageBinding baseColor;
-        Guid shader; ///< a compiled shader; invalid: not even the default compiled
+        Droplet::GUID shader; ///< a compiled shader; invalid: not even the default compiled
     };
 
     /// @brief A target that a view samples as its history (last frame's copy) instead.
@@ -183,10 +183,10 @@ Render::PreparedFrame Vulkan::Prepare(
     GpuResourceManager& gpu = context.gpu;
 
     // the default shader: the asset storage's override once it has arrived, else the built-in one
-    const Guid defaultShader = context.shaders.ResolveDefault();
+    const Droplet::GUID defaultShader = context.shaders.ResolveDefault();
 
     // 1. render targets, from the descriptions the world carries
-    std::unordered_map<Guid, Render::TargetHandle> targetHandles;
+    std::unordered_map<Droplet::GUID, Render::TargetHandle> targetHandles;
     for (const Common::RenderTargetDesc& desc : world.targets)
     {
         targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
@@ -247,7 +247,7 @@ Render::PreparedFrame Vulkan::Prepare(
         presentedFound = presentedFound || list.presented;
         
         // other views' targets, this frame's contents
-        for (const Guid readId : view.readIds)
+        for (const Droplet::GUID readId : view.readIds)
         {
             if (const Render::TargetHandle read = ResolveTarget(readId, targetHandles); read.IsValid())
                 list.reads.push_back(read);
@@ -259,7 +259,7 @@ Render::PreparedFrame Vulkan::Prepare(
 
         substitutes.push_back({.target = target, .history = list.history});
 
-        for (const Guid previousId : view.previousReadIds)
+        for (const Droplet::GUID previousId : view.previousReadIds)
         {
             const Render::TargetHandle previous = ResolveTarget(previousId, targetHandles);
             if (!previous.IsValid())
@@ -279,7 +279,7 @@ Render::PreparedFrame Vulkan::Prepare(
         for (const std::uint32_t objectIndex : view.visible)
         {
             const ResolvedObject& object = objects[objectIndex];
-            if (!object.shader.IsValid())
+            if (object.shader == Droplet::C_INVALID_GUID)
                 continue; // no pipeline to draw it with
 
             Render::ImageBinding material = object.baseColor;
@@ -325,8 +325,8 @@ Render::PreparedFrame Vulkan::Prepare(
             const bool vertexColor = draw.layout == Render::DynamicVertexLayout::P3C4;
             if (vertexColor && !vertexColorReady)
                 continue;
-            const Guid shader = vertexColor ? DrawPass::VERTEX_COLOR_SHADER : context.shaders.Resolve(draw.shaderId, defaultShader);
-            if (!shader.IsValid())
+            const Droplet::GUID shader = vertexColor ? DrawPass::VERTEX_COLOR_SHADER : context.shaders.Resolve(draw.shaderId, defaultShader);
+            if (shader == Droplet::C_INVALID_GUID)
                 continue;
             // render targets need the view's read edges, which dynamic draws do not declare yet
             const Render::ImageBinding material = vertexColor

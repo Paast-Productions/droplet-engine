@@ -41,33 +41,33 @@ namespace Vulkan
         /// @brief Compiles the asset's vertex and fragment stages under `id` the first time it is seen.
         /// @param revision the asset storage's revision; a failed shader is compiled again for a newer one
         /// @return false if it does not compile (reported once; later calls return false without compiling again)
-        bool GetOrCreate(const Guid& id, const Common::ShaderDesc& asset, std::uint64_t revision = 0);
+        bool GetOrCreate(Droplet::GUID id, const Common::ShaderDesc& asset, std::uint64_t revision = 0);
 
         /// @brief The default scene shader: the asset storage's override under `overrideId` once it has arrived, else
         ///        `builtIn` (compiled under `builtInId` on first use).
-        void SetDefault(const Guid& overrideId, const Guid& builtInId, Common::ShaderDesc builtIn);
+        void SetDefault(Droplet::GUID overrideId, Droplet::GUID builtInId, Common::ShaderDesc builtIn);
 
         /// @brief The default shader to draw with this frame: the override (the asset storage's shader under the
         ///        default's GUID, which the uploader sends) once it is compiled, else the built-in one. Invalid if not
         ///        even the built-in one compiles.
-        [[nodiscard]] Guid ResolveDefault();
+        [[nodiscard]] Droplet::GUID ResolveDefault();
 
         /// @brief `id` if it is compiled, else `fallback` (also for an invalid `id`).
-        [[nodiscard]] Guid Resolve(const Guid& id, const Guid& fallback);
+        [[nodiscard]] Droplet::GUID Resolve(Droplet::GUID id, Droplet::GUID fallback);
 
         /// @brief Adds the compiled shaders and the failed ones, with their revisions, to `resident`.
         void AppendResident(Assets::ResidentAssets& resident) const;
 
         /// Adds or replaces (hot reload) the shader for this GUID and stage.
-        const Shader& Set(const Guid& id, const ShaderCreateInfo& info);
+        const Shader& Set(Droplet::GUID id, const ShaderCreateInfo& info);
 
         /// @brief True if both stages of `id` are compiled.
-        [[nodiscard]] bool IsReady(const Guid& id) const;
+        [[nodiscard]] bool IsReady(Droplet::GUID id) const;
         /// @brief True if `id` was given to GetOrCreate and did not compile (retried only for a newer revision).
-        [[nodiscard]] bool HasFailed(const Guid& id) const { return m_failed.contains(id); }
+        [[nodiscard]] bool HasFailed(Droplet::GUID id) const { return m_failed.contains(id); }
 
-        [[nodiscard]] const Shader* Find(const Guid& id, vk::ShaderStageFlagBits stage) const;
-        [[nodiscard]] const Shader& Get(const Guid& id, vk::ShaderStageFlagBits stage) const; ///< throws if missing
+        [[nodiscard]] const Shader* Find(Droplet::GUID id, vk::ShaderStageFlagBits stage) const;
+        [[nodiscard]] const Shader& Get(Droplet::GUID id, vk::ShaderStageFlagBits stage) const; ///< throws if missing
 
         /// The Slang compiler, for shaders outside the library (the compositor's).
         [[nodiscard]] const ShaderCompiler& Compiler() const { return *m_compiler; }
@@ -75,21 +75,21 @@ namespace Vulkan
     private:
         struct StageKeyHash
         {
-            std::size_t operator()(const std::pair<Guid, vk::ShaderStageFlagBits>& key) const noexcept
+            std::size_t operator()(const std::pair<Droplet::GUID, vk::ShaderStageFlagBits>& key) const noexcept
             {
-                return std::hash<Guid>{}(key.first) ^ (static_cast<std::size_t>(key.second) << 1);
+                return std::hash<Droplet::GUID>{}(key.first) ^ (static_cast<std::size_t>(key.second) << 1);
             }
         };
 
         const vk::raii::Device& m_device;
         std::unique_ptr<ShaderCompiler> m_compiler;
-        std::unordered_map<std::pair<Guid, vk::ShaderStageFlagBits>, std::unique_ptr<Shader>, StageKeyHash> m_shaders;
-        std::unordered_map<Guid, std::uint64_t> m_failed;    ///< assets that did not compile, at this revision
-        std::unordered_map<Guid, std::uint64_t> m_revisions; ///< revision each compiled asset was compiled from
-        std::unordered_map<Guid, std::uint64_t> m_ignored;   ///< newest ignored revision per asset (reported once)
+        std::unordered_map<std::pair<Droplet::GUID, vk::ShaderStageFlagBits>, std::unique_ptr<Shader>, StageKeyHash> m_shaders;
+        std::unordered_map<Droplet::GUID, std::uint64_t> m_failed; ///< assets that did not compile, at this revision
+        std::unordered_map<Droplet::GUID, std::uint64_t> m_revisions; ///< revision each compiled asset was compiled from
+        std::unordered_map<Droplet::GUID, std::uint64_t> m_ignored; ///< newest ignored revision per asset (reported once)
 
-        Guid m_defaultOverride;           ///< the asset storage's default shader (Render::DEFAULT_SCENE_SHADER)
-        Guid m_builtInDefault;            ///< the renderer's own default shader
+        Droplet::GUID m_defaultOverride{ Droplet::C_INVALID_GUID }; ///< the asset storage's default shader (Render::DEFAULT_SCENE_SHADER)
+        Droplet::GUID m_builtInDefault{ Droplet::C_INVALID_GUID }; ///< the renderer's own default shader
         Common::ShaderDesc m_builtInAsset;
     };
 

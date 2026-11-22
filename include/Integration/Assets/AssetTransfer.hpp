@@ -17,7 +17,7 @@ namespace Assets
     ///        returns: uploads are synchronous and the receiver keeps its own copy.
     struct MeshUpload
     {
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
         std::uint64_t revision{ 0 }; ///< the storage's revision the data is from
         std::span<const std::byte> vertexData; ///< vertices back to back
         std::uint32_t vertexStride{ 0 };         ///< bytes per vertex
@@ -27,7 +27,7 @@ namespace Assets
     /// @brief A texture to upload; pixels as for MeshUpload's spans.
     struct TextureUpload
     {
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
         std::uint64_t revision{ 0 }; ///< the storage's revision the data is from
         std::uint32_t width{0};
         std::uint32_t height{0};
@@ -39,7 +39,7 @@ namespace Assets
     /// @brief A scene shader to compile (a small description, copied).
     struct ShaderUpload
     {
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
         std::uint64_t revision{ 0 }; ///< the storage's revision the asset is from
         Common::ShaderDesc shader;
     };
@@ -55,15 +55,15 @@ namespace Assets
     /// @brief The assets a world refers to, each once.
     struct RequiredAssets
     {
-        std::vector<Guid> meshes;
-        std::vector<Guid> textures;
-        std::vector<Guid> shaders;
+        std::vector<Droplet::GUID> meshes;
+        std::vector<Droplet::GUID> textures;
+        std::vector<Droplet::GUID> shaders;
     };
 
     /// @brief An asset on the GPU and the storage revision it was uploaded from.
     struct ResidentAsset
     {
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
         std::uint64_t revision{ 0 };
     };
 

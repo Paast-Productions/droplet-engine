@@ -29,7 +29,7 @@ namespace Common
     /// and store a reference to the guid on first contact
     struct RenderTargetDesc
     {
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
         std::uint32_t width = 0;
         std::uint32_t height = 0;
         PixelFormat format = PixelFormat::RGBA8_SRGB;
@@ -47,12 +47,12 @@ namespace Common
         };
 
         Kind kind = Kind::None;
-        Guid id;
+        Droplet::GUID id{ Droplet::C_INVALID_GUID };
 
         /// create as Texture
-        static constexpr ImageRef FromTexture(Guid id) { return { Kind::Texture, id }; }
+        static constexpr ImageRef FromTexture(Droplet::GUID id) { return { Kind::Texture, id }; }
         /// create as RenderTarget
-        static constexpr ImageRef FromTarget(Guid id) { return { Kind::RenderTarget, id }; }
+        static constexpr ImageRef FromTarget(Droplet::GUID id) { return { Kind::RenderTarget, id }; }
     };
 
     // == Post-processing ==

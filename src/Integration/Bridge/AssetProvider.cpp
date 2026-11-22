@@ -12,14 +12,14 @@ namespace Bridge
     namespace
     {
         /// @brief The entry for `id` in `assets`, or nullptr
-        const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Guid id)
+        const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Droplet::GUID id)
         {
             const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
             return assetIt != assets.end() ? &*assetIt : nullptr;
         }
 
         /// @brief Adds the mesh to uploads if it exists in the asset storage
-        void AddMesh(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Guid id)
+        void AddMesh(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Droplet::GUID id)
         {
             const Assets::MeshAsset* mesh = assets.FindMesh(id);
             if (!mesh || mesh->vertexData.empty() || mesh->indices.empty())
@@ -34,7 +34,7 @@ namespace Bridge
         }
 
         /// @brief Adds the texture to uploads if it exists in the asset storage
-        void AddTexture(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Guid id)
+        void AddTexture(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Droplet::GUID id)
         {
             const Assets::TextureAsset* texture = assets.FindTexture(id);
             if (!texture)
@@ -51,7 +51,7 @@ namespace Bridge
         }
 
         /// @brief Adds the shader to uploads if it exists in the asset storage
-        void AddShader(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Guid id)
+        void AddShader(const Assets::AssetStorage& assets, Assets::AssetUploads& uploads, Droplet::GUID id)
         {
             const Assets::ShaderAsset* shader = assets.FindShader(id);
             if (!shader)
@@ -63,9 +63,9 @@ namespace Bridge
     namespace
     {
         /// @brief Adds a valid `id` to `ids` unless it is already there (a world names the same asset many times).
-        void AddUniqueId(std::vector<Guid>& ids, Guid id)
+        void AddUniqueId(std::vector<Droplet::GUID>& ids, Droplet::GUID id)
         {
-            if (id.IsValid() && std::ranges::find(ids, id) == ids.end())
+            if (id != Droplet::C_INVALID_GUID && std::ranges::find(ids, id) == ids.end())
                 ids.push_back(id);
         }
 
@@ -77,7 +77,7 @@ namespace Bridge
         }
     }
 
-    Assets::RequiredAssets RequiredAssetsOf(const Render::RenderWorld& world, std::span<const Guid> images)
+    Assets::RequiredAssets RequiredAssetsOf(const Render::RenderWorld& world, std::span<const Droplet::GUID> images)
     {
         Assets::RequiredAssets required;
         AddUniqueId(required.shaders, Render::DEFAULT_SCENE_SHADER);
@@ -93,7 +93,7 @@ namespace Bridge
             AddRequiredTexture(required, draw.imageTexture);
             AddUniqueId(required.shaders, draw.shaderId);
         }
-        for (const Guid image : images)
+        for (const Droplet::GUID image : images)
         {
             if (std::ranges::none_of(world.targets, [image](const Common::RenderTargetDesc& desc) { return desc.id == image; }))
                 AddUniqueId(required.textures, image);
@@ -109,13 +109,13 @@ namespace Bridge
         Assets::AssetUploads uploads;
 
         // a mesh or texture the GPU lacks, or holds an older revision of
-        for (const Guid id : required.meshes)
+        for (const Droplet::GUID id : required.meshes)
         {
             const Assets::ResidentAsset* onGpu = Find(resident.meshes, id);
             if (!onGpu || assets.MeshRevision(id) > onGpu->revision)
                 AddMesh(assets, uploads, id);
         }
-        for (const Guid id : required.textures)
+        for (const Droplet::GUID id : required.textures)
         {
             const Assets::ResidentAsset* onGpu = Find(resident.textures, id);
             if (!onGpu || assets.TextureRevision(id) > onGpu->revision)
@@ -123,7 +123,7 @@ namespace Bridge
         }
 
         // a shader the GPU has not seen, or one that did not compile at an older revision; compiled ones stay
-        for (const Guid id : required.shaders)
+        for (const Droplet::GUID id : required.shaders)
         {
             if (Find(resident.shaders, id))
                 continue;
