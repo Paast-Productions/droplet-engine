@@ -7,6 +7,7 @@
 #include <cassert>
 #include <functional>
 #include <typeindex>
+#include <chrono>
 
 #include "Resource/Meta/MetaUtils.hpp"
 #include "resource/ResourceTraits.hpp"
@@ -295,9 +296,13 @@ namespace Droplet
 			return nullptr; // Worst case scenario return nullptr
 		}
 
-        /// @brief Forces a live resource to reload its data from disk.
-        /// @param p_guid The globally unique identifier for the resource.
-        void HotReload(GUID p_guid);
+		/// @brief Forces a live resource to reload its data from disk.
+		/// @param p_guid The globally unique identifier for the resource.
+        void ReloadResource(GUID p_guid);
+
+        /// @brief Registers a callback that is invoked when a live resource starts reload.
+        /// @param p_onReload Callback invoked with the resource GUID.
+        void RegisterReloadCallback(std::function<void(GUID)> p_onReload);
 		
 		/// @brief Removes metadata and file of a resource
 		/// @param p_guid The GUID of the resource to be removed
@@ -355,6 +360,12 @@ namespace Droplet
         ThreadSafeQueue<AsyncLoadResult> m_asyncLoadResults;
 	    
 	    std::unordered_map<GUID, SoundResource*> m_pendingSoundLoads;
+	    std::vector<std::function<void(GUID)>> m_reloadCallbacks;
+
+#ifdef _EDITOR
+        std::chrono::steady_clock::time_point m_editorLastFileCheck {};
+        std::unordered_map<GUID, std::filesystem::file_time_type> m_editorFileTimes;
+#endif
     };
 }
 

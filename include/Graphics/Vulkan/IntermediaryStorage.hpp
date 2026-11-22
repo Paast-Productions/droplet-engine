@@ -206,6 +206,10 @@ namespace Droplet::Graphics::Vulkan
         
         /// @brief Destroy Vulkan objects in destruction queue when it is safe to do so
         void DestroyUnusedResources();
+
+        /// @brief Invalidates all cached pipelines that use a shader resource.
+        /// @param p_shaderGuid The GUID of the reloaded shader.
+        void InvalidatePipelinesUsingShader(GUID p_shaderGuid);
         
         /// @brief Creates Vulkan buffer with the inputted resource type
         /// @param p_data Data to store in the buffer
@@ -351,6 +355,7 @@ namespace Droplet::Graphics::Vulkan
         
         // Stored buffers etc
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
+        std::queue<Pipeline> m_pipelineDestroyQueue {};
         std::unordered_map<MeshKey, VertexBuffer, MeshHasher> m_vertexMap {};
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};

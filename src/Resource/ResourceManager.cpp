@@ -117,6 +117,45 @@ namespace Droplet
                 callback();
             }
         }
+
+#ifdef _EDITOR
+        const auto now = std::chrono::steady_clock::now();
+        if (now - m_editorLastFileCheck >= std::chrono::seconds(1))
+        {
+            m_editorLastFileCheck = now;
+
+            for (const auto &[guid, liveResource] : m_liveResources)
+            {
+                MetaEntry metaEntry;
+                if (!m_registry.GetResourceMetaData(guid, metaEntry))
+                {
+                    continue;
+                }
+
+                const std::filesystem::path assetPath = m_rootDirectory / metaEntry.relAssetPath;
+                std::error_code errorCode;
+                const std::filesystem::file_time_type writeTime =
+                    std::filesystem::last_write_time(assetPath, errorCode);
+                if (errorCode)
+                {
+                    continue;
+                }
+
+                auto knownTime = m_editorFileTimes.find(guid);
+                if (knownTime == m_editorFileTimes.end())
+                {
+                    m_editorFileTimes.emplace(guid, writeTime);
+                    continue;
+                }
+
+                if (knownTime->second != writeTime)
+                {
+                    knownTime->second = writeTime;
+                    ReloadResource(guid);
+                }
+            }
+        }
+#endif
     }
 
     std::filesystem::path ResourceManager::GetRootDirectory() const
@@ -249,7 +288,7 @@ namespace Droplet
         
         if (hotReload)
         {
-            HotReload(p_guid);
+            ReloadResource(p_guid);
         }
         
         return true;
@@ -281,6 +320,9 @@ namespace Droplet
                 }
                 
                 m_liveResources.erase(it);
+#ifdef _EDITOR
+                m_editorFileTimes.erase(p_guid);
+#endif
             }
         }
     }
@@ -336,7 +378,7 @@ namespace Droplet
         return m_assetScanners.contains(ext);
     }
 
-    void ResourceManager::HotReload(GUID p_guid)
+    void ResourceManager::ReloadResource(GUID p_guid)
     {
         ZoneScoped;
 
@@ -358,12 +400,29 @@ namespace Droplet
         
         live.resource.reset(); // Clear RAM
         live.state = ResourceState::LoadingAsync;
+
+        for (const auto &callback : m_reloadCallbacks)
+        {
+            callback(p_guid);
+        }
         
         MetaEntry metaEntry; 
-        if (m_registry.GetResourceMetaData(p_guid, metaEntry))
+        if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
         {
             // TODO: Log error (resource with p_guid was not found)
+            live.state = ResourceState::Failed;
+            return;
         }
+
+#ifdef _EDITOR
+        std::error_code errorCode;
+        const std::filesystem::file_time_type writeTime =
+            std::filesystem::last_write_time(m_rootDirectory / metaEntry.relAssetPath, errorCode);
+        if (!errorCode)
+        {
+            m_editorFileTimes[p_guid] = writeTime;
+        }
+#endif
         
         // Look up the load dispatcher for the resource type and call it
         auto dispatcherIt = m_loadDispatchers.find(metaEntry.type);
@@ -374,11 +433,24 @@ namespace Droplet
         else
         {
             // TODO: Log error (type is not registered)
+            live.state = ResourceState::Failed;
+        }
+    }
+
+    void ResourceManager::RegisterReloadCallback(std::function<void(GUID)> p_onReload)
+    {
+        if (p_onReload)
+        {
+            m_reloadCallbacks.push_back(std::move(p_onReload));
         }
     }
 
     void ResourceManager::RemoveResourceMeta(const GUID p_guid, bool p_forceRemove)
     {
+#ifdef _EDITOR
+        m_editorFileTimes.erase(p_guid);
+#endif
+
         if (!p_forceRemove)
         {
             if (GetRef(p_guid) > 0)
