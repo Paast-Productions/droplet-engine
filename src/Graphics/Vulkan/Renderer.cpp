@@ -36,7 +36,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 	Vulkan::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
 	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	
-	// TODO: <REFACTOR>
+	// TODO: (RENDERING) <REFACTOR>
 	
 	// - - - - - - - - - - //
 	//         Debug       //
@@ -223,7 +223,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: Only the rendertarget should be used here, expected to be fixed once copying to the swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) Only the rendertarget should be used here, expected to be fixed once copying to the swapchain is solved
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
@@ -241,7 +241,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		m_swapchain.GetDepthImage(),
 #endif
 #ifdef _EDITOR
@@ -262,7 +262,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		.imageView = m_swapchain.GetPresentImageView(),
 #endif
 #ifdef _EDITOR
@@ -276,7 +276,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo
 	{
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		.imageView = m_swapchain.GetDepthImageView(),
 #endif
 #ifdef _EDITOR
@@ -296,7 +296,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 				.x = 0,
 				.y = 0
 			},
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 			.extent = m_swapchain.GetExtent(),
 #endif
 #ifdef _EDITOR
@@ -373,7 +373,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	commandBuffer.endRendering();
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
@@ -471,7 +471,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 {
 	ZoneScoped;
 
-	//TODO: CREATE PIPELINE CACHE
+	//TODO: (RENDERING) CREATE PIPELINE CACHE
 	p_initInfo.Instance = *m_context.GetInstance();
 	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
 	p_initInfo.Device = *m_context.GetDevice();

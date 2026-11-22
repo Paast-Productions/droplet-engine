@@ -34,7 +34,7 @@ namespace
 		glm::mat4 projection;
 	};
 
-	// TODO: Refactor shader loading to use the built-in runtime shader compiler when it's implemented.
+	// TODO: (RENDERING) Refactor shader loading to use the built-in runtime shader compiler when it's implemented.
 	std::vector<char> ReadShader(const std::filesystem::path &p_path)
 	{
 		ZoneScoped;

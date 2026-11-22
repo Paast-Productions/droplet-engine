@@ -22,7 +22,7 @@ namespace Droplet::Graphics
 	class RenderTarget;
 }
 
-// HACK: Implementation subject to change
+// HACK: (RENDERING) Implementation subject to change
 
 namespace Droplet::Graphics
 {	

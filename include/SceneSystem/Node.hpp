@@ -28,7 +28,7 @@
 namespace Droplet::Scene
 {
 
-	// TODO: Refactor after Material implementation
+	// TODO: (SCENE) Refactor after Material implementation
 	struct NodeData
 	{
 		std::uint32_t meshID;
@@ -55,7 +55,7 @@ namespace Droplet::Scene
 		/// @brief Constructs a Node with the specified name and Scene.
 		/// @param p_scene Shared pointer to the Scene that owns this Node.
 		/// @param p_name Name of the Node.
-		explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: Make weak pointer
+		explicit Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name); // TODO: (SCENE) Make weak pointer
 
 		~Node();
 
@@ -166,8 +166,8 @@ namespace Droplet::Scene
 
 		/// @brief Gets the Node's Transform.
 		/// @return A reference to the Node's Transform.
-		[[nodiscard]] Transform &GetTransform() { return m_transform; } // TODO: Make weak pointer
-		[[nodiscard]] const Transform &GetTransform() const { return m_transform; } // TODO: Make weak pointer
+		[[nodiscard]] Transform &GetTransform() { return m_transform; } // TODO: (SCENE) Make weak pointer
+		[[nodiscard]] const Transform &GetTransform() const { return m_transform; } // TODO: (SCENE) Make weak pointer
 
 		// --------------------------------------------------
 		// Children 
@@ -182,7 +182,7 @@ namespace Droplet::Scene
 		/// @return A shared pointer to the added child Node.
 		/// @throws std::invalid_argument if p_child is nullptr.
 		/// or belongs to a Scene.
-		std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+		std::shared_ptr<Node> AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos = false); // TODO: (SCENE) Make weak pointer
 
 		/// @brief Removes a child Node.
 		///
@@ -192,7 +192,7 @@ namespace Droplet::Scene
 		/// @param p_keepWorldPos If true, the child's world position is preserved when reparenting.
 		/// @throws std::invalid_argument if p_child is nullptr.
 		/// @throws std::runtime_error if the Node is not a child of this Node.
-		void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: Make weak pointer
+		void RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos = false); // TODO: (SCENE) Make weak pointer
  
 
 		/// @brief Gets the parent Node.
@@ -204,13 +204,13 @@ namespace Droplet::Scene
 		/// @brief Gets the child Nodes.
 		///
 		/// @return A vector containing this Node's children.
-		[[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: Make weak pointer
+		[[nodiscard]] const std::vector<std::shared_ptr<Node>> GetChildren(bool p_recursive = false) const; // TODO: (SCENE) Make weak pointer
 
 		/// @brief Gets the Scene that owns this Node.
 		///
 		/// @return A shared pointer to the Scene, or nullptr if the Node
 		/// does not currently belong to a Scene.
-		[[nodiscard]] std::shared_ptr<Scene> GetScene() const; // TODO: Make weak pointer
+		[[nodiscard]] std::shared_ptr<Scene> GetScene() const; // TODO: (SCENE) Make weak pointer
 
 		// --------------------------------------------------
 		// Name
@@ -263,12 +263,12 @@ namespace Droplet::Scene
 		/// @return A vector of shared pointers to the Components, or an empty
 		/// vector if no Components of the requested type were found.
 		template<typename T>
-		[[nodiscard]] std::vector<std::shared_ptr<T>> GetComponents() const // TODO: Make weak pointer
+		[[nodiscard]] std::vector<std::shared_ptr<T>> GetComponents() const // TODO: (COMPONENTS) Make weak pointer
 		{
 			// Ensure that T is derived from Component
 			static_assert(std::is_base_of<Component, T>::value, "T must be derived from Component.");
 
-			std::vector<std::shared_ptr<T>> components; // TODO: Make weak pointer
+			std::vector<std::shared_ptr<T>> components; // TODO: (COMPONENTS) Make weak pointer
 
 			for (const auto &component : m_components)
 			{
@@ -293,7 +293,7 @@ namespace Droplet::Scene
         /// @brief Gets all components 
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
-        [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const; // TODO: Make weak pointer
+        [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const; // TODO: (COMPONENTS) Make weak pointer
 
 		/// @brief Removes a specific Component from the Node.
 		///
@@ -492,7 +492,7 @@ namespace Droplet::Scene
 		/// The Scene reference is also propagated to all child Nodes.
 		///
 		/// @param p_scene Scene that owns this Node.
-		void SetScene(std::shared_ptr<Scene> p_scene); // TODO: Make weak pointer
+		void SetScene(std::shared_ptr<Scene> p_scene); // TODO: (SCENE) Make weak pointer
 
 		// Components
 

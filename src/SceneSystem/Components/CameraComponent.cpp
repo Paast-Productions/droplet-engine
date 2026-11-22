@@ -40,7 +40,7 @@ void CameraComponent::QueueRenderImpl()
 {
 	if (m_dirty)
 	{
-		// TODO
+		// TODO: (RENDERING)
 
 #ifdef _EDITOR
 		Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
