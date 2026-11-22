@@ -9,10 +9,10 @@
 #include <cstdint>
 #include <print>
 
-#include "Bridge/AssetProvider.hpp"
-#include "Bridge/Extract.hpp"
-#include "Core/Time.hpp"   // Delta timing
-#include "Spoof/Spoof.hpp" // Creates a Scene from scratch
+#include "Integration/Bridge/AssetProvider.hpp"
+#include "Integration/Bridge/Extract.hpp"
+#include "Integration/Core/Time.hpp"   // Delta timing
+#include "Integration/Spoof/Spoof.hpp" // Creates a Scene from scratch
 
 SandboxApp::SandboxApp(SandboxAppConfig cfg)
     : m_config(cfg),

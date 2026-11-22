@@ -33,7 +33,6 @@ namespace Droplet::Graphics
     struct MeshData
     {
         //Extra mesh rendering options could possibly be added here
-
         std::uint64_t GUID{0};
     };
 
@@ -41,16 +40,8 @@ namespace Droplet::Graphics
     {
         //Texture sampling options could be added here
         std::uint64_t GUID{0};
+        bool isRenderTarget{false};
     };
-
-    // TEMP TEMP TEMP TEMP
-    /// Describes a render target the camera would output to
-    struct TargetData
-    {
-        //TODO fill in
-    };
-
-    // TEMP TEMP TEMP TEMP
 
     struct RenderData
     {
@@ -73,7 +64,7 @@ namespace Droplet::Graphics
         bool operator<(const RenderData& p_other) const
         {
             return transparent < p_other.transparent;
-        }
+        }        
     };
 
     namespace Vulkan

@@ -11,7 +11,9 @@ using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	m_target.id = GuidUtils::Generate();
+	// store target id case meshes refer to it
+	if (m_target.id == C_INVALID_GUID)
+		m_target.id = GuidUtils::Generate();
 	m_target.extent = { static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) };
 }
 
@@ -211,7 +213,7 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["autoRender"] = m_autoRender;
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
 	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
-	compJson["debugDraw"] = m_debugDraw;
+	compJson["targetId"] = m_target.id; // if a mesh uses the output as a texture
 
 	return compJson;
 }
@@ -278,9 +280,9 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 		}
 	}
 
-	if (p_compJson.contains("debugDraw"))
+	if (p_compJson.contains("targetId"))
 	{
-		m_debugDraw = p_compJson["debugDraw"].get<bool>();
+		m_target.id = p_compJson["targetId"].get<GUID>();
 	}
 
 	m_dirty = true;

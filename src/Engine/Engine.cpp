@@ -32,6 +32,7 @@
 
 // TEMP TEMP TEMP TEMP
 #include "AssetProvider.hpp"
+#include "Integration/Bridge/Extract.hpp"
 
 using namespace Droplet;
 
@@ -102,18 +103,13 @@ namespace
     {
         const auto* texture = resMan.GetResource<Texture2DResource>(ToProductionGuid(id));
         if (!texture)
-        {
-            std::println("texture {:016x}: not loaded", id.value);
-            return;
+        {            return; // not loaded (yet): the placeholder texture
         }
 
         // RGBA8 only: a compressed texture is smaller than this and shows the placeholder
         const std::size_t topLevelBytes = static_cast<std::size_t>(texture->GetWidth()) * texture->GetHeight() * 4;
         const std::span<const std::byte> pixels = texture->GetPixelData();
-        if (pixels.size() < topLevelBytes)
-        {
-            std::println("texture {:016x}: {} bytes for {}x{}, format {}", id.value, pixels.size(),
-                         texture->GetWidth(), texture->GetHeight(), static_cast<int>(texture->GetFormat()));
+        if (pixels.size() < topLevelBytes){            
             return;
         }
 
@@ -195,7 +191,7 @@ namespace
         return indices;
     }
 
-    /// @brief A view and a target per camera, an object per draw
+    /// @brief A view and a target per camera, an object per draw, then the render-target reads
     void AddCameras(Render::RenderWorld& world, std::span<const Graphics::CameraRenderData> p_cameras,
                     std::span<const std::uint32_t> debugDraws)
     {
@@ -227,17 +223,24 @@ namespace
             for (const Graphics::RenderData& object : camera.renderData)
             {
                 const Guid textureId = ToSandboxGuid(object.texData.GUID);
+                const ::Common::ImageRef image{
+                    .kind = !textureId.IsValid() ? ::Common::ImageRef::Kind::None
+                          : object.texData.isRenderTarget ? ::Common::ImageRef::Kind::RenderTarget
+                                                          : ::Common::ImageRef::Kind::Texture,
+                    .id = textureId };
+
                 view.visible.push_back(static_cast<std::uint32_t>(world.objects.size()));
                 world.objects.push_back({
                     .transform = object.transform,
                     .meshId = ToSandboxGuid(object.meshData.GUID),
-                    .imageTexture = {
-                        .kind = textureId.IsValid() ? ::Common::ImageRef::Kind::Texture : ::Common::ImageRef::Kind::None,
-                        .id = textureId },
+                    .imageTexture = image,
                     .transparent = object.transparent }); // shaderId invalid: the default shader
             }
             world.views.push_back(std::move(view));
         }
+
+        // which views read which targets, break view loops
+        Bridge::ResolveTargetReads(world);
     }
 }
 
@@ -438,17 +441,6 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
     const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
 #endif
     m_renderer.Upload(ProvideAssets(required, m_renderer.Resident()));
-    
-    static int debugFrames = 0;
-    if (debugFrames++ < 3)
-    {
-        for (const auto& target : world.targets)
-            std::println("target {:016x} {}x{}", target.id.value, target.width, target.height);
-#ifdef _EDITOR
-        for (const Guid image : Vulkan::Renderer::ImGuiImages(*overlay))
-            std::println("imgui image {:016x}", image.value);
-#endif
-    }
 
     m_renderer.Render(world, overlay);
 
