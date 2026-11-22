@@ -28,7 +28,7 @@ namespace
 		glm::mat4 projection;
 	};
 
-	// TODO: Refactor shader loading to use the built-in runtime shader compiler when it's implemented.
+	// TODO: (RENDERING) Refactor shader loading to use the built-in runtime shader compiler when it's implemented.
 	std::vector<char> ReadShader(const std::filesystem::path &p_path)
 	{
 		ZoneScoped;
@@ -803,7 +803,7 @@ void DebugDraw::RenderToCamera(const Camera &p_camera, const vk::raii::CommandBu
 		std::uint32_t firstVertex = p_firstVertex;
 		for (const auto &[icon, vertices] : p_meshes)
 		{
-			(void)icon; // TODO: Fetch the icon texture and bind it to the pipeline before drawing
+			(void)icon; // TODO: (RENDERING) Fetch the icon texture and bind it to the pipeline before drawing
 
 			drawMesh(p_pipelineIndex, frame.iconBuffer, firstVertex, static_cast<std::uint32_t>(vertices.size()));
 			firstVertex += static_cast<std::uint32_t>(vertices.size());

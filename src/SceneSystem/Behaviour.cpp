@@ -97,7 +97,7 @@ void Behaviour::RenderUI()
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
 
-	// TODO: Set active, delete
+	// TODO: (BEHAVIOR) Set active, delete
 
 	ImGuiChildFlags childFlags = ImGuiChildFlags_Borders | ImGuiChildFlags_AutoResizeY;
 	if (ImGui::BeginChild("ComponentUI", ImVec2(0, 0), childFlags))

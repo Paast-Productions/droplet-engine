@@ -12,7 +12,7 @@ namespace Droplet
 
         if (m_isInitialized)
         {
-            // TODO: Log warning: RM already initialized
+            // TODO: (LOGGING) Log warning: RM already initialized
             return;
         }
         
@@ -23,7 +23,7 @@ namespace Droplet
         }
         catch (...)
         {
-            // TODO: Log error: Directory does not exist
+            // TODO: (LOGGING) Log error: Directory does not exist
             m_isInitialized = false;
             return;
         }
@@ -172,7 +172,7 @@ namespace Droplet
         std::filesystem::path relAssetPath(p_relAssetPath);
         if (relAssetPath.is_absolute())
         {
-            // TODO: Log error here
+            // TODO: (LOGGING) Log error here
             return;
         }
         
@@ -243,7 +243,7 @@ namespace Droplet
         ResourceState state = GetState(p_guid);
         if (state == ResourceState::LoadingAsync || state == ResourceState::Queued || state == ResourceState::Uploading)
         {
-            // TODO: Log warning
+            // TODO: (LOGGING) Log warning
             return false;
         }
         
@@ -264,7 +264,7 @@ namespace Droplet
         std::vector<MetaEntry> assetMetaData;
         if (!m_registry.GetCachedMetaDataForAsset(relAssetPathStr, assetMetaData))
         {
-            // TODO: Log asset not being registered
+            // TODO: (LOGGING) Log asset not being registered
             return false;
         }
         

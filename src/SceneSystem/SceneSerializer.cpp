@@ -288,7 +288,7 @@ void SceneSerializer::DeserializeTransform(const nlohmann::json& p_json, Transfo
 
     glm::vec3 position = glm::vec3(p_json["position"][0], p_json["position"][1], p_json["position"][2]);
 
-    //TODO make sure glm reads w x y z or x y z w
+    //TODO: (SCENE) make sure glm reads w x y z or x y z w
     glm::quat rotation = glm::quat(p_json["rotation"][0], p_json["rotation"][1], p_json["rotation"][2], p_json["rotation"][3]);
 
     glm::vec3 scale = glm::vec3(p_json["scale"][0], p_json["scale"][1], p_json["scale"][2]);

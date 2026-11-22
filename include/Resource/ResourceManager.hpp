@@ -117,7 +117,7 @@ namespace Droplet
             if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
             {
                 // Handle missing resource
-                            // TODO: Log this as a warning/error
+                            // TODO: (LOGGING) Log this as a warning/error
                 return StaticResourceHandle<T>(C_INVALID_GUID, this);
             }
             
