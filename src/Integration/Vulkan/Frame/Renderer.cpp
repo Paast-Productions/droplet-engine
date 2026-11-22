@@ -468,10 +468,10 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
 #ifdef _EDITOR
 namespace
 {
-    /// @brief The image an ImGuiTextureId names; invalid for ImGui's own ids
+    /// @brief Convert imgui texture id to guid
     Guid ImageOfImGuiTextureId(std::uint64_t id)
     {
-        return (id & Droplet::Graphics::IMGUI_IMAGE_TAG) != 0 ? Guid{ id & ~Droplet::Graphics::IMGUI_IMAGE_TAG } : Guid{};
+        return Guid{ id };
     }
 }
 
