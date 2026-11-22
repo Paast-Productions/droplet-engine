@@ -58,7 +58,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (!module)
         {
-            // TODO: Use logger for this
+            // TODO: (LOGGING) Use logger for this
             if (errorBlob)
             {
                 std::print("Shaderc Log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
@@ -90,7 +90,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            // TODO: Use logger for this
+            // TODO: (LOGGING) Use logger for this
             if (errorBlob)
             {
                 std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
@@ -114,7 +114,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            // TODO: Use logger for this
+            // TODO: (LOGGING) Use logger for this
             if (errorBlob)
             {
                 std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));
@@ -139,7 +139,7 @@ Slang::ComPtr<slang::IBlob> ShaderCompiler::CompileShader(const std::filesystem:
         
         if (result == SLANG_FAIL)
         {
-            // TODO: Use logger for this
+            // TODO: (LOGGING) Use logger for this
             if (errorBlob)
             {
                 std::print("Shaderc log:\n{0}", static_cast<const char*>(errorBlob->getBufferPointer()));

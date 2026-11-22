@@ -34,7 +34,7 @@ void ResourceRegistry::ScanDirectory(const std::filesystem::path &p_directory)
 			}
 			else
 			{
-				// TODO: Log metafile parse error (or empty)
+				// TODO: (LOGGING) Log metafile parse error (or empty)
 			}
 		}
 	}

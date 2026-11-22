@@ -37,7 +37,7 @@ EditorContext::EditorContext(Droplet::Engine &p_engine)
 void EditorContext::SetActiveScene(std::string p_sceneName)
 {
 	auto newScene = m_engine.GetSceneManager().GetScene(p_sceneName);
-	m_engine.GetSceneManager().ActivateScene(p_sceneName); // TODO: Set active is not set active??
+	m_engine.GetSceneManager().ActivateScene(p_sceneName); // TODO: (SCENE) Set active is not set active??
 
 	if (!newScene)
 	{

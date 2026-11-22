@@ -16,7 +16,7 @@ namespace Droplet::Graphics
 {
 	/// @brief A class that represent the endpoints of what the renderer need
 	/// for rendering to a texture
-    // TODO: Add option to skip depth buffer if not needed.
+    // TODO: (RENDERING) Add option to skip depth buffer if not needed.
 	class RenderTarget
 	{
 	public:
@@ -30,7 +30,7 @@ namespace Droplet::Graphics
 		~RenderTarget() = default;
 		
 		//
-		// TODO: <REFACTOR>
+		// TODO: (RENDERING) <REFACTOR>
 		// This should be extended to also returning handles.
 		// The handles should then return these resources to a friended Intermediary Storage instead as to 
 		// not expose Vulkan resources outside the Intermediary Storage and renderer

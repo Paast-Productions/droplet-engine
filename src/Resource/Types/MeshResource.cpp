@@ -47,7 +47,7 @@ std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
     
     fallback->SetMeshData(vertexData, indices, vertexByteSize, layout);
     
-    // TODO: Should bvh be generated here?
+    // TODO: (BOUNDS) Should bvh be generated here?
 
     try
     {
@@ -55,7 +55,7 @@ std::unique_ptr<Droplet::MeshResource> Droplet::MeshResource::CreateFallback()
     }
     catch (...)
     {
-        // TODO: Log bvh generation failure
+        // TODO: (LOGGING) Log bvh generation failure
     }
     
     return fallback;
@@ -110,7 +110,7 @@ void Droplet::MeshResource::GenerateBVH()
         std::uint32_t index = m_indexData[i];
         std::size_t vertexOffset = index * m_vertexByteSize + posDataOffset;
 
-        if (vertexOffset + sizeof(glm::vec3) > m_vertexData.size()) // TODO: Is this necessary?
+        if (vertexOffset + sizeof(glm::vec3) > m_vertexData.size()) // TODO: (BOUNDS) Is this necessary?
         {
             throw std::runtime_error("Index out of bounds when accessing vertex data.");
         }

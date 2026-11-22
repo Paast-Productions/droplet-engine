@@ -37,7 +37,7 @@ namespace Droplet::Editor
 		bool DragFloat3Snapped(const char *p_label, glm::vec3 &p_value, float p_speed, float p_snapIncrement, bool p_relative, int *p_changedAxis = nullptr);
 
 		/// @brief Shared editor interaction state used to track node selection.
-		std::shared_ptr<InteractionState> m_interactionState; // TODO: Make weak pointer
+		std::shared_ptr<InteractionState> m_interactionState; // TODO: (SCENE) Make weak pointer
 
 		/// @brief The node that is currently displayed.
 		std::weak_ptr<Droplet::Scene::Node> m_currentNode;

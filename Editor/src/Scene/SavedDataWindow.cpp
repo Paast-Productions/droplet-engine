@@ -215,7 +215,7 @@ void SavedDataWindow::DeleteSelectedFile()
 
 	if (errorCode)
 	{
-		// TODO Report to the logger
+		// TODO: (LOGGING) Report to the logger
 		return;
 	}
 
@@ -246,7 +246,7 @@ void SavedDataWindow::OpenJson(const std::filesystem::path &p_path)
 
 	if (resultCode <= 32)
 	{
-		// TODO: Report that the file could not be opened.
+		// TODO: (LOGGING) Report that the file could not be opened.
 	}
 #endif
 }
