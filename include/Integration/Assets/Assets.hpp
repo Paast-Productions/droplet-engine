@@ -7,7 +7,7 @@
 #include <utility>
 #include <vector>
 
-#include "Integration/Core/Guid.hpp"
+#include "Resource/GuidUtils.hpp"
 #include "Integration/Common/RenderDesc.hpp"
 
 /// CPU-side asset data, i.e. what the ResourceManager would normally store. Scene side only: the renderer never
@@ -52,27 +52,27 @@ namespace Assets
 		/// Inserts or overwrites existing mesh asset
 		/// @param id generated guid for the mesh asset
 		/// @param mesh the mesh being stored
-		void Add(Guid id, MeshAsset mesh) { Store(m_meshes, id, std::move(mesh)); }
+		void Add(Droplet::GUID id, MeshAsset mesh) { Store(m_meshes, id, std::move(mesh)); }
 		/// Inserts or overwrites existing texture asset
 		/// @param id generated guid for the texture asset
 		/// @param texture the texture to store
-		void Add(Guid id, TextureAsset texture) { Store(m_textures, id, std::move(texture)); }
+		void Add(Droplet::GUID id, TextureAsset texture) { Store(m_textures, id, std::move(texture)); }
 		/// Inserts or overwrites a shader asset
-		void Add(Guid id, ShaderAsset shader) { Store(m_shaders, id, std::move(shader)); }
+		void Add(Droplet::GUID id, ShaderAsset shader) { Store(m_shaders, id, std::move(shader)); }
 
 		/// The mesh stored under `id`, or nullptr
-		const MeshAsset* FindMesh(Guid id) const { return Find(m_meshes, id); }
+		const MeshAsset* FindMesh(Droplet::GUID id) const { return Find(m_meshes, id); }
 		/// The texture stored under `id`, or nullptr
-		const TextureAsset* FindTexture(Guid id) const { return Find(m_textures, id); }
+		const TextureAsset* FindTexture(Droplet::GUID id) const { return Find(m_textures, id); }
 		/// The shader stored under `id`, or nullptr
-		const ShaderAsset* FindShader(Guid id) const { return Find(m_shaders, id); }
+		const ShaderAsset* FindShader(Droplet::GUID id) const { return Find(m_shaders, id); }
 
 		/// Revision of the mesh under `id`; 0 if there is none
-		std::uint64_t MeshRevision(Guid id) const { return Revision(m_meshes, id); }
+		std::uint64_t MeshRevision(Droplet::GUID id) const { return Revision(m_meshes, id); }
 		/// Revision of the texture under `id`; 0 if there is none
-		std::uint64_t TextureRevision(Guid id) const { return Revision(m_textures, id); }
+		std::uint64_t TextureRevision(Droplet::GUID id) const { return Revision(m_textures, id); }
 		/// Revision of the shader under `id`; 0 if there is none
-		std::uint64_t ShaderRevision(Guid id) const { return Revision(m_shaders, id); }
+		std::uint64_t ShaderRevision(Droplet::GUID id) const { return Revision(m_shaders, id); }
 
 	private:
 		/// An asset and how often it has been stored under its GUID
@@ -84,7 +84,7 @@ namespace Assets
 		};
 
 		template <class T>
-		static void Store(std::unordered_map<Guid, Entry<T>>& entries, Guid id, T asset)
+		static void Store(std::unordered_map<Droplet::GUID, Entry<T>>& entries, Droplet::GUID id, T asset)
 		{
 			Entry<T>& entry = entries[id];
 			entry.asset = std::move(asset);
@@ -92,22 +92,22 @@ namespace Assets
 		}
 
 		template <class T>
-		static const T* Find(const std::unordered_map<Guid, Entry<T>>& entries, Guid id)
+		static const T* Find(const std::unordered_map<Droplet::GUID, Entry<T>>& entries, Droplet::GUID id)
 		{
 			const auto entryIt = entries.find(id);
 			return entryIt == entries.end() ? nullptr : &entryIt->second.asset;
 		}
 
 		template <class T>
-		static std::uint64_t Revision(const std::unordered_map<Guid, Entry<T>>& entries, Guid id)
+		static std::uint64_t Revision(const std::unordered_map<Droplet::GUID, Entry<T>>& entries, Droplet::GUID id)
 		{
 			const auto entryIt = entries.find(id);
 			return entryIt == entries.end() ? 0 : entryIt->second.revision;
 		}
 
-		std::unordered_map<Guid, Entry<MeshAsset>> m_meshes;
-		std::unordered_map<Guid, Entry<TextureAsset>> m_textures;
-		std::unordered_map<Guid, Entry<ShaderAsset>> m_shaders;
+		std::unordered_map<Droplet::GUID, Entry<MeshAsset>> m_meshes;
+		std::unordered_map<Droplet::GUID, Entry<TextureAsset>> m_textures;
+		std::unordered_map<Droplet::GUID, Entry<ShaderAsset>> m_shaders;
 	};
 }
 

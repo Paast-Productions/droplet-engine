@@ -16,7 +16,7 @@ namespace Bridge
     /// @param images also shown outside the world (Renderer::ImGuiImages): the ones that are not the world's targets
     ///        are required as textures
     [[nodiscard]] Assets::RequiredAssets RequiredAssetsOf(
-        const Render::RenderWorld& world, std::span<const Guid> images = {});
+        const Render::RenderWorld& world, std::span<const Droplet::GUID> images = {});
 
     /**
      * @brief The uploads for what `required` needs and `resident` lacks or holds an older revision of.
