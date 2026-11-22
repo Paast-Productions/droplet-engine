@@ -102,13 +102,20 @@ namespace
     {
         const auto* texture = resMan.GetResource<Texture2DResource>(ToProductionGuid(id));
         if (!texture)
-            return; // not loaded (yet): the placeholder texture
+        {
+            std::println("texture {:016x}: not loaded", id.value);
+            return;
+        }
 
         // RGBA8 only: a compressed texture is smaller than this and shows the placeholder
         const std::size_t topLevelBytes = static_cast<std::size_t>(texture->GetWidth()) * texture->GetHeight() * 4;
         const std::span<const std::byte> pixels = texture->GetPixelData();
         if (pixels.size() < topLevelBytes)
+        {
+            std::println("texture {:016x}: {} bytes for {}x{}, format {}", id.value, pixels.size(),
+                         texture->GetWidth(), texture->GetHeight(), static_cast<int>(texture->GetFormat()));
             return;
+        }
 
         uploads.textures.push_back({
             .id = id,
