@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 
-/// Generational handle: a stale handle (slot reused) fails lookup instead of dangling
+/// Generational handle. A stale handle (slot reused) fails on lookup instead of being left dangling
 template <class Tag>
 struct Handle
 {
@@ -14,6 +14,7 @@ struct Handle
     std::uint32_t index = kInvalid;
     std::uint32_t generation = 0;
 
+    /// false if invalid
     constexpr bool IsValid() const noexcept { return index != kInvalid; }
     friend constexpr bool operator==(Handle, Handle) = default;
     /// generates a key by packing index and generation into a single 64 bit uint
@@ -25,14 +26,18 @@ struct Handle
     }
 };
 
-/// Slot pool. Remove() hands the object back so the caller can *retire* it (GPU may still be using it)
+/// @brief Pool of handle slots.
+/// @details Remove() hands the object back so the caller can *retire* it (GPU may still be using it)
 /// instead of destroying it here.
+/// @tparam Tag empty struct for the type (MeshTag, TextureTag, etc.)
+/// @tparam T type of the value stored in the pool
 template <class Tag, class T>
 class HandlePool
 {
 public:
     using HandleType = Handle<Tag>;
 
+    /// @brief Add a new value to the pool
     HandleType Add(T value)
     {
         std::uint32_t index;

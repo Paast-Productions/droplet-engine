@@ -22,7 +22,7 @@ namespace Vulkan
 
     /**
      * @brief Owns the FrameSubmitter, the GPU resources (GpuResourceManager, ShaderLibrary) and the DeletionQueue, and
-     *        keeps their lifetimes: the job Granite's Device does.
+     *        keeps their lifetimes.
      * @details Per frame: BeginFrame (resource use tracking), the Renderer resolves assets (Prepare), WaitForFrameSlot
      * before the WSI acquires, the graph is submitted through Submitter(), EndFrame (evict idle resources, tell the
      * listeners, destroy what the GPU is done with). Anything that caches GPU handles registers a listener with
@@ -60,7 +60,7 @@ namespace Vulkan
         ///        released, and destroys what every queue's timeline has passed.
         void EndFrame();
 
-        /// @brief Registers `listener`; called by EndFrame after resources were evicted or replaced.
+        /// @brief Registers a listener; called by EndFrame after resources were evicted or replaced.
         void OnResourcesReleased(ReleaseListener listener) { m_releaseListeners.push_back(std::move(listener)); }
 
         /// @brief Destroys `object` once the GPU is past `retireValues` on every queue.

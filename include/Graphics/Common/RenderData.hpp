@@ -100,11 +100,8 @@ namespace Droplet::Graphics
 #ifdef _EDITOR
     // == ImGui ==
 
-    /// Marks ImGui texture ids that name an image by GUID. ImGui's own ids are pointers and never set it themselves
-    inline constexpr std::uint64_t IMGUI_IMAGE_TAG = 1ull << 63;
-
     /// The ImGui texture id that shows render target or texture p_image, resolved by renderer each frame
-    constexpr std::uint64_t ImGuiTextureId(GUID p_image) noexcept { return IMGUI_IMAGE_TAG | p_image; }
+    constexpr std::uint64_t ImGuiTextureId(GUID p_image) noexcept { return p_image; }
 
 #endif
 }
