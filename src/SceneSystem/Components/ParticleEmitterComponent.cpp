@@ -245,12 +245,10 @@ void ParticleEmitterComponent::SpawnParticle()
 
 	glm::vec3 worldDirection = glm::normalize(direction);
 	glm::vec3 worldPosition = localPosition;
-	if (GetOwner())
+	if (GetOwner() && m_simulationSpace == SimulationSpace::World)
 	{
 		Transform &transform = GetOwner()->GetTransform();
-		worldPosition = m_simulationSpace == SimulationSpace::Local
-			? glm::vec3(transform.GetMatrix(Transform::Space::World) * glm::vec4(localPosition, 1.0f))
-			: transform.GetPosition(Transform::Space::World) + glm::mat3(transform.GetRotation(Transform::Space::World)) * localPosition;
+		worldPosition = transform.GetPosition(Transform::Space::World) + glm::mat3(transform.GetRotation(Transform::Space::World)) * localPosition;
 		worldDirection = glm::normalize(glm::mat3(transform.GetRotation(Transform::Space::World)) * direction);
 	}
 
@@ -258,7 +256,7 @@ void ParticleEmitterComponent::SpawnParticle()
 	const float speed = RandomFloat(m_speedRange.min, m_speedRange.max);
 	const glm::vec4 startColor = RandomStartColor();
 
-	Particle particle;
+	Particle particle{};
 	particle.position = worldPosition;
 	particle.velocity = worldDirection * speed;
 	particle.baseSize = RandomFloat(m_sizeRange.min, m_sizeRange.max);
@@ -274,8 +272,10 @@ float ParticleEmitterComponent::EvaluateCurve(const ScalarCurve &curve, float no
 {
 	if (curve.points.empty())
 		return 0.0f;
+
 	if (curve.points.size() == 1)
 		return curve.points.front().position.y;
+
 	normalizedTime = std::clamp(normalizedTime, 0.0f, 1.0f);
 	if (curve.IsInjective())
 		return curve.SampleInjective(normalizedTime);
@@ -324,11 +324,15 @@ void ParticleEmitterComponent::UpdateEmitter(float deltaTime)
 
 void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 {
+	ZoneScoped;
+
 	const glm::vec3 gravity(0.0f, -9.81f * m_gravityModifier, 0.0f);
+
 	#pragma omp parallel for schedule(static)
 	for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(m_particles.size()); ++i)
 	{
 		Particle &particle = m_particles[static_cast<std::size_t>(i)];
+
 		particle.age += deltaTime;
 		if (particle.age < particle.lifetime)
 		{
@@ -399,17 +403,27 @@ void ParticleEmitterComponent::EditorUpdateImpl()
 	m_uiSelected = false;
 }
 
-void ParticleEmitterComponent::DrawDebugParticles() const
+void ParticleEmitterComponent::DrawDebugParticles()
 {
 	ZoneScoped;
 
 	using Droplet::Graphics::Debug::DebugDraw;
 
+	Transform &transform = GetTransform();
+	glm::mat4 worldMatrix = transform.GetMatrix(Transform::Space::World);
+
 	for (const Particle &particle : m_particles)
 	{
 		const float radius = std::max(0.001f, particle.size * 0.5f);
+
+		glm::vec3 pos = particle.position;
+		if (m_simulationSpace == SimulationSpace::Local)
+		{
+			pos = glm::vec3(worldMatrix * glm::vec4(pos, 1.0f));
+		}
+
 		DebugDraw::DrawSphere(
-			Sphere(particle.position, radius),
+			Sphere(pos, radius),
 			particle.color,
 			0
 		);
@@ -819,8 +833,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 				curve.points.push_back(value);
 			}
 		}
-
-		if (ImGui::BeginPopupContextItem("Curve Options"))
+		else if (ImGui::BeginPopupContextItem("Curve Options"))
 		{
 			if (ImGui::Button("Reset"))
 				curve = MakeDefaultCurve(1.0f);
@@ -864,9 +877,33 @@ void ParticleEmitterComponent::RenderUIImpl()
 }
 
 
-void ParticleEmitterComponent::GenerateParticleMesh(std::vector<ParticleVertex> &outVertices) const
+void ParticleEmitterComponent::GenerateParticleMesh(std::vector<ParticleVertex> &outVertices)
 {
 	ZoneScoped;
 
-	// TODO
+	outVertices.clear();
+	outVertices.reserve(m_particles.size());
+
+	for (const Particle &p : m_particles)
+	{
+		glm::vec3 pos = p.position;
+		float size = p.size;
+		float rot = p.rotation;
+
+		if (m_simulationSpace == SimulationSpace::Local)
+		{
+			Transform &transform = GetTransform();
+			glm::mat4 worldMatrix = transform.GetMatrix(Transform::Space::World);
+
+			// Transform the particle position to world space
+			pos = glm::vec3(worldMatrix * glm::vec4(pos, 1.0f));
+		}
+
+		outVertices.emplace_back(
+			pos,
+			p.color,
+			size,
+			rot
+		);
+	}
 }

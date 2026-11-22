@@ -433,7 +433,7 @@ bool ImGui::CurveEdit(const char* label, std::vector<BezierPoint>* points,
 				unSnappedPos = (*points)[i];
 				mouseAbsorbed = true;
 			}
-			else if (!readOnly && pointCount > 2 && IsMouseClicked(ImGuiMouseButton_Right))
+			else if (!readOnly && pointCount > 2 && IsMouseReleased(ImGuiMouseButton_Right))
 			{
 				// Handle point deletion
 				points->erase(points->begin() + i--);

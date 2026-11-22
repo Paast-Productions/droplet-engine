@@ -17,7 +17,6 @@ namespace Droplet::Scene
 		struct ParticleVertex
 		{
 			glm::vec3 position;
-			glm::vec3 forward;
 			glm::vec4 color;
 			float size;
 			float rotation;
@@ -148,7 +147,7 @@ namespace Droplet::Scene
 		void SetTextureGUID(GUID guid);
 		[[nodiscard]] GUID GetTextureGUID() const { return m_texture.GetGUID(); }
 
-		void GenerateParticleMesh(std::vector<ParticleVertex> &outVertices) const;
+		void GenerateParticleMesh(std::vector<ParticleVertex> &outVertices);
 
 	protected:
 		void StartImpl() override;
@@ -173,7 +172,7 @@ namespace Droplet::Scene
 		void UpdateParticles(float deltaTime);
 		void UpdateBurstEmission();
 		void ResetBurstTriggers();
-		void DrawDebugParticles() const;
+		void DrawDebugParticles();
 		void DrawDebugEmitter() const;
 		void SerializeCurve(nlohmann::json &json, const char *key, const ScalarCurve &curve) const;
 		void DeserializeCurve(const nlohmann::json &json, const char *key, ScalarCurve &curve);
