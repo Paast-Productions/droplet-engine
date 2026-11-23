@@ -78,6 +78,9 @@ namespace
     /// @brief Adds the mesh to `uploads` once the resource manager has loaded it
     void AddMesh(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
     {
+        // not loaded yet: asked for again next frame (GetResource would hand over the fallback mesh)
+        if (resMan.GetState(id) != ResourceState::Ready)
+            return;
         const auto* mesh = resMan.GetResource<MeshResource>(id);
         if (!mesh || mesh->GetVertexData().empty() || mesh->GetIndexData().empty())
             return; // not loaded (yet): the placeholder cube
@@ -94,6 +97,9 @@ namespace
     /// @brief Adds the texture's top mip level to `uploads` once the resource manager has loaded it
     void AddTexture(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
     {
+        // not loaded yet: asked for again next frame (GetResource would hand over the fallback texture)
+        if (resMan.GetState(id) != ResourceState::Ready)
+            return;
         const auto* texture = resMan.GetResource<Texture2DResource>(id);
         if (!texture)
         {            return; // not loaded (yet): the placeholder texture
@@ -159,33 +165,6 @@ namespace
     }
 
     // -- World --
-
-    // CONVERT: DebugDraw's batched meshes to the renderer's dynamic draws, until the geometry step
-    /**
-     * @brief DebugDraw's batched meshes as dynamic draws
-     * @returns The draws the cameras with `debug` set show
-     */
-    std::vector<Render::DynamicDraw> DebugDraws()
-    {
-        Graphics::Debug::DebugDraw::FrameMeshes meshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
-
-        std::vector<Render::DynamicDraw> draws;
-        const auto add = [&draws](std::vector<std::byte>& vertices, Render::DynamicTopology topology, bool depthTest)
-        {
-            if (vertices.empty())
-                return;
-            draws.push_back({
-                .layout = Render::DynamicVertexLayout::P3C4,
-                .topology = topology,
-                .vertexData = std::move(vertices),
-                .depthTest = depthTest });
-        };
-        add(meshes.wireDepth, Render::DynamicTopology::Lines, true);
-        add(meshes.fillDepth, Render::DynamicTopology::Triangles, true);
-        add(meshes.wire, Render::DynamicTopology::Lines, false);
-        add(meshes.fill, Render::DynamicTopology::Triangles, false);
-        return draws;
-    }
 }
 
 Engine::Engine(EngineConfig p_config)
@@ -369,10 +348,19 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
     // the scene's cameras and the editor's; the render graph orders the passes
     Render::RenderWorld world{
         .cameras = m_sceneManager.GetRenderData(),
-        .dynamicDraws = DebugDraws(),
         .time = 0.0f // TODO: the engine's elapsed time in seconds
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
+
+    // DebugDraw's meshes, in the cameras that show debug drawing
+    const std::vector<std::shared_ptr<const Graphics::DynamicMeshData>> debugMeshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
+    for (Graphics::CameraRenderData& camera : world.cameras)
+    {
+        if (!camera.debug)
+            continue;
+        for (const std::shared_ptr<const Graphics::DynamicMeshData>& mesh : debugMeshes)
+            camera.renderData.push_back({ .transform = glm::mat4{ 1.0f }, .dynamicMesh = mesh });
+    }
 
     ImDrawData* overlay = nullptr;
 #ifdef _EDITOR

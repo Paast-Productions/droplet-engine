@@ -2,6 +2,11 @@
 
 #include <glm/glm.hpp>
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
 #include "Graphics/Common/Camera.hpp"
 #include <Graphics/Common/RenderDesc.hpp>
 
@@ -43,6 +48,46 @@ namespace Droplet::Graphics
         bool isRenderTarget{false};
     };
 
+    // == Dynamic meshes ==
+
+    /// @brief How one vertex attribute is stored
+    enum class VertexFormat : std::uint8_t
+    {
+        Float1,
+        Float2,
+        Float3,
+        Float4,
+        UNorm8x4 ///< four bytes read as floats 0..1 (colours)
+    };
+
+    /// @brief How a mesh's vertices or indices form primitives
+    enum class MeshTopology : std::uint8_t
+    {
+        Triangles,
+        Lines
+    };
+
+    /// @brief One attribute of a vertex: where the shader reads it and where it sits in the vertex
+    struct VertexAttribute
+    {
+        std::uint32_t location{ 0 };
+        VertexFormat format{ VertexFormat::Float3 };
+        std::uint32_t offset{ 0 }; ///< bytes from the start of the vertex
+    };
+
+    /// @brief Geometry built by the game side; never changed once handed over (build a new one instead)
+    struct DynamicMeshData
+    {
+        GUID id{ C_INVALID_GUID };          ///< invalid: sent every frame; valid: kept on the GPU by id
+        std::uint64_t revision{ 0 };        ///< kept meshes: a higher revision replaces the GPU copy
+        std::uint32_t vertexStride{ 0 };    ///< bytes per vertex
+        std::vector<VertexAttribute> attributes;
+        std::vector<std::byte> vertexData;
+        std::vector<std::uint32_t> indices; ///< empty: drawn in vertex order
+        MeshTopology topology{ MeshTopology::Triangles };
+        bool depthTest{ true };             ///< false: drawn over everything
+    };
+
     struct RenderData
     {
         ShaderData vsData{};
@@ -55,10 +100,12 @@ namespace Droplet::Graphics
         TextureData texData{};
 
         glm::mat4 transform{};
-
-
+        
         // Settings
         bool transparent{false};
+
+        /// drawn instead of meshData when set
+        std::shared_ptr<const DynamicMeshData> dynamicMesh{};
 
         // HACK: Sort based on transparency
         bool operator<(const RenderData& p_other) const

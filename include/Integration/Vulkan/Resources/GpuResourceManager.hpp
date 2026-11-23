@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include "Integration/Core/Guid.hpp"
+#include "Graphics/Common/RenderData.hpp"
 #include "Integration/Common/RenderDesc.hpp"
 
 #include "Integration/Assets/AssetTransfer.hpp"
@@ -133,14 +134,15 @@ namespace Vulkan
         Render::TargetHandle FindTarget(Droplet::GUID id);
         Render::TargetHandle GetOrCreateHistory(Render::TargetHandle target);
 
-        /// @brief A mesh without a GUID (debug or procedural geometry); never evicted, the caller releases it.
-        Render::MeshHandle CreateDynamicMesh(
-            std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices);
-        /// @brief Releases a CreateDynamicMesh mesh once the GPU is past `retireValues`.
-        void ReleaseDynamicMesh(Render::MeshHandle handle, const QueueTimelineValues& retireValues,
-                                DeletionQueue& deletionQueue);
-
-
+        /**
+         * @brief Uploads a kept dynamic mesh unless the same or a newer revision is resident
+         * @details Call before anything is resolved this frame: a replaced revision is retired with its last use
+         * @param mesh A dynamic mesh with a valid id
+         * @returns The resident mesh; invalid if its data is malformed (reported once per revision)
+         */
+        Render::MeshHandle UploadDynamicMesh(const Droplet::Graphics::DynamicMeshData& mesh);
+        /// @brief The resident kept dynamic mesh for `id`, marked used; invalid if there is none
+        Render::MeshHandle FindDynamicMesh(Droplet::GUID id);
         /// @brief Keeps the texture resident for good, even if nobody asks for it.
         void Pin(Render::TextureHandle handle);
 
@@ -191,6 +193,7 @@ namespace Vulkan
 
         // only resources in a lookup are evicted (dynamic meshes are not in one)
         std::unordered_map<Droplet::GUID, Render::MeshHandle> m_meshLookup;
+        std::unordered_map<Droplet::GUID, Render::MeshHandle> m_dynamicMeshLookup; ///< kept dynamic meshes, by their id
         std::unordered_map<Droplet::GUID, std::uint64_t> m_rejectedMeshes; ///< revision last reported as unusable
         std::unordered_map<Droplet::GUID, Render::TextureHandle> m_textureLookup;
         std::unordered_map<Droplet::GUID, Render::TargetHandle> m_targetLookup;

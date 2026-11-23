@@ -40,11 +40,6 @@ namespace Bridge
                 AddUniqueId(required.shaders, Render::ShaderOf(object));
             }
         }
-        for (const Render::DynamicDraw& draw : world.dynamicDraws)
-        {
-            AddRequiredTexture(required, draw.imageTexture);
-            AddUniqueId(required.shaders, draw.shaderId);
-        }
         for (const Droplet::GUID image : images)
         {
             const bool isTarget = std::ranges::any_of(world.cameras, [image](const Droplet::Graphics::CameraRenderData& camera)

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <format>
+#include <print>
 #include <span>
 #include <tuple>
 #include <unordered_map>
@@ -72,66 +73,80 @@ namespace
         std::uint32_t count = 0;
     };
 
-    std::uint32_t VertexStride(Render::DynamicVertexLayout layout)
-    {
-        return layout == Render::DynamicVertexLayout::P3C4
-                   ? static_cast<std::uint32_t>(sizeof(Vulkan::Vertex::P3C4))
-                   : static_cast<std::uint32_t>(sizeof(Vulkan::Vertex::P3N3UV2));
-    }
-
     /**
-     * @brief Packs the dynamic draws into `frame` once, if a drawn camera shows them
-     * @details Vertices are grouped by layout (one vertex buffer offset per layout); indices are made relative to the
-     *          start of their layout's vertices
-     * @returns Where each dynamic draw ended up
+     * @brief Packs every streamed dynamic mesh a drawn camera shows into `frame`, once
+     * @details Vertices are grouped by stride (one vertex buffer offset per stride); indices are made relative to the
+     *          start of their group's vertices. Malformed meshes are left out
+     * @returns Where each packed mesh ended up
      */
-    std::vector<PackedDynamicDraw> PackDynamicDraws(
+    std::unordered_map<const Droplet::Graphics::DynamicMeshData*, PackedDynamicDraw> PackStreamedMeshes(
         const Render::RenderWorld& world, std::span<const Render::ViewPlan> plans, Render::PreparedFrame& frame)
     {
-        bool shown = false;
+        std::vector<const Droplet::Graphics::DynamicMeshData*> meshes;
+        std::vector<std::uint32_t> strides;
         for (std::size_t cameraIndex = 0; cameraIndex < world.cameras.size(); ++cameraIndex)
-            shown = shown || (plans[cameraIndex].drawn && world.cameras[cameraIndex].debug);
-
-        std::vector<PackedDynamicDraw> packed(world.dynamicDraws.size());
-        constexpr std::array layouts{ Render::DynamicVertexLayout::P3N3UV2, Render::DynamicVertexLayout::P3C4 };
-        for (const Render::DynamicVertexLayout layout : layouts)
         {
-            const std::uint32_t stride = VertexStride(layout);
-            frame.dynamicVertexData.resize((frame.dynamicVertexData.size() + 15) / 16 * 16);
-            const auto layoutStart = static_cast<std::uint32_t>(frame.dynamicVertexData.size());
-            std::uint32_t layoutVertices = 0;
-
-            for (std::size_t drawIndex = 0; drawIndex < world.dynamicDraws.size(); ++drawIndex)
+            if (!plans[cameraIndex].drawn)
+                continue;
+            for (const Droplet::Graphics::RenderData& object : world.cameras[cameraIndex].renderData)
             {
-                const Render::DynamicDraw& draw = world.dynamicDraws[drawIndex];
-                if (draw.layout != layout || !shown || draw.vertexData.empty() ||
-                    draw.vertexData.size() % stride != 0)
+                const Droplet::Graphics::DynamicMeshData* mesh = object.dynamicMesh.get();
+                if (!mesh || mesh->id != Droplet::C_INVALID_GUID || std::ranges::find(meshes, mesh) != meshes.end())
                     continue;
-                const auto drawVertices = static_cast<std::uint32_t>(draw.vertexData.size() / stride);
-                if (std::ranges::any_of(draw.indices, [drawVertices](std::uint32_t index) { return index >= drawVertices; }))
+                meshes.push_back(mesh);
+                if (std::ranges::find(strides, mesh->vertexStride) == strides.end())
+                    strides.push_back(mesh->vertexStride);
+            }
+        }
+
+        std::unordered_map<const Droplet::Graphics::DynamicMeshData*, PackedDynamicDraw> packed;
+        for (const std::uint32_t stride : strides)
+        {
+            frame.dynamicVertexData.resize((frame.dynamicVertexData.size() + 15) / 16 * 16);
+            const auto groupStart = static_cast<std::uint32_t>(frame.dynamicVertexData.size());
+            std::uint32_t groupVertices = 0;
+
+            for (const Droplet::Graphics::DynamicMeshData* mesh : meshes)
+            {
+                if (mesh->vertexStride != stride || stride == 0 || mesh->vertexData.empty() ||
+                    mesh->vertexData.size() % stride != 0)
+                    continue;
+                const auto meshVertices = static_cast<std::uint32_t>(mesh->vertexData.size() / stride);
+                if (std::ranges::any_of(mesh->indices, [meshVertices](std::uint32_t index) { return index >= meshVertices; }))
                     continue;
 
-                frame.dynamicVertexData.insert(frame.dynamicVertexData.end(), draw.vertexData.begin(), draw.vertexData.end());
-                PackedDynamicDraw& result = packed[drawIndex];
+                frame.dynamicVertexData.insert(frame.dynamicVertexData.end(), mesh->vertexData.begin(), mesh->vertexData.end());
+                PackedDynamicDraw& result = packed[mesh];
                 result.packed = true;
-                result.vertexByteOffset = layoutStart;
-                if (draw.indices.empty())
+                result.vertexByteOffset = groupStart;
+                if (mesh->indices.empty())
                 {
-                    result.first = layoutVertices;
-                    result.count = drawVertices;
+                    result.first = groupVertices;
+                    result.count = meshVertices;
                 }
                 else
                 {
                     result.indexed = true;
                     result.first = static_cast<std::uint32_t>(frame.dynamicIndices.size());
-                    result.count = static_cast<std::uint32_t>(draw.indices.size());
-                    for (const std::uint32_t index : draw.indices)
-                        frame.dynamicIndices.push_back(layoutVertices + index);
+                    result.count = static_cast<std::uint32_t>(mesh->indices.size());
+                    for (const std::uint32_t index : mesh->indices)
+                        frame.dynamicIndices.push_back(groupVertices + index);
                 }
-                layoutVertices += drawVertices;
+                groupVertices += meshVertices;
             }
         }
         return packed;
+    }
+
+    /// @brief A key for reporting a dynamic mesh once: its id, or its layout if it is streamed
+    std::uint64_t ReportKey(const Droplet::Graphics::DynamicMeshData& mesh)
+    {
+        if (mesh.id != Droplet::C_INVALID_GUID)
+            return mesh.id;
+        std::uint64_t key = mesh.vertexStride;
+        for (const Droplet::Graphics::VertexAttribute& attribute : mesh.attributes)
+            key = key * 1099511628211ull ^ (attribute.location << 16 | static_cast<std::uint32_t>(attribute.format) << 8 | attribute.offset);
+        return key;
     }
 
     /// @brief Orders a view's dynamic items (opaque, blended, no depth test) and merges neighbours that share all state
@@ -201,11 +216,14 @@ Render::PreparedFrame Vulkan::Prepare(
     Render::PreparedFrame frame;
     frame.time = world.time;
 
-    // 2. dynamic geometry, packed once
-    const std::vector<PackedDynamicDraw> packedDynamic = PackDynamicDraws(world, plans, frame);
-    const bool usesVertexColor = std::ranges::any_of(world.dynamicDraws, [](const Render::DynamicDraw& draw)
+    // 2. streamed dynamic meshes, packed once
+    const auto packedStreamed = PackStreamedMeshes(world, plans, frame);
+    const bool usesVertexColor = std::ranges::any_of(world.cameras, [](const Droplet::Graphics::CameraRenderData& camera)
     {
-        return draw.layout == Render::DynamicVertexLayout::P3C4;
+        return std::ranges::any_of(camera.renderData, [](const Droplet::Graphics::RenderData& object)
+        {
+            return object.dynamicMesh && DrawPass::InterfaceOf(*object.dynamicMesh) == DrawPass::MeshInterface::VertexColor;
+        });
     });
     const bool vertexColorReady = usesVertexColor &&
         context.shaders.GetOrCreate(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VertexColorShaderAsset());
@@ -270,22 +288,10 @@ Render::PreparedFrame Vulkan::Prepare(
                 list.previousReads.push_back(history);
         }
 
-        // draws: per object the camera sees, with the pipeline for its shader and this view's attachment formats
-        // (built on first use)
-        list.items.reserve(camera.renderData.size());
-        std::vector<std::pair<float, Render::DrawItem>> transparentItems; // with their view-space depth
-        for (const Droplet::Graphics::RenderData& source : camera.renderData)
+        // an object's texture: a target the view draws into, or reads across a loop, is sampled as its history
+        const auto materialOf = [&](const Droplet::Graphics::TextureData& texture)
         {
-            const ResolvedObject object{
-                .mesh = gpu.ResolveMesh(source.meshData.GUID),
-                .baseColor = ResolveImage(Render::ImageOf(source.texData), gpu, targetHandles),
-                // a shader that has not arrived or does not compile is replaced by the default
-                .shader = context.shaders.Resolve(Render::ShaderOf(source), defaultShader)
-            };
-            if (object.shader == Droplet::C_INVALID_GUID)
-                continue; // no pipeline to draw it with
-
-            Render::ImageBinding material = object.baseColor;
+            Render::ImageBinding material = ResolveImage(Render::ImageOf(texture), gpu, targetHandles);
             if (const Render::TargetHandle* sampledTarget = std::get_if<Render::TargetHandle>(&material))
             {
                 const auto substitute = std::ranges::find(substitutes, *sampledTarget, &HistorySubstitute::target);
@@ -300,7 +306,84 @@ Render::PreparedFrame Vulkan::Prepare(
                     list.reads.push_back(*sampledTarget); // idle target
                 }
             }
+            return material;
+        };
 
+        // draws: per object the camera sees, with the pipeline for its shader and this view's attachment formats
+        // (built on first use)
+        list.items.reserve(camera.renderData.size());
+        std::vector<std::pair<float, Render::DrawItem>> transparentItems; // with their view-space depth
+        std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
+        for (const Droplet::Graphics::RenderData& source : camera.renderData)
+        {
+            if (source.dynamicMesh)
+            {
+                const Droplet::Graphics::DynamicMeshData& mesh = *source.dynamicMesh;
+                const DrawPass::MeshInterface meshInterface = DrawPass::InterfaceOf(mesh);
+                if (meshInterface == DrawPass::MeshInterface::None)
+                {
+                    if (context.reportedMeshes.insert(ReportKey(mesh)).second)
+                        std::println("Prepare: dynamic mesh {:016x} has a vertex layout no built-in shader reads (position "
+                                     "float3 at 0, then normal float3 and uv float2, or a float4 or unorm8x4 colour). Not drawn",
+                                     mesh.id);
+                    continue;
+                }
+                const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
+                if (vertexColor && !vertexColorReady)
+                    continue;
+                const Droplet::GUID shader = vertexColor ? DrawPass::VERTEX_COLOR_SHADER
+                                                         : context.shaders.Resolve(Render::ShaderOf(source), defaultShader);
+                if (shader == Droplet::C_INVALID_GUID)
+                    continue;
+
+                const Render::ImageBinding material = vertexColor ? Render::ImageBinding{ gpu.WhiteTexture() } : materialOf(source.texData);
+                const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
+                    shader, mesh, colorFormat, context.depthFormat, source.transparent));
+                const bool blended = vertexColor || source.transparent;
+
+                if (mesh.id != Droplet::C_INVALID_GUID)
+                {
+                    // kept on the GPU: uploaded before Prepare
+                    const Render::MeshHandle handle = gpu.FindDynamicMesh(mesh.id);
+                    if (!handle.IsValid())
+                        continue;
+                    Render::DrawItem item{ .model = source.transform, .pipeline = pipeline, .mesh = handle, .material = material };
+                    if (!mesh.depthTest)
+                        list.lateItems.push_back(std::move(item));
+                    else if (blended)
+                        transparentItems.emplace_back((view * source.transform[3]).z, std::move(item));
+                    else
+                        list.items.push_back(std::move(item));
+                    continue;
+                }
+
+                // streamed: packed for this frame
+                const auto packed = packedStreamed.find(&mesh);
+                if (packed == packedStreamed.end())
+                    continue;
+                const std::uint32_t rank = !mesh.depthTest ? 2u : (blended ? 1u : 0u);
+                rankedDynamic.emplace_back(rank, Render::DynamicDrawItem{
+                    .model = source.transform,
+                    .pipeline = pipeline,
+                    .material = material,
+                    .vertexByteOffset = packed->second.vertexByteOffset,
+                    .indexed = packed->second.indexed,
+                    .first = packed->second.first,
+                    .count = packed->second.count
+                });
+                continue;
+            }
+
+            const ResolvedObject object{
+                .mesh = gpu.ResolveMesh(source.meshData.GUID),
+                .baseColor = materialOf(source.texData),
+                // a shader that has not arrived or does not compile is replaced by the default
+                .shader = context.shaders.Resolve(Render::ShaderOf(source), defaultShader)
+            };
+            if (object.shader == Droplet::C_INVALID_GUID)
+                continue; // no pipeline to draw it with
+
+            const Render::ImageBinding material = object.baseColor;
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
@@ -315,41 +398,6 @@ Render::PreparedFrame Vulkan::Prepare(
         }
         SortForBinding(list.items);
 
-        // dynamic geometry: a debug camera shows all of it
-        std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
-        for (std::size_t drawIndex = 0; camera.debug && drawIndex < world.dynamicDraws.size(); ++drawIndex)
-        {
-            if (!packedDynamic[drawIndex].packed)
-                continue;
-            const Render::DynamicDraw& draw = world.dynamicDraws[drawIndex];
-            const PackedDynamicDraw& packed = packedDynamic[drawIndex];
-
-            const bool vertexColor = draw.layout == Render::DynamicVertexLayout::P3C4;
-            if (vertexColor && !vertexColorReady)
-                continue;
-            const Droplet::GUID shader = vertexColor ? DrawPass::VERTEX_COLOR_SHADER : context.shaders.Resolve(draw.shaderId, defaultShader);
-            if (shader == Droplet::C_INVALID_GUID)
-                continue;
-            // render targets need the view's read edges, which dynamic draws do not declare yet
-            const Render::ImageBinding material = vertexColor
-                ? Render::ImageBinding{ gpu.WhiteTexture() }
-                : draw.imageTexture.kind == Common::ImageRef::Kind::RenderTarget
-                      ? Render::ImageBinding{ gpu.PlaceholderTexture() }
-                      : ResolveImage(draw.imageTexture, gpu, targetHandles);
-
-            const bool blended = vertexColor || draw.transparent;
-            const std::uint32_t rank = !draw.depthTest ? 2u : (blended ? 1u : 0u);
-            rankedDynamic.emplace_back(rank, Render::DynamicDrawItem{
-                .model = draw.transform,
-                .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeDynamicPipelineDesc(
-                    shader, draw.layout, draw.topology, colorFormat, context.depthFormat, draw.transparent, draw.depthTest)),
-                .material = material,
-                .vertexByteOffset = packed.vertexByteOffset,
-                .indexed = packed.indexed,
-                .first = packed.first,
-                .count = packed.count
-            });
-        }
         BatchDynamicItems(rankedDynamic, list.dynamicItems);
 
         // transparent draws blend over what is behind them: farthest first (view space looks down -Z)

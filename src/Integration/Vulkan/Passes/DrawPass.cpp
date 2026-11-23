@@ -9,9 +9,41 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <optional>
 #include <variant>
 
 #include "Integration/Vulkan/Resources/MeshVertex.hpp"
+
+namespace
+{
+	/// @brief Bytes one attribute of `format` takes
+	std::uint32_t FormatBytes(Droplet::Graphics::VertexFormat format)
+	{
+		switch (format)
+		{
+		case Droplet::Graphics::VertexFormat::Float1: return 4;
+		case Droplet::Graphics::VertexFormat::Float2: return 8;
+		case Droplet::Graphics::VertexFormat::Float3: return 12;
+		case Droplet::Graphics::VertexFormat::Float4: return 16;
+		case Droplet::Graphics::VertexFormat::UNorm8x4: return 4;
+		}
+		return 0;
+	}
+
+	/// @brief The Vulkan format of a vertex attribute
+	vk::Format ToVk(Droplet::Graphics::VertexFormat format)
+	{
+		switch (format)
+		{
+		case Droplet::Graphics::VertexFormat::Float1: return vk::Format::eR32Sfloat;
+		case Droplet::Graphics::VertexFormat::Float2: return vk::Format::eR32G32Sfloat;
+		case Droplet::Graphics::VertexFormat::Float3: return vk::Format::eR32G32B32Sfloat;
+		case Droplet::Graphics::VertexFormat::Float4: return vk::Format::eR32G32B32A32Sfloat;
+		case Droplet::Graphics::VertexFormat::UNorm8x4: return vk::Format::eR8G8B8A8Unorm;
+		}
+		return vk::Format::eUndefined;
+	}
+}
 
 namespace Vulkan
 {
@@ -217,25 +249,52 @@ namespace Vulkan
 		};
 	}
 
-	GraphicsPipelineDesc DrawPass::MakeDynamicPipelineDesc(
-		Droplet::GUID shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
-		vk::Format colorFormat, vk::Format depthFormat, bool transparent, bool depthTest) const
+	DrawPass::MeshInterface DrawPass::InterfaceOf(const Droplet::Graphics::DynamicMeshData& mesh)
 	{
-		const bool vertexColor = layout == Render::DynamicVertexLayout::P3C4;
+		using Droplet::Graphics::VertexFormat;
+		const auto formatAt = [&mesh](std::uint32_t location) -> std::optional<VertexFormat>
+		{
+			const auto attribute = std::ranges::find(mesh.attributes, location, &Droplet::Graphics::VertexAttribute::location);
+			return attribute != mesh.attributes.end() ? std::optional{ attribute->format } : std::nullopt;
+		};
+		const bool fits = std::ranges::all_of(mesh.attributes, [&mesh](const Droplet::Graphics::VertexAttribute& attribute)
+		{
+			return attribute.offset + FormatBytes(attribute.format) <= mesh.vertexStride;
+		});
+		if (!fits || formatAt(0) != VertexFormat::Float3)
+			return MeshInterface::None;
+		if (formatAt(1) == VertexFormat::Float3 && formatAt(2) == VertexFormat::Float2)
+			return MeshInterface::Scene;
+		if (formatAt(1) == VertexFormat::Float4 || formatAt(1) == VertexFormat::UNorm8x4)
+			return MeshInterface::VertexColor;
+		return MeshInterface::None;
+	}
+
+	GraphicsPipelineDesc DrawPass::MakeMeshPipelineDesc(
+		Droplet::GUID shader, const Droplet::Graphics::DynamicMeshData& mesh,
+		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
+	{
+		const bool vertexColor = InterfaceOf(mesh) == MeshInterface::VertexColor;
 		GraphicsPipelineDesc desc = MakePipelineDesc(shader, colorFormat, depthFormat, transparent || vertexColor);
+
+		desc.vertexLayout.bindings = { vk::VertexInputBindingDescription{
+			.binding = 0, .stride = mesh.vertexStride, .inputRate = vk::VertexInputRate::eVertex } };
+		desc.vertexLayout.attributes.clear();
+		for (const Droplet::Graphics::VertexAttribute& attribute : mesh.attributes)
+		{
+			desc.vertexLayout.attributes.push_back({
+				.location = attribute.location, .binding = 0, .format = ToVk(attribute.format), .offset = attribute.offset });
+		}
+		if (mesh.topology == Droplet::Graphics::MeshTopology::Lines)
+			desc.topology = vk::PrimitiveTopology::eLineList;
 		if (vertexColor)
 		{
 			// as production's debug drawing: both faces, depth written where tested, equal depths pass
-			constexpr auto binding = Vertex::P3C4::GetBindingDescription();
-			constexpr auto attributes = Vertex::P3C4::GetAttributeDescription();
-			desc.vertexLayout = VertexLayout{ .bindings = {binding}, .attributes = {attributes.begin(), attributes.end()} };
 			desc.raster.cullMode = vk::CullModeFlagBits::eNone;
 			desc.depth.writeEnable = desc.depth.testEnable;
 			desc.depth.compareOp = vk::CompareOp::eLessOrEqual;
 		}
-		if (topology == Render::DynamicTopology::Lines)
-			desc.topology = vk::PrimitiveTopology::eLineList;
-		if (!depthTest)
+		if (!mesh.depthTest)
 		{
 			desc.depth.testEnable = false;
 			desc.depth.writeEnable = false;
@@ -348,7 +407,10 @@ namespace Vulkan
 		// every scene pipeline shares m_pipelineLayout, so bound descriptor sets stay valid across pipeline binds
 		Render::PipelineHandle boundPipeline{};
 		vk::DescriptorSet bound{};
-		for (const Render::DrawItem& item : list.items)
+		// objects and kept dynamic meshes: their own vertex and index buffers
+		const auto drawItems = [&](const std::vector<Render::DrawItem>& items)
+		{
+			for (const Render::DrawItem& item : items)
 		{
 			if (filter == DrawFilter::SkipRenderTargetTextures
 				&& std::holds_alternative<Render::TargetHandle>(item.material))
@@ -380,13 +442,20 @@ namespace Vulkan
 				*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, pushConstants);
 
 			cmd.bindVertexBuffers(0, mesh->vertexBuffer.Get(), vk::DeviceSize{ 0 });
+				if (mesh->indexCount == 0)
+				{
+					cmd.draw(mesh->vertexCount, 1, 0, 0); // drawn in vertex order
+					continue;
+				}
 			cmd.bindIndexBuffer(mesh->indexBuffer.Get(), 0, mesh->indexType);
 			cmd.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
 		}
+		};
+		drawItems(list.items);
 
 		// dynamic geometry, from this frame's stream buffers (BeginFrame)
-		if (list.dynamicItems.empty())
-			return;
+		if (!list.dynamicItems.empty())
+		{
 		const Buffer& vertexStream = m_dynamicVertexBuffers[m_frameSlot];
 		const Buffer& indexStream = m_dynamicIndexBuffers[m_frameSlot];
 		if (indexStream)
@@ -426,6 +495,10 @@ namespace Vulkan
 			else
 				cmd.draw(item.count, 1, item.first, 0);
 		}
+	}
+
+		// kept dynamic meshes without depth test, over everything
+		drawItems(list.lateItems);
 	}
 
 	void DrawPass::RetireDeadMaterials(
