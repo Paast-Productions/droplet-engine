@@ -164,7 +164,7 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 		
 		float advance = 0.0f;
 		bool shouldRender = false;
-		GlyphInstance instance{};
+		Text::GlyphInstance instance{};
 		
 		if (!glyph)
 		{

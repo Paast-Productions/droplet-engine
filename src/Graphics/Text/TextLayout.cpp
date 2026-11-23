@@ -3,7 +3,97 @@
 Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayout(const FontResource &p_font,
 	const std::string_view &p_text, float p_emSize, const glm::vec4 &p_color)
 {
+	TextLayoutResult result{};
 	
+	FontResource::SlugFontHeader fontHeader = p_font.GetFontHeader();
+	
+	float fontScale = p_emSize / static_cast<float>(fontHeader.unitsPerEm);
+	
+	const float lineHeight = static_cast<float>(fontHeader.ascent - fontHeader.descent + fontHeader.lineGap) * fontScale;
+
+	glm::vec2 pen{0.0f};
+	
+	result.instances.reserve((p_text.size()));
+	for (uint32_t codePoint : DecodeUTF8(p_text))
+	{
+		if (codePoint == U'\n')
+		{
+			pen.x = 0.0f;
+			pen.y -= lineHeight;
+			continue;
+		}
+		
+		const FontResource::SlugGlyph* glyph = p_font.GetGlyph(codePoint);
+		
+		float advance = 0.0f;
+		bool shouldRender = false;
+		GlyphInstance instance{};
+		
+		if (!glyph)
+		{
+			advance = p_emSize * 0.6f;
+			const float width = p_emSize * 0.5f;
+			const float height = p_emSize * 0.7f;
+			
+			instance = {
+				.scaleBias = {
+					width,
+					height,
+					pen.x + advance * 0.5f,
+					pen.y + height * 0.5f,
+				},
+				.glyphBandScale = glm::vec4(0.0f),
+				.glyphColor = p_color,
+				.bandMaxTexCoords = glm::uvec4(0)
+			};
+			shouldRender = true; // We want to render a "missing char" glyph
+		}
+		else if (glyph->bandCount > 0 && glyph->bandDimX && glyph->bandDimY)
+		{
+			const float width = static_cast<float>(glyph->width);
+			const float height = static_cast<float>(glyph->height);
+			
+			const float quadWidth = width * fontScale;
+			const float quadHeight = height * fontScale;
+			
+			const float glyphX = pen.x + static_cast<float>(glyph->xMin) * fontScale;
+			const float glyphY = pen.y + static_cast<float>(glyph->yMin) * fontScale;
+			
+			instance = {
+				.scaleBias = {
+					quadWidth,
+					quadHeight,
+					glyphX + quadWidth * 0.5f,
+					glyphY + quadHeight * 0.5f
+				},
+				.glyphBandScale = {
+					width,
+					height,
+					width / static_cast<float>(glyph->bandDimX),
+					height / static_cast<float>(glyph->bandDimY)
+				},
+				.glyphColor = p_color,
+				.bandMaxTexCoords = {
+					glyph->bandCount - 1,
+					glyph->bandCount - 1,
+					glyph->bandsTexCoordX,
+					glyph->bandsTexCoordY
+				}
+			};
+			
+			shouldRender = true;
+		}
+		
+		if (glyph)
+			advance = static_cast<float>(glyph->advanceWidth) * fontScale;
+		
+		pen.x += advance;
+		
+		if (shouldRender)
+			result.instances.push_back(instance);
+		
+	}
+	return result;
 }
 
 std::vector<std::uint32_t> Droplet::Graphics::Text::DecodeUTF8(const std::string_view &p_text)

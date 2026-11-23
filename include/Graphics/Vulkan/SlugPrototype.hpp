@@ -9,7 +9,7 @@
 #include "ImageView.hpp"
 #include "StorageBuffer.hpp"
 #include "resource/types/FontResource.hpp"
-#include "Graphics/"
+#include "Graphics/Text/GlyphInstance.hpp"
 
 namespace Droplet::Graphics
 {
@@ -122,6 +122,6 @@ namespace Droplet::Graphics::Vulkan::Slug
 		uint16_t m_bandsTextureHeight = 0;
 		
 		std::string_view m_text = "Droplet Engine!\nÅh ja";
-		std::vector<GlyphInstance> m_glyphInstances;
+		std::vector<Text::GlyphInstance> m_glyphInstances;
 	};
 }
